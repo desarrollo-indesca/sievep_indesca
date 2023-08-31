@@ -130,7 +130,8 @@ class ParametrosDiseno(models.Model):
 class SimulacionIntercambiador(models.Model):
     id = models.AutoField(primary_key=True)
     intercambiador = models.ForeignKey(Intercambiador, on_delete=models.DO_NOTHING)
-    condiciones = models.CharField(max_length=1, choices=[('D','Diseño'),('M','Máximas')])
+    condiciones_diseno = models.ForeignKey(CondicionesDiseno, on_delete=models.DO_NOTHING, null=True)
+    condiciones_maximas = models.ForeignKey(CondicionesMaximas, on_delete=models.DO_NOTHING, null=True)
 
     # Entrada
 
