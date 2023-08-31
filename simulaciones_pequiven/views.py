@@ -1,6 +1,6 @@
 from django.views import View
-from django.http import HttpResponse
+from django.shortcuts import render
 
 class Bienvenida(View):
     def get(self, request):
-        return HttpResponse("Bienvenido al portal de Simulaciones PEQUIVEN")
+        return render(request, 'bienvenida.html')
