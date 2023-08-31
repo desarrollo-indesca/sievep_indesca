@@ -126,3 +126,35 @@ class ParametrosDiseno(models.Model):
 
     class Meta:
         db_table = "parametros_diseno"
+
+class SimulacionIntercambiador(models.Model):
+    id = models.AutoField(primary_key=True)
+    intercambiador = models.ForeignKey(Intercambiador, on_delete=models.DO_NOTHING)
+    condiciones = models.CharField(max_length=1, choices=[('D','Diseño'),('M','Máximas')])
+
+    # Entrada
+
+    fecha = models.DateTimeField(verbose_name="Fecha de la Simulación", null=True)
+
+    temp_in_serv = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Temperatura de Entrada (Servicio)")
+    temp_out_serv = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Temperatura de Salida (Servicio)")
+
+    temp_in_proceso = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Temperatura de Entrada (Proceso)")
+    temp_out_proceso = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Temperatura de Salida (Proceso)")
+
+    flujo_interno = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Flujo Másico Total Kg/h (Proceso)")
+    flujo_externo = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Flujo Másico Total Kg/h (Proceso)")
+
+    # Resultados
+
+    lmtd = models.DecimalField(max_digits=9, decimal_places=4, verbose_name="LMTD")
+    a_transferencia = models.DecimalField(max_digits=9, decimal_places=4, verbose_name="Área de Transferencia")
+    u = models.DecimalField(max_digits=9, decimal_places=4, verbose_name="U [Kcal/h.°C.m2]")
+    ua = models.DecimalField(max_digits=9, decimal_places=4, verbose_name="UA [Kcal/h.C]")
+    ntu = models.DecimalField(max_digits=9, decimal_places=4, verbose_name="NTU")
+    efectividad = models.DecimalField(max_digits=9, decimal_places=4, verbose_name="Efectividad")
+    eficiencia = models.DecimalField(max_digits=9, decimal_places=4, verbose_name="Eficiencia")
+    ensuciamiento = models.DecimalField(max_digits=9, decimal_places=4, verbose_name="Ensuciamiento")
+
+    class Meta:
+        db_table = "simulacion_intercambiador"
