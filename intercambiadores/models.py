@@ -15,27 +15,29 @@ class Area(models.Model):
     class Meta:
         db_table = "area"
 
+class Fluido(models.Model):
+    id = models.AutoField(primary_key=True)
+    codigo = models.CharField(max_length=5, unique=True)
+    nombre = models.CharField(max_length=25)
+
+    class Meta:
+        db_table = "fluido"
+
 class Intercambiador(models.Model):
     id = models.AutoField(primary_key=True)
-    codigo = models.CharField(max_length=50, unique=True)
+    codigo = models.CharField(max_length=50)
     tipo = models.CharField(max_length=50)
     area = models.ForeignKey(Area, on_delete=models.DO_NOTHING)
 
     class Meta:
         db_table = "intercambiador"
 
-class Fluido(models.Model):
-    id = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=5, unique=True)
-
-    class Meta:
-        db_table = "fluido"
-
 class CondicionesDiseno(models.Model):
     id = models.AutoField(primary_key=True)
     intercambiador = models.ForeignKey(Intercambiador, on_delete=models.DO_NOTHING)
+    fluido_servicio = models.ForeignKey(Fluido, on_delete=models.DO_NOTHING, related_name="fluido_servicio_diseno", verbose_name="Fluido Lado Servicio")
+    fluido_interno = models.ForeignKey(Fluido, on_delete=models.DO_NOTHING, related_name="fluido_interno_diseno", verbose_name="Fluido Lado Interno")
 
-    fluido_servicio = models.ForeignKey(Fluido, verbose_name="Fluido Lado Servicio", on_delete=models.DO_NOTHING)
     temp_in_carcasa = models.DecimalField(max_digits=7, decimal_places=4, verbose_name="Temp. IN [°C] - Lado Carcasa")
     temp_out_carcasa = models.DecimalField(max_digits=7, decimal_places=4, verbose_name="Temp. OUT [°C] - Lado Carcasa")
     temp_in_tubo = models.DecimalField(max_digits=7, decimal_places=4, verbose_name="Temp. IN [°C] - Lado Tubo")
@@ -65,8 +67,9 @@ class CondicionesDiseno(models.Model):
 class CondicionesMaximas(models.Model):
     id = models.AutoField(primary_key=True)
     intercambiador = models.ForeignKey(Intercambiador, on_delete=models.DO_NOTHING)
+    fluido_servicio = models.ForeignKey(Fluido, on_delete=models.DO_NOTHING, related_name="fluido_servicio_maximas", verbose_name="Fluido Lado Servicio")
+    fluido_interno = models.ForeignKey(Fluido, on_delete=models.DO_NOTHING, related_name="fluido_interno_maximas", verbose_name="Fluido Lado Interno")
 
-    fluido_servicio = models.ForeignKey(Fluido, verbose_name="Fluido Lado Servicio", on_delete=models.DO_NOTHING)
     temp_in_carcasa = models.DecimalField(max_digits=7, decimal_places=4, verbose_name="Temp. IN [°C] - Lado Carcasa")
     temp_out_carcasa = models.DecimalField(max_digits=7, decimal_places=4, verbose_name="Temp. OUT [°C] - Lado Carcasa")
     temp_in_tubo = models.DecimalField(max_digits=7, decimal_places=4, verbose_name="Temp. IN [°C] - Lado Tubo")

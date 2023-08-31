@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block contenido %}
+<h2>Intercambiadores</h2>
+<a href="/">Regresar</a>
+<a href="/">Realizar Nueva Simulación</a>
+
+<table border="3">
+    <thead>
+        <th>Equipo</th>
+        <th>Fecha Simulación</th>
+        <th>Datos de Entrada</th>
+        <th>Datos de Salida</th>
+        <th>Opciones</th>
+    </thead>
+
+    <tbody><!-- Aquí habría que hacer una paginación -->
+        {% for simulacion in simulaciones %}
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        {% empty %}
+        <td colspan="5">No se han realizado simulaciones de Intercambiadores.</td>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
