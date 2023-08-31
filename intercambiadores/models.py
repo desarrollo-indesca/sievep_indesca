@@ -137,14 +137,14 @@ class SimulacionIntercambiador(models.Model):
 
     fecha = models.DateTimeField(verbose_name="Fecha de la Simulación", null=True)
 
-    temp_in_serv = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Temperatura de Entrada (Servicio)")
-    temp_out_serv = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Temperatura de Salida (Servicio)")
+    temp_in_serv = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Temperatura de Entrada °C (Servicio)")
+    temp_out_serv = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Temperatura de Salida °C (Servicio)")
 
-    temp_in_proceso = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Temperatura de Entrada (Proceso)")
-    temp_out_proceso = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Temperatura de Salida (Proceso)")
+    temp_in_proceso = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Temperatura de Entrada °C (Proceso)")
+    temp_out_proceso = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Temperatura de Salida °C (Proceso)")
 
     flujo_interno = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Flujo Másico Total Kg/h (Proceso)")
-    flujo_externo = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Flujo Másico Total Kg/h (Proceso)")
+    flujo_externo = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Flujo Másico Total Kg/h (Externo)")
 
     # Resultados
 
