@@ -20,12 +20,16 @@
 
     <label for="area">Área</label>
     <select name="area" id="area" disabled>
-        <option value="">Elija una planta...</option>
+        {% for area in areas %}
+        <option value="{{area.pk}}">{{area.codigo}}</option>
+        {% endfor %}
     </select>
 
     <label for="intercambiador">Intercambiador</label>
     <select name="intercambiador" id="intercambiador"disabled>
-        <option value="">Elija una área...</option>
+        {% for intercambiador in intercambiadores %}
+        <option value="{{intercambiador.pk}}">{{intercambiador.codigo}}</option>
+        {% endfor %}
     </select> <br> <br>
 
     <label for="fluido_interno">Fluido Interno</label>
