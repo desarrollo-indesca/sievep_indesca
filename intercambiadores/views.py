@@ -52,5 +52,5 @@ class Intercambiadores(View): # Esta vista se utiliza al seleccionar área en el
 class Fluidos(View):
     def get(self, request, pk): # La PK corresponde al intercambiador
         intercambiador = Intercambiador.objects.get(pk = pk)
-        return JsonResponse({'fluidos_servicio': list(Fluido.objects.filter(pk__in = intercambiador.condiciones.values('fluido_servicio')).values('id','nombre')), 
-                             'fluidos_interno': list(Fluido.objects.filter(pk__in = intercambiador.condiciones.values('fluido_interno')).values('id','nombre'))})
+        return JsonResponse({'fluidos_servicio': list(Fluido.objects.filter(pk__in = intercambiador.condiciones.values('fluido_servicio')).values('id','nombre','codigo')), 
+                             'fluidos_interno': list(Fluido.objects.filter(pk__in = intercambiador.condiciones.values('fluido_interno')).values('id','nombre','codigo'))})

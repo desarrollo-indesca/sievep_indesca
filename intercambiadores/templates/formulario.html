@@ -66,15 +66,15 @@
     <input name="flujo_externo" type="number" min="-9999.99" step="0.01" max="9999.99"><br> <br>
 
     <label for="d_ext_carcasa">Diámetro Externo Carcasa</label>
-    <input name="d_ext_carcasa" type="number" value="{{intercambiadores.0.diametro_ex_carcasa}}" disabled>
+    <input id="d_ext_carcasa" name="d_ext_carcasa" type="number" value="{{diametro_ex_carcasa}}" disabled>
 
     <label for="d_ext_tubos">Diámetro Externo Tubos</label>
-    <input name="d_ext_tubos" type="number" value="{{intercambiadores.0.diametro_ex_tubos}}" disabled>
+    <input id="d_ext_tubos" name="d_ext_tubos" type="number" value="{{diametro_ex_tubos}}" disabled>
 
     <label for="long_tubo">Longitud del Tubo</label>
-    <input name="long_tubo" type="number" value="{{intercambiadores.0.diametro_ex_tubos}}" disabled> <br> <br>
+    <input id="long_tubo" name="long_tubo" type="number" value="{{diametro_ex_tubos}}" disabled> <br> <br>
 
-    <input type="submit" disabled>
+    <input type="submit">
 
 </form>
 
@@ -98,9 +98,11 @@
         let intercambiadores = {};
 
         $.ajax({
-            url: host + `intercambiadores/${areas[0].id}/`,
+            url: host + `intercambiadores/${valor_nuevo}/`,
+            async: false,
             success: (res) =>{
-                intercambiadores = res;
+                intercambiadores = res.intercambiadores;
+                console.log(res);
             },
             error: (e) => {
                 console.log(e);
@@ -111,13 +113,39 @@
 
         $.ajax({
             url: host + `fluidos/${intercambiadores[0].id}/`,
+            async: false,
             success: (res) =>{
                 fluidos = res;
+                console.log(res);
             },
             error: (e) => {
                 console.log(e);
             }
         });
+
+        $('#area').empty();
+        areas.map((x) => {
+            $('#area').append(`<option value="${x.id}">${x.nombre}</option>`)
+        });
+
+        $('#intercambiador').empty();
+        intercambiadores.map((x) => {
+            $('#intercambiador').append(`<option value="${x.id}">${x.codigo}</option>`)
+        });
+
+        $('#fluido_interno').empty();
+        fluidos.fluidos_interno.map((x) => {
+            $('#fluido_interno').append(`<option value="${x.id}">${x.nombre} (${x.codigo})</option>`)
+        });
+
+        $('#fluido_externo').empty();
+        fluidos.fluidos_servicio.map((x) => {
+            $('#fluido_externo').append(`<option value="${x.id}">${x.nombre} (${x.codigo})</option>`)
+        });
+
+        $('#d_ext_carcasa').val(intercambiadores[0].diametro_ex_carcasa);
+        $('#d_ext_tubos').val(intercambiadores[0].diametro_ex_tubos);
+        $('#long_tubo').val(intercambiadores[0].longitud_tubo);
 
     });
 
@@ -128,8 +156,10 @@
 
         $.ajax({
             url: host + `intercambiadores/${valor_nuevo}/`,
+            async: false,
             success: (res) =>{
-                intercambiadores = res;
+                intercambiadores = res.intercambiadores;
+                console.log(res);
             },
             error: (e) => {
                 console.log(e);
@@ -140,17 +170,60 @@
 
         $.ajax({
             url: host + `fluidos/${intercambiadores[0].id}/`,
+            async: false,
             success: (res) =>{
                 fluidos = res;
+                console.log(res);
             },
             error: (e) => {
                 console.log(e);
             }
-        });        
+        });
+
+        $('#intercambiador').empty();
+        intercambiadores.map((x) => {
+            $('#intercambiador').append(`<option value="${x.id}">${x.codigo}</option>`)
+        });
+
+        $('#fluido_interno').empty();
+        fluidos.fluidos_interno.map((x) => {
+            $('#fluido_interno').append(`<option value="${x.id}">${x.nombre} (${x.codigo})</option>`)
+        });
+
+        $('#fluido_externo').empty();
+        fluidos.fluidos_servicio.map((x) => {
+            $('#fluido_externo').append(`<option value="${x.id}">${x.nombre} (${x.codigo})</option>`)
+        });
+
+        $('#d_ext_carcasa').val(intercambiadores[0].diametro_ex_carcasa);
+        $('#d_ext_tubos').val(intercambiadores[0].diametro_ex_tubos);
+        $('#long_tubo').val(intercambiadores[0].longitud_tubo);
     });
 
     $('#intercambiador').change(() => {
+        const nuevo_valor = $('#intercambiador').val();
+
+        $.ajax({
+            url: host + `fluidos/${nuevo_valor}/`,
+            async: false,
+            success: (res) =>{
+                fluidos = res;
+                console.log(res);
+            },
+            error: (e) => {
+                console.log(e);
+            }
+        });
         
+        $('#fluido_interno').empty();
+        fluidos.fluidos_interno.map((x) => {
+            $('#fluido_interno').append(`<option value="${x.id}">${x.nombre} (${x.codigo})</option>`)
+        });
+
+        $('#fluido_externo').empty();
+            fluidos.fluidos_servicio.map((x) => {
+                $('#fluido_externo').append(`<option value="${x.id}">${x.nombre} (${x.codigo})</option>`)
+        });     
     });
 </script>
 
