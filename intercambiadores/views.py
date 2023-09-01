@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from .models import *
 from django.http import JsonResponse
@@ -34,12 +34,58 @@ class FormularioSimulaciones(View):
         self.context['fluidos_servicio'] = Fluido.objects.filter(pk__in = intercambiador.condiciones.values('fluido_servicio'))
         self.context['fluidos_interno'] = Fluido.objects.filter(pk__in = intercambiador.condiciones.values('fluido_interno'))
         
-
-
         return render(request, 'formulario.html', context=self.context)
     
     def post(self, request):
-        pass
+        # CARGA DEL REQUEST.POST
+        t1_serv = float(request.POST['temp_in_serv'])
+        t2_serv = float(request.POST['temp_out_serv'])
+        t1_proc = float(request.POST['temp_in_proceso'])
+        t2_proc = float(request.POST['temp_out_proceso'])
+
+        w_serv = float(request.POST['flujo_externo'])
+        w_proc = float(request.POST['flujo_interno'])
+
+        intercambiador = Intercambiador.objects.get(pk = request.POST['intercambiador'])
+        condiciones = CondicionesSimulacionTubos.objects.get(intercambiador = intercambiador, tipo = request.POST['condiciones'],
+            fluido_servicio = request.POST['fluido_externo'], fluido_proceso = request.POST['fluido_interno'])
+
+        # CÁLCULO DE DATOS
+
+        # Promedio de las temperaturas
+        tprom_serv = numpy.mean([t1_serv, t2_serv])
+        tprom_proc = numpy.mean([t1_proc, t2_proc])
+
+        # Cálculo de las capacidades caloríficas y promedio
+        q_serv = w_serv*condiciones.cp_carcasa*(t2_serv-t1_serv)
+        q_proc = w_proc*condiciones.cp_tubo*(t2_proc-t1_proc)
+
+        qprom = numpy.mean([q_proc, q_serv])
+
+        # Cálculo de la diferencia de temperatura media logarítmica
+        flujo_contracorriente = ((t1_proc-t2_serv)-(t2_proc-t1_serv))/numpy.log(abs((t1_proc-t2_serv)/(t2_proc-t1_serv)))
+        flujo_cocorriente = ((t1_proc-t1_serv)-(t2_proc-t2_serv))/numpy.log(abs((t1_proc-t1_serv)/(t2_proc-t2_serv)))
+
+        # Cálculo del coeficiente global de transferencia de calor
+        ua = qprom/flujo_contracorriente
+
+        #Cálculo de la efectividad del intercambio de calor
+        efectividad = (ua*flujo_contracorriente)/(intercambiador.cp_tubo*(t1_proc-t1_serv))
+        
+        # Cálculo de las unidades térmicas transferidas por unidad de área
+        ntu = ua/intercambiador.cp_tubo
+
+        # Cálculo del área de transferencia de calor 
+        at = numpy.pi*intercambiador.diametro_ex_carcasa*intercambiador.longitud_tubo
+
+        # Cálculo de la eficiencia del intercambiador de calor
+        eficiencia = efectividad/ntu
+
+        # Cálculo del coeficiente de transferencia de calor sucio
+
+        # Cálculo del porcentaje de ensuciamiento
+
+        return redirect('/')      
 
 class Areas(View): # Esta vista se utiliza al seleccionar planta en el formulario
     def get(self, request, pk):
