@@ -19,59 +19,139 @@
     </select>
 
     <label for="area">Área</label>
-    <select name="area" id="area" disabled>
+    <select name="area" id="area">
         {% for area in areas %}
-        <option value="{{area.pk}}">{{area.codigo}}</option>
+        <option value="{{area.pk}}">{{area.nombre}}</option>
         {% endfor %}
     </select>
 
     <label for="intercambiador">Intercambiador</label>
-    <select name="intercambiador" id="intercambiador"disabled>
+    <select name="intercambiador" id="intercambiador">
         {% for intercambiador in intercambiadores %}
         <option value="{{intercambiador.pk}}">{{intercambiador.codigo}}</option>
         {% endfor %}
     </select> <br> <br>
 
     <label for="fluido_interno">Fluido Interno</label>
-    <select disabled name="fluido_interno" id="fluido_interno">
-        <option value="">Elija una intercambiador...</option>
+    <select name="fluido_interno" id="fluido_interno">
+        {% for fluido in fluidos_interno %}
+        <option value="{{fluido.pk}}">{{fluido.nombre}}</option>
+        {% endfor %}
     </select>
 
 
     <label  for="fluido_externo">Fluido Externo</label>
-    <select disabled name="fluido_externo" id="fluido_externo">
-        <option value="">Elija un intercambiador...</option>
+    <select name="fluido_externo" id="fluido_externo">
+        {% for fluido in fluidos_servicio %}
+        <option value="{{fluido.pk}}">{{fluido.nombre}}</option>
+        {% endfor %}
     </select> <br> <br>
 
     <label for="temp_in_serv">Temperatura de Entrada °C (Servicio)</label>
-    <input name="temp_in_serv" type="number" min="-255" step="0.01" max="9999.99" disabled>
+    <input name="temp_in_serv" type="number" min="-255" step="0.01" max="9999.99">
 
     <label for="temp_out_serv">Temperatura de Salida °C (Servicio)</label>
-    <input name="temp_out_serv" type="number" min="-255" step="0.01" max="9999.99" disabled>
+    <input name="temp_out_serv" type="number" min="-255" step="0.01" max="9999.99">
 
     <label for="temp_in_proceso">Temperatura de Entrada °C (Proceso)</label>
-    <input name="temp_in_proceso" type="number" min="-255" step="0.01" max="9999.99" disabled>
+    <input name="temp_in_proceso" type="number" min="-255" step="0.01" max="9999.99">
 
     <label for="temp_out_proceso">Temperatura de Salida °C (Proceso)</label>
-    <input name="temp_out_proceso" type="number" min="-255" step="0.01" max="9999.99" disabled><br> <br>
+    <input name="temp_out_proceso" type="number" min="-255" step="0.01" max="9999.99"><br> <br>
 
     <label for="flujo_interno">Flujo Másico Total Kg/h (Proceso)</label>
-    <input name="flujo_interno" type="number" min="-9999.99" step="0.01" max="9999.99" disabled>
+    <input name="flujo_interno" type="number" min="-9999.99" step="0.01" max="9999.99">
     
     <label for="flujo_externo">Flujo Másico Total Kg/h (Proceso)</label>
-    <input name="flujo_externo" type="number" min="-9999.99" step="0.01" max="9999.99" disabled><br> <br>
+    <input name="flujo_externo" type="number" min="-9999.99" step="0.01" max="9999.99"><br> <br>
 
     <label for="d_ext_carcasa">Diámetro Externo Carcasa</label>
-    <input name="d_ext_carcasa" type="number" value="{{diametro_ex_carcasa}}" disabled>
+    <input name="d_ext_carcasa" type="number" value="{{intercambiadores.0.diametro_ex_carcasa}}" disabled>
 
     <label for="d_ext_tubos">Diámetro Externo Tubos</label>
-    <input name="d_ext_tubos" type="number" value="{{diametro_ex_tubos}}" disabled>
+    <input name="d_ext_tubos" type="number" value="{{intercambiadores.0.diametro_ex_tubos}}" disabled>
 
     <label for="long_tubo">Longitud del Tubo</label>
-    <input name="long_tubo" type="number" value="{{diametro_ex_tubos}}" disabled> <br> <br>
+    <input name="long_tubo" type="number" value="{{intercambiadores.0.diametro_ex_tubos}}" disabled> <br> <br>
 
     <input type="submit" disabled>
 
 </form>
+
+<script>
+    const host = "http://127.0.0.1:8000/intercambiadores/";
+
+    $('#planta').change(() => {
+        const valor_nuevo = $('#planta').val();
+        let areas = {};
+        
+        $.ajax({
+            url: host + `areas/${valor_nuevo}/`,
+            success: (res) =>{
+                areas = res;
+            },
+            error: (e) => {
+                console.log(e);
+            }
+        });
+
+        let intercambiadores = {};
+
+        $.ajax({
+            url: host + `intercambiadores/${areas[0].id}/`,
+            success: (res) =>{
+                intercambiadores = res;
+            },
+            error: (e) => {
+                console.log(e);
+            }
+        });
+
+        let fluidos = {};
+
+        $.ajax({
+            url: host + `fluidos/${intercambiadores[0].id}/`,
+            success: (res) =>{
+                fluidos = res;
+            },
+            error: (e) => {
+                console.log(e);
+            }
+        });
+
+    });
+
+    $('#area').change(() => {
+        const valor_nuevo = $('#area').val();
+
+        let intercambiadores = {};
+
+        $.ajax({
+            url: host + `intercambiadores/${valor_nuevo}/`,
+            success: (res) =>{
+                intercambiadores = res;
+            },
+            error: (e) => {
+                console.log(e);
+            }
+        });
+
+        let fluidos = {};
+
+        $.ajax({
+            url: host + `fluidos/${intercambiadores[0].id}/`,
+            success: (res) =>{
+                fluidos = res;
+            },
+            error: (e) => {
+                console.log(e);
+            }
+        });        
+    });
+
+    $('#intercambiador').change(() => {
+        
+    });
+</script>
 
 {% endblock %}

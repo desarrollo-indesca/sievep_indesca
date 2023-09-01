@@ -49,7 +49,7 @@ class Intercambiador(models.Model):
 class CondicionesSimulacionTubos(models.Model):
     id = models.AutoField(primary_key=True)
     tipo = models.CharField(max_length=1, choices=(('D', 'Diseño'), ('M', 'Máximas')), default='D')
-    intercambiador = models.ForeignKey(Intercambiador, on_delete=models.DO_NOTHING)
+    intercambiador = models.ForeignKey(Intercambiador, on_delete=models.DO_NOTHING, related_name="condiciones")
     fluido_servicio = models.ForeignKey(Fluido, on_delete=models.DO_NOTHING, related_name="fluido_servicio_diseno", verbose_name="Fluido Lado Servicio")
     fluido_interno = models.ForeignKey(Fluido, on_delete=models.DO_NOTHING, related_name="fluido_interno_diseno", verbose_name="Fluido Lado Interno")
 
