@@ -1,10 +1,9 @@
 {% extends 'base.html' %}
 {% block contenido %}
-<h2>Intercambiadores</h2>
-<a href="{% url 'consulta_simulaciones' %}">Regresar</a>
-
 <form method="post">
     {% csrf_token %}
+    <h2 class="text-center">Método Efectividad-NTU</h2>
+    <hr>
     <label for="condiciones">Condiciones de la Simulación:</label>
     <select name="condiciones" id="condiciones">
         <option value="D">De Diseño</option>
@@ -48,22 +47,22 @@
     </select> <br> <br>
 
     <label for="temp_in_serv">Temperatura de Entrada °C (Servicio)</label>
-    <input name="temp_in_serv" type="number" min="-255" step="0.01" max="9999.99">
+    <input required name="temp_in_serv" type="number" min="-255" step="0.01" max="9999.99">
 
     <label for="temp_out_serv">Temperatura de Salida °C (Servicio)</label>
-    <input name="temp_out_serv" type="number" min="-255" step="0.01" max="9999.99">
+    <input required name="temp_out_serv" type="number" min="-255" step="0.01" max="9999.99">
 
     <label for="temp_in_proceso">Temperatura de Entrada °C (Proceso)</label>
-    <input name="temp_in_proceso" type="number" min="-255" step="0.01" max="9999.99">
+    <input required name="temp_in_proceso" type="number" min="-255" step="0.01" max="9999.99">
 
     <label for="temp_out_proceso">Temperatura de Salida °C (Proceso)</label>
-    <input name="temp_out_proceso" type="number" min="-255" step="0.01" max="9999.99"><br> <br>
+    <input required name="temp_out_proceso" type="number" min="-255" step="0.01" max="9999.99"><br> <br>
 
     <label for="flujo_interno">Flujo Másico Total Kg/h (Proceso)</label>
-    <input name="flujo_interno" type="number" min="-9999.99" step="0.01" max="9999.99">
+    <input required name="flujo_interno" type="number" min="-9999.99" step="0.01" max="9999.99">
     
     <label for="flujo_externo">Flujo Másico Total Kg/h (Proceso)</label>
-    <input name="flujo_externo" type="number" min="-9999.99" step="0.01" max="9999.99"><br> <br>
+    <input required name="flujo_externo" type="number" min="-9999.99" step="0.01" max="9999.99"><br> <br>
 
     <label for="d_ext_carcasa">Diámetro Externo Carcasa</label>
     <input id="d_ext_carcasa" name="d_ext_carcasa" type="number" value="{{diametro_ex_carcasa}}" disabled>
@@ -75,6 +74,9 @@
     <input id="long_tubo" name="long_tubo" type="number" value="{{diametro_ex_tubos}}" disabled> <br> <br>
 
     <input type="submit">
+
+    {% block resultados %}
+    {% endblock %}
 
 </form>
 

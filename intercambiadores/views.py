@@ -48,17 +48,17 @@ class FormularioSimulaciones(View):
 
         intercambiador = Intercambiador.objects.get(pk = request.POST['intercambiador'])
         condiciones = CondicionesSimulacionTubos.objects.get(intercambiador = intercambiador, tipo = request.POST['condiciones'],
-            fluido_servicio = request.POST['fluido_externo'], fluido_proceso = request.POST['fluido_interno'])
+            fluido_servicio = int(request.POST['fluido_externo']), fluido_interno = int(request.POST['fluido_interno']))
 
         # CÁLCULO DE DATOS
 
         # Promedio de las temperaturas
-        tprom_serv = numpy.mean([t1_serv, t2_serv])
-        tprom_proc = numpy.mean([t1_proc, t2_proc])
+        tprom_serv = numpy.mean([t1_serv, t2_serv]) # REVISADO
+        tprom_proc = numpy.mean([t1_proc, t2_proc]) # REVISADO
 
         # Cálculo de las capacidades caloríficas y promedio
-        q_serv = w_serv*condiciones.cp_carcasa*(t2_serv-t1_serv)
-        q_proc = w_proc*condiciones.cp_tubo*(t2_proc-t1_proc)
+        q_serv = w_serv*float(condiciones.cp_tubo)*(t2_serv-t1_serv)
+        q_proc = w_proc*float(condiciones.cp_tubo)*(t2_proc-t1_proc)
 
         qprom = numpy.mean([q_proc, q_serv])
 
@@ -70,22 +70,37 @@ class FormularioSimulaciones(View):
         ua = qprom/flujo_contracorriente
 
         #Cálculo de la efectividad del intercambio de calor
-        efectividad = (ua*flujo_contracorriente)/(intercambiador.cp_tubo*(t1_proc-t1_serv))
+        efectividad = (ua*flujo_contracorriente)/(float(condiciones.cp_tubo)*(t1_proc-t1_serv))
         
         # Cálculo de las unidades térmicas transferidas por unidad de área
-        ntu = ua/intercambiador.cp_tubo
+        ntu = ua/float(condiciones.cp_tubo)
 
         # Cálculo del área de transferencia de calor 
-        at = numpy.pi*intercambiador.diametro_ex_carcasa*intercambiador.longitud_tubo
+        at = numpy.pi*float(intercambiador.diametro_ex_carcasa)*float(intercambiador.longitud_tubo)
 
         # Cálculo de la eficiencia del intercambiador de calor
-        eficiencia = efectividad/ntu
-
-        # Cálculo del coeficiente de transferencia de calor sucio
+        eficiencia = efectividad/ntu*100
 
         # Cálculo del porcentaje de ensuciamiento
+        
+        resultados = {
+            'tprom_proc': tprom_proc,
+            'tprom_serv': tprom_serv,
+            'ntu': ntu,
+            'ua': ua,
+            'area_transferencia': at,
+            'eficiencia': eficiencia,
+            'efectividad': efectividad,
+            'lmtd': flujo_contracorriente,
+            'u': ua/at,
+            'ensuciamiento': 'N/A'
+        }
 
-        return redirect('/')      
+        return render(request, 'resultados_ntu.html', context={'resultados': resultados})
+
+class ConsultaIntercambiadores(View):
+    def get(self, request):
+        return render(request, 'intercambiadores.html')
 
 class Areas(View): # Esta vista se utiliza al seleccionar planta en el formulario
     def get(self, request, pk):

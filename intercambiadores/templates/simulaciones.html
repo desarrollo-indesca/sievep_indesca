@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% block contenido %}
-<h2>Intercambiadores</h2>
-<a href="/">Regresar</a>
-<a href="{% url 'formulario_simulacion_intercambiadores' %}">Realizar Nueva Simulación</a>
+<h2 class="text-center">Intercambiadores</h2>
+<a class="btn btn-success" href="{% url 'formulario_simulacion_intercambiadores' %}">Método Efectividad-NTU</a>
+<button class="btn btn-danger" disabled>Método LMTD</button>
 
-<table class="table table-bordered table-hover">
+<table class="table table-bordered table-hover mt-2">
     <thead class="table-danger">
         <th>Equipo</th>
         <th>Fecha Simulación</th>
@@ -21,7 +21,7 @@
         <td></td>
         <td></td>
         {% empty %}
-        <td colspan="5">No se han realizado simulaciones de Intercambiadores.</td>
+        <td colspan="5">No se han realizado simulaciones con Intercambiadores.</td>
         {% endfor %}
     </tbody>
 </table>

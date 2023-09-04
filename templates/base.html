@@ -10,12 +10,14 @@
     <script src="{% static 'js/jquery.min.js' %}"></script>
 
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
     {% include 'navbar.html' %}
 
-   {% block contenido %}
-   {% endblock %}
+    <div class="container mt-3">
+        {% block contenido %}
+        {% endblock %}
+    </div>
 
     {% include 'footer.html' %}
     
