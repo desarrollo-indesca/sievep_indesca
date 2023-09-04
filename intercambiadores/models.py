@@ -4,10 +4,16 @@ class Empresa(models.Model):
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
 
+    class Meta:
+        db_table = "empresa"
+
 class Complejo(models.Model):
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
     empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING)
+
+    class Meta:
+        db_table = "complejo"
 
 class Planta(models.Model):
     id = models.AutoField(primary_key=True)
