@@ -1,8 +1,18 @@
 from django.db import models
 
+class Empresa(models.Model):
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=100)
+
+class Complejo(models.Model):
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=100)
+    empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING)
+
 class Planta(models.Model):
     id = models.AutoField(primary_key=True)
     codigo = models.CharField(max_length=50, unique=True)
+    complejo = models.ForeignKey(Complejo, on_delete=models.DO_NOTHING)
 
     class Meta:
         db_table = "planta"
@@ -19,6 +29,8 @@ class Fluido(models.Model):
     id = models.AutoField(primary_key=True)
     codigo = models.CharField(max_length=5, unique=True)
     nombre = models.CharField(max_length=25)
+
+    # Datos Termodinámicos
 
     class Meta:
         db_table = "fluido"
