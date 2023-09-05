@@ -1,5 +1,36 @@
 from django.db import models
 
+criticidades = [
+    ('C', 'Crítico'),
+    ('S', 'Semi Crítico'),
+    ('N', 'No Crítico')
+]
+
+tipos_condiciones = [
+    ('D', 'Diseño'),
+    ('M', 'Máximas'),
+    ('m', 'Mínimas'),
+    ('P', 'Proceso')
+    ('p', 'Planta'),
+    ('O', 'Otro')
+]
+
+cambios_de_fase = [
+    ('S', 'Sin cambio de fase'),
+    ('P','Cambio de Fase Parcial'),
+    ('T', 'Cambio de Fase Total')
+]
+
+estados_fluidos = [
+    ("L", "Líquido"),
+    ("G", "Gaseoso")
+]
+
+temperaturas = [
+    ("K", "Kelvin"),
+    ("C", "Celsius")
+]
+
 class Empresa(models.Model):
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
@@ -23,126 +54,156 @@ class Planta(models.Model):
     class Meta:
         db_table = "planta"
 
-class Area(models.Model):
-    id = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=50)
-    planta = models.ForeignKey(Planta, on_delete=models.DO_NOTHING)
-
-    class Meta:
-        db_table = "area"
-
 class Fluido(models.Model):
     id = models.AutoField(primary_key=True)
-    codigo = models.CharField(max_length=5, unique=True)
-    nombre = models.CharField(max_length=25)
+    nombre = models.CharField(max_length=40)
+    formula = models.CharField(max_length=25,null=True)
+
+    peso_molecular = models.DecimalField(max_digits=6, decimal_places=3)
+    estado = models.CharField(max_length=1, choices=estados_fluidos)
+    t = models.CharField(max_length=1, choices=temperaturas,default="C")
 
     # Datos Termodinámicos
+    a = models.DecimalField(max_digits=6, decimal_places=3)
+    b = models.DecimalField(max_digits=8, decimal_places=7)
+    c = models.DecimalField(max_digits=12, decimal_places=11)
+    d = models.DecimalField(max_digits=12, decimal_places=11)
+
+    minimo = models.IntegerField()
+    maximo = models.IntegerField()
+
+    def cp(self, t):
+        a = self.a
+        b = self.b
+        c = self.c
+        d = self.d
+
+        return a + b*t + c*t**2 + d*t**3
 
     class Meta:
         db_table = "fluido"
 
+class TipoIntercambiador(models.Model):
+    id = models.AutoField(primary_key=True)
+    nombre_tipo = models.CharField(max_length=50)
+
+    class Meta:
+        db_table = "tipo_intercambiador"
+
 class Intercambiador(models.Model):
     id = models.AutoField(primary_key=True)
-    codigo = models.CharField(max_length=50)
-    tipo = models.CharField(max_length=50)
-    area = models.ForeignKey(Area, on_delete=models.DO_NOTHING)
-
-    longitud_tubo = models.DecimalField(max_digits=8, decimal_places=2,verbose_name="Longitud del tubo (m)", null = True)
-    factor_ensuciamiento = models.DecimalField(max_digits=8, decimal_places=7,verbose_name="Factor de ensuciamiento [h.m2.ºC/Kcal] (Lado Tubo y Carcasa)", null = True)
-    diametro_in_carcasa = models.DecimalField(max_digits=5, decimal_places=2,verbose_name="Diámetro interno carcasa [mm]", null = True)
-    diametro_ex_carcasa = models.DecimalField(max_digits=5, decimal_places=2,verbose_name="Diámetro externo carcasa [mm]", null = True)
-
-    material_tubos = models.CharField(max_length=50, verbose_name="Material de los Tubos", null = True)
-    conductividad = models.DecimalField(max_digits=8, decimal_places=2, verbose_name="Conductividad", null = True)
-    diametro_ex_tubos = models.DecimalField(max_digits=8, decimal_places=2, verbose_name="Diámetro externo tubos [mm]", null = True)
-    diametro_in_tubos = models.DecimalField(max_digits=8, decimal_places=2, verbose_name="Diámetro interno tubos [mm]", null = True)
-    espesor_tubos = models.DecimalField(max_digits=8, decimal_places=4, verbose_name="Espesor de los Tubos [mm]", null = True)
-    numero_tubos = models.DecimalField(max_digits=8, decimal_places=2, verbose_name="Número de tubos", null = True)
-    arreglo_tubos = models.DecimalField(max_digits=8, decimal_places=2, verbose_name="Arreglo de los tubos [mm]", null = True)
-    pitch = models.DecimalField(max_digits=8, decimal_places=2, verbose_name="Pitch [mm]", null = True)
+    tag = models.CharField(max_length=50, unique=True)
+    tipo = models.ForeignKey(TipoIntercambiador, on_delete=models.DO_NOTHING)
+    planta = models.ForeignKey(Planta, on_delete=models.DO_NOTHING)
+    servicio = models.CharField(max_length=100)
 
     class Meta:
         db_table = "intercambiador"
 
-class CondicionesSimulacionTubos(models.Model):
+class TiposDeTubo(models.Model):
     id = models.AutoField(primary_key=True)
-    tipo = models.CharField(max_length=1, choices=(('D', 'Diseño'), ('M', 'Máximas')), default='D')
-    intercambiador = models.ForeignKey(Intercambiador, on_delete=models.DO_NOTHING, related_name="condiciones")
-    fluido_servicio = models.ForeignKey(Fluido, on_delete=models.DO_NOTHING, related_name="fluido_servicio_diseno", verbose_name="Fluido Lado Servicio")
-    fluido_interno = models.ForeignKey(Fluido, on_delete=models.DO_NOTHING, related_name="fluido_interno_diseno", verbose_name="Fluido Lado Interno")
+    nombre = models.CharField(max_length=25)
 
-    temp_in_carcasa = models.DecimalField(max_digits=7, decimal_places=4, verbose_name="Temp. IN [°C] - Lado Carcasa")
-    temp_out_carcasa = models.DecimalField(max_digits=7, decimal_places=4, verbose_name="Temp. OUT [°C] - Lado Carcasa")
-    temp_in_tubo = models.DecimalField(max_digits=7, decimal_places=4, verbose_name="Temp. IN [°C] - Lado Tubo")
-    temp_out_tubo = models.DecimalField(max_digits=7, decimal_places=4, verbose_name="Temp. OUT [°C] - Lado tubo")
-    cp_carcasa = models.DecimalField(max_digits=6, decimal_places=4,null=True, verbose_name="cp [Kcal/Kg°C] - Lado Carcasa")
-    cp_tubo = models.DecimalField(max_digits=5, decimal_places=4, verbose_name="cp [Kcal/Kg°C] - Lado Tubo")
-    q = models.DecimalField(max_digits=11, decimal_places=4, verbose_name="Q [Kcal/h]")
-    lmtd = models.DecimalField(max_digits=7, decimal_places=4, verbose_name="LMTD")
-    ua = models.DecimalField(max_digits=11, decimal_places=4, verbose_name="UA [kcal/h.C]")
-    area = models.DecimalField(max_digits=7, decimal_places=4, verbose_name="Área m²")
-    u = models.DecimalField(max_digits=9, decimal_places=4, verbose_name="U [kcal/h.C.m²]")
-    ntu = models.DecimalField(max_digits=5, decimal_places=4, verbose_name="NTU")
-    efectividad = models.DecimalField(max_digits=5, decimal_places=4, verbose_name="Efectividad [ԑ]")
-    eficiencia = models.DecimalField(max_digits=8, decimal_places=4, verbose_name="Eficiencia [Ѱ] [%]")
-    flujo_agua = models.DecimalField(max_digits=10, decimal_places=4, verbose_name="Flujo de agua/unidad [Kg/h]")
-    flujo_proceso = models.DecimalField(max_digits=10, decimal_places=4, verbose_name="Flujo de proceso/unidad [Kg/h]")
+    class Meta:
+        db_table = "tipos_de_tubo"
+
+class TemaTuboCarcasa(models.Model):
+    id = models.AutoField(primary_key=True)
+    codigo = models.CharField(max_length=20, unique=True)
+    descripcion = models.TextField()
+
+class IntercambiadorTuboCarcasa(models.Model):
+    id = models.AutoField(primary_key=True)
+    intercambiador = models.OneToOneField(Intercambiador, related_name="datos_tubo_carcasa")
+
+    # Datos del área
+    area = models.DecimalField(max_digits=12, decimal_places=5)
+    numero_tubos = models.IntegerField(null=True)
+    longitud_tubos = models.IntegerField(null=True)
+    od_tubos = models.IntegerField(null=True)
+
+    # Datos Carcasa
+    id_carcasa = models.IntegerField(null=True)
+    fluido_carcasa = models.ForeignKey(Fluido, related_name="fluido_carcasa", on_delete=models.DO_NOTHING)
+    material_carcasa = models.CharField(null=True, max_length=12)
+    conexiones_entrada_carcasa = models.CharField(null=True, max_length=12)
+    conexiones_salida_carcasa = models.CharField(null=True, max_length=12)
+
+    # Datos Tubos
+    material_tubo = models.CharField(null=True, max_length=12)
+    fluido_tubo = models.ForeignKey(Fluido, related_name="fluido_tubo", on_delete=models.DO_NOTHING)
+    tipo_tubo = models.ForeignKey(TiposDeTubo)
+    conexiones_entrada_tubos = models.CharField(null=True, max_length=12)
+    conexiones_salida_tubos = models.CharField(null=True, max_length=12)
+    pitch_tubos = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    fabricante_tubo = models.TextField(null=True, max_length=100)
+
+    # Generales
+    criticidad = models.CharField(choices=criticidades)
+    arreglo_serie = models.IntegerField()
+    arreglo_paralelo = models.IntegerField()
+    tema = models.ForeignKey(TemaTuboCarcasa, on_delete=models.DO_NOTHING, null=True)
+    numero_pasos = models.IntegerField()
+
+    class Meta:
+        db_table = "intercambiador_tubo_carcasa"
+
+class CondicionesIntercambiadores(models.Model):
+    id = models.AutoField(primary_key=True)
+    intercambiador = models.ForeignKey(Intercambiador, on_delete=models.CASCADE)
+    tipo = models.CharField(max_length=1, choices=tipos_condiciones)
+
+    class Meta:
+        db_table = "condiciones_intercambiadores"
+
+class CondicionesTuboCarcasa(models.Model):
+    condiciones = models.ForeignKey()
+    parte = models.TextField(max_length=1, choices=(('T', 'Tubo'), ('C', 'Carcasa')))
     
-    numero_carcasas = models.DecimalField(max_digits=4, decimal_places=2,verbose_name="No. carcasas/unidad")
-    area_carcasas = models.DecimalField(max_digits=4, decimal_places=2,verbose_name="Área/carcasa")
-    carcasas_calculadas = models.DecimalField(max_digits=4, decimal_places=2,verbose_name="Carcasas Calculadas")
-    pasos_carcasa = models.DecimalField(max_digits=4, decimal_places=2,verbose_name="No. Pasos/Carcasa")
-    entradas_agua = models.DecimalField(max_digits=4, decimal_places=2,verbose_name="No. Entradas de Agua/Unidad")
+    temp_entrada = models.DecimalField(max_digits=7, decimal_places=2) # Celsius
+    temp_salida = models.DecimalField(max_digits=7, decimal_places=2) # Celsius
+    flujo_masico = models.DecimalField(max_digits=12, decimal_places=5) # Kg/h
+    
+    flujo_vapor_entrada = models.DecimalField(max_digits=12, decimal_places=5, default=0) # Kg/h
+    flujo_vapor_salida = models.DecimalField(max_digits=12, decimal_places=5, default=0) # Kg/h
+
+    flujo_liquido_salida = models.DecimalField(max_digits=12, decimal_places=5, default=0) # Kg/h
+    flujo_liquido_salida = models.DecimalField(max_digits=12, decimal_places=5, default=0) # Kg/h
+    
+    cambio_de_fase  = models.CharField(max_length=1, choices=cambios_de_fase)
+
+    presion_entrada = models.DecimalField(max_digits=10, decimal_places=4) # barg
+    caida_presion_max = models.DecimalField(max_digits=7, decimal_places=5)
+    caida_presion_min = models.DecimalField(max_digits=7, decimal_places=5)
+    fouling = models.DecimalField(max_digits=10, decimal_places=9) #m^2*C/W
 
     class Meta:
-        db_table = "condiciones_simulacion_tubos"
-
-class ParametrosDiseno(models.Model):
-    id = models.AutoField(primary_key=True)
-    intercambiador = models.ForeignKey(Intercambiador, on_delete=models.DO_NOTHING)
-    fluido_servicio = models.ForeignKey(Fluido, on_delete=models.DO_NOTHING, related_name="fluido_servicio_parametros", verbose_name="Fluido Lado Servicio")
-    fluido_interno = models.ForeignKey(Fluido, on_delete=models.DO_NOTHING, related_name="fluido_interno_parametros", verbose_name="Fluido Lado Interno")
-
-    usucio_diseno = models.DecimalField(max_digits=6, decimal_places=2,verbose_name="Usucio  [kcal/h.C.m2] (condiciones de diseño)", null = True)
-    efectividad_diseno = models.DecimalField(max_digits=6, decimal_places=5,verbose_name="Efectividad [ԑ] (condiciones de diseño)", null = True)
-    ntu_diseno = models.DecimalField(max_digits=6, decimal_places=5,verbose_name="NTU (condiciones máximas)", null = True)
-    eficiencia_diseno = models.DecimalField(max_digits=5, decimal_places=2,verbose_name="Eficiencia [Ѱ] (condiciones máximas) [%]", null = True)
-    usucio_maximas = models.DecimalField(max_digits=6, decimal_places=2,verbose_name="Usucio  [kcal/h.C.m2] (condiciones de diseño)", null = True)
-    efectividad_maximas = models.DecimalField(max_digits=6, decimal_places=5,verbose_name="Efectividad [ԑ] (condiciones de diseño)", null = True)
-    ntu_maximas = models.DecimalField(max_digits=6, decimal_places=5,verbose_name="NTU (condiciones máximas)", null = True)
-    eficiencia_maximas = models.DecimalField(max_digits=5, decimal_places=2,verbose_name="Eficiencia [Ѱ] (condiciones máximas) [%]", null = True)
-
-    class Meta:
-        db_table = "parametros_diseno"
+        db_table = "condiciones_tubo_carcasa"
 
 class SimulacionIntercambiador(models.Model):
-    id = models.AutoField(primary_key=True)
-    intercambiador = models.ForeignKey(Intercambiador, on_delete=models.DO_NOTHING)
-    condiciones = models.ForeignKey(CondicionesSimulacionTubos, on_delete=models.DO_NOTHING, null=True)
+    fecha = models.DateTimeField(auto_now=True, auto_now_add=True)
+    intercambiador = models.ForeignKey(Intercambiador, on_delete=models.CASCADE)
+    condiciones = models.ForeignKey(CondicionesIntercambiadores, on_delete=models.DO_NOTHING)
+    metodo = models.CharField(max_length=1, choices=(('E', 'Método Efectividad-NTU'), ('L', 'Método LMTD')))
 
-    # Entrada
+    # Datos de Entrada
+    temp_ex_entrada = models.DecimalField(max_digits=7, decimal_places=2) # Celsius
+    temp_ex_salida = models.DecimalField(max_digits=7, decimal_places=2) # Celsius
+    temp_in_entrada = models.DecimalField(max_digits=7, decimal_places=2) # Celsius
+    temp_in_salida = models.DecimalField(max_digits=7, decimal_places=2) # Celsius
+    flujo_masico_ex = models.DecimalField(max_digits=12, decimal_places=5) # Kg/h
+    flujo_masico_in = models.DecimalField(max_digits=12, decimal_places=5) # Kg/h
 
-    fecha = models.DateTimeField(verbose_name="Fecha de la Simulación", null=True)
-
-    temp_in_serv = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Temperatura de Entrada °C (Servicio)")
-    temp_out_serv = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Temperatura de Salida °C (Servicio)")
-
-    temp_in_proceso = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Temperatura de Entrada °C (Proceso)")
-    temp_out_proceso = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Temperatura de Salida °C (Proceso)")
-
-    flujo_interno = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Flujo Másico Total Kg/h (Proceso)")
-    flujo_externo = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Flujo Másico Total Kg/h (Externo)")
-
-    # Resultados
-
-    lmtd = models.DecimalField(max_digits=9, decimal_places=4, verbose_name="LMTD")
-    a_transferencia = models.DecimalField(max_digits=9, decimal_places=4, verbose_name="Área de Transferencia")
-    u = models.DecimalField(max_digits=9, decimal_places=4, verbose_name="U [Kcal/h.°C.m2]")
-    ua = models.DecimalField(max_digits=9, decimal_places=4, verbose_name="UA [Kcal/h.C]")
-    ntu = models.DecimalField(max_digits=9, decimal_places=4, verbose_name="NTU")
-    efectividad = models.DecimalField(max_digits=9, decimal_places=4, verbose_name="Efectividad")
-    eficiencia = models.DecimalField(max_digits=9, decimal_places=4, verbose_name="Eficiencia")
-    ensuciamiento = models.DecimalField(max_digits=9, decimal_places=4, verbose_name="Ensuciamiento")
+    # Datos de Salida
+    lmtd = models.DecimalField(max_digits=12, decimal_places=5)
+    area_transferencia = models.DecimalField(max_digits=12, decimal_places=5)
+    u = models.DecimalField(max_digits=12, decimal_places=5) # Kcal/h.C.m^2
+    ua = models.DecimalField(max_digits=12, decimal_places=5) # Kcal/h.C
+    ntu = models.DecimalField(max_digits=12, decimal_places=5)
+    efectividad = models.DecimalField(max_digits=12, decimal_places=5)
+    eficiencia = models.DecimalField(max_digits=12, decimal_places=5)
+    ensuciamiento = models.DecimalField(max_digits=12, decimal_places=5)
+    q = models.DecimalField(max_digits=12, decimal_places=5)
 
     class Meta:
-        db_table = "simulacion_intercambiador"
+        db_table = "simulacion_intercambiadores"

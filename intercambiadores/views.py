@@ -104,14 +104,13 @@ class ConsultaIntercambiadores(View):
 
 class Areas(View): # Esta vista se utiliza al seleccionar planta en el formulario
     def get(self, request, pk):
-        return JsonResponse({'areas': Area.objects.filter(planta__pk = pk)})
+        return JsonResponse({'areas': Planta.objects.filter(planta__pk = pk)})
     
 class Intercambiadores(View): # Esta vista se utiliza al seleccionar área en el formulario
     def get(self, request, pk):
-        return JsonResponse({'intercambiadores': list(Intercambiador.objects.filter(area__pk = pk).values('id','codigo','diametro_ex_carcasa','diametro_ex_tubos', 'longitud_tubo'))})
+        return JsonResponse({'intercambiadores': list(Intercambiador.objects.filter(area__pk = pk))})
     
 class Fluidos(View):
     def get(self, request, pk): # La PK corresponde al intercambiador
         intercambiador = Intercambiador.objects.get(pk = pk)
-        return JsonResponse({'fluidos_servicio': list(Fluido.objects.filter(pk__in = intercambiador.condiciones.values('fluido_servicio')).values('id','nombre','codigo')), 
-                             'fluidos_interno': list(Fluido.objects.filter(pk__in = intercambiador.condiciones.values('fluido_interno')).values('id','nombre','codigo'))})
+        return JsonResponse({'interno': intercambiador.fluido_interno, 'externo': intercambiador.fluido_externo})
