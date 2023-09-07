@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+{% endblock %}
+
+{% block contenido %}
+<h3 class="text-center" style="color: #e31e24;">Intercambiadores de Calor Tubo/Carcasa</h3>
+<hr>
+<div class="row mb-3">
+    <div class="d-flex flex-column col">
+        <label for="empresa">Empresa:</label>
+        <select name="empresa" id="empresa" class="form-control">
+            <option value="">
+                ----------------------------
+            </option>
+        </select>
+    </div>
+    <div class="d-flex flex-column col">
+        <label for="complejo">Complejo:</label>
+        <select name="complejo" id="complejo" disabled="disabled" class="form-control">
+            <option value="">
+                ----------------------------
+            </option>
+        </select>
+    </div>
+    <div class="d-flex flex-column col">
+        <label for="planta">Planta:</label>
+        <select name="planta" id="planta" disabled="disabled" class="form-control">
+            <option value="">
+                ----------------------------
+            </option>
+        </select>
+    </div>
+    <div class="d-flex flex-column col">
+        <label for="tag">Tag:</label>
+        <input type="text" name="tag" id="tag" maxlength="20" class="form-control">
+    </div>
+</div>
+
+<table class="table table-dark table-striped table-hover table-bordered">
+    <thead class="text-center">
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Empresa</th>
+        <th scope="col">Complejo</th>
+        <th scope="col">Planta</th>
+        <th scope="col">Tag</th>
+        <th scope="col">Simulaciones</th>
+        <th scope="col">Ficha Técnica</th>
+      </tr>
+    </thead>
+    <tbody class="text-center">
+      <tr>
+        <th scope="row">1</th>
+        <td>Pequiven</td>
+        <td>Ana María Campos</td>
+        <td>Olefinas I</td>
+        <td>380-A</td>
+        <td><a href="#" class="btn btn-danger"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+        <td><a href="#" class="btn btn-success"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+      </tr>
+      <tr>
+        <th scope="row">2</th>
+        <td>Pequiven</td>
+        <td>Ana María Campos</td>
+        <td>Olefinas I</td>
+        <td>380-A</td>
+        <td><a href="#" class="btn btn-danger"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+        <td><a href="#" class="btn btn-success"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+      </tr>
+      <tr>
+        <th scope="row">3</th>
+        <td>Pequiven</td>
+        <td>Ana María Campos</td>
+        <td>Olefinas I</td>
+        <td>380-A</td>
+        <td><a href="#" class="btn btn-danger"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+        <td><a href="#" class="btn btn-success"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+      </tr>
+      <tr>
+        <th scope="row">3</th>
+        <td>Pequiven</td>
+        <td>Ana María Campos</td>
+        <td>Olefinas I</td>
+        <td>380-A</td>
+        <td><a href="#" class="btn btn-danger"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+        <td><a href="#" class="btn btn-success"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+      </tr>
+      <tr>
+        <th scope="row">3</th>
+        <td>Pequiven</td>
+        <td>Ana María Campos</td>
+        <td>Olefinas I</td>
+        <td>380-A</td>
+        <td><a href="#" class="btn btn-danger"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+        <td><a href="#" class="btn btn-success"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+      </tr>
+      <tr>
+        <th scope="row">3</th>
+        <td>Pequiven</td>
+        <td>Ana María Campos</td>
+        <td>Olefinas I</td>
+        <td>380-A</td>
+        <td><a href="#" class="btn btn-danger"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+        <td><a href="#" class="btn btn-success"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+      </tr>
+      <tr>
+        <th scope="row">3</th>
+        <td>Pequiven</td>
+        <td>Ana María Campos</td>
+        <td>Olefinas I</td>
+        <td>380-A</td>
+        <td><a href="#" class="btn btn-danger"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+        <td><a href="#" class="btn btn-success"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+      </tr>
+      <tr>
+        <th scope="row">3</th>
+        <td>Pequiven</td>
+        <td>Ana María Campos</td>
+        <td>Olefinas I</td>
+        <td>380-A</td>
+        <td><a href="#" class="btn btn-danger"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+        <td><a href="#" class="btn btn-success"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+      </tr>
+      <tr>
+        <th scope="row">3</th>
+        <td>Pequiven</td>
+        <td>Ana María Campos</td>
+        <td>Olefinas I</td>
+        <td>380-A</td>
+        <td><a href="#" class="btn btn-danger"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+        <td><a href="#" class="btn btn-success"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+      </tr>
+      <tr>
+        <th scope="row">3</th>
+        <td>Pequiven</td>
+        <td>Ana María Campos</td>
+        <td>Olefinas I</td>
+        <td>380-A</td>
+        <td><a href="#" class="btn btn-danger"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+        <td><a href="#" class="btn btn-success"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Ir a la pantalla de Simulaciones"></a></td>
+      </tr>
+    </tbody>
+</table>
+
+<div class="d-flex justify-content-end">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+          <li class="page-item">
+            <a class="page-link bg-dark text-white" href="#" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+          <li class="page-item"><a class="page-link bg-dark text-white" href="#">1</a></li>
+          <li class="page-item"><a class="page-link bg-dark text-white" href="#">2</a></li>
+          <li class="page-item"><a class="page-link bg-dark text-white" href="#">3</a></li>
+          <li class="page-item">
+            <a class="page-link bg-dark text-white" href="#" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        </ul>
+    </nav>
+</div>
+{% endblock %}
+
+{% block extra_javascript %}
+{% endblock %}

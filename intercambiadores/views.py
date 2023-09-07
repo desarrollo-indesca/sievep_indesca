@@ -1,10 +1,18 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views import View
 from .models import *
 from django.http import JsonResponse
 import numpy
 
 # Create your views here.
+
+class ConsultaTuboCarcasa(View):
+    context = {
+        'titulo': "PEQUIVEN - Selección de Tipo de Intercambiador"
+    }
+
+    def get(self, request):
+        return render(request, 'tubo_carcasa/consulta.html', context=self.context)
 
 class SeleccionTipo(View):
     context = {

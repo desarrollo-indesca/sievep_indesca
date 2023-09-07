@@ -12,13 +12,13 @@
         <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel"  style="width: 100%;">
             <div class="carousel-inner">
               <div class="carousel-item active">
-                <a href="#"><img src="{% static 'img/bienvenida/intercambiadores.jpg' %}" class="d-block w-100" alt="...">
+                <img src="{% static 'img/bienvenida/intercambiadores.jpg' %}" class="d-block w-100" alt="Intercambiadores de Calor">
                 <div class="carousel-caption d-none d-md-block">
                   <h5 class="text-center">Intercambiadores de Calor</h5>
                 </div>
               </div>
               <div class="carousel-item">
-                <a href="#"><img src="{% static 'img/intercambiadores/tipos/tubo_carcasa.jpg' %}" class="d-block w-100" alt="Tubo/Carcasa"></a>
+                <a href="{% url 'consulta_tubo_carcasa' %}"><img src="{% static 'img/intercambiadores/tipos/tubo_carcasa.jpg' %}" class="d-block w-100" alt="Tubo/Carcasa"></a>
                 <div class="carousel-caption d-none d-md-block">
                   <h5 class="text-center">Tubo/Carcasa</h5>
                 </div>
@@ -73,7 +73,7 @@
 
     <div class="col-8">
         <div class="row row-cols-1 row-cols-md-2 g-4">
-            <a href="#" class="sin_decoracion">
+            <a href="{% url 'consulta_tubo_carcasa' %}" class="sin_decoracion">
                 <div class="col">
                 <div class="card">
                     <img style="max-height: 20vh;" src="{% static 'img/intercambiadores/tipos/tubo_carcasa.jpg' %}" class="card-img-top" alt="Intercambiador tubo carcasa">

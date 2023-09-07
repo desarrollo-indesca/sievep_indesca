@@ -23,5 +23,8 @@
     {% include 'footer.html' %}
     
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+    {% block extra_javascript %}
+    {% endblock %}
 </body>
 </html>
