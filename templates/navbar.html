@@ -4,28 +4,28 @@
       <a class="navbar-brand d-inline-flex" href="/">
         <img src="{% static 'img/logo.png' %}" alt="Logo de Pequiven" height="36">
       </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler" data-interval="5000" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/">Inicio</a>
+            <a class="nav-link" href="/">Inicio</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'consulta_intercambiadores' %}">Intercambiadores</a>
+            <a class="nav-link" href="{% url 'seleccion_tipo_intercambiador' %}">Intercambiadores</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Módulo B</a>
+            <a class="nav-link" href="#">Calderas</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Módulo C</a>
+            <a class="nav-link" href="#">Turbinas de Vapor</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Módulo D</a>
+            <a class="nav-link" href="#">Compresores</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Módulo E</a>
+            <a class="nav-link" href="#">Hornos Reformadores</a>
           </li>
         </ul>
       </div>

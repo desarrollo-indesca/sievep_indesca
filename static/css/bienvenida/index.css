@@ -10,3 +10,23 @@
     transition: .3s transform cubic-bezier(.155,1.105,.295,1.12),.3s box-shadow,.3s -webkit-transform cubic-bezier(.155,1.105,.295,1.12);
     cursor: pointer;
 }
+
+a.sin_decoracion{
+    text-decoration: none;
+    color: black;
+}
+
+.carousel-item > a > img{
+    height: 250px !important;
+    width: 100%;
+}
+
+.carousel-caption > h5{
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
+
+.carousel-inner {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}

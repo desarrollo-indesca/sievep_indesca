@@ -6,6 +6,14 @@ import numpy
 
 # Create your views here.
 
+class SeleccionTipo(View):
+    context = {
+        'titulo': "PEQUIVEN - Selección de Tipo de Intercambiador"
+    }
+
+    def get(self, request):
+        return render(request, 'seleccion_tipo.html', context=self.context)
+
 class Simulaciones(View):
     context = {
         'titulo': "PEQUIVEN - Simulaciones de Intercambiadores"
