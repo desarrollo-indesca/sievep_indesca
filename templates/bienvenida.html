@@ -1,6 +1,100 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+ <link rel="stylesheet" href="{% static 'css/bienvenida/index.css' %}">
+{% endblock %}
+
 {% block contenido %}
-<ul>
-    <li><a href="{% url 'consulta_simulaciones' %}">Intercambiadores</a></li>
-</ul>
+<div class="h-100 row">
+    <div class="col-4 d-flex justify-content-center align-items-center">
+        <div class="d-flex flex-column justify-content-center align-items-center">
+            <img src="{% static 'img/logo.png' %}" width="auto" style="max-width: 500px;" alt="Logo de Pequiven" id="logo_principal">
+            <h2 class="text-center" style="color: #e31e24;">Herramientas de Simulación</h2>
+        </div>
+    </div>
+
+    <div class="col-8">
+        <a href="#" style="text-decoration: none; color: black;">
+            <div class="card mb-3 w-100">
+                <div class="row no-gutters">
+                    <div class="col-md-5 col-lg-4 d-flex align-items-center">
+                        <img src="{% static 'img/bienvenida/intercambiadores.jpg' %}" class="card-img" alt="Intercambiadores de Calor" style="max-height: 15vh;">
+                    </div>
+                    <div class="col-md-7 col-lg-8">
+                        <div class="card-body">
+                        <h3 class="card-title">Intercambiadores de Calor</h5>
+                        <p class="card-text">Opciones de simulación de intercambiadores de calor por tipo, para cálculos de eficiencia y ensuciamiento.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <a href="#" style="text-decoration: none; color: black;">
+            <div class="card mb-3 w-100">
+                <div class="row no-gutters">
+                    <div class="col-md-5 col-lg-4 d-flex align-items-center">
+                        <img src="{% static 'img/bienvenida/intercambiadores.jpg' %}" class="card-img" alt="Intercambiadores de Calor" style="max-height: 15vh;">
+                    </div>
+                    <div class="col-md-7 col-lg-8">
+                        <div class="card-body">
+                        <h3 class="card-title">Intercambiadores de Calor</h5>
+                        <p class="card-text">Opciones de simulación de intercambiadores de calor por tipo, para cálculos de eficiencia y ensuciamiento.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <a href="#" style="text-decoration: none; color: black;">
+            <div class="card mb-3 w-100">
+                <div class="row no-gutters">
+                    <div class="col-md-5 col-lg-4 d-flex align-items-center">
+                        <img src="{% static 'img/bienvenida/intercambiadores.jpg' %}" class="card-img" alt="Intercambiadores de Calor" style="max-height: 15vh;">
+                    </div>
+                    <div class="col-md-7 col-lg-8">
+                        <div class="card-body">
+                        <h3 class="card-title">Intercambiadores de Calor</h5>
+                        <p class="card-text">Opciones de simulación de intercambiadores de calor por tipo, para cálculos de eficiencia y ensuciamiento.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <a href="#" style="text-decoration: none; color: black;">
+            <div class="card mb-3 w-100">
+                <div class="row no-gutters">
+                    <div class="col-md-5 col-lg-4 d-flex align-items-center">
+                        <img src="{% static 'img/bienvenida/intercambiadores.jpg' %}" class="card-img" alt="Intercambiadores de Calor" style="max-height: 15vh;">
+                    </div>
+                    <div class="col-md-7 col-lg-8">
+                        <div class="card-body">
+                        <h3 class="card-title">Intercambiadores de Calor</h5>
+                        <p class="card-text">Opciones de simulación de intercambiadores de calor por tipo, para cálculos de eficiencia y ensuciamiento.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <a href="#" style="text-decoration: none; color: black;">
+            <div class="card mb-3 w-100">
+                <div class="row no-gutters">
+                    <div class="col-md-5 col-lg-4 d-flex align-items-center">
+                        <img src="{% static 'img/bienvenida/intercambiadores.jpg' %}" class="card-img" alt="Intercambiadores de Calor" style="max-height: 15vh;">
+                    </div>
+                    <div class="col-md-7 col-lg-8">
+                        <div class="card-body">
+                        <h3 class="card-title">Intercambiadores de Calor</h5>
+                        <p class="card-text">Opciones de simulación de intercambiadores de calor por tipo, para cálculos de eficiencia y ensuciamiento.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+</div>
 {% endblock %}

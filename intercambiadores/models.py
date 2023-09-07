@@ -10,7 +10,7 @@ tipos_condiciones = [
     ('D', 'Diseño'),
     ('M', 'Máximas'),
     ('m', 'Mínimas'),
-    ('P', 'Proceso')
+    ('P', 'Proceso'),
     ('p', 'Planta'),
     ('O', 'Otro')
 ]
@@ -114,7 +114,7 @@ class TemaTuboCarcasa(models.Model):
 
 class IntercambiadorTuboCarcasa(models.Model):
     id = models.AutoField(primary_key=True)
-    intercambiador = models.OneToOneField(Intercambiador, related_name="datos_tubo_carcasa")
+    intercambiador = models.OneToOneField(Intercambiador, related_name="datos_tubo_carcasa", on_delete=models.DO_NOTHING)
 
     # Datos del área
     area = models.DecimalField(max_digits=12, decimal_places=5)
@@ -132,14 +132,14 @@ class IntercambiadorTuboCarcasa(models.Model):
     # Datos Tubos
     material_tubo = models.CharField(null=True, max_length=12)
     fluido_tubo = models.ForeignKey(Fluido, related_name="fluido_tubo", on_delete=models.DO_NOTHING)
-    tipo_tubo = models.ForeignKey(TiposDeTubo)
+    tipo_tubo = models.ForeignKey(TiposDeTubo, on_delete=models.DO_NOTHING)
     conexiones_entrada_tubos = models.CharField(null=True, max_length=12)
     conexiones_salida_tubos = models.CharField(null=True, max_length=12)
     pitch_tubos = models.DecimalField(max_digits=6, decimal_places=2, null=True)
     fabricante_tubo = models.TextField(null=True, max_length=100)
 
     # Generales
-    criticidad = models.CharField(choices=criticidades)
+    criticidad = models.CharField(choices=criticidades, max_length=1)
     arreglo_serie = models.IntegerField()
     arreglo_paralelo = models.IntegerField()
     tema = models.ForeignKey(TemaTuboCarcasa, on_delete=models.DO_NOTHING, null=True)
@@ -157,7 +157,7 @@ class CondicionesIntercambiadores(models.Model):
         db_table = "condiciones_intercambiadores"
 
 class CondicionesTuboCarcasa(models.Model):
-    condiciones = models.ForeignKey()
+    condiciones = models.ForeignKey(CondicionesIntercambiadores, on_delete=models.DO_NOTHING)
     parte = models.TextField(max_length=1, choices=(('T', 'Tubo'), ('C', 'Carcasa')))
     
     temp_entrada = models.DecimalField(max_digits=7, decimal_places=2) # Celsius
@@ -181,7 +181,7 @@ class CondicionesTuboCarcasa(models.Model):
         db_table = "condiciones_tubo_carcasa"
 
 class SimulacionIntercambiador(models.Model):
-    fecha = models.DateTimeField(auto_now=True, auto_now_add=True)
+    fecha = models.DateTimeField(auto_now=True)
     intercambiador = models.ForeignKey(Intercambiador, on_delete=models.CASCADE)
     condiciones = models.ForeignKey(CondicionesIntercambiadores, on_delete=models.DO_NOTHING)
     metodo = models.CharField(max_length=1, choices=(('E', 'Método Efectividad-NTU'), ('L', 'Método LMTD')))
