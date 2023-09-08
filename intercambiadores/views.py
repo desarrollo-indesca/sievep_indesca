@@ -8,7 +8,8 @@ import numpy
 
 class ConsultaTuboCarcasa(View):
     context = {
-        'titulo': "PEQUIVEN - Selección de Tipo de Intercambiador"
+        'titulo': "PEQUIVEN - Intercambiadores de Tubo/Carcasa",
+        'numeros': [1,2,3,4,5,6,7,8,9,10]
     }
 
     def get(self, request):
