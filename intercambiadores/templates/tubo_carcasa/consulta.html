@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base_consultas.html' %}
 {% load static %}
 
 {% block head %}
@@ -12,277 +12,99 @@
 </style>
 {% endblock %}
 
-{% block contenido %}
-<div class="row d-flex justify-content-center align-items-center">
+{% block encabezado %}
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'seleccion_tipo_intercambiador' %}">↶ Regresar</a></div>
   <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Intercambiadores de Calor Tubo/Carcasa</h3></div>
-  <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-success" href="{% url 'seleccion_tipo_intercambiador' %}">+ Nuevo</a></div>
-</div>
-<hr>
-<div class="row mb-2">
-    <div class="d-flex flex-column col">
-      <label for="tag">Tag:</label>
-      <input type="text" name="tag" id="tag" maxlength="20" class="form-control">
-    </div>
-    <div class="d-flex flex-column col">
-        <label for="empresa">Empresa:</label>
-        <select name="empresa" id="empresa" class="form-control">
-            <option value="">
-                ----------------------------
-            </option>
-        </select>
-    </div>
-    <div class="d-flex flex-column col">
-        <label for="complejo">Complejo:</label>
-        <select name="complejo" id="complejo" disabled="disabled" class="form-control">
-            <option value="">
-                ----------------------------
-            </option>
-        </select>
-    </div>
-    <div class="d-flex flex-column col">
-        <label for="planta">Planta:</label>
-        <select name="planta" id="planta" disabled="disabled" class="form-control">
-            <option value="">
-                ----------------------------
-            </option>
-        </select>
-    </div>
-</div>
+  <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-success" href="#">+ Nuevo</a></div>
+{% endblock %}
 
-<table class="table table-dark table-striped table-hover table-bordered">
-    <thead class="text-center">
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col">Tag</th>
-        <th scope="col">Planta</th>
-        <th scope="col">Complejo</th>
-        <th scope="col">Empresa</th>
-        <th scope="col">Simulaciones</th>
-        <th scope="col">Ficha Técnica</th>
-      </tr>
-    </thead>
-    <tbody class="text-center">
-      {% for x in numeros %}
-      <tr>
-        <th scope="row">{{x}}</th>
-        <td>380-C</td>
-        <td>Olefinas I</td>
-        <td>Ana María Campos</td>
-        <td>Pequiven</td>
-        <td>
-          <a class="btn btn-danger"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Simulaciones"></a>
-        </td>
-        <td>
-          <div class="modal fade" id="ficha_{{x}}" tabindex="-1" aria-labelledby="ficha_{{x}}Label" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-              <div class="modal-content text-dark">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="ficha_{{x}}Label">Ficha Técnica Tubo/Carcasa 380-A (Olefinas I)</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-start small">
-                  <div class="row">
-                    <div class="col-12">
-                      <div class="row">
-                        <table class="table table-light text-center table-bordered tabla_ficha">
-                          <tbody id="tabla_ficha_body">
-                            <tr>
-                              <th class="table-dark">Tag</th>
-                              <td>180-C</td>
-                              <td colspan="2" rowspan="4" style="vertical-align: middle;">
-                                <img src="{% static 'img/temas/intercambiadores/AEP.png' %}" class="w-100" alt="Tema del equipo">
-                              </td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark">Planta</th>
-                              <td>Olefinas I</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark">Tema</th>
-                              <td>AJS</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark">Fabricante</th>
-                              <td>Kellog</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark">Servicio</th>
-                              <td colspan="3">Enfriador 1era etapa 181-J</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark" colspan="4">
-                                <div class="d-inline-flex align-items-center">
-                                  Condiciones&nbsp;
-                                  <select name="condicion" id="condicion">
-                                    <option value="D">De Diseño</option>
-                                    <option value="M">Máximas</option>
-                                    <option value="P">De Planta</option>
-                                    <option value="m">Mínimas</option>
-                                    <option value="p">De Proceso</option>
-                                  </select>
-                                </div>
-                              </th>
-                            </tr>
-                            <tr>
-                              <th colspan="2" class="table-dark">Ítem</th>
-                              <th class="table-dark">Lado Carcasa</th>
-                              <th class="table-dark">Lado Tubo</th>
-                            </tr>
-                            <tr>
-                              <th class="table-dark" colspan="2">Fluido</th>
-                              <td>Gas de Proceso</td>
-                              <td>Agua Enfriamiento</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark" colspan="2">T. IN (°C)</th>
-                              <td>97.6</td>
-                              <td>33.3</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark" colspan="2">T. OUT (°C)</th>
-                              <td>40.6</td>
-                              <td>40.3</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark" colspan="2">Flujo Másico (Kg/h)</th>
-                              <td>117223</td>
-                              <td>697188</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark" colspan="2">Flujo Vapor IN (Kg/h)</th>
-                              <td>117223</td>
-                              <td>0</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark" colspan="2">Flujo Vapor OUT (Kg/h)</th>
-                              <td>114490</td>
-                              <td>0</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark" colspan="2">Flujo Líquido IN (Kg/h)</th>
-                              <td>0</td>
-                              <td>697188</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark" colspan="2">Flujo Líquido OUT (Kg/h)</th>
-                              <td>2733</td>
-                              <td>697188</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark" colspan="2">Caída Presión Permitida (bar)</th>
-                              <td>0.40</td>
-                              <td>0.80</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark" colspan="2">Caída Presión Diseño (bar)</th>
-                              <td>0.35</td>
-                              <td>0.08</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark" colspan="2">Fouling (m)</th>
-                              <td>0.000220</td>
-                              <td>0.000294</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark" colspan="2">Conexiones de Entrada</th>
-                              <td>2-20"-150#RF</td>
-                              <td>14"-150#RF</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark" colspan="2">Conexiones de Salida</th>
-                              <td>26"-150#RF</td>
-                              <td>14"-150#RF</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark" colspan="4">Parámetros Adicionales</th>
-                            </tr>
-                            <tr>
-                              <th class="table-dark">Calor (MW)</th>
-                              <td>5657.7</td>
-                              <th class="table-dark">Área (m²)</th>
-                              <td>1405</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark">Arreglo Serie</th>
-                              <td>1</td>
-                              <th class="table-dark">Arrgl. Paralelo</th>
-                              <td>1</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark">No. Tubos</th>
-                              <td>738</td>
-                              <th class="table-dark">Long. Tubos</th>
-                              <td>11</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark">Tipo Tubo</th>
-                              <td>Liso</td>
-                              <th class="table-dark">OD Tubos</th>
-                              <td>25.4</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark">Pitch</th>
-                              <td>31.75</td>
-                              <th class="table-dark">ID Carcasa</th>
-                              <td>1193</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark">Material Carc.</th>
-                              <td>SA-516-70</td>
-                              <th colspan="1" class="table-dark">Material Tubo</th>
-                              <td>SA-179</td>
-                            </tr>
-                            <tr>
-                              <th class="table-dark">Criticidad</th>
-                              <td colspan="3">Semi-Crítico</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar Reporte PDF</button>
-                  <button class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar Reporte XLSX</button>
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#ficha_{{x}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Ir a la pantalla de Simulaciones"></a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-</table>
-
-<div class="d-flex justify-content-between">
-  <div>
-    <form method="get">
-      <button class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar Reporte PDF</button>
-      <button class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar Reporte XLSX</button>
-    </form>
-  </div>
-  <nav aria-label="Page navigation example">
-      <ul class="pagination">
-        <li class="page-item">
-          <a class="page-link bg-dark text-white" href="#" aria-label="Previous">
-            <span aria-hidden="true">&laquo;</span>
-          </a>
-        </li>
-        <li class="page-item"><a class="page-link bg-dark text-white" href="#">1</a></li>
-        <li class="page-item"><a class="page-link bg-dark text-white" href="#">2</a></li>
-        <li class="page-item"><a class="page-link bg-dark text-white" href="#">3</a></li>
-        <li class="page-item">
-          <a class="page-link bg-dark text-white" href="#" aria-label="Next">
-            <span aria-hidden="true">&raquo;</span>
-          </a>
-        </li>
-      </ul>
-  </nav>
+{% block formulario_filtrado %}
+<div class="d-flex flex-column col">
+  <label for="tag">Tag:</label>
+  <input type="text" name="tag" id="tag" maxlength="20" class="form-control">
 </div>
+<div class="d-flex flex-column col">
+    <label for="empresa">Empresa:</label>
+    <select name="empresa" id="empresa" class="form-control">
+        <option value="">
+            ----------------------------
+        </option>
+    </select>
+</div>
+<div class="d-flex flex-column col">
+    <label for="complejo">Complejo:</label>
+    <select name="complejo" id="complejo" disabled="disabled" class="form-control">
+        <option value="">
+            ----------------------------
+        </option>
+    </select>
+</div>
+<div class="d-flex flex-column col">
+    <label for="planta">Planta:</label>
+    <select name="planta" id="planta" disabled="disabled" class="form-control">
+        <option value="">
+            ----------------------------
+        </option>
+    </select>
+</div>
+{% endblock %}
+
+{% block tabla %}
+<thead class="text-center">
+  <tr>
+    <th scope="col">#</th>
+    <th scope="col">Tag</th>
+    <th scope="col">Planta</th>
+    <th scope="col">Complejo</th>
+    <th scope="col">Empresa</th>
+    <th scope="col">Simulaciones</th>
+    <th scope="col">Ficha Técnica</th>
+  </tr>
+</thead>
+<tbody class="text-center">
+  {% for x in numeros %}
+  <tr>
+    <th scope="row">{{x}}</th>
+    <td>180-C</td>
+    <td>Olefinas I</td>
+    <td>Ana María Campos</td>
+    <td>Pequiven</td>
+    <td>
+      <a class="btn btn-danger" href="{% url 'consulta_simulaciones_tubo_carcasa' pk=1 %}"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Simulaciones"></a>
+    </td>
+    <td>
+      {% include 'fichas/intercambiadores/tubo_carcasa.html' %}
+      <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#ficha_{{x}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica"></a>
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>
+{% endblock %}
+
+{% block opciones %}
+<div>
+  <form method="get">
+    <button class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar Reporte PDF</button>
+    <button class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar Reporte XLSX</button>
+  </form>
+</div>
+<nav aria-label="Page navigation example">
+    <ul class="pagination">
+      <li class="page-item">
+        <a class="page-link bg-dark text-white" href="#" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+      <li class="page-item"><a class="page-link bg-dark text-white" href="#">1</a></li>
+      <li class="page-item"><a class="page-link bg-dark text-white" href="#">2</a></li>
+      <li class="page-item"><a class="page-link bg-dark text-white" href="#">3</a></li>
+      <li class="page-item">
+        <a class="page-link bg-dark text-white" href="#" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    </ul>
+</nav>
 {% endblock %}
 
 {% block extra_javascript %}

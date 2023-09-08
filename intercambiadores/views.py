@@ -6,6 +6,15 @@ import numpy
 
 # Create your views here.
 
+class ConsultaSimulacionesTuboCarcasa(View):
+    context = {
+        'titulo': "PEQUIVEN - Intercambiadores de Tubo/Carcasa",
+        'numeros': [1,2,3,4,5,6,7,8,9,10]
+    }
+
+    def get(self, request, pk):
+        return render(request, 'tubo_carcasa/simulaciones/consulta.html', context=self.context)
+
 class ConsultaTuboCarcasa(View):
     context = {
         'titulo': "PEQUIVEN - Intercambiadores de Tubo/Carcasa",

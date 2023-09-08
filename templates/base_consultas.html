@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+<div class="row d-flex justify-content-center align-items-center">
+  {% block encabezado %}
+  {% endblock %}
+</div>
+<hr>
+
+<div class="row mb-2">
+    {% block formulario_filtrado %}
+    {% endblock %}
+</div>
+
+<table class="table table-dark table-striped table-hover table-bordered">
+    {% block tabla %}
+    {% endblock %}
+</table>
+
+<div class="d-flex justify-content-between">
+  {% block opciones %}
+  {% endblock %}
+</div>
+{% endblock %}
