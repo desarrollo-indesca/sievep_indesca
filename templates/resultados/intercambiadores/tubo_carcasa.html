@@ -1,0 +1,241 @@
+{% load static %}
+
+<div class="modal fade" id="resultados_{{z}}" tabindex="-1" aria-labelledby="resultados_{{z}}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="resultados_{{z}}Label">Resultados de la Simulación #{{z}} (180-C)</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body text-start small">
+            <div class="row">
+                <div class="col-lg-6 col-xs-12">
+                    <table class="table table-light text-center table-bordered small">
+                        <tbody id="body">
+                          <tr>
+                            <th class="table-success" colspan="6">Datos de Entrada</th>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" colspan="2"></th>
+                            <th class="table-dark small"colspan="2">Tubo Externo</th>
+                            <th class="table-dark small"colspan="2">Tubo Interno</th>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="2">Fluido</th>
+                            <th class="table-dark small">Nombre</th>
+                            <th class="table-dark small">Cp</th>
+                            <th class="table-dark small">Nombre</th>
+                            <th class="table-dark small">Cp</th>
+                          </tr>
+                          <tr>
+                            <td>Agua Refrigerada</td>
+                            <td>0.9983</td>
+                            <td>Etileno</td>
+                            <td>0.3878</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="4">Temperatura (°C)</th>
+                            <th class="table-dark small">IN</th>
+                            <th class="table-dark small">OUT</th>
+                            <th class="table-dark small">IN</th>
+                            <th class="table-dark small">OUT</th>
+                          </tr>
+                          <tr>
+                            <td>50</td>
+                            <td>35</td>
+                            <td>52</td>
+                            <td>34</td>
+                          </tr>
+                          <tr>
+                            <th colspan="4" class="table-dark small">Promedios</th>
+                          </tr>
+                          <tr style="vertical-align: middle;">
+                            <td colspan="2">42.5</td>
+                            <td colspan="2">43</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="2">Flujo Másico (Kg/h)</th>
+                            <th class="table-dark small" style="vertical-align: middle;" colspan="2">Externo</th>
+                            <th class="table-dark small" style="vertical-align: middle;" colspan="2">Interno</th>
+                          </tr>
+                          <tr style="vertical-align: middle;">
+                            <td colspan="2">50</td>
+                            <td colspan="2">20</td>
+                          </tr>
+                          <tr>
+
+                          </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-lg-6 col-xs-12 small">
+                  <table class="table table-light text-center table-bordered >
+                    <tbody id="body">
+                      <tr>
+                        <th class="table-warning" colspan="6">Geometría del Intercambiador</th>
+                      </tr>
+                      <tr>
+                        <th class="table-dark" colspan="2"></th>
+                        <th class="table-dark small"colspan="2">Carcasa</th>
+                        <th class="table-dark small"colspan="2">Tubo</th>
+                      </tr>
+                      <tr>
+                        <th class="table-dark" style="vertical-align: middle;" colspan="2">Diámetro Interno (mm)</th>
+                        <td colspan="2">125,00</td>
+                        <td colspan="2">54,00</td>
+                      </tr>
+                      <tr>
+                        <th class="table-dark" style="vertical-align: middle;" colspan="2">Diámetro Externo (mm)</th>
+                        <td colspan="2">133,00</td>
+                        <td colspan="2">83,00</td>
+                      </tr>
+                      <tr>
+                        <th class="table-dark" style="vertical-align: middle;" colspan="2">Longitud (m)</th>
+                        <td colspan="4">105,16</td>
+                      </tr>
+                      <tr>
+                        <th class="table-dark" colspan="6">Condiciones <b>de Diseño</b></th> <!--Esto dependerá de las condiciones de la simulación-->
+                      </tr>
+                      <tr>
+                        <th class="table-dark" style="vertical-align: middle;" colspan="2">Área/unidad (m²)</th>
+                        <td colspan="4">105,16</td>
+                      </tr>
+                      <tr>
+                        <th class="table-dark" style="vertical-align: middle;" colspan="2"></th>
+                        <th class="table-dark small" style="vertical-align: middle;" colspan="2">Limpio</th>
+                        <th class="table-dark small" style="vertical-align: middle;" colspan="2">Sucio</th>
+                      </tr>
+                      <tr style="vertical-align: middle;">
+                        <th class="table-dark" style="vertical-align: middle;" colspan="2">U (Kcal/hCm²)</th>
+                        <td colspan="2">355,30</td>
+                        <td colspan="2">287,56</td>
+                      </tr>
+                      <tr style="vertical-align: middle;">
+                        <th class="table-dark" style="vertical-align: middle;" colspan="2">% Eficiencia</th>
+                        <td colspan="2">71,19</td>
+                        <td colspan="2">57,61</td>
+                      </tr>
+                    </tbody>
+                </table>                    
+                </div>
+                <div class="col-lg-6 col-xs-12 small">
+                  <table class="table table-light text-center table-bordered >
+                    <tbody id="body">
+                      <tr>
+                        <th class="table-danger" colspan="4">Resultados de la Simulación</th>
+                      </tr>
+                      <tr>
+                        <th class="table-dark" style="vertical-align: middle;">LMTD</th>
+                        <td>16,49</td>
+                        <th class="table-dark" style="vertical-align: middle;">Área Transf. (m²)</th>
+                        <td>43,92</td>
+                      </tr>
+                      <tr>
+                        <th class="table-dark" style="vertical-align: middle;">NTU</th>
+                        <td>-2,38</td>
+                        <th class="table-dark" style="vertical-align: middle;">Efectividad</th>
+                        <td>-19,631</td>
+                      </tr>
+                      <tr>
+                        <th class="table-dark" style="vertical-align: middle;">U (Kcal/hCm²)</th>
+                        <td>-0,42</td>
+                        <th class="table-dark" style="vertical-align: middle;">UA (Kcal/hC)</th>
+                        <td>-18,46</td>
+                      </tr>
+                      <tr>
+                        <th class="table-dark" style="vertical-align: middle;">% Eficiencia</th>
+                        <td>-0,42</td>
+                        <th class="table-dark" style="vertical-align: middle;">Ensuciamiento</th>
+                        <td>-5552,64</td>
+                      </tr>
+                      <tr>
+                        <th class="table-dark" colspan="4">
+                          Coeficientes de Película (Kcal/hm²C)
+                        </th>
+                      </tr>
+                      <tr>
+                        <th class="table-dark">Interno</th>
+                        <td>-</td>
+                        <th class="table-dark">Externo</th>
+                        <td>-</td>
+                      </tr>
+                    </tbody>
+                </table>                    
+                </div>
+                <div class="col-lg-6 col-xs-12 d-flex justify-content-center align-items-center">
+                  <canvas hidden id="grafica_{{z}}" class="border border-dark" style="min-width: 100%;" class="bg-white m-3"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</button>
+          <button class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>
+  canvas = document.getElementById('grafica_1').getContext('2d');
+  datosGrafica = undefined;
+
+  console.log("a");
+
+  // $.ajax({
+  //     url: `datos_grafica.php?id=<?php echo $_GET['id_pozo']; ?>&fecha_max=${$('#fecha_max').val()}&fecha_min=${$('#fecha_min').val()}`,
+  //     method: "GET",
+  //     async: false,
+  //     success: function(data){
+  //         console.log(data);
+  //         datosGrafica = JSON.parse(data);
+  //     },
+  //     error: function(error){
+  //         console.log(error);
+  //     }
+  // });
+
+  $('#grafica_1').removeAttr('hidden');
+  if(chart)
+    chart.destroy();
+
+  chart = new Chart(canvas, {
+          type: 'line',
+          data: {
+              datasets: [
+                  {
+                      label: "Tubo Externo",
+                      data: {
+                        Inicial: 50,
+                        Final: 35
+                      },
+                      backgroundColor: ['#E31E24'],
+                      borderColor: ['#E31E24']
+                  },
+                  {
+                      label: "Tubo Interno",
+                      data: {
+                        Inicial: 52,
+                        Final: 34
+                      },
+                      backgroundColor: ['#555'],
+                      borderColor: ['#555']
+                  }
+              ]
+          },
+          options: {
+              responsive: true,
+              plugins: {
+                  title: {
+                      display: true,
+                      text: 'Variación de las Temperaturas',
+                      position: 'top'
+                  },
+                  legend: {
+                      display: true
+                  }
+              }        
+          }
+  });
+</script>

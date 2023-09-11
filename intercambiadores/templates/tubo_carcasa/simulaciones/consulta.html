@@ -7,6 +7,12 @@
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
     <a class="btn d-block btn-success" href="#">+ Nueva</a> &nbsp;
   </div>
+
+  <script>
+    let chart = null;
+    let canvas = null;
+    let datosGrafica = null;
+  </script>
 {% endblock %}
 
 {% block formulario_filtrado %}
@@ -73,7 +79,11 @@
     <td>Prueba de Nuevas Temperaturas</td>
     <td>De Diseño</td>
     <td>Eficiencia-NTU</td>
-    <td><a class="btn btn-danger" href="#"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Ícono de Resultados"></a></td>                     
+    <td>
+      {% include 'resultados/intercambiadores/tubo_carcasa.html' %}
+      
+      <button data-bs-toggle="modal" id="boton_resultados_{{z}}" data-bs-target="#resultados_{{z}}" class="btn btn-danger"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Ícono de Resultados"></button>
+    </td>
   </tr>
   {% endfor %}
 </tbody>

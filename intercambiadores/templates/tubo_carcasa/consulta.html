@@ -108,4 +108,56 @@
 {% endblock %}
 
 {% block extra_javascript %}
+<script>
+  let canvas = document.getElementById('grafica_1').getContext('2d');
+  let datosGrafica = undefined;
+
+  // $.ajax({
+  //     url: `datos_grafica.php?id=<?php echo $_GET['id_pozo']; ?>&fecha_max=${$('#fecha_max').val()}&fecha_min=${$('#fecha_min').val()}`,
+  //     method: "GET",
+  //     async: false,
+  //     success: function(data){
+  //         console.log(data);
+  //         datosGrafica = JSON.parse(data);
+  //     },
+  //     error: function(error){
+  //         console.log(error);
+  //     }
+  // });
+
+  $('#grafica').removeAttr('hidden');
+  if(chart)
+    chart.destroy();
+
+  chart = new Chart(canvas, {
+          type: 'line',
+          data: {
+              datasets: [
+                  {
+                      label: "Tubo Externo",
+                      data: [50, 35],
+                      backgroundColor: ['#E31E24']
+                  },
+                  {
+                      label: "Tubo Interno",
+                      data: [52, 34],
+                      backgroundColor: ['#555']
+                  }
+              ]
+          },
+          options: {
+              responsive: true,
+              plugins: {
+                  title: {
+                      display: true,
+                      text: 'Variación de las Temperaturas',
+                      position: 'top'
+                  },
+                  legend: {
+                      display: true
+                  }
+              }        
+          }
+  });
+</script>
 {% endblock %}
