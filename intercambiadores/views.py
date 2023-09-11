@@ -4,7 +4,14 @@ from .models import *
 from django.http import JsonResponse
 import numpy
 
-# Create your views here.
+# VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
+
+class CrearSimulacionTuboCarcasa(View):
+    context = {
+        'titulo': "Simulación Tubo Carcasa"
+    }
+    def get(self, request, pk):
+        return render(request, 'tubo_carcasa/simulaciones/creacion.html', context=self.context)
 
 class ConsultaSimulacionesTuboCarcasa(View):
     context = {
@@ -24,6 +31,8 @@ class ConsultaTuboCarcasa(View):
     def get(self, request):
         return render(request, 'tubo_carcasa/consulta.html', context=self.context)
 
+# VISTAS GENERALES PARA LOS INTERCAMBIADORES DE CALOR
+
 class SeleccionTipo(View):
     context = {
         'titulo': "PEQUIVEN - Selección de Tipo de Intercambiador"
@@ -31,6 +40,8 @@ class SeleccionTipo(View):
 
     def get(self, request):
         return render(request, 'seleccion_tipo.html', context=self.context)
+
+# ESTAS YA NO SE USARÁN
 
 class Simulaciones(View):
     context = {
