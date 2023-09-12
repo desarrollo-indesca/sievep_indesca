@@ -6,6 +6,14 @@ import numpy
 
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
 
+class CrearIntercambiadorTuboCarcasa(View):
+    context = {
+        'titulo': "Creación de Intercambiador Tubo Carcasa"
+    }
+    
+    def get(self, request):
+        return render(request, 'tubo_carcasa/creacion.html', context=self.context)
+
 class CrearSimulacionTuboCarcasa(View):
     context = {
         'titulo': "Simulación Tubo Carcasa"
