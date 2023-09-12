@@ -16,12 +16,12 @@
     
         <div class="row">
             <div class="col-4 d-flex flex-column">
-                <label for="metodo">Nombre de la Simulación:</label>
+                <label class="form-label" for="metodo">Nombre de la Simulación:</label>
                 <input type="text" class="form-control" name="nombre">
             </div>
 
             <div class="col-4 d-flex flex-column">
-                <label for="metodo">Método:</label>
+                <label class="form-label" for="metodo">Método:</label>
                 <select required class="form-select" name="metodo" id="metodo">
                     <option value="NTU">Eficiencia-NTU</option>
                     <option value="LMTD">LMTD</option>
@@ -30,7 +30,7 @@
             </div>
     
             <div class="col-4 d-flex flex-column">
-                <label for="metodo">Condiciones:</label>
+                <label class="form-label" for="metodo">Condiciones:</label>
                 <select required class="form-select" name="metodo" id="metodo">
                     <option value="D">De Diseño</option>
                     <option value="M">Máximas</option>
@@ -50,15 +50,15 @@
     
                 <div class="row">
                     <div class="col-6 d-flex flex-column">
-                        <label for="temp_in_carcasa">Temperatura Entrada (°C):</label>
+                        <label class="form-label" for="temp_in_carcasa">Temperatura Entrada (°C):</label>
                         <input class="form-control temperatura" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
                     <div class="col-6">
-                        <label for="temp_out_carcasa">Temperatura Salida (°C):</label>
+                        <label class="form-label" for="temp_out_carcasa">Temperatura Salida (°C):</label>
                         <input class="form-control temperatura" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
                     <div class="col-12">
-                        <label for="flujo_carcasa">Flujo Másico (Kg/h):</label>
+                        <label class="form-label" for="flujo_carcasa">Flujo Másico (Kg/h):</label>
                         <input class="form-control" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
                 </div>
@@ -67,15 +67,15 @@
                 <h4 class="text-center mb-3">Tubo</h4>
                 <div class="row">
                     <div class="col-6 d-flex flex-column">
-                        <label for="temp_in_tubo">Temperatura Entrada (°C):</label>
+                        <label class="form-label" for="temp_in_tubo">Temperatura Entrada (°C):</label>
                         <input class="form-control temperatura" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
                     <div class="col-6">
-                        <label for="temp_out_tubo">Temperatura Salida (°C):</label>
+                        <label class="form-label" for="temp_out_tubo">Temperatura Salida (°C):</label>
                         <input class="form-control temperatura" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
                     <div class="col-12">
-                        <label for="flujo_tubo">Flujo Másico (Kg/h):</label>
+                        <label class="form-label" for="flujo_tubo">Flujo Másico (Kg/h):</label>
                         <input class="form-control" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
                 </div>
@@ -90,35 +90,35 @@
                 </div>
 
                 <div class="col-4 d-flex flex-column">
-                    <label>LMTD:</label>
+                    <label class="form-label">LMTD:</label>
                     <input id="lmtd" disabled type="text" class="form-control">
                 </div>
                 <div class="col-4 d-flex flex-column">
-                    <label>Área Transf. (m²):</label>
+                    <label class="form-label">Área Transf. (m²):</label>
                     <input id="area" disabled type="text" class="form-control">
                 </div>
                 <div class="col-4 d-flex flex-column">
-                    <label>NTU:</label>
+                    <label class="form-label">NTU:</label>
                     <input id="ntu" disabled type="text" class="form-control">
                 </div>
                 <div class="col-4 d-flex flex-column">
-                    <label>Efectividad:</label>
+                    <label class="form-label">Efectividad:</label>
                     <input id="efectividad" disabled type="text" class="form-control">
                 </div>
                 <div class="col-4 d-flex flex-column">
-                    <label>U (Kcal/hCm²)</label>
+                    <label class="form-label">U (Kcal/hCm²)</label>
                     <input id="u" disabled type="text" class="form-control">
                 </div>
                 <div class="col-4 d-flex flex-column">
-                    <label>UA (Kcal/hC):</label>
+                    <label class="form-label">UA (Kcal/hC):</label>
                     <input id="UA" disabled type="text" class="form-control">
                 </div>
                 <div class="col-4 d-flex flex-column">
-                    <label>% Eficiencia:</label>
+                    <label class="form-label">% Eficiencia:</label>
                     <input id="eficiencia" disabled type="text" class="form-control">
                 </div>
                 <div class="col-4 d-flex flex-column">
-                    <label>Ensuciamiento:</label>
+                    <label class="form-label">Ensuciamiento:</label>
                     <input id="ensuciamiento" disabled type="text" class="form-control">
                 </div>
                 <div class="col-12 row">
@@ -126,11 +126,11 @@
                         <b>Coefic. de Película (Kcal/hm²C)</b>
                     </div>
                     <div class="d-flex flex-column col-4">
-                        <label>Interno:</label>
+                        <label class="form-label">Interno:</label>
                         <input id="coef_interno" disabled type="text" class="form-control">
                     </div>
                     <div class="d-flex flex-column col-4">
-                        <label>Externo:</label>
+                        <label class="form-label">Externo:</label>
                         <input id="coef_externo" disabled type="text" class="form-control">
                     </div>  
                 </div>          
@@ -141,7 +141,7 @@
         </div>
         <hr>
         
-        <div class="d-flex justify-content-center">
+        <div class="d-flex justify-content-center mb-3">
             <button class="btn btn-danger">Guardar Resultados De La Simulación</button>
         </div>
     </form>

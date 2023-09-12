@@ -4,12 +4,9 @@
 {% block contenido %}
     <form method="post">
         <div class="row">
-            <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'consulta_simulaciones_tubo_carcasa' pk=1 %}">↶ Regresar</a></div>
+            <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_tubo_carcasa' %}">↶ Regresar</a></div>
             <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Nuevo Intercambiador de Tubo/Carcasa</h3></div>
-            <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
-                {% include 'fichas/intercambiadores/tubo_carcasa.html' %}
-                <button type="button" class="btn btn-danger text-dark" data-bs-toggle="modal" data-bs-target="#ficha_{{x}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica"> Ficha Técnica</button>
-            </div>
+            <div class="col-3"></div>
         </div>
     
         <hr>
@@ -20,7 +17,7 @@
             </div>
 
             <div class="col-3 d-flex flex-column">
-                <label for="empresa">Empresa:</label>
+                <label class="form-label" for="empresa">Empresa:</label>
                 <select class="form-select" name="empresa" id="empresa">
                     <option value="1">PEQUIVEN</option>
                     <option value="2">PROPILVEN</option>
@@ -29,7 +26,7 @@
             </div>
 
             <div class="col-3 d-flex flex-column">
-                <label for="complejo">Complejo:</label>
+                <label class="form-label" for="complejo">Complejo:</label>
                 <select required class="form-select" name="complejo" id="complejo">
                     <option value="1">ANA MARÍA CAMPOS</option>
                     <option value="2">JOSÉ ANTONIO ANZOÁTEGUI</option>
@@ -38,7 +35,7 @@
             </div>
     
             <div class="col-3 d-flex flex-column">
-                <label for="planta">Planta:</label>
+                <label class="form-label" for="planta">Planta:</label>
                 <select required class="form-select" name="planta" id="planta">
                     <option value="1">Olefinas I</option>
                     <option value="2">Olefinas II</option>
@@ -54,7 +51,7 @@
             </div>
 
             <div class="col-3 d-flex flex-column">
-                <label for="tema">Tema:</label>
+                <label class="form-label" for="tema">Tema:</label>
                 <select class="form-select" name="tema" id="tema">
                     <option value="1">AJS</option>
                     <option value="2">BEM</option>
@@ -63,22 +60,22 @@
             </div>
 
             <div class="col-3 d-flex flex-column">
-                <label for="tag">Tag del Equipo:</label>
+                <label class="form-label" for="tag">Tag del Equipo:</label>
                 <input type="text" required class="form-control" name="tag" id="tag">
             </div>
 
             <div class="col-3 d-flex flex-column">
-                <label for="servicio">Servicio:</label>
+                <label class="form-label" for="servicio">Servicio:</label>
                 <input type="text" required class="form-control" name="servicio" id="servicio">
             </div>            
 
             <div class="col-3 d-flex flex-column">
-                <label for="fabricante">Fabricante:</label>
+                <label class="form-label" for="fabricante">Fabricante:</label>
                 <input type="text" required class="form-control" name="fabricante" id="fabricante">
             </div>
 
             <div class="col-3 d-flex flex-column">
-                <label for="criticidad">Criticidad:</label>
+                <label class="form-label" for="criticidad">Criticidad:</label>
                 <select class="form-select" name="criticidad" id="criticidad">
                     <option value="1">No Crítico</option>
                     <option value="2">Semi Crítico</option>
@@ -99,7 +96,7 @@
     
                 <div class="row">
                     <div class="col-12 d-flex flex-column">
-                        <label for="fluido_carcasa">Fluido:</label>
+                        <label class="form-label" for="fluido_carcasa">Fluido:</label>
                         <select class="form-select" name="fluido_carcasa" id="fluido_carcasa">
                             <option value="1">Agua</option>
                             <option value="2">Hidrocarburos</option>
@@ -110,62 +107,62 @@
                     </div>
                     
                     <div class="col-6">
-                        <label for="temp_in_carcasa">Temperatura Entrada (°C):</label>
+                        <label class="form-label" for="temp_in_carcasa">Temperatura Entrada (°C):</label>
                         <input class="form-control" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
                     <div class="col-6">
-                        <label for="temp_out_carcasa">Temperatura Salida (°C):</label>
+                        <label class="form-label" for="temp_out_carcasa">Temperatura Salida (°C):</label>
                         <input class="form-control" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
 
                     <div class="col-12">
-                        <label for="flujo_carcasa">Flujo Másico (Kg/h):</label>
+                        <label class="form-label" for="flujo_carcasa">Flujo Másico (Kg/h):</label>
                         <input class="form-control" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
 
                     <div class="col-6">
-                        <label for="flujo_vapor_in_carcasa">Flujo de Vapor Entrada (Kg/h):</label>
+                        <label class="form-label" for="flujo_vapor_in_carcasa">Flujo de Vapor Entrada (Kg/h):</label>
                         <input class="form-control" type="number" name="flujo_vapor_in_carcasa" id="flujo_vapor_in_carcasa" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
                     <div class="col-6">
-                        <label for="flujo_vapor_out_carcasa">Flujo de Vapor Salida (Kg/h):</label>
+                        <label class="form-label" for="flujo_vapor_out_carcasa">Flujo de Vapor Salida (Kg/h):</label>
                         <input class="form-control" type="number" name="flujo_vapor_out_carcasa" id="flujo_vapor_out_carcasa" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
 
                     <div class="col-6">
-                        <label for="flujo_liquido_in_carcasa">Flujo Líquido Entrada (Kg/h):</label>
+                        <label class="form-label" for="flujo_liquido_in_carcasa">Flujo Líquido Entrada (Kg/h):</label>
                         <input class="form-control" type="number" name="flujo_liquido_in_carcasa" id="flujo_liquido_in_carcasa" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
                     <div class="col-6">
-                        <label for="flujo_liquido_out_carcasa">Flujo Líquido Salida (Kg/h):</label>
+                        <label class="form-label" for="flujo_liquido_out_carcasa">Flujo Líquido Salida (Kg/h):</label>
                         <input class="form-control" type="number" name="flujo_liquido_out_carcasa" id="flujo_liquido_out_carcasa" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
 
                     <div class="col-12">
-                        <label for="presion_entrada_carcasa">Presión Entrada (barg):</label>
+                        <label class="form-label" for="presion_entrada_carcasa">Presión Entrada (barg):</label>
                         <input class="form-control" type="number" name="presion_entrada_carcasa" id="presion_entrada_carcasa" step="0.01" required>
                     </div>
 
                     <div class="col-6">
-                        <label for="caida_presion_permitida_carcasa">Caída de Presión Permitida (bar):</label>
+                        <label class="form-label" for="caida_presion_permitida_carcasa">Caída de Presión Permitida (bar):</label>
                         <input class="form-control" type="number" name="caida_presion_permitida_carcasa" id="caida_presion_permitida_carcasa" step="0.01">
                     </div>
                     <div class="col-6">
-                        <label for="caida_presion_diseno_carcasa">Caída de Presión Diseño (bar):</label>
+                        <label class="form-label" for="caida_presion_diseno_carcasa">Caída de Presión Diseño (bar):</label>
                         <input class="form-control" type="number" name="caida_presion_diseno_carcasa" id="caida_presion_diseno_carcasa" step="0.01">
                     </div>
 
                     <div class="col-12">
-                        <label for="fouling_carcasa">Fouling (m²C/W):</label>
+                        <label class="form-label" for="fouling_carcasa">Fouling (m²C/W):</label>
                         <input class="form-control" type="number" name="fouling_carcasa" id="fouling_carcasa" step="0.00000001" required>
                     </div>
 
                     <div class="col-6">
-                        <label for="conexiones_entrada_carcasa">Conexiones de Entrada:</label>
+                        <label class="form-label" for="conexiones_entrada_carcasa">Conexiones de Entrada:</label>
                         <input class="form-control" type="text" name="conexiones_entrada_carcasa" id="conexiones_entrada_carcasa" step="0.01">
                     </div>
                     <div class="col-6">
-                        <label for="conexiones_salida_carcasa">Conexiones de Salida:</label>
+                        <label class="form-label" for="conexiones_salida_carcasa">Conexiones de Salida:</label>
                         <input class="form-control" type="text" name="conexiones_salida_carcasa" id="conexiones_salida_carcasa" step="0.01">
                     </div>
                 </div>
@@ -175,7 +172,7 @@
                 <h4 class="text-center mb-3">Tubo</h4>
                 <div class="row">
                     <div class="col-12 d-flex flex-column">
-                        <label for="fluido_tubo">Fluido:</label>
+                        <label class="form-label" for="fluido_tubo">Fluido:</label>
                         <select class="form-select" name="fluido_tubo" id="fluido_tubo">
                             <option value="1">Agua</option>
                             <option value="2">Hidrocarburos</option>
@@ -186,62 +183,62 @@
                     </div>
                     
                     <div class="col-6">
-                        <label for="temp_in_tubo">Temperatura Entrada (°C):</label>
+                        <label class="form-label" for="temp_in_tubo">Temperatura Entrada (°C):</label>
                         <input class="form-control" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
                     <div class="col-6">
-                        <label for="temp_out_tubo">Temperatura Salida (°C):</label>
+                        <label class="form-label" for="temp_out_tubo">Temperatura Salida (°C):</label>
                         <input class="form-control" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
 
                     <div class="col-12">
-                        <label for="flujo_tubo">Flujo Másico (Kg/h):</label>
+                        <label class="form-label" for="flujo_tubo">Flujo Másico (Kg/h):</label>
                         <input class="form-control" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
 
                     <div class="col-6">
-                        <label for="flujo_vapor_in_tubo">Flujo de Vapor Entrada (Kg/h):</label>
+                        <label class="form-label" for="flujo_vapor_in_tubo">Flujo de Vapor Entrada (Kg/h):</label>
                         <input class="form-control" type="number" name="flujo_vapor_in_tubo" id="flujo_vapor_in_tubo" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
                     <div class="col-6">
-                        <label for="flujo_vapor_out_tubo">Flujo de Vapor Salida (Kg/h):</label>
+                        <label class="form-label" for="flujo_vapor_out_tubo">Flujo de Vapor Salida (Kg/h):</label>
                         <input class="form-control" type="number" name="flujo_vapor_out_tubo" id="flujo_vapor_out_tubo" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
 
                     <div class="col-6">
-                        <label for="flujo_liquido_in_tubo">Flujo Líquido Entrada (Kg/h):</label>
+                        <label class="form-label" for="flujo_liquido_in_tubo">Flujo Líquido Entrada (Kg/h):</label>
                         <input class="form-control" type="number" name="flujo_liquido_in_tubo" id="flujo_liquido_in_tubo" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
                     <div class="col-6">
-                        <label for="flujo_liquido_out_tubo">Flujo Líquido Salida (Kg/h):</label>
+                        <label class="form-label" for="flujo_liquido_out_tubo">Flujo Líquido Salida (Kg/h):</label>
                         <input class="form-control" type="number" name="flujo_liquido_out_tubo" id="flujo_liquido_out_tubo" step="0.01" min="-273.15" max="9999.99" required>
                     </div>
 
                     <div class="col-12">
-                        <label for="presion_entrada_tubo">Presión Entrada (barg):</label>
+                        <label class="form-label" for="presion_entrada_tubo">Presión Entrada (barg):</label>
                         <input class="form-control" type="number" name="presion_entrada_tubo" id="presion_entrada_tubo" step="0.01" required>
                     </div>
 
                     <div class="col-6">
-                        <label for="caida_presion_permitida_tubo">Caída de Presión Permitida (bar):</label>
+                        <label class="form-label" for="caida_presion_permitida_tubo">Caída de Presión Permitida (bar):</label>
                         <input class="form-control" type="number" name="caida_presion_permitida_tubo" id="caida_presion_permitida_tubo" step="0.01">
                     </div>
                     <div class="col-6">
-                        <label for="caida_presion_diseno_tubo">Caída de Presión Diseño (bar):</label>
+                        <label class="form-label" for="caida_presion_diseno_tubo">Caída de Presión Diseño (bar):</label>
                         <input class="form-control" type="number" name="caida_presion_diseno_tubo" id="caida_presion_diseno_tubo" step="0.01">
                     </div>
 
                     <div class="col-12">
-                        <label for="fouling_tubo">Fouling (m²C/W):</label>
+                        <label class="form-label" for="fouling_tubo">Fouling (m²C/W):</label>
                         <input class="form-control" type="number" name="fouling_tubo" id="fouling_tubo" step="0.00000001" required>
                     </div>
 
                     <div class="col-6">
-                        <label for="conexiones_entrada_tubo">Conexiones de Entrada:</label>
+                        <label class="form-label" for="conexiones_entrada_tubo">Conexiones de Entrada:</label>
                         <input class="form-control" type="text" maxlength="50" name="conexiones_entrada_tubo" id="conexiones_entrada_tubo">
                     </div>
                     <div class="col-6">
-                        <label for="conexiones_salida_tubo">Conexiones de Salida:</label>
+                        <label class="form-label" for="conexiones_salida_tubo">Conexiones de Salida:</label>
                         <input class="form-control" type="text" maxlength="50" name="conexiones_salida_tubo" id="conexiones_salida_tubo">
                     </div>
                 </div>
@@ -262,62 +259,62 @@
             <div class="col-12">    
                 <div class="row">                    
                     <div class="col-3">
-                        <label for="calor">Calor (MW):</label>
+                        <label class="form-label" for="calor">Calor (MW):</label>
                         <input class="form-control" type="number" name="calor" id="calor" step="0.0001" required>
                     </div>
 
                     <div class="col-3">
-                        <label for="area">Área (m²):</label>
+                        <label class="form-label" for="area">Área (m²):</label>
                         <input class="form-control" type="number" name="area" id="area" step="0.0001" required>
                     </div>
 
                     <div class="col-3">
-                        <label for="arreglo_serie">Arreglo Serie:</label>
+                        <label class="form-label" for="arreglo_serie">Arreglo Serie:</label>
                         <input class="form-control" type="number" name="arreglo_serie" id="arreglo_serie" step="0.0001" required>
                     </div>
 
                     <div class="col-3">
-                        <label for="arreglo_paralelo">Arreglo Paralelo:</label>
+                        <label class="form-label" for="arreglo_paralelo">Arreglo Paralelo:</label>
                         <input class="form-control" type="number" name="arreglo_paralelo" id="arreglo_paralelo" step="0.0001" required>
                     </div>
 
                     <div class="col-3">
-                        <label for="no_tubos">No. Tubos:</label>
+                        <label class="form-label" for="no_tubos">No. Tubos:</label>
                         <input class="form-control" type="number" name="no_tubos" id="no_tubos" step="0.0001" required>
                     </div>
 
                     <div class="col-3">
-                        <label for="longitud_tubos">Longitud Tubos (m):</label>
+                        <label class="form-label" for="longitud_tubos">Longitud Tubos (m):</label>
                         <input class="form-control" type="number" name="longitud_tubos" id="longitud_tubos" step="0.0001" required>
                     </div>
 
                     <div class="col-3">
-                        <label for="tipo_tubo">Tipo de Tubo:</label>
+                        <label class="form-label" for="tipo_tubo">Tipo de Tubo:</label>
                         <input class="form-control" type="number" name="tipo_tubo" id="tipo_tubo" step="0.0001" required>
                     </div>
 
                     <div class="col-3">
-                        <label for="od_tubos">OD Tubos (mm):</label>
+                        <label class="form-label" for="od_tubos">OD Tubos (mm):</label>
                         <input class="form-control" type="number" name="od_tubos" id="od_tubos" step="0.0001" required>
                     </div>
 
                     <div class="col-3">
-                        <label for="pitch">Pitch (mm):</label>
+                        <label class="form-label" for="pitch">Pitch (mm):</label>
                         <input class="form-control" type="number" name="pitch" id="pitch" step="0.0001" required>
                     </div>
 
                     <div class="col-3">
-                        <label for="id_carcasa">ID Carcasa (m):</label>
+                        <label class="form-label" for="id_carcasa">ID Carcasa (m):</label>
                         <input class="form-control" type="number" name="id_carcasa" id="id_carcasa" step="0.0001" required>
                     </div>
 
                     <div class="col-3">
-                        <label for="material_carcasa">Material Carcasa:</label>
+                        <label class="form-label" for="material_carcasa">Material Carcasa:</label>
                         <input class="form-control" type="text" name="material_carcasa" id="material_carcasa">
                     </div>
 
                     <div class="col-3">
-                        <label for="material_tubo">Material Tubo:</label>
+                        <label class="form-label" for="material_tubo">Material Tubo:</label>
                         <input class="form-control" type="text" name="material_tubo" id="material_tubo">
                     </div>
                 </div>

@@ -4,34 +4,34 @@
     {% csrf_token %}
     <h2 class="text-center">Método Efectividad-NTU</h2>
     <hr>
-    <label for="condiciones">Condiciones de la Simulación:</label>
+    <label class="form-label" for="condiciones">Condiciones de la Simulación:</label>
     <select name="condiciones" id="condiciones">
         <option value="D">De Diseño</option>
         <option value="M">Máximas</option>
     </select>
 
-    <label for="planta">Planta</label>
+    <label class="form-label" for="planta">Planta</label>
     <select name="planta" id="planta">
         {% for planta in plantas %}
         <option value="{{planta.pk}}">{{planta.codigo}}</option>
         {% endfor %}
     </select>
 
-    <label for="area">Área</label>
+    <label class="form-label" for="area">Área</label>
     <select name="area" id="area">
         {% for area in areas %}
         <option value="{{area.pk}}">{{area.nombre}}</option>
         {% endfor %}
     </select>
 
-    <label for="intercambiador">Intercambiador</label>
+    <label class="form-label" for="intercambiador">Intercambiador</label>
     <select name="intercambiador" id="intercambiador">
         {% for intercambiador in intercambiadores %}
         <option value="{{intercambiador.pk}}">{{intercambiador.codigo}}</option>
         {% endfor %}
     </select> <br> <br>
 
-    <label for="fluido_interno">Fluido Interno</label>
+    <label class="form-label" for="fluido_interno">Fluido Interno</label>
     <select name="fluido_interno" id="fluido_interno">
         {% for fluido in fluidos_interno %}
         <option value="{{fluido.pk}}">{{fluido.nombre}}</option>
@@ -39,38 +39,38 @@
     </select>
 
 
-    <label  for="fluido_externo">Fluido Externo</label>
+    <label class="form-label"  for="fluido_externo">Fluido Externo</label>
     <select name="fluido_externo" id="fluido_externo">
         {% for fluido in fluidos_servicio %}
         <option value="{{fluido.pk}}">{{fluido.nombre}}</option>
         {% endfor %}
     </select> <br> <br>
 
-    <label for="temp_in_serv">Temperatura de Entrada °C (Servicio)</label>
+    <label class="form-label" for="temp_in_serv">Temperatura de Entrada °C (Servicio)</label>
     <input required name="temp_in_serv" type="number" min="-255" step="0.01" max="9999.99">
 
-    <label for="temp_out_serv">Temperatura de Salida °C (Servicio)</label>
+    <label class="form-label" for="temp_out_serv">Temperatura de Salida °C (Servicio)</label>
     <input required name="temp_out_serv" type="number" min="-255" step="0.01" max="9999.99">
 
-    <label for="temp_in_proceso">Temperatura de Entrada °C (Proceso)</label>
+    <label class="form-label" for="temp_in_proceso">Temperatura de Entrada °C (Proceso)</label>
     <input required name="temp_in_proceso" type="number" min="-255" step="0.01" max="9999.99">
 
-    <label for="temp_out_proceso">Temperatura de Salida °C (Proceso)</label>
+    <label class="form-label" for="temp_out_proceso">Temperatura de Salida °C (Proceso)</label>
     <input required name="temp_out_proceso" type="number" min="-255" step="0.01" max="9999.99"><br> <br>
 
-    <label for="flujo_interno">Flujo Másico Total Kg/h (Proceso)</label>
+    <label class="form-label" for="flujo_interno">Flujo Másico Total Kg/h (Proceso)</label>
     <input required name="flujo_interno" type="number" min="-9999.99" step="0.01" max="9999.99">
     
-    <label for="flujo_externo">Flujo Másico Total Kg/h (Proceso)</label>
+    <label class="form-label" for="flujo_externo">Flujo Másico Total Kg/h (Proceso)</label>
     <input required name="flujo_externo" type="number" min="-9999.99" step="0.01" max="9999.99"><br> <br>
 
-    <label for="d_ext_carcasa">Diámetro Externo Carcasa</label>
+    <label class="form-label" for="d_ext_carcasa">Diámetro Externo Carcasa</label>
     <input id="d_ext_carcasa" name="d_ext_carcasa" type="number" value="{{diametro_ex_carcasa}}" disabled>
 
-    <label for="d_ext_tubos">Diámetro Externo Tubos</label>
+    <label class="form-label" for="d_ext_tubos">Diámetro Externo Tubos</label>
     <input id="d_ext_tubos" name="d_ext_tubos" type="number" value="{{diametro_ex_tubos}}" disabled>
 
-    <label for="long_tubo">Longitud del Tubo</label>
+    <label class="form-label" for="long_tubo">Longitud del Tubo</label>
     <input id="long_tubo" name="long_tubo" type="number" value="{{diametro_ex_tubos}}" disabled> <br> <br>
 
     <input type="submit">
