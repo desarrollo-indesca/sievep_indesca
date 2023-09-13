@@ -69,58 +69,11 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="col-lg-6 col-xs-12 small">
-                  <table class="table table-light text-center table-bordered >
-                    <tbody id="body">
-                      <tr>
-                        <th class="table-warning" colspan="6">Geometría del Intercambiador</th>
-                      </tr>
-                      <tr>
-                        <th class="table-dark" colspan="2"></th>
-                        <th class="table-dark small"colspan="2">Carcasa</th>
-                        <th class="table-dark small"colspan="2">Tubo</th>
-                      </tr>
-                      <tr>
-                        <th class="table-dark" style="vertical-align: middle;" colspan="2">Diámetro Interno (mm)</th>
-                        <td colspan="2">125,00</td>
-                        <td colspan="2">54,00</td>
-                      </tr>
-                      <tr>
-                        <th class="table-dark" style="vertical-align: middle;" colspan="2">Diámetro Externo (mm)</th>
-                        <td colspan="2">133,00</td>
-                        <td colspan="2">83,00</td>
-                      </tr>
-                      <tr>
-                        <th class="table-dark" style="vertical-align: middle;" colspan="2">Longitud (m)</th>
-                        <td colspan="4">105,16</td>
-                      </tr>
-                      <tr>
-                        <th class="table-dark" colspan="6">Condiciones <b>de Diseño</b></th> <!--Esto dependerá de las condiciones de la simulación-->
-                      </tr>
-                      <tr>
-                        <th class="table-dark" style="vertical-align: middle;" colspan="2">Área/unidad (m²)</th>
-                        <td colspan="4">105,16</td>
-                      </tr>
-                      <tr>
-                        <th class="table-dark" style="vertical-align: middle;" colspan="2"></th>
-                        <th class="table-dark small" style="vertical-align: middle;" colspan="2">Limpio</th>
-                        <th class="table-dark small" style="vertical-align: middle;" colspan="2">Sucio</th>
-                      </tr>
-                      <tr style="vertical-align: middle;">
-                        <th class="table-dark" style="vertical-align: middle;" colspan="2">U (Kcal/hCm²)</th>
-                        <td colspan="2">355,30</td>
-                        <td colspan="2">287,56</td>
-                      </tr>
-                      <tr style="vertical-align: middle;">
-                        <th class="table-dark" style="vertical-align: middle;" colspan="2">% Eficiencia</th>
-                        <td colspan="2">71,19</td>
-                        <td colspan="2">57,61</td>
-                      </tr>
-                    </tbody>
-                </table>                    
+                <div class="col-lg-6 col-xs-12 d-flex justify-content-center align-items-center">
+                  <canvas hidden id="grafica_{{z}}" class="border border-dark" style="min-width: 100%;" class="bg-white m-3"></canvas>
                 </div>
                 <div class="col-lg-6 col-xs-12 small">
-                  <table class="table table-light text-center table-bordered >
+                  <table class="table table-light text-center table-bordered">
                     <tbody id="body">
                       <tr>
                         <th class="table-danger" colspan="4">Resultados de la Simulación</th>
@@ -149,23 +102,43 @@
                         <th class="table-dark" style="vertical-align: middle;">Ensuciamiento</th>
                         <td>-5552,64</td>
                       </tr>
+                    </tbody>
+                  </table>                    
+                </div>
+                <div class="col-lg-6 col-xs-12 small">
+                  <table class="table table-light text-center table-bordered">
+                    <tbody id="body">
                       <tr>
-                        <th class="table-dark" colspan="4">
-                          Coeficientes de Película (Kcal/hm²C)
-                        </th>
+                        <th class="table-warning" colspan="4">Datos de Diseño</th>
                       </tr>
                       <tr>
-                        <th class="table-dark">Interno</th>
-                        <td>-</td>
-                        <th class="table-dark">Externo</th>
-                        <td>-</td>
+                        <th class="table-dark" style="vertical-align: middle;">LMTD</th>
+                        <td>16,49</td>
+                        <th class="table-dark" style="vertical-align: middle;">Área Transf. (m²)</th>
+                        <td>43,92</td>
+                      </tr>
+                      <tr>
+                        <th class="table-dark" style="vertical-align: middle;">NTU</th>
+                        <td>-2,38</td>
+                        <th class="table-dark" style="vertical-align: middle;">Efectividad</th>
+                        <td>-19,631</td>
+                      </tr>
+                      <tr>
+                        <th class="table-dark" style="vertical-align: middle;">U (Kcal/hCm²)</th>
+                        <td>-0,42</td>
+                        <th class="table-dark" style="vertical-align: middle;">UA (Kcal/hC)</th>
+                        <td>-18,46</td>
+                      </tr>
+                      <tr>
+                        <th class="table-dark" style="vertical-align: middle;">% Eficiencia</th>
+                        <td>-0,42</td>
+                        <th class="table-dark" style="vertical-align: middle;">Ensuciamiento</th>
+                        <td>-5552,64</td>
                       </tr>
                     </tbody>
-                </table>                    
+                  </table>                    
                 </div>
-                <div class="col-lg-6 col-xs-12 d-flex justify-content-center align-items-center">
-                  <canvas hidden id="grafica_{{z}}" class="border border-dark" style="min-width: 100%;" class="bg-white m-3"></canvas>
-                </div>
+                
             </div>
         </div>
 

@@ -1,0 +1,146 @@
+{% load static %}
+
+<div class="modal fade" id="grafica_historica" tabindex="-1" aria-labelledby="grafica_historicaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="grafica_historicaLabel">Gráficas Históricas de las Evaluaciones</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body text-start small">
+            <div class="row">
+                <div class="col-6">
+                  <canvas width="100%" id="grafica_historico1"></canvas>
+                </div>
+                <div class="col-6">
+                  <canvas width="100%" id="grafica_historico2"></canvas>
+                </div>
+                <div class="col-3"></div>
+                <div class="col-6">
+                  <canvas width="100%" id="grafica_historico3"></canvas>
+                </div>
+                <div class="col-3"></div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</button>
+          <button class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>
+  canvas = document.getElementById('grafica_historico1').getContext('2d');
+  datosGrafica = undefined;
+
+  $('#grafica_historico1').removeAttr('hidden');
+
+  chart = new Chart(canvas, {
+          type: 'line',
+          data: {
+              datasets: [
+                  {
+                      label: "U",
+                      data: {
+                        '10/09/2023': 50,
+                        '11/09/2023': 80,
+                        '12/09/2023': 100,
+                        '13/09/2023': 75
+                      },
+                      backgroundColor: ['#777'],
+                      borderColor: ['#777']
+                  },
+              ]
+          },
+          options: {
+              responsive: true,
+              plugins: {
+                  title: {
+                      display: true,
+                      text: 'Histórico de U',
+                      position: 'top'
+                  },
+                  legend: {
+                      display: true
+                  }
+              }        
+          }
+  });
+
+  canvas = document.getElementById('grafica_historico2').getContext('2d');
+  datosGrafica = undefined;
+
+  $('#grafica_historico2').removeAttr('hidden');
+
+  chart = new Chart(canvas, {
+          type: 'line',
+          data: {
+              datasets: [
+                  {
+                      label: "Efectividad",
+                      data: {
+                        '10/09/2023': 500,
+                        '11/09/2023': 250,
+                        '12/09/2023': 382,
+                        '13/09/2023': 410
+                      },
+                      backgroundColor: ['#E31E24'],
+                      borderColor: ['#E31E24']
+                  },
+              ]
+          },
+          options: {
+              responsive: true,
+              plugins: {
+                  title: {
+                      display: true,
+                      text: 'Histórico de Efectividad',
+                      position: 'top'
+                  },
+                  legend: {
+                      display: true
+                  }
+              }        
+          }
+  });
+
+  canvas = document.getElementById('grafica_historico3').getContext('2d');
+  datosGrafica = undefined;
+
+  $('#grafica_historico3').removeAttr('hidden');
+
+  chart = new Chart(canvas, {
+          type: 'line',
+          data: {
+              datasets: [
+                  {
+                      label: "Ensuciamiento",
+                      data: {
+                        '10/09/2023': 50,
+                        '11/09/2023': 60,
+                        '12/09/2023': 80,
+                        '13/09/2023': 100
+                      },
+                      backgroundColor: ['#006400'],
+                      borderColor: ['#006400']
+                  },
+              ]
+          },
+          options: {
+              responsive: true,
+              plugins: {
+                  title: {
+                      display: true,
+                      text: 'Histórico de Ensuciamiento',
+                      position: 'top'
+                  },
+                  legend: {
+                      display: true
+                  }
+              }        
+          }
+  });
+</script>
