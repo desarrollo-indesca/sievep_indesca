@@ -4,8 +4,8 @@
 {% block contenido %}
     <form method="post">
         <div class="row">
-            <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'consulta_simulaciones_tubo_carcasa' pk=1 %}">↶ Regresar</a></div>
-            <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Nueva Simulación para el Intercambiador 180-C</h3></div>
+            <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'consulta_evaluaciones_tubo_carcasa' pk=1 %}">↶ Regresar</a></div>
+            <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Nueva Evaluación para el Intercambiador 180-C</h3></div>
             <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
                 {% include 'fichas/intercambiadores/tubo_carcasa.html' %}
                 <button type="button" class="btn btn-danger text-dark" data-bs-toggle="modal" data-bs-target="#ficha_{{x}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica"> Ficha Técnica</button>
@@ -16,7 +16,7 @@
     
         <div class="row">
             <div class="col-4 d-flex flex-column">
-                <label class="form-label" for="metodo">Nombre de la Simulación:</label>
+                <label class="form-label" for="metodo">Nombre de la Evaluación:</label>
                 <input type="text" class="form-control" name="nombre">
             </div>
 
@@ -139,7 +139,7 @@
         <hr>
         
         <div class="d-flex justify-content-center mb-3">
-            <button class="btn btn-danger">Guardar Resultados De La Simulación</button>
+            <button class="btn btn-danger">Guardar Resultados De La Evaluación</button>
         </div>
     </form>
 {% endblock %}

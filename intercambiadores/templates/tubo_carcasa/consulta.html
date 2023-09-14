@@ -57,7 +57,7 @@
     <th scope="col">Planta</th>
     <th scope="col">Complejo</th>
     <th scope="col">Empresa</th>
-    <th scope="col">Simulaciones</th>
+    <th scope="col">Evaluaciones</th>
     <th scope="col">Ficha Técnica</th>
   </tr>
 </thead>
@@ -70,7 +70,7 @@
     <td>Ana María Campos</td>
     <td>Pequiven</td>
     <td>
-      <a class="btn btn-danger" href="{% url 'consulta_simulaciones_tubo_carcasa' pk=1 %}"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Simulaciones"></a>
+      <a class="btn btn-danger" href="{% url 'consulta_evaluaciones_tubo_carcasa' pk=1 %}"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
     </td>
     <td>
       {% include 'fichas/intercambiadores/tubo_carcasa.html' %}

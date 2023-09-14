@@ -1,5 +1,7 @@
 from django.db import models
 
+# Tipos Estáticos
+
 criticidades = [
     ('C', 'Crítico'),
     ('S', 'Semi Crítico'),
@@ -26,33 +28,45 @@ estados_fluidos = [
     ("G", "Gaseoso")
 ]
 
-temperaturas = [
-    ("K", "Kelvin"),
-    ("C", "Celsius")
+tipos_unidades = [
+    ("T", "Temperatura"),
+    ("t", "Tiempo"),
+    ("m", "Masa"),
+    ("P", "Presión"),
+    ("L", "Longitud")
 ]
 
-class Empresa(models.Model):
-    id = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=100)
-
-    class Meta:
-        db_table = "empresa"
-
+# Modelos para Filtrado
 class Complejo(models.Model):
     id = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=100)
-    empresa = models.ForeignKey(Empresa, on_delete=models.DO_NOTHING)
+    nombre = models.CharField(max_length=50)
 
     class Meta:
         db_table = "complejo"
 
 class Planta(models.Model):
     id = models.AutoField(primary_key=True)
-    codigo = models.CharField(max_length=50, unique=True)
+    nombre = models.CharField(max_length=50, unique=True)
     complejo = models.ForeignKey(Complejo, on_delete=models.DO_NOTHING)
 
     class Meta:
         db_table = "planta"
+
+class Unidades(models.Model):
+    id = models.AutoField(primary_key=True)
+    simbolo = models.CharField(max_length=5)
+    valor = models.DecimalField(max_digits=10, decimal_places=5)
+    tipo = models.CharField(max_length=1)
+
+    class Meta:
+        db_table = "unidades"
+
+class Tema(models.Model):
+    id = models.AutoField(primary_key=True)
+    codigo = models.CharField(max_length=10, unique=True)
+
+    class Meta:
+        db_table = "tema"
 
 class Fluido(models.Model):
     id = models.AutoField(primary_key=True)
@@ -61,9 +75,9 @@ class Fluido(models.Model):
 
     peso_molecular = models.DecimalField(max_digits=6, decimal_places=3)
     estado = models.CharField(max_length=1, choices=estados_fluidos)
-    t = models.CharField(max_length=1, choices=temperaturas,default="C")
+    unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING)
 
-    # Datos Termodinámicos
+    # Constantes Termodinámicas
     a = models.DecimalField(max_digits=6, decimal_places=3)
     b = models.DecimalField(max_digits=8, decimal_places=7)
     c = models.DecimalField(max_digits=12, decimal_places=11)
@@ -85,7 +99,7 @@ class Fluido(models.Model):
 
 class TipoIntercambiador(models.Model):
     id = models.AutoField(primary_key=True)
-    nombre_tipo = models.CharField(max_length=50)
+    nombre = models.CharField(max_length=50)
 
     class Meta:
         db_table = "tipo_intercambiador"
@@ -94,7 +108,9 @@ class Intercambiador(models.Model):
     id = models.AutoField(primary_key=True)
     tag = models.CharField(max_length=50, unique=True)
     tipo = models.ForeignKey(TipoIntercambiador, on_delete=models.DO_NOTHING)
+    fabricante = models.CharField(max_length=45)
     planta = models.ForeignKey(Planta, on_delete=models.DO_NOTHING)
+    tema = models.ForeignKey(Tema, on_delete=models.DO_NOTHING)
     servicio = models.CharField(max_length=100)
 
     class Meta:
@@ -107,12 +123,7 @@ class TiposDeTubo(models.Model):
     class Meta:
         db_table = "tipos_de_tubo"
 
-class TemaTuboCarcasa(models.Model):
-    id = models.AutoField(primary_key=True)
-    codigo = models.CharField(max_length=20, unique=True)
-    descripcion = models.TextField()
-
-class IntercambiadorTuboCarcasa(models.Model):
+class PropiedadesTuboCarcasa(models.Model):
     id = models.AutoField(primary_key=True)
     intercambiador = models.OneToOneField(Intercambiador, related_name="datos_tubo_carcasa", on_delete=models.DO_NOTHING)
 
@@ -142,23 +153,19 @@ class IntercambiadorTuboCarcasa(models.Model):
     criticidad = models.CharField(choices=criticidades, max_length=1)
     arreglo_serie = models.IntegerField()
     arreglo_paralelo = models.IntegerField()
-    tema = models.ForeignKey(TemaTuboCarcasa, on_delete=models.DO_NOTHING, null=True)
     numero_pasos = models.IntegerField()
+
+    # Datos calculados
+    q = models.DecimalField(max_digits=10, decimal_places=3)
+    u = models.DecimalField(max_digits=10, decimal_places=3)
+    ensuciamiento = models.DecimalField(max_digits=10, decimal_places=3)
 
     class Meta:
         db_table = "intercambiador_tubo_carcasa"
 
-class CondicionesIntercambiadores(models.Model):
-    id = models.AutoField(primary_key=True)
-    intercambiador = models.ForeignKey(Intercambiador, on_delete=models.CASCADE)
-    tipo = models.CharField(max_length=1, choices=tipos_condiciones)
-
-    class Meta:
-        db_table = "condiciones_intercambiadores"
-
 class CondicionesTuboCarcasa(models.Model):
-    condiciones = models.ForeignKey(CondicionesIntercambiadores, on_delete=models.DO_NOTHING)
-    parte = models.TextField(max_length=1, choices=(('T', 'Tubo'), ('C', 'Carcasa')))
+    intercambiador = models.ForeignKey(PropiedadesTuboCarcasa, on_delete=models.DO_NOTHING)
+    lado = models.TextField(max_length=1, choices=(('T', 'Tubo'), ('C', 'Carcasa')))
     
     temp_entrada = models.DecimalField(max_digits=7, decimal_places=2) # Celsius
     temp_salida = models.DecimalField(max_digits=7, decimal_places=2) # Celsius
@@ -180,10 +187,10 @@ class CondicionesTuboCarcasa(models.Model):
     class Meta:
         db_table = "condiciones_tubo_carcasa"
 
-class SimulacionIntercambiador(models.Model):
+class EvaluacionesIntercambiador(models.Model):
     fecha = models.DateTimeField(auto_now=True)
     intercambiador = models.ForeignKey(Intercambiador, on_delete=models.CASCADE)
-    condiciones = models.ForeignKey(CondicionesIntercambiadores, on_delete=models.DO_NOTHING)
+    condiciones = models.ForeignKey(CondicionesTuboCarcasa, on_delete=models.DO_NOTHING)
     metodo = models.CharField(max_length=1, choices=(('E', 'Método Efectividad-NTU'), ('L', 'Método LMTD')))
 
     # Datos de Entrada
@@ -206,4 +213,4 @@ class SimulacionIntercambiador(models.Model):
     q = models.DecimalField(max_digits=12, decimal_places=5)
 
     class Meta:
-        db_table = "simulacion_intercambiadores"
+        db_table = "evaluaciones_intercambiadores"

@@ -8,7 +8,7 @@ urlpatterns = [
 
     # RUTAS PARA TUBO CARCASA
     path('tubo_carcasa/', ConsultaTuboCarcasa.as_view(), name="consulta_tubo_carcasa"),
-    path('tubo_carcasa/<int:pk>/', ConsultaSimulacionesTuboCarcasa.as_view(), name="consulta_simulaciones_tubo_carcasa"),
+    path('tubo_carcasa/<int:pk>/', ConsultaEvaluacionesTuboCarcasa.as_view(), name="consulta_evaluaciones_tubo_carcasa"),
     path('tubo_carcasa/crear/', CrearIntercambiadorTuboCarcasa.as_view(),name="crear_tubo_carcasa"),
-    path('tubo_carcasa/<int:pk>/simular/', CrearSimulacionTuboCarcasa.as_view(),name="crear_simulacion_tubo_carcasa"),
+    path('tubo_carcasa/<int:pk>/evaluar/', CrearEvaluacionTuboCarcasa.as_view(),name="crear_evaluacion_tubo_carcasa"),
 ]

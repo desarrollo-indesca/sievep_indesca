@@ -14,21 +14,21 @@ class CrearIntercambiadorTuboCarcasa(View):
     def get(self, request):
         return render(request, 'tubo_carcasa/creacion.html', context=self.context)
 
-class CrearSimulacionTuboCarcasa(View):
+class CrearEvaluacionTuboCarcasa(View):
     context = {
-        'titulo': "Simulación Tubo Carcasa"
+        'titulo': "Evaluación Tubo Carcasa"
     }
     def get(self, request, pk):
-        return render(request, 'tubo_carcasa/simulaciones/creacion.html', context=self.context)
+        return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=self.context)
 
-class ConsultaSimulacionesTuboCarcasa(View):
+class ConsultaEvaluacionesTuboCarcasa(View):
     context = {
         'titulo': "PEQUIVEN - Intercambiadores de Tubo/Carcasa",
         'numeros': [1,2,3,4,5,6,7,8,9,10]
     }
 
     def get(self, request, pk):
-        return render(request, 'tubo_carcasa/simulaciones/consulta.html', context=self.context)
+        return render(request, 'tubo_carcasa/evaluaciones/consulta.html', context=self.context)
 
 class ConsultaTuboCarcasa(View):
     context = {
