@@ -1,17 +1,6 @@
 {% extends 'base_consultas.html' %}
 {% load static %}
 
-{% block head %}
-<style>
-  .tabla_ficha {
-    width: 100% ;
-  }
-  #tabla_ficha_body > tr > td {
-    width: 25% ;
-  }
-</style>
-{% endblock %}
-
 {% block encabezado %}
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'seleccion_tipo_intercambiador' %}">↶ Regresar</a></div>
   <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Intercambiadores de Calor Tubo/Carcasa</h3></div>
@@ -24,19 +13,18 @@
   <input type="text" name="tag" id="tag" maxlength="20" class="form-control">
 </div>
 <div class="d-flex flex-column col">
-    <label class="form-label" for="empresa">Empresa:</label>
-    <select name="empresa" id="empresa" class="form-control">
-        <option value="">
-            ----------------------------
-        </option>
-    </select>
+    <label class="form-label" for="servicio">Servicio:</label>
+    <input type="text" id="servicio" name="servicio" class="form-control">
 </div>
 <div class="d-flex flex-column col">
     <label class="form-label" for="complejo">Complejo:</label>
-    <select name="complejo" id="complejo" disabled="disabled" class="form-control">
+    <select name="complejo" id="complejo" class="form-control">
         <option value="">
             ----------------------------
         </option>
+        <option value="1">ANA MARÍA CAMPOS</option>
+        <option value="2">HUGO CHÁVEZ</option>
+        <option value="3">JOSÉ ANTONIO ANZOÁTEGUI</option>
     </select>
 </div>
 <div class="d-flex flex-column col">
@@ -56,7 +44,7 @@
     <th scope="col">Tag</th>
     <th scope="col">Planta</th>
     <th scope="col">Complejo</th>
-    <th scope="col">Empresa</th>
+    <th scope="col">Servicio</th>
     <th scope="col">Evaluaciones</th>
     <th scope="col">Ficha Técnica</th>
   </tr>
@@ -68,7 +56,7 @@
     <td>180-C</td>
     <td>Olefinas I</td>
     <td>Ana María Campos</td>
-    <td>Pequiven</td>
+    <td>Enfriador 1ra Etapa 181-J</td>
     <td>
       <a class="btn btn-danger" href="{% url 'consulta_evaluaciones_tubo_carcasa' pk=1 %}"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
     </td>

@@ -52,6 +52,7 @@ class Planta(models.Model):
     class Meta:
         db_table = "planta"
 
+# Modelo de Unidades
 class Unidades(models.Model):
     id = models.AutoField(primary_key=True)
     simbolo = models.CharField(max_length=5)
@@ -61,6 +62,7 @@ class Unidades(models.Model):
     class Meta:
         db_table = "unidades"
 
+# Modelo de Tema de Equipo
 class Tema(models.Model):
     id = models.AutoField(primary_key=True)
     codigo = models.CharField(max_length=10, unique=True)
@@ -68,6 +70,7 @@ class Tema(models.Model):
     class Meta:
         db_table = "tema"
 
+# Modelo de Fluido para Equipos
 class Fluido(models.Model):
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=40)
@@ -97,6 +100,7 @@ class Fluido(models.Model):
     class Meta:
         db_table = "fluido"
 
+# Específicos de Intercambiadores
 class TipoIntercambiador(models.Model):
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=50)
@@ -200,6 +204,8 @@ class EvaluacionesIntercambiador(models.Model):
     temp_in_salida = models.DecimalField(max_digits=7, decimal_places=2) # Celsius
     flujo_masico_ex = models.DecimalField(max_digits=12, decimal_places=5) # Kg/h
     flujo_masico_in = models.DecimalField(max_digits=12, decimal_places=5) # Kg/h
+    presion_inicial = models.DecimalField(max_digits=10, decimal_places=3)
+    presion_final = models.DecimalField(max_digits=10, decimal_places=3)
 
     # Datos de Salida
     lmtd = models.DecimalField(max_digits=12, decimal_places=5)

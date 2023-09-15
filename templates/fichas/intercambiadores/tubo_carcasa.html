@@ -1,4 +1,13 @@
 {% load static %}
+<style>
+  .tabla_ficha {
+    width: 100% ;
+  }
+  #tabla_ficha_body > tr > td {
+    width: 25% ;
+  }
+</style>
+
 <div class="modal fade" id="ficha_{{x}}" tabindex="-1" aria-labelledby="ficha_{{x}}Label" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
       <div class="modal-content text-dark">
@@ -60,12 +69,17 @@
                       <td>Agua Enfriamiento</td>
                     </tr>
                     <tr>
-                      <th class="table-dark" colspan="2">T. IN (°C)</th>
+                      <th class="table-dark" colspan="2">Capacidad Calorífica</th>
+                      <td>5842</td>
+                      <td>4184</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Temperatura IN (°C)</th>
                       <td>97.6</td>
                       <td>33.3</td>
                     </tr>
                     <tr>
-                      <th class="table-dark" colspan="2">T. OUT (°C)</th>
+                      <th class="table-dark" colspan="2">Temperatura OUT (°C)</th>
                       <td>40.6</td>
                       <td>40.3</td>
                     </tr>
@@ -108,11 +122,6 @@
                       <th class="table-dark" colspan="2">Fouling (m)</th>
                       <td>0.000220</td>
                       <td>0.000294</td>
-                    </tr>
-                    <tr>
-                      <th class="table-dark" colspan="2">Capacidad Calorífica</th>
-                      <td>5842</td>
-                      <td>4184</td>
                     </tr>
                     <tr>
                       <th class="table-dark" colspan="2">Conexiones de Entrada</th>
