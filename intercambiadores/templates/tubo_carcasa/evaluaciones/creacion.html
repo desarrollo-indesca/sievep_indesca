@@ -50,20 +50,43 @@
     
                 <div class="row">
                     <div class="col-6 d-flex flex-column">
-                        <label class="form-label" for="temp_in_carcasa">Temperatura Entrada (°C):</label>
-                        <input class="form-control temperatura" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                        <label class="form-label" for="temp_in_carcasa">Temperatura Entrada:</label>
+                        <div class="input-group mb-3">
+                            <input style="width: 70% !important;" class="form-control temperatura" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas">
+                                <option value="1">°C</option>
+                                <option value="2">K</option>
+                                <option value="3">°F</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="col-6">
-                        <label class="form-label" for="temp_out_carcasa">Temperatura Salida (°C):</label>
-                        <input class="form-control temperatura" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                        <label class="form-label" for="temp_out_carcasa">Temperatura Salida:</label>
+                        <div class="input-group mb-3">
+                            <input style="width: 70% !important;" class="form-control temperatura" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                <option value="1">°C</option>
+                            </select>
+                        </div>
+                        
                     </div>
                     <div class="col-6">
                         <label class="form-label" for="flujo_carcasa">Flujo Másico (Kg/h):</label>
-                        <input class="form-control" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                        <div class="input-group mb-3">
+                            <input style="width: 70% !important;" class="form-control" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_flujo" id="unidad_flujo">
+                                <option value="1">Kg/h</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="col-6">
-                        <label class="form-label" for="caida_carcasa">Caída de Presión (bar):</label>
-                        <input class="form-control" type="number" name="caida_carcasa" id="caida_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                        <label class="form-label" for="caida_carcasa">Caída de Presión:</label>
+                        <div class="input-group mb-3">
+                            <input style="width: 70% !important;" class="form-control" type="number" name="caida_carcasa" id="caida_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_presion" id="unidad_presion">
+                                <option value="1">bar</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -71,20 +94,41 @@
                 <h4 class="text-center mb-3">Tubo</h4>
                 <div class="row">
                     <div class="col-6 d-flex flex-column">
-                        <label class="form-label" for="temp_in_tubo">Temperatura Entrada (°C):</label>
-                        <input class="form-control temperatura" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" min="-273.15" max="9999.99" required>
+                        <label class="form-label" for="temp_in_tubo">Temperatura Entrada:</label>
+                        <div class="input-group mb-3">
+                            <input style="width: 70% !important;" class="form-control temperatura" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" min="-273.15" max="9999.99" required>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                <option value="1">°C</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="col-6">
-                        <label class="form-label" for="temp_out_tubo">Temperatura Salida (°C):</label>
-                        <input class="form-control temperatura" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" min="-273.15" max="9999.99" required>
+                        <label class="form-label" for="temp_out_tubo">Temperatura Salida:</label>
+                        <div class="input-group mb-3">
+                            <input style="width: 70% !important;" class="form-control temperatura" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" min="-273.15" max="9999.99" required>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                <option value="1">°C</option>
+                            </select>
+                        </div>
+                        
                     </div>
                     <div class="col-6">
                         <label class="form-label" for="flujo_tubo">Flujo Másico (Kg/h):</label>
-                        <input class="form-control" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" min="-273.15" max="9999.99" required>
+                        <div class="input-group mb-3">
+                            <input style="width: 70% !important;" class="form-control" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" min="-273.15" max="9999.99" required>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" id="unidad_flujo" disabled>
+                                <option value="1">Kg/h</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="col-6">
-                        <label class="form-label" for="caida_tubo">Caída de Presión (bar):</label>
-                        <input class="form-control" type="number" name="caida_tubo" id="caida_tubo" step="0.01" min="-273.15" max="9999.99" required>
+                        <label class="form-label" for="caida_tubo">Caída de Presión:</label>
+                        <div class="input-group mb-3">
+                            <input style="width: 70% !important;" class="form-control" type="number" name="caida_tubo" id="caida_tubo" step="0.01" min="-273.15" max="9999.99" required>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                <option value="1">bar</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
