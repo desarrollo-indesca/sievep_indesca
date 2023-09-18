@@ -26,4 +26,5 @@ urlpatterns = [
     path('', Bienvenida.as_view(), name='bienvenida'),
     path('logout/', CerrarSesion.as_view(), name='cerrar_sesion'),
     path('intercambiadores/', include('intercambiadores.urls')),
+    path('', include('pwa.urls')),
 ]
