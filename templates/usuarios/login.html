@@ -22,6 +22,8 @@
         <h3>Inicio de Sesión</h3>
 
         <form method="post" class="row">
+            {% csrf_token %}
+            {% if errores %} <b>Datos Incorrectos</b> {% endif %}
             <div class="col-12">
                 <label for="correo_electronico">Correo Electrónico:</label>
                 <input type="email" name="email" id="email" class="form-control" required>

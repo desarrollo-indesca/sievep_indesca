@@ -17,12 +17,13 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from .views import Bienvenida
+from .views import *
 from django.conf.urls import static
 from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', Bienvenida.as_view(), name='bienvenida'),
+    path('logout/', CerrarSesion.as_view(), name='cerrar_sesion'),
     path('intercambiadores/', include('intercambiadores.urls')),
 ]
