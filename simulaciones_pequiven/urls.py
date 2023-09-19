@@ -27,4 +27,5 @@ urlpatterns = [
     path('logout/', CerrarSesion.as_view(), name='cerrar_sesion'),
     path('intercambiadores/', include('intercambiadores.urls')),
     path('', include('pwa.urls')),
+    path('migrar/intercambiadores/',ComponerIntercambiadores.as_view(), name="migrar_intercambiadores")
 ]

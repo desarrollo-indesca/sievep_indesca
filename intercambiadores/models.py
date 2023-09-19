@@ -73,7 +73,8 @@ class Unidades(models.Model):
 # Modelo de Tema de Equipo
 class Tema(models.Model):
     id = models.AutoField(primary_key=True)
-    codigo = models.CharField(max_length=10, unique=True)
+    codigo = models.CharField(max_length=50, unique=True)
+    descripcion = models.TextField(null=True)
 
     class Meta:
         db_table = "tema"
@@ -84,18 +85,18 @@ class Fluido(models.Model):
     nombre = models.CharField(max_length=40)
     formula = models.CharField(max_length=25,null=True)
 
-    peso_molecular = models.DecimalField(max_digits=6, decimal_places=3)
+    peso_molecular = models.DecimalField(max_digits=6, decimal_places=3, null=True)
     estado = models.CharField(max_length=1, choices=estados_fluidos)
-    unidad_temperatura = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING)
+    unidad_temperatura = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, null=True)
 
     # Constantes Termodinámicas
-    a = models.DecimalField(max_digits=6, decimal_places=3)
-    b = models.DecimalField(max_digits=8, decimal_places=7)
-    c = models.DecimalField(max_digits=12, decimal_places=11)
-    d = models.DecimalField(max_digits=12, decimal_places=11)
+    a = models.DecimalField(max_digits=6, decimal_places=3, null=True)
+    b = models.DecimalField(max_digits=8, decimal_places=7, null=True)
+    c = models.DecimalField(max_digits=12, decimal_places=11, null=True)
+    d = models.DecimalField(max_digits=12, decimal_places=11, null=True)
 
-    minimo = models.IntegerField()
-    maximo = models.IntegerField()
+    minimo = models.IntegerField(null=True)
+    maximo = models.IntegerField(null=True)
 
     def cp(self, t):
         a = self.a
@@ -124,7 +125,7 @@ class Intercambiador(models.Model):
     planta = models.ForeignKey(Planta, on_delete=models.DO_NOTHING)
     tema = models.ForeignKey(Tema, on_delete=models.DO_NOTHING)
     servicio = models.CharField(max_length=100)
-    arreglo_flujo = models.CharField(max_length=1)
+    arreglo_flujo = models.CharField(max_length=1, choices=arreglos_flujo)
 
     class Meta:
         db_table = "intercambiador"
@@ -190,20 +191,20 @@ class CondicionesTuboCarcasa(models.Model):
     intercambiador = models.ForeignKey(PropiedadesTuboCarcasa, on_delete=models.DO_NOTHING)
     lado = models.TextField(max_length=1, choices=(('T', 'Tubo'), ('C', 'Carcasa')))
     
-    temp_entrada = models.DecimalField(max_digits=7, decimal_places=2)
-    temp_salida = models.DecimalField(max_digits=7, decimal_places=2)
-    temperaturas_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="temperaturas_condiciones_unidades_tubocarcasa")
+    temp_entrada = models.DecimalField(max_digits=7, decimal_places=2, null=True)
+    temp_salida = models.DecimalField(max_digits=7, decimal_places=2, null=True)
+    temperaturas_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="temperaturas_condiciones_unidades_tubocarcasa", null=True)
 
     flujo_masico = models.DecimalField(max_digits=12, decimal_places=5)
-    flujo_vapor_entrada = models.DecimalField(max_digits=12, decimal_places=5, default=0)
-    flujo_vapor_salida = models.DecimalField(max_digits=12, decimal_places=5, default=0)
-    flujo_liquido_salida = models.DecimalField(max_digits=12, decimal_places=5, default=0)
-    flujo_liquido_salida = models.DecimalField(max_digits=12, decimal_places=5, default=0)
-    flujos_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="flujos_unidad_tubocarcasa")
+    flujo_vapor_entrada = models.DecimalField(max_digits=12, decimal_places=5, null=True)
+    flujo_vapor_salida = models.DecimalField(max_digits=12, decimal_places=5, null=True)
+    flujo_liquido_salida = models.DecimalField(max_digits=12, decimal_places=5, null=True)
+    flujo_liquido_salida = models.DecimalField(max_digits=12, decimal_places=5, null=True)
+    flujos_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="flujos_unidad_tubocarcasa", null=True)
     
     cambio_de_fase  = models.CharField(max_length=1, choices=cambios_de_fase)
 
-    presion_entrada = models.DecimalField(max_digits=10, decimal_places=4) # barg
+    presion_entrada = models.DecimalField(max_digits=10, decimal_places=4)
     caida_presion_max = models.DecimalField(max_digits=7, decimal_places=5)
     caida_presion_min = models.DecimalField(max_digits=7, decimal_places=5)
     unidad_presion = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="presion_unidad_tubocarcasa")
