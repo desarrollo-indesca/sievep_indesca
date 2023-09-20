@@ -55,10 +55,20 @@
                 <input type="text" required class="form-control" name="tag" id="tag">
             </div>
 
-            <div class="col-6 d-flex flex-column">
+            <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="servicio">Servicio:</label>
                 <input type="text" required class="form-control" name="servicio" id="servicio">
-            </div>            
+            </div>
+            
+            <div class="col-3 d-flex flex-column">
+                <label class="form-label" for="flujo">Flujo:</label>
+                <select class="form-select" name="flujo" id="flujo">
+                    <option value="1">Cocorriente</option>
+                    <option value="2">Contracorriente</option>
+                    <option value="3">Flujo Cruzado Mezclado</option>
+                    <option value="4">Flujo Cruzado sin Mezclar</option>
+                </select>
+            </div>
 
             <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="fabricante">Fabricante:</label>
@@ -108,7 +118,7 @@
                     </div>
 
                     <div class="col-6">
-                        <label class="form-label" for="temp_out_carcasa">Temperatura Salida (°C):</label>
+                        <label class="form-label" for="temp_out_carcasa">Temperatura Salida:</label>
                         <div class="input-group mb-3">
                             <input style="width: 70% !important;" class="form-control" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" max="9999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
@@ -198,8 +208,14 @@
                     </div>
 
                     <div class="col-12">
-                        <label class="form-label" for="fouling_carcasa">Fouling (m²C/W):</label>
-                        <input class="form-control" type="number" name="fouling_carcasa" id="fouling_carcasa" step="0.00000001" required>
+                        <label class="form-label" for="fouling_carcasa">Fouling:</label>
+
+                        <div class="input-group">
+                            <input style="width: 70% !important;" class="form-control" type="number" name="fouling_carcasa" id="fouling_carcasa" step="0.00000001" required>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_fouling" id="unidad_fouling">
+                                <option value="1">m²C/W</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -319,8 +335,13 @@
                     </div>
 
                     <div class="col-12">
-                        <label class="form-label" for="fouling_tubo">Fouling (m²C/W):</label>
-                        <input class="form-control" type="number" name="fouling_tubo" id="fouling_tubo" step="0.00000001" required>
+                        <label class="form-label" for="fouling_tubo">Fouling:</label>
+                        <div class="input-group">
+                            <input style="width: 70% !important;" class="form-control" type="number" name="fouling_tubo" id="fouling_tubo" step="0.00000001" required>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_fouling" id="unidad_fouling" disabled>
+                                <option value="1">m²C/W</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -347,6 +368,15 @@
                         <label class="form-label" for="conexiones_salida_tubo">Conexiones de Salida Tubo:</label>
                         <input class="form-control" type="text" maxlength="50" name="conexiones_salida_tubo" id="conexiones_salida_tubo">
                     </div>
+
+                    <div class="col-2"></div>
+
+                    <div class="col-8">
+                        <label class="form-label" for="numero_pasos_tubo">Número de Pasos Tubo:</label>
+                        <input class="form-control" type="text" maxlength="50" name="numero_pasos_tubo" id="numero_pasos_tubo">
+                    </div>
+
+                    <div class="col-2"></div>
                 </div>
             </div>
 
@@ -360,6 +390,15 @@
                         <label class="form-label" for="conexiones_salida_carcasa">Conexiones de Salida Carcasa:</label>
                         <input class="form-control" type="text" maxlength="50" name="conexiones_salida_carcasa" id="conexiones_salida_carcasa">
                     </div>
+
+                    <div class="col-2"></div>
+
+                    <div class="col-8">
+                        <label class="form-label" for="numero_pasos_carcasa">Número de Pasos Carcasa:</label>
+                        <input class="form-control" type="text" maxlength="50" name="numero_pasos_carcasa" id="numero_pasos_carcasa">
+                    </div>
+
+                    <div class="col-2"></div>
                 </div>
             </div>
         </div>
@@ -374,13 +413,23 @@
             <div class="col-12">    
                 <div class="row">                    
                     <div class="col-3">
-                        <label class="form-label" for="calor">Calor (MW):</label>
-                        <input class="form-control" type="number" name="calor" id="calor" step="0.0001" required>
+                        <label class="form-label" for="calor">Calor:</label>
+                        <div class="input-group mb-3">
+                            <input style="width: 70% !important;" class="form-control" type="number" name="calor" id="calor" step="0.0001" required>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_area" id="unidad_area">
+                                <option value="1">MW</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="col-3">
-                        <label class="form-label" for="area">Área (m²):</label>
-                        <input class="form-control" type="number" name="area" id="area" step="0.0001" required>
+                        <label class="form-label" for="area">Área:</label>
+                        <div class="input-group mb-3">
+                            <input style="width: 70% !important;" class="form-control" type="number" name="area" id="area" step="0.0001" required>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_area" id="unidad_area">
+                                <option value="1">m²</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="col-3">
@@ -399,8 +448,28 @@
                     </div>
 
                     <div class="col-3">
-                        <label class="form-label" for="longitud_tubos">Longitud Tubos (m):</label>
+                        <label class="form-label" for="longitud_tubos">Longitud Tubos:</label>
                         <input class="form-control" type="number" name="longitud_tubos" id="longitud_tubos" step="0.0001" required>
+                    </div>
+
+                    <div class="col-3">
+                        <label class="form-label" for="od_tubos">OD Tubos:</label>
+                        <div class="input-group mb-3">
+                            <input style="width: 70% !important;" class="form-control" type="number" name="od_tubos" id="od_tubos" step="0.0001" required>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_diametros" id="unidad_diametros">
+                                <option value="1">m</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <label class="form-label" for="id_carcasa">ID Carcasa:</label>
+                        <div class="input-group mb-3">
+                            <input style="width: 70% !important;" class="form-control" type="number" name="id_carcasa" id="id_carcasa" step="0.0001" required>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_diametros" id="unidad_diametros" disabled>
+                                <option value="1">m</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="col-3">
@@ -409,18 +478,13 @@
                     </div>
 
                     <div class="col-3">
-                        <label class="form-label" for="od_tubos">OD Tubos (mm):</label>
-                        <input class="form-control" type="number" name="od_tubos" id="od_tubos" step="0.0001" required>
-                    </div>
-
-                    <div class="col-3">
-                        <label class="form-label" for="pitch">Pitch (mm):</label>
-                        <input class="form-control" type="number" name="pitch" id="pitch" step="0.0001" required>
-                    </div>
-
-                    <div class="col-3">
-                        <label class="form-label" for="id_carcasa">ID Carcasa (m):</label>
-                        <input class="form-control" type="number" name="id_carcasa" id="id_carcasa" step="0.0001" required>
+                        <label class="form-label" for="pitch">Pitch:</label>
+                        <div class="input-group mb-3">
+                            <input style="width: 70% !important;" class="form-control" type="number" name="pitch" id="pitch" step="0.0001" required>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_diametros" id="unidad_diametros" disabled>
+                                <option value="1">mm</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="col-3">
@@ -432,6 +496,20 @@
                         <label class="form-label" for="material_tubo">Material Tubo:</label>
                         <input class="form-control" type="text" name="material_tubo" id="material_tubo">
                     </div>
+
+                    <div class="col-3"></div>
+
+                    <div class="col-3">
+                        <label class="form-label" for="u">U:</label>
+                        <input class="form-control" type="text" name="u" id="u">
+                    </div>
+
+                    <div class="col-3">
+                        <label class="form-label" for="ensuciamiento">Ensuciamiento:</label>
+                        <input class="form-control" type="text" name="ensuciamiento" id="ensuciamiento">
+                    </div>
+
+                    <div class="col-3"></div>
                 </div>
             </div>
         </div>

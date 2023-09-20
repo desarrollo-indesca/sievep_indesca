@@ -174,7 +174,8 @@ class PropiedadesTuboCarcasa(models.Model):
     criticidad = models.CharField(choices=criticidades, max_length=1)
     arreglo_serie = models.IntegerField()
     arreglo_paralelo = models.IntegerField()
-    numero_pasos = models.IntegerField()
+    numero_pasos_tubo = models.IntegerField(default=1)
+    numero_pasos_carcasa = models.IntegerField(default=1)
 
     # Datos calculados
     q = models.DecimalField(max_digits=10, decimal_places=3)

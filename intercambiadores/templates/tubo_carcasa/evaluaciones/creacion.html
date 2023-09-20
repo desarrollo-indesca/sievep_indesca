@@ -15,12 +15,12 @@
         <hr>
     
         <div class="row">
-            <div class="col-4 d-flex flex-column">
+            <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="metodo">Nombre de la Evaluación:</label>
                 <input type="text" class="form-control" name="nombre">
             </div>
 
-            <div class="col-4 d-flex flex-column">
+            <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="metodo">Método:</label>
                 <select required class="form-select" name="metodo" id="metodo">
                     <option value="NTU">Eficiencia-NTU</option>
@@ -29,9 +29,9 @@
                 </select>
             </div>
     
-            <div class="col-4 d-flex flex-column">
-                <label class="form-label" for="metodo">Condiciones:</label>
-                <select required class="form-select" name="metodo" id="metodo">
+            <div class="col-3 d-flex flex-column">
+                <label class="form-label" for="condiciones">Condiciones:</label>
+                <select required class="form-select" name="condiciones" id="condiciones">
                     <option value="D">De Diseño</option>
                     <option value="M">Máximas</option>
                     <option value="m">Mínimas</option>
@@ -39,6 +39,11 @@
                     <option value="p">De Proceso</option>
                     <option value="O">Otras</option>
                 </select>
+            </div>
+
+            <div class="col-3 d-flex flex-column">
+                <label class="form-label" for="no_tubos">Número de Tubos:</label>
+                <input type="number" min="1" class="form-control" name="no_tubos" value="738">
             </div>
         </div>
     
