@@ -2,7 +2,8 @@ from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout, login, get_user_model
 from django.http import HttpResponse
-from intercambiadores.models import Fluido, Unidades, TiposDeTubo, Tema
+from intercambiadores.models import Fluido, Unidades, TiposDeTubo, Tema, Intercambiador, PropiedadesTuboCarcasa, CondicionesTuboCarcasa
+from django.db import transaction
 
 class Bienvenida(View):
     context = {
@@ -63,7 +64,7 @@ class ComponerFluidos(View):
 
             return HttpResponse("CREADO EXITOSAMENTE")
 
-# Carga de Intercambiadores
+# Carga de Intercambiadores (Revisión)
 class ComponerIntercambiadores(View):
     def get(self, request):
         import csv
@@ -79,7 +80,8 @@ class ComponerIntercambiadores(View):
                 if(row[0] == 'AMC' and row[1] == 'OLEFINAS I'):
                     row[0] = Planta.objects.get(pk=1)
                 elif(row[0] == 'AMC' and row[1] == 'OLEFINAS II'):
-                    row[0] = Planta.objects.get(pk=1)
+                    # row[0] = Planta.objects.get(pk=1)
+                    continue
                 
                 row[4] = TipoIntercambiador.objects.get(pk=1)
 
@@ -123,8 +125,8 @@ class ComponerIntercambiadores(View):
 
                 # 33 U
 
-                row[33] = float(row[33].replace(',','.')) if len(row[33]) else ''
                 row[34] = float(row[34].replace(',','.')) if len(row[34]) else ''
+                # row[35] = float(row[35].replace(',','.')) if  len(row[35]) else ''
                 row[36] = float(row[36].replace(',','.')) if len(row[36]) else ''
                 row[37] = float(row[37].replace(',','.')) if len(row[37]) else ''
                 row[38] = float(row[38].replace(',','.')) if len(row[38]) else ''
@@ -144,10 +146,7 @@ class ComponerIntercambiadores(View):
 
                 # Fluidos (Caso Especial) 5,18
                 for x in Fluido.objects.all():
-                    print(x.nombre)
-                    print(row[5].lower())
                     if(x.nombre.lower() in row[5].lower()):
-                        print("FLUIDO")
                         if(Fluido.objects.filter(nombre__icontains = x.nombre).count() > 1):
                             try:
                                 if(row[9] > row[11]):
@@ -163,7 +162,6 @@ class ComponerIntercambiadores(View):
                             row[5] = x
                         break
                     elif(x.formula != '' and x.formula.lower() in row[5].lower()):
-                        print("FORMULA")
                         if(Fluido.objects.filter(formula__icontains = x.formula).count() > 1):
                             try:
                                 if(row[9] > row[11]):
@@ -258,7 +256,98 @@ class ComponerIntercambiadores(View):
                             estado = 'G',
                             formula = ''
                         )
+                
+                try:
+                    with transaction.atomic():
+                        intercambiador = Intercambiador.objects.create(
+                            tag = row[2],
+                            tipo = row[4],
+                            fabricante = row[-5],
+                            planta = Planta.objects.get(nombre = row[1]),
+                            tema = row[-1],
+                            servicio = row[3],
+                            arreglo_flujo = 'C' # PREGUNTAR
+                        )
 
+                        propiedades = PropiedadesTuboCarcasa.objects.create(
+                            intercambiador = intercambiador,
+                            area = row[-18],
+                            area_unidad = Unidades.objects.get(pk=3),
+                            longitud_tubos = row[-16],
+                            longitud_tubos_unidad = Unidades.objects.get(pk=4),
+                            diametro_externo_tubos = row[-15],
+                            diametro_interno_tubos = row[-14],
+                            diametro_tubos_unidad = Unidades.objects.get(pk=5),
+                            fluido_carcasa = row[5],
+                            material_carcasa = row[-13],
+                            conexiones_entrada_carcasa = row[-9],
+                            conexiones_salida_carcasa = row[-8],
+                            numero_pasos = 1,
+
+                            material_tubo = row[-12],
+                            fluido_tubo = row[18],
+                            tipo_tubo = row[-7],
+                            conexiones_entrada_tubos =row[-11],
+                            conexiones_salida_tubos = row[-10],
+                            pitch_tubos = row[-6],
+                            unidades_pitch = Unidades.objects.get(pk=5),
+
+                            criticidad = row[-4],
+                            arreglo_serie = row[-3],
+                            arreglo_paralelo = row[-2],
+                            q = row[32]
+                        )
+
+                        condiciones_tubo = CondicionesTuboCarcasa.objects.create(
+                            intercambiador = propiedades,
+                            lado = 'T',
+                            temp_entrada = row[19],
+                            temp_salida = row[20],
+                            temperaturas_unidad = Unidades.objects.get(pk=1),
+
+                            flujo_masico = row[21],
+                            flujo_vapor_entrada = row[22],
+                            flujo_vapor_salida = row[23],
+                            flujo_liquido_entrada = row[24],
+                            flujo_liquido_salida = row[25],
+                            flujos_unidad = Unidades.objects.get(pk=6),
+
+                            cambio_de_fase = row[26],
+
+                            presion_entrada = row[27],
+                            caida_presion_max = row[28],
+                            caida_presion_min = row[29],
+                            unidad_presion = Unidades.objects.get(pk=7), 
+
+                            fouling = row[30],
+                        )
+
+                        condiciones_carcasa = CondicionesTuboCarcasa.objects.create(
+                            intercambiador = propiedades,
+                            lado = 'C',
+                            temp_entrada = row[6],
+                            temp_salida = row[7],
+                            temperaturas_unidad = Unidades.objects.get(pk=1),
+
+                            flujo_masico = row[8],
+                            flujo_vapor_entrada = row[9],
+                            flujo_vapor_salida = row[10],
+                            flujo_liquido_entrada = row[11],
+                            flujo_liquido_salida = row[12],
+                            flujos_unidad = Unidades.objects.get(pk=6),
+
+                            cambio_de_fase = row[13],
+
+                            presion_entrada = row[14],
+                            caida_presion_max = row[15],
+                            caida_presion_min = row[16],
+                            unidad_presion = Unidades.objects.get(pk=7), 
+
+                            fouling = row[17],
+                        )
+                except Exception as e:
+                    print(str(e))
+                    continue
             return HttpResponse("Listo")
 
 # Carga de Temas
