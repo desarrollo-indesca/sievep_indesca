@@ -39,31 +39,40 @@ class ConsultaTuboCarcasa(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["titulo"] = "SIEVEP - Intercambiadores de Tubo/Carcasa"
+        context["titulo"] = "SIEVEP - Consulta de Intercambiadores de Tubo/Carcasa"
         return context
+    
+    def get_queryset(self):
+        tag = self.request.GET.get('tag', '')
+        servicio = self.request.GET.get('servicio', '')
+        complejo = self.request.GET.get('complejo', '')
+        planta = self.request.GET.get('planta', '')
 
-class FiltradoTuboCarcasa(View):
-    def get(self, request):
-        tag = request.GET['tag']
-        servicio = request.GET['servicio']
-        complejo = request.GET['complejo']
-        planta = request.GET['planta']
-
-        objects = PropiedadesTuboCarcasa.objects.all()
-
-        if(len(tag)):
-            objects = objects.filter(tag__icontains = tag)
-        
-        if(len(servicio)):
-            objects = objects.filter(servicio__icontains = servicio)
-
-        if(complejo != ''):
-            objects = objects.filter(planta__complejo__pk = complejo)
+        new_context = None
 
         if(planta != ''):
-            objects = objects.filter(planta__pk = planta) 
+            new_context = self.model.objects.filter(
+                intercambiador__complejo__planta__pk=planta
+            )
+        elif(complejo != ''):
+            new_context = new_context.filter(
+                intercambiador__complejo__pk=complejo
+            ) if new_context else self.model.objects.filter(
+                intercambiador__complejo__pk=complejo
+            )
 
-        return render(request, 'tablas/intercambiadores/tubo_carcasa.html',context={'object_list': objects})
+        if(new_context):
+            new_context = new_context.filter(
+                intercambiador__servicio__icontains = servicio,
+                intercambiador__tag__icontains = tag
+            )
+        else:
+            new_context = self.model.objects.filter(
+                intercambiador__servicio__icontains = servicio,
+                intercambiador__tag__icontains = tag
+            )
+
+        return new_context
 
 # VISTAS GENERALES PARA LOS INTERCAMBIADORES DE CALOR
 
