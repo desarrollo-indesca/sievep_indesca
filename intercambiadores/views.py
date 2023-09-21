@@ -40,6 +40,24 @@ class ConsultaTuboCarcasa(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["titulo"] = "SIEVEP - Consulta de Intercambiadores de Tubo/Carcasa"
+        context['complejos'] = Complejo.objects.all()
+
+        if(self.request.GET.get('complejo')):
+            context['plantas'] = Planta.objects.filter(complejo__pk = self.request.GET.get('complejo'))
+
+        context['tag'] = self.request.GET.get('tag', '')
+        context['servicio'] = self.request.GET.get('servicio', '')
+        context['complejox'] = self.request.GET.get('complejo')
+        context['plantax'] = self.request.GET.get('planta')
+
+        if(context['complejox']):
+            context['complejox'] = int(context['complejox'])
+        
+        if(context['plantax']):
+            context['plantax'] = int(context['plantax'])
+
+        print(context)
+
         return context
     
     def get_queryset(self):
@@ -52,16 +70,16 @@ class ConsultaTuboCarcasa(ListView):
 
         if(planta != ''):
             new_context = self.model.objects.filter(
-                intercambiador__complejo__planta__pk=planta
+                intercambiador__planta__pk=planta
             )
         elif(complejo != ''):
             new_context = new_context.filter(
-                intercambiador__complejo__pk=complejo
+                intercambiador__planta__complejo__pk=complejo
             ) if new_context else self.model.objects.filter(
-                intercambiador__complejo__pk=complejo
+                intercambiador__planta__complejo__pk=complejo
             )
 
-        if(new_context):
+        if(not(new_context is None)):
             new_context = new_context.filter(
                 intercambiador__servicio__icontains = servicio,
                 intercambiador__tag__icontains = tag
