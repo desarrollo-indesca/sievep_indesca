@@ -68,7 +68,7 @@ class ConsultaTuboCarcasa(ListView):
 
         new_context = None
 
-        if(planta != ''):
+        if(planta != '' and complejo != ''):
             new_context = self.model.objects.filter(
                 intercambiador__planta__pk=planta
             )

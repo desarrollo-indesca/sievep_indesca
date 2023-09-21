@@ -54,7 +54,11 @@
   </tr>
 </thead>
 <tbody class="text-center" id="tabla-body">
+  {% if object_list.count %}
   {% include 'tablas/intercambiadores/tubo_carcasa.html' %}
+  {% else %}
+  <td colspan="7">No se encontraron intercambiadores con los datos de filtrado proporcionados.</td>
+  {% endif %}
 </tbody>
 {% endblock %}
 
