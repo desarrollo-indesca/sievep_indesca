@@ -42,6 +42,29 @@ class ConsultaTuboCarcasa(ListView):
         context["titulo"] = "SIEVEP - Intercambiadores de Tubo/Carcasa"
         return context
 
+class FiltradoTuboCarcasa(View):
+    def get(self, request):
+        tag = request.GET['tag']
+        servicio = request.GET['servicio']
+        complejo = request.GET['complejo']
+        planta = request.GET['planta']
+
+        objects = PropiedadesTuboCarcasa.objects.all()
+
+        if(len(tag)):
+            objects = objects.filter(tag__icontains = tag)
+        
+        if(len(servicio)):
+            objects = objects.filter(servicio__icontains = servicio)
+
+        if(complejo != ''):
+            objects = objects.filter(planta__complejo__pk = complejo)
+
+        if(planta != ''):
+            objects = objects.filter(planta__pk = planta) 
+
+        return render(request, 'tablas/intercambiadores/tubo_carcasa.html',context={'object_list': objects})
+
 # VISTAS GENERALES PARA LOS INTERCAMBIADORES DE CALOR
 
 class SeleccionTipo(View):
