@@ -1,7 +1,9 @@
+from typing import Any
 from django.shortcuts import render
 from django.views import View
 from .models import *
 from django.http import JsonResponse
+from django.views.generic.list import ListView
 import numpy
 
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
@@ -30,14 +32,15 @@ class ConsultaEvaluacionesTuboCarcasa(View):
     def get(self, request, pk):
         return render(request, 'tubo_carcasa/evaluaciones/consulta.html', context=self.context)
 
-class ConsultaTuboCarcasa(View):
-    context = {
-        'titulo': "PEQUIVEN - Intercambiadores de Tubo/Carcasa",
-        'numeros': [1,2,3,4,5,6,7,8,9,10]
-    }
+class ConsultaTuboCarcasa(ListView):
+    model = PropiedadesTuboCarcasa
+    template_name = 'tubo_carcasa/consulta.html'
+    paginate_by = 10
 
-    def get(self, request):
-        return render(request, 'tubo_carcasa/consulta.html', context=self.context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["titulo"] = "SIEVEP - Intercambiadores de Tubo/Carcasa"
+        return context
 
 # VISTAS GENERALES PARA LOS INTERCAMBIADORES DE CALOR
 
