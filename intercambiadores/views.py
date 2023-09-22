@@ -21,17 +21,22 @@ class CrearEvaluacionTuboCarcasa(View):
         'titulo': "Evaluación Tubo Carcasa"
     }
     def get(self, request, pk):
-        return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=self.context)
+        context = self.context
+        context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
+
+        return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
 
 class ConsultaEvaluacionesTuboCarcasa(View):
     context = {
         'titulo': "SIEVEP - Intercambiadores de Tubo/Carcasa",
-        'numeros': [1,2,3,4,5,6,7,8,9,10],
-        'intercambiador': PropiedadesTuboCarcasa.objects.get(pk=53)
+        'numeros': [1,2,3,4,5,6,7,8,9,10]
     }
 
     def get(self, request, pk):
-        return render(request, 'tubo_carcasa/evaluaciones/consulta.html', context=self.context)
+        context = self.context
+        context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
+
+        return render(request, 'tubo_carcasa/evaluaciones/consulta.html', context=context)
 
 class ConsultaTuboCarcasa(ListView):
     model = PropiedadesTuboCarcasa
@@ -97,7 +102,7 @@ class ConsultaTuboCarcasa(ListView):
 
 class SeleccionTipo(View):
     context = {
-        'titulo': "PEQUIVEN - Selección de Tipo de Intercambiador"
+        'titulo': "SIEVEP - Selección de Tipo de Intercambiador"
     }
 
     def get(self, request):

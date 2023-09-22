@@ -2,10 +2,11 @@
 {% load static %}
 
 {% block encabezado %}
+  {% with generales=intercambiador.intercambiador %}
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'consulta_tubo_carcasa' %}">↶ Regresar</a></div>
-  <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Evaluaciones del Intercambiador 180-C</h3></div>
+  <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Evaluaciones del Intercambiador {{generales.tag}}</h3></div>
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
-    <a class="btn d-block btn-success" href="{% url 'crear_evaluacion_tubo_carcasa' pk=1 %}">+ Nueva</a> &nbsp;
+    <a class="btn d-block btn-success" href="{% url 'crear_evaluacion_tubo_carcasa' pk=intercambiador.pk %}">+ Nueva</a> &nbsp;
   </div>
 
   <script>
@@ -13,6 +14,7 @@
     let canvas = null;
     let datosGrafica = null;
   </script>
+  {% endwith %}
 {% endblock %}
 
 {% block formulario_filtrado %}
@@ -94,16 +96,18 @@
 {% endblock %}
 
 {% block opciones %}
+{% with generales=intercambiador.intercambiador %}
 <div>
   <form method="get">
     <button class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Reporte PDF</button>
     <button class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Reporte XLSX</button>
-    <button type="button" class="btn btn-secondary" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{x}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button>
+    <button type="button" class="btn btn-secondary" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{intercambiador.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button>
     <button type="button" class="btn btn-warning" style="color: black;" data-bs-toggle="modal" data-bs-target="#grafica_historica"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Mostrar gráfica histórico">&nbsp;Gráfica Histórica</button>
   </form>
   {% include 'fichas/intercambiadores/tubo_carcasa.html' %}
   {% include 'resultados/intercambiadores/historico.html' %}
 </div>
+{% endwith %}
 <nav aria-label="Page navigation example">
     <ul class="pagination">
       <li class="page-item">
