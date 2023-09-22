@@ -121,7 +121,7 @@ class Fluido(models.Model):
     class Meta:
         db_table = "fluido"
 
-# Específicos de Intercambiadores
+# Específicos de Intercambiadores Tubo y Carcasa
 class TipoIntercambiador(models.Model):
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=50)
@@ -210,6 +210,7 @@ class PropiedadesTuboCarcasa(models.Model):
 
     class Meta:
         db_table = "intercambiador_tubo_carcasa"
+        ordering = ('intercambiador__tag',)
 
 class CondicionesTuboCarcasa(models.Model):
     intercambiador = models.ForeignKey(PropiedadesTuboCarcasa, on_delete=models.DO_NOTHING, related_name="condiciones")
@@ -243,6 +244,7 @@ class CondicionesTuboCarcasa(models.Model):
     class Meta:
         db_table = "condiciones_tubo_carcasa"
 
+# Modelo de Evaluaciones
 class EvaluacionesIntercambiador(models.Model):
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING)
     fecha = models.DateTimeField(auto_now=True)

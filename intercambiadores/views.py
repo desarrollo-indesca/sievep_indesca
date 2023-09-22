@@ -25,8 +25,9 @@ class CrearEvaluacionTuboCarcasa(View):
 
 class ConsultaEvaluacionesTuboCarcasa(View):
     context = {
-        'titulo': "PEQUIVEN - Intercambiadores de Tubo/Carcasa",
-        'numeros': [1,2,3,4,5,6,7,8,9,10]
+        'titulo': "SIEVEP - Intercambiadores de Tubo/Carcasa",
+        'numeros': [1,2,3,4,5,6,7,8,9,10],
+        'intercambiador': PropiedadesTuboCarcasa.objects.get(pk=53)
     }
 
     def get(self, request, pk):
@@ -106,7 +107,7 @@ class SeleccionTipo(View):
 
 class Simulaciones(View):
     context = {
-        'titulo': "PEQUIVEN - Simulaciones de Intercambiadores"
+        'titulo': "SIEVEP - Evaluaciones de Intercambiadores"
     }
 
     def get(self, request):
@@ -114,7 +115,7 @@ class Simulaciones(View):
     
 class FormularioSimulaciones(View):
     context = {
-        'titulo': "PEQUIVEN - Simulaciones de Intercambiadores"
+        'titulo': "SIEVEP - Evaluaciones de Intercambiadores"
     }
 
     def get(self, request):

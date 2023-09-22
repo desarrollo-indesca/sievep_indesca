@@ -4,10 +4,20 @@ from django.contrib.auth import logout, login, get_user_model
 from django.http import HttpResponse
 from intercambiadores.models import Fluido, Unidades, TiposDeTubo, Tema, Intercambiador, PropiedadesTuboCarcasa, CondicionesTuboCarcasa
 from django.db import transaction
+from django import template
+from django.utils.http import urlencode
+
+register = template.Library()
+
+@register.simple_tag(takes_context=True)
+def url_replace(context, **kwargs):
+    query = context['request'].GET.dict()
+    query.update(kwargs)
+    return urlencode(query)
 
 class Bienvenida(View):
     context = {
-        'titulo': "PEQUIVEN - Simulaciones"
+        'titulo': "SIEVEP"
     }
     
     def get(self, request):
