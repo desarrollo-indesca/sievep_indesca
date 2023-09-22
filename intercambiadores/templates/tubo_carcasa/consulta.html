@@ -10,31 +10,35 @@
 {% block formulario_filtrado %}
 <div class="d-flex flex-column col">
   <label class="form-label" for="tag">Tag:</label>
-  <input type="text" name="tag" id="tag" maxlength="20" class="form-control">
+  <input type="text" name="tag" id="tag" maxlength="20" class="form-control" value="{{tag}}">
 </div>
 <div class="d-flex flex-column col">
     <label class="form-label" for="servicio">Servicio:</label>
-    <input type="text" id="servicio" name="servicio" class="form-control">
+    <input type="text" id="servicio" name="servicio" class="form-control" value="{{servicio}}">
 </div>
 <div class="d-flex flex-column col">
     <label class="form-label" for="complejo">Complejo:</label>
-    <select name="complejo" id="complejo" class="form-control">
+    <select name="complejo" id="complejo" class="form-select seleccion-filtrado" value="complejos">
         <option value="">
             ----------------------------
         </option>
-        <option value="1">ANA MARÍA CAMPOS</option>
-        <option value="2">HUGO CHÁVEZ</option>
-        <option value="3">JOSÉ ANTONIO ANZOÁTEGUI</option>
+        {% for complejo in complejos %}
+        <option value="{{complejo.pk}}" {% if complejo.pk == complejox %}selected{% endif %}>{{complejo}}</option>
+        {% endfor %}
     </select>
 </div>
 <div class="d-flex flex-column col">
     <label class="form-label" for="planta">Planta:</label>
-    <select name="planta" id="planta" disabled="disabled" class="form-control">
+    <select name="planta" id="planta" {% if not plantas %}disabled="disabled"{% endif %} class="form-select seleccion-filtrado" value="{{plantax}}">
         <option value="">
             ----------------------------
         </option>
+        {% for planta in plantas %}
+        <option value="{{planta.pk}}" {% if planta.pk == plantax %}selected{% endif %}>{{planta}}</option>
+        {% endfor %}
     </select>
 </div>
+<input type=submit hidden>
 {% endblock %}
 
 {% block tabla %}
@@ -49,23 +53,12 @@
     <th scope="col">Ficha Técnica</th>
   </tr>
 </thead>
-<tbody class="text-center">
-  {% for x in numeros %}
-  <tr>
-    <th scope="row">{{x}}</th>
-    <td>180-C</td>
-    <td>Olefinas I</td>
-    <td>Ana María Campos</td>
-    <td>Enfriador 1ra Etapa 181-J</td>
-    <td>
-      <a class="btn btn-danger" href="{% url 'consulta_evaluaciones_tubo_carcasa' pk=1 %}"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
-    </td>
-    <td>
-      {% include 'fichas/intercambiadores/tubo_carcasa.html' %}
-      <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#ficha_{{x}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica"></a>
-    </td>
-  </tr>
-  {% endfor %}
+<tbody class="text-center" id="tabla-body">
+  {% if object_list.count %}
+  {% include 'tablas/intercambiadores/tubo_carcasa.html' %}
+  {% else %}
+  <td colspan="7">No se encontraron intercambiadores con los datos de filtrado proporcionados.</td>
+  {% endif %}
 </tbody>
 {% endblock %}
 
@@ -76,76 +69,31 @@
     <button class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar Reporte XLSX</button>
   </form>
 </div>
-<nav aria-label="Page navigation example">
+<footer aria-label="Page navigation example">
     <ul class="pagination">
       <li class="page-item">
-        <a class="page-link bg-dark text-white" href="#" aria-label="Previous">
+        {% if page_obj.has_previous %}
+        <a class="page-link bg-dark text-white" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
           <span aria-hidden="true">&laquo;</span>
         </a>
+        {% endif %}
       </li>
-      <li class="page-item"><a class="page-link bg-dark text-white" href="#">1</a></li>
-      <li class="page-item"><a class="page-link bg-dark text-white" href="#">2</a></li>
-      <li class="page-item"><a class="page-link bg-dark text-white" href="#">3</a></li>
+      <li class="page-item"><a class="page-link bg-dark text-white" href="#">{{ page_obj.number }}</a></li>
+      {% if page_obj.has_next %}
       <li class="page-item">
-        <a class="page-link bg-dark text-white" href="#" aria-label="Next">
+        <a class="page-link bg-dark text-white" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
           <span aria-hidden="true">&raquo;</span>
         </a>
       </li>
+      {% endif %}
     </ul>
 </nav>
 {% endblock %}
 
 {% block extra_javascript %}
 <script>
-  let canvas = document.getElementById('grafica_1').getContext('2d');
-  let datosGrafica = undefined;
-
-  // $.ajax({
-  //     url: `datos_grafica.php?id=<?php echo $_GET['id_pozo']; ?>&fecha_max=${$('#fecha_max').val()}&fecha_min=${$('#fecha_min').val()}`,
-  //     method: "GET",
-  //     async: false,
-  //     success: function(data){
-  //         console.log(data);
-  //         datosGrafica = JSON.parse(data);
-  //     },
-  //     error: function(error){
-  //         console.log(error);
-  //     }
-  // });
-
-  $('#grafica').removeAttr('hidden');
-  if(chart)
-    chart.destroy();
-
-  chart = new Chart(canvas, {
-          type: 'line',
-          data: {
-              datasets: [
-                  {
-                      label: "Tubo Externo",
-                      data: [50, 35],
-                      backgroundColor: ['#E31E24']
-                  },
-                  {
-                      label: "Tubo Interno",
-                      data: [52, 34],
-                      backgroundColor: ['#555']
-                  }
-              ]
-          },
-          options: {
-              responsive: true,
-              plugins: {
-                  title: {
-                      display: true,
-                      text: 'Variación de las Temperaturas',
-                      position: 'top'
-                  },
-                  legend: {
-                      display: true
-                  }
-              }        
-          }
+  $('select').change(() => {
+    $('#filtrado').submit();
   });
 </script>
 {% endblock %}

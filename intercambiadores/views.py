@@ -1,7 +1,9 @@
+from typing import Any
 from django.shortcuts import render
 from django.views import View
 from .models import *
 from django.http import JsonResponse
+from django.views.generic.list import ListView
 import numpy
 
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
@@ -30,14 +32,65 @@ class ConsultaEvaluacionesTuboCarcasa(View):
     def get(self, request, pk):
         return render(request, 'tubo_carcasa/evaluaciones/consulta.html', context=self.context)
 
-class ConsultaTuboCarcasa(View):
-    context = {
-        'titulo': "PEQUIVEN - Intercambiadores de Tubo/Carcasa",
-        'numeros': [1,2,3,4,5,6,7,8,9,10]
-    }
+class ConsultaTuboCarcasa(ListView):
+    model = PropiedadesTuboCarcasa
+    template_name = 'tubo_carcasa/consulta.html'
+    paginate_by = 10
 
-    def get(self, request):
-        return render(request, 'tubo_carcasa/consulta.html', context=self.context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["titulo"] = "SIEVEP - Consulta de Intercambiadores de Tubo/Carcasa"
+        context['complejos'] = Complejo.objects.all()
+
+        if(self.request.GET.get('complejo')):
+            context['plantas'] = Planta.objects.filter(complejo__pk = self.request.GET.get('complejo'))
+
+        context['tag'] = self.request.GET.get('tag', '')
+        context['servicio'] = self.request.GET.get('servicio', '')
+        context['complejox'] = self.request.GET.get('complejo')
+        context['plantax'] = self.request.GET.get('planta')
+
+        if(context['complejox']):
+            context['complejox'] = int(context['complejox'])
+        
+        if(context['plantax']):
+            context['plantax'] = int(context['plantax'])
+
+        print(context)
+
+        return context
+    
+    def get_queryset(self):
+        tag = self.request.GET.get('tag', '')
+        servicio = self.request.GET.get('servicio', '')
+        complejo = self.request.GET.get('complejo', '')
+        planta = self.request.GET.get('planta', '')
+
+        new_context = None
+
+        if(planta != '' and complejo != ''):
+            new_context = self.model.objects.filter(
+                intercambiador__planta__pk=planta
+            )
+        elif(complejo != ''):
+            new_context = new_context.filter(
+                intercambiador__planta__complejo__pk=complejo
+            ) if new_context else self.model.objects.filter(
+                intercambiador__planta__complejo__pk=complejo
+            )
+
+        if(not(new_context is None)):
+            new_context = new_context.filter(
+                intercambiador__servicio__icontains = servicio,
+                intercambiador__tag__icontains = tag
+            )
+        else:
+            new_context = self.model.objects.filter(
+                intercambiador__servicio__icontains = servicio,
+                intercambiador__tag__icontains = tag
+            )
+
+        return new_context
 
 # VISTAS GENERALES PARA LOS INTERCAMBIADORES DE CALOR
 

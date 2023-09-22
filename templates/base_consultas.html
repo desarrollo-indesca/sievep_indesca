@@ -7,10 +7,12 @@
 </div>
 <hr>
 
-<div class="row mb-2">
-    {% block formulario_filtrado %}
-    {% endblock %}
-</div>
+<form id="filtrado" method="get">
+  <div class="row mb-2">
+      {% block formulario_filtrado %}
+      {% endblock %}
+  </div>
+</form>
 
 <table class="table table-dark table-striped table-hover table-bordered">
     {% block tabla %}
