@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'intercambiadores',
     'static',
     'pwa',
-    'templatetags'
+    'templatetags',
+    'mathfilters'
 ]
 
 MIDDLEWARE = [
