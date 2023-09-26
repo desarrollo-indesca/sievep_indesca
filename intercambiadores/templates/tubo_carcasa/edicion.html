@@ -5,6 +5,7 @@
 {% block contenido %}
     {% with generales=intercambiador.intercambiador %}
     <form method="post">
+        {% csrf_token %}
         <div class="row">
             <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_tubo_carcasa' %}">↶ Regresar</a></div>
             <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Edición del Intercambiador {{generales.tag}}</h3></div>
@@ -121,7 +122,18 @@
                         </div>
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-6">
+                        <label class="form-label" for="cambio_fase_carcasa">Cambio de Fase:</label>
+                        <div class="input-group mb-3">
+                            <select class="form-select" name="cambio_fase_carcasa" id="cambio_fase_carcasa">
+                                <option value="S" {% if 'S' == condicion_tubo.cambio_de_fase %}selected{% endif %}>Sin Cambio de Fase</option>
+                                <option value="P" {% if 'P' == condicion_tubo.cambio_de_fase %}selected{% endif %}>Cambio de Fase Parcial</option>
+                                <option value="T" {% if 'T' == condicion_tubo.cambio_de_fase %}selected{% endif %}>Cambio de Fase Total</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
                         <label class="form-label" for="flujo_carcasa">Flujo Másico:</label>
                         <div class="input-group mb-3">
                             <input value="{{condicion_carcasa.flujo_masico|unlocalize}}" style="width: 70% !important;" class="form-control" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" max="9999.99" required>
@@ -294,6 +306,17 @@
                             <input value="{{condicion_tubo.flujo_liquido_salida|unlocalize}}" style="width: 70% !important;" class="form-control" type="number" name="flujo_liquido_out_tubo" id="flujo_liquido_out_tubo" step="0.01" max="9999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
                                 <option value="1">Kg/h</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label" for="cambio_fase_tubo">Cambio de Fase:</label>
+                        <div class="input-group mb-3">
+                            <select class="form-select" name="cambio_fase_tubo" id="cambio_fase_tubo">
+                                <option value="S" {% if 'S' == condicion_tubo.cambio_de_fase %}selected{% endif %}>Sin Cambio de Fase</option>
+                                <option value="P" {% if 'P' == condicion_tubo.cambio_de_fase %}selected{% endif %}>Cambio de Fase Parcial</option>
+                                <option value="T" {% if 'T' == condicion_tubo.cambio_de_fase %}selected{% endif %}>Cambio de Fase Total</option>
                             </select>
                         </div>
                     </div>

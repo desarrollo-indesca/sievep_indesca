@@ -3,6 +3,7 @@
 
 {% block contenido %}
     <form method="post">
+        {% csrf_token %}
         <div class="row">
             <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_tubo_carcasa' %}">↶ Regresar</a></div>
             <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Nuevo Intercambiador de Tubo/Carcasa</h3></div>
@@ -19,34 +20,27 @@
             <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="complejo">Complejo:</label>
                 <select required class="form-select" name="complejo" id="complejo">
-                    <option value="1">ANA MARÍA CAMPOS</option>
-                    <option value="2">JOSÉ ANTONIO ANZOÁTEGUI</option>
-                    <option value="3">HUGO CHÁVEZ</option>
+                    {% for complejo in complejos %}
+                    <option value="{{complejo.pk}}">{{complejo}}</option>
+                    {% endfor %}
                 </select>
             </div>
     
             <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="planta">Planta:</label>
                 <select required class="form-select" name="planta" id="planta">
-                    <option value="1">Olefinas I</option>
-                    <option value="2">Olefinas II</option>
-                    <option value="3">LGN I</option>
-                    <option value="4">LGN II</option>
-                    <option value="5">AMONÍACO</option>
-                    <option value="6">UREA</option>
-                    <option value="7">CLOROSODA</option>
-                    <option value="8">SERVICIOS INDUSTRIALES</option>
-                    <option value="9">MVC</option>
-                    <option value="10">PVC</option>
+                    {% for planta in plantas %}
+                    <option value="{{planta.pk}}">{{planta}}</option>
+                    {% endfor %}
                 </select>
             </div>
 
             <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="tema">Tema:</label>
                 <select class="form-select" name="tema" id="tema">
-                    <option value="1">AJS</option>
-                    <option value="2">BEM</option>
-                    <option value="3">AXS</option>
+                    {% for tema in temas %}
+                    <option value="{{tema.pk}}">{{tema}}</option>
+                    {% endfor %}
                 </select>
             </div>
 
@@ -63,10 +57,10 @@
             <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="flujo">Flujo:</label>
                 <select class="form-select" name="flujo" id="flujo">
-                    <option value="1">Cocorriente</option>
-                    <option value="2">Contracorriente</option>
-                    <option value="3">Flujo Cruzado Mezclado</option>
-                    <option value="4">Flujo Cruzado sin Mezclar</option>
+                    <option value="C">Cocorriente</option>
+                    <option value="c">Contracorriente</option>
+                    <option value="M">Flujo Cruzado Mezclado</option>
+                    <option value="m">Flujo Cruzado sin Mezclar</option>
                 </select>
             </div>
 
@@ -99,11 +93,9 @@
                     <div class="col-12 d-flex flex-column">
                         <label class="form-label" for="fluido_carcasa">Fluido:</label>
                         <select class="form-select" name="fluido_carcasa" id="fluido_carcasa">
-                            <option value="1">Agua</option>
-                            <option value="2">Hidrocarburos</option>
-                            <option value="3">Metano</option>
-                            <option value="4">Etileno</option>
-                            <option value="5">Agua Caliente</option>
+                            {% for fluido in fluidos %}
+                            <option value="{{fluido.pk}}">{{fluido}}</option>
+                            {% endfor %}
                         </select>
                     </div>
                     
@@ -127,7 +119,18 @@
                         </div>
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-6">
+                        <label class="form-label" for="cambio_fase_carcasa">Cambio de Fase:</label>
+                        <div class="input-group mb-3">
+                            <select class="form-select" name="cambio_fase_carcasa" id="cambio_fase_carcasa">
+                                <option value="S">Sin Cambio de Fase</option>
+                                <option value="P">Cambio de Fase Parcial</option>
+                                <option value="T">Cambio de Fase Total</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
                         <label class="form-label" for="flujo_carcasa">Flujo Másico:</label>
                         <div class="input-group mb-3">
                             <input style="width: 70% !important;" class="form-control" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" max="9999.99" required>
@@ -226,11 +229,9 @@
                     <div class="col-12 d-flex flex-column">
                         <label class="form-label" for="fluido_tubo">Fluido:</label>
                         <select class="form-select" name="fluido_tubo" id="fluido_tubo">
-                            <option value="1">Agua</option>
-                            <option value="2">Hidrocarburos</option>
-                            <option value="3">Metano</option>
-                            <option value="4">Etileno</option>
-                            <option value="5">Agua Caliente</option>
+                            {% for fluido in fluidos %}
+                            <option value="{{fluido.pk}}">{{fluido}}</option>
+                            {% endfor %}
                         </select>
                     </div>
                     
@@ -254,7 +255,18 @@
                         </div>
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-6">
+                        <label class="form-label" for="cambio_fase_tubo">Cambio de Fase:</label>
+                        <div class="input-group mb-3">
+                            <select class="form-select" name="cambio_fase_tubo" id="cambio_fase_tubo">
+                                <option value="S">Sin Cambio de Fase</option>
+                                <option value="P">Cambio de Fase Parcial</option>
+                                <option value="T">Cambio de Fase Total</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
                         <label class="form-label" for="flujo_tubo">Flujo Másico:</label>
                         <div class="input-group mb-3">
                             <input style="width: 70% !important;" class="form-control" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" max="9999.99" required>
@@ -474,7 +486,11 @@
 
                     <div class="col-3">
                         <label class="form-label" for="tipo_tubo">Tipo de Tubo:</label>
-                        <input class="form-control" type="number" name="tipo_tubo" id="tipo_tubo" step="0.0001" required>
+                        <select name="tipo_tubo" class="form-select" id="tipo_tubo">
+                            {% for tipo in tipos %}
+                            <option value="{{tipo.pk}}">{{tipo}}</option>
+                            {% endfor %}
+                        </select>
                     </div>
 
                     <div class="col-3">

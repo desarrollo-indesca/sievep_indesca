@@ -4,6 +4,7 @@ from django.views import View
 from .models import *
 from django.http import JsonResponse
 from django.views.generic.list import ListView
+from django.db import transaction
 import numpy
 
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
@@ -12,14 +13,69 @@ class CrearIntercambiadorTuboCarcasa(View):
     context = {
         'titulo': "Creación de Intercambiador Tubo Carcasa"
     }
+
+    def post(self, request): # Envío de Formulario de Creación
+        print(request.POST)
+        
+        with transaction.atomic():
+            intercambiador = Intercambiador.objects.create(
+                tag = request.POST['tag'],
+                tipo = TipoIntercambiador.objects.get(pk=1),
+                fabricante = request.POST['fabricante'],
+                planta = Planta.objects.get(pk=request.POST['planta']),
+                tema = Tema.objects.get(pk=request.POST['tema']),
+                servicio = request.POST['servicio'],
+                arreglo_flujo = request.POST['flujo']
+            )
+
+            propiedades = PropiedadesTuboCarcasa.objects.create(
+                intercambiador = intercambiador,
+                area = request.POST['area'],
+                area_unidad = Unidades.objects.get(pk=request.POST['area_unidad']),
+                numero_tubos = request.POST['no_tubos'],
+                longitud_tubos = request.POST['longitud_tubos'],
+                longitud_tubos_unidad = Unidades.objects.get(pk=request.POST['longitud_tubos_unidad']),
+                diametro_externo_tubos = request.POST['od_tubos'],
+                diametro_interno_tubos = request.POST['id_tubos'],
+                diametro_tubos_unidad = Unidades.objects.get(pk=request.POST['diametro_tubos_unidad']),
+
+                fluido_carcasa = Fluido.objects.get(pk=request.POST['fluido_carcasa']),
+                material_carcasa = request.POST['material_carcasa'],
+                conexiones_entrada_carcasa = request.POST['conexiones_entrada_carcasa'],
+                conexiones_salida_carcasa = request.POST['conexiones_salida_carcasa'],
+                
+                fluido_tubo = Fluido.objects.get(pk=request.POST['fluido_tubo']),
+                material_tubo = request.POST['material_tubo'],
+                conexiones_entrada_tubo = request.POST['conexiones_entrada_tubo'],
+                conexiones_salida_tubo = request.POST['conexiones_salida_tubo'],
+                tipo_tubo = TiposDeTubo.objects.get(pk=request.POST['tipo_tubo']),
+
+                pitch_tubos = request.POST['pitch_tubos'],
+                unidades_pitch = request.POST['unidades_pitch'],
+
+                criticidad = request.POST['criticidad'],
+
+                arreglo_serie = request.POST['arreglo_serie'],
+                arreglo_paralelo = request.POST['arreglo_paralelo'],
+                numero_pasos_tubo = request.POST['numero_pasos_tubo'],
+                numero_pasos_carcasa = request.POST['numero_pasos_carcasa']
+            )
+        
     
     def get(self, request):
+        self.context['complejos'] = Complejo.objects.all()
+        self.context['plantas'] = Planta.objects.filter(complejo__pk=1)
+        self.context['tipos'] = TiposDeTubo.objects.all()
+        self.context['temas'] = Tema.objects.all()
+        self.context['fluidos'] = Fluido.objects.all()
+
         return render(request, 'tubo_carcasa/creacion.html', context=self.context)
 
 class CrearEvaluacionTuboCarcasa(View):
     context = {
         'titulo': "Evaluación Tubo Carcasa"
     }
+
     def get(self, request, pk):
         context = self.context
         context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
@@ -36,7 +92,7 @@ class EditarIntercambiadorTuboCarcasa(View):
         self.context['complejos'] = Complejo.objects.all()
         self.context['temas'] = Tema.objects.all()
         self.context['tipos'] = TiposDeTubo.objects.all()
-        self.context['plantas'] = Planta.objects.filter(pk=1)
+        self.context['plantas'] = Planta.objects.filter(complejo__pk=1)
         self.context['fluidos'] = Fluido.objects.all()
 
         return render(request, 'tubo_carcasa/edicion.html', context=self.context)

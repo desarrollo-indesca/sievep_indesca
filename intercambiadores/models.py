@@ -61,7 +61,7 @@ class Planta(models.Model):
     complejo = models.ForeignKey(Complejo, on_delete=models.DO_NOTHING)
 
     def __str__(self) -> str:
-        return self.nombre
+        return self.nombre.upper()
 
     class Meta:
         db_table = "planta"
