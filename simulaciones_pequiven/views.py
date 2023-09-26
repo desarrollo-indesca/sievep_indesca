@@ -105,6 +105,7 @@ class ComponerIntercambiadores(View):
                     row[21] = float(row[21].replace(',','.'))
                     row[35] = float(row[35].replace(',','.'))
                 except:
+                    print("SKIP")
                     continue
                 
                 row[9] = float(row[9].replace(',','.')) if len(row[9]) else ''
@@ -135,8 +136,8 @@ class ComponerIntercambiadores(View):
 
                 # 33 U
 
+                print(row[35])
                 row[34] = float(row[34].replace(',','.')) if len(row[34]) else ''
-                # row[35] = float(row[35].replace(',','.')) if  len(row[35]) else ''
                 row[36] = float(row[36].replace(',','.')) if len(row[36]) else ''
                 row[37] = float(row[37].replace(',','.')) if len(row[37]) else ''
                 row[38] = float(row[38].replace(',','.')) if len(row[38]) else ''
@@ -292,7 +293,7 @@ class ComponerIntercambiadores(View):
                             material_carcasa = row[-13],
                             conexiones_entrada_carcasa = row[-9],
                             conexiones_salida_carcasa = row[-8],
-                            numero_pasos = 1,
+                            numero_tubos = row[35],
 
                             material_tubo = row[-12],
                             fluido_tubo = row[18],

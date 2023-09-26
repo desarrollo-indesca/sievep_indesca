@@ -26,6 +26,21 @@ class CrearEvaluacionTuboCarcasa(View):
 
         return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
 
+class EditarIntercambiadorTuboCarcasa(View):
+    context = {
+        'titulo': "Edición de Intercambiador Tubo Carcasa"
+    }
+    
+    def get(self, request, pk):
+        self.context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
+        self.context['complejos'] = Complejo.objects.all()
+        self.context['temas'] = Tema.objects.all()
+        self.context['tipos'] = TiposDeTubo.objects.all()
+        self.context['plantas'] = Planta.objects.filter(pk=1)
+        self.context['fluidos'] = Fluido.objects.all()
+
+        return render(request, 'tubo_carcasa/edicion.html', context=self.context)
+
 class ConsultaEvaluacionesTuboCarcasa(View):
     context = {
         'titulo': "SIEVEP - Intercambiadores de Tubo/Carcasa",
