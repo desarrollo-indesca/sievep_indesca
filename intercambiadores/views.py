@@ -1,5 +1,5 @@
 from typing import Any
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from .models import *
 from django.http import JsonResponse
@@ -16,6 +16,13 @@ class CrearIntercambiadorTuboCarcasa(View):
 
     def post(self, request): # Envío de Formulario de Creación
         print(request.POST)
+
+        if(Intercambiador.objects.filter(tag = request.POST['tag']).exists()):
+            copia_context = self.context
+            copia_context['previo'] = request.POST
+            copia_context['error'] = f'El tag {request.POST["tag"]} ya está registrado en el sistema.' 
+
+            return render(request, 'tubo_carcasa/creacion.html', context=self.context)
         
         with transaction.atomic():
             intercambiador = Intercambiador.objects.create(
@@ -31,13 +38,13 @@ class CrearIntercambiadorTuboCarcasa(View):
             propiedades = PropiedadesTuboCarcasa.objects.create(
                 intercambiador = intercambiador,
                 area = request.POST['area'],
-                area_unidad = Unidades.objects.get(pk=request.POST['area_unidad']),
+                area_unidad = Unidades.objects.get(pk=request.POST['unidad_area']),
                 numero_tubos = request.POST['no_tubos'],
                 longitud_tubos = request.POST['longitud_tubos'],
                 longitud_tubos_unidad = Unidades.objects.get(pk=request.POST['longitud_tubos_unidad']),
                 diametro_externo_tubos = request.POST['od_tubos'],
-                diametro_interno_tubos = request.POST['id_tubos'],
-                diametro_tubos_unidad = Unidades.objects.get(pk=request.POST['diametro_tubos_unidad']),
+                diametro_interno_tubos = request.POST['id_carcasa'],
+                diametro_tubos_unidad = Unidades.objects.get(pk=request.POST['unidad_diametros']),
 
                 fluido_carcasa = Fluido.objects.get(pk=request.POST['fluido_carcasa']),
                 material_carcasa = request.POST['material_carcasa'],
@@ -46,21 +53,73 @@ class CrearIntercambiadorTuboCarcasa(View):
                 
                 fluido_tubo = Fluido.objects.get(pk=request.POST['fluido_tubo']),
                 material_tubo = request.POST['material_tubo'],
-                conexiones_entrada_tubo = request.POST['conexiones_entrada_tubo'],
-                conexiones_salida_tubo = request.POST['conexiones_salida_tubo'],
+                conexiones_entrada_tubos = request.POST['conexiones_entrada_tubo'],
+                conexiones_salida_tubos = request.POST['conexiones_salida_tubo'],
                 tipo_tubo = TiposDeTubo.objects.get(pk=request.POST['tipo_tubo']),
 
-                pitch_tubos = request.POST['pitch_tubos'],
-                unidades_pitch = request.POST['unidades_pitch'],
+                pitch_tubos = request.POST['pitch'],
+                unidades_pitch = Unidades.objects.get(pk=request.POST['unidades_pitch']),
 
                 criticidad = request.POST['criticidad'],
 
                 arreglo_serie = request.POST['arreglo_serie'],
                 arreglo_paralelo = request.POST['arreglo_paralelo'],
                 numero_pasos_tubo = request.POST['numero_pasos_tubo'],
-                numero_pasos_carcasa = request.POST['numero_pasos_carcasa']
+                numero_pasos_carcasa = request.POST['numero_pasos_carcasa'],
+                q =  request.POST['calor'],
+                u =  request.POST['u'],
+                ensuciamiento =  request.POST['ensuciamiento']
             )
-        
+
+            condiciones_diseno_tubo = CondicionesTuboCarcasa.objects.create(
+                intercambiador = propiedades,
+                lado = 'T',
+                temp_entrada = request.POST['temp_in_tubo'],
+                temp_salida = request.POST['temp_out_tubo'],
+                temperaturas_unidad = Unidades.objects.get(pk=request.POST['unidad_temperaturas']),
+
+                cambio_de_fase = request.POST['cambio_fase_tubo'],
+                
+                flujo_masico = request.POST['flujo_tubo'],
+                flujo_vapor_entrada = request.POST['flujo_vapor_in_tubo'],
+                flujo_vapor_salida = request.POST['flujo_vapor_out_tubo'],
+                flujo_liquido_entrada = request.POST['flujo_liquido_in_tubo'],
+                flujo_liquido_salida = request.POST['flujo_liquido_out_tubo'],
+                caida_presion_max = request.POST['caida_presion_max_tubo'],
+                caida_presion_min = request.POST['caida_presion_min_tubo'],
+                presion_entrada = request.POST['presion_entrada_tubo'],
+                unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presiones']),
+
+                fouling = request.POST['fouling_tubo']
+            )
+
+            condiciones_diseno_carcasa = CondicionesTuboCarcasa.objects.create(
+                intercambiador = propiedades,
+                lado = 'C',
+                temp_entrada = request.POST['temp_in_carcasa'],
+                temp_salida = request.POST['temp_out_carcasa'],
+                temperaturas_unidad =Unidades.objects.get(pk=request.POST['unidad_temperaturas']),
+
+                cambio_de_fase = request.POST['cambio_fase_carcasa'],
+                
+                flujo_masico = request.POST['flujo_carcasa'],
+                flujo_vapor_entrada = request.POST['flujo_vapor_in_carcasa'],
+                flujo_vapor_salida = request.POST['flujo_vapor_out_carcasa'],
+                flujo_liquido_entrada = request.POST['flujo_liquido_in_carcasa'],
+                flujo_liquido_salida = request.POST['flujo_liquido_out_carcasa'],
+                flujos_unidad = Unidades.objects.get(pk=request.POST['unidad_flujos']),
+                
+                presion_entrada = request.POST['presion_entrada_carcasa'],
+                caida_presion_max = request.POST['caida_presion_max_carcasa'],
+                caida_presion_min = request.POST['caida_presion_min_carcasa'],
+                unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presiones']),
+
+                fouling = request.POST['fouling_carcasa']
+            )
+
+            request.session['mensaje'] = "El nuevo intercambiador ha sido registrado exitosamente."
+
+            return redirect('/intercambiadores/tubo_carcasa/')
     
     def get(self, request):
         self.context['complejos'] = Complejo.objects.all()
@@ -68,6 +127,12 @@ class CrearIntercambiadorTuboCarcasa(View):
         self.context['tipos'] = TiposDeTubo.objects.all()
         self.context['temas'] = Tema.objects.all()
         self.context['fluidos'] = Fluido.objects.all()
+
+        if(self.context.get('error')):
+            del(self.context['error'])
+            
+        if(self.context.get('previo')):
+            del(self.context['previo'])            
 
         return render(request, 'tubo_carcasa/creacion.html', context=self.context)
 

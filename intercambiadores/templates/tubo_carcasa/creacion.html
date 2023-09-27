@@ -11,6 +11,14 @@
         </div>
     
         <hr>
+
+        {% if error %}
+        <div>
+            <b class="text-center" style="color: #e31e24;">{{error}}</b>
+        </div>
+
+        <hr>
+        {% endif %}
     
         <div class="row">
             <div class="col-12">
@@ -191,9 +199,9 @@
                     </div>
 
                     <div class="col-6">
-                        <label class="form-label" for="caida_presion_permitida_carcasa">Caída de Presión Permitida:</label>
+                        <label class="form-label" for="caida_presion_max_carcasa">Caída de Presión Máxima:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control" type="number" name="caida_presion_permitida_carcasa" id="caida_presion_permitida_carcasa" step="0.01" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control" type="number" name="caida_presion_max_carcasa" id="caida_presion_max_carcasa" step="0.01" max="9999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
                                 <option value="1">bar</option>
                             </select>
@@ -201,9 +209,9 @@
                     </div>
 
                     <div class="col-6">
-                        <label class="form-label" for="caida_presion_diseno_carcasa">Caída de Presión Diseño:</label>
+                        <label class="form-label" for="caida_presion_min_carcasa">Caída de Presión Mínima:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control" type="number" name="caida_presion_diseno_carcasa" id="caida_presion_diseno_carcasa" step="0.01" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control" type="number" name="caida_presion_min_carcasa" id="caida_presion_min_carcasa" step="0.01" max="9999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
                                 <option value="1">bar</option>
                             </select>
@@ -327,9 +335,9 @@
                     </div>
 
                     <div class="col-6">
-                        <label class="form-label" for="caida_presion_permitida_tubo">Caída de Presión Permitida:</label>
+                        <label class="form-label" for="caida_presion_max_tubo">Caída de Presión Máxima:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control" type="number" name="caida_presion_permitida_tubo" id="caida_presion_permitida_tubo" step="0.01" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control" type="number" name="caida_presion_max_tubo" id="caida_presion_max_tubo" step="0.01" max="9999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
                                 <option value="1">bar</option>
                             </select>
@@ -337,9 +345,9 @@
                     </div>
 
                     <div class="col-6">
-                        <label class="form-label" for="caida_presion_diseno_tubo">Caída de Presión Diseño:</label>
+                        <label class="form-label" for="caida_presion_min_tubo">Caída de Presión Mínima:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control" type="number" name="caida_presion_diseno_tubo" id="caida_presion_diseno_tubo" step="0.01" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control" type="number" name="caida_presion_min_tubo" id="caida_presion_min_tubo" step="0.01" max="9999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
                                 <option value="1">bar</option>
                             </select>
@@ -428,7 +436,7 @@
                         <label class="form-label" for="calor">Calor:</label>
                         <div class="input-group mb-3">
                             <input style="width: 70% !important;" class="form-control" type="number" name="calor" id="calor" step="0.0001" required>
-                            <select style="width: 30% !important;" class="form-select" name="unidad_area" id="unidad_area">
+                            <select style="width: 30% !important;" class="form-select" name="unidad_calor" id="unidad_calor">
                                 <option value="1">MW</option>
                             </select>
                         </div>
@@ -461,7 +469,12 @@
 
                     <div class="col-3">
                         <label class="form-label" for="longitud_tubos">Longitud Tubos:</label>
-                        <input class="form-control" type="number" name="longitud_tubos" id="longitud_tubos" step="0.0001" required>
+                        <div class="input-group mb-3">
+                            <input class="form-control" type="number" name="longitud_tubos" id="longitud_tubos" step="0.0001" required>
+                            <select style="width: 30% !important;" class="form-select" name="longitud_tubos_unidad" id="longitud_tubos_unidad">
+                                <option value="1">m</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="col-3">
@@ -497,7 +510,7 @@
                         <label class="form-label" for="pitch">Pitch:</label>
                         <div class="input-group mb-3">
                             <input style="width: 70% !important;" class="form-control" type="number" name="pitch" id="pitch" step="0.0001" required>
-                            <select style="width: 30% !important;" class="form-select" name="unidad_diametros" id="unidad_diametros" disabled>
+                            <select style="width: 30% !important;" class="form-select" name="unidades_pitch" id="unidades_pitch">
                                 <option value="1">mm</option>
                             </select>
                         </div>

@@ -230,8 +230,8 @@ class CondicionesTuboCarcasa(models.Model):
     cambio_de_fase  = models.CharField(max_length=1, choices=cambios_de_fase)
 
     presion_entrada = models.DecimalField(max_digits=10, decimal_places=4, null=True)
-    caida_presion_max = models.DecimalField(max_digits=7, decimal_places=5, null=True)
-    caida_presion_min = models.DecimalField(max_digits=7, decimal_places=5, null=True)
+    caida_presion_max = models.DecimalField(max_digits=9, decimal_places=5, null=True)
+    caida_presion_min = models.DecimalField(max_digits=9, decimal_places=5, null=True)
     unidad_presion = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="presion_unidad_tubocarcasa")
 
     fouling = models.DecimalField(max_digits=10, decimal_places=9, null=True) #m^2*C/W
