@@ -241,8 +241,10 @@ class ConsultaEvaluacionesTuboCarcasa(ListView):
         context['nombre'] = self.request.GET.get('nombre', '')
         context['desde'] = self.request.GET.get('desde', '')
         context['hasta'] = self.request.GET.get('hasta')
-        context['metodo'] = self.request.GET.get('metodo')
-        context['condiciones'] = self.request.GET.get('condiciones')
+        context['metodo'] = self.request.GET.get('metodo','')
+        context['condiciones'] = self.request.GET.get('condiciones', '')
+
+        print(context)
 
         return context
     
@@ -251,7 +253,7 @@ class ConsultaEvaluacionesTuboCarcasa(ListView):
 
         desde = self.request.GET.get('desde', '')
         hasta = self.request.GET.get('hasta', '')
-        #condiciones = self.request.GET.get('condiciones', '')
+        condiciones = self.request.GET.get('condiciones', '')
         metodo = self.request.GET.get('metodo', '')
         nombre = self.request.GET.get('nombre', '')
 

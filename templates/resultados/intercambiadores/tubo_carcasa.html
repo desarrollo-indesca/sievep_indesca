@@ -1,11 +1,11 @@
 {% load static %}
 {% load l10n %}
 
-<div class="modal fade" id="resultados_{{z}}" tabindex="-1" aria-labelledby="resultados_{{z}}Label" aria-hidden="true">
+<div class="modal fade" id="resultados_{{evaluacion.pk}}" tabindex="-1" aria-labelledby="resultados_{{evaluacion.pk}}Label" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
       <div class="modal-content text-dark">
         <div class="modal-header">
-          <h5 class="modal-title" id="resultados_{{z}}Label">Resultados de la Evaluación #{{z}} (180-C)</h5>
+          <h5 class="modal-title" id="resultados_{{evaluacion.pk}}Label">Resultados de la Evaluación #{{evaluacion.pk}} (180-C)</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
@@ -170,8 +170,8 @@
   // });
 
   $('#grafica_{{evaluacion.pk}}').removeAttr('hidden');
-  if(chart)
-    chart.destroy();
+  // if(chart)
+  //   chart.destroy();
 
   chart = new Chart(canvas, {
           type: 'line',

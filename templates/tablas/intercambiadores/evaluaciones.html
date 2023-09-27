@@ -16,7 +16,7 @@
     <td>
       {% include 'resultados/intercambiadores/tubo_carcasa.html' %}
       
-      <button data-bs-toggle="modal" id="boton_resultados_{{z}}" data-bs-target="#resultados_{{z}}" class="btn btn-danger"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Ícono de Resultados"></button>
+      <button data-bs-toggle="modal" id="boton_resultados_{{evaluacion.pk}}" data-bs-target="#resultados_{{evaluacion.pk}}" class="btn btn-danger"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Ícono de Resultados"></button>
     </td>
   </tr>
 {% endfor %}

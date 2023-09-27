@@ -49,14 +49,14 @@
   </div>
   <div class="d-flex flex-column col-2">
     <label class="form-label" for="tag">Método:</label>
-    <select name="condiciones" id="condiciones" class="form-control">
+    <select name="metodo" id="metodo" class="form-control">
       <option value="">
         ----------------------------
       </option>
-      <option value="E" {%if condiciones == 'E'%}selected{%endif%}>
+      <option value="E" {%if metodo == 'E'%}selected{%endif%}>
         Método Eficiencia-NTU
       </option>
-      <option value="L" {%if condiciones == 'L'%}selected{%endif%}>
+      <option value="L" {%if metodo == 'L'%}selected{%endif%}>
         Método LMTD
       </option>
     </select>
