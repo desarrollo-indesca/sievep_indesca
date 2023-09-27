@@ -139,6 +139,9 @@ class Intercambiador(models.Model):
     servicio = models.CharField(max_length=100)
     arreglo_flujo = models.CharField(max_length=1, choices=arreglos_flujo)
 
+    def intercambiador(self):
+        return PropiedadesTuboCarcasa.objects.get(intercambiador = self)
+
     class Meta:
         db_table = "intercambiador"
 
