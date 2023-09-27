@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.views.generic.list import ListView
 from django.db import transaction
 import numpy
+from reportes.pdfs import generar_pdf
 
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
 
@@ -250,7 +251,6 @@ class ConsultaEvaluacionesTuboCarcasa(ListView):
     
     def get_queryset(self):
         new_context = EvaluacionesIntercambiador.objects.filter(intercambiador__pk=PropiedadesTuboCarcasa.objects.get(pk=self.kwargs['pk']).intercambiador.pk)
-
         desde = self.request.GET.get('desde', '')
         hasta = self.request.GET.get('hasta', '')
         condiciones = self.request.GET.get('condiciones', '')
@@ -283,6 +283,13 @@ class ConsultaTuboCarcasa(ListView):
     model = PropiedadesTuboCarcasa
     template_name = 'tubo_carcasa/consulta.html'
     paginate_by = 10
+
+    def post(self, request, **kwargs):
+        # TODO
+        if(request.POST['tipo'] == 'pdf'):
+            return generar_pdf(request, self.get_queryset(),"intercambiadores_tubo_carcasa")
+        else:
+            print("EXCEL")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

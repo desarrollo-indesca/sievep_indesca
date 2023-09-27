@@ -26,7 +26,7 @@ estiloMontos = TableStyle(
             ('LINEBELOW', (0,2), (-2,-2), 1 ,colors.black, None, (2,2)),
         ])
 
-def generar_pdf(request,object_list):
+def generar_pdf(request,object_list,reporte):
     def primera_pagina(canvas, doc):
         width, height = A4
         canvas.saveState()
@@ -37,22 +37,19 @@ def generar_pdf(request,object_list):
             textTransform='uppercase'
         )  
 
-        i = Image('static/img/logo.jpeg',width=80,height=80)
+        i = Image('static/img/logo.png',width=80,height=80)
         i.wrapOn(canvas,width,height)
 
-        if request.POST['tipo'] == 'estado_cuenta':
-            i.drawOn(canvas,100,480)
-        else:
-            i.drawOn(canvas,50,750)       
+        i.drawOn(canvas,50,750)       
 
         canvas.restoreState()
 
     buff = BytesIO()
-    if request.POST['tipo'] == 'estado_cuenta':
-        doc = SimpleDocTemplate(buff,pagesize=A4[::-1], topMargin=30, bottomMargin=30)
-    else:
-        doc = SimpleDocTemplate(buff,pagesize=A4, topMargin=30, bottomMargin=30)
-    story = generar_historia(request, object_list)
+    doc = SimpleDocTemplate(buff,pagesize=A4, topMargin=30, bottomMargin=30)
+    
+    story = generar_historia(request, reporte, object_list)
+    
+    print(story)
 
     doc.build(story, onFirstPage=primera_pagina)
         
@@ -60,17 +57,17 @@ def generar_pdf(request,object_list):
 
     response.write(buff.getvalue())
 
-    if request.POST['tipo'] == 'recibo_pago':
-        newFile = open(prefijo + f"pdf/recibos/RECIBO_{object_list[0].num_rec}_{datetime.date.today().strftime('%Y_%m_%d')}.pdf", "wb")
-        newFileByteArray = bytearray(buff.getvalue())
-        newFile.write(newFileByteArray)
-
     return response
 
-def generar_historia(request, object_list):
+def generar_historia(request, reporte, object_list):
     # Colocar los tipos de reporte de la siguiente forma:
-    if request.POST['tipo'] == 'estado_cuenta':
-        return estado_cuenta(request, object_list)
+    if reporte == 'intercambiadores_tubo_carcasa':
+        return intercambiadores_tubo_carcasa(request, object_list)
+
+def intercambiadores_tubo_carcasa(request, object_list):
+    print(object_list)
+    story = [Paragraph("Hola")]
+    return story
 
 def estado_cuenta(request, object_list):
     import locale

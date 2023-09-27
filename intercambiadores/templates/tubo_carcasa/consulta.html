@@ -65,9 +65,10 @@
 
 {% block opciones %}
 <div>
-  <form method="get">
-    <button class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar Reporte PDF</button>
-    <button class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar Reporte XLSX</button>
+  <form method="post">
+    {% csrf_token %}
+    <button name="tipo" value="pdf" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar Reporte PDF</button>
+    <button name="tipo" value="xlsx" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar Reporte XLSX</button>
   </form>
 </div>
 <footer aria-label="Page navigation example">
