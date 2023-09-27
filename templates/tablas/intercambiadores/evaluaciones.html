@@ -1,0 +1,22 @@
+{% load static %}
+{% load mathfilters %}
+{% for evaluacion in object_list %}
+  <tr>
+    <th scope="row">
+      {% if page_obj.has_previous %}
+      {{ 10|mul:page_obj.previous_page_number|add:forloop.counter }}
+      {% else %}
+      {{ forloop.counter }}
+      {% endif %}
+    </th>
+    <td>{{evaluacion.fecha}}</td>
+    <td>{{evaluacion.nombre}}</td>
+    <td>De Diseño</td>
+    <td>Eficiencia-NTU</td>
+    <td>
+      {% include 'resultados/intercambiadores/tubo_carcasa.html' %}
+      
+      <button data-bs-toggle="modal" id="boton_resultados_{{z}}" data-bs-target="#resultados_{{z}}" class="btn btn-danger"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Ícono de Resultados"></button>
+    </td>
+  </tr>
+{% endfor %}

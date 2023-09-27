@@ -228,17 +228,54 @@ class EditarIntercambiadorTuboCarcasa(View):
 
         return render(request, 'tubo_carcasa/edicion.html', context=self.context)
 
-class ConsultaEvaluacionesTuboCarcasa(View):
-    context = {
-        'titulo': "SIEVEP - Intercambiadores de Tubo/Carcasa",
-        'numeros': [1,2,3,4,5,6,7,8,9,10]
-    }
+class ConsultaEvaluacionesTuboCarcasa(ListView):
+    model = EvaluacionesIntercambiador
+    template_name = 'tubo_carcasa/evaluaciones/consulta.html'
+    paginate_by = 10
 
-    def get(self, request, pk):
-        context = self.context
-        context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["titulo"] = "SIEVEP - Consulta de Evaluaciones"
+        context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=self.kwargs['pk'])
 
-        return render(request, 'tubo_carcasa/evaluaciones/consulta.html', context=context)
+        context['nombre'] = self.request.GET.get('nombre', '')
+        context['desde'] = self.request.GET.get('desde', '')
+        context['hasta'] = self.request.GET.get('hasta')
+        context['metodo'] = self.request.GET.get('metodo')
+        context['condiciones'] = self.request.GET.get('condiciones')
+
+        return context
+    
+    def get_queryset(self):
+        new_context = EvaluacionesIntercambiador.objects.filter(intercambiador__pk=PropiedadesTuboCarcasa.objects.get(pk=self.kwargs['pk']).intercambiador.pk)
+
+        desde = self.request.GET.get('desde', '')
+        hasta = self.request.GET.get('hasta', '')
+        #condiciones = self.request.GET.get('condiciones', '')
+        metodo = self.request.GET.get('metodo', '')
+        nombre = self.request.GET.get('nombre', '')
+
+        if(desde != ''):
+            new_context = self.model.objects.filter(
+                fecha__gte = desde
+            )
+
+        if(hasta != ''):
+            new_context = new_context.filter(
+                fecha__lte=hasta
+            )
+
+        if(metodo != ''):
+            new_context = self.model.objects.filter(
+                metodo = metodo
+            )
+
+        if(nombre != ''):
+            new_context = self.model.objects.filter(
+                nombre__icontains = nombre
+            )
+
+        return new_context
 
 class ConsultaTuboCarcasa(ListView):
     model = PropiedadesTuboCarcasa
@@ -263,8 +300,6 @@ class ConsultaTuboCarcasa(ListView):
         
         if(context['plantax']):
             context['plantax'] = int(context['plantax'])
-
-        print(context)
 
         return context
     

@@ -1,5 +1,6 @@
 {% extends 'base_consultas.html' %}
 {% load static %}
+{% load templatetags %}
 
 {% block encabezado %}
   {% with generales=intercambiador.intercambiador %}
@@ -20,11 +21,11 @@
 {% block formulario_filtrado %}
   <div class="d-flex flex-column col-2">
     <label class="form-label" for="tag">Desde:</label>
-    <input type="datetime-local" class="form-control" name="desde" id="desde">
+    <input value="{{desde}}" type="datetime-local" class="form-control" name="desde" id="desde">
   </div>
   <div class="d-flex flex-column col-2">
       <label class="form-label" for="empresa">Hasta:</label>
-      <input type="datetime-local" class="form-control" name="hasta" id="hasta">
+      <input value="{{hasta}}" type="datetime-local" class="form-control" name="hasta" id="hasta">
   </div>
   <div class="d-flex flex-column col-2">
       <label class="form-label" for="condiciones">Condiciones:</label>
@@ -32,16 +33,16 @@
         <option value="">
           ----------------------------
         </option>
-        <option value="D">
+        <option value="D" {%if condiciones == 'D'%}selected{%endif%}>
           Diseño
         </option>
-        <option value="M">
+        <option value="M" {%if condiciones == 'M'%}selected{%endif%}>
           Máximas
         </option>
-        <option value="m">
+        <option value="m" {%if condiciones == 'm'%}selected{%endif%}>
           Mínimas                            
         </option>
-        <option value="P">
+        <option value="P" {%if condiciones == 'P'%}selected{%endif%}>
           Planta
         </option>
       </select>
@@ -52,17 +53,17 @@
       <option value="">
         ----------------------------
       </option>
-      <option value="E">
+      <option value="E" {%if condiciones == 'E'%}selected{%endif%}>
         Método Eficiencia-NTU
       </option>
-      <option value="L">
+      <option value="L" {%if condiciones == 'L'%}selected{%endif%}>
         Método LMTD
       </option>
     </select>
   </div>
   <div class="d-flex flex-column col-4">
     <label class="form-label" for="tag">Nombre:</label>
-    <input type="text" class="form-control">
+    <input value="{{nombre}}" name="nombre" type="text" class="form-control">
   </div>
 {% endblock %}
   
@@ -78,20 +79,11 @@
   </tr>
 </thead>
 <tbody class="text-center">
-  {% for z in numeros %}
-  <tr>
-    <td>{{z}}</td>
-    <td>08/09/2023 09:02:00</td>
-    <td>Prueba de Nuevas Temperaturas</td>
-    <td>De Diseño</td>
-    <td>Eficiencia-NTU</td>
-    <td>
-      {% include 'resultados/intercambiadores/tubo_carcasa.html' %}
-      
-      <button data-bs-toggle="modal" id="boton_resultados_{{z}}" data-bs-target="#resultados_{{z}}" class="btn btn-danger"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Ícono de Resultados"></button>
-    </td>
-  </tr>
-  {% endfor %}
+  {% if object_list.count %}
+  {% include 'tablas/intercambiadores/evaluaciones.html' %}
+  {% else %}
+  <td colspan="7">No se encontraron evaluaciones con los datos de filtrado proporcionados.</td>
+  {% endif %}
 </tbody>
 {% endblock %}
 
@@ -108,21 +100,35 @@
   {% include 'resultados/intercambiadores/historico.html' %}
 </div>
 {% endwith %}
-<nav aria-label="Page navigation example">
-    <ul class="pagination">
-      <li class="page-item">
-        <a class="page-link bg-dark text-white" href="#" aria-label="Previous">
-          <span aria-hidden="true">&laquo;</span>
-        </a>
-      </li>
-      <li class="page-item"><a class="page-link bg-dark text-white" href="#">1</a></li>
-      <li class="page-item"><a class="page-link bg-dark text-white" href="#">2</a></li>
-      <li class="page-item"><a class="page-link bg-dark text-white" href="#">3</a></li>
-      <li class="page-item">
-        <a class="page-link bg-dark text-white" href="#" aria-label="Next">
-          <span aria-hidden="true">&raquo;</span>
-        </a>
-      </li>
-    </ul>
-</nav>
+<footer aria-label="Page navigation example">
+  <ul class="pagination">
+    <li class="page-item">
+      {% if page_obj.has_previous %}
+      <a class="page-link bg-dark text-white" href="?{% url_replace page=page_obj.previous_page_number %}" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+      {% endif %}
+    </li>
+    <li class="page-item"><a class="page-link bg-dark text-white" href="#">{{ page_obj.number }}</a></li>
+    {% if page_obj.has_next %}
+    <li class="page-item">
+      <a class="page-link bg-dark text-white" href="?{% url_replace page=page_obj.next_page_number %}" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+</footer>
+{% endblock %}
+
+{% block extra_javascript %}
+<script>
+  $('select').change(() => {
+    $('#filtrado').submit();
+  });
+
+  $('input[type="datetime-local"]').change(() => {
+    $('#filtrado').submit();
+  });
+</script>
 {% endblock %}

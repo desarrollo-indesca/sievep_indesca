@@ -251,6 +251,7 @@ class EvaluacionesIntercambiador(models.Model):
     intercambiador = models.ForeignKey(Intercambiador, on_delete=models.CASCADE)
     condiciones = models.ForeignKey(CondicionesTuboCarcasa, on_delete=models.DO_NOTHING)
     metodo = models.CharField(max_length=1, choices=(('E', 'Método Efectividad-NTU'), ('L', 'Método LMTD')))
+    nombre = models.CharField(max_length=50)
 
     # Datos de Entrada
     temp_ex_entrada = models.DecimalField(max_digits=7, decimal_places=2)
