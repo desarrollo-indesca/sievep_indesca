@@ -21,7 +21,7 @@
 
             <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="complejo">Complejo:</label>
-                <select required class="form-select" name="complejo" id="complejo">
+                <select required class="form-select" name="complejo" id="complejo" disabled>
                     {% for complejo in complejos %}
                     <option value="{{complejo.pk}}" {% if complejo.pk == generales.planta.complejo.pk %}selected{% endif %}>{{complejo}}</option>
                     {% endfor %}
@@ -30,7 +30,7 @@
     
             <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="planta">Planta:</label>
-                <select required class="form-select" name="planta" id="planta">
+                <select required class="form-select" name="planta" id="planta" disabled>
                     {% for planta in plantas %}
                     <option value="{{planta.pk}}" {% if planta.pk == generales.planta.pk %}selected{% endif %}>{{planta}}</option>
                     {% endfor %}
@@ -39,7 +39,7 @@
 
             <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="tema">Tema:</label>
-                <select class="form-select" name="tema" id="tema">
+                <select class="form-select" name="tema" id="tema" disabled>
                     {% for tema in temas %}
                     <option value="{{tema.pk}}" {% if tema.pk == generales.tema.pk %}selected{% endif %}>{{tema}}</option>
                     {% endfor %}
@@ -126,9 +126,9 @@
                         <label class="form-label" for="cambio_fase_carcasa">Cambio de Fase:</label>
                         <div class="input-group mb-3">
                             <select class="form-select" name="cambio_fase_carcasa" id="cambio_fase_carcasa">
-                                <option value="S" {% if 'S' == condicion_tubo.cambio_de_fase %}selected{% endif %}>Sin Cambio de Fase</option>
-                                <option value="P" {% if 'P' == condicion_tubo.cambio_de_fase %}selected{% endif %}>Cambio de Fase Parcial</option>
-                                <option value="T" {% if 'T' == condicion_tubo.cambio_de_fase %}selected{% endif %}>Cambio de Fase Total</option>
+                                <option value="S" {% if 'S' == condicion_carcasa.cambio_de_fase %}selected{% endif %}>Sin Cambio de Fase</option>
+                                <option value="P" {% if 'P' == condicion_carcasa.cambio_de_fase %}selected{% endif %}>Cambio de Fase Parcial</option>
+                                <option value="T" {% if 'T' == condicion_carcasa.cambio_de_fase %}selected{% endif %}>Cambio de Fase Total</option>
                             </select>
                         </div>
                     </div>
@@ -194,9 +194,9 @@
                     </div>
 
                     <div class="col-6">
-                        <label class="form-label" for="caida_presion_permitida_carcasa">Caída de Presión Permitida:</label>
+                        <label class="form-label" for="caida_presion_permitida_carcasa">Caída de Presión Máxima:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_carcasa.caida_presion_max|unlocalize}}" style="width: 70% !important;" class="form-control" type="number" name="caida_presion_permitida_carcasa" id="caida_presion_permitida_carcasa" step="0.01" max="9999.99" required>
+                            <input value="{{condicion_carcasa.caida_presion_max|unlocalize}}" style="width: 70% !important;" class="form-control" type="number" name="caida_presion_max_carcasa" id="caida_presion_max_carcasa" step="0.01" max="9999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
                                 <option value="1">bar</option>
                             </select>
@@ -204,9 +204,9 @@
                     </div>
 
                     <div class="col-6">
-                        <label class="form-label" for="caida_presion_diseno_carcasa">Caída de Presión Diseño:</label>
+                        <label class="form-label" for="caida_presion_diseno_carcasa">Caída de Presión Mínima:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_carcasa.caida_presion_min|unlocalize}}" style="width: 70% !important;" class="form-control" type="number" name="caida_presion_diseno_carcasa" id="caida_presion_diseno_carcasa" step="0.01" max="9999.99" required>
+                            <input value="{{condicion_carcasa.caida_presion_min|unlocalize}}" style="width: 70% !important;" class="form-control" type="number" name="caida_presion_min_carcasa" id="caida_presion_min_carcasa" step="0.01" max="9999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
                                 <option value="1">bar</option>
                             </select>
@@ -260,7 +260,18 @@
                         </div>
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-6">
+                        <label class="form-label" for="cambio_fase_tubo">Cambio de Fase:</label>
+                        <div class="input-group mb-3">
+                            <select class="form-select" name="cambio_fase_tubo" id="cambio_fase_tubo">
+                                <option value="S" {% if 'S' == condicion_tubo.cambio_de_fase %}selected{% endif %}>Sin Cambio de Fase</option>
+                                <option value="P" {% if 'P' == condicion_tubo.cambio_de_fase %}selected{% endif %}>Cambio de Fase Parcial</option>
+                                <option value="T" {% if 'T' == condicion_tubo.cambio_de_fase %}selected{% endif %}>Cambio de Fase Total</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
                         <label class="form-label" for="flujo_tubo">Flujo Másico:</label>
                         <div class="input-group mb-3">
                             <input value="{{condicion_tubo.flujo_masico|unlocalize}}" style="width: 70% !important;" class="form-control" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" max="9999.99" required>
@@ -310,17 +321,6 @@
                         </div>
                     </div>
 
-                    <div class="col-6">
-                        <label class="form-label" for="cambio_fase_tubo">Cambio de Fase:</label>
-                        <div class="input-group mb-3">
-                            <select class="form-select" name="cambio_fase_tubo" id="cambio_fase_tubo">
-                                <option value="S" {% if 'S' == condicion_tubo.cambio_de_fase %}selected{% endif %}>Sin Cambio de Fase</option>
-                                <option value="P" {% if 'P' == condicion_tubo.cambio_de_fase %}selected{% endif %}>Cambio de Fase Parcial</option>
-                                <option value="T" {% if 'T' == condicion_tubo.cambio_de_fase %}selected{% endif %}>Cambio de Fase Total</option>
-                            </select>
-                        </div>
-                    </div>
-
                     <div class="col-12">
                         <label class="form-label" for="presion_entrada_tubo">Presión Entrada:</label>
                         <div class="input-group mb-3">
@@ -332,9 +332,9 @@
                     </div>
 
                     <div class="col-6">
-                        <label class="form-label" for="caida_presion_permitida_tubo">Caída de Presión Permitida:</label>
+                        <label class="form-label" for="caida_presion_max_tubo">Caída de Presión Máxima:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_tubo.caida_presion_max|unlocalize}}" style="width: 70% !important;" class="form-control" type="number" name="caida_presion_permitida_tubo" id="caida_presion_permitida_tubo" step="0.01" max="9999.99" required>
+                            <input value="{{condicion_tubo.caida_presion_max|unlocalize}}" style="width: 70% !important;" class="form-control" type="number" name="caida_presion_max_tubo" id="caida_presion_max_tubo" step="0.01" max="9999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
                                 <option value="1">bar</option>
                             </select>
@@ -342,9 +342,9 @@
                     </div>
 
                     <div class="col-6">
-                        <label class="form-label" for="caida_presion_diseno_tubo">Caída de Presión Diseño:</label>
+                        <label class="form-label" for="caida_presion_min_tubo">Caída de Presión Mínima:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_tubo.caida_presion_min|unlocalize}}" style="width: 70% !important;" class="form-control" type="number" name="caida_presion_diseno_tubo" id="caida_presion_diseno_tubo" step="0.01" max="9999.99" required>
+                            <input value="{{condicion_tubo.caida_presion_min|unlocalize}}" style="width: 70% !important;" class="form-control" type="number" name="caida_presion_min_tubo" id="caida_presion_min_tubo" step="0.01" max="9999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
                                 <option value="1">bar</option>
                             </select>
@@ -523,12 +523,12 @@
 
                     <div class="col-3">
                         <label class="form-label" for="u">U:</label>
-                        <input value="{% if intercambiador.u %}{{intercambiador.u}}{% endif %}" class="form-control" type="text" name="u" id="u">
+                        <input value="{% if intercambiador.u %}{{intercambiador.u|unlocalize}}{% endif %}" class="form-control" type="number" name="u" id="u">
                     </div>
 
                     <div class="col-3">
                         <label class="form-label" for="ensuciamiento">Ensuciamiento:</label>
-                        <input value="{% if intercambiador.u %}{{intercambiador.u}}{% endif %}" class="form-control" type="text" name="ensuciamiento" id="ensuciamiento">
+                        <input value="{% if intercambiador.ensuciamiento %}{{intercambiador.ensuciamiento|unlocalize}}{% endif %}" class="form-control" type="number" name="ensuciamiento" id="ensuciamiento">
                     </div>
 
                     <div class="col-3"></div>

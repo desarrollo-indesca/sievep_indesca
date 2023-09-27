@@ -151,6 +151,72 @@ class EditarIntercambiadorTuboCarcasa(View):
     context = {
         'titulo': "Edición de Intercambiador Tubo Carcasa"
     }
+
+    def post(self, request, pk):
+        print(request.POST)
+        with transaction.atomic():
+            propiedades = PropiedadesTuboCarcasa.objects.get(pk=pk)
+            propiedades.area = request.POST['area']
+            propiedades.numero_tubos = request.POST['no_tubos']
+            propiedades.longitud_tubos = request.POST['longitud_tubos']
+            propiedades.diametro_externo_tubos = request.POST['od_tubos']
+            propiedades.diametro_interno_tubos = request.POST['id_carcasa']
+            propiedades.tipo_tubo = TiposDeTubo.objects.get(pk=request.POST['tipo_tubo'])
+            propiedades.pitch_tubos = request.POST['pitch']
+            propiedades.material_carcasa = request.POST['material_carcasa']
+            propiedades.material_tubo = request.POST['material_tubo']
+            propiedades.q = request.POST['calor']
+            propiedades.ensuciamiento = request.POST['ensuciamiento']
+            propiedades.u = request.POST['u']
+            propiedades.conexiones_entrada_carcasa = request.POST['conexiones_entrada_carcasa']
+            propiedades.conexiones_salida_carcasa = request.POST['conexiones_salida_carcasa']
+            propiedades.conexiones_entrada_tubos = request.POST['conexiones_entrada_tubo']
+            propiedades.conexiones_salida_tubos = request.POST['conexiones_salida_tubo']
+            propiedades.numero_pasos_carcasa = request.POST['numero_pasos_carcasa']
+            propiedades.numero_pasos_tubo = request.POST['numero_pasos_tubo']
+            propiedades.numero_pasos_carcasa = request.POST['numero_pasos_carcasa']
+            propiedades.fluido_tubo = Fluido.objects.get(pk=request.POST['fluido_tubo'])
+            propiedades.fluido_carcasa = Fluido.objects.get(pk=request.POST['fluido_carcasa'])
+            propiedades.save()
+
+            condiciones_tubo = propiedades.condicion_tubo()
+            condiciones_tubo.temp_entrada = request.POST['temp_in_tubo']
+            condiciones_tubo.temp_salida = request.POST['temp_out_tubo']
+            condiciones_tubo.flujo_vapor_entrada = request.POST['flujo_vapor_in_tubo']
+            condiciones_tubo.flujo_liquido_salida = request.POST['flujo_vapor_out_tubo']
+            condiciones_tubo.flujo_liquido_entrada = request.POST['flujo_liquido_in_tubo']
+            condiciones_tubo.cambio_de_fase = request.POST['cambio_fase_tubo']
+            condiciones_tubo.flujo_masico = request.POST['flujo_tubo']
+            condiciones_tubo.presion_entrada = request.POST['presion_entrada_tubo']
+            condiciones_tubo.caida_presion_max = request.POST['caida_presion_max_tubo']
+            condiciones_tubo.caida_presion_min = request.POST['caida_presion_min_tubo']
+            condiciones_tubo.fouling = request.POST['fouling_tubo']
+            condiciones_tubo.save()
+
+            condiciones_carcasa = propiedades.condicion_carcasa()
+            condiciones_carcasa.temp_entrada = request.POST['temp_in_carcasa']
+            condiciones_carcasa.temp_salida = request.POST['temp_out_carcasa']
+            condiciones_carcasa.flujo_vapor_entrada = request.POST['flujo_vapor_in_carcasa']
+            condiciones_carcasa.flujo_liquido_salida = request.POST['flujo_vapor_out_carcasa']
+            condiciones_carcasa.flujo_liquido_entrada = request.POST['flujo_liquido_in_carcasa']
+            condiciones_carcasa.cambio_de_fase = request.POST['cambio_fase_carcasa']
+            condiciones_carcasa.flujo_masico = request.POST['flujo_carcasa']
+            condiciones_carcasa.presion_entrada = request.POST['presion_entrada_carcasa']
+            condiciones_carcasa.caida_presion_max = request.POST['caida_presion_max_carcasa']
+            condiciones_carcasa.caida_presion_min = request.POST['caida_presion_min_carcasa']
+            condiciones_carcasa.fouling = request.POST['fouling_carcasa']
+            condiciones_carcasa.save()
+
+            intercambiador = Intercambiador.objects.get(pk=propiedades.intercambiador.pk)
+            intercambiador.tag = request.POST['tag']
+            intercambiador.fabricante = request.POST['fabricante']
+            intercambiador.servicio = request.POST['servicio']
+            intercambiador.arreglo_flujo = request.POST['flujo']
+            intercambiador.save()
+
+
+
+        return redirect("/intercambiadores/tubo_carcasa/")
     
     def get(self, request, pk):
         self.context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
