@@ -116,7 +116,7 @@ class Fluido(models.Model):
         return a + b*t + c*t**2 + d*t**3
 
     def __str__(self) -> str:
-        return self.nombre.upper()
+        return self.nombre.upper() + f"({self.estado})"
 
     class Meta:
         db_table = "fluido"

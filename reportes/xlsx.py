@@ -1,14 +1,16 @@
 import xlsxwriter
+import datetime
 
 # Aquí irán los reportes en formato Excel
 alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 def reporte_tubo_carcasa(object_list): # JUSTO AHORA SOLO ESTÁ LA PRUEBA
-    workbook = xlsxwriter.Workbook('demo.xlsx')
+    hora = datetime.datetime.now()
+    nombre = f'reporte_tubo_carcasa_{hora.day}_{hora.hour}_{hora.second}_{hora.microsecond}.xlsx'
+    workbook = xlsxwriter.Workbook(nombre)
     worksheet = workbook.add_worksheet()
 
     # Widen the first column to make the text clearer.
-    worksheet.set_column('A:A', 20)
     worksheet.set_column('B:B', 20)
     worksheet.set_column('C:C', 20)
     worksheet.set_column('D:D', 20)
@@ -44,3 +46,5 @@ def reporte_tubo_carcasa(object_list): # JUSTO AHORA SOLO ESTÁ LA PRUEBA
         num += 1
 
     workbook.close()
+
+    return nombre

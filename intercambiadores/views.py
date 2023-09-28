@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.views.generic.list import ListView
 from django.db import transaction
 import numpy
+import os
 from reportes.pdfs import generar_pdf
 
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
@@ -290,9 +291,10 @@ class ConsultaTuboCarcasa(ListView):
             return generar_pdf(request, self.get_queryset(),"Reporte de Intercambiadores Tubo/Carcasa", "intercambiadores_tubo_carcasa")
         else:
             from reportes.xlsx import reporte_tubo_carcasa
-            reporte_tubo_carcasa(self.get_queryset())
-            with open("demo.xlsx", "rb") as excel:
+            archivo = reporte_tubo_carcasa(self.get_queryset())
+            with open(archivo, "rb") as excel:
                 data = excel.read()
+            os.remove(archivo)
             response = HttpResponse(data, content_type='application/ms-excel')
             response['Content-Disposition'] = 'attachment; filename="reporte_tubo_carcasa.xlsx"'
             return response
