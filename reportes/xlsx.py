@@ -18,13 +18,15 @@ def reporte_tubo_carcasa(object_list): # JUSTO AHORA SOLO ESTÁ LA PRUEBA
 
     # Add a bold format to use to highlight cells.
     bold = workbook.add_format({'bold': True})
-    bold_bordered = workbook.add_format({'bold': True, 'border': 1})
+    bold_bordered = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'yellow'})
     center_bordered = workbook.add_format({'border': 1})
     bordered = workbook.add_format({'border': 1})
+    fecha =  workbook.add_format({'border': 1})
 
-    bold.set_align('vcenter')
+    fecha.set_align('right')
+    bold_bordered.set_align('vcenter')
     center_bordered.set_align('vcenter')
-    bold.set_align('center')
+    bold_bordered.set_align('center')
     center_bordered.set_align('center')
 
     worksheet.insert_image(0, 0, 'C:\\Users\\rurdaneta\\sievep\\sievep_indesca\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
@@ -46,7 +48,8 @@ def reporte_tubo_carcasa(object_list): # JUSTO AHORA SOLO ESTÁ LA PRUEBA
         worksheet.write(f'E{num}', intercambiador.intercambiador.servicio, bordered)
         
         num += 1
-
+    
+    worksheet.write(f"E{num}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
     workbook.close()
 
     return nombre
