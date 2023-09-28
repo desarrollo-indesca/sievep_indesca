@@ -14,10 +14,12 @@
   </div>
 </form>
 
-<table class="table table-dark table-striped table-hover table-bordered">
+<div style="overflow-x: scroll;">
+  <table class="table table-responsive table-dark table-striped table-hover table-bordered">
     {% block tabla %}
     {% endblock %}
-</table>
+  </table>
+</div>
 
 <div class="d-flex justify-content-between">
   {% block opciones %}

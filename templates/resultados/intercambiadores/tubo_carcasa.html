@@ -1,13 +1,15 @@
 {% load static %}
+{% load l10n %}
 
-<div class="modal fade" id="resultados_{{z}}" tabindex="-1" aria-labelledby="resultados_{{z}}Label" aria-hidden="true">
+<div class="modal fade" id="resultados_{{evaluacion.pk}}" tabindex="-1" aria-labelledby="resultados_{{evaluacion.pk}}Label" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
       <div class="modal-content text-dark">
         <div class="modal-header">
-          <h5 class="modal-title" id="resultados_{{z}}Label">Resultados de la Evaluación #{{z}} (180-C)</h5>
+          <h5 class="modal-title" id="resultados_{{evaluacion.pk}}Label">Resultados de la Evaluación #{{evaluacion.pk}} (180-C)</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
+        {{esp}}
         <div class="modal-body text-start small">
             <div class="row">
                 <div class="col-lg-6 col-xs-12">
@@ -29,10 +31,10 @@
                             <th class="table-dark small">Cp</th>
                           </tr>
                           <tr>
-                            <td>Agua Refrigerada</td>
-                            <td>0.9983</td>
-                            <td>Etileno</td>
-                            <td>0.3878</td>
+                            <td>{{intercambiador.fluido_carcasa}}</td>
+                            <td>Desconocido</td>
+                            <td>{{intercambiador.fluido_tubo}}</td>
+                            <td>Desconocido</td>
                           </tr>
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="4">Temperatura (°C)</th>
@@ -42,17 +44,17 @@
                             <th class="table-dark small">OUT</th>
                           </tr>
                           <tr>
-                            <td>50</td>
-                            <td>35</td>
-                            <td>52</td>
-                            <td>34</td>
+                            <td>{{evaluacion.temp_ex_entrada}}</td>
+                            <td>{{evaluacion.temp_ex_salida}}</td>
+                            <td>{{evaluacion.temp_in_entrada}}</td>
+                            <td>{{evaluacion.temp_in_salida}}</td>
                           </tr>
                           <tr>
                             <th colspan="4" class="table-dark small">Promedios</th>
                           </tr>
                           <tr style="vertical-align: middle;">
-                            <td colspan="2">42.5</td>
-                            <td colspan="2">43</td>
+                            <td colspan="2">-</td>
+                            <td colspan="2">-</td>
                           </tr>
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="2">Flujo Másico (Kg/h)</th>
@@ -60,8 +62,8 @@
                             <th class="table-dark small" style="vertical-align: middle;" colspan="2">Interno</th>
                           </tr>
                           <tr style="vertical-align: middle;">
-                            <td colspan="2">50</td>
-                            <td colspan="2">20</td>
+                            <td colspan="2">{{evaluacion.flujo_masico_ex}}</td>
+                            <td colspan="2">{{evaluacion.flujo_masico_in}}</td>
                           </tr>
                           <tr>
 
@@ -70,7 +72,7 @@
                     </table>
                 </div>
                 <div class="col-lg-6 col-xs-12 d-flex justify-content-center align-items-center">
-                  <canvas hidden id="grafica_{{z}}" class="border border-dark" style="min-width: 100%;" class="bg-white m-3"></canvas>
+                  <canvas hidden id="grafica_{{evaluacion.pk}}" class="border border-dark" style="min-width: 100%;" class="bg-white m-3"></canvas>
                 </div>
                 <div class="col-lg-6 col-xs-12 small">
                   <table class="table table-light text-center table-bordered">
@@ -80,27 +82,27 @@
                       </tr>
                       <tr>
                         <th class="table-dark" style="vertical-align: middle;">LMTD</th>
-                        <td>16,49</td>
+                        <td>{{evaluacion.lmtd}}</td>
                         <th class="table-dark" style="vertical-align: middle;">Área Transf. (m²)</th>
-                        <td>43,92</td>
+                        <td>{{evaluacion.area_transferencia}}</td>
                       </tr>
                       <tr>
                         <th class="table-dark" style="vertical-align: middle;">NTU</th>
-                        <td>-2,38</td>
+                        <td>{{evaluacion.ntu}}</td>
                         <th class="table-dark" style="vertical-align: middle;">Efectividad</th>
-                        <td>-19,631</td>
+                        <td>{{evaluacion.efectividad}}</td>
                       </tr>
                       <tr>
                         <th class="table-dark" style="vertical-align: middle;">U (Kcal/hCm²)</th>
-                        <td>-0,42</td>
+                        <td>{{evaluacion.u}}</td>
                         <th class="table-dark" style="vertical-align: middle;">UA (Kcal/hC)</th>
-                        <td>-18,46</td>
+                        <td>{{evaluacion.ua}}</td>
                       </tr>
                       <tr>
                         <th class="table-dark" style="vertical-align: middle;">% Eficiencia</th>
-                        <td>-0,42</td>
+                        <td>{{evaluacion.eficiencia}}</td>
                         <th class="table-dark" style="vertical-align: middle;">Ensuciamiento</th>
-                        <td>-5552,64</td>
+                        <td>{{evaluacion.ensuciamiento}}</td>
                       </tr>
                     </tbody>
                   </table>                    
@@ -151,10 +153,8 @@
 </div>
 
 <script>
-  canvas = document.getElementById('grafica_1').getContext('2d');
+  canvas = document.getElementById('grafica_{{evaluacion.pk}}').getContext('2d');
   datosGrafica = undefined;
-
-  console.log("a");
 
   // $.ajax({
   //     url: `datos_grafica.php?id=<?php echo $_GET['id_pozo']; ?>&fecha_max=${$('#fecha_max').val()}&fecha_min=${$('#fecha_min').val()}`,
@@ -169,9 +169,9 @@
   //     }
   // });
 
-  $('#grafica_1').removeAttr('hidden');
-  if(chart)
-    chart.destroy();
+  $('#grafica_{{evaluacion.pk}}').removeAttr('hidden');
+  // if(chart)
+  //   chart.destroy();
 
   chart = new Chart(canvas, {
           type: 'line',
@@ -180,8 +180,8 @@
                   {
                       label: "Tubo Externo",
                       data: {
-                        Inicial: 50,
-                        Final: 35
+                        Inicial: Number('{{evaluacion.temp_ex_entrada|unlocalize}}'),
+                        Final: Number('{{evaluacion.temp_ex_salida|unlocalize}}')
                       },
                       backgroundColor: ['#E31E24'],
                       borderColor: ['#E31E24']
@@ -189,8 +189,8 @@
                   {
                       label: "Tubo Interno",
                       data: {
-                        Inicial: 52,
-                        Final: 34
+                        Inicial: Number('{{evaluacion.temp_in_entrada|unlocalize}}'),
+                        Final: Number('{{evaluacion.temp_in_salida|unlocalize}}')
                       },
                       backgroundColor: ['#555'],
                       borderColor: ['#555']

@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'intercambiadores',
     'static',
-    'pwa'
+    'pwa',
+    'templatetags',
+    'mathfilters'
 ]
 
 MIDDLEWARE = [
@@ -69,6 +71,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'libraries':{
+                'templatetags': 'templatetags.tags',
+            }
         },
     },
 ]
@@ -184,4 +189,4 @@ PWA_APP_SCREENSHOTS = [
     }
 ]
 
-PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static', 'serviceworker.js')
+# PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static', 'serviceworker.js')

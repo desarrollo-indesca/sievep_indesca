@@ -10,5 +10,6 @@ urlpatterns = [
     path('tubo_carcasa/', ConsultaTuboCarcasa.as_view(), name="consulta_tubo_carcasa"),
     path('tubo_carcasa/<int:pk>/', ConsultaEvaluacionesTuboCarcasa.as_view(), name="consulta_evaluaciones_tubo_carcasa"),
     path('tubo_carcasa/crear/', CrearIntercambiadorTuboCarcasa.as_view(),name="crear_tubo_carcasa"),
+    path('tubo_carcasa/editar/<int:pk>/', EditarIntercambiadorTuboCarcasa.as_view(),name="editar_tubo_carcasa"),
     path('tubo_carcasa/<int:pk>/evaluar/', CrearEvaluacionTuboCarcasa.as_view(),name="crear_evaluacion_tubo_carcasa"),
 ]

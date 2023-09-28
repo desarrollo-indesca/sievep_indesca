@@ -1,5 +1,6 @@
 {% extends 'base_consultas.html' %}
 {% load static %}
+{% load templatetags %}
 
 {% block encabezado %}
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'seleccion_tipo_intercambiador' %}">↶ Regresar</a></div>
@@ -64,16 +65,17 @@
 
 {% block opciones %}
 <div>
-  <form method="get">
-    <button class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar Reporte PDF</button>
-    <button class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar Reporte XLSX</button>
+  <form method="post">
+    {% csrf_token %}
+    <button name="tipo" value="pdf" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar Reporte PDF</button>
+    <button name="tipo" value="xlsx" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar Reporte XLSX</button>
   </form>
 </div>
 <footer aria-label="Page navigation example">
     <ul class="pagination">
       <li class="page-item">
         {% if page_obj.has_previous %}
-        <a class="page-link bg-dark text-white" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+        <a class="page-link bg-dark text-white" href="?{% url_replace page=page_obj.previous_page_number %}" aria-label="Previous">
           <span aria-hidden="true">&laquo;</span>
         </a>
         {% endif %}
@@ -81,13 +83,13 @@
       <li class="page-item"><a class="page-link bg-dark text-white" href="#">{{ page_obj.number }}</a></li>
       {% if page_obj.has_next %}
       <li class="page-item">
-        <a class="page-link bg-dark text-white" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+        <a class="page-link bg-dark text-white" href="?{% url_replace page=page_obj.next_page_number %}" aria-label="Next">
           <span aria-hidden="true">&raquo;</span>
         </a>
       </li>
       {% endif %}
     </ul>
-</nav>
+</footer>
 {% endblock %}
 
 {% block extra_javascript %}

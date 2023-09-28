@@ -61,7 +61,7 @@ class Planta(models.Model):
     complejo = models.ForeignKey(Complejo, on_delete=models.DO_NOTHING)
 
     def __str__(self) -> str:
-        return self.nombre
+        return self.nombre.upper()
 
     class Meta:
         db_table = "planta"
@@ -116,12 +116,12 @@ class Fluido(models.Model):
         return a + b*t + c*t**2 + d*t**3
 
     def __str__(self) -> str:
-        return self.nombre.upper()
+        return self.nombre.upper() + f"({self.estado})"
 
     class Meta:
         db_table = "fluido"
 
-# Específicos de Intercambiadores
+# Específicos de Intercambiadores Tubo y Carcasa
 class TipoIntercambiador(models.Model):
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=50)
@@ -138,6 +138,9 @@ class Intercambiador(models.Model):
     tema = models.ForeignKey(Tema, on_delete=models.DO_NOTHING)
     servicio = models.CharField(max_length=100)
     arreglo_flujo = models.CharField(max_length=1, choices=arreglos_flujo)
+
+    def intercambiador(self):
+        return PropiedadesTuboCarcasa.objects.get(intercambiador = self)
 
     class Meta:
         db_table = "intercambiador"
@@ -210,6 +213,7 @@ class PropiedadesTuboCarcasa(models.Model):
 
     class Meta:
         db_table = "intercambiador_tubo_carcasa"
+        ordering = ('intercambiador__tag',)
 
 class CondicionesTuboCarcasa(models.Model):
     intercambiador = models.ForeignKey(PropiedadesTuboCarcasa, on_delete=models.DO_NOTHING, related_name="condiciones")
@@ -229,8 +233,8 @@ class CondicionesTuboCarcasa(models.Model):
     cambio_de_fase  = models.CharField(max_length=1, choices=cambios_de_fase)
 
     presion_entrada = models.DecimalField(max_digits=10, decimal_places=4, null=True)
-    caida_presion_max = models.DecimalField(max_digits=7, decimal_places=5, null=True)
-    caida_presion_min = models.DecimalField(max_digits=7, decimal_places=5, null=True)
+    caida_presion_max = models.DecimalField(max_digits=9, decimal_places=5, null=True)
+    caida_presion_min = models.DecimalField(max_digits=9, decimal_places=5, null=True)
     unidad_presion = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="presion_unidad_tubocarcasa")
 
     fouling = models.DecimalField(max_digits=10, decimal_places=9, null=True) #m^2*C/W
@@ -243,12 +247,14 @@ class CondicionesTuboCarcasa(models.Model):
     class Meta:
         db_table = "condiciones_tubo_carcasa"
 
+# Modelo de Evaluaciones
 class EvaluacionesIntercambiador(models.Model):
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING)
     fecha = models.DateTimeField(auto_now=True)
     intercambiador = models.ForeignKey(Intercambiador, on_delete=models.CASCADE)
     condiciones = models.ForeignKey(CondicionesTuboCarcasa, on_delete=models.DO_NOTHING)
     metodo = models.CharField(max_length=1, choices=(('E', 'Método Efectividad-NTU'), ('L', 'Método LMTD')))
+    nombre = models.CharField(max_length=50)
 
     # Datos de Entrada
     temp_ex_entrada = models.DecimalField(max_digits=7, decimal_places=2)
