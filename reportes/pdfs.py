@@ -107,8 +107,6 @@ def generar_pdf(request,object_list,titulo,reporte):
 
 def generar_historia(request, reporte, object_list):
     # Colocar los tipos de reporte de la siguiente forma:
-    print("----------------------")
-    print(reporte)
     if reporte == 'intercambiadores_tubo_carcasa':
         return intercambiadores_tubo_carcasa(request, object_list)
 
