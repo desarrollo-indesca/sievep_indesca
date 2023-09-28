@@ -1,8 +1,7 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from .models import *
-from django.http import JsonResponse
 from django.views.generic.list import ListView
 from django.db import transaction
 import numpy
@@ -168,8 +167,8 @@ class EditarIntercambiadorTuboCarcasa(View):
             propiedades.material_carcasa = request.POST['material_carcasa']
             propiedades.material_tubo = request.POST['material_tubo']
             propiedades.q = request.POST['calor']
-            propiedades.ensuciamiento = request.POST['ensuciamiento']
-            propiedades.u = request.POST['u']
+            propiedades.ensuciamiento = request.POST['ensuciamiento'] if request.POST['ensuciamiento'] != '' else None
+            propiedades.u = request.POST['u'] if request.POST['u'] != '' else None
             propiedades.conexiones_entrada_carcasa = request.POST['conexiones_entrada_carcasa']
             propiedades.conexiones_salida_carcasa = request.POST['conexiones_salida_carcasa']
             propiedades.conexiones_entrada_tubos = request.POST['conexiones_entrada_tubo']
