@@ -1,4 +1,4 @@
-from typing import Any
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from .models import *
@@ -287,10 +287,16 @@ class ConsultaTuboCarcasa(ListView):
     def post(self, request, **kwargs):
         # TODO
         if(request.POST['tipo'] == 'pdf'):
-            return generar_pdf(request, self.get_queryset(),"intercambiadores_tubo_carcasa")
+            return generar_pdf(request, self.get_queryset(),"Reporte de Intercambiadores Tubo/Carcasa", "intercambiadores_tubo_carcasa")
         else:
-            print("EXCEL")
-
+            from reportes.xlsx import reporte_tubo_carcasa
+            reporte_tubo_carcasa(self.get_queryset())
+            with open("demo.xlsx", "rb") as excel:
+                data = excel.read()
+            response = HttpResponse(data, content_type='application/ms-excel')
+            response['Content-Disposition'] = 'attachment; filename="reporte_tubo_carcasa.xlsx"'
+            return response
+            
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["titulo"] = "SIEVEP - Consulta de Intercambiadores de Tubo/Carcasa"

@@ -18,6 +18,13 @@ basicTableStyle = TableStyle(
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ])
 
+headerStyle = ParagraphStyle(
+            'header',
+            fontSize=8,
+            fontFamily='Junge',
+            textTransform='uppercase'
+    )
+
 estiloMontos = TableStyle(
         [
             ('LINEABOVE', (0,1), (-1, 1), 1 ,colors.black),
@@ -26,47 +33,88 @@ estiloMontos = TableStyle(
             ('LINEBELOW', (0,2), (-2,-2), 1 ,colors.black, None, (2,2)),
         ])
 
-def generar_pdf(request,object_list,reporte):
+def generar_pdf(request,object_list,titulo,reporte):
     def primera_pagina(canvas, doc):
         width, height = A4
         canvas.saveState()
         titleStyle = ParagraphStyle(
             'title',
-            fontSize=25,
+            fontSize=17,
             fontFamily='Junge',
-            textTransform='uppercase'
-        )  
-
-        i = Image('static/img/logo.png',width=80,height=80)
+            textTransform='uppercase',
+            alignment=1
+        )
+        
+        i = Image('static/img/logo.png',width=55,height=55)
         i.wrapOn(canvas,width,height)
+        i.drawOn(canvas,30,760)
 
-        i.drawOn(canvas,50,750)       
+        header = Paragraph(reportHeader, titleStyle)
+        header.wrapOn(canvas, width-180, height+350)
+        header.drawOn(canvas,70,785)
+
+        footer = Paragraph('<p>Reporte generado por SIEVEP. </p>', headerStyle)
+        footer.wrapOn(canvas, width, height)
+        footer.drawOn(canvas,30,745)
+
+        time = Paragraph(date, headerStyle)
+        time.wrapOn(canvas, width, height)
+        time.drawOn(canvas,490,745)
 
         canvas.restoreState()
 
+    def add_footer(canvas, doc):
+        canvas.saveState()
+        canvas.setFont('Times-Roman', 10)
+        page_number_text = "Página %d" % (doc.page)
+        canvas.drawCentredString(
+            4 * inch,
+            0.3 * inch,
+            page_number_text + ', ' + reportHeader + ', ' + date + '.'
+        )
+        canvas.restoreState()
+
+    reportHeader = titulo
+    
+    date = datetime.datetime.now().strftime('%d/%m/%Y - %H:%M:%S')
     buff = BytesIO()
     doc = SimpleDocTemplate(buff,pagesize=A4, topMargin=30, bottomMargin=30)
+    story = []
     
-    story = generar_historia(request, reporte, object_list)
-    
-    print(story)
+    fechaHeadingStyle = ParagraphStyle(
+        'fechaHeading',
+        fontSize=8.6,
+    )
 
-    doc.build(story, onFirstPage=primera_pagina)
-        
+    fechaStyle = ParagraphStyle(
+        'fecha',
+        fontSize=6.5,
+    )
+
+    story = generar_historia(request, reporte, object_list)
+
+    doc.build(story, 
+        onFirstPage=primera_pagina,
+        onLaterPages=add_footer,
+    )
+      
     response = HttpResponse(content_type='application/pdf')
 
     response.write(buff.getvalue())
+    buff.close()
 
     return response
 
 def generar_historia(request, reporte, object_list):
     # Colocar los tipos de reporte de la siguiente forma:
+    print("----------------------")
+    print(reporte)
     if reporte == 'intercambiadores_tubo_carcasa':
         return intercambiadores_tubo_carcasa(request, object_list)
 
 def intercambiadores_tubo_carcasa(request, object_list):
-    print(object_list)
-    story = [Paragraph("Hola")]
+    story = [Paragraph('A')]
+
     return story
 
 def estado_cuenta(request, object_list):
