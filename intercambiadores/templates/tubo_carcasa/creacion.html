@@ -98,13 +98,67 @@
                 <h4 class="text-center mb-3">Carcasa</h4>
     
                 <div class="row">
-                    <div class="col-12 d-flex flex-column">
+                    <div class="col-5 d-flex flex-column">
                         <label class="form-label" for="fluido_carcasa">Fluido:</label>
                         <select class="form-select" name="fluido_carcasa" id="fluido_carcasa">
                             {% for fluido in fluidos %}
                             <option value="{{fluido.pk}}" {% if previo.fluido_carcasa == fluido.pk|slugify %}selected{% endif %}>{{fluido}}</option>
                             {% endfor %}
                         </select>
+                    </div>
+
+                    <div class="col-5">
+                        <label class="form-label" for="cp_carcasa">Cp:</label>
+                        <input class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_carcasa" id="cp_carcasa" disabled>
+                    </div>
+
+                    <div class="col-2 d-flex justify-content-center align-items-end">
+                        <button data-bs-toggle="modal" data-bs-target="#condiciones_diseno_fluido_carcasa" class="btn btn-danger no-submit w-100">+</button>
+                        <div class="modal fade" id="condiciones_diseno_fluido_carcasa" tabindex="-1" aria-labelledby="condiciones_diseno_fluido_carcasaLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="condiciones_diseno_fluido_carcasaLabel">Registrar Fluido de Carcasa</h5>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <h3 style="color: #e31e24;" class="text-center">Compuesto por Cp en Ficha</h3>
+                                    <div class="row">
+                                        <div class="col-5">
+                                            <label for="etiqueta">Nombre del Compuesto:</label>
+                                            <input class="form-control" type="text" maxlength="25">
+                                        </div>
+                                        <div class="col-5">
+                                            <label for="etiqueta">Cp del Compuesto:</label>
+                                            <input class="form-control" type="text" maxlength="25">
+                                        </div>
+                                        <div class="col-2 d-flex justify-content-center align-items-end">
+                                            <button class="btn btn-danger">Enviar</button>
+                                        </div>
+                                    </div>
+                                  <hr>
+                                  <h3 style="color: #e31e24;" class="text-center">Compuesto por Código CAS</h3>
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <label for="etiqueta">Código CAS:</label>
+                                            <input class="form-control" type="text" maxlength="25" pattern="[0-9]+-[0-9]+-[0-9]+">
+                                        </div>
+                                        <div class="col-4">
+                                            <label for="etiqueta">Nombre:</label>
+                                            <input class="form-control" type="text" maxlength="25">
+                                        </div>
+                                        <div class="col-4">
+                                            <label for="etiqueta">Cp:</label>
+                                            <input class="form-control" type="number" maxlength="25" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="w-100 d-flex justify-content-center mt-2">
+                                        <button class="btn btn-danger" disabled>Enviar</button>
+                                    </div>
+                                </div>
+                              </div>
+                            </div>
+                        </div>                    
                     </div>
                     
                     <div class="col-6">
@@ -234,13 +288,67 @@
             <div class="col-6">
                 <h4 class="text-center mb-3">Tubo</h4>
                 <div class="row">
-                    <div class="col-12 d-flex flex-column">
+                    <div class="col-5 d-flex flex-column">
                         <label class="form-label" for="fluido_tubo">Fluido:</label>
                         <select class="form-select" name="fluido_tubo" id="fluido_tubo">
                             {% for fluido in fluidos %}
                             <option value="{{fluido.pk}}" {% if previo.fluido_tubo == fluido.pk|slugify %}selected{% endif %}>{{fluido}}</option>
                             {% endfor %}
                         </select>
+                    </div>
+
+                    <div class="col-5">
+                        <label class="form-label" for="cp_tubo">Cp:</label>
+                        <input class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_tubo" id="cp_tubo" disabled>
+                    </div>
+
+                    <div class="col-2 d-flex justify-contet-center align-items-end">
+                        <button data-bs-toggle="modal" data-bs-target="#condiciones_diseno_fluido" class="btn btn-danger no-submit w-100">+</button>
+                        <div class="modal fade" id="condiciones_diseno_fluido" tabindex="-1" aria-labelledby="condiciones_diseno_fluidoLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="condiciones_diseno_fluidoLabel">Registrar Fluido de Tubo</h5>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <h3 style="color: #e31e24;" class="text-center">Compuesto por Cp en Ficha</h3>
+                                    <div class="row">
+                                        <div class="col-5">
+                                            <label for="etiqueta">Nombre del Compuesto:</label>
+                                            <input class="form-control" type="text" maxlength="25">
+                                        </div>
+                                        <div class="col-5">
+                                            <label for="etiqueta">Cp del Compuesto:</label>
+                                            <input class="form-control" type="text" maxlength="25">
+                                        </div>
+                                        <div class="col-2 d-flex justify-content-center align-items-end">
+                                            <button class="btn btn-danger">Enviar</button>
+                                        </div>
+                                    </div>
+                                  <hr>
+                                  <h3 style="color: #e31e24;" class="text-center">Compuesto por Código CAS</h3>
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <label for="etiqueta">Código CAS:</label>
+                                            <input class="form-control" type="text" maxlength="25" pattern="[0-9]+-[0-9]+-[0-9]+">
+                                        </div>
+                                        <div class="col-4">
+                                            <label for="etiqueta">Nombre:</label>
+                                            <input class="form-control" type="text" maxlength="25">
+                                        </div>
+                                        <div class="col-4">
+                                            <label for="etiqueta">Cp:</label>
+                                            <input class="form-control" type="number" maxlength="25" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="w-100 d-flex justify-content-center mt-2">
+                                        <button class="btn btn-danger" disabled>Enviar</button>
+                                    </div>
+                                </div>
+                              </div>
+                            </div>
+                        </div>                    
                     </div>
                     
                     <div class="col-6">
@@ -553,98 +661,8 @@
 
 {% block extra_javascript %}
 <script>
-    let chart = null;
-    let canvas = document.getElementById('grafica_1').getContext('2d');
-    let datosGrafica = undefined;
-
-    $('input.temperatura').change((e) => {
-        canvas = document.getElementById('grafica_1').getContext('2d');
-        
-        if(chart)
-            chart.destroy();
-
-        let data = [{data: {}},{data: {}}];
-
-        if($('#temp_in_tubo').val() !== ""){
-            data[0].data.Inicial = Number($('#temp_in_tubo').val());
-        }
-
-        if($('#temp_out_carcasa').val() !== ""){
-            data[0].data.Final = Number($('#temp_out_carcasa').val());
-        }
-
-        if($('#temp_in_tubo').val() !== ""){
-            data[1].data.Inicial = Number($('#temp_in_tubo').val());
-        }
-
-        if($('#temp_out_tubo').val() !== ""){
-            data[1].data.Final = Number($('#temp_out_tubo').val());
-        }
-
-        data[0].label = "Tubo Externo";
-        data[0].backgroundColor = ['#E31E24'];
-        data[0].borderColor = ['#E31E24'];
-
-        data[1].label = "Tubo Interno";
-        data[1].backgroundColor = ['#555'];
-        data[1].borderColor = ['#555'];
-
-        console.log(data);
-
-        chart = new Chart(canvas, {
-            type: 'line',
-            data: {
-                datasets: data
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Variación de las Temperaturas',
-                        position: 'top'
-                    },
-                    legend: {
-                        display: true
-                    }
-                }        
-            }
-        });
-    
-        console.log(chart.data);
-    });
-
-    chart = new Chart(canvas, {
-            type: 'line',
-            data: {
-                datasets: [
-                    {
-                        label: "Tubo Externo",
-                        data: {},
-                        backgroundColor: ['#E31E24'],
-                        borderColor: ['#E31E24']
-                    },
-                    {
-                        label: "Tubo Interno",
-                        data: {},
-                        backgroundColor: ['#555'],
-                        borderColor: ['#555']
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Variación de las Temperaturas',
-                        position: 'top'
-                    },
-                    legend: {
-                        display: true
-                    }
-                }        
-            }
-        });
+    $('.no-submit').click((e) => {
+        e.preventDefault();
+    })
 </script>
 {% endblock %}

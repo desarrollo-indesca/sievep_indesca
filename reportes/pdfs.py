@@ -16,6 +16,7 @@ prefijo = '' #Cambiar al hacer deployment en PythonAnywhere
 basicTableStyle = TableStyle(
         [
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.Color(0.85, 0.85, 0.85))
         ])
 
 headerStyle = ParagraphStyle(
@@ -33,33 +34,43 @@ estiloMontos = TableStyle(
             ('LINEBELOW', (0,2), (-2,-2), 1 ,colors.black, None, (2,2)),
         ])
 
+centrar_parrafo = ParagraphStyle('', alignment=1)
+parrafo_tabla = ParagraphStyle('', fontSize=9)
+numero_tabla = ParagraphStyle('', fontSize=9, alignment=1)
+
 def generar_pdf(request,object_list,titulo,reporte):
     def primera_pagina(canvas, doc):
         width, height = A4
         canvas.saveState()
         titleStyle = ParagraphStyle(
             'title',
-            fontSize=17,
+            fontSize=20,
             fontFamily='Junge',
             textTransform='uppercase',
-            alignment=1
+            alignment=1,
+            leading=24,
+            color = colors.red
         )
         
         i = Image('static/img/logo.png',width=55,height=55)
         i.wrapOn(canvas,width,height)
-        i.drawOn(canvas,30,760)
+        i.drawOn(canvas,40,760)
+
+        i = Image('static/img/icono_indesca.png',width=55,height=55)
+        i.wrapOn(canvas,width,height)
+        i.drawOn(canvas,500,760)
 
         header = Paragraph(reportHeader, titleStyle)
-        header.wrapOn(canvas, width-180, height+350)
-        header.drawOn(canvas,70,785)
+        header.wrapOn(canvas, width-200, height+350)
+        header.drawOn(canvas,100,765)
 
-        footer = Paragraph('<p>Reporte generado por SIEVEP. </p>', headerStyle)
+        footer = Paragraph(f'<p>Reporte generado por el usuario {request.user.get_full_name()}. </p>', headerStyle)
         footer.wrapOn(canvas, width, height)
         footer.drawOn(canvas,30,745)
 
         time = Paragraph(date, headerStyle)
         time.wrapOn(canvas, width, height)
-        time.drawOn(canvas,490,745)
+        time.drawOn(canvas,470,745)
 
         canvas.restoreState()
 
@@ -107,14 +118,25 @@ def generar_pdf(request,object_list,titulo,reporte):
 
 def generar_historia(request, reporte, object_list):
     # Colocar los tipos de reporte de la siguiente forma:
-    print("----------------------")
-    print(reporte)
     if reporte == 'intercambiadores_tubo_carcasa':
         return intercambiadores_tubo_carcasa(request, object_list)
 
 def intercambiadores_tubo_carcasa(request, object_list):
-    story = [Paragraph('A')]
-
+    story = []
+    story.append(Spacer(0,60))
+    
+    table = [[Paragraph("#", centrar_parrafo), Paragraph("Tag", centrar_parrafo), Paragraph("Servicio", centrar_parrafo), Paragraph("Planta", centrar_parrafo)]]
+    for n,x in enumerate(object_list):
+        table.append([
+            Paragraph(str(n+1), numero_tabla),
+            Paragraph(x.intercambiador.tag, parrafo_tabla),
+            Paragraph(x.intercambiador.servicio, parrafo_tabla),
+            Paragraph(x.intercambiador.planta.complejo.nombre, parrafo_tabla)
+        ])
+        
+    table = Table(table, colWidths=[0.5*inch, 2*inch, 3.2*inch, 1.5*inch])
+    table.setStyle(basicTableStyle)
+    story.append(table)
     return story
 
 def estado_cuenta(request, object_list):
