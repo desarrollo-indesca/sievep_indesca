@@ -155,6 +155,8 @@ class PropiedadesTuboCarcasa(models.Model):
 
     # Datos Carcasa
     fluido_carcasa = models.ForeignKey(Fluido, related_name="fluido_carcasa", on_delete=models.DO_NOTHING)
+    fluido_carcasa_etiqueta = models.CharField(null=True, max_length=50)
+    fluido_carcasa_cp = models.DecimalField(null=True, max_digits=8, decimal_places=4)
     material_carcasa = models.CharField(null=True, max_length=12)
     conexiones_entrada_carcasa = models.CharField(null=True, max_length=12)
     conexiones_salida_carcasa = models.CharField(null=True, max_length=12)
@@ -162,6 +164,8 @@ class PropiedadesTuboCarcasa(models.Model):
     # Datos Tubos
     material_tubo = models.CharField(null=True, max_length=12)
     fluido_tubo = models.ForeignKey(Fluido, related_name="fluido_tubo", on_delete=models.DO_NOTHING)
+    fluido_tubo_etiqueta = models.CharField(null=True, max_length=50)
+    fluido_tubo_cp = models.DecimalField(null=True, max_digits=8, decimal_places=4)
     tipo_tubo = models.ForeignKey(TiposDeTubo, on_delete=models.DO_NOTHING)
     conexiones_entrada_tubos = models.CharField(null=True, max_length=12)
     conexiones_salida_tubos = models.CharField(null=True, max_length=12)
