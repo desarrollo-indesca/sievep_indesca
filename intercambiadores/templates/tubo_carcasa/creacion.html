@@ -138,7 +138,7 @@
                             <div class="modal-dialog modal-lg modal-dialog-centered">
                               <div class="modal-content">
                                 <div class="modal-header">
-                                  <h5 class="modal-title" id="condiciones_diseno_fluido_carcasaLabel">Registrar Fluido de Carcasa</h5>
+                                  <h5 class="modal-title">Registrar Fluido de Carcasa</h5>
                                   <button id="condiciones_diseno_fluido_carcasaClose" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
@@ -153,7 +153,7 @@
                                             <input class="form-control" id="cp_compuesto_carcasa" type="text" maxlength="25">
                                         </div>
                                         <div class="col-2 d-flex justify-content-center align-items-end">
-                                            <button class="btn btn-danger w-100" disabled>Enviar</button>
+                                            <button id="enviar_compuesto_carcasa_ficha" class="btn btn-danger w-100" disabled>Enviar</button>
                                         </div>
                                     </div>
                                   <hr>
@@ -339,7 +339,7 @@
                                             <input class="form-control" id="cp_compuesto_tubo" type="text" maxlength="25">
                                         </div>
                                         <div class="col-2 d-flex justify-content-center align-items-end">
-                                            <button class="btn btn-danger w-100" disabled>Enviar</button>
+                                            <button id="enviar_compuesto_tubo_ficha" class="btn btn-danger w-100" disabled>Enviar</button>
                                         </div>
                                     </div>
                                   <hr>
@@ -697,7 +697,7 @@
 
     $('#guardar_datos_cas_carcasa').click((e) => {
         if(document.getElementById('nombre_compuesto_carcasa_cas').value !== '' && document.getElementById('nombre_compuesto_carcasa_cas').value.indexOf('*')){
-            document.getElementById('fluido_carcasa').innerHTML = `<option val="${document.getElementById('nombre_compuesto_carcasa_cas').value}*${document.getElementById('cas_compuesto_carcasa').value}" selected>${document.getElementById('nombre_compuesto_carcasa_cas').value.toUpperCase()}</option>`;
+            document.getElementById('fluido_carcasa').innerHTML += `<option val="${document.getElementById('nombre_compuesto_carcasa_cas').value}*${document.getElementById('cas_compuesto_carcasa').value}" selected>${document.getElementById('nombre_compuesto_carcasa_cas').value.toUpperCase()}</option>`;
             $('#condiciones_diseno_fluido_carcasaClose').click();
         } else
             alert("Debe de colocarle un nombre válido al compuesto.");
@@ -705,10 +705,51 @@
 
     $('#guardar_datos_cas').click((e) => {
         if(document.getElementById('nombre_compuesto_tubo_cas').value !== '' && document.getElementById('nombre_compuesto_tubo_cas').value.indexOf('*')){
-            document.getElementById('fluido_tubo').innerHTML = `<option val="${document.getElementById('nombre_compuesto_tubo_cas').value}*${document.getElementById('cas_compuesto_tubo').value}" selected>${document.getElementById('nombre_compuesto_tubo_cas').value.toUpperCase()}</option>`;
+            document.getElementById('fluido_tubo').innerHTML += `<option val="${document.getElementById('nombre_compuesto_tubo_cas').value}*${document.getElementById('cas_compuesto_tubo').value}" selected>${document.getElementById('nombre_compuesto_tubo_cas').value.toUpperCase()}</option>`;
             $('#condiciones_diseno_fluido_tuboLabel').click();
         } else
             alert("Debe de colocarle un nombre válido al compuesto.");
     });
+
+    $('#nombre_compuesto_tubo').keyup((e) => {
+        if(e.target.value !== '' && $('#cp_compuesto_tubo').val() !== ''){
+            document.getElementById('enviar_compuesto_tubo_ficha').removeAttribute('disabled');
+        } else
+            document.getElementById('enviar_compuesto_tubo_ficha').setAttribute('disabled', true);               
+    });
+
+    $('#cp_compuesto_tubo').keyup((e) => {
+        if(e.target.value !== '' && $('#nombre_compuesto_tubo').val() !== ''){
+            document.getElementById('enviar_compuesto_tubo_ficha').removeAttribute('disabled');
+        } else
+            document.getElementById('enviar_compuesto_tubo_ficha').setAttribute('disabled', true);            
+    });
+
+    $('#enviar_compuesto_tubo_ficha').click((e) => {
+        document.getElementById('fluido_tubo').innerHTML += `<option val="${document.getElementById('nombre_compuesto_tubo').value}*${document.getElementById('cp_compuesto_tubo').value}" selected>${document.getElementById('nombre_compuesto_tubo').value.toUpperCase()}</option>`;
+        document.getElementById('cp_tubo').value = document.getElementById('cp_compuesto_tubo').value;
+        $('#condiciones_diseno_fluido_tuboLabel').click();
+    });
+
+    $('#nombre_compuesto_carcasa').keyup((e) => {
+        if(e.target.value !== '' && $('#cp_compuesto_carcasa').val() !== ''){
+            document.getElementById('enviar_compuesto_carcasa_ficha').removeAttribute('disabled');
+        } else
+            document.getElementById('enviar_compuesto_carcasa_ficha').setAttribute('disabled', true);               
+    });
+
+    $('#cp_compuesto_carcasa').keyup((e) => {
+        if(e.target.value !== '' && $('#nombre_compuesto_carcasa').val() !== ''){
+            document.getElementById('enviar_compuesto_carcasa_ficha').removeAttribute('disabled');
+        } else
+            document.getElementById('enviar_compuesto_carcasa_ficha').setAttribute('disabled', true);            
+    });
+
+    $('#enviar_compuesto_carcasa_ficha').click((e) => {
+        document.getElementById('fluido_carcasa').innerHTML += `<option val="${document.getElementById('nombre_compuesto_carcasa').value}*${document.getElementById('cp_compuesto_carcasa').value}" selected>${document.getElementById('nombre_compuesto_carcasa').value.toUpperCase()}</option>`;
+        document.getElementById('cp_carcasa').value = document.getElementById('cp_compuesto_carcasa').value;
+        $('#condiciones_diseno_fluido_carcasaClose').click();
+    });
+
 </script>
 {% endblock %}
