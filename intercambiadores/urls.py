@@ -12,4 +12,7 @@ urlpatterns = [
     path('tubo_carcasa/crear/', CrearIntercambiadorTuboCarcasa.as_view(),name="crear_tubo_carcasa"),
     path('tubo_carcasa/editar/<int:pk>/', EditarIntercambiadorTuboCarcasa.as_view(),name="editar_tubo_carcasa"),
     path('tubo_carcasa/<int:pk>/evaluar/', CrearEvaluacionTuboCarcasa.as_view(),name="crear_evaluacion_tubo_carcasa"),
+
+    # RUTAS DE CONSULTAS DE FLUIDOS
+    path('consultar_cas/', ConsultaCAS.as_view(), name="consultar_cas")
 ]

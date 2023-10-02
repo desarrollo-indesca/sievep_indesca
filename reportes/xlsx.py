@@ -1,10 +1,12 @@
 import xlsxwriter
 import datetime
+from intercambiadores.models import Planta, Complejo
 
 # Aquí irán los reportes en formato Excel
 alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+raiz = "C:\\Users\\rurdaneta\\sievep\\sievep_indesca\\"
 
-def reporte_tubo_carcasa(object_list): # JUSTO AHORA SOLO ESTÁ LA PRUEBA
+def reporte_tubo_carcasa(object_list, request): # JUSTO AHORA SOLO ESTÁ LA PRUEBA
     hora = datetime.datetime.now()
     nombre = f'reporte_tubo_carcasa_{hora.day}_{hora.hour}_{hora.second}_{hora.microsecond}.xlsx'
     workbook = xlsxwriter.Workbook(nombre)
@@ -29,27 +31,40 @@ def reporte_tubo_carcasa(object_list): # JUSTO AHORA SOLO ESTÁ LA PRUEBA
     bold_bordered.set_align('center')
     center_bordered.set_align('center')
 
-    worksheet.insert_image(0, 0, 'C:\\Users\\rurdaneta\\sievep\\sievep_indesca\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.insert_image(0, 0, raiz + 'static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
     worksheet.write('C1', 'Reporte de Intercambiadores Tubo/Carcasa', bold)
-    worksheet.insert_image(0, 4, 'C:\\Users\\rurdaneta\\sievep\\sievep_indesca\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
-
-    worksheet.write('A5', '#', bold_bordered)
-    worksheet.write('B5', 'Tag', bold_bordered)
-    worksheet.write('C5', 'Planta', bold_bordered)
-    worksheet.write('D5', 'Complejo', bold_bordered)
-    worksheet.write('E5', 'Servicio', bold_bordered)
+    worksheet.insert_image(0, 4, raiz + 'static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
 
     num = 6
+    if(len(request.GET)):
+        worksheet.write('A5', 'Filtros', bold_bordered)
+        worksheet.write('B5', 'Tag', bold_bordered)
+        worksheet.write('C5', 'Planta', bold_bordered)
+        worksheet.write('D5', 'Complejo', bold_bordered)
+        worksheet.write('E5', 'Servicio', bold_bordered)
+
+        worksheet.write('B6', request.GET.get('tag', ''), center_bordered)
+        worksheet.write('C6', Planta.objects.get(pk=request.GET.get('planta')).nombre if request.GET.get('planta') else '', center_bordered)
+        worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('complejo')).nombre if request.GET.get('complejo') else '', center_bordered)
+        worksheet.write('E6', request.GET.get('servicio', ''), center_bordered)
+        num = 8
+
+    worksheet.write(f'A{num}', '#', bold_bordered)
+    worksheet.write(f'B{num}', 'Tag', bold_bordered)
+    worksheet.write(f'C{num}', 'Planta', bold_bordered)
+    worksheet.write(f'D{num}', 'Complejo', bold_bordered)
+    worksheet.write(f'E{num}', 'Servicio', bold_bordered)
+
     for i,intercambiador in enumerate(object_list):
+        num += 1
         worksheet.write_number(f'A{num}', i+1, center_bordered)
         worksheet.write(f'B{num}', intercambiador.intercambiador.tag, center_bordered)
         worksheet.write(f'C{num}', intercambiador.intercambiador.planta.nombre, center_bordered)
         worksheet.write(f'D{num}', intercambiador.intercambiador.planta.complejo.nombre, center_bordered)
         worksheet.write(f'E{num}', intercambiador.intercambiador.servicio, bordered)
-        
-        num += 1
     
-    worksheet.write(f"E{num}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
+    worksheet.write(f"E{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
+    worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)
     workbook.close()
 
     return nombre

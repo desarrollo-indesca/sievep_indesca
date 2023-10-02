@@ -6,6 +6,7 @@ from django.views.generic.list import ListView
 from django.db import transaction
 import numpy
 import os
+from thermo.chemical import search_chemical
 from reportes.pdfs import generar_pdf
 
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
@@ -290,7 +291,7 @@ class ConsultaTuboCarcasa(ListView):
             return generar_pdf(request, self.get_queryset(),"Reporte de Intercambiadores Tubo/Carcasa", "intercambiadores_tubo_carcasa")
         else:
             from reportes.xlsx import reporte_tubo_carcasa
-            archivo = reporte_tubo_carcasa(self.get_queryset())
+            archivo = reporte_tubo_carcasa(self.get_queryset(), request)
             with open(archivo, "rb") as excel:
                 data = excel.read()
             os.remove(archivo)
@@ -361,6 +362,11 @@ class SeleccionTipo(View):
     def get(self, request):
         return render(request, 'seleccion_tipo.html', context=self.context)
 
+class ConsultaCAS(View):
+    def get(self, request):
+        cas = request.GET['cas']
+        quimico = search_chemical(cas, cache=True)
+        return JsonResponse({'nombre': quimico.common_name})
 # ESTAS YA NO SE USARÁN
 
 class Simulaciones(View):
