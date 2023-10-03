@@ -391,9 +391,22 @@ class SeleccionTipo(View):
 
 class ConsultaCAS(View):
     def get(self, request):
+        if(Fluido.objects.filter(cas = cas).exists()):
+            estado = 2
+            fluido = Fluido.objects.get(cas = cas).nombre
+        else:
+            estado = 1
+        
         cas = request.GET['cas']
-        quimico = search_chemical(cas, cache=True)
-        return JsonResponse({'nombre': quimico.common_name})
+
+        if(estado != 2):
+            try:
+                quimico = search_chemical(cas, cache=True)
+                fluido = quimico.nombre
+            except:
+                estado = 3
+
+        return JsonResponse({'nombre': fluido, 'estado': estado})
     
 # ESTAS YA NO SE USARÁN
 

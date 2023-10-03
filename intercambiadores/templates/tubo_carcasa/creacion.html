@@ -664,8 +664,18 @@
                 url: '/intercambiadores/consultar_cas/', data: {
                     'cas': document.getElementById('cas_compuesto_tubo').value
                 }, success: (res) => {
-                    document.getElementById('nombre_compuesto_tubo_cas').value = res.nombre;
-                    document.getElementById('guardar_datos_cas').removeAttribute('disabled');
+                    if(res.estado === 1 || res.estado === 2){
+                        document.getElementById('nombre_compuesto_tubo_cas').value = res.nombre;
+                        if(res.estado === 1)
+                            document.getElementById('guardar_datos_cas_tubo').removeAttribute('disabled');
+                        else{
+                            document.getElementById('nombre_compuesto_tubo_cas').value += " (Ya Registrado)";
+                            document.getElementById('guardar_datos_cas_tubo').setAttribute('disabled', true);
+                        }
+                    } else{
+                        document.getElementById('nombre_compuesto_tubo_cas').value = "NO ENCONTRADO";
+                        document.getElementById('guardar_datos_cas_tubo').setAttribute('disabled', true);
+                    }
                 }, error: (res) => {
                     document.getElementById('nombre_compuesto_tubo_cas').value = '';
                     document.getElementById('guardar_datos_cas').setAttribute('disabled', true);
@@ -683,8 +693,18 @@
                 url: '/intercambiadores/consultar_cas/', data: {
                     'cas': document.getElementById('cas_compuesto_carcasa').value
                 }, success: (res) => {
-                    document.getElementById('nombre_compuesto_carcasa_cas').value = res.nombre;
-                    document.getElementById('guardar_datos_cas_carcasa').removeAttribute('disabled');
+                    if(res.estado === 1 || res.estado === 2){
+                        document.getElementById('nombre_compuesto_carcasa_cas').value = res.nombre;
+                        if(res.estado === 1)
+                            document.getElementById('guardar_datos_cas_carcasa').removeAttribute('disabled');
+                        else{
+                            document.getElementById('nombre_compuesto_carcasa_cas').value += " (Ya Registrado)";
+                            document.getElementById('guardar_datos_cas_carcasa').setAttribute('disabled', true);
+                        }
+                    } else{
+                        document.getElementById('nombre_compuesto_carcasa_cas').value = "NO ENCONTRADO";
+                        document.getElementById('guardar_datos_cas_carcasa').setAttribute('disabled', true);
+                    }
                 }, error: (res) => {
                     document.getElementById('nombre_compuesto_carcasa_cas').value = '';
                     document.getElementById('guardar_datos_cas_carcasa').setAttribute('disabled', true);
