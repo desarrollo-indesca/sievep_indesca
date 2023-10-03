@@ -7,7 +7,7 @@ import datetime
 from django.http import HttpResponse
 from reportlab.lib.units import inch
 from reportlab.lib import colors
-import numpy as np
+from intercambiadores.models import Planta, Complejo
 
 # Aquí irán los reportes en formato PDF
 
@@ -66,12 +66,22 @@ def generar_pdf(request,object_list,titulo,reporte):
 
         footer = Paragraph(f'<p>Reporte generado por el usuario {request.user.get_full_name()}. </p>', headerStyle)
         footer.wrapOn(canvas, width, height)
-        footer.drawOn(canvas,30,745)
+        footer.drawOn(canvas,40,745)
 
         time = Paragraph(date, headerStyle)
         time.wrapOn(canvas, width, height)
         time.drawOn(canvas,470,745)
 
+        canvas.restoreState()
+
+        canvas.saveState()
+        canvas.setFont('Times-Roman', 10)
+        page_number_text = "Página %d" % (doc.page)
+        canvas.drawCentredString(
+            4 * inch,
+            0.3 * inch,
+            page_number_text + ', ' + reportHeader + ', ' + date + '.'
+        )
         canvas.restoreState()
 
     def add_footer(canvas, doc):
@@ -124,7 +134,23 @@ def generar_historia(request, reporte, object_list):
 def intercambiadores_tubo_carcasa(request, object_list):
     story = []
     story.append(Spacer(0,60))
-    
+
+    if(len(request.GET)):
+        story.append(Paragraph("Datos de Filtrado", centrar_parrafo))
+        table = [[Paragraph("Tag", centrar_parrafo), Paragraph("Servicio", centrar_parrafo), Paragraph("Planta", centrar_parrafo), Paragraph("Complejo", centrar_parrafo)]]
+        table.append([
+            Paragraph(request.GET['tag'], parrafo_tabla),
+            Paragraph(request.GET['servicio'], parrafo_tabla),
+            Paragraph(Planta.objects.get(pk=request.GET.get('planta')).nombre if request.GET.get('planta') else '', parrafo_tabla),
+            Paragraph(Complejo.objects.get(pk=request.GET.get('complejo')).nombre if request.GET.get('complejo') else '', parrafo_tabla),
+        ])
+
+        table = Table(table)
+        table.setStyle(basicTableStyle)
+
+        story.append(table)
+        story.append(Spacer(0,7))
+
     table = [[Paragraph("#", centrar_parrafo), Paragraph("Tag", centrar_parrafo), Paragraph("Servicio", centrar_parrafo), Paragraph("Planta", centrar_parrafo)]]
     for n,x in enumerate(object_list):
         table.append([

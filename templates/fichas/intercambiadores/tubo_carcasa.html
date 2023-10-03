@@ -50,10 +50,6 @@
                           Condiciones&nbsp;
                           <select name="condicion" id="condicion">
                             <option value="D">De Diseño</option>
-                            <option value="M">Máximas</option>
-                            <option value="P">De Planta</option>
-                            <option value="m">Mínimas</option>
-                            <option value="p">De Proceso</option>
                           </select>
                         </div>
                       </th>
@@ -67,13 +63,29 @@
                     {% with condiciones_carcasa=intercambiador.condicion_carcasa %}
                     <tr>
                       <th class="table-dark" colspan="2">Fluido</th>
-                      <td>{{intercambiador.fluido_tubo}}</td>
-                      <td>{{intercambiador.fluido_carcasa}}</td>
+                      <td>
+                        {% if intercambiador.fluido_carcasa %}
+                          {{intercambiador.fluido_carcasa}}
+                        {% else %}
+                          {{condiciones_carcasa.fluido_etiqueta}}
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if intercambiador.fluido_tubo %}
+                          {{intercambiador.fluido_tubo}}
+                        {% else %}
+                          {{condiciones_tubo.fluido_etiqueta}}
+                        {% endif %}                        
+                      </td>
                     </tr>
                     <tr>
                       <th class="table-dark" colspan="2">Capacidad Calorífica</th>
-                      <td>Desconocida</td>
-                      <td>Desconocida</td>
+                      <td>
+                          {{condiciones_carcasa.fluido_cp}}                 
+                      </td>
+                      <td>
+                          {{condiciones_tubo.fluido_cp}}
+                      </td>
                     </tr>
                     <tr>
                       <th class="table-dark" colspan="2">Temperatura IN (°C)</th>

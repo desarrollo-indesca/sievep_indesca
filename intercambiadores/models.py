@@ -93,11 +93,9 @@ class Fluido(models.Model):
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=40)
     cas = models.CharField(max_length=20)
-    peso_molecular = models.DecimalField(max_digits=6, decimal_places=3, null=True)
-    estado = models.CharField(max_length=1, choices=estados_fluidos)
 
     def __str__(self) -> str:
-        return self.nombre.upper() + f"({self.estado})"
+        return self.nombre.upper()
 
     class Meta:
         db_table = "fluido"
@@ -154,21 +152,17 @@ class PropiedadesTuboCarcasa(models.Model):
     diametro_tubos_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="diametros_unidad_tubocarcasa")
 
     # Datos Carcasa
-    fluido_carcasa = models.ForeignKey(Fluido, related_name="fluido_carcasa", on_delete=models.DO_NOTHING)
-    fluido_carcasa_etiqueta = models.CharField(null=True, max_length=50)
-    fluido_carcasa_cp = models.DecimalField(null=True, max_digits=8, decimal_places=4)
-    material_carcasa = models.CharField(null=True, max_length=12)
-    conexiones_entrada_carcasa = models.CharField(null=True, max_length=12)
-    conexiones_salida_carcasa = models.CharField(null=True, max_length=12)
+    fluido_carcasa = models.ForeignKey(Fluido, related_name="fluido_carcasa", on_delete=models.DO_NOTHING, null=True)
+    material_carcasa = models.CharField(null=True, max_length=50)
+    conexiones_entrada_carcasa = models.CharField(null=True, max_length=50)
+    conexiones_salida_carcasa = models.CharField(null=True, max_length=50)
 
     # Datos Tubos
-    material_tubo = models.CharField(null=True, max_length=12)
-    fluido_tubo = models.ForeignKey(Fluido, related_name="fluido_tubo", on_delete=models.DO_NOTHING)
-    fluido_tubo_etiqueta = models.CharField(null=True, max_length=50)
-    fluido_tubo_cp = models.DecimalField(null=True, max_digits=8, decimal_places=4)
+    material_tubo = models.CharField(null=True, max_length=50)
+    fluido_tubo = models.ForeignKey(Fluido, related_name="fluido_tubo", on_delete=models.DO_NOTHING, null=True)
     tipo_tubo = models.ForeignKey(TiposDeTubo, on_delete=models.DO_NOTHING)
-    conexiones_entrada_tubos = models.CharField(null=True, max_length=12)
-    conexiones_salida_tubos = models.CharField(null=True, max_length=12)
+    conexiones_entrada_tubos = models.CharField(null=True, max_length=50)
+    conexiones_salida_tubos = models.CharField(null=True, max_length=50)
 
     pitch_tubos = models.DecimalField(max_digits=6, decimal_places=2, null=True)
     unidades_pitch = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="pitch_unidad_tubocarcasa")
@@ -214,12 +208,14 @@ class CondicionesTuboCarcasa(models.Model):
     flujo_liquido_entrada = models.DecimalField(max_digits=12, decimal_places=5, null=True)
     flujo_liquido_salida = models.DecimalField(max_digits=12, decimal_places=5, null=True)
     flujos_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="flujos_unidad_tubocarcasa", null=True)
+    fluido_etiqueta = models.CharField(null=True, max_length=50)
+    fluido_cp = models.DecimalField(null=True, max_digits=8, decimal_places=4)
     
     cambio_de_fase  = models.CharField(max_length=1, choices=cambios_de_fase)
 
     presion_entrada = models.DecimalField(max_digits=10, decimal_places=4, null=True)
-    caida_presion_max = models.DecimalField(max_digits=9, decimal_places=5, null=True)
-    caida_presion_min = models.DecimalField(max_digits=9, decimal_places=5, null=True)
+    caida_presion_max = models.DecimalField(max_digits=10, decimal_places=5, null=True)
+    caida_presion_min = models.DecimalField(max_digits=10, decimal_places=5, null=True)
     unidad_presion = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="presion_unidad_tubocarcasa")
 
     fouling = models.DecimalField(max_digits=10, decimal_places=9, null=True) #m^2*C/W

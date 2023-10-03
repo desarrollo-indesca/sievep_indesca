@@ -6,6 +6,8 @@ from django.views.generic.list import ListView
 from django.db import transaction
 import numpy
 import os
+from thermo.chemical import search_chemical
+from thermo.heat_capacity import HeatCapacityLiquid, HeatCapacityGas, HeatCapacitySolid
 from reportes.pdfs import generar_pdf
 
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
@@ -16,8 +18,6 @@ class CrearIntercambiadorTuboCarcasa(View):
     }
 
     def post(self, request): # Envío de Formulario de Creación
-        print(request.POST)
-
         if(Intercambiador.objects.filter(tag = request.POST['tag']).exists()):
             copia_context = self.context
             copia_context['previo'] = request.POST
@@ -36,6 +36,33 @@ class CrearIntercambiadorTuboCarcasa(View):
                 arreglo_flujo = request.POST['flujo']
             )
 
+            print(request.POST)
+
+            fluido_tubo = request.POST['fluido_tubo']
+            fluido_carcasa = request.POST['fluido_carcasa']
+
+            print(fluido_carcasa)
+            print(fluido_tubo)
+
+            if(fluido_tubo.find('*') != -1):
+                fluido_tubo = fluido_tubo.split('*')
+                if(fluido_tubo[1].find('-') != -1):
+                    quimico = search_chemical(fluido_tubo[1], cache=True)
+                    fluido_tubo = Fluido.objects.create(nombre = fluido_tubo[0].upper(), cas = fluido_tubo[1], peso_molecular = quimico.MW, estado = 'L')
+            else:
+                fluido_tubo = Fluido.objects.get(pk=fluido_tubo)
+
+            if(fluido_carcasa.find('*') != -1):
+                fluido_carcasa = fluido_carcasa.split('*')
+                if(fluido_carcasa[1].find('-') != -1):
+                    quimico = search_chemical(fluido_carcasa[1], cache=True)
+                    fluido_carcasa = Fluido.objects.create(nombre = fluido_carcasa[0].upper(), cas = fluido_carcasa[1], peso_molecular = quimico.MW, estado = 'L')
+            else:
+                fluido_carcasa = Fluido.objects.get(pk=fluido_carcasa)
+
+            print(fluido_carcasa)
+            print(fluido_tubo)
+
             propiedades = PropiedadesTuboCarcasa.objects.create(
                 intercambiador = intercambiador,
                 area = request.POST['area'],
@@ -47,12 +74,12 @@ class CrearIntercambiadorTuboCarcasa(View):
                 diametro_interno_tubos = request.POST['id_carcasa'],
                 diametro_tubos_unidad = Unidades.objects.get(pk=request.POST['unidad_diametros']),
 
-                fluido_carcasa = Fluido.objects.get(pk=request.POST['fluido_carcasa']),
+                fluido_carcasa = Fluido.objects.get(pk=request.POST['fluido_carcasa']) if type(fluido_carcasa) == str else fluido_carcasa if type(fluido_carcasa) == Fluido else None,
                 material_carcasa = request.POST['material_carcasa'],
                 conexiones_entrada_carcasa = request.POST['conexiones_entrada_carcasa'],
                 conexiones_salida_carcasa = request.POST['conexiones_salida_carcasa'],
                 
-                fluido_tubo = Fluido.objects.get(pk=request.POST['fluido_tubo']),
+                fluido_tubo = Fluido.objects.get(pk=request.POST['fluido_tubo']) if type(fluido_tubo) == str else fluido_tubo if type(fluido_tubo) == Fluido else None,
                 material_tubo = request.POST['material_tubo'],
                 conexiones_entrada_tubos = request.POST['conexiones_entrada_tubo'],
                 conexiones_salida_tubos = request.POST['conexiones_salida_tubo'],
@@ -91,7 +118,9 @@ class CrearIntercambiadorTuboCarcasa(View):
                 presion_entrada = request.POST['presion_entrada_tubo'],
                 unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presiones']),
 
-                fouling = request.POST['fouling_tubo']
+                fouling = request.POST['fouling_tubo'],
+                fluido_etiqueta = fluido_tubo[0] if type(fluido_tubo) != Fluido else None,
+                fluido_cp = fluido_tubo[1] if type(fluido_tubo) != Fluido else calcular_cp(propiedades.fluido_tubo.cas, request.POST['temp_in_tubo'], request.POST['temp_out_tubo'], 'C') 
             )
 
             condiciones_diseno_carcasa = CondicionesTuboCarcasa.objects.create(
@@ -115,7 +144,9 @@ class CrearIntercambiadorTuboCarcasa(View):
                 caida_presion_min = request.POST['caida_presion_min_carcasa'],
                 unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presiones']),
 
-                fouling = request.POST['fouling_carcasa']
+                fouling = request.POST['fouling_carcasa'],
+                fluido_etiqueta = fluido_carcasa[0] if type(fluido_carcasa) != Fluido else None,
+                fluido_cp = fluido_carcasa[1] if type(fluido_carcasa) != Fluido else None 
             )
 
             request.session['mensaje'] = "El nuevo intercambiador ha sido registrado exitosamente."
@@ -245,8 +276,6 @@ class ConsultaEvaluacionesTuboCarcasa(ListView):
         context['metodo'] = self.request.GET.get('metodo','')
         context['condiciones'] = self.request.GET.get('condiciones', '')
 
-        print(context)
-
         return context
     
     def get_queryset(self):
@@ -290,7 +319,7 @@ class ConsultaTuboCarcasa(ListView):
             return generar_pdf(request, self.get_queryset(),"Reporte de Intercambiadores Tubo/Carcasa", "intercambiadores_tubo_carcasa")
         else:
             from reportes.xlsx import reporte_tubo_carcasa
-            archivo = reporte_tubo_carcasa(self.get_queryset())
+            archivo = reporte_tubo_carcasa(self.get_queryset(), request)
             with open(archivo, "rb") as excel:
                 data = excel.read()
             os.remove(archivo)
@@ -361,113 +390,63 @@ class SeleccionTipo(View):
     def get(self, request):
         return render(request, 'seleccion_tipo.html', context=self.context)
 
-# ESTAS YA NO SE USARÁN
-
-class Simulaciones(View):
-    context = {
-        'titulo': "SIEVEP - Evaluaciones de Intercambiadores"
-    }
-
+class ConsultaCAS(View):
     def get(self, request):
-        return render(request, 'simulaciones.html', context=self.context)
-    
-class FormularioSimulaciones(View):
-    context = {
-        'titulo': "SIEVEP - Evaluaciones de Intercambiadores"
-    }
+        cas = request.GET['cas']
 
+        if(Fluido.objects.filter(cas = cas).exists()):
+            estado = 2
+            fluido = Fluido.objects.get(cas = cas).nombre
+        else:
+            estado = 1
+
+        if(estado != 2):
+            try:
+                quimico = search_chemical(cas, cache=True)
+                fluido = quimico.common_name
+            except Exception as e:
+                estado = 3
+                fluido = ''
+
+        return JsonResponse({'nombre': fluido, 'estado': estado})
+
+class ConsultaCP(View):
     def get(self, request):
-        self.context['plantas'] = Planta.objects.all().order_by('codigo')
-        self.context['areas'] = Area.objects.filter(planta = self.context['plantas'].first()).order_by('nombre')
-        self.context['intercambiadores'] = Intercambiador.objects.filter(area = self.context['areas'].first()).order_by('codigo')
+        fluido = request.GET['fluido']
+        t1,t2 = request.GET['t1'], request.GET['t2']
+
+        if(fluido.find('*') != -1):
+            cas = fluido.split('*')[1]
+
+            if(cas.find('-') == -1):
+                return JsonResponse({'cp': ''})
+        else:
+            cas = Fluido.objects.get(pk = fluido).cas
         
-        print(self.context)
+        cp = calcular_cp(cas, t1, t2, 'C')
 
-        intercambiador = self.context['intercambiadores'].first()
-        self.context['diametro_ex_carcasa'] =  intercambiador.diametro_ex_carcasa
-        self.context['diametro_ex_tubos'] =  intercambiador.diametro_ex_tubos
-        self.context['longitud_tubo'] =  intercambiador.longitud_tubo
+        print(cp)
 
-        self.context['fluidos_servicio'] = Fluido.objects.filter(pk__in = intercambiador.condiciones.values('fluido_servicio'))
-        self.context['fluidos_interno'] = Fluido.objects.filter(pk__in = intercambiador.condiciones.values('fluido_interno'))
-        
-        return render(request, 'formulario.html', context=self.context)
-    
-    def post(self, request):
-        # CARGA DEL REQUEST.POST
-        t1_serv = float(request.POST['temp_in_serv'])
-        t2_serv = float(request.POST['temp_out_serv'])
-        t1_proc = float(request.POST['temp_in_proceso'])
-        t2_proc = float(request.POST['temp_out_proceso'])
+        return JsonResponse({'cp': cp})
 
-        w_serv = float(request.POST['flujo_externo'])
-        w_proc = float(request.POST['flujo_interno'])
+# Funciones Auxiliares de Cálculos
 
-        intercambiador = Intercambiador.objects.get(pk = request.POST['intercambiador'])
-        condiciones = CondicionesSimulacionTubos.objects.get(intercambiador = intercambiador, tipo = request.POST['condiciones'],
-            fluido_servicio = int(request.POST['fluido_externo']), fluido_interno = int(request.POST['fluido_interno']))
+def calcular_cp(fluido, t1, t2, unidad = 'K'):
+    if(unidad == 'C'):
+        t1 = float(t1)
+        t1 += 273.15
 
-        # CÁLCULO DE DATOS
+        t2 = float(t2)
+        t2 += 273.15
 
-        # Promedio de las temperaturas
-        tprom_serv = numpy.mean([t1_serv, t2_serv]) # REVISADO
-        tprom_proc = numpy.mean([t1_proc, t2_proc]) # REVISADO
+    t = numpy.mean([t1, t2])
+    quimico = HeatCapacityLiquid(fluido)
 
-        # Cálculo de las capacidades caloríficas y promedio
-        q_serv = w_serv*float(condiciones.cp_tubo)*(t2_serv-t1_serv)
-        q_proc = w_proc*float(condiciones.cp_tubo)*(t2_proc-t1_proc)
+    if(t > quimico.Tmax):
+        quimico = HeatCapacityGas(fluido)
+    elif(t < quimico.Tmin):
+        quimico = HeatCapacitySolid(fluido)
 
-        qprom = numpy.mean([q_proc, q_serv])
+    cp = quimico.calculate(t, 'HEOS_FIT')
 
-        # Cálculo de la diferencia de temperatura media logarítmica
-        flujo_contracorriente = ((t1_proc-t2_serv)-(t2_proc-t1_serv))/numpy.log(abs((t1_proc-t2_serv)/(t2_proc-t1_serv)))
-        flujo_cocorriente = ((t1_proc-t1_serv)-(t2_proc-t2_serv))/numpy.log(abs((t1_proc-t1_serv)/(t2_proc-t2_serv)))
-
-        # Cálculo del coeficiente global de transferencia de calor
-        ua = qprom/flujo_contracorriente
-
-        #Cálculo de la efectividad del intercambio de calor
-        efectividad = (ua*flujo_contracorriente)/(float(condiciones.cp_tubo)*(t1_proc-t1_serv))
-        
-        # Cálculo de las unidades térmicas transferidas por unidad de área
-        ntu = ua/float(condiciones.cp_tubo)
-
-        # Cálculo del área de transferencia de calor 
-        at = numpy.pi*float(intercambiador.diametro_ex_carcasa)*float(intercambiador.longitud_tubo)
-
-        # Cálculo de la eficiencia del intercambiador de calor
-        eficiencia = efectividad/ntu*100
-
-        # Cálculo del porcentaje de ensuciamiento
-        
-        resultados = {
-            'tprom_proc': tprom_proc,
-            'tprom_serv': tprom_serv,
-            'ntu': ntu,
-            'ua': ua,
-            'area_transferencia': at,
-            'eficiencia': eficiencia,
-            'efectividad': efectividad,
-            'lmtd': flujo_contracorriente,
-            'u': ua/at,
-            'ensuciamiento': 'N/A'
-        }
-
-        return render(request, 'resultados_ntu.html', context={'resultados': resultados})
-
-class ConsultaIntercambiadores(View):
-    def get(self, request):
-        return render(request, 'intercambiadores.html')
-
-class Areas(View): # Esta vista se utiliza al seleccionar planta en el formulario
-    def get(self, request, pk):
-        return JsonResponse({'areas': Planta.objects.filter(planta__pk = pk)})
-    
-class Intercambiadores(View): # Esta vista se utiliza al seleccionar área en el formulario
-    def get(self, request, pk):
-        return JsonResponse({'intercambiadores': list(Intercambiador.objects.filter(area__pk = pk))})
-    
-class Fluidos(View):
-    def get(self, request, pk): # La PK corresponde al intercambiador
-        intercambiador = Intercambiador.objects.get(pk = pk)
-        return JsonResponse({'interno': intercambiador.fluido_interno, 'externo': intercambiador.fluido_externo})
+    return round(cp, 4)

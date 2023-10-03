@@ -77,12 +77,12 @@ class ComponerFluidos(View):
 # Carga de Intercambiadores (Revisión)
 class ComponerIntercambiadores(View):
     def get(self, request):
-        import csv
+        import csv, random
         from intercambiadores.models import TipoIntercambiador, Planta
+        from intercambiadores.views import calcular_cp
         with open('./intercambiadores.csv','r') as file:
             csvreader = csv.reader(file, delimiter=";")
             for row in csvreader:
-                print(row)
                 for n,col in enumerate(row):
                     if(col == '*' or col == '-' or col == '/' or col == 'NIL'):
                         row[n] = ''
@@ -90,8 +90,7 @@ class ComponerIntercambiadores(View):
                 if(row[0] == 'AMC' and row[1] == 'OLEFINAS I'):
                     row[0] = Planta.objects.get(pk=1)
                 elif(row[0] == 'AMC' and row[1] == 'OLEFINAS II'):
-                    # row[0] = Planta.objects.get(pk=1)
-                    continue
+                    row[0] = Planta.objects.get(pk=1)
                 
                 row[4] = TipoIntercambiador.objects.get(pk=1)
 
@@ -104,8 +103,9 @@ class ComponerIntercambiadores(View):
                     row[20] = float(row[20].replace(',','.'))
                     row[21] = float(row[21].replace(',','.'))
                     row[35] = float(row[35].replace(',','.'))
-                except:
-                    print("SKIP")
+                except Exception as e:
+                    print(str(e))
+                    print(f"SKIP {row[2]}")
                     continue
                 
                 row[9] = float(row[9].replace(',','.')) if len(row[9]) else ''
@@ -156,118 +156,40 @@ class ComponerIntercambiadores(View):
                     row[51] = Tema.objects.get(pk=8) 
 
                 # Fluidos (Caso Especial) 5,18
-                for x in Fluido.objects.all():
-                    if(x.nombre.lower() in row[5].lower()):
-                        if(Fluido.objects.filter(nombre__icontains = x.nombre).count() > 1):
-                            try:
-                                if(row[9] > row[11]):
-                                    row[5] = Fluido.objects.filter(nombre__icontains = x.nombre, estado = 'G').first()
-                                else:
-                                    row[5] = Fluido.objects.filter(nombre__icontains = x.nombre, estado = 'L').first()
-                            except:
-                                if(row[9] == ''):
-                                    row[5] = Fluido.objects.filter(nombre__icontains = x.nombre, estado = 'L').first()
-                                else:
-                                    row[5] = Fluido.objects.filter(nombre__icontains = x.nombre, estado = 'G').first()
-                        else:
-                            row[5] = x
-                        break
-                    elif(x.formula != '' and x.formula.lower() in row[5].lower()):
-                        if(Fluido.objects.filter(formula__icontains = x.formula).count() > 1):
-                            try:
-                                if(row[9] > row[11]):
-                                    row[5] = Fluido.objects.filter(formula__icontains = x.formula, estado = 'G').first()
-                                else:
-                                    row[5] = Fluido.objects.filter(formula__icontains = x.formula, estado = 'L').first()
-                            except:
-                                if(row[9] is str):
-                                    row[5] = Fluido.objects.filter(formula__icontains = x.formula, estado = 'L').first()
-                                else:
-                                    row[5] = Fluido.objects.filter(formula__icontains = x.formula, estado = 'G').first()
-                        else:
-                            row[5] = x
-                        break
+                etiqueta_carcasa = None
 
-                if(row[5] == 'Vapor'):
-                    row[5] = Fluido.objects.get(nombre = 'AGUA', estado = 'G')
-                
-                if(type(row[5]) == str):
-                    if(type(row[9]) == float and type(row[11]) == float):
-                        Fluido.objects.create(
-                            nombre = row[5],
-                            estado = 'G' if float(row[9]) > float(row[11]) else 'L',
-                            formula = ''
-                        )
-                    elif(type(row[9]) == str and not len(row[9])):
-                        Fluido.objects.create(
-                            nombre = row[5],
-                            estado = 'L',
-                            formula = ''
-                        )
+                if(Fluido.objects.filter(nombre = row[5].upper()).exists()):
+                    row[5] = Fluido.objects.get(nombre = row[5])
+                    cp_carcasa = calcular_cp(row[5].cas, row[6], row[7], 'C')
+                elif(row[5] == 'Vapor' or 'AGUA' in row[5].upper()):
+                    row[5] = Fluido.objects.get(nombre = 'AGUA')
+                    cp_carcasa = calcular_cp(row[5].cas, row[6], row[7], 'C')
+                else:
+                    for fluido in Fluido.objects.all():
+                        if(fluido.nombre.upper() in row[5].upper()):
+                            row[5] = fluido
+                            break
                     else:
-                        Fluido.objects.create(
-                            nombre = row[5],
-                            estado = 'G',
-                            formula = ''
-                        )
+                        etiqueta_carcasa = row[5].upper()
+                        cp_carcasa = random.uniform(-500, 500)
 
-                for x in Fluido.objects.all():
-                    if(x.nombre.lower() in row[18].lower()):
-                        print("FLUIDO")
-                        if(Fluido.objects.filter(nombre__icontains = x.nombre).count() > 1):
-                            try:
-                                if(row[19] > row[21]):
-                                    row[18] = Fluido.objects.filter(nombre__icontains = x.nombre, estado = 'G').first()
-                                else:
-                                    row[18] = Fluido.objects.filter(nombre__icontains = x.nombre, estado = 'L').first()
-                            except:
-                                if(row[19] == ''):
-                                    row[18] = Fluido.objects.filter(nombre__icontains = x.nombre, estado = 'L').first()
-                                else:
-                                    row[18] = Fluido.objects.filter(nombre__icontains = x.nombre, estado = 'G').first()
-                        else:
-                            row[18] = x
-                        break
-                    elif(x.formula != '' and x.formula.lower() in row[18].lower()):
-                        print("FORMULA")
-                        if(Fluido.objects.filter(formula__icontains = x.formula).count() > 1):
-                            try:
-                                if(row[19] > row[21]):
-                                    row[18] = Fluido.objects.filter(formula__icontains = x.formula, estado = 'G').first()
-                                else:
-                                    row[18] = Fluido.objects.filter(formula__icontains = x.formula, estado = 'L').first()
-                            except:
-                                if(row[19] is str):
-                                    row[18] = Fluido.objects.filter(formula__icontains = x.formula, estado = 'L').first()
-                                else:
-                                    row[18] = Fluido.objects.filter(formula__icontains = x.formula, estado = 'G').first()
-                        else:
-                            row[18] = x
-                        break
-
-                if(row[18] == 'Vapor'):
-                    row[18] = Fluido.objects.get(nombre = 'AGUA', estado = 'G')
-                
-                if(type(row[18]) == str):
-                    if(type(row[19]) == float and type(row[21]) == float):
-                        Fluido.objects.create(
-                            nombre = row[18],
-                            estado = 'G' if float(row[19]) > float(row[21]) else 'L',
-                            formula = ''
-                        )
-                    elif(type(row[19]) == str and not len(row[19])):
-                        Fluido.objects.create(
-                            nombre = row[18],
-                            estado = 'L',
-                            formula = ''
-                        )
+                etiqueta_tubo = None
+                if(Fluido.objects.filter(nombre = row[18].upper()).exists()):
+                    row[18] = Fluido.objects.get(nombre = row[18])
+                    cp_tubo = calcular_cp(row[18].cas, row[19], row[20], 'C')
+                elif(row[18] == 'Vapor' or 'AGUA' in row[18].upper()):
+                    row[18] = Fluido.objects.get(nombre = 'AGUA')
+                    cp_tubo = calcular_cp(row[18].cas, row[19], row[20], 'C')
+                else:
+                    for fluido in Fluido.objects.all():
+                        if(fluido.nombre.upper() in row[18].upper()):
+                            row[18] = fluido
+                            cp_tubo = calcular_cp(row[18].cas, row[19], row[20], 'C')
+                            break
                     else:
-                        Fluido.objects.create(
-                            nombre = row[18],
-                            estado = 'G',
-                            formula = ''
-                        )
-                
+                        etiqueta_tubo = row[18].upper()
+                        cp_tubo = random.uniform(-500, 500)
+
                 try:
                     with transaction.atomic():
                         intercambiador = Intercambiador.objects.create(
@@ -289,14 +211,14 @@ class ComponerIntercambiadores(View):
                             diametro_externo_tubos = row[-15],
                             diametro_interno_tubos = row[-14],
                             diametro_tubos_unidad = Unidades.objects.get(pk=5),
-                            fluido_carcasa = row[5],
+                            fluido_carcasa = row[5] if type(row[5]) == Fluido else None,
                             material_carcasa = row[-13],
                             conexiones_entrada_carcasa = row[-9],
                             conexiones_salida_carcasa = row[-8],
                             numero_tubos = row[35],
 
                             material_tubo = row[-12],
-                            fluido_tubo = row[18],
+                            fluido_tubo = row[18] if type(row[18]) == Fluido else None,
                             tipo_tubo = row[-7],
                             conexiones_entrada_tubos =row[-11],
                             conexiones_salida_tubos = row[-10],
@@ -322,6 +244,8 @@ class ComponerIntercambiadores(View):
                             flujo_liquido_entrada = row[24],
                             flujo_liquido_salida = row[25],
                             flujos_unidad = Unidades.objects.get(pk=6),
+                            fluido_cp = cp_tubo,
+                            fluido_etiqueta = etiqueta_tubo,
 
                             cambio_de_fase = row[26],
 
@@ -346,6 +270,8 @@ class ComponerIntercambiadores(View):
                             flujo_liquido_entrada = row[11],
                             flujo_liquido_salida = row[12],
                             flujos_unidad = Unidades.objects.get(pk=6),
+                            fluido_cp = cp_carcasa,
+                            fluido_etiqueta = etiqueta_carcasa,
 
                             cambio_de_fase = row[13],
 
@@ -374,6 +300,21 @@ class ComponerTemas(View):
                     Tema.objects.create(
                         codigo = row[-2],
                         descripcion = row[-1]
+                    )
+        
+        return HttpResponse("Listo")
+    
+class ComponerFluidos(View):
+    def get(self, request):
+        import csv
+        from intercambiadores.models import Fluido
+        with open('./fluidos.csv','r', encoding='Latin1') as file:
+            csvreader = csv.reader(file, delimiter=";")
+            for row in csvreader:
+                if(not Fluido.objects.filter(cas=row[2]).exists()):
+                    Fluido.objects.create(
+                        nombre = row[1],
+                        cas = row[2]
                     )
         
         return HttpResponse("Listo")
