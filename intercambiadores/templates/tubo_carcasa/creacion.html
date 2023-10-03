@@ -711,7 +711,7 @@
                 }
             });
         } else{
-            document.getElementById('guardar_datos_cas').setAttribute('disabled', true);
+            document.getElementById('guardar_datos_cas_carcasa').setAttribute('disabled', true);
         }
     });
 
@@ -770,5 +770,60 @@
         document.getElementById('cp_carcasa').value = document.getElementById('cp_compuesto_carcasa').value;
         $('#condiciones_diseno_fluido_carcasaClose').click();
     });
+
+    $('#temp_in_carcasa').change((e) => {
+        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== ''){
+            ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
+        }
+    });
+
+    $('#temp_out_carcasa').change((e) => {
+        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== ''){
+            ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
+        }
+    });
+
+    $('#fluido_carcasa').change((e) => {
+        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '')
+            ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
+    });
+
+    $('#temp_in_tubo').change((e) => {
+        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== ''){
+             ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
+        }
+    });
+
+    $('#temp_out_tubo').change((e) => {
+        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== ''){
+             ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
+        }
+    });
+
+    $('#fluido_tubo').change((e) => {
+        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '')
+            ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
+    });
+
+    function ajaxCP(t1,t2,fluido, lado = 'T'){
+        $.ajax({
+            url: '/intercambiadores/calcular_cp/',
+            data: {
+                t1,
+                t2,
+                fluido
+            },
+            success: (res) => {
+                if(lado === 'T')
+                    $('#cp_tubo').val(res.cp);
+                else
+                    $('#cp_carcasa').val(res.cp);     
+            }, 
+            error: (res) => {
+                console.log(res);
+            }
+        });
+    }
+
 </script>
 {% endblock %}

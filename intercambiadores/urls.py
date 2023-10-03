@@ -14,5 +14,6 @@ urlpatterns = [
     path('tubo_carcasa/<int:pk>/evaluar/', CrearEvaluacionTuboCarcasa.as_view(),name="crear_evaluacion_tubo_carcasa"),
 
     # RUTAS DE CONSULTAS DE FLUIDOS
-    path('consultar_cas/', ConsultaCAS.as_view(), name="consultar_cas")
+    path('consultar_cas/', ConsultaCAS.as_view(), name="consultar_cas"),
+    path('calcular_cp/', ConsultaCP.as_view(), name="consultar_cp")
 ]
