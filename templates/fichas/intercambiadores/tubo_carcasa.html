@@ -81,18 +81,10 @@
                     <tr>
                       <th class="table-dark" colspan="2">Capacidad Calorífica</th>
                       <td>
-                        {% if intercambiador.fluido_carcasa %}
-                          Desconocida
-                        {% else %}
-                          {{condiciones_carcasa.fluido_cp}}
-                        {% endif %}                        
+                          {{condiciones_carcasa.fluido_cp}}                 
                       </td>
                       <td>
-                        {% if intercambiador.fluido_tubo %}
-                          Desconocida
-                        {% else %}
                           {{condiciones_tubo.fluido_cp}}
-                        {% endif %}
                       </td>
                     </tr>
                     <tr>
