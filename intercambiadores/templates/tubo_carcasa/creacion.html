@@ -718,6 +718,10 @@
     $('#guardar_datos_cas_carcasa').click((e) => {
         if(document.getElementById('nombre_compuesto_carcasa_cas').value !== '' && document.getElementById('nombre_compuesto_carcasa_cas').value.indexOf('*')){
             document.getElementById('fluido_carcasa').innerHTML += `<option value="${document.getElementById('nombre_compuesto_carcasa_cas').value}*${document.getElementById('cas_compuesto_carcasa').value}" selected>${document.getElementById('nombre_compuesto_carcasa_cas').value.toUpperCase()}</option>`;
+            
+            if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '')
+                ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'T');
+            
             $('#condiciones_diseno_fluido_carcasaClose').click();
         } else
             alert("Debe de colocarle un nombre válido al compuesto.");
@@ -726,6 +730,10 @@
     $('#guardar_datos_cas').click((e) => {
         if(document.getElementById('nombre_compuesto_tubo_cas').value !== '' && document.getElementById('nombre_compuesto_tubo_cas').value.indexOf('*')){
             document.getElementById('fluido_tubo').innerHTML += `<option value="${document.getElementById('nombre_compuesto_tubo_cas').value}*${document.getElementById('cas_compuesto_tubo').value}" selected>${document.getElementById('nombre_compuesto_tubo_cas').value.toUpperCase()}</option>`;
+            
+            if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '')
+                ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
+            
             $('#condiciones_diseno_fluido_tuboLabel').click();
         } else
             alert("Debe de colocarle un nombre válido al compuesto.");
@@ -814,10 +822,11 @@
                 fluido
             },
             success: (res) => {
-                if(lado === 'T')
-                    $('#cp_tubo').val(res.cp);
-                else
-                    $('#cp_carcasa').val(res.cp);     
+                if(res.cp !== '')
+                    if(lado === 'T')
+                        $('#cp_tubo').val(res.cp);
+                    else
+                        $('#cp_carcasa').val(res.cp);     
             }, 
             error: (res) => {
                 console.log(res);

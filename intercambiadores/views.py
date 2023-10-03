@@ -416,7 +416,7 @@ class ConsultaCP(View):
         t1,t2 = request.GET['t1'], request.GET['t2']
 
         if(fluido.find('*') != -1):
-            cas = fluido.split('*')[0]
+            cas = fluido.split('*')[1]
 
             if(cas.find('-') == -1):
                 return JsonResponse({'cp': ''})
