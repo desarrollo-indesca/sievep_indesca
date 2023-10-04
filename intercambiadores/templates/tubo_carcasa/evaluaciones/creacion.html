@@ -216,7 +216,7 @@
         <hr>
         
         <div class="d-flex justify-content-center mb-3">
-            <button class="btn btn-danger" disabled>Registrar Resultados De La Evaluación</button>
+            <button id="registrar_resultado" class="btn btn-danger" disabled>Registrar Resultados De La Evaluación</button>
         </div>
     </form>
 {% endblock %}
@@ -384,16 +384,19 @@
                     document.getElementById('area').value = res.area;
                     document.getElementById('ntu').value = res.ntu;
                     document.getElementById('u').value = res.u;
-                    document.getElementById('ua').value = res.ua;
+                    document.getElementById('UA').value = res.ua;
                     document.getElementById('eficiencia').value = res.eficiencia;
-                    document.getElementById('ensuciamiento').value = res.factor_ensuciamento;
+                    document.getElementById('ensuciamiento').value = res.factor_ensuciamiento;
                     document.getElementById('q').value = res.q;
+                    document.getElementById('registrar_resultado').removeAttribute('disabled');
                 }, 
                 error: (res) => {
                     console.log(res);
                 }
             });
         }
+        else
+            document.getElementById('registrar_resultado').setAttribute('disabled', true)
     });
 
 </script>
