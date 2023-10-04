@@ -40,7 +40,7 @@
 
             <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="no_tubos">Número de Tubos:</label>
-                <input type="number" min="1" class="form-control" name="no_tubos" value="{{intercambiador.numero_tubos}}">
+                <input type="number" min="1" class="form-control" id="no_tubos" name="no_tubos" value="{{intercambiador.numero_tubos}}">
             </div>
         </div>
     
@@ -54,8 +54,8 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="temp_in_carcasa">Temperatura Entrada:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control temperatura" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" min="-273.15" max="9999.99" required>
-                            <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas">
+                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                            <select style="width: 30% !important;" class="form-select campo" name="unidad_temperaturas" id="unidad_temperaturas">
                                 <option value="1">°C</option>
                                 <option value="2">K</option>
                                 <option value="3">°F</option>
@@ -65,7 +65,7 @@
                     <div class="col-6">
                         <label class="form-label" for="temp_out_carcasa">Temperatura Salida:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control temperatura" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" min="-273.15" max="9999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -80,8 +80,8 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="cp_carcasa">Cp:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" type="number" name="cp_carcasa" id="cp_carcasa" class="form-control">
-                            <select style="width: 30% !important;" class="form-select" name="unidad_cp" id="unidad_cp">
+                            <input style="width: 70% !important;" type="number" name="cp_carcasa" id="cp_carcasa" class="form-control campo">
+                            <select style="width: 30% !important;" class="form-select campo" name="unidad_cp" id="unidad_cp">
                                 <option value="1">J/molK</option>
                                 <option value="2">J/gK</option>
                             </select>
@@ -90,8 +90,8 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_carcasa">Flujo Másico (Kg/h):</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" min="-273.15" max="9999.99" required>
-                            <select style="width: 30% !important;" class="form-select" name="unidad_flujo" id="unidad_flujo">
+                            <input style="width: 70% !important;" class="form-control campo" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                            <select style="width: 30% !important;" class="form-select campo" name="unidad_flujo" id="unidad_flujo">
                                 <option value="1">Kg/h</option>
                             </select>
                         </div>
@@ -99,8 +99,8 @@
                     <div class="col-6">
                         <label class="form-label" for="caida_carcasa">Caída de Presión:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control" type="number" name="caida_carcasa" id="caida_carcasa" step="0.01" min="-273.15" max="9999.99" required>
-                            <select style="width: 30% !important;" class="form-select" name="unidad_presion" id="unidad_presion">
+                            <input style="width: 70% !important;" class="form-control campo" type="number" name="caida_carcasa" id="caida_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                            <select style="width: 30% !important;" class="form-select campo" name="unidad_presion" id="unidad_presion">
                                 <option value="1">bar</option>
                             </select>
                         </div>
@@ -113,7 +113,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="temp_in_tubo">Temperatura Entrada:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control temperatura" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" min="-273.15" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" min="-273.15" max="9999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -122,7 +122,7 @@
                     <div class="col-6">
                         <label class="form-label" for="temp_out_tubo">Temperatura Salida:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control temperatura" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" min="-273.15" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" min="-273.15" max="9999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -137,7 +137,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="cp_tubo">Cp:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" type="number" name="cp_tubo" id="cp_tubo" class="form-control">
+                            <input style="width: 70% !important;" type="number" name="cp_tubo" id="cp_tubo" class="form-control campo">
                             <select style="width: 30% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
                                 <option value="1">J/molK</option>
                             </select>
@@ -146,7 +146,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_tubo">Flujo Másico (Kg/h):</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" min="-273.15" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control campo" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" min="-273.15" max="9999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" id="unidad_flujo" disabled>
                                 <option value="1">Kg/h</option>
                             </select>
@@ -155,7 +155,7 @@
                     <div class="col-6">
                         <label class="form-label" for="caida_tubo">Caída de Presión:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control" type="number" name="caida_tubo" id="caida_tubo" step="0.01" min="-273.15" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control campo" type="number" name="caida_tubo" id="caida_tubo" step="0.01" min="-273.15" max="9999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
                                 <option value="1">bar</option>
                             </select>
@@ -196,7 +196,6 @@
                     <label class="form-label">UA (Kcal/hC):</label>
                     <input id="UA" disabled type="text" class="form-control">
                 </div>
-                <div class="col-2"></div>
                 <div class="col-4 d-flex flex-column">
                     <label class="form-label">% Eficiencia:</label>
                     <input id="eficiencia" disabled type="text" class="form-control">
@@ -205,7 +204,10 @@
                     <label class="form-label">Ensuciamiento:</label>
                     <input id="ensuciamiento" disabled type="text" class="form-control">
                 </div>
-                <div class="col-2"></div>
+                <div class="col-4 d-flex flex-column">
+                    <label class="form-label">Q:</label>
+                    <input id="q" disabled type="text" class="form-control">
+                </div>
             </div>
             <div class="col-6">
                 <canvas id="grafica_1" style="width: 100%;"></canvas> <!-- Gráfica -->
@@ -314,5 +316,85 @@
                 }        
             }
         });
+</script>
+
+<script>
+    function ajaxCP(t1,t2,fluido, lado = 'T'){
+        $.ajax({
+            url: '/intercambiadores/calcular_cp/',
+            data: {
+                t1,
+                t2,
+                fluido
+            },
+            success: (res) => {
+                console.log(res.cp);
+                if(res.cp !== '')
+                    if(lado === 'T')
+                        $('#cp_tubo').val(res.cp);
+                    else
+                        $('#cp_carcasa').val(res.cp);     
+            }, 
+            error: (res) => {
+                console.log(res);
+            }
+        });
+    }
+
+    $('#temp_out_carcasa').change((e) => {
+        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== ''){
+            ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
+        }
+    });
+
+    $('#temp_in_carcasa').change((e) => {
+        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '')
+            ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
+    });
+
+    $('#temp_out_tubo').change((e) => {
+        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== ''){
+            ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
+        }
+    });
+
+    $('#fluido_tubo').change((e) => {
+        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '')
+            ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
+    });
+
+    $('.campo').change((e) => {
+        const array = $('.campo').toArray();
+
+        if(array.every((x) => x.value !== '')){
+            $.ajax({
+                url: '/intercambiadores/evaluar/tubo_carcasa/{{intercambiador.pk}}/',
+                data: {
+                    temp_in_carcasa: document.getElementById('temp_in_carcasa').value,
+                    temp_out_carcasa: document.getElementById('temp_out_carcasa').value,
+                    temp_in_tubo: document.getElementById('temp_in_tubo').value,
+                    temp_out_tubo: document.getElementById('temp_out_tubo').value,
+                    flujo_tubo: document.getElementById('flujo_tubo').value,
+                    flujo_carcasa: document.getElementById('flujo_carcasa').value,
+                    no_tubos: document.getElementById('no_tubos').value
+                },
+                success: (res) => {        
+                    console.log(res);   
+                    document.getElementById('lmtd').value = res.lmtd;
+                    document.getElementById('area').value = res.area;
+                    document.getElementById('ntu').value = res.ntu;
+                    document.getElementById('u').value = res.u;
+                    document.getElementById('ua').value = res.ua;
+                    document.getElementById('eficiencia').value = res.eficiencia;
+                    document.getElementById('ensuciamiento').value = res.factor_ensuciamento;
+                    document.getElementById('q').value = res.q;
+                }, 
+                error: (res) => {
+                    console.log(res);
+                }
+            });
+        }
+    });
+
 </script>
 {% endblock %}
