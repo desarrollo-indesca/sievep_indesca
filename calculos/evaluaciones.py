@@ -1,10 +1,17 @@
 from .termodinamicos import calcular_cp
-from intercambiadores.models import PropiedadesTuboCarcasa
 import numpy as np
 
-def evaluacion_tubo_carcasa(intercambiador: PropiedadesTuboCarcasa, ti, ts, Ti, Ts, ft, Fc, nt):
-    cp_tubo = calcular_cp(intercambiador.fluido_tubo.cas, float(ti), float(ts)) if intercambiador.fluido_tubo else float(intercambiador.condicion_tubo().fluido_cp)
-    cp_carcasa = calcular_cp(intercambiador.fluido_carcasa.cas, float(Ti), float(Ts)) if intercambiador.fluido_carcasa else float(intercambiador.condicion_carcasa().fluido_cp)
+def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo = None, cp_carcasa = None):
+    
+    if cp_tubo == None:
+        cp_tubo = calcular_cp(intercambiador.fluido_tubo.cas, float(ti), float(ts)) if intercambiador.fluido_tubo else float(intercambiador.condicion_tubo().fluido_cp)
+    else:
+        cp_tubo = cp_tubo
+
+    if cp_carcasa == None:
+        cp_carcasa = calcular_cp(intercambiador.fluido_carcasa.cas, float(Ti), float(Ts)) if intercambiador.fluido_carcasa else float(intercambiador.condicion_carcasa().fluido_cp)
+    else:
+        cp_carcasa = cp_carcasa
 
     q_tubo = cp_tubo*ft*abs(ti-ts)
     q_carcasa = cp_carcasa*Fc*abs(Ti-Ts)
@@ -13,11 +20,12 @@ def evaluacion_tubo_carcasa(intercambiador: PropiedadesTuboCarcasa, ti, ts, Ti, 
     diametro_tubo = float(intercambiador.diametro_interno_tubos)
     longitud_tubo = float(intercambiador.longitud_tubos)
 
-    area_calculada = np.pi*diametro_tubo*nt
+    area_calculada = np.pi*diametro_tubo*nt*longitud_tubo
 
-    print(np.log(abs((Ti - ti)/(Ts - ts))))
-
-    dtml = abs(((Ti - ti) - (Ts - ts))/np.log(abs((Ti - ti)/(Ts - ts))))
+    try:
+        dtml = abs(((Ti - ti) - (Ts - ts))/np.log(abs((Ti - ti)/(Ts - ts))))
+    except:
+        dtml = abs(((Ti - ti) - (Ts - ts + 1e-5))/np.log(abs((Ti - ti)/(Ts - ts + 1e-5))))
 
     P = abs((ts - ti)/(Ti - ti))
     R = abs((Ti - Ts)/(ts - ti))
@@ -48,6 +56,8 @@ def evaluacion_tubo_carcasa(intercambiador: PropiedadesTuboCarcasa, ti, ts, Ti, 
     else:
         factor = 1
 
+    print(intercambiador.u)
+
     q_prom = np.mean([q_tubo,q_carcasa])
     ucalc = q_prom/(area_calculada*dtml*factor)
     RF=1/ucalc-1/float(intercambiador.u)
@@ -58,14 +68,13 @@ def evaluacion_tubo_carcasa(intercambiador: PropiedadesTuboCarcasa, ti, ts, Ti, 
     if(ct < cc):
         cmin = ct
         cmax = cc
-        c = cmin/cmax
-        minimo = "tubos"
+        minimo = 1
     else:
         cmin = cc
         cmax = ct
-        c = cmin/cmax
-        minimo = "carcasa"
+        minimo = 2
 
+    c = cmin/cmax
     ntu = ucalc*area_calculada/cmin
 
     if(c == 0):
@@ -75,7 +84,7 @@ def evaluacion_tubo_carcasa(intercambiador: PropiedadesTuboCarcasa, ti, ts, Ti, 
             eficiencia1 = 2/(1+c+pow(1+pow(c,2),0.5)*(1+np.exp(-1*ntu*pow((1-pow(c,2)),0.5)))/(1-np.exp(-1*ntu*pow((1-pow(c,2)),0.5))))
             eficiencia = eficiencia1
         else:
-            if(minimo == 'tubos'):
+            if(minimo == 1):
                 eficiencia=1/c*(1-np.exp(-1*c*(1-1*np.exp(-1*ntu))))
             else:
                 eficiencia=1-np.exp(-1/c*np.exp(1-np.exp(-1*ntu*c)))
@@ -90,11 +99,16 @@ def evaluacion_tubo_carcasa(intercambiador: PropiedadesTuboCarcasa, ti, ts, Ti, 
         'q': round(q_prom,4),
         'area': round(area_calculada,4),
         'lmtd': round(dtml,4),
-        'eficiencia': round(eficiencia,4),
+        'eficiencia': round(eficiencia*100,4),
+        'efectividad': 512,
         'ntu': round(ntu,4),
         'u': round(ucalc,4),
         'ua': round(ucalc*area_calculada,4),
-        'factor_ensuciamiento': round(RF,4)
+        'cp_tubo': round(cp_tubo,4),
+        'cp_carcasa': round(cp_carcasa,4),
+        'factor_ensuciamiento': round(RF,4),
     }
+
+    print(resultados)
 
     return resultados

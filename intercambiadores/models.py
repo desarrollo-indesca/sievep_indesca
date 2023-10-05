@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from calculos.evaluaciones import evaluacion_tubo_carcasa
 
 # Tipos Estáticos
 
@@ -180,6 +181,22 @@ class PropiedadesTuboCarcasa(models.Model):
     u = models.DecimalField(max_digits=10, decimal_places=3, null=True)
     ensuciamiento = models.DecimalField(max_digits=10, decimal_places=3, null=True)
 
+    def calcular_diseno(self):
+        cond_tubo= self.condicion_tubo()
+        cond_carcasa = self.condicion_carcasa()
+        ti = float(cond_carcasa.temp_entrada)
+        ts = float(cond_carcasa.temp_salida)
+        Ti = float(cond_tubo.temp_entrada)
+        Ts = float(cond_tubo.temp_salida)
+        ft = float(cond_tubo.flujo_masico)
+        fc = float(cond_carcasa.flujo_masico)
+
+        print(self.pk)
+        print(ts)
+        print(ti)
+
+        return evaluacion_tubo_carcasa(self, ti, ts, Ti, Ts, ft, fc, self.numero_tubos)
+
     def condicion_tubo(self):
         return self.condiciones.get(lado='T')
     
@@ -249,13 +266,16 @@ class EvaluacionesIntercambiador(models.Model):
     flujo_masico_in = models.DecimalField(max_digits=12, decimal_places=5)
     unidad_flujo = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="flujo_unidad_evaluacionintercambiador")
 
-    presion_inicial = models.DecimalField(max_digits=10, decimal_places=3)
-    presion_final = models.DecimalField(max_digits=10, decimal_places=3)
+    caida_presion_in = models.DecimalField(max_digits=10, decimal_places=3)
+    caida_presion_ex = models.DecimalField(max_digits=10, decimal_places=3)
     unidad_presion = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="presion_unidad_evaluacionintercambiador")
+
+    cp_tubo = models.DecimalField(max_digits=10, decimal_places=4)
+    cp_carcasa = models.DecimalField(max_digits=10, decimal_places=4)
 
     # Datos de Salida
     lmtd = models.DecimalField(max_digits=12, decimal_places=5)
-    area_transferencia = models.DecimalField(max_digits=12, decimal_places=5)
+    area_transferencia = models.DecimalField(max_digits=12, decimal_places=4)
     u = models.DecimalField(max_digits=12, decimal_places=5)
     ua = models.DecimalField(max_digits=12, decimal_places=5) 
     ntu = models.DecimalField(max_digits=12, decimal_places=5)
@@ -264,6 +284,12 @@ class EvaluacionesIntercambiador(models.Model):
     ensuciamiento = models.DecimalField(max_digits=12, decimal_places=5)
     q = models.DecimalField(max_digits=12, decimal_places=5)
     numero_tubos = models.IntegerField()
+
+    def promedio_carcasa(self):
+        return (self.temp_ex_entrada + self.temp_ex_salida)/2
+
+    def promedio_tubo(self):
+        return (self.temp_in_entrada + self.temp_in_salida)/2
 
     class Meta:
         db_table = "evaluaciones_intercambiadores"

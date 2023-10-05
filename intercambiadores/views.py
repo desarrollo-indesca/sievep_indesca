@@ -174,6 +174,66 @@ class CrearEvaluacionTuboCarcasa(View):
         'titulo': "Evaluación Tubo Carcasa"
     }
 
+    def post(self, request, pk):
+        intercambiador = PropiedadesTuboCarcasa.objects.get(pk=pk)
+
+        with transaction.atomic():
+            ti = float(request.POST['temp_in_carcasa'].replace(',','.'))
+            tf = float(request.POST['temp_out_carcasa'].replace(',','.'))
+            Ti = float(request.POST['temp_in_tubo'].replace(',','.'))
+            Tf = float(request.POST['temp_out_tubo'].replace(',','.'))
+            ft = float(request.POST['flujo_tubo'].replace(',','.'))
+            fc = float(request.POST['flujo_carcasa'].replace(',','.'))
+            nt = float(request.POST['no_tubos'].replace(',','.'))
+
+            resultados = evaluacion_tubo_carcasa(intercambiador, ti, tf, Ti, Tf, ft, fc, nt)
+
+            print(resultados)
+
+            EvaluacionesIntercambiador.objects.create(
+                creado_por = request.user,
+                intercambiador = intercambiador.intercambiador,
+                condiciones = intercambiador.condicion_tubo(),
+                metodo = request.POST['metodo'],
+                nombre = request.POST['nombre'],
+
+                # DATOS TEMPERATURAS
+                temp_ex_entrada = request.POST['temp_in_carcasa'],
+                temp_ex_salida = request.POST['temp_out_carcasa'],
+                temp_in_entrada = request.POST['temp_in_tubo'],
+                temp_in_salida = request.POST['temp_out_tubo'],
+                temperaturas_unidad = Unidades.objects.get(pk=request.POST['unidad_temperaturas']),
+
+                # DATOS FLUJOS
+                flujo_masico_ex = request.POST['flujo_carcasa'],
+                flujo_masico_in = request.POST['flujo_tubo'],
+                unidad_flujo = Unidades.objects.get(pk=request.POST['unidad_flujo']),
+
+                # DATOS PRESIONES
+                caida_presion_in = request.POST['caida_tubo'],
+                caida_presion_ex = request.POST['caida_carcasa'],
+                unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presion']),
+
+                # DATOS DE SALIDA
+                lmtd = resultados['lmtd'],
+                area_transferencia = resultados['area'],
+                u = resultados['u'],
+                ua = resultados['ua'],
+                ntu = resultados['ntu'],
+                efectividad = resultados['efectividad'],
+                eficiencia = resultados['eficiencia'],
+                ensuciamiento = resultados['factor_ensuciamiento'],
+                q = resultados['q'],
+                numero_tubos = request.POST['no_tubos'],
+
+                # CP
+                cp_tubo = resultados['cp_tubo'],
+                cp_carcasa = resultados['cp_carcasa']
+            )
+
+        request.session['mensaje'] = "Guardado exitosamente."
+        return redirect('/')        
+
     def get(self, request, pk):
         context = self.context
         context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
@@ -408,8 +468,6 @@ class EvaluarTuboCarcasa(View):
         print(request.GET)
 
         res = evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, fc, nt)
-
-        print(res)
 
         return JsonResponse(res)
 

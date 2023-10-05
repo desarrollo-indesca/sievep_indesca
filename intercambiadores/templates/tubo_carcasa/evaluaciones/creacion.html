@@ -3,6 +3,7 @@
 
 {% block contenido %}
     <form method="post">
+        {% csrf_token %}
         {% with generales=intercambiador.intercambiador %}
         <div class="row">
             <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'consulta_evaluaciones_tubo_carcasa' pk=intercambiador.pk %}">↶ Regresar</a></div>
@@ -19,15 +20,14 @@
         <div class="row">
             <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="metodo">Nombre de la Evaluación:</label>
-                <input type="text" class="form-control" name="nombre">
+                <input type="text" class="form-control" name="nombre" required>
             </div>
 
             <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="metodo">Método:</label>
                 <select required class="form-select" name="metodo" id="metodo">
-                    <option value="NTU">Eficiencia-NTU</option>
-                    <option value="LMTD">LMTD</option>
-                    <option value="DOS">Ambos</option>
+                    <option value="E">Eficiencia-NTU</option>
+                    <option value="L">LMTD</option>
                 </select>
             </div>
     
@@ -80,7 +80,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="cp_carcasa">Cp:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" type="number" name="cp_carcasa" id="cp_carcasa" class="form-control campo">
+                            <input style="width: 70% !important;" step="0.0001" type="number" name="cp_carcasa" id="cp_carcasa" class="form-control campo">
                             <select style="width: 30% !important;" class="form-select campo" name="unidad_cp" id="unidad_cp">
                                 <option value="1">J/molK</option>
                                 <option value="2">J/gK</option>
@@ -137,7 +137,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="cp_tubo">Cp:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" type="number" name="cp_tubo" id="cp_tubo" class="form-control campo">
+                            <input style="width: 70% !important;" step="0.0001" type="number" name="cp_tubo" id="cp_tubo" class="form-control campo">
                             <select style="width: 30% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
                                 <option value="1">J/molK</option>
                             </select>
@@ -379,16 +379,28 @@
                     no_tubos: document.getElementById('no_tubos').value
                 },
                 success: (res) => {        
-                    console.log(res);   
-                    document.getElementById('lmtd').value = res.lmtd;
-                    document.getElementById('area').value = res.area;
-                    document.getElementById('ntu').value = res.ntu;
-                    document.getElementById('u').value = res.u;
-                    document.getElementById('UA').value = res.ua;
-                    document.getElementById('eficiencia').value = res.eficiencia;
-                    document.getElementById('ensuciamiento').value = res.factor_ensuciamiento;
-                    document.getElementById('q').value = res.q;
-                    document.getElementById('registrar_resultado').removeAttribute('disabled');
+                    console.log(res);
+                    if(res.lmtd === NaN){                        
+                        document.getElementById('lmtd').value = '';
+                        document.getElementById('area').value = '';
+                        document.getElementById('ntu').value = '';
+                        document.getElementById('u').value = '';
+                        document.getElementById('UA').value = '';
+                        document.getElementById('eficiencia').value = '';
+                        document.getElementById('ensuciamiento').value = '';
+                        document.getElementById('q').value = '';
+                        document.getElementById('registrar_resultado').setAttribute('disabled', true);
+                    } else{
+                        document.getElementById('lmtd').value = res.lmtd;
+                        document.getElementById('area').value = res.area;
+                        document.getElementById('ntu').value = res.ntu;
+                        document.getElementById('u').value = res.u;
+                        document.getElementById('UA').value = res.ua;
+                        document.getElementById('eficiencia').value = res.eficiencia;
+                        document.getElementById('ensuciamiento').value = res.factor_ensuciamiento;
+                        document.getElementById('q').value = res.q;
+                        document.getElementById('registrar_resultado').removeAttribute('disabled');
+                    }
                 }, 
                 error: (res) => {
                     console.log(res);
