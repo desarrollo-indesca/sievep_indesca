@@ -98,6 +98,7 @@ class Fluido(models.Model):
         return self.nombre.upper()
 
     class Meta:
+        ordering = ('nombre',)
         db_table = "fluido"
 
 # Específicos de Intercambiadores Tubo y Carcasa

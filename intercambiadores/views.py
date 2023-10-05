@@ -2,12 +2,13 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from .models import *
+from decimal import Decimal
 from django.views.generic.list import ListView
 from django.db import transaction
-import numpy
 import os
 from thermo.chemical import search_chemical
-from thermo.heat_capacity import HeatCapacityLiquid, HeatCapacityGas, HeatCapacitySolid
+from calculos.termodinamicos import calcular_cp
+from calculos.evaluaciones import evaluacion_tubo_carcasa
 from reportes.pdfs import generar_pdf
 
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
@@ -390,6 +391,28 @@ class SeleccionTipo(View):
     def get(self, request):
         return render(request, 'seleccion_tipo.html', context=self.context)
 
+# VISTAS AJAX
+
+class EvaluarTuboCarcasa(View):
+    def get(self, request, pk):
+        intercambiador = PropiedadesTuboCarcasa.objects.get(id = pk)
+
+        ti = (float(request.GET['temp_in_carcasa']))
+        ts = (float(request.GET['temp_out_carcasa']))
+        Ti = (float(request.GET['temp_in_tubo']))
+        Ts = (float(request.GET['temp_out_tubo']))
+        ft = (float(request.GET['flujo_tubo']))
+        fc = (float(request.GET['flujo_carcasa']))
+        nt = (float(request.GET['no_tubos']))
+
+        print(request.GET)
+
+        res = evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, fc, nt)
+
+        print(res)
+
+        return JsonResponse(res)
+
 class ConsultaCAS(View):
     def get(self, request):
         cas = request.GET['cas']
@@ -428,25 +451,3 @@ class ConsultaCP(View):
         print(cp)
 
         return JsonResponse({'cp': cp})
-
-# Funciones Auxiliares de Cálculos
-
-def calcular_cp(fluido, t1, t2, unidad = 'K'):
-    if(unidad == 'C'):
-        t1 = float(t1)
-        t1 += 273.15
-
-        t2 = float(t2)
-        t2 += 273.15
-
-    t = numpy.mean([t1, t2])
-    quimico = HeatCapacityLiquid(fluido)
-
-    if(t > quimico.Tmax):
-        quimico = HeatCapacityGas(fluido)
-    elif(t < quimico.Tmin):
-        quimico = HeatCapacitySolid(fluido)
-
-    cp = quimico.calculate(t, 'HEOS_FIT')
-
-    return round(cp, 4)

@@ -34,7 +34,8 @@ class Bienvenida(View):
         try:
             user = UserModel.objects.get(email=username)
         except UserModel.DoesNotExist:
-            return None
+            self.context['errores'] = 'Usuario no encontrado.'
+            return redirect('/')
         else:
             if user.check_password(password):
                 user = user
@@ -153,7 +154,7 @@ class ComponerIntercambiadores(View):
                 try:
                     row[51] = Tema.objects.get(codigo = row[51])
                 except:
-                    row[51] = Tema.objects.get(pk=8) 
+                    row[51] = Tema.objects.create(codigo = row[51].upper())
 
                 # Fluidos (Caso Especial) 5,18
                 etiqueta_carcasa = None
