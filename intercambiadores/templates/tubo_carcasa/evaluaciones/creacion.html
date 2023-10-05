@@ -79,7 +79,7 @@
                         </select>
                     </div>
                     <div class="col-6 d-flex flex-column">
-                        <label class="form-label" for="cp_carcasa">Cp:</label>
+                        <label class="form-label" for="cp_carcasa">Cp (J/gK):</label>
                         <div class="input-group mb-3">
                             <input value="{% if not intercambiador.fluido_carcasa %}{{intercambiador.condicion_carcasa.fluido_cp|unlocalize}}{%endif%}" style="width: 70% !important;" step="0.0001" type="number" name="cp_carcasa" id="cp_carcasa" class="form-control campo">
                             <select style="width: 30% !important;" class="form-select campo" name="unidad_cp" id="unidad_cp">
@@ -136,7 +136,7 @@
                         </select>
                     </div>
                     <div class="col-6 d-flex flex-column">
-                        <label class="form-label" for="cp_tubo">Cp:</label>
+                        <label class="form-label" for="cp_tubo">Cp (J/gK):</label>
                         <div class="input-group mb-3">
                             <input value="{% if not intercambiador.fluido_tubo %}{{intercambiador.condicion_tubo.fluido_cp|unlocalize}}{%endif%}" style="width: 70% !important;" step="0.0001" type="number" name="cp_tubo" id="cp_tubo" class="form-control campo">
                             <select style="width: 30% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>

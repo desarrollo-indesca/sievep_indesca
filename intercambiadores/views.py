@@ -232,7 +232,7 @@ class CrearEvaluacionTuboCarcasa(View):
             )
 
         request.session['mensaje'] = "Guardado exitosamente."
-        return redirect('/')        
+        return redirect(f'/intercambiadores/tubo_carcasa/{intercambiador.pk}/')        
 
     def get(self, request, pk):
         context = self.context

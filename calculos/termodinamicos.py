@@ -1,4 +1,5 @@
 from thermo.heat_capacity import HeatCapacityGas
+from thermo.chemical import Chemical
 import numpy
 
 def calcular_cp(fluido, t1, t2, unidad = 'K'):
@@ -12,6 +13,6 @@ def calcular_cp(fluido, t1, t2, unidad = 'K'):
     t = numpy.mean([t1, t2])
     quimico = HeatCapacityGas(fluido)
 
-    cp = quimico.calculate(t, 'POLING_POLY')
+    cp = quimico.calculate(t, 'POLING_POLY') / Chemical(fluido).MW
 
     return round(cp, 4)
