@@ -464,10 +464,10 @@ class EvaluarTuboCarcasa(View):
         ft = (float(request.GET['flujo_tubo']))
         fc = (float(request.GET['flujo_carcasa']))
         nt = (float(request.GET['no_tubos']))
+        cp_tubo = float(request.GET['cp_tubo'])
+        cp_carcasa = float(request.GET['cp_carcasa'])
 
-        print(request.GET)
-
-        res = evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, fc, nt)
+        res = evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, fc, nt, cp_tubo, cp_carcasa)
 
         return JsonResponse(res)
 
@@ -496,16 +496,17 @@ class ConsultaCP(View):
         fluido = request.GET['fluido']
         t1,t2 = request.GET['t1'], request.GET['t2']
 
-        if(fluido.find('*') != -1):
-            cas = fluido.split('*')[1]
+        if(fluido != ''):
+            if(fluido.find('*') != -1):
+                cas = fluido.split('*')[1]
 
-            if(cas.find('-') == -1):
-                return JsonResponse({'cp': ''})
-        else:
-            cas = Fluido.objects.get(pk = fluido).cas
+                if(cas.find('-') == -1):
+                    return JsonResponse({'cp': ''})
+            else:
+                cas = Fluido.objects.get(pk = fluido).cas
         
-        cp = calcular_cp(cas, t1, t2, 'C')
+            cp = calcular_cp(cas, t1, t2, 'C')
 
-        print(cp)
-
-        return JsonResponse({'cp': cp})
+            return JsonResponse({'cp': cp})
+        else:
+            return JsonResponse({'cp': ''})
