@@ -40,13 +40,8 @@ class CrearIntercambiadorTuboCarcasa(View):
                 arreglo_flujo = request.POST['flujo']
             )
 
-            print(request.POST)
-
             fluido_tubo = request.POST['fluido_tubo']
             fluido_carcasa = request.POST['fluido_carcasa']
-
-            print(fluido_carcasa)
-            print(fluido_tubo)
 
             if(fluido_tubo.find('*') != -1):
                 fluido_tubo = fluido_tubo.split('*')
@@ -188,10 +183,11 @@ class CrearEvaluacionTuboCarcasa(View):
             ft = float(request.POST['flujo_tubo'].replace(',','.'))
             fc = float(request.POST['flujo_carcasa'].replace(',','.'))
             nt = float(request.POST['no_tubos'].replace(',','.'))
+            cp_tubo = float(request.POST['cp_tubo'].replace(',','.'))
+            cp_carcasa = float(request.POST['cp_carcasa'].replace(',','.'))
+            unidad = int(request.POST['unidad_temperaturas'])
 
-            unidad = int(request.GET['unidad_temperaturas'])
-
-            resultados = evaluacion_tubo_carcasa(intercambiador, ti, tf, Ti, Tf, ft, fc, nt, unidad)
+            resultados = evaluacion_tubo_carcasa(intercambiador, ti, tf, Ti, Tf, ft, fc, nt, cp_tubo, cp_carcasa, unidad)
 
             print(resultados)
 
@@ -207,7 +203,7 @@ class CrearEvaluacionTuboCarcasa(View):
                 temp_ex_salida = request.POST['temp_out_carcasa'],
                 temp_in_entrada = request.POST['temp_in_tubo'],
                 temp_in_salida = request.POST['temp_out_tubo'],
-                temperaturas_unidad = Unidades.objects.get(pk=request.POST['unidad_temperaturas']),
+                temperaturas_unidad = Unidades.objects.get(pk=unidad),
 
                 # DATOS FLUJOS
                 flujo_masico_ex = request.POST['flujo_carcasa'],
@@ -473,8 +469,9 @@ class EvaluarTuboCarcasa(View):
         nt = (float(request.GET['no_tubos']))
         cp_tubo = float(request.GET['cp_tubo'])
         cp_carcasa = float(request.GET['cp_carcasa'])
+        unidad = int(request.GET['unidad'])
 
-        res = evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, fc, nt, cp_tubo, cp_carcasa)
+        res = evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, fc, nt, cp_tubo, cp_carcasa, unidad)
 
         return JsonResponse(res)
 
@@ -504,8 +501,6 @@ class ConsultaCP(View):
         fluido = request.GET['fluido']
         t1,t2 = float(request.GET['t1']), float(request.GET['t2'])
         unidad = int(request.GET['unidad'])
-        print("A")
-        print(t1)
 
         if(unidad == 1):
             t1 = Q_(t1, ur.degC).to('kelvin').magnitude
@@ -517,8 +512,6 @@ class ConsultaCP(View):
             t1 = Q_(t1, ur.degF).to('kelvin').magnitude
             t2 = Q_(t2, ur.degF).to('kelvin').magnitude
 
-        print(t1)
-
         if(fluido != ''):
             if(fluido.find('*') != -1):
                 cas = fluido.split('*')[1]
@@ -528,7 +521,7 @@ class ConsultaCP(View):
             else:
                 cas = Fluido.objects.get(pk = fluido).cas
         
-            cp = calcular_cp(cas, t1, t2, 'C')
+            cp = calcular_cp(cas, t1, t2)
 
             return JsonResponse({'cp': cp})
         else:

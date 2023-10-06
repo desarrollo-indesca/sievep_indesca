@@ -1,6 +1,6 @@
 from .termodinamicos import calcular_cp
 import numpy as np
-from pint import UnitRegistry, Quantity
+from pint import UnitRegistry
 
 ur = UnitRegistry()
 Q_ = ur.Quantity
@@ -33,9 +33,6 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
         cp_carcasa = calcular_cp(intercambiador.fluido_carcasa.cas, float(Ti), float(Ts)) if intercambiador.fluido_carcasa else float(intercambiador.condicion_carcasa().fluido_cp)
     else:
         cp_carcasa = cp_carcasa
-
-    cp_tubo *= 1000 #J/KgK
-    cp_carcasa *= 1000 #J/KgK
 
     q_tubo = cp_tubo*ft*abs(ti-ts) # W
     q_carcasa = cp_carcasa*Fc*abs(Ti-Ts) # W

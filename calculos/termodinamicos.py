@@ -2,13 +2,7 @@ from thermo.heat_capacity import HeatCapacityGas
 from thermo.chemical import Chemical
 import numpy
 
-def calcular_cp(fluido, t1, t2, unidad = 'K'):
-    if(unidad == 'C'):
-        t1 = float(t1)
-        t1 += 273.15
-
-        t2 = float(t2)
-        t2 += 273.15
+def calcular_cp(fluido, t1, t2):
 
     t = numpy.mean([t1, t2])
     quimico = HeatCapacityGas(fluido)
@@ -23,4 +17,4 @@ def calcular_cp(fluido, t1, t2, unidad = 'K'):
         except:
             cp = 0
 
-    return round(cp, 4)
+    return round(cp*1000, 4)
