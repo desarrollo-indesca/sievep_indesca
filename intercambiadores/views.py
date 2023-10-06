@@ -2,7 +2,6 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from .models import *
-from decimal import Decimal
 from django.views.generic.list import ListView
 from django.db import transaction
 import os
@@ -10,6 +9,10 @@ from thermo.chemical import search_chemical
 from calculos.termodinamicos import calcular_cp
 from calculos.evaluaciones import evaluacion_tubo_carcasa
 from reportes.pdfs import generar_pdf
+from pint import UnitRegistry
+
+ur = UnitRegistry()
+Q_ = ur.Quantity
 
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
 
@@ -186,7 +189,9 @@ class CrearEvaluacionTuboCarcasa(View):
             fc = float(request.POST['flujo_carcasa'].replace(',','.'))
             nt = float(request.POST['no_tubos'].replace(',','.'))
 
-            resultados = evaluacion_tubo_carcasa(intercambiador, ti, tf, Ti, Tf, ft, fc, nt)
+            unidad = int(request.GET['unidad_temperaturas'])
+
+            resultados = evaluacion_tubo_carcasa(intercambiador, ti, tf, Ti, Tf, ft, fc, nt, unidad)
 
             print(resultados)
 
@@ -237,6 +242,7 @@ class CrearEvaluacionTuboCarcasa(View):
     def get(self, request, pk):
         context = self.context
         context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
+        context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
 
         return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
 
@@ -494,8 +500,24 @@ class ConsultaCAS(View):
 
 class ConsultaCP(View):
     def get(self, request):
+        print(request.GET)
         fluido = request.GET['fluido']
-        t1,t2 = request.GET['t1'], request.GET['t2']
+        t1,t2 = float(request.GET['t1']), float(request.GET['t2'])
+        unidad = int(request.GET['unidad'])
+        print("A")
+        print(t1)
+
+        if(unidad == 1):
+            t1 = Q_(t1, ur.degC).to('kelvin').magnitude
+            t2 = Q_(t2, ur.degC).to('kelvin').magnitude
+        elif(unidad == 8):
+            t1 = Q_(t1, ur.degR).to('kelvin').magnitude
+            t2 = Q_(t2, ur.degR).to('kelvin').magnitude
+        elif(unidad == 9):
+            t1 = Q_(t1, ur.degF).to('kelvin').magnitude
+            t2 = Q_(t2, ur.degF).to('kelvin').magnitude
+
+        print(t1)
 
         if(fluido != ''):
             if(fluido.find('*') != -1):

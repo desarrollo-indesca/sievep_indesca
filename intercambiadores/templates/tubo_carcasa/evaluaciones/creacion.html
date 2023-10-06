@@ -57,9 +57,9 @@
                         <div class="input-group mb-3">
                             <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" min="-273.15" max="9999.99" required>
                             <select style="width: 30% !important;" class="form-select campo" name="unidad_temperaturas" id="unidad_temperaturas">
-                                <option value="1">°C</option>
-                                <option value="2">K</option>
-                                <option value="3">°F</option>
+                                {% for unidad in unidades_temperaturas %}
+                                <option value="{{unidad.pk}}">{{unidad.simbolo}}</option>
+                                {% endfor %}
                             </select>
                         </div>
                     </div>
@@ -67,7 +67,7 @@
                         <label class="form-label" for="temp_out_carcasa">Temperatura Salida:</label>
                         <div class="input-group mb-3">
                             <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" min="-273.15" max="9999.99" required>
-                            <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
                         </div>
@@ -83,7 +83,7 @@
                         <div class="input-group mb-3">
                             <input value="{% if not intercambiador.fluido_carcasa %}{{intercambiador.condicion_carcasa.fluido_cp|unlocalize}}{%endif%}" style="width: 70% !important;" step="0.0001" type="number" name="cp_carcasa" id="cp_carcasa" class="form-control campo">
                             <select style="width: 30% !important;" class="form-select campo" name="unidad_cp" id="unidad_cp">
-                                <option value="1">J/gK</option>
+                                <option value="1">J/KgK</option>
                             </select>
                         </div>
                     </div>
@@ -114,7 +114,7 @@
                         <label class="form-label" for="temp_in_tubo">Temperatura Entrada:</label>
                         <div class="input-group mb-3">
                             <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" min="-273.15" max="9999.99" required>
-                            <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
                         </div>
@@ -123,7 +123,7 @@
                         <label class="form-label" for="temp_out_tubo">Temperatura Salida:</label>
                         <div class="input-group mb-3">
                             <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" min="-273.15" max="9999.99" required>
-                            <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
                         </div>
@@ -139,7 +139,7 @@
                         <div class="input-group mb-3">
                             <input value="{% if not intercambiador.fluido_tubo %}{{intercambiador.condicion_tubo.fluido_cp|unlocalize}}{%endif%}" style="width: 70% !important;" step="0.0001" type="number" name="cp_tubo" id="cp_tubo" class="form-control campo">
                             <select style="width: 30% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
-                                <option value="1">J/gK</option>
+                                <option value="1">J/KgK</option>
                             </select>
                         </div>
                     </div>
@@ -156,7 +156,7 @@
                         <label class="form-label" for="caida_tubo">Caída de Presión:</label>
                         <div class="input-group mb-3">
                             <input style="width: 70% !important;" class="form-control campo" type="number" name="caida_tubo" id="caida_tubo" step="0.01" min="-273.15" max="9999.99" required>
-                            <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">bar</option>
                             </select>
                         </div>
@@ -189,11 +189,11 @@
                     <input id="efectividad" disabled type="text" class="form-control">
                 </div>
                 <div class="col-4 d-flex flex-column">
-                    <label class="form-label">U (Kcal/hCm²)</label>
+                    <label class="form-label">U (W/m²K)</label>
                     <input id="u" disabled type="text" class="form-control">
                 </div>
                 <div class="col-4 d-flex flex-column">
-                    <label class="form-label">UA (Kcal/hC):</label>
+                    <label class="form-label">UA (W/K):</label>
                     <input id="UA" disabled type="text" class="form-control">
                 </div>
                 <div class="col-4 d-flex flex-column">
@@ -205,7 +205,7 @@
                     <input id="ensuciamiento" disabled type="text" class="form-control">
                 </div>
                 <div class="col-4 d-flex flex-column">
-                    <label class="form-label">Q:</label>
+                    <label class="form-label">Q (W):</label>
                     <input id="q" disabled type="text" class="form-control">
                 </div>
             </div>
@@ -329,12 +329,15 @@
             document.getElementById('cp_carcasa').setAttribute('disabled', true);
         }
         
+        console.log("AAA");
+
         $.ajax({
             url: '/intercambiadores/calcular_cp/',
             data: {
                 t1,
                 t2,
-                fluido
+                fluido,
+                unidad: $('#unidad_temperaturas').val(),
             },
             success: (res) => {
                 if(res.cp !== '')
@@ -383,6 +386,19 @@
         }
     });
 
+    $('#unidad_temperaturas').change((e) => {
+        console.log("a");
+        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== ''){
+            console.log("b");
+            ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
+        }
+
+        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== ''){
+            console.log("c");
+            ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
+        }
+    });
+
     $('.campo').change((e) => {
         const array = $('.campo').toArray();
 
@@ -401,6 +417,7 @@
                     no_tubos: document.getElementById('no_tubos').value,
                     cp_tubo: document.getElementById('cp_tubo').value,
                     cp_carcasa: document.getElementById('cp_carcasa').value,
+                    unidad: $('#unidad_temperaturas').val()
                 },
                 success: (res) => {        
                     console.log(res);
@@ -439,5 +456,14 @@
             document.getElementById('registrar_resultado').setAttribute('disabled', true)
     });
 
+    $('#unidad_temperaturas').change((e) => {
+        const array = $('select[name="unidad_temperaturas"]').toArray().slice(1);
+        const valor = e.target.value;
+
+        array.map((x) => {
+            const id = `#${x.id}`;
+            x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+        });
+    });
 </script>
 {% endblock %}

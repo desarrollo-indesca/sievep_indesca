@@ -71,7 +71,6 @@ class Planta(models.Model):
 class Unidades(models.Model):
     id = models.AutoField(primary_key=True)
     simbolo = models.CharField(max_length=5)
-    valor = models.DecimalField(max_digits=10, decimal_places=5)
     tipo = models.CharField(max_length=1)
 
     class Meta:
