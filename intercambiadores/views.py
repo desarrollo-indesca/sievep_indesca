@@ -158,6 +158,7 @@ class CrearIntercambiadorTuboCarcasa(View):
         self.context['tipos'] = TiposDeTubo.objects.all()
         self.context['temas'] = Tema.objects.all()
         self.context['fluidos'] = Fluido.objects.all()
+        self.context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
 
         if(self.context.get('error')):
             del(self.context['error'])

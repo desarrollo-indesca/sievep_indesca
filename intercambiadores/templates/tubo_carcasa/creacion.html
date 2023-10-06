@@ -103,7 +103,9 @@
                         <div class="input-group mb-3">
                             <input value="{{previo.temp_in_carcasa}}" style="width: 70% !important;" class="form-control" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" max="9999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas">
-                                <option value="1">°C</option>
+                                {% for unidad in unidades_temperaturas %}
+                                <option value="{{unidad.pk}}">{{unidad.simbolo}}</option>
+                                {% endfor %}
                             </select>
                         </div>
                     </div>
@@ -829,7 +831,7 @@
                 t1,
                 t2,
                 fluido,
-                unidad: $('#temperaturas_unidad').val()
+                unidad: $('#unidad_temperaturas').val()
             },
             success: (res) => {
                 if(res.cp !== '')
@@ -849,6 +851,26 @@
             }
         });
     }
+
+    $('#unidad_temperaturas').change((e) => {
+        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== ''){
+            ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
+        }
+
+        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== ''){
+            ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
+        }
+    });
+
+    $('#unidad_temperaturas').change((e) => {
+        const array = $('select[name="unidad_temperaturas"]').toArray().slice(1);
+        const valor = e.target.value;
+
+        array.map((x) => {
+            const id = `#${x.id}`;
+            x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+        });
+    });
 
 </script>
 {% endblock %}
