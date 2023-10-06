@@ -276,12 +276,12 @@ class EvaluacionesIntercambiador(models.Model):
     # Datos de Salida
     lmtd = models.DecimalField(max_digits=12, decimal_places=5)
     area_transferencia = models.DecimalField(max_digits=12, decimal_places=4)
-    u = models.DecimalField(max_digits=12, decimal_places=5)
-    ua = models.DecimalField(max_digits=12, decimal_places=5) 
+    u = models.DecimalField(max_digits=15, decimal_places=8)
+    ua = models.DecimalField(max_digits=15, decimal_places=5) 
     ntu = models.DecimalField(max_digits=12, decimal_places=5)
     efectividad = models.DecimalField(max_digits=12, decimal_places=5)
     eficiencia = models.DecimalField(max_digits=12, decimal_places=5)
-    ensuciamiento = models.DecimalField(max_digits=12, decimal_places=5)
+    ensuciamiento = models.DecimalField(max_digits=15, decimal_places=5)
     q = models.DecimalField(max_digits=12, decimal_places=5)
     numero_tubos = models.IntegerField()
 

@@ -340,7 +340,7 @@ class ConsultaEvaluacionesTuboCarcasa(ListView):
         return context
     
     def get_queryset(self):
-        new_context = EvaluacionesIntercambiador.objects.filter(intercambiador__pk=PropiedadesTuboCarcasa.objects.get(pk=self.kwargs['pk']).intercambiador.pk)
+        new_context = EvaluacionesIntercambiador.objects.filter(intercambiador=PropiedadesTuboCarcasa.objects.get(pk=self.kwargs['pk']).intercambiador)
         desde = self.request.GET.get('desde', '')
         hasta = self.request.GET.get('hasta', '')
         condiciones = self.request.GET.get('condiciones', '')
@@ -348,7 +348,7 @@ class ConsultaEvaluacionesTuboCarcasa(ListView):
         nombre = self.request.GET.get('nombre', '')
 
         if(desde != ''):
-            new_context = self.model.objects.filter(
+            new_context = new_context.filter(
                 fecha__gte = desde
             )
 
@@ -358,12 +358,12 @@ class ConsultaEvaluacionesTuboCarcasa(ListView):
             )
 
         if(metodo != ''):
-            new_context = self.model.objects.filter(
+            new_context = new_context.filter(
                 metodo = metodo
             )
 
         if(nombre != ''):
-            new_context = self.model.objects.filter(
+            new_context = new_context.filter(
                 nombre__icontains = nombre
             )
 
@@ -394,7 +394,7 @@ class ConsultaTuboCarcasa(ListView):
         context['complejos'] = Complejo.objects.all()
 
         if(self.request.GET.get('complejo')):
-            context['plantas'] = Planta.objects.filter(complejo__pk = self.request.GET.get('complejo'))
+            context['plantas'] = Planta.objects.filter(comple= self.request.GET.get('complejo'))
 
         context['tag'] = self.request.GET.get('tag', '')
         context['servicio'] = self.request.GET.get('servicio', '')
@@ -455,6 +455,7 @@ class SeleccionTipo(View):
 
 class EvaluarTuboCarcasa(View):
     def get(self, request, pk):
+        print(request.GET)
         intercambiador = PropiedadesTuboCarcasa.objects.get(id = pk)
 
         ti = (float(request.GET['temp_in_carcasa']))

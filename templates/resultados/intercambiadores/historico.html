@@ -43,11 +43,11 @@
             hasta: $('#hasta').val()
         },
         success: (res) => {
+            console.log(res);
             res.map((x) => {
                 const fecha = new Date(Date.parse(x.fecha));
                 const fecha_str = `${fecha.getDay()}/${fecha.getMonth()}/${fecha.getFullYear()} ${fecha.getHours()}:${fecha.getMinutes()}`;
-                console.log(fecha.getHours() + ':' + fecha.getMinutes());
-                datosGraficaU[fecha_str] = x.u * 100
+                datosGraficaU[fecha_str] = x.u * 10000
                 datosGraficaEfectividad[fecha_str] = x.efectividad;
                 datosGraficaEnsuciamiento[fecha_str] = x.ensuciamiento;
             });
@@ -60,7 +60,7 @@
                 data: {
                     datasets: [
                         {
-                            label: "U (multiplicado por 100)",
+                            label: "U (multiplicado por 10000)",
                             data: datosGraficaU,
                             backgroundColor: ['#777'],
                             borderColor: ['#777']

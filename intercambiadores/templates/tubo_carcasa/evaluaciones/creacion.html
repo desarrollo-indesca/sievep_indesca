@@ -341,11 +341,15 @@
                     if(lado === 'T'){
                         $('#cp_tubo').val(res.cp);
                         $('#cp_tubo').removeAttr('disabled');
+                        $('#cp_tubo').change();
                     }
                     else{
                         $('#cp_carcasa').val(res.cp);
                         $('#cp_carcasa').removeAttr('disabled');
+                        $('#cp_carcasa').change();
                     }
+
+                    
             }, 
             error: (res) => {
                 console.log(res);
@@ -357,6 +361,7 @@
 
     $('#temp_out_carcasa').change((e) => {
         if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== ''){
+            console.log('a');
             ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
         }
     });
@@ -372,13 +377,16 @@
         }
     });
 
-    $('#fluido_tubo').change((e) => {
-        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '')
+    $('#temp_in_tubo').change((e) => {
+        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== ''){
             ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
+        }
     });
 
     $('.campo').change((e) => {
         const array = $('.campo').toArray();
+
+        console.log(array);
 
         if(array.every((x) => x.value !== '')){
             $.ajax({

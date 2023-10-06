@@ -104,7 +104,7 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
         'eficiencia': round(eficiencia*100,2),
         'efectividad': round(efectividad*100, 2),
         'ntu': round(ntu,4),
-        'u': round(ucalc,5),
+        'u': round(ucalc,8),
         'ua': round(ucalc*area_calculada,4),
         'cp_tubo': round(cp_tubo,4),
         'cp_carcasa': round(cp_carcasa,4),
