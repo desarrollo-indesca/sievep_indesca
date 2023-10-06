@@ -33,114 +33,114 @@
 </div>
 
 <script>
-  canvas = document.getElementById('grafica_historico1').getContext('2d');
-  datosGrafica = undefined;
+    canvas = document.getElementById('grafica_historico1').getContext('2d');
+    let datosGraficaU = {}, datosGraficaEfectividad = {}, datosGraficaEnsuciamiento = {};   
 
-  $('#grafica_historico1').removeAttr('hidden');
+    $.ajax({
+        url: '/intercambiadores/evaluar/tubo_carcasa/grafica/{{intercambiador.pk}}/',
+        data: {
+            desde: $('#desde').val(),
+            hasta: $('#hasta').val()
+        },
+        success: (res) => {
+            res.map((x) => {
+                const fecha = new Date(Date.parse(x.fecha));
+                const fecha_str = `${fecha.getDay()}/${fecha.getMonth()}/${fecha.getFullYear()} ${fecha.getHours()}:${fecha.getMinutes()}`;
+                console.log(fecha.getHours() + ':' + fecha.getMinutes());
+                datosGraficaU[fecha_str] = x.u * 100
+                datosGraficaEfectividad[fecha_str] = x.efectividad;
+                datosGraficaEnsuciamiento[fecha_str] = x.ensuciamiento;
+            });
 
-  chart = new Chart(canvas, {
-          type: 'line',
-          data: {
-              datasets: [
-                  {
-                      label: "U",
-                      data: {
-                        '10/09/2023': 50,
-                        '11/09/2023': 80,
-                        '12/09/2023': 100,
-                        '13/09/2023': 75
-                      },
-                      backgroundColor: ['#777'],
-                      borderColor: ['#777']
-                  },
-              ]
-          },
-          options: {
-              responsive: true,
-              plugins: {
-                  title: {
-                      display: true,
-                      text: 'Histórico de U',
-                      position: 'top'
-                  },
-                  legend: {
-                      display: true
-                  }
-              }        
-          }
-  });
+            let canvas = document.getElementById('grafica_historico1').getContext('2d');
+            $('#grafica_historico1').removeAttr('hidden');
 
-  canvas = document.getElementById('grafica_historico2').getContext('2d');
-  datosGrafica = undefined;
+            chart = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: "U (multiplicado por 100)",
+                            data: datosGraficaU,
+                            backgroundColor: ['#777'],
+                            borderColor: ['#777']
+                        },
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Histórico de U',
+                            position: 'top'
+                        },
+                        legend: {
+                            display: true
+                        }
+                    }        
+                }
+            });
 
-  $('#grafica_historico2').removeAttr('hidden');
+            canvas = document.getElementById('grafica_historico2').getContext('2d');
 
-  chart = new Chart(canvas, {
-          type: 'line',
-          data: {
-              datasets: [
-                  {
-                      label: "Efectividad",
-                      data: {
-                        '10/09/2023': 500,
-                        '11/09/2023': 250,
-                        '12/09/2023': 382,
-                        '13/09/2023': 410
-                      },
-                      backgroundColor: ['#E31E24'],
-                      borderColor: ['#E31E24']
-                  },
-              ]
-          },
-          options: {
-              responsive: true,
-              plugins: {
-                  title: {
-                      display: true,
-                      text: 'Histórico de Efectividad',
-                      position: 'top'
-                  },
-                  legend: {
-                      display: true
-                  }
-              }        
-          }
-  });
+            chart = new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        datasets: [
+                            {
+                                label: "Efectividad",
+                                data: datosGraficaEfectividad,
+                                backgroundColor: ['#E31E24'],
+                                borderColor: ['#E31E24']
+                            },
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Histórico de Efectividad',
+                                position: 'top'
+                            },
+                            legend: {
+                                display: true
+                            }
+                        }        
+                    }
+            });
 
-  canvas = document.getElementById('grafica_historico3').getContext('2d');
-  datosGrafica = undefined;
+            canvas = document.getElementById('grafica_historico3').getContext('2d');
 
-  $('#grafica_historico3').removeAttr('hidden');
+            $('#grafica_historico3').removeAttr('hidden');
 
-  chart = new Chart(canvas, {
-          type: 'line',
-          data: {
-              datasets: [
-                  {
-                      label: "Ensuciamiento",
-                      data: {
-                        '10/09/2023': 50,
-                        '11/09/2023': 60,
-                        '12/09/2023': 80,
-                        '13/09/2023': 100
-                      },
-                      backgroundColor: ['#006400'],
-                      borderColor: ['#006400']
-                  },
-              ]
-          },
-          options: {
-              responsive: true,
-              plugins: {
-                  title: {
-                      display: true,
-                      text: 'Histórico de Ensuciamiento',
-                      position: 'top'
-                  },
-                  legend: {
-                      display: true
-                  }
-              }        
-          }
-  });
+            chart = new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        datasets: [
+                            {
+                                label: "Ensuciamiento",
+                                data: datosGraficaEnsuciamiento,
+                                backgroundColor: ['#006400'],
+                                borderColor: ['#006400']
+                                },
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Histórico de Ensuciamiento',
+                                    position: 'top'
+                                },
+                                legend: {
+                                    display: true
+                                }
+                            }        
+                        }
+                });
+        }
+    });
 </script>

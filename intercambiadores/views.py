@@ -510,3 +510,17 @@ class ConsultaCP(View):
             return JsonResponse({'cp': cp})
         else:
             return JsonResponse({'cp': ''})
+        
+class ConsultaGraficasEvaluacion(View):
+    def get(self, request, pk):
+        evaluaciones = EvaluacionesIntercambiador.objects.filter(intercambiador = PropiedadesTuboCarcasa.objects.get(pk=pk).intercambiador).order_by('fecha')
+        
+        print(evaluaciones)
+
+        if(request.GET.get('desde')):
+            evaluaciones = evaluaciones.filter(fecha__gte = request.GET.get('desde'))
+
+        if(request.GET.get('hasta')):
+            evaluaciones = evaluaciones.filter(fecha__lte = request.GET.get('hasta'))
+        
+        return JsonResponse(list(evaluaciones.values('fecha','efectividad', 'u', 'ensuciamiento')), safe=False)

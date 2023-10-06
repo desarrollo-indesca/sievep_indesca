@@ -95,14 +95,16 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
             else:
                 eficiencia=(pow((1-eficiencia1*c)/(1-eficiencia1),num_pasos_carcasa)-1)/(pow((1-eficiencia1*c)/(1-eficiencia1),num_pasos_carcasa)-c)
 
+    efectividad = eficiencia*ntu
+
     resultados = {
         'q': round(q_prom,4),
         'area': round(area_calculada,4),
         'lmtd': round(dtml,4),
-        'eficiencia': round(eficiencia*100,4),
-        'efectividad': 512,
+        'eficiencia': round(eficiencia*100,2),
+        'efectividad': round(efectividad*100, 2),
         'ntu': round(ntu,4),
-        'u': round(ucalc,4),
+        'u': round(ucalc,5),
         'ua': round(ucalc*area_calculada,4),
         'cp_tubo': round(cp_tubo,4),
         'cp_carcasa': round(cp_carcasa,4),

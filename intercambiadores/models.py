@@ -293,3 +293,4 @@ class EvaluacionesIntercambiador(models.Model):
 
     class Meta:
         db_table = "evaluaciones_intercambiadores"
+        ordering = ('-fecha',)

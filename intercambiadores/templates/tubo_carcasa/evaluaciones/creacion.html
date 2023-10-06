@@ -79,12 +79,11 @@
                         </select>
                     </div>
                     <div class="col-6 d-flex flex-column">
-                        <label class="form-label" for="cp_carcasa">Cp (J/gK):</label>
+                        <label class="form-label" for="cp_carcasa">Cp:</label>
                         <div class="input-group mb-3">
                             <input value="{% if not intercambiador.fluido_carcasa %}{{intercambiador.condicion_carcasa.fluido_cp|unlocalize}}{%endif%}" style="width: 70% !important;" step="0.0001" type="number" name="cp_carcasa" id="cp_carcasa" class="form-control campo">
                             <select style="width: 30% !important;" class="form-select campo" name="unidad_cp" id="unidad_cp">
-                                <option value="1">J/molK</option>
-                                <option value="2">J/gK</option>
+                                <option value="1">J/gK</option>
                             </select>
                         </div>
                     </div>
@@ -136,11 +135,11 @@
                         </select>
                     </div>
                     <div class="col-6 d-flex flex-column">
-                        <label class="form-label" for="cp_tubo">Cp (J/gK):</label>
+                        <label class="form-label" for="cp_tubo">Cp:</label>
                         <div class="input-group mb-3">
                             <input value="{% if not intercambiador.fluido_tubo %}{{intercambiador.condicion_tubo.fluido_cp|unlocalize}}{%endif%}" style="width: 70% !important;" step="0.0001" type="number" name="cp_tubo" id="cp_tubo" class="form-control campo">
                             <select style="width: 30% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
-                                <option value="1">J/molK</option>
+                                <option value="1">J/gK</option>
                             </select>
                         </div>
                     </div>
@@ -186,7 +185,7 @@
                     <input id="ntu" disabled type="text" class="form-control">
                 </div>
                 <div class="col-4 d-flex flex-column">
-                    <label class="form-label">Efectividad:</label>
+                    <label class="form-label">% Efectividad:</label>
                     <input id="efectividad" disabled type="text" class="form-control">
                 </div>
                 <div class="col-4 d-flex flex-column">
@@ -321,6 +320,15 @@
 
 <script>
     function ajaxCP(t1,t2,fluido, lado = 'T'){
+        if(lado === 'T'){
+            $('#cp_tubo').val('');
+            document.getElementById('cp_tubo').setAttribute('disabled', true);
+        }
+        else{
+            $('#cp_carcasa').val('');
+            document.getElementById('cp_carcasa').setAttribute('disabled', true);
+        }
+        
         $.ajax({
             url: '/intercambiadores/calcular_cp/',
             data: {
@@ -330,13 +338,19 @@
             },
             success: (res) => {
                 if(res.cp !== '')
-                    if(lado === 'T')
+                    if(lado === 'T'){
                         $('#cp_tubo').val(res.cp);
-                    else
-                        $('#cp_carcasa').val(res.cp);     
+                        $('#cp_tubo').removeAttr('disabled');
+                    }
+                    else{
+                        $('#cp_carcasa').val(res.cp);
+                        $('#cp_carcasa').removeAttr('disabled');
+                    }
             }, 
             error: (res) => {
                 console.log(res);
+                $('#cp_tubo').removeAttr('disabled');
+                $('#cp_carcasa').removeAttr('disabled');
             }
         });
     }
@@ -388,6 +402,7 @@
                         document.getElementById('ntu').value = '';
                         document.getElementById('u').value = '';
                         document.getElementById('UA').value = '';
+                        document.getElementById('eficiencia').value = ';'
                         document.getElementById('eficiencia').value = '';
                         document.getElementById('ensuciamiento').value = '';
                         document.getElementById('q').value = '';
@@ -399,6 +414,7 @@
                         document.getElementById('ntu').value = res.ntu;
                         document.getElementById('u').value = res.u;
                         document.getElementById('UA').value = res.ua;
+                        document.getElementById('efectividad').value = res.efectividad;
                         document.getElementById('eficiencia').value = res.eficiencia;
                         document.getElementById('ensuciamiento').value = res.factor_ensuciamiento;
                         document.getElementById('q').value = res.q;
