@@ -161,10 +161,10 @@ class ComponerIntercambiadores(View):
 
                 if(Fluido.objects.filter(nombre = row[5].upper()).exists()):
                     row[5] = Fluido.objects.get(nombre = row[5])
-                    cp_carcasa = calcular_cp(row[5].cas, row[6], row[7], 'C')
+                    cp_carcasa = calcular_cp(row[5].cas, row[6], row[7])
                 elif(row[5] == 'Vapor' or 'AGUA' in row[5].upper()):
                     row[5] = Fluido.objects.get(nombre = 'AGUA')
-                    cp_carcasa = calcular_cp(row[5].cas, row[6], row[7], 'C')
+                    cp_carcasa = calcular_cp(row[5].cas, row[6], row[7])
                 else:
                     for fluido in Fluido.objects.all():
                         if(fluido.nombre.upper() in row[5].upper()):
@@ -177,15 +177,15 @@ class ComponerIntercambiadores(View):
                 etiqueta_tubo = None
                 if(Fluido.objects.filter(nombre = row[18].upper()).exists()):
                     row[18] = Fluido.objects.get(nombre = row[18])
-                    cp_tubo = calcular_cp(row[18].cas, row[19], row[20], 'C')
+                    cp_tubo = calcular_cp(row[18].cas, row[19], row[20])
                 elif(row[18] == 'Vapor' or 'AGUA' in row[18].upper()):
                     row[18] = Fluido.objects.get(nombre = 'AGUA')
-                    cp_tubo = calcular_cp(row[18].cas, row[19], row[20], 'C')
+                    cp_tubo = calcular_cp(row[18].cas, row[19], row[20])
                 else:
                     for fluido in Fluido.objects.all():
                         if(fluido.nombre.upper() in row[18].upper()):
                             row[18] = fluido
-                            cp_tubo = calcular_cp(row[18].cas, row[19], row[20], 'C')
+                            cp_tubo = calcular_cp(row[18].cas, row[19], row[20])
                             break
                     else:
                         etiqueta_tubo = row[18].upper()

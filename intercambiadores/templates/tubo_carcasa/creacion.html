@@ -128,7 +128,7 @@
                     </div>
 
                     <div class="mb-2 col-5">
-                        <label class="form-label" for="cp_carcasa">Cp:</label>
+                        <label class="form-label" for="cp_carcasa">Cp (J/KgK):</label>
                         <input class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_carcasa" id="cp_carcasa" disabled>
                     </div>
 
@@ -314,7 +314,7 @@
                     </div>
 
                     <div class="mb-2 col-5">
-                        <label class="form-label" for="cp_tubo">Cp:</label>
+                        <label class="form-label" for="cp_tubo">Cp (J/KgK):</label>
                         <input class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_tubo" id="cp_tubo" disabled>
                     </div>
 
@@ -570,7 +570,7 @@
                     <div class="col-3">
                         <label class="form-label" for="longitud_tubos">Longitud Tubos:</label>
                         <div class="input-group mb-3">
-                            <input value="{{previo.longitud_tubos}}" class="form-control" type="number" name="longitud_tubos" id="longitud_tubos" step="0.0001" required>
+                            <input value="{{previo.longitud_tubos}}" style="width: 70% !important;" class="form-control" type="number" name="longitud_tubos" id="longitud_tubos" step="0.0001" required>
                             <select style="width: 30% !important;" class="form-select" name="longitud_tubos_unidad" id="longitud_tubos_unidad">
                                 <option value="1">m</option>
                             </select>
@@ -814,22 +814,38 @@
     });
 
     function ajaxCP(t1,t2,fluido, lado = 'T'){
+        if(lado === 'T'){
+            $('#cp_tubo').val('');
+            document.getElementById('cp_tubo').setAttribute('disabled', true);
+        }
+        else{
+            $('#cp_carcasa').val('');
+            document.getElementById('cp_carcasa').setAttribute('disabled', true);
+        }
+        
         $.ajax({
             url: '/intercambiadores/calcular_cp/',
             data: {
                 t1,
                 t2,
-                fluido
+                fluido,
+                unidad: $('#temperaturas_unidad').val()
             },
             success: (res) => {
                 if(res.cp !== '')
-                    if(lado === 'T')
+                    if(lado === 'T'){
                         $('#cp_tubo').val(res.cp);
-                    else
-                        $('#cp_carcasa').val(res.cp);     
+                        $('#cp_tubo').removeAttr('disabled');
+                    }
+                    else{
+                        $('#cp_carcasa').val(res.cp);
+                        $('#cp_carcasa').removeAttr('disabled');
+                    }
             }, 
             error: (res) => {
                 console.log(res);
+                $('#cp_tubo').removeAttr('disabled');
+                $('#cp_carcasa').removeAttr('disabled');
             }
         });
     }

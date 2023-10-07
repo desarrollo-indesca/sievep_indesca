@@ -2,7 +2,6 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from .models import *
-from decimal import Decimal
 from django.views.generic.list import ListView
 from django.db import transaction
 import os
@@ -10,6 +9,10 @@ from thermo.chemical import search_chemical
 from calculos.termodinamicos import calcular_cp
 from calculos.evaluaciones import evaluacion_tubo_carcasa
 from reportes.pdfs import generar_pdf
+from pint import UnitRegistry
+
+ur = UnitRegistry()
+Q_ = ur.Quantity
 
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
 
@@ -37,13 +40,8 @@ class CrearIntercambiadorTuboCarcasa(View):
                 arreglo_flujo = request.POST['flujo']
             )
 
-            print(request.POST)
-
             fluido_tubo = request.POST['fluido_tubo']
             fluido_carcasa = request.POST['fluido_carcasa']
-
-            print(fluido_carcasa)
-            print(fluido_tubo)
 
             if(fluido_tubo.find('*') != -1):
                 fluido_tubo = fluido_tubo.split('*')
@@ -174,9 +172,73 @@ class CrearEvaluacionTuboCarcasa(View):
         'titulo': "Evaluación Tubo Carcasa"
     }
 
+    def post(self, request, pk):
+        intercambiador = PropiedadesTuboCarcasa.objects.get(pk=pk)
+
+        with transaction.atomic():
+            ti = float(request.POST['temp_in_carcasa'].replace(',','.'))
+            tf = float(request.POST['temp_out_carcasa'].replace(',','.'))
+            Ti = float(request.POST['temp_in_tubo'].replace(',','.'))
+            Tf = float(request.POST['temp_out_tubo'].replace(',','.'))
+            ft = float(request.POST['flujo_tubo'].replace(',','.'))
+            fc = float(request.POST['flujo_carcasa'].replace(',','.'))
+            nt = float(request.POST['no_tubos'].replace(',','.'))
+            cp_tubo = float(request.POST['cp_tubo'].replace(',','.'))
+            cp_carcasa = float(request.POST['cp_carcasa'].replace(',','.'))
+            unidad = int(request.POST['unidad_temperaturas'])
+
+            resultados = evaluacion_tubo_carcasa(intercambiador, ti, tf, Ti, Tf, ft, fc, nt, cp_tubo, cp_carcasa, unidad)
+
+            print(resultados)
+
+            EvaluacionesIntercambiador.objects.create(
+                creado_por = request.user,
+                intercambiador = intercambiador.intercambiador,
+                condiciones = intercambiador.condicion_tubo(),
+                metodo = request.POST['metodo'],
+                nombre = request.POST['nombre'],
+
+                # DATOS TEMPERATURAS
+                temp_ex_entrada = request.POST['temp_in_carcasa'],
+                temp_ex_salida = request.POST['temp_out_carcasa'],
+                temp_in_entrada = request.POST['temp_in_tubo'],
+                temp_in_salida = request.POST['temp_out_tubo'],
+                temperaturas_unidad = Unidades.objects.get(pk=unidad),
+
+                # DATOS FLUJOS
+                flujo_masico_ex = request.POST['flujo_carcasa'],
+                flujo_masico_in = request.POST['flujo_tubo'],
+                unidad_flujo = Unidades.objects.get(pk=request.POST['unidad_flujo']),
+
+                # DATOS PRESIONES
+                caida_presion_in = request.POST['caida_tubo'],
+                caida_presion_ex = request.POST['caida_carcasa'],
+                unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presion']),
+
+                # DATOS DE SALIDA
+                lmtd = resultados['lmtd'],
+                area_transferencia = resultados['area'],
+                u = resultados['u'],
+                ua = resultados['ua'],
+                ntu = resultados['ntu'],
+                efectividad = resultados['efectividad'],
+                eficiencia = resultados['eficiencia'],
+                ensuciamiento = resultados['factor_ensuciamiento'],
+                q = resultados['q'],
+                numero_tubos = request.POST['no_tubos'],
+
+                # CP
+                cp_tubo = resultados['cp_tubo'],
+                cp_carcasa = resultados['cp_carcasa']
+            )
+
+        request.session['mensaje'] = "Guardado exitosamente."
+        return redirect(f'/intercambiadores/tubo_carcasa/{intercambiador.pk}/')        
+
     def get(self, request, pk):
         context = self.context
         context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
+        context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
 
         return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
 
@@ -280,7 +342,7 @@ class ConsultaEvaluacionesTuboCarcasa(ListView):
         return context
     
     def get_queryset(self):
-        new_context = EvaluacionesIntercambiador.objects.filter(intercambiador__pk=PropiedadesTuboCarcasa.objects.get(pk=self.kwargs['pk']).intercambiador.pk)
+        new_context = EvaluacionesIntercambiador.objects.filter(intercambiador=PropiedadesTuboCarcasa.objects.get(pk=self.kwargs['pk']).intercambiador)
         desde = self.request.GET.get('desde', '')
         hasta = self.request.GET.get('hasta', '')
         condiciones = self.request.GET.get('condiciones', '')
@@ -288,7 +350,7 @@ class ConsultaEvaluacionesTuboCarcasa(ListView):
         nombre = self.request.GET.get('nombre', '')
 
         if(desde != ''):
-            new_context = self.model.objects.filter(
+            new_context = new_context.filter(
                 fecha__gte = desde
             )
 
@@ -298,12 +360,12 @@ class ConsultaEvaluacionesTuboCarcasa(ListView):
             )
 
         if(metodo != ''):
-            new_context = self.model.objects.filter(
+            new_context = new_context.filter(
                 metodo = metodo
             )
 
         if(nombre != ''):
-            new_context = self.model.objects.filter(
+            new_context = new_context.filter(
                 nombre__icontains = nombre
             )
 
@@ -334,7 +396,7 @@ class ConsultaTuboCarcasa(ListView):
         context['complejos'] = Complejo.objects.all()
 
         if(self.request.GET.get('complejo')):
-            context['plantas'] = Planta.objects.filter(complejo__pk = self.request.GET.get('complejo'))
+            context['plantas'] = Planta.objects.filter(comple= self.request.GET.get('complejo'))
 
         context['tag'] = self.request.GET.get('tag', '')
         context['servicio'] = self.request.GET.get('servicio', '')
@@ -395,6 +457,7 @@ class SeleccionTipo(View):
 
 class EvaluarTuboCarcasa(View):
     def get(self, request, pk):
+        print(request.GET)
         intercambiador = PropiedadesTuboCarcasa.objects.get(id = pk)
 
         ti = (float(request.GET['temp_in_carcasa']))
@@ -404,12 +467,11 @@ class EvaluarTuboCarcasa(View):
         ft = (float(request.GET['flujo_tubo']))
         fc = (float(request.GET['flujo_carcasa']))
         nt = (float(request.GET['no_tubos']))
+        cp_tubo = float(request.GET['cp_tubo'])
+        cp_carcasa = float(request.GET['cp_carcasa'])
+        unidad = int(request.GET['unidad'])
 
-        print(request.GET)
-
-        res = evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, fc, nt)
-
-        print(res)
+        res = evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, fc, nt, cp_tubo, cp_carcasa, unidad)
 
         return JsonResponse(res)
 
@@ -435,19 +497,46 @@ class ConsultaCAS(View):
 
 class ConsultaCP(View):
     def get(self, request):
+        print(request.GET)
         fluido = request.GET['fluido']
-        t1,t2 = request.GET['t1'], request.GET['t2']
+        t1,t2 = float(request.GET['t1']), float(request.GET['t2'])
+        unidad = int(request.GET['unidad'])
 
-        if(fluido.find('*') != -1):
-            cas = fluido.split('*')[1]
+        if(unidad == 1):
+            t1 = Q_(t1, ur.degC).to('kelvin').magnitude
+            t2 = Q_(t2, ur.degC).to('kelvin').magnitude
+        elif(unidad == 8):
+            t1 = Q_(t1, ur.degR).to('kelvin').magnitude
+            t2 = Q_(t2, ur.degR).to('kelvin').magnitude
+        elif(unidad == 9):
+            t1 = Q_(t1, ur.degF).to('kelvin').magnitude
+            t2 = Q_(t2, ur.degF).to('kelvin').magnitude
 
-            if(cas.find('-') == -1):
-                return JsonResponse({'cp': ''})
-        else:
-            cas = Fluido.objects.get(pk = fluido).cas
+        if(fluido != ''):
+            if(fluido.find('*') != -1):
+                cas = fluido.split('*')[1]
+
+                if(cas.find('-') == -1):
+                    return JsonResponse({'cp': ''})
+            else:
+                cas = Fluido.objects.get(pk = fluido).cas
         
-        cp = calcular_cp(cas, t1, t2, 'C')
+            cp = calcular_cp(cas, t1, t2)
 
-        print(cp)
+            return JsonResponse({'cp': cp})
+        else:
+            return JsonResponse({'cp': ''})
+        
+class ConsultaGraficasEvaluacion(View):
+    def get(self, request, pk):
+        evaluaciones = EvaluacionesIntercambiador.objects.filter(intercambiador = PropiedadesTuboCarcasa.objects.get(pk=pk).intercambiador).order_by('fecha')
+        
+        print(evaluaciones)
 
-        return JsonResponse({'cp': cp})
+        if(request.GET.get('desde')):
+            evaluaciones = evaluaciones.filter(fecha__gte = request.GET.get('desde'))
+
+        if(request.GET.get('hasta')):
+            evaluaciones = evaluaciones.filter(fecha__lte = request.GET.get('hasta'))
+        
+        return JsonResponse(list(evaluaciones.values('fecha','efectividad', 'u', 'ensuciamiento')), safe=False)

@@ -10,6 +10,7 @@
         </div>
 
         {{esp}}
+        {% with diseno=intercambiador.calcular_diseno %}
         <div class="modal-body text-start small">
             <div class="row">
                 <div class="col-lg-6 col-xs-12">
@@ -20,8 +21,8 @@
                           </tr>
                           <tr>
                             <th class="table-dark" colspan="2"></th>
-                            <th class="table-dark small"colspan="2">Tubo Externo</th>
-                            <th class="table-dark small"colspan="2">Tubo Interno</th>
+                            <th class="table-dark small"colspan="2">Carcasa</th>
+                            <th class="table-dark small"colspan="2">Tubo</th>
                           </tr>
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="2">Fluido</th>
@@ -32,12 +33,12 @@
                           </tr>
                           <tr>
                             <td>{{intercambiador.fluido_carcasa}}</td>
-                            <td>Desconocido</td>
+                            <td>{{evaluacion.cp_carcasa}}</td>
                             <td>{{intercambiador.fluido_tubo}}</td>
-                            <td>Desconocido</td>
+                            <td>{{evaluacion.cp_tubo}}</td>
                           </tr>
                           <tr>
-                            <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="4">Temperatura (°C)</th>
+                            <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="4">Temperatura ({{evaluacion.temperaturas_unidad.simbolo}})</th>
                             <th class="table-dark small">IN</th>
                             <th class="table-dark small">OUT</th>
                             <th class="table-dark small">IN</th>
@@ -53,8 +54,8 @@
                             <th colspan="4" class="table-dark small">Promedios</th>
                           </tr>
                           <tr style="vertical-align: middle;">
-                            <td colspan="2">-</td>
-                            <td colspan="2">-</td>
+                            <td colspan="2">{{evaluacion.promedio_carcasa}}</td>
+                            <td colspan="2">{{evaluacion.promedio_tubo}}</td>
                           </tr>
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="2">Flujo Másico (Kg/h)</th>
@@ -89,13 +90,13 @@
                       <tr>
                         <th class="table-dark" style="vertical-align: middle;">NTU</th>
                         <td>{{evaluacion.ntu}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">Efectividad</th>
+                        <th class="table-dark" style="vertical-align: middle;">% Efectividad</th>
                         <td>{{evaluacion.efectividad}}</td>
                       </tr>
                       <tr>
-                        <th class="table-dark" style="vertical-align: middle;">U (Kcal/hCm²)</th>
+                        <th class="table-dark" style="vertical-align: middle;">U (W/m²K)</th>
                         <td>{{evaluacion.u}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">UA (Kcal/hC)</th>
+                        <th class="table-dark" style="vertical-align: middle;">UA (W/K)</th>
                         <td>{{evaluacion.ua}}</td>
                       </tr>
                       <tr>
@@ -115,27 +116,27 @@
                       </tr>
                       <tr>
                         <th class="table-dark" style="vertical-align: middle;">LMTD</th>
-                        <td>16,49</td>
+                        <td>{{diseno.lmtd}}</td>
                         <th class="table-dark" style="vertical-align: middle;">Área Transf. (m²)</th>
-                        <td>43,92</td>
+                        <td>{{intercambiador.area}}</td>
                       </tr>
                       <tr>
                         <th class="table-dark" style="vertical-align: middle;">NTU</th>
-                        <td>-2,38</td>
-                        <th class="table-dark" style="vertical-align: middle;">Efectividad</th>
-                        <td>-19,631</td>
+                        <td>{{diseno.ntu}}</td>
+                        <th class="table-dark" style="vertical-align: middle;">% Efectividad</th>
+                        <td>{{diseno.efectividad}}</td>
                       </tr>
                       <tr>
-                        <th class="table-dark" style="vertical-align: middle;">U (Kcal/hCm²)</th>
-                        <td>-0,42</td>
-                        <th class="table-dark" style="vertical-align: middle;">UA (Kcal/hC)</th>
-                        <td>-18,46</td>
+                        <th class="table-dark" style="vertical-align: middle;">U (W/m²K)</th>
+                        <td>{{diseno.u}}</td>
+                        <th class="table-dark" style="vertical-align: middle;">UA (W/K)</th>
+                        <td>{{diseno.ua}}</td>
                       </tr>
                       <tr>
                         <th class="table-dark" style="vertical-align: middle;">% Eficiencia</th>
-                        <td>-0,42</td>
+                        <td>{{diseno.eficiencia}}</td>
                         <th class="table-dark" style="vertical-align: middle;">Ensuciamiento</th>
-                        <td>-5552,64</td>
+                        <td>{{diseno.factor_ensuciamiento}}</td>
                       </tr>
                     </tbody>
                   </table>                    
@@ -143,6 +144,7 @@
                 
             </div>
         </div>
+        {% endwith %}
 
         <div class="modal-footer">
           <button class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</button>
