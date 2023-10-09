@@ -1,27 +1,9 @@
 from .termodinamicos import calcular_cp
 import numpy as np
-from pint import UnitRegistry
-
-ur = UnitRegistry()
-Q_ = ur.Quantity
+from .unidades import normalizar_unidades_temperatura
 
 def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo = None, cp_carcasa = None, unidad = 1):
-    
-    if(unidad == 1):
-        ti = Q_(ti, ur.degC).to(ur.kelvin).magnitude
-        ts = Q_(ts, ur.degC).to(ur.kelvin).magnitude
-        Ti = Q_(Ti, ur.degC).to(ur.kelvin).magnitude
-        Ts = Q_(Ts, ur.degC).to(ur.kelvin).magnitude
-    elif(unidad == 8):
-        ti = Q_(ti, ur.degR).to(ur.kelvin).magnitude
-        ts = Q_(ts, ur.degR).to(ur.kelvin).magnitude
-        Ti = Q_(Ti, ur.degR).to(ur.kelvin).magnitude
-        Ts = Q_(Ts, ur.degR).to(ur.kelvin).magnitude
-    elif(unidad == 9):
-        ti = Q_(ti, ur.degF).to(ur.kelvin).magnitude
-        ts = Q_(ts, ur.degF).to(ur.kelvin).magnitude
-        Ti = Q_(Ti, ur.degF).to(ur.kelvin).magnitude
-        Ts = Q_(Ts, ur.degF).to(ur.kelvin).magnitude
+    ti,ts,Ti,Ts = normalizar_unidades_temperatura([ti,ts,Ti,Ts], unidad=unidad)
 
     # J/KgK
     if cp_tubo == None:

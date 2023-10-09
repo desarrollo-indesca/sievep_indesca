@@ -11,6 +11,7 @@ from calculos.termodinamicos import calcular_cp
 from calculos.evaluaciones import evaluacion_tubo_carcasa
 from reportes.pdfs import generar_pdf
 from pint import UnitRegistry
+from calculos.unidades import normalizar_unidades_temperatura
 
 # UNIDADES
 ur = UnitRegistry()
@@ -49,7 +50,7 @@ class CrearIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
                 fluido_tubo = fluido_tubo.split('*')
                 if(fluido_tubo[1].find('-') != -1):
                     quimico = search_chemical(fluido_tubo[1], cache=True)
-                    fluido_tubo = Fluido.objects.create(nombre = fluido_tubo[0].upper(), cas = fluido_tubo[1], peso_molecular = quimico.MW, estado = 'L')
+                    fluido_tubo = Fluido.objects.create(nombre = fluido_tubo[0].upper(), cas = fluido_tubo[1], peso_molecular = quimico.MW)
             else:
                 fluido_tubo = Fluido.objects.get(pk=fluido_tubo)
 
@@ -57,12 +58,9 @@ class CrearIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
                 fluido_carcasa = fluido_carcasa.split('*')
                 if(fluido_carcasa[1].find('-') != -1):
                     quimico = search_chemical(fluido_carcasa[1], cache=True)
-                    fluido_carcasa = Fluido.objects.create(nombre = fluido_carcasa[0].upper(), cas = fluido_carcasa[1], peso_molecular = quimico.MW, estado = 'L')
+                    fluido_carcasa = Fluido.objects.create(nombre = fluido_carcasa[0].upper(), cas = fluido_carcasa[1], peso_molecular = quimico.MW)
             else:
                 fluido_carcasa = Fluido.objects.get(pk=fluido_carcasa)
-
-            print(fluido_carcasa)
-            print(fluido_tubo)
 
             propiedades = PropiedadesTuboCarcasa.objects.create(
                 intercambiador = intercambiador,
@@ -262,7 +260,7 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
                 fluido_tubo = fluido_tubo.split('*')
                 if(fluido_tubo[1].find('-') != -1):
                     quimico = search_chemical(fluido_tubo[1], cache=True)
-                    fluido_tubo = Fluido.objects.create(nombre = fluido_tubo[0].upper(), cas = fluido_tubo[1], peso_molecular = quimico.MW, estado = 'L')
+                    fluido_tubo = Fluido.objects.create(nombre = fluido_tubo[0].upper(), cas = fluido_tubo[1], peso_molecular = quimico.MW)
             else:
                 fluido_tubo = Fluido.objects.get(pk=fluido_tubo)
 
@@ -270,7 +268,7 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
                 fluido_carcasa = fluido_carcasa.split('*')
                 if(fluido_carcasa[1].find('-') != -1):
                     quimico = search_chemical(fluido_carcasa[1], cache=True)
-                    fluido_carcasa = Fluido.objects.create(nombre = fluido_carcasa[0].upper(), cas = fluido_carcasa[1], peso_molecular = quimico.MW, estado = 'L')
+                    fluido_carcasa = Fluido.objects.create(nombre = fluido_carcasa[0].upper(), cas = fluido_carcasa[1], peso_molecular = quimico.MW)
             else:
                 fluido_carcasa = Fluido.objects.get(pk=fluido_carcasa)
 
@@ -311,6 +309,7 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
             condiciones_tubo.caida_presion_min = request.POST['caida_presion_min_tubo']
             condiciones_tubo.fouling = request.POST['fouling_tubo']
             condiciones_tubo.fluido_cp = request.POST['cp_tubo']
+            condiciones_tubo.etiqueta_cp = fluido_tubo[0] if type(fluido_tubo) != Fluido else None
             condiciones_tubo.save()
 
             condiciones_carcasa = propiedades.condicion_carcasa()
@@ -326,6 +325,7 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
             condiciones_carcasa.caida_presion_min = request.POST['caida_presion_min_carcasa']
             condiciones_carcasa.fouling = request.POST['fouling_carcasa']
             condiciones_tubo.fluido_cp = request.POST['cp_carcasa']
+            condiciones_tubo.etiqueta_cp = fluido_carcasa[0] if type(fluido_carcasa) != Fluido else None
             condiciones_carcasa.save()
 
             intercambiador = Intercambiador.objects.get(pk=propiedades.intercambiador.pk)
@@ -528,15 +528,10 @@ class ConsultaCP(View, LoginRequiredMixin):
         t1,t2 = float(request.GET['t1']), float(request.GET['t2'])
         unidad = int(request.GET['unidad'])
 
-        if(unidad == 1):
-            t1 = Q_(t1, ur.degC).to('kelvin').magnitude
-            t2 = Q_(t2, ur.degC).to('kelvin').magnitude
-        elif(unidad == 8):
-            t1 = Q_(t1, ur.degR).to('kelvin').magnitude
-            t2 = Q_(t2, ur.degR).to('kelvin').magnitude
-        elif(unidad == 9):
-            t1 = Q_(t1, ur.degF).to('kelvin').magnitude
-            t2 = Q_(t2, ur.degF).to('kelvin').magnitude
+        print(unidad)
+        t1,t2 = normalizar_unidades_temperatura([t1,t2], unidad=unidad)
+        print(t1)
+        print(t2)
 
         if(fluido != ''):
             if(fluido.find('*') != -1):
@@ -557,8 +552,6 @@ class ConsultaGraficasEvaluacion(View, LoginRequiredMixin):
     def get(self, request, pk):
         evaluaciones = EvaluacionesIntercambiador.objects.filter(intercambiador = PropiedadesTuboCarcasa.objects.get(pk=pk).intercambiador).order_by('fecha')
         
-        print(evaluaciones)
-
         if(request.GET.get('desde')):
             evaluaciones = evaluaciones.filter(fecha__gte = request.GET.get('desde'))
 
