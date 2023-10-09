@@ -12,6 +12,7 @@ from calculos.evaluaciones import evaluacion_tubo_carcasa
 from reportes.pdfs import generar_pdf
 from pint import UnitRegistry
 
+# UNIDADES
 ur = UnitRegistry()
 Q_ = ur.Quantity
 
@@ -195,8 +196,6 @@ class CrearEvaluacionTuboCarcasa(View, LoginRequiredMixin):
 
             resultados = evaluacion_tubo_carcasa(intercambiador, ti, tf, Ti, Tf, ft, fc, nt, cp_tubo, cp_carcasa, unidad)
 
-            print(resultados)
-
             EvaluacionesIntercambiador.objects.create(
                 creado_por = request.user,
                 intercambiador = intercambiador.intercambiador,
@@ -256,6 +255,25 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
     def post(self, request, pk):
         print(request.POST)
         with transaction.atomic():
+            fluido_tubo = request.POST['fluido_tubo']
+            fluido_carcasa = request.POST['fluido_carcasa']
+
+            if(fluido_tubo.find('*') != -1):
+                fluido_tubo = fluido_tubo.split('*')
+                if(fluido_tubo[1].find('-') != -1):
+                    quimico = search_chemical(fluido_tubo[1], cache=True)
+                    fluido_tubo = Fluido.objects.create(nombre = fluido_tubo[0].upper(), cas = fluido_tubo[1], peso_molecular = quimico.MW, estado = 'L')
+            else:
+                fluido_tubo = Fluido.objects.get(pk=fluido_tubo)
+
+            if(fluido_carcasa.find('*') != -1):
+                fluido_carcasa = fluido_carcasa.split('*')
+                if(fluido_carcasa[1].find('-') != -1):
+                    quimico = search_chemical(fluido_carcasa[1], cache=True)
+                    fluido_carcasa = Fluido.objects.create(nombre = fluido_carcasa[0].upper(), cas = fluido_carcasa[1], peso_molecular = quimico.MW, estado = 'L')
+            else:
+                fluido_carcasa = Fluido.objects.get(pk=fluido_carcasa)
+
             propiedades = PropiedadesTuboCarcasa.objects.get(pk=pk)
             propiedades.area = request.POST['area']
             propiedades.numero_tubos = request.POST['no_tubos']
@@ -276,8 +294,8 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
             propiedades.numero_pasos_carcasa = request.POST['numero_pasos_carcasa']
             propiedades.numero_pasos_tubo = request.POST['numero_pasos_tubo']
             propiedades.numero_pasos_carcasa = request.POST['numero_pasos_carcasa']
-            propiedades.fluido_tubo = Fluido.objects.get(pk=request.POST['fluido_tubo'])
-            propiedades.fluido_carcasa = Fluido.objects.get(pk=request.POST['fluido_carcasa'])
+            propiedades.fluido_tubo =  Fluido.objects.get(pk=request.POST['fluido_tubo']) if type(fluido_tubo) == str else fluido_tubo if type(fluido_tubo) == Fluido else None
+            propiedades.fluido_carcasa = Fluido.objects.get(pk=request.POST['fluido_carcasa']) if type(fluido_carcasa) == str else fluido_carcasa if type(fluido_carcasa) == Fluido else None
             propiedades.save()
 
             condiciones_tubo = propiedades.condicion_tubo()
@@ -292,6 +310,7 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
             condiciones_tubo.caida_presion_max = request.POST['caida_presion_max_tubo']
             condiciones_tubo.caida_presion_min = request.POST['caida_presion_min_tubo']
             condiciones_tubo.fouling = request.POST['fouling_tubo']
+            condiciones_tubo.fluido_cp = request.POST['cp_tubo']
             condiciones_tubo.save()
 
             condiciones_carcasa = propiedades.condicion_carcasa()
@@ -306,6 +325,7 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
             condiciones_carcasa.caida_presion_max = request.POST['caida_presion_max_carcasa']
             condiciones_carcasa.caida_presion_min = request.POST['caida_presion_min_carcasa']
             condiciones_carcasa.fouling = request.POST['fouling_carcasa']
+            condiciones_tubo.fluido_cp = request.POST['cp_carcasa']
             condiciones_carcasa.save()
 
             intercambiador = Intercambiador.objects.get(pk=propiedades.intercambiador.pk)
