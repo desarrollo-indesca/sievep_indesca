@@ -147,7 +147,7 @@
                         <label class="form-label" for="flujo_tubo">Flujo Másico (Kg/h):</label>
                         <div class="input-group mb-3">
                             <input style="width: 70% !important;" class="form-control campo" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" min="-273.15" max="9999.99" required>
-                            <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" id="unidad_flujo" disabled>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_flujo" id="unidad_flujo" disabled>
                                 <option value="1">Kg/h</option>
                             </select>
                         </div>
@@ -156,7 +156,7 @@
                         <label class="form-label" for="caida_tubo">Caída de Presión:</label>
                         <div class="input-group mb-3">
                             <input style="width: 70% !important;" class="form-control campo" type="number" name="caida_tubo" id="caida_tubo" step="0.01" min="-273.15" max="9999.99" required>
-                            <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" disabled>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_presion" disabled>
                                 <option value="1">bar</option>
                             </select>
                         </div>
@@ -227,7 +227,7 @@
     let canvas = document.getElementById('grafica_1').getContext('2d');
     let datosGrafica = undefined;
 
-    $('input.temperatura').change((e) => {
+    $('input.temperatura').change(async (e) => {
         canvas = document.getElementById('grafica_1').getContext('2d');
         
         if(chart)
@@ -281,7 +281,61 @@
             }
         });
     
-        console.log(chart.data);
+        const delay = ms => new Promise(res => setTimeout(res, ms));
+        await delay(700);
+
+        const in_carcasa = Number($('#temp_in_carcasa').val());
+        const out_carcasa = Number($('#temp_out_carcasa').val());
+        const in_tubo = Number($('#temp_in_tubo').val());
+        const out_tubo = Number($('#temp_out_tubo').val());
+
+        if(in_carcasa){
+            if(in_tubo && in_carcasa === in_tubo){
+                alert("Las temperaturas de entrada del tubo y la carcasa no pueden ser iguales.");
+                document.getElementById('registrar_resultado').setAttribute('disabled', true);
+                return;
+            }
+
+            if(out_carcasa && in_carcasa === out_carcasa){
+                alert("Las temperaturas de entrada y salida de la carcasa no pueden ser iguales.");
+                document.getElementById('registrar_resultado').setAttribute('disabled', true);
+                return;
+            }
+        }
+
+        if(out_carcasa){
+            if(out_tubo && out_tubo === out_carcasa){
+                alert("Las temperaturas de salida del tubo y la carcasa no pueden ser iguales.");
+                document.getElementById('registrar_resultado').setAttribute('disabled', true);
+                return;
+            }
+        }
+
+        if(in_tubo){
+            if(out_tubo && out_tubo === in_tubo){
+                alert("Las temperaturas de entrada y salida del tubo no pueden ser iguales.");
+                document.getElementById('registrar_resultado').setAttribute('disabled', true);
+                return;
+            }
+        }
+
+        if(out_carcasa && out_tubo && in_carcasa && in_tubo){
+            if(in_tubo > out_tubo){
+                if(in_carcasa < in_tubo && out_carcasa >= out_tubo){
+                    alert("Las líneas de la gráfica no se deben cruzar.");
+                    document.getElementById('registrar_resultado').setAttribute('disabled', true);
+                    return;
+                }
+            } else if(in_tubo < out_tubo){
+                if(in_carcasa > in_tubo && out_carcasa <= out_tubo){
+                    alert("Las líneas de la gráfica no se deben cruzar.");
+                    document.getElementById('registrar_resultado').setAttribute('disabled', true);
+                    return;
+                }
+            }
+        }
+
+        document.getElementById('registrar_resultado').removeAttribute('disabled');
     });
 
     chart = new Chart(canvas, {
@@ -328,8 +382,6 @@
             $('#cp_carcasa').val('');
             document.getElementById('cp_carcasa').setAttribute('disabled', true);
         }
-        
-        console.log("AAA");
 
         $.ajax({
             url: '/intercambiadores/calcular_cp/',
@@ -465,5 +517,6 @@
             x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
         });
     });
+
 </script>
 {% endblock %}

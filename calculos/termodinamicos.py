@@ -8,7 +8,7 @@ def calcular_cp(fluido, t1, t2):
     quimico = HeatCapacityGas(fluido)
 
     mw = Chemical(fluido).MW # PESO MOLECULAR
-    
+   
     try:
         cp = quimico.calculate(t,'JOBACK') / mw
     except:

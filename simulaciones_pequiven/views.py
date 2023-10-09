@@ -160,34 +160,38 @@ class ComponerIntercambiadores(View):
                 etiqueta_carcasa = None
 
                 if(Fluido.objects.filter(nombre = row[5].upper()).exists()):
-                    row[5] = Fluido.objects.get(nombre = row[5])
-                    cp_carcasa = calcular_cp(row[5].cas, row[6], row[7])
+                    row[5] = Fluido.objects.get(nombre = row[5].upper())
+                    cp_carcasa = calcular_cp(row[5].cas, row[6]+273.15, row[7]+273.15)
                 elif(row[5] == 'Vapor' or 'AGUA' in row[5].upper()):
                     row[5] = Fluido.objects.get(nombre = 'AGUA')
-                    cp_carcasa = calcular_cp(row[5].cas, row[6], row[7])
+                    cp_carcasa = calcular_cp(row[5].cas, row[6]+273.15, row[7]+273.15)
                 else:
+                    bandera = False
                     for fluido in Fluido.objects.all():
                         if(fluido.nombre.upper() in row[5].upper()):
                             row[5] = fluido
+                            bandera = True
                             break
-                    else:
+                    if not bandera:
                         etiqueta_carcasa = row[5].upper()
                         cp_carcasa = random.uniform(-500, 500)
 
                 etiqueta_tubo = None
                 if(Fluido.objects.filter(nombre = row[18].upper()).exists()):
-                    row[18] = Fluido.objects.get(nombre = row[18])
-                    cp_tubo = calcular_cp(row[18].cas, row[19], row[20])
+                    row[18] = Fluido.objects.get(nombre = row[18].upper())
+                    cp_tubo = calcular_cp(row[18].cas, row[19]+273.15, row[20]+273.15)
                 elif(row[18] == 'Vapor' or 'AGUA' in row[18].upper()):
                     row[18] = Fluido.objects.get(nombre = 'AGUA')
-                    cp_tubo = calcular_cp(row[18].cas, row[19], row[20])
+                    cp_tubo = calcular_cp(row[18].cas, row[19]+273.15, row[20]+273.15)
                 else:
+                    bandera = False
                     for fluido in Fluido.objects.all():
                         if(fluido.nombre.upper() in row[18].upper()):
                             row[18] = fluido
-                            cp_tubo = calcular_cp(row[18].cas, row[19], row[20])
+                            cp_tubo = calcular_cp(row[18].cas, row[19]+273.15, row[20]+273.15)
+                            bandera = True
                             break
-                    else:
+                    if not bandera:
                         etiqueta_tubo = row[18].upper()
                         cp_tubo = random.uniform(-500, 500)
 
@@ -209,8 +213,8 @@ class ComponerIntercambiadores(View):
                             area_unidad = Unidades.objects.get(pk=3),
                             longitud_tubos = row[-16],
                             longitud_tubos_unidad = Unidades.objects.get(pk=4),
-                            diametro_externo_tubos = row[-15],
-                            diametro_interno_tubos = row[-14],
+                            diametro_externo_tubos = float(row[-15])/1000,
+                            diametro_interno_tubos = float(row[-14])/1000,
                             diametro_tubos_unidad = Unidades.objects.get(pk=5),
                             fluido_carcasa = row[5] if type(row[5]) == Fluido else None,
                             material_carcasa = row[-13],
