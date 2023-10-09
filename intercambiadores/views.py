@@ -545,4 +545,6 @@ class ConsultaGraficasEvaluacion(View, LoginRequiredMixin):
         if(request.GET.get('hasta')):
             evaluaciones = evaluaciones.filter(fecha__lte = request.GET.get('hasta'))
         
-        return JsonResponse(list(evaluaciones.values('fecha','efectividad', 'u', 'ensuciamiento')), safe=False)
+        print(evaluaciones)
+
+        return JsonResponse(list(evaluaciones.values('fecha','efectividad', 'u', 'ensuciamiento','eficiencia'))[:15], safe=False)

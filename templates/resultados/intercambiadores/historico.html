@@ -16,11 +16,12 @@
                 <div class="col-lg-6 col-md-12">
                   <canvas width="100%" id="grafica_historico2"></canvas>
                 </div>
-                <div class="col-3"></div>
                 <div class="col-lg-6 col-md-12">
                   <canvas width="100%" id="grafica_historico3"></canvas>
                 </div>
-                <div class="col-3"></div>
+                <div class="col-6">
+                    <canvas width="100%" id="grafica_historico4"></canvas>
+                </div>
             </div>
         </div>
 
@@ -34,7 +35,7 @@
 
 <script>
     canvas = document.getElementById('grafica_historico1').getContext('2d');
-    let datosGraficaU = {}, datosGraficaEfectividad = {}, datosGraficaEnsuciamiento = {};   
+    let datosGraficaU = {}, datosGraficaEfectividad = {}, datosGraficaEnsuciamiento = {}, datosGraficaEficiencia = {};   
 
     $.ajax({
         url: '/intercambiadores/evaluar/tubo_carcasa/grafica/{{intercambiador.pk}}/',
@@ -43,14 +44,16 @@
             hasta: $('#hasta').val()
         },
         success: (res) => {
-            console.log(res);
-            res.map((x) => {
-                const fecha = new Date(Date.parse(x.fecha));
-                const fecha_str = `${fecha.getDay()}/${fecha.getMonth()}/${fecha.getFullYear()} ${fecha.getHours()}:${fecha.getMinutes()}`;
-                datosGraficaU[fecha_str] = x.u * 10000
-                datosGraficaEfectividad[fecha_str] = x.efectividad;
-                datosGraficaEnsuciamiento[fecha_str] = x.ensuciamiento;
-            });
+            for (let i = 0; i < res.length; i++) {
+                const element = res[i];
+                const fecha = new Date(Date.parse(element.fecha));
+                const fecha_str = `${fecha.getDay()}/${fecha.getMonth()}/${fecha.getFullYear()} ${fecha.getHours()}:${fecha.getMinutes()}:${fecha.getSeconds()}`;
+                datosGraficaU[fecha_str] = element.u * 10000;
+                datosGraficaEfectividad[fecha_str] = element.efectividad;
+                datosGraficaEnsuciamiento[fecha_str] = element.ensuciamiento;
+                datosGraficaEficiencia[fecha_str] = element.eficiencia;
+                console.log(datosGraficaU);
+            }
 
             let canvas = document.getElementById('grafica_historico1').getContext('2d');
             $('#grafica_historico1').removeAttr('hidden');
@@ -141,6 +144,36 @@
                             }        
                         }
                 });
+            
+            canvas = document.getElementById('grafica_historico4').getContext('2d');
+            $('#grafica_historico4').removeAttr('hidden');
+
+            chart = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: "% Eficiencia",
+                            data: datosGraficaEficiencia,
+                            backgroundColor: ['#00F'],
+                            borderColor: ['#00F']
+                            },
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Histórico de Eficiencia',
+                                position: 'top'
+                            },
+                            legend: {
+                                display: true
+                            }
+                        }        
+                    }
+            });         
         }
     });
 </script>

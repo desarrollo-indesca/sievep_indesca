@@ -11,7 +11,7 @@
 
         {{esp}}
         {% with diseno=intercambiador.calcular_diseno %}
-        <div class="modal-body text-start small">
+        <div class="modal-body text-start small pb-0">
             <div class="row">
                 <div class="col-lg-6 col-xs-12">
                     <table class="table table-light text-center table-bordered small">
@@ -79,7 +79,7 @@
                   <table class="table table-light text-center table-bordered">
                     <tbody id="body">
                       <tr>
-                        <th class="table-danger" colspan="4">Resultados de la Evaluación</th>
+                        <th class="table-info" colspan="4">Resultados de la Evaluación</th>
                       </tr>
                       <tr>
                         <th class="table-dark" style="vertical-align: middle;">LMTD</th>
@@ -104,6 +104,18 @@
                         <td>{{evaluacion.eficiencia}}</td>
                         <th class="table-dark" style="vertical-align: middle;">Ensuciamiento</th>
                         <td>{{evaluacion.ensuciamiento}}</td>
+                      </tr>
+                      <tr>
+                        <th class="table-dark" style="vertical-align: middle;">Q (W)</th>
+                        <td>{{evaluacion.q}}</td>
+                        <th class="table-dark" style="vertical-align: middle;">Tubos</th>
+                        <td>{{evaluacion.numero_tubos}}</td>
+                      </tr>
+                      <tr>
+                        <th class="table-dark" style="vertical-align: middle;">Caída Presión Tubo</th>
+                        <td>{{evaluacion.caida_presion_in}}</td>
+                        <th class="table-dark" style="vertical-align: middle;">Caída Presión Carcasa</th>
+                        <td>{{evaluacion.caida_presion_ex}}</td>
                       </tr>
                     </tbody>
                   </table>                    
@@ -138,10 +150,24 @@
                         <th class="table-dark" style="vertical-align: middle;">Ensuciamiento</th>
                         <td>{{diseno.factor_ensuciamiento}}</td>
                       </tr>
+                      <tr>
+                        <th class="table-dark" style="vertical-align: middle;">Q (W)</th>
+                        <td>{{diseno.q}}</td>
+                        <th class="table-dark" style="vertical-align: middle;">Caída Presión Máx.</th>
+                        <td>{{intercambiador.condicion_tubo.caida_presion_max}}</td>
+                      </tr>
+                      <tr>
+                        <th class="table-dark" style="vertical-align: middle;">Cp Tubo</th>
+                        <td>{{intercambiador.condicion_tubo.fluido_cp}}</td>
+                        <th class="table-dark" style="vertical-align: middle;">Cp Carcasa</th>
+                        <td>{{intercambiador.condicion_carcasa.fluido_cp}}</td>
+                      </tr>
                     </tbody>
                   </table>                    
                 </div>
-                
+                <div class="w-100 text-end">
+                  <b>Evaluación Realizada el {{evaluacion.fecha}} por el usuario '{{evaluacion.creado_por.get_full_name}}'.</b>
+                </div>
             </div>
         </div>
         {% endwith %}
@@ -180,7 +206,7 @@
           data: {
               datasets: [
                   {
-                      label: "Tubo Externo",
+                      label: "Carcasa",
                       data: {
                         Inicial: Number('{{evaluacion.temp_ex_entrada|unlocalize}}'),
                         Final: Number('{{evaluacion.temp_ex_salida|unlocalize}}')
@@ -189,7 +215,7 @@
                       borderColor: ['#E31E24']
                   },
                   {
-                      label: "Tubo Interno",
+                      label: "Tubo",
                       data: {
                         Inicial: Number('{{evaluacion.temp_in_entrada|unlocalize}}'),
                         Final: Number('{{evaluacion.temp_in_salida|unlocalize}}')

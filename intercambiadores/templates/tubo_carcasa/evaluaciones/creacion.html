@@ -227,7 +227,7 @@
     let canvas = document.getElementById('grafica_1').getContext('2d');
     let datosGrafica = undefined;
 
-    $('input.temperatura').change((e) => {
+    $('input.temperatura').change(async (e) => {
         canvas = document.getElementById('grafica_1').getContext('2d');
         
         if(chart)
@@ -281,6 +281,9 @@
             }
         });
     
+        const delay = ms => new Promise(res => setTimeout(res, ms));
+        await delay(700);
+
         const in_carcasa = Number($('#temp_in_carcasa').val());
         const out_carcasa = Number($('#temp_out_carcasa').val());
         const in_tubo = Number($('#temp_in_tubo').val());
