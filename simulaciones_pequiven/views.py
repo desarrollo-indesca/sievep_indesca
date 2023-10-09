@@ -160,7 +160,7 @@ class ComponerIntercambiadores(View):
                 etiqueta_carcasa = None
 
                 if(Fluido.objects.filter(nombre = row[5].upper()).exists()):
-                    row[5] = Fluido.objects.get(nombre = row[5])
+                    row[5] = Fluido.objects.get(nombre = row[5].upper())
                     cp_carcasa = calcular_cp(row[5].cas, row[6], row[7])
                 elif(row[5] == 'Vapor' or 'AGUA' in row[5].upper()):
                     row[5] = Fluido.objects.get(nombre = 'AGUA')
@@ -176,7 +176,7 @@ class ComponerIntercambiadores(View):
 
                 etiqueta_tubo = None
                 if(Fluido.objects.filter(nombre = row[18].upper()).exists()):
-                    row[18] = Fluido.objects.get(nombre = row[18])
+                    row[18] = Fluido.objects.get(nombre = row[18].upper())
                     cp_tubo = calcular_cp(row[18].cas, row[19], row[20])
                 elif(row[18] == 'Vapor' or 'AGUA' in row[18].upper()):
                     row[18] = Fluido.objects.get(nombre = 'AGUA')

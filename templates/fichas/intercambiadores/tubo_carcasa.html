@@ -1,4 +1,5 @@
 {% load static %}
+{% load mathfilters %}
 <style>
   .tabla_ficha {
     width: 100% ;
@@ -163,7 +164,7 @@
                       <th class="table-dark" colspan="4">Parámetros Adicionales</th>
                     </tr>
                     <tr>
-                      <th class="table-dark">Calor (MW)</th>
+                      <th class="table-dark">Calor (W)</th>
                       <td>{{intercambiador.q}}</td>
                       <th class="table-dark">U</th>
                       <td>{{intercambiador.u}}</td>
