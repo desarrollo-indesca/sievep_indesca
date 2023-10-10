@@ -55,7 +55,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="temp_in_carcasa">Temperatura Entrada:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 30% !important;" class="form-select campo" name="unidad_temperaturas" id="unidad_temperaturas">
                                 {% for unidad in unidades_temperaturas %}
                                 <option value="{{unidad.pk}}">{{unidad.simbolo}}</option>
@@ -66,7 +66,7 @@
                     <div class="col-6">
                         <label class="form-label" for="temp_out_carcasa">Temperatura Salida:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -88,18 +88,20 @@
                         </div>
                     </div>
                     <div class="col-6">
-                        <label class="form-label" for="flujo_carcasa">Flujo Másico (Kg/h):</label>
+                        <label class="form-label" for="flujo_carcasa">Flujo Másico:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control campo" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control campo" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 30% !important;" class="form-select campo" name="unidad_flujo" id="unidad_flujo">
-                                <option value="1">Kg/h</option>
+                                {% for unidad in unidades_flujo %}
+                                <option value="{{unidad.pk}}">{{unidad.simbolo}}</option>
+                                {% endfor %}
                             </select>
                         </div>
                     </div>
                     <div class="col-6">
                         <label class="form-label" for="caida_carcasa">Caída de Presión:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control campo" type="number" name="caida_carcasa" id="caida_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control campo" type="number" name="caida_carcasa" id="caida_carcasa" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 30% !important;" class="form-select campo" name="unidad_presion" id="unidad_presion">
                                 <option value="1">bar</option>
                             </select>
@@ -113,7 +115,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="temp_in_tubo">Temperatura Entrada:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" min="-273.15" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -122,7 +124,7 @@
                     <div class="col-6">
                         <label class="form-label" for="temp_out_tubo">Temperatura Salida:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" min="-273.15" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -144,10 +146,10 @@
                         </div>
                     </div>
                     <div class="col-6">
-                        <label class="form-label" for="flujo_tubo">Flujo Másico (Kg/h):</label>
+                        <label class="form-label" for="flujo_tubo">Flujo Másico:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control campo" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" min="-273.15" max="9999.99" required>
-                            <select style="width: 30% !important;" class="form-select" name="unidad_flujo" id="unidad_flujo" disabled>
+                            <input style="width: 70% !important;" class="form-control campo" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" min="-273.15" max="99999.99" required>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_flujo" disabled>
                                 <option value="1">Kg/h</option>
                             </select>
                         </div>
@@ -155,7 +157,7 @@
                     <div class="col-6">
                         <label class="form-label" for="caida_tubo">Caída de Presión:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control campo" type="number" name="caida_tubo" id="caida_tubo" step="0.01" min="-273.15" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control campo" type="number" name="caida_tubo" id="caida_tubo" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_presion" disabled>
                                 <option value="1">bar</option>
                             </select>
@@ -389,7 +391,7 @@
                 t1,
                 t2,
                 fluido,
-                unidad: $('#unidad_temperaturas').val(),
+                unidad: $('#unidad_temperaturas').val()
             },
             success: (res) => {
                 if(res.cp !== '')
@@ -415,25 +417,25 @@
     }
 
     $('#temp_out_carcasa').change((e) => {
-        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== ''){
+        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
             console.log('a');
             ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
         }
     });
 
     $('#temp_in_carcasa').change((e) => {
-        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '')
+        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== '')
             ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
     });
 
     $('#temp_out_tubo').change((e) => {
-        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== ''){
+        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
             ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
         }
     });
 
     $('#temp_in_tubo').change((e) => {
-        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== ''){
+        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
             ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
         }
     });
@@ -469,7 +471,8 @@
                     no_tubos: document.getElementById('no_tubos').value,
                     cp_tubo: document.getElementById('cp_tubo').value,
                     cp_carcasa: document.getElementById('cp_carcasa').value,
-                    unidad: $('#unidad_temperaturas').val()
+                    unidad: $('#unidad_temperaturas').val(),
+                    unidad_flujo: $('#unidad_flujo').val()
                 },
                 success: (res) => {        
                     console.log(res);
@@ -514,6 +517,14 @@
 
         array.map((x) => {
             const id = `#${x.id}`;
+            x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+        });
+    });
+
+    $('#unidad_flujo').change((e) => {
+        const array = $('select[name="unidad_flujo"]').toArray().slice(1);
+
+        array.map((x) => {
             x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
         });
     });

@@ -227,10 +227,40 @@ $('#unidad_temperaturas').change((e) => {
 
 $('#unidad_temperaturas').change((e) => {
     const array = $('select[name="unidad_temperaturas"]').toArray().slice(1);
-    const valor = e.target.value;
 
     array.map((x) => {
-        const id = `#${x.id}`;
+        x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+    });
+});
+
+$('#unidad_presiones').change((e) => {
+    const array = $('select[name="unidad_presiones"]').toArray().slice(1);
+
+    array.map((x) => {
+        x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+    });
+});
+
+$('#unidad_flujos').change((e) => {
+    const array = $('select[name="unidad_flujos"]').toArray().slice(1);
+
+    array.map((x) => {
+        x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+    });
+});
+
+$('#unidad_fouling').change((e) => {
+    const array = $('select[name="unidad_fouling"]').toArray().slice(1);
+
+    array.map((x) => {
+        x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+    });
+});
+
+$('#unidades_pitch').change((e) => {
+    const array = $('select[name="unidad_diametros"]').toArray().slice(1);
+
+    array.map((x) => {
         x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
     });
 });

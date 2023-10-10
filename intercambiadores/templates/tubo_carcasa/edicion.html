@@ -121,6 +121,9 @@
                             {% for fluido in fluidos %}
                             <option value="{{fluido.pk}}" {% if intercambiador.fluido_carcasa == fluido %}selected{% endif %}>{{fluido}}</option>
                             {% endfor %}
+                            {% if condicion_tubo.fluido_etiqueta and condicion_tubo.fluido_etiqueta != '' %}
+                            <option value="" selected>{{condicion_tubo.fluido_etiqueta}}</option>
+                            {%endif%}
                         </select>
                     </div>
 
@@ -309,6 +312,9 @@
                             {% for fluido in fluidos %}
                             <option value="{{fluido.pk}}" {% if intercambiador.fluido_tubo == fluido %}selected{% endif %}>{{fluido}}</option>
                             {% endfor %}
+                            {% if condicion_tubo.fluido_etiqueta and condicion_tubo.fluido_etiqueta != '' %}
+                            <option value="" selected>{{condicion_tubo.fluido_etiqueta}}</option>
+                            {%endif%}
                         </select>
                     </div>
 
