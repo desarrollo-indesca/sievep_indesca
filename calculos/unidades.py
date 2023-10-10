@@ -22,5 +22,3 @@ def normalizar_unidades_flujo(args, unidad):
     print(actualizadas)
 
     return actualizadas
-
-print(normalizar_unidades_flujo([2.5, 2], 10))

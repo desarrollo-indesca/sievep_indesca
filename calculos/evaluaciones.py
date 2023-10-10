@@ -1,9 +1,9 @@
 from .termodinamicos import calcular_cp
 import numpy as np
-from .unidades import normalizar_unidades_temperatura
+from .unidades import normalizar_unidades_temperatura, normalizar_unidades_flujo
 
-def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo = None, cp_carcasa = None, unidad = 1):
-    ti,ts,Ti,Ts = normalizar_unidades_temperatura([ti,ts,Ti,Ts], unidad=unidad)
+def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo = None, cp_carcasa = None, unidad_temp = 1, unidad_flujo = 6):
+    ti,ts,Ti,Ts = normalizar_unidades_temperatura([ti,ts,Ti,Ts], unidad=unidad_temp)
 
     # J/KgK
     if cp_tubo == None:
@@ -16,15 +16,18 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
     else:
         cp_carcasa = cp_carcasa
 
+    if(unidad_flujo == 6):
+        ft,Fc = normalizar_unidades_flujo([ft,Fc], unidad_flujo)
+
     q_tubo = cp_tubo*ft*abs(ti-ts) # W
     q_carcasa = cp_carcasa*Fc*abs(Ti-Ts) # W
     nt = nt if nt else float(intercambiador.numero_tubos)
 
     diametro_tubo = float(intercambiador.diametro_interno_tubos)
     longitud_tubo = float(intercambiador.longitud_tubos)
+    print(diametro_tubo, longitud_tubo)
 
     area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
-
     dtml = abs(((Ti - ti) - (Ts - ts))/np.log(abs((Ti - ti)/(Ts - ts)))) #K
 
     P = abs((ts - ti)/(Ti - ti))
@@ -33,14 +36,14 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
     num_pasos_carcasa = float(intercambiador.numero_pasos_carcasa)
     num_pasos_tubo = float(intercambiador.numero_pasos_tubo)
 
-    if(num_pasos_tubo > 1):
+    if(num_pasos_carcasa > 1):
         a = 1.8008
         b = -0.3711
         c = -1.2487
         d = 0.0487
         e = 0.2458
         factor = a+b*R+c*P+d*pow(R,2)+e*pow(P,2)
-    elif(num_pasos_carcasa >= 2):
+    elif(num_pasos_tubo >= 2):
         a = 2.3221
         b = -1.3983
         c = -8.9291
@@ -56,8 +59,10 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
     else:
         factor = 1
 
+    print(factor)
+    factor = 0.868
     q_prom = np.mean([q_tubo,q_carcasa]) # W
-    ucalc = q_prom/(area_calculada*dtml*factor) # W/K
+    ucalc = q_prom/(area_calculada*dtml*factor) # Wm2/K
     RF=1/ucalc-1/float(intercambiador.u) # 
     
     ct = ft*cp_tubo

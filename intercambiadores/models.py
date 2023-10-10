@@ -145,7 +145,7 @@ class PropiedadesTuboCarcasa(models.Model):
 
     numero_tubos = models.IntegerField(null=True)
 
-    longitud_tubos = models.IntegerField(null=True)
+    longitud_tubos = models.DecimalField(decimal_places=2, max_digits=8, null=True)
     longitud_tubos_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="longitud_tubos_tubocarcasa")
 
     diametro_externo_tubos = models.DecimalField(max_digits=8, decimal_places=4, null=True)
