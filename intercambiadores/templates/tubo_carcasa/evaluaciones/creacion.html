@@ -376,11 +376,11 @@
 
 <script>
     function ajaxCP(t1,t2,fluido, lado = 'T'){
-        if(lado === 'T'){
+        if(lado === 'T' && $('#fluido_tubo').val()){
             $('#cp_tubo').val('');
             document.getElementById('cp_tubo').setAttribute('disabled', true);
         }
-        else{
+        else if(lado === 'C' && $('#fluido_carcasa').val()){
             $('#cp_carcasa').val('');
             document.getElementById('cp_carcasa').setAttribute('disabled', true);
         }
@@ -441,14 +441,11 @@
     });
 
     $('#unidad_temperaturas').change((e) => {
-        console.log("a");
         if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== ''){
-            console.log("b");
             ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
         }
 
         if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== ''){
-            console.log("c");
             ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
         }
     });
