@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import logout, login, get_user_model
 from django.http import HttpResponse
 from intercambiadores.models import Fluido, Unidades, TiposDeTubo, Tema, Intercambiador, PropiedadesTuboCarcasa, CondicionesTuboCarcasa
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django import template
 from django.utils.http import urlencode
@@ -49,7 +50,7 @@ class Bienvenida(View):
             self.context['errores'] = 'Datos Incorrectos.'
             return redirect('/')
         
-class CerrarSesion(View):
+class CerrarSesion(View, LoginRequiredMixin):
     def get(self, request):
         logout(request)
         return redirect('/')

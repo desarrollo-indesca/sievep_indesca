@@ -145,11 +145,11 @@ class PropiedadesTuboCarcasa(models.Model):
 
     numero_tubos = models.IntegerField(null=True)
 
-    longitud_tubos = models.IntegerField(null=True)
+    longitud_tubos = models.DecimalField(decimal_places=2, max_digits=8, null=True)
     longitud_tubos_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="longitud_tubos_tubocarcasa")
 
-    diametro_externo_tubos = models.DecimalField(max_digits=6, decimal_places=2, null=True)
-    diametro_interno_tubos = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    diametro_externo_tubos = models.DecimalField(max_digits=8, decimal_places=4, null=True)
+    diametro_interno_tubos = models.DecimalField(max_digits=8, decimal_places=4, null=True)
     diametro_tubos_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="diametros_unidad_tubocarcasa")
 
     # Datos Carcasa
@@ -165,7 +165,7 @@ class PropiedadesTuboCarcasa(models.Model):
     conexiones_entrada_tubos = models.CharField(null=True, max_length=50)
     conexiones_salida_tubos = models.CharField(null=True, max_length=50)
 
-    pitch_tubos = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    pitch_tubos = models.DecimalField(max_digits=8, decimal_places=4, null=True)
     unidades_pitch = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="pitch_unidad_tubocarcasa")
 
     # Generales
@@ -194,7 +194,9 @@ class PropiedadesTuboCarcasa(models.Model):
         print(ts)
         print(ti)
 
-        return evaluacion_tubo_carcasa(self, ti, ts, Ti, Ts, ft, fc, self.numero_tubos)
+        return evaluacion_tubo_carcasa(self, ti, ts, Ti, Ts, ft, fc, 
+            self.numero_tubos, float(self.condicion_carcasa().fluido_cp), 
+            float(self.condicion_tubo().fluido_cp))
 
     def condicion_tubo(self):
         return self.condiciones.get(lado='T')
@@ -255,10 +257,10 @@ class EvaluacionesIntercambiador(models.Model):
     nombre = models.CharField(max_length=50)
 
     # Datos de Entrada
-    temp_ex_entrada = models.DecimalField(max_digits=7, decimal_places=2)
-    temp_ex_salida = models.DecimalField(max_digits=7, decimal_places=2)
-    temp_in_entrada = models.DecimalField(max_digits=7, decimal_places=2)
-    temp_in_salida = models.DecimalField(max_digits=7, decimal_places=2)
+    temp_ex_entrada = models.DecimalField(max_digits=12, decimal_places=5)
+    temp_ex_salida = models.DecimalField(max_digits=12, decimal_places=5)
+    temp_in_entrada = models.DecimalField(max_digits=12, decimal_places=5)
+    temp_in_salida = models.DecimalField(max_digits=12, decimal_places=5)
     temperaturas_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="temperatura_unidad_evaluacionintercambiador")
 
     flujo_masico_ex = models.DecimalField(max_digits=12, decimal_places=5) 

@@ -55,7 +55,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="temp_in_carcasa">Temperatura Entrada:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 30% !important;" class="form-select campo" name="unidad_temperaturas" id="unidad_temperaturas">
                                 {% for unidad in unidades_temperaturas %}
                                 <option value="{{unidad.pk}}">{{unidad.simbolo}}</option>
@@ -66,7 +66,7 @@
                     <div class="col-6">
                         <label class="form-label" for="temp_out_carcasa">Temperatura Salida:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -88,18 +88,20 @@
                         </div>
                     </div>
                     <div class="col-6">
-                        <label class="form-label" for="flujo_carcasa">Flujo Másico (Kg/h):</label>
+                        <label class="form-label" for="flujo_carcasa">Flujo Másico:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control campo" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control campo" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 30% !important;" class="form-select campo" name="unidad_flujo" id="unidad_flujo">
-                                <option value="1">Kg/h</option>
+                                {% for unidad in unidades_flujo %}
+                                <option value="{{unidad.pk}}">{{unidad.simbolo}}</option>
+                                {% endfor %}
                             </select>
                         </div>
                     </div>
                     <div class="col-6">
                         <label class="form-label" for="caida_carcasa">Caída de Presión:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control campo" type="number" name="caida_carcasa" id="caida_carcasa" step="0.01" min="-273.15" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control campo" type="number" name="caida_carcasa" id="caida_carcasa" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 30% !important;" class="form-select campo" name="unidad_presion" id="unidad_presion">
                                 <option value="1">bar</option>
                             </select>
@@ -113,7 +115,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="temp_in_tubo">Temperatura Entrada:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" min="-273.15" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -122,7 +124,7 @@
                     <div class="col-6">
                         <label class="form-label" for="temp_out_tubo">Temperatura Salida:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" min="-273.15" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -144,10 +146,10 @@
                         </div>
                     </div>
                     <div class="col-6">
-                        <label class="form-label" for="flujo_tubo">Flujo Másico (Kg/h):</label>
+                        <label class="form-label" for="flujo_tubo">Flujo Másico:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control campo" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" min="-273.15" max="9999.99" required>
-                            <select style="width: 30% !important;" class="form-select" name="unidad_flujo" id="unidad_flujo" disabled>
+                            <input style="width: 70% !important;" class="form-control campo" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" min="-273.15" max="99999.99" required>
+                            <select style="width: 30% !important;" class="form-select" name="unidad_flujo" disabled>
                                 <option value="1">Kg/h</option>
                             </select>
                         </div>
@@ -155,7 +157,7 @@
                     <div class="col-6">
                         <label class="form-label" for="caida_tubo">Caída de Presión:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control campo" type="number" name="caida_tubo" id="caida_tubo" step="0.01" min="-273.15" max="9999.99" required>
+                            <input style="width: 70% !important;" class="form-control campo" type="number" name="caida_tubo" id="caida_tubo" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_presion" disabled>
                                 <option value="1">bar</option>
                             </select>
@@ -223,6 +225,7 @@
 
 {% block extra_javascript %}
 <script>
+    const valido = true;
     let chart = null;
     let canvas = document.getElementById('grafica_1').getContext('2d');
     let datosGrafica = undefined;
@@ -282,8 +285,7 @@
         });
     
         const delay = ms => new Promise(res => setTimeout(res, ms));
-        await delay(700);
-
+        
         const in_carcasa = Number($('#temp_in_carcasa').val());
         const out_carcasa = Number($('#temp_out_carcasa').val());
         const in_tubo = Number($('#temp_in_tubo').val());
@@ -335,7 +337,8 @@
             }
         }
 
-        document.getElementById('registrar_resultado').removeAttribute('disabled');
+        if(valido)
+            document.getElementById('registrar_resultado').removeAttribute('disabled');
     });
 
     chart = new Chart(canvas, {
@@ -374,11 +377,11 @@
 
 <script>
     function ajaxCP(t1,t2,fluido, lado = 'T'){
-        if(lado === 'T'){
+        if(lado === 'T' && $('#fluido_tubo').val()){
             $('#cp_tubo').val('');
             document.getElementById('cp_tubo').setAttribute('disabled', true);
         }
-        else{
+        else if(lado === 'C' && $('#fluido_carcasa').val()){
             $('#cp_carcasa').val('');
             document.getElementById('cp_carcasa').setAttribute('disabled', true);
         }
@@ -389,7 +392,7 @@
                 t1,
                 t2,
                 fluido,
-                unidad: $('#unidad_temperaturas').val(),
+                unidad: $('#unidad_temperaturas').val()
             },
             success: (res) => {
                 if(res.cp !== '')
@@ -415,38 +418,35 @@
     }
 
     $('#temp_out_carcasa').change((e) => {
-        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== ''){
+        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
             console.log('a');
             ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
         }
     });
 
     $('#temp_in_carcasa').change((e) => {
-        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '')
+        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== '')
             ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
     });
 
     $('#temp_out_tubo').change((e) => {
-        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== ''){
+        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
             ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
         }
     });
 
     $('#temp_in_tubo').change((e) => {
-        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== ''){
+        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
             ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
         }
     });
 
     $('#unidad_temperaturas').change((e) => {
-        console.log("a");
         if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== ''){
-            console.log("b");
             ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
         }
 
         if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== ''){
-            console.log("c");
             ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
         }
     });
@@ -469,22 +469,13 @@
                     no_tubos: document.getElementById('no_tubos').value,
                     cp_tubo: document.getElementById('cp_tubo').value,
                     cp_carcasa: document.getElementById('cp_carcasa').value,
-                    unidad: $('#unidad_temperaturas').val()
+                    unidad: $('#unidad_temperaturas').val(),
+                    unidad_flujo: $('#unidad_flujo').val()
                 },
                 success: (res) => {        
                     console.log(res);
-                    if(res.lmtd === NaN){                        
-                        document.getElementById('lmtd').value = '';
-                        document.getElementById('area').value = '';
-                        document.getElementById('ntu').value = '';
-                        document.getElementById('u').value = '';
-                        document.getElementById('UA').value = '';
-                        document.getElementById('eficiencia').value = ';'
-                        document.getElementById('eficiencia').value = '';
-                        document.getElementById('ensuciamiento').value = '';
-                        document.getElementById('q').value = '';
-                        document.getElementById('registrar_resultado').setAttribute('disabled', true);
-                    } 
+                    if(res.lmtd === NaN)                      
+                        vaciarCampos() 
                     else{
                         document.getElementById('lmtd').value = res.lmtd;
                         document.getElementById('area').value = res.area;
@@ -500,7 +491,10 @@
                 }, 
                 error: (res) => {
                     console.log(res);
+                    alert("Los datos son inválidos para los cálculos de evaluación. Verifique.");
                     document.getElementById('registrar_resultado').setAttribute('disabled', true);
+                    valido = false;
+                    vaciarCampos();
                 }
             });
         }
@@ -517,6 +511,27 @@
             x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
         });
     });
+
+    $('#unidad_flujo').change((e) => {
+        const array = $('select[name="unidad_flujo"]').toArray().slice(1);
+
+        array.map((x) => {
+            x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+        });
+    });
+
+    const vaciarCampos = () => {
+        document.getElementById('lmtd').value = '';
+        document.getElementById('area').value = '';
+        document.getElementById('ntu').value = '';
+        document.getElementById('u').value = '';
+        document.getElementById('UA').value = '';
+        document.getElementById('eficiencia').value = ';'
+        document.getElementById('eficiencia').value = '';
+        document.getElementById('ensuciamiento').value = '';
+        document.getElementById('q').value = '';
+        document.getElementById('registrar_resultado').setAttribute('disabled', true);
+    }
 
 </script>
 {% endblock %}

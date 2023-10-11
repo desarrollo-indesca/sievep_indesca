@@ -25,6 +25,7 @@ class CrearIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
     }
 
     def post(self, request): # Envío de Formulario de Creación
+        print(request.POST)
         if(Intercambiador.objects.filter(tag = request.POST['tag']).exists()):
             copia_context = self.context
             copia_context['previo'] = request.POST
@@ -64,13 +65,13 @@ class CrearIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
 
             propiedades = PropiedadesTuboCarcasa.objects.create(
                 intercambiador = intercambiador,
-                area = request.POST['area'],
+                area = float(request.POST['area']),
                 area_unidad = Unidades.objects.get(pk=request.POST['unidad_area']),
-                numero_tubos = request.POST['no_tubos'],
-                longitud_tubos = request.POST['longitud_tubos'],
+                numero_tubos = float(request.POST['longitud_tubos']),
+                longitud_tubos = float(request.POST['longitud_tubos']),
                 longitud_tubos_unidad = Unidades.objects.get(pk=request.POST['longitud_tubos_unidad']),
-                diametro_externo_tubos = request.POST['od_tubos'],
-                diametro_interno_tubos = request.POST['id_carcasa'],
+                diametro_externo_tubos = float(request.POST['od_tubos']),
+                diametro_interno_tubos = float(request.POST['id_carcasa']),
                 diametro_tubos_unidad = Unidades.objects.get(pk=request.POST['unidad_diametros']),
 
                 fluido_carcasa = Fluido.objects.get(pk=request.POST['fluido_carcasa']) if type(fluido_carcasa) == str else fluido_carcasa if type(fluido_carcasa) == Fluido else None,
@@ -84,7 +85,7 @@ class CrearIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
                 conexiones_salida_tubos = request.POST['conexiones_salida_tubo'],
                 tipo_tubo = TiposDeTubo.objects.get(pk=request.POST['tipo_tubo']),
 
-                pitch_tubos = request.POST['pitch'],
+                pitch_tubos = float(request.POST['pitch']),
                 unidades_pitch = Unidades.objects.get(pk=request.POST['unidades_pitch']),
 
                 criticidad = request.POST['criticidad'],
@@ -93,9 +94,9 @@ class CrearIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
                 arreglo_paralelo = request.POST['arreglo_paralelo'],
                 numero_pasos_tubo = request.POST['numero_pasos_tubo'],
                 numero_pasos_carcasa = request.POST['numero_pasos_carcasa'],
-                q =  request.POST['calor'],
-                u =  request.POST['u'],
-                ensuciamiento =  request.POST['ensuciamiento']
+                q =  float(request.POST['calor']),
+                u =  float(request.POST['u']),
+                ensuciamiento = float(request.POST['ensuciamiento'])
             )
 
             condiciones_diseno_tubo = CondicionesTuboCarcasa.objects.create(
@@ -181,18 +182,22 @@ class CrearEvaluacionTuboCarcasa(View, LoginRequiredMixin):
         intercambiador = PropiedadesTuboCarcasa.objects.get(pk=pk)
 
         with transaction.atomic():
-            ti = float(request.POST['temp_in_carcasa'].replace(',','.'))
-            tf = float(request.POST['temp_out_carcasa'].replace(',','.'))
-            Ti = float(request.POST['temp_in_tubo'].replace(',','.'))
-            Tf = float(request.POST['temp_out_tubo'].replace(',','.'))
-            ft = float(request.POST['flujo_tubo'].replace(',','.'))
-            fc = float(request.POST['flujo_carcasa'].replace(',','.'))
-            nt = float(request.POST['no_tubos'].replace(',','.'))
-            cp_tubo = float(request.POST['cp_tubo'].replace(',','.'))
-            cp_carcasa = float(request.POST['cp_carcasa'].replace(',','.'))
+            print(request.POST)
+            ti = (float(request.POST['temp_in_carcasa']))
+            ts = (float(request.POST['temp_out_carcasa']))
+            Ti = (float(request.POST['temp_in_tubo']))
+            Ts = (float(request.POST['temp_out_tubo']))
+            ft = (float(request.POST['flujo_tubo']))
+            fc = (float(request.POST['flujo_carcasa']))
+            nt = (float(request.POST['no_tubos']))
+            cp_tubo = float(request.POST['cp_tubo'])
+            cp_carcasa = float(request.POST['cp_carcasa'])
             unidad = int(request.POST['unidad_temperaturas'])
+            unidad_flujo = int(request.POST['unidad_flujo'])
 
-            resultados = evaluacion_tubo_carcasa(intercambiador, ti, tf, Ti, Tf, ft, fc, nt, cp_tubo, cp_carcasa, unidad)
+            resultados = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_tubo, cp_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+
+            print(resultados)
 
             EvaluacionesIntercambiador.objects.create(
                 creado_por = request.user,
@@ -221,7 +226,7 @@ class CrearEvaluacionTuboCarcasa(View, LoginRequiredMixin):
                 # DATOS DE SALIDA
                 lmtd = resultados['lmtd'],
                 area_transferencia = resultados['area'],
-                u = resultados['u'],
+                u = round(resultados['u'], 4),
                 ua = resultados['ua'],
                 ntu = resultados['ntu'],
                 efectividad = resultados['efectividad'],
@@ -242,6 +247,7 @@ class CrearEvaluacionTuboCarcasa(View, LoginRequiredMixin):
         context = self.context
         context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
         context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
+        context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
 
         return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
 
@@ -261,7 +267,7 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
                 if(fluido_tubo[1].find('-') != -1):
                     quimico = search_chemical(fluido_tubo[1], cache=True)
                     fluido_tubo = Fluido.objects.create(nombre = fluido_tubo[0].upper(), cas = fluido_tubo[1], peso_molecular = quimico.MW)
-            else:
+            elif fluido_tubo != '':
                 fluido_tubo = Fluido.objects.get(pk=fluido_tubo)
 
             if(fluido_carcasa.find('*') != -1):
@@ -269,13 +275,13 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
                 if(fluido_carcasa[1].find('-') != -1):
                     quimico = search_chemical(fluido_carcasa[1], cache=True)
                     fluido_carcasa = Fluido.objects.create(nombre = fluido_carcasa[0].upper(), cas = fluido_carcasa[1], peso_molecular = quimico.MW)
-            else:
+            elif fluido_carcasa != '':
                 fluido_carcasa = Fluido.objects.get(pk=fluido_carcasa)
 
             propiedades = PropiedadesTuboCarcasa.objects.get(pk=pk)
             propiedades.area = request.POST['area']
             propiedades.numero_tubos = request.POST['no_tubos']
-            propiedades.longitud_tubos = request.POST['longitud_tubos']
+            propiedades.longitud_tubos = float(request.POST['longitud_tubos'])
             propiedades.diametro_externo_tubos = request.POST['od_tubos']
             propiedades.diametro_interno_tubos = request.POST['id_carcasa']
             propiedades.tipo_tubo = TiposDeTubo.objects.get(pk=request.POST['tipo_tubo'])
@@ -292,8 +298,8 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
             propiedades.numero_pasos_carcasa = request.POST['numero_pasos_carcasa']
             propiedades.numero_pasos_tubo = request.POST['numero_pasos_tubo']
             propiedades.numero_pasos_carcasa = request.POST['numero_pasos_carcasa']
-            propiedades.fluido_tubo =  Fluido.objects.get(pk=request.POST['fluido_tubo']) if type(fluido_tubo) == str else fluido_tubo if type(fluido_tubo) == Fluido else None
-            propiedades.fluido_carcasa = Fluido.objects.get(pk=request.POST['fluido_carcasa']) if type(fluido_carcasa) == str else fluido_carcasa if type(fluido_carcasa) == Fluido else None
+            propiedades.fluido_tubo =  Fluido.objects.get(pk=request.POST['fluido_tubo']) if type(fluido_tubo) == str and fluido_tubo else fluido_tubo if type(fluido_tubo) == Fluido else None
+            propiedades.fluido_carcasa = Fluido.objects.get(pk=request.POST['fluido_carcasa']) if type(fluido_carcasa) == str and fluido_carcasa else fluido_carcasa if type(fluido_carcasa) == Fluido else None
             propiedades.save()
 
             condiciones_tubo = propiedades.condicion_tubo()
@@ -309,7 +315,10 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
             condiciones_tubo.caida_presion_min = request.POST['caida_presion_min_tubo']
             condiciones_tubo.fouling = request.POST['fouling_tubo']
             condiciones_tubo.fluido_cp = request.POST['cp_tubo']
-            condiciones_tubo.etiqueta_cp = fluido_tubo[0] if type(fluido_tubo) != Fluido else None
+            
+            if(fluido_tubo != ''):
+                condiciones_tubo.fluido_etiqueta = fluido_tubo[0] if type(fluido_tubo) != Fluido else None
+
             condiciones_tubo.save()
 
             condiciones_carcasa = propiedades.condicion_carcasa()
@@ -324,8 +333,11 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
             condiciones_carcasa.caida_presion_max = request.POST['caida_presion_max_carcasa']
             condiciones_carcasa.caida_presion_min = request.POST['caida_presion_min_carcasa']
             condiciones_carcasa.fouling = request.POST['fouling_carcasa']
-            condiciones_tubo.fluido_cp = request.POST['cp_carcasa']
-            condiciones_tubo.etiqueta_cp = fluido_carcasa[0] if type(fluido_carcasa) != Fluido else None
+            condiciones_carcasa.fluido_cp = request.POST['cp_carcasa']
+            
+            if(fluido_carcasa != ''):
+                condiciones_carcasa.fluido_carcasa = fluido_carcasa[0] if type(fluido_carcasa) != Fluido else None
+
             condiciones_carcasa.save()
 
             intercambiador = Intercambiador.objects.get(pk=propiedades.intercambiador.pk)
@@ -334,8 +346,6 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
             intercambiador.servicio = request.POST['servicio']
             intercambiador.arreglo_flujo = request.POST['flujo']
             intercambiador.save()
-
-
 
         return redirect("/intercambiadores/tubo_carcasa/")
     
@@ -350,7 +360,7 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
 
         return render(request, 'tubo_carcasa/edicion.html', context=self.context)
 
-class ConsultaEvaluacionesTuboCarcasa(ListView):
+class ConsultaEvaluacionesTuboCarcasa(ListView, LoginRequiredMixin):
     model = EvaluacionesIntercambiador
     template_name = 'tubo_carcasa/evaluaciones/consulta.html'
     paginate_by = 10
@@ -398,7 +408,7 @@ class ConsultaEvaluacionesTuboCarcasa(ListView):
 
         return new_context
 
-class ConsultaTuboCarcasa(ListView):
+class ConsultaTuboCarcasa(ListView, LoginRequiredMixin):
     model = PropiedadesTuboCarcasa
     template_name = 'tubo_carcasa/consulta.html'
     paginate_by = 10
@@ -487,19 +497,22 @@ class EvaluarTuboCarcasa(View, LoginRequiredMixin):
         print(request.GET)
         intercambiador = PropiedadesTuboCarcasa.objects.get(id = pk)
 
-        ti = (float(request.GET['temp_in_carcasa']))
-        ts = (float(request.GET['temp_out_carcasa']))
-        Ti = (float(request.GET['temp_in_tubo']))
-        Ts = (float(request.GET['temp_out_tubo']))
-        ft = (float(request.GET['flujo_tubo']))
-        fc = (float(request.GET['flujo_carcasa']))
+        ti = (float(request.GET['temp_in_carcasa'].replace(',','.')))
+        ts = (float(request.GET['temp_out_carcasa'].replace(',','.')))
+        Ti = (float(request.GET['temp_in_tubo'].replace(',','.')))
+        Ts = (float(request.GET['temp_out_tubo'].replace(',','.')))
+        ft = (float(request.GET['flujo_tubo'].replace(',','.')))
+        fc = (float(request.GET['flujo_carcasa'].replace(',','.')))
         nt = (float(request.GET['no_tubos']))
-        cp_tubo = float(request.GET['cp_tubo'])
-        cp_carcasa = float(request.GET['cp_carcasa'])
+        cp_tubo = float(request.GET['cp_tubo'].replace(',','.'))
+        cp_carcasa = float(request.GET['cp_carcasa'].replace(',','.'))
         unidad = int(request.GET['unidad'])
+        unidad_flujo = int(request.GET['unidad_flujo'])
 
-        res = evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, fc, nt, cp_tubo, cp_carcasa, unidad)
+        print(ti, ts, Ti, Ts, ft, fc, cp_tubo, cp_carcasa)
 
+        res = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_tubo, cp_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+        print(res)
         return JsonResponse(res)
 
 class ConsultaCAS(View, LoginRequiredMixin):
@@ -528,10 +541,7 @@ class ConsultaCP(View, LoginRequiredMixin):
         t1,t2 = float(request.GET['t1']), float(request.GET['t2'])
         unidad = int(request.GET['unidad'])
 
-        print(unidad)
         t1,t2 = normalizar_unidades_temperatura([t1,t2], unidad=unidad)
-        print(t1)
-        print(t2)
 
         if(fluido != ''):
             if(fluido.find('*') != -1):

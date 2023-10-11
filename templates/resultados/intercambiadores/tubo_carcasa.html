@@ -32,9 +32,21 @@
                             <th class="table-dark small">Cp</th>
                           </tr>
                           <tr>
-                            <td>{{intercambiador.fluido_carcasa}}</td>
+                            <td>
+                              {% if intercambiador.fluido_carcasa %}
+                              {{intercambiador.fluido_carcasa}}
+                              {%else%}
+                              {{intercambiador.condicion_carcasa.fluido_etiqueta}}
+                              {%endif%}
+                            </td>
                             <td>{{evaluacion.cp_carcasa}}</td>
-                            <td>{{intercambiador.fluido_tubo}}</td>
+                            <td>
+                              {% if intercambiador.fluido_tubo %}
+                              {{intercambiador.fluido_tubo}}
+                              {%else%}
+                              {{intercambiador.condicion_tubo.fluido_etiqueta}}
+                              {%endif%}
+                            </td>
                             <td>{{evaluacion.cp_tubo}}</td>
                           </tr>
                           <tr>

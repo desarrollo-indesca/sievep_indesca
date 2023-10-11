@@ -48,7 +48,7 @@
                 const element = res[i];
                 const fecha = new Date(Date.parse(element.fecha));
                 const fecha_str = `${fecha.getDay()}/${fecha.getMonth()}/${fecha.getFullYear()} ${fecha.getHours()}:${fecha.getMinutes()}:${fecha.getSeconds()}`;
-                datosGraficaU[fecha_str] = element.u * 10000;
+                datosGraficaU[fecha_str] = element.u;
                 datosGraficaEfectividad[fecha_str] = element.efectividad;
                 datosGraficaEnsuciamiento[fecha_str] = element.ensuciamiento;
                 datosGraficaEficiencia[fecha_str] = element.eficiencia;
