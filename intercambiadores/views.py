@@ -67,7 +67,7 @@ class CrearIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
                 intercambiador = intercambiador,
                 area = float(request.POST['area']),
                 area_unidad = Unidades.objects.get(pk=request.POST['unidad_area']),
-                numero_tubos = float(request.POST['longitud_tubos']),
+                numero_tubos = float(request.POST['no_tubos']),
                 longitud_tubos = float(request.POST['longitud_tubos']),
                 longitud_tubos_unidad = Unidades.objects.get(pk=request.POST['longitud_tubos_unidad']),
                 diametro_externo_tubos = float(request.POST['od_tubos']),

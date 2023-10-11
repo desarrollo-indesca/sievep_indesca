@@ -21,7 +21,7 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
     num_pasos_tubo = float(intercambiador.numero_pasos_tubo)
 
     factor = truncar(F_LMTD_Fakheri(Ti, Ts, ti, ts, num_pasos_carcasa))
-
+    print(f"FACTOR: {factor}")
     q_prom = np.mean([q_tubo,q_carcasa]) # W
     ucalc = q_prom/(area_calculada*dtml*factor) # Wm2/K
     RF = 1/ucalc - 1/float(intercambiador.u) 
