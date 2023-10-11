@@ -194,7 +194,9 @@ class PropiedadesTuboCarcasa(models.Model):
         print(ts)
         print(ti)
 
-        return evaluacion_tubo_carcasa(self, ti, ts, Ti, Ts, ft, fc, self.numero_tubos)
+        return evaluacion_tubo_carcasa(self, ti, ts, Ti, Ts, ft, fc, 
+            self.numero_tubos, float(self.condicion_carcasa().fluido_cp), 
+            float(self.condicion_tubo().fluido_cp))
 
     def condicion_tubo(self):
         return self.condiciones.get(lado='T')

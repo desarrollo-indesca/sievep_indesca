@@ -182,18 +182,20 @@ class CrearEvaluacionTuboCarcasa(View, LoginRequiredMixin):
         intercambiador = PropiedadesTuboCarcasa.objects.get(pk=pk)
 
         with transaction.atomic():
-            ti = float(request.POST['temp_in_carcasa'].replace(',','.'))
-            tf = float(request.POST['temp_out_carcasa'].replace(',','.'))
-            Ti = float(request.POST['temp_in_tubo'].replace(',','.'))
-            Tf = float(request.POST['temp_out_tubo'].replace(',','.'))
-            ft = float(request.POST['flujo_tubo'].replace(',','.'))
-            fc = float(request.POST['flujo_carcasa'].replace(',','.'))
-            nt = float(request.POST['no_tubos'].replace(',','.'))
-            cp_tubo = float(request.POST['cp_tubo'].replace(',','.'))
-            cp_carcasa = float(request.POST['cp_carcasa'].replace(',','.'))
+            print(request.POST)
+            ti = (float(request.POST['temp_in_carcasa']))
+            ts = (float(request.POST['temp_out_carcasa']))
+            Ti = (float(request.POST['temp_in_tubo']))
+            Ts = (float(request.POST['temp_out_tubo']))
+            ft = (float(request.POST['flujo_tubo']))
+            fc = (float(request.POST['flujo_carcasa']))
+            nt = (float(request.POST['no_tubos']))
+            cp_tubo = float(request.POST['cp_tubo'])
+            cp_carcasa = float(request.POST['cp_carcasa'])
             unidad = int(request.POST['unidad_temperaturas'])
+            unidad_flujo = int(request.POST['unidad_flujo'])
 
-            resultados = evaluacion_tubo_carcasa(intercambiador, ti, tf, Ti, Tf, ft, fc, nt, cp_tubo, cp_carcasa, unidad)
+            resultados = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_tubo, cp_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
 
             EvaluacionesIntercambiador.objects.create(
                 creado_por = request.user,
@@ -222,7 +224,7 @@ class CrearEvaluacionTuboCarcasa(View, LoginRequiredMixin):
                 # DATOS DE SALIDA
                 lmtd = resultados['lmtd'],
                 area_transferencia = resultados['area'],
-                u = resultados['u'],
+                u = round(resultados['u'], 4),
                 ua = resultados['ua'],
                 ntu = resultados['ntu'],
                 efectividad = resultados['efectividad'],
