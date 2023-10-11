@@ -1,6 +1,8 @@
 from .termodinamicos import calcular_cp
 import numpy as np
 from .unidades import normalizar_unidades_temperatura, normalizar_unidades_flujo
+from ht import F_LMTD_Fakheri
+import math
 
 def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo = None, cp_carcasa = None, unidad_temp = 1, unidad_flujo = 6):
     ti,ts,Ti,Ts = normalizar_unidades_temperatura([ti,ts,Ti,Ts], unidad=unidad_temp)
@@ -25,42 +27,15 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
 
     diametro_tubo = float(intercambiador.diametro_interno_tubos)
     longitud_tubo = float(intercambiador.longitud_tubos)
-    print(diametro_tubo, longitud_tubo)
 
     area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
-    dtml = abs(((Ti - ti) - (Ts - ts))/np.log(abs((Ti - ti)/(Ts - ts)))) #K
-
-    P = abs((ts - ti)/(Ti - ti))
-    R = abs((Ti - Ts)/(ts - ti))
+    dtml = abs(((Ts - ti) - (Ti - ts))/np.log(abs((Ts - ti)/(Ti - ts)))) #K
 
     num_pasos_carcasa = float(intercambiador.numero_pasos_carcasa)
     num_pasos_tubo = float(intercambiador.numero_pasos_tubo)
 
-    if(num_pasos_carcasa > 1):
-        a = 1.8008
-        b = -0.3711
-        c = -1.2487
-        d = 0.0487
-        e = 0.2458
-        factor = a+b*R+c*P+d*pow(R,2)+e*pow(P,2)
-    elif(num_pasos_tubo >= 2):
-        a = 2.3221
-        b = -1.3983
-        c = -8.9291
-        d = 1.4344
-        e = 36.1973
-        f = -0.7422
-        g = -72.4922
-        h =  0.1799
-        i = 68.5452
-        j = -0.0162
-        k = -25.3014
-        factor = a+b*R+c*P+d*pow(R,2)+e*pow(P,2)+f*pow(R,3)+g*pow(P,3)+h*pow(R,4)+i*pow(P,4)+j*pow(R,5)+k*pow(P,5)
-    else:
-        factor = 1
+    factor = int(F_LMTD_Fakheri(Ti, Ts, ti, ts, num_pasos_carcasa)*100)/100
 
-    print(factor)
-    factor = 0.868
     q_prom = np.mean([q_tubo,q_carcasa]) # W
     ucalc = q_prom/(area_calculada*dtml*factor) # Wm2/K
     RF=1/ucalc-1/float(intercambiador.u) # 
@@ -115,3 +90,32 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
     }
 
     return resultados
+
+def factor_correccion_tubo_carcasa(ti, ts, Ti, Ts, num_pasos_tubo, num_pasos_carcasa):
+    P = abs((ts - ti)/(Ti - ti))
+    R = abs((Ti - Ts)/(ts - ti))
+    
+    if(num_pasos_carcasa > 1):
+        a = 1.8008
+        b = -0.3711
+        c = -1.2487
+        d = 0.0487
+        e = 0.2458
+        factor = a+b*R+c*P+d*pow(R,2)+e*pow(P,2)
+    elif(num_pasos_tubo >= 2):
+        a = 2.3221
+        b = -1.3983
+        c = -8.9291
+        d = 1.4344
+        e = 36.1973
+        f = -0.7422
+        g = -72.4922
+        h =  0.1799
+        i = 68.5452
+        j = -0.0162
+        k = -25.3014
+        factor = a+b*R+c*P+d*pow(R,2)+e*pow(P,2)+f*pow(R,3)+g*pow(P,3)+h*pow(R,4)+i*pow(P,4)+j*pow(R,5)+k*pow(P,5)
+    else:
+        factor = 1
+
+    return factor
