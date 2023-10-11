@@ -10,7 +10,6 @@ def calcular_cp(fluido, t1, t2):
     mw = quimico.MW
 
     if(t >= quimico.Tb):
-        print("GAS")
         quimico = HeatCapacityGas(fluido)
         try:
             cp = quimico.calculate(t,'JOBACK') / mw
@@ -20,7 +19,6 @@ def calcular_cp(fluido, t1, t2):
             except:
                 cp = 0
     else:
-        print("LIQUIDO")
         quimico = HeatCapacityLiquid(fluido)
         try:
             cp = quimico.calculate(t,'HEOS_FIT') / mw
