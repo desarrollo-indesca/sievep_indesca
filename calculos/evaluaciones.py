@@ -17,7 +17,6 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
 
     area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
     dtml = abs(((Ts - ti) - (Ti - ts))/np.log(abs((Ts - ti)/(Ti - ts)))) #K
-
     num_pasos_carcasa = float(intercambiador.numero_pasos_carcasa)
     num_pasos_tubo = float(intercambiador.numero_pasos_tubo)
 

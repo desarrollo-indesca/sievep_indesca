@@ -225,6 +225,7 @@
 
 {% block extra_javascript %}
 <script>
+    const valido = true;
     let chart = null;
     let canvas = document.getElementById('grafica_1').getContext('2d');
     let datosGrafica = undefined;
@@ -284,8 +285,7 @@
         });
     
         const delay = ms => new Promise(res => setTimeout(res, ms));
-        await delay(700);
-
+        
         const in_carcasa = Number($('#temp_in_carcasa').val());
         const out_carcasa = Number($('#temp_out_carcasa').val());
         const in_tubo = Number($('#temp_in_tubo').val());
@@ -337,7 +337,8 @@
             }
         }
 
-        document.getElementById('registrar_resultado').removeAttribute('disabled');
+        if(valido)
+            document.getElementById('registrar_resultado').removeAttribute('disabled');
     });
 
     chart = new Chart(canvas, {
@@ -473,18 +474,8 @@
                 },
                 success: (res) => {        
                     console.log(res);
-                    if(res.lmtd === NaN){                        
-                        document.getElementById('lmtd').value = '';
-                        document.getElementById('area').value = '';
-                        document.getElementById('ntu').value = '';
-                        document.getElementById('u').value = '';
-                        document.getElementById('UA').value = '';
-                        document.getElementById('eficiencia').value = ';'
-                        document.getElementById('eficiencia').value = '';
-                        document.getElementById('ensuciamiento').value = '';
-                        document.getElementById('q').value = '';
-                        document.getElementById('registrar_resultado').setAttribute('disabled', true);
-                    } 
+                    if(res.lmtd === NaN)                      
+                        vaciarCampos() 
                     else{
                         document.getElementById('lmtd').value = res.lmtd;
                         document.getElementById('area').value = res.area;
@@ -500,7 +491,10 @@
                 }, 
                 error: (res) => {
                     console.log(res);
+                    alert("Los datos son inválidos para los cálculos de evaluación. Verifique.");
                     document.getElementById('registrar_resultado').setAttribute('disabled', true);
+                    valido = false;
+                    vaciarCampos();
                 }
             });
         }
@@ -525,6 +519,19 @@
             x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
         });
     });
+
+    const vaciarCampos = () => {
+        document.getElementById('lmtd').value = '';
+        document.getElementById('area').value = '';
+        document.getElementById('ntu').value = '';
+        document.getElementById('u').value = '';
+        document.getElementById('UA').value = '';
+        document.getElementById('eficiencia').value = ';'
+        document.getElementById('eficiencia').value = '';
+        document.getElementById('ensuciamiento').value = '';
+        document.getElementById('q').value = '';
+        document.getElementById('registrar_resultado').setAttribute('disabled', true);
+    }
 
 </script>
 {% endblock %}

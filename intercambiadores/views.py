@@ -197,6 +197,8 @@ class CrearEvaluacionTuboCarcasa(View, LoginRequiredMixin):
 
             resultados = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_tubo, cp_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
 
+            print(resultados)
+
             EvaluacionesIntercambiador.objects.create(
                 creado_por = request.user,
                 intercambiador = intercambiador.intercambiador,
@@ -273,7 +275,7 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
                 if(fluido_carcasa[1].find('-') != -1):
                     quimico = search_chemical(fluido_carcasa[1], cache=True)
                     fluido_carcasa = Fluido.objects.create(nombre = fluido_carcasa[0].upper(), cas = fluido_carcasa[1], peso_molecular = quimico.MW)
-            elif fluido_tubo != '':
+            elif fluido_carcasa != '':
                 fluido_carcasa = Fluido.objects.get(pk=fluido_carcasa)
 
             propiedades = PropiedadesTuboCarcasa.objects.get(pk=pk)
@@ -358,7 +360,7 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
 
         return render(request, 'tubo_carcasa/edicion.html', context=self.context)
 
-class ConsultaEvaluacionesTuboCarcasa(ListView):
+class ConsultaEvaluacionesTuboCarcasa(ListView, LoginRequiredMixin):
     model = EvaluacionesIntercambiador
     template_name = 'tubo_carcasa/evaluaciones/consulta.html'
     paginate_by = 10
@@ -406,7 +408,7 @@ class ConsultaEvaluacionesTuboCarcasa(ListView):
 
         return new_context
 
-class ConsultaTuboCarcasa(ListView):
+class ConsultaTuboCarcasa(ListView, LoginRequiredMixin):
     model = PropiedadesTuboCarcasa
     template_name = 'tubo_carcasa/consulta.html'
     paginate_by = 10
@@ -495,20 +497,22 @@ class EvaluarTuboCarcasa(View, LoginRequiredMixin):
         print(request.GET)
         intercambiador = PropiedadesTuboCarcasa.objects.get(id = pk)
 
-        ti = (float(request.GET['temp_in_carcasa']))
-        ts = (float(request.GET['temp_out_carcasa']))
-        Ti = (float(request.GET['temp_in_tubo']))
-        Ts = (float(request.GET['temp_out_tubo']))
-        ft = (float(request.GET['flujo_tubo']))
-        fc = (float(request.GET['flujo_carcasa']))
+        ti = (float(request.GET['temp_in_carcasa'].replace(',','.')))
+        ts = (float(request.GET['temp_out_carcasa'].replace(',','.')))
+        Ti = (float(request.GET['temp_in_tubo'].replace(',','.')))
+        Ts = (float(request.GET['temp_out_tubo'].replace(',','.')))
+        ft = (float(request.GET['flujo_tubo'].replace(',','.')))
+        fc = (float(request.GET['flujo_carcasa'].replace(',','.')))
         nt = (float(request.GET['no_tubos']))
-        cp_tubo = float(request.GET['cp_tubo'])
-        cp_carcasa = float(request.GET['cp_carcasa'])
+        cp_tubo = float(request.GET['cp_tubo'].replace(',','.'))
+        cp_carcasa = float(request.GET['cp_carcasa'].replace(',','.'))
         unidad = int(request.GET['unidad'])
         unidad_flujo = int(request.GET['unidad_flujo'])
 
-        res = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_tubo, cp_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+        print(ti, ts, Ti, Ts, ft, fc, cp_tubo, cp_carcasa)
 
+        res = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_tubo, cp_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+        print(res)
         return JsonResponse(res)
 
 class ConsultaCAS(View, LoginRequiredMixin):

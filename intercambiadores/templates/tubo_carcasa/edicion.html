@@ -121,8 +121,8 @@
                             {% for fluido in fluidos %}
                             <option value="{{fluido.pk}}" {% if intercambiador.fluido_carcasa == fluido %}selected{% endif %}>{{fluido}}</option>
                             {% endfor %}
-                            {% if condicion_tubo.fluido_etiqueta and condicion_tubo.fluido_etiqueta != '' %}
-                            <option value="" selected>{{condicion_tubo.fluido_etiqueta}}</option>
+                            {% if not intercambiador.fluido_carcasa %}
+                            <option value="" selected>{{condicion_carcasa.fluido_etiqueta}}</option>
                             {%endif%}
                         </select>
                     </div>
@@ -312,8 +312,8 @@
                             {% for fluido in fluidos %}
                             <option value="{{fluido.pk}}" {% if intercambiador.fluido_tubo == fluido %}selected{% endif %}>{{fluido}}</option>
                             {% endfor %}
-                            {% if condicion_tubo.fluido_etiqueta and condicion_tubo.fluido_etiqueta != '' %}
-                            <option value="" selected>{{condicion_tubo.fluido_etiqueta}}</option>
+                            {% if not intercambiador.fluido_tubo %}
+                            <option value="" selected>{{condicion_tubo.etiqueta_fluido}}</option>
                             {%endif%}
                         </select>
                     </div>
@@ -575,7 +575,7 @@
 
                     <div class="col-3">
                         <label class="form-label" for="longitud_tubos">Longitud Tubos:</label>
-                        <input value="{{intercambiador.longitud_tubos}}" class="form-control" type="number" name="longitud_tubos" id="longitud_tubos" step="0.0001" required>
+                        <input value="{{intercambiador.longitud_tubos|unlocalize}}" class="form-control" type="number" name="longitud_tubos" id="longitud_tubos" step="0.0001" required>
                     </div>
 
                     <div class="col-3">
@@ -636,7 +636,7 @@
 
                     <div class="col-3">
                         <label class="form-label" for="ensuciamiento">Ensuciamiento:</label>
-                        <input value="{% if intercambiador.ensuciamiento %}{{intercambiador.ensuciamiento|unlocalize}}{% endif %}" class="form-control" type="number" name="ensuciamiento" id="ensuciamiento">
+                        <input value="{{intercambiador.ensuciamiento|unlocalize}}" class="form-control" type="number" name="ensuciamiento" id="ensuciamiento" step="0.0001">
                     </div>
 
                     <div class="col-3"></div>
