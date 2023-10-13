@@ -225,10 +225,11 @@
 
 {% block extra_javascript %}
 <script>
-    const valido = true;
+    let valido = true, mostrarAdvertencia = true;
     let chart = null;
     let canvas = document.getElementById('grafica_1').getContext('2d');
     let datosGrafica = undefined;
+    const delay = ms => new Promise(res => setTimeout(res, ms));
 
     $('input.temperatura').keyup(async (e) => {
         canvas = document.getElementById('grafica_1').getContext('2d');
@@ -283,8 +284,6 @@
                 }        
             }
         });
-    
-        const delay = ms => new Promise(res => setTimeout(res, ms));
         
         const in_carcasa = Number($('#temp_in_carcasa').val());
         const out_carcasa = Number($('#temp_out_carcasa').val());
@@ -292,6 +291,7 @@
         const out_tubo = Number($('#temp_out_tubo').val());
 
         if(in_carcasa){
+            await delay(500);
             if(in_tubo && in_carcasa === in_tubo){
                 alert("Las temperaturas de entrada del tubo y la carcasa no pueden ser iguales.");
                 document.getElementById('registrar_resultado').setAttribute('disabled', true);
@@ -314,6 +314,7 @@
         // }
 
         if(in_tubo){
+            await delay(500);
             if(out_tubo && out_tubo === in_tubo){
                 alert("Las temperaturas de entrada y salida del tubo no pueden ser iguales.");
                 document.getElementById('registrar_resultado').setAttribute('disabled', true);
@@ -321,21 +322,22 @@
             }
         }
 
-        // if(out_carcasa && out_tubo && in_carcasa && in_tubo){
-        //     if(in_tubo > out_tubo){
-        //         if(in_carcasa < in_tubo && out_carcasa >= out_tubo){
-        //             alert("Las líneas de la gráfica no se deben cruzar.");
-        //             document.getElementById('registrar_resultado').setAttribute('disabled', true);
-        //             return;
-        //         }
-        //     } else if(in_tubo < out_tubo){
-        //         if(in_carcasa > in_tubo && out_carcasa <= out_tubo){
-        //             alert("Las líneas de la gráfica no se deben cruzar.");
-        //             document.getElementById('registrar_resultado').setAttribute('disabled', true);
-        //             return;
-        //         }
-        //     }
-        // }
+        if(out_carcasa && out_tubo && in_carcasa && in_tubo){
+            await delay(500);
+            if(in_tubo > out_tubo){
+                if(in_carcasa < in_tubo && out_carcasa > out_tubo){
+                    alert("Las líneas de la gráfica no se deben cruzar.");
+                    document.getElementById('registrar_resultado').setAttribute('disabled', true);
+                    return;
+                }
+            } else if(in_tubo < out_tubo){
+                if(in_carcasa > in_tubo && out_carcasa < out_tubo){
+                    alert("Las líneas de la gráfica no se deben cruzar.");
+                    document.getElementById('registrar_resultado').setAttribute('disabled', true);
+                    return;
+                }
+            }
+        }
 
         if(valido)
             document.getElementById('registrar_resultado').removeAttribute('disabled');
@@ -463,12 +465,12 @@
         });
     });
 
-    $('#unidad_flujo').keyup((e) => {
+    $('#unidad_flujo').change((e) => {
         const array = $('select[name="unidad_flujo"]').toArray().slice(1);
-
         array.map((x) => {
             x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
         });
+        ajaxEvaluacion();
     });
 
     const vaciarCampos = () => {
@@ -523,9 +525,16 @@
                         document.getElementById('registrar_resultado').removeAttribute('disabled');
                     }
                 }, 
-                error: (res) => {
+                error: async (res) => {
                     console.log(res);
-                    alert("Los datos son inválidos para los cálculos de evaluación. Verifique.");
+
+                    if(mostrarAdvertencia){
+                        alert("Los datos son inválidos para los cálculos de evaluación. Verifique.");
+                        mostrarAdvertencia = false;
+                        await delay(2000)
+                        mostrarAdvertencia = true;
+                    }
+                    
                     document.getElementById('registrar_resultado').setAttribute('disabled', true);
                     valido = false;
                     vaciarCampos();

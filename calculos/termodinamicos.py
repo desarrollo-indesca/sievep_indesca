@@ -1,13 +1,12 @@
 from thermo.heat_capacity import HeatCapacityGas, HeatCapacityLiquid
 from thermo.chemical import Chemical
-from calculos.unidades import normalizar_unidades_temperatura
 import numpy
 
 def calcular_cp(fluido, t1, t2):
 
     t = numpy.mean([t1, t2])
-    quimico = Chemical(fluido) # PESO MOLECULAR
-    mw = quimico.MW
+    quimico = Chemical(fluido)
+    mw = quimico.MW # PESO MOLECULAR
     
     if(t >= quimico.Tb):
         quimico = HeatCapacityGas(fluido)

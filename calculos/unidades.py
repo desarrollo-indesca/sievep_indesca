@@ -13,10 +13,75 @@ def normalizar_unidades_temperatura(args, unidad):
 
 def normalizar_unidades_flujo(args, unidad):
     actualizadas = []
-    unidad = ur.kilogram/ur.hour
 
-    if unidad != 6:
+    if unidad == 6:
         for x in args:
-            actualizadas.append(Q_(x, unidad).to(ur.kilogram/ur.second).magnitude)
+            actualizadas.append(Q_(x, ur.kilogram/ur.hour).to(ur.kilogram/ur.second).magnitude)
+    elif unidad == 18:
+        for x in args:
+            actualizadas.append(Q_(x, ur.pound/ur.second).to(ur.kilogram/ur.second).magnitude)
+    elif unidad == 19:
+        for x in args:
+            actualizadas.append(Q_(x, ur.pound/ur.hour).to(ur.kilogram/ur.second).magnitude)
 
     return actualizadas
+
+def normalizar_unidades_longitud(args, unidad):
+    actualizadas = []
+
+    if unidad != 4:
+        if unidad == 5:
+            for x in args:
+                actualizadas.append(Q_(x, ur.millimeter).to(ur.meter).magnitude)
+        elif unidad == 12:
+            for x in args:
+                actualizadas.append(Q_(x, ur.centimeter).to(ur.meter).magnitude)
+        elif unidad == 14:
+            for x in args:
+                actualizadas.append(Q_(x, ur.feet).to(ur.meter).magnitude)
+        elif unidad == 16:
+            for x in args:
+                actualizadas.append(Q_(x, ur.inch).to(ur.meter).magnitude)
+
+    return actualizadas
+
+def normalizar_unidades_area(args, unidad):
+    actualizadas = []
+
+    if unidad != 3:
+        if unidad == 20:
+            for x in args:
+                actualizadas.append(Q_(x, ur.feet ** 2).to(ur.meter ** 2).magnitude)
+        elif unidad == 21:
+            for x in args:
+                actualizadas.append(Q_(x, ur.inch ** 2).to(ur.meter ** 2).magnitude)
+
+    return actualizadas
+
+def normalizar_unidades_presion(args, unidad):
+    actualizadas = []
+
+    if unidad != 3:
+        if unidad == 23:
+            for x in args:
+                actualizadas.append(Q_(x, ur.atm).to(ur.bar).magnitude)
+        elif unidad == 17:
+            for x in args:
+                actualizadas.append(Q_(x, ur.pound_force_per_square_inch).to(ur.bar).magnitude)
+        elif unidad == 22:
+            for x in args:
+                actualizadas.append(Q_(x, ur.mmHg).to(ur.bar).magnitude)
+
+    return actualizadas
+
+def normalizar_unidades_entropia_especifica(args, unidad):
+    actualizadas = []
+
+    if unidad != 3:
+        if unidad == 23:
+            for x in args:
+                actualizadas.append(Q_(x, ur.Btu_it/(ur.pound*ur.degF)).to(ur.joule/(ur.gram*ur.kelvin)).magnitude)
+
+    return actualizadas
+
+print(normalizar_unidades_entropia_especifica([10, 100, 1000], 23))

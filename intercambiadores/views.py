@@ -353,11 +353,16 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
     def get(self, request, pk):
         self.context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
         self.context['complejos'] = Complejo.objects.all()
-        self.context['temas'] = Tema.objects.all()
         self.context['tipos'] = TiposDeTubo.objects.all()
         self.context['plantas'] = Planta.objects.filter(complejo__pk=1)
+        self.context['tipos'] = TiposDeTubo.objects.all()
+        self.context['temas'] = Tema.objects.all()
         self.context['fluidos'] = Fluido.objects.all()
-        self.context['unidades_temperatura'] = Unidades.objects.filter(tipo='T')
+        self.context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
+        self.context['unidades_longitud'] = Unidades.objects.filter(tipo = 'L')
+        self.context['unidades_area'] = Unidades.objects.filter(tipo = 'A')
+        self.context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
+        self.context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
 
         return render(request, 'tubo_carcasa/edicion.html', context=self.context)
 
@@ -415,16 +420,11 @@ class ConsultaTuboCarcasa(ListView, LoginRequiredMixin):
     paginate_by = 10
 
     def post(self, request, **kwargs):
-        # TODO
         if(request.POST['tipo'] == 'pdf'):
             return generar_pdf(request, self.get_queryset(),"Reporte de Intercambiadores Tubo/Carcasa", "intercambiadores_tubo_carcasa")
         else:
             from reportes.xlsx import reporte_tubo_carcasa
-            archivo = reporte_tubo_carcasa(self.get_queryset(), request)
-            with open(archivo, "rb") as excel:
-                data = excel.read()
-            os.remove(archivo)
-            response = HttpResponse(data, content_type='application/ms-excel')
+            response = reporte_tubo_carcasa(self.get_queryset(), request)
             response['Content-Disposition'] = 'attachment; filename="reporte_tubo_carcasa.xlsx"'
             return response
             
@@ -549,7 +549,7 @@ class ConsultaCP(View, LoginRequiredMixin):
                 cas = fluido.split('*')[1]
 
                 if(cas.find('-') == -1):
-                    return JsonResponse({'cp': ''})
+                    return JsonResponse({'cp': fluido.split('*')[1]})
             else:
                 cas = Fluido.objects.get(pk = fluido).cas
         

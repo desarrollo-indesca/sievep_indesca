@@ -70,7 +70,7 @@ class Planta(models.Model):
 # Modelo de Unidades
 class Unidades(models.Model):
     id = models.AutoField(primary_key=True)
-    simbolo = models.CharField(max_length=5)
+    simbolo = models.CharField(max_length=10)
     tipo = models.CharField(max_length=1)
 
     class Meta:
