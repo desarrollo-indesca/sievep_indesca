@@ -8,7 +8,7 @@ def calcular_cp(fluido, t1, t2):
     t = numpy.mean([t1, t2])
     quimico = Chemical(fluido) # PESO MOLECULAR
     mw = quimico.MW
-
+    
     if(t >= quimico.Tb):
         quimico = HeatCapacityGas(fluido)
         try:

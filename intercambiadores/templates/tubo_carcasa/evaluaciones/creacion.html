@@ -55,7 +55,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="temp_in_carcasa">Temperatura Entrada:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 70% !important;" class="form-control temperatura" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 30% !important;" class="form-select campo" name="unidad_temperaturas" id="unidad_temperaturas">
                                 {% for unidad in unidades_temperaturas %}
                                 <option value="{{unidad.pk}}">{{unidad.simbolo}}</option>
@@ -66,7 +66,7 @@
                     <div class="col-6">
                         <label class="form-label" for="temp_out_carcasa">Temperatura Salida:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 70% !important;" class="form-control temperatura" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -115,7 +115,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="temp_in_tubo">Temperatura Entrada:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 70% !important;" class="form-control temperatura" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -124,7 +124,7 @@
                     <div class="col-6">
                         <label class="form-label" for="temp_out_tubo">Temperatura Salida:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 70% !important;" class="form-control temperatura campo" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 70% !important;" class="form-control temperatura" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 30% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -230,7 +230,7 @@
     let canvas = document.getElementById('grafica_1').getContext('2d');
     let datosGrafica = undefined;
 
-    $('input.temperatura').change(async (e) => {
+    $('input.temperatura').keyup(async (e) => {
         canvas = document.getElementById('grafica_1').getContext('2d');
         
         if(chart)
@@ -305,13 +305,13 @@
             }
         }
 
-        if(out_carcasa){
-            if(out_tubo && out_tubo === out_carcasa){
-                alert("Las temperaturas de salida del tubo y la carcasa no pueden ser iguales.");
-                document.getElementById('registrar_resultado').setAttribute('disabled', true);
-                return;
-            }
-        }
+        // if(out_carcasa){
+        //     if(out_tubo && out_tubo === out_carcasa){
+        //         alert("Las temperaturas de salida del tubo y la carcasa no pueden ser iguales.");
+        //         document.getElementById('registrar_resultado').setAttribute('disabled', true);
+        //         return;
+        //     }
+        // }
 
         if(in_tubo){
             if(out_tubo && out_tubo === in_tubo){
@@ -321,21 +321,21 @@
             }
         }
 
-        if(out_carcasa && out_tubo && in_carcasa && in_tubo){
-            if(in_tubo > out_tubo){
-                if(in_carcasa < in_tubo && out_carcasa >= out_tubo){
-                    alert("Las líneas de la gráfica no se deben cruzar.");
-                    document.getElementById('registrar_resultado').setAttribute('disabled', true);
-                    return;
-                }
-            } else if(in_tubo < out_tubo){
-                if(in_carcasa > in_tubo && out_carcasa <= out_tubo){
-                    alert("Las líneas de la gráfica no se deben cruzar.");
-                    document.getElementById('registrar_resultado').setAttribute('disabled', true);
-                    return;
-                }
-            }
-        }
+        // if(out_carcasa && out_tubo && in_carcasa && in_tubo){
+        //     if(in_tubo > out_tubo){
+        //         if(in_carcasa < in_tubo && out_carcasa >= out_tubo){
+        //             alert("Las líneas de la gráfica no se deben cruzar.");
+        //             document.getElementById('registrar_resultado').setAttribute('disabled', true);
+        //             return;
+        //         }
+        //     } else if(in_tubo < out_tubo){
+        //         if(in_carcasa > in_tubo && out_carcasa <= out_tubo){
+        //             alert("Las líneas de la gráfica no se deben cruzar.");
+        //             document.getElementById('registrar_resultado').setAttribute('disabled', true);
+        //             return;
+        //         }
+        //     }
+        // }
 
         if(valido)
             document.getElementById('registrar_resultado').removeAttribute('disabled');
@@ -406,8 +406,7 @@
                         $('#cp_carcasa').removeAttr('disabled');
                         $('#cp_carcasa').change();
                     }
-
-                    
+                    ajaxEvaluacion();                    
             }, 
             error: (res) => {
                 console.log(res);
@@ -419,7 +418,6 @@
 
     $('#temp_out_carcasa').change((e) => {
         if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
-            console.log('a');
             ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
         }
     });
@@ -451,7 +449,43 @@
         }
     });
 
-    $('.campo').change((e) => {
+    $('.campo').keyup((e) => {
+        ajaxEvaluacion();
+    });
+
+    $('#unidad_temperaturas').change((e) => {
+        const array = $('select[name="unidad_temperaturas"]').toArray().slice(1);
+        const valor = e.target.value;
+
+        array.map((x) => {
+            const id = `#${x.id}`;
+            x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+        });
+    });
+
+    $('#unidad_flujo').keyup((e) => {
+        const array = $('select[name="unidad_flujo"]').toArray().slice(1);
+
+        array.map((x) => {
+            x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+        });
+    });
+
+    const vaciarCampos = () => {
+        document.getElementById('lmtd').value = '';
+        document.getElementById('area').value = '';
+        document.getElementById('ntu').value = '';
+        document.getElementById('u').value = '';
+        document.getElementById('UA').value = '';
+        document.getElementById('eficiencia').value = ';'
+        document.getElementById('eficiencia').value = '';
+        document.getElementById('ensuciamiento').value = '';
+        document.getElementById('q').value = '';
+        document.getElementById('registrar_resultado').setAttribute('disabled', true);
+    }
+
+
+    const ajaxEvaluacion = () => {
         const array = $('.campo').toArray();
 
         console.log(array);
@@ -469,8 +503,8 @@
                     no_tubos: document.getElementById('no_tubos').value,
                     cp_tubo: document.getElementById('cp_tubo').value,
                     cp_carcasa: document.getElementById('cp_carcasa').value,
-                    unidad: $('#unidad_temperaturas').val(),
-                    unidad_flujo: $('#unidad_flujo').val()
+                    unidad: document.getElementById('unidad_temperaturas').value,
+                    unidad_flujo: document.getElementById('unidad_flujo').value
                 },
                 success: (res) => {        
                     console.log(res);
@@ -496,42 +530,10 @@
                     valido = false;
                     vaciarCampos();
                 }
-            });
+            });            
         }
         else
             document.getElementById('registrar_resultado').setAttribute('disabled', true)
-    });
-
-    $('#unidad_temperaturas').change((e) => {
-        const array = $('select[name="unidad_temperaturas"]').toArray().slice(1);
-        const valor = e.target.value;
-
-        array.map((x) => {
-            const id = `#${x.id}`;
-            x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
-        });
-    });
-
-    $('#unidad_flujo').change((e) => {
-        const array = $('select[name="unidad_flujo"]').toArray().slice(1);
-
-        array.map((x) => {
-            x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
-        });
-    });
-
-    const vaciarCampos = () => {
-        document.getElementById('lmtd').value = '';
-        document.getElementById('area').value = '';
-        document.getElementById('ntu').value = '';
-        document.getElementById('u').value = '';
-        document.getElementById('UA').value = '';
-        document.getElementById('eficiencia').value = ';'
-        document.getElementById('eficiencia').value = '';
-        document.getElementById('ensuciamiento').value = '';
-        document.getElementById('q').value = '';
-        document.getElementById('registrar_resultado').setAttribute('disabled', true);
     }
-
 </script>
 {% endblock %}

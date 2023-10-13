@@ -19,6 +19,4 @@ def normalizar_unidades_flujo(args, unidad):
         for x in args:
             actualizadas.append(Q_(x, unidad).to(ur.kilogram/ur.second).magnitude)
 
-    print(actualizadas)
-
     return actualizadas

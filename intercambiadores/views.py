@@ -151,7 +151,7 @@ class CrearIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
 
             request.session['mensaje'] = "El nuevo intercambiador ha sido registrado exitosamente."
 
-            return redirect('/intercambiadores/tubo_carcasa/')
+            return redirect(f"/intercambiadores/tubo_carcasa/{propiedades.pk}/")
     
     def get(self, request):
         self.context['complejos'] = Complejo.objects.all()
@@ -336,7 +336,8 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
             condiciones_carcasa.fluido_cp = request.POST['cp_carcasa']
             
             if(fluido_carcasa != ''):
-                condiciones_carcasa.fluido_carcasa = fluido_carcasa[0] if type(fluido_carcasa) != Fluido else None
+                print(fluido_carcasa)
+                condiciones_carcasa.fluido_etiqueta = fluido_carcasa[0] if type(fluido_carcasa) != Fluido else None
 
             condiciones_carcasa.save()
 
@@ -347,7 +348,7 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
             intercambiador.arreglo_flujo = request.POST['flujo']
             intercambiador.save()
 
-        return redirect("/intercambiadores/tubo_carcasa/")
+        return redirect(f"/intercambiadores/tubo_carcasa/{propiedades.pk}/")
     
     def get(self, request, pk):
         self.context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)

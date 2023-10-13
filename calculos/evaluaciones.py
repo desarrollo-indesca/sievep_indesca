@@ -1,6 +1,6 @@
 import numpy as np
 from .unidades import normalizar_unidades_temperatura, normalizar_unidades_flujo
-from ht import F_LMTD_Fakheri
+from ht import F_LMTD_Fakheri, effectiveness_NTU_method
 
 def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo = None, cp_carcasa = None, unidad_temp = 1, unidad_flujo = 6):
     ti,ts,Ti,Ts = normalizar_unidades_temperatura([ti,ts,Ti,Ts], unidad=unidad_temp)
@@ -20,7 +20,7 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
     num_pasos_carcasa = float(intercambiador.numero_pasos_carcasa)
     num_pasos_tubo = float(intercambiador.numero_pasos_tubo)
 
-    factor = truncar(F_LMTD_Fakheri(Ti, Ts, ti, ts, num_pasos_carcasa))
+    factor = round(F_LMTD_Fakheri(Ti, Ts, ti, ts, num_pasos_carcasa),3)
     print(f"FACTOR: {factor}")
     q_prom = np.mean([q_tubo,q_carcasa]) # W
     ucalc = q_prom/(area_calculada*dtml*factor) # Wm2/K
