@@ -1,6 +1,6 @@
 import numpy as np
 from .unidades import normalizar_unidades_temperatura, normalizar_unidades_flujo
-from ht import F_LMTD_Fakheri, effectiveness_NTU_method
+from ht import F_LMTD_Fakheri
 
 def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo = None, cp_carcasa = None, unidad_temp = 1, unidad_flujo = 6):
     ti,ts,Ti,Ts = normalizar_unidades_temperatura([ti,ts,Ti,Ts], unidad=unidad_temp)
