@@ -1,4 +1,5 @@
-from thermo.heat_capacity import HeatCapacityGas, HeatCapacityLiquid
+from thermo.heat_capacity import HeatCapacityGas, HeatCapacityLiquid # CLASES
+from thermo.heat_capacity import heat_capacity_gas_methods, heat_capacity_liquid_methods
 from thermo.chemical import Chemical
 import numpy
 
@@ -13,21 +14,20 @@ def calcular_cp(fluido, t1, t2):
 
     if(t >= quimico.Tb):
         quimico = HeatCapacityGas(fluido)
-        try:
-            cp = quimico.calculate(t,'JOBACK') / mw
-        except:
+
+        for metodo in heat_capacity_gas_methods:
             try:
-                cp = quimico.calculate(t,'TRCIG') / mw
+                return round(quimico.calculate(t, metodo)/mw*1000,4)
             except:
-                cp = quimico.calculate(t, 'COOLPROP') / mw
+                 continue
+        cp = 0
     else:
         quimico = HeatCapacityLiquid(fluido)
-        try:
-            cp = quimico.calculate(t,'HEOS_FIT') / mw
-        except:
+        for metodo in heat_capacity_liquid_methods:
             try:
-                cp = quimico.calculate(t,'ZABRANSKY_SPLINE') / mw
+                return round(quimico.calculate(t, metodo)/mw*1000,4)
             except:
-                cp = 0
+                 continue
+        cp = 0
 
     return round(cp*1000, 4)
