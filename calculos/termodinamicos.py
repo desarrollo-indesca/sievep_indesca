@@ -3,11 +3,14 @@ from thermo.chemical import Chemical
 import numpy
 
 def calcular_cp(fluido, t1, t2):
-
     t = numpy.mean([t1, t2])
     quimico = Chemical(fluido)
+
     mw = quimico.MW # PESO MOLECULAR
-    
+
+    if(quimico.Tb == None):
+        return 1012.00
+
     if(t >= quimico.Tb):
         quimico = HeatCapacityGas(fluido)
         try:
@@ -16,7 +19,7 @@ def calcular_cp(fluido, t1, t2):
             try:
                 cp = quimico.calculate(t,'TRCIG') / mw
             except:
-                cp = 0
+                cp = quimico.calculate(t, 'COOLPROP') / mw
     else:
         quimico = HeatCapacityLiquid(fluido)
         try:

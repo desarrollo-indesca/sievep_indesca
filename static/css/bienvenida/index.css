@@ -15,39 +15,3 @@ a.sin_decoracion{
     text-decoration: none;
     color: black;
 }
-
-.carousel-item > a > img{
-    height: 250px !important;
-    width: 100%;
-}
-
-.carousel-item > img{
-    height: 250px !important;
-    width: 100%;
-}
-
-.carousel-caption > h5{
-    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
-}
-
-.carousel-inner {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-}
-
-@media (max-width: 992px) {
-    .carousel-item > a > img{
-        height: 350px !important;
-        width: 100%;
-    }
-    
-    .carousel-item > img{
-        height: 350px !important;
-        width: 100%;
-    }
-
-    .carousel{
-        margin-bottom: 10px;
-    }
-}

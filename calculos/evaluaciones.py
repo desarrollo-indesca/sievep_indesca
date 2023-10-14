@@ -1,5 +1,5 @@
 import numpy as np
-from .unidades import normalizar_unidades_temperatura, normalizar_unidades_flujo
+from .unidades import normalizar_unidades_temperatura, normalizar_unidades_flujo, normalizar_unidades_area, normalizar_unidades_longitud
 from ht import F_LMTD_Fakheri
 
 def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo = None, cp_carcasa = None, unidad_temp = 1, unidad_flujo = 6):
@@ -12,8 +12,8 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
     q_carcasa = cp_carcasa*Fc*abs(Ti-Ts) # W
     nt = nt if nt else float(intercambiador.numero_tubos)
 
-    diametro_tubo = float(intercambiador.diametro_interno_tubos)
-    longitud_tubo = float(intercambiador.longitud_tubos)
+    diametro_tubo = normalizar_unidades_longitud(float(intercambiador.diametro_interno_tubos), intercambiador.diametro_tubos_unidad.pk)
+    longitud_tubo = normalizar_unidades_longitud(float(intercambiador.longitud_tubos), intercambiador.longitud_tubos_unidad)
 
     area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
     dtml = abs(((Ts - ti) - (Ti - ts))/np.log(abs((Ts - ti)/(Ti - ts)))) #K

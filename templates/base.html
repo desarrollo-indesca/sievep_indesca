@@ -16,7 +16,7 @@
     {% block head %}
     {% endblock %}
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column d-flex flex-column" style="min-height: 100%;">
 
     {% include 'navbar.html' %}
 
@@ -27,13 +27,9 @@
 
     {% include 'footer.html' %}
     
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>
-
+    
     {% block extra_javascript %}
     {% endblock %}
-
-    <script>
-        localStorage.setItem("prueba", "Super Prueba");
-    </script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
 </body>
 </html>

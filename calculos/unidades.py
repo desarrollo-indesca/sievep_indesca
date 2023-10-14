@@ -80,8 +80,19 @@ def normalizar_unidades_entropia_especifica(args, unidad):
     if unidad != 3:
         if unidad == 23:
             for x in args:
-                actualizadas.append(Q_(x, ur.Btu_it/(ur.pound*ur.degF)).to(ur.joule/(ur.gram*ur.kelvin)).magnitude)
+                actualizadas.append(Q_(x, ur.Btu_it/ur.pound/ur.delta_degF).to(ur.joule/ur.kilogram/ur.kelvin).magnitude)
 
     return actualizadas
 
-print(normalizar_unidades_entropia_especifica([10, 100, 1000], 23))
+def normalizar_unidades_calor(args, unidad):
+    actualizadas = []
+
+    if unidad != 3:
+        if unidad == 24:
+            for x in args:
+                actualizadas.append(Q_(x, ur.Btu_it/ur.hour).to(ur.watt).magnitude)
+        elif unidad == 25:
+            for x in args:
+                actualizadas.append(Q_(x, ur.Btu_it/ur.second).to(ur.watt).magnitude)
+
+    return actualizadas
