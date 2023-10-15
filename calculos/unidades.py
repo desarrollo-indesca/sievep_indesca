@@ -13,14 +13,16 @@ def normalizar_unidades_temperatura(args, unidad):
 
 def normalizar_unidades_flujo(args, unidad):
     actualizadas = []
-
+    print(unidad)
     if unidad == 6:
         for x in args:
             actualizadas.append(Q_(x, ur.kilogram/ur.hour).to(ur.kilogram/ur.second).magnitude)
     elif unidad == 18:
+        print("?")
         for x in args:
             actualizadas.append(Q_(x, ur.pound/ur.second).to(ur.kilogram/ur.second).magnitude)
     elif unidad == 19:
+        print("??")
         for x in args:
             actualizadas.append(Q_(x, ur.pound/ur.hour).to(ur.kilogram/ur.second).magnitude)
 
