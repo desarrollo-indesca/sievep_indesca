@@ -90,7 +90,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_carcasa">Flujo Másico:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control campo" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control campo" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" min="0.01" max="99999.99" required>
                             <select style="width: 40% !important;" class="form-select campo" name="unidad_flujo" id="unidad_flujo">
                                 {% for unidad in unidades_flujo %}
                                 <option value="{{unidad.pk}}">{{unidad.simbolo}}</option>
@@ -150,7 +150,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_tubo">Flujo Másico:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control campo" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control campo" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" min="0.01" max="99999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujo" disabled>
                                 <option value="1">Kg/h</option>
                             </select>
@@ -175,7 +175,6 @@
                 <div class="col-12">
                     <h5 class="text-center">Cálculo de Resultados</h5>
                 </div>
-
                 <div class="col-4 d-flex flex-column">
                     <label class="form-label">LMTD:</label>
                     <input id="lmtd" disabled type="text" class="form-control">
@@ -227,7 +226,7 @@
 
 {% block extra_javascript %}
 <script>
-    let valido = true, mostrarAdvertencia = true;
+    let mostrarAdvertencia = true, en_uso = false;
     let chart = null;
     let canvas = document.getElementById('grafica_1').getContext('2d');
     let datosGrafica = undefined;
@@ -287,13 +286,19 @@
             }
         });
         
+        if(en_uso)
+            return;
+
+        en_uso = true;
+        await delay(500);
+        en_uso = false;
+
         const in_carcasa = Number($('#temp_in_carcasa').val());
         const out_carcasa = Number($('#temp_out_carcasa').val());
         const in_tubo = Number($('#temp_in_tubo').val());
         const out_tubo = Number($('#temp_out_tubo').val());
 
         if(in_carcasa){
-            await delay(500);
             if(in_tubo && in_carcasa === in_tubo){
                 alert("Las temperaturas de entrada del tubo y la carcasa no pueden ser iguales.");
                 document.getElementById('registrar_resultado').setAttribute('disabled', true);
@@ -316,7 +321,7 @@
         // }
 
         if(in_tubo){
-            await delay(500);
+            
             if(out_tubo && out_tubo === in_tubo){
                 alert("Las temperaturas de entrada y salida del tubo no pueden ser iguales.");
                 document.getElementById('registrar_resultado').setAttribute('disabled', true);
@@ -325,7 +330,7 @@
         }
 
         if(out_carcasa && out_tubo && in_carcasa && in_tubo){
-            await delay(500);
+            
             if(in_tubo > out_tubo){
                 if(in_carcasa < in_tubo && out_carcasa > out_tubo){
                     alert("Las líneas de la gráfica no se deben cruzar.");
@@ -340,9 +345,6 @@
                 }
             }
         }
-
-        if(valido)
-            document.getElementById('registrar_resultado').removeAttribute('disabled');
     });
 
     chart = new Chart(canvas, {
@@ -420,24 +422,24 @@
         });
     }
 
-    $('#temp_out_carcasa').change((e) => {
+    $('#temp_out_carcasa').keyup((e) => {
         if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
             ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
         }
     });
 
-    $('#temp_in_carcasa').change((e) => {
+    $('#temp_in_carcasa').keyup((e) => {
         if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== '')
             ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
     });
 
-    $('#temp_out_tubo').change((e) => {
+    $('#temp_out_tubo').keyup((e) => {
         if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
             ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
         }
     });
 
-    $('#temp_in_tubo').change((e) => {
+    $('#temp_in_tubo').keyup((e) => {
         if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
             ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
         }
@@ -481,13 +483,12 @@
         document.getElementById('ntu').value = '';
         document.getElementById('u').value = '';
         document.getElementById('UA').value = '';
-        document.getElementById('eficiencia').value = ';'
         document.getElementById('eficiencia').value = '';
+        document.getElementById('efectividad').value = '';
         document.getElementById('ensuciamiento').value = '';
         document.getElementById('q').value = '';
         document.getElementById('registrar_resultado').setAttribute('disabled', true);
     }
-
 
     const ajaxEvaluacion = () => {
         const array = $('.campo').toArray();
@@ -538,7 +539,6 @@
                     }
                     
                     document.getElementById('registrar_resultado').setAttribute('disabled', true);
-                    valido = false;
                     vaciarCampos();
                 }
             });            

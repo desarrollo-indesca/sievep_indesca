@@ -124,13 +124,13 @@ $('#enviar_compuesto_carcasa_ficha').click((e) => {
     $('#condiciones_diseno_fluido_carcasaClose').click();
 });
 
-$('#temp_in_carcasa').change((e) => {
+$('#temp_in_carcasa').keyup((e) => {
     if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
         ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
     }
 });
 
-$('#temp_out_carcasa').change((e) => {
+$('#temp_out_carcasa').keyup((e) => {
     if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
         ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
     }
@@ -151,13 +151,13 @@ $('#fluido_carcasa').change((e) => {
     }
 });
 
-$('#temp_in_tubo').change((e) => {
+$('#temp_in_tubo').keyup((e) => {
     if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
          ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
     }
 });
 
-$('#temp_out_tubo').change((e) => {
+$('#temp_out_tubo').keyup((e) => {
     if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
          ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
     }
@@ -241,6 +241,14 @@ $('#unidad_presiones').change((e) => {
     });
 });
 
+$('#unidad_diametros').change((e) => {
+    const array = $('select[name="unidad_diametros"]').toArray().slice(1);
+
+    array.map((x) => {
+        x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+    });
+});
+
 $('#unidad_flujos').change((e) => {
     const array = $('select[name="unidad_flujos"]').toArray().slice(1);
 
@@ -251,14 +259,6 @@ $('#unidad_flujos').change((e) => {
 
 $('#unidad_fouling').change((e) => {
     const array = $('select[name="unidad_fouling"]').toArray().slice(1);
-
-    array.map((x) => {
-        x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
-    });
-});
-
-$('#unidades_pitch').change((e) => {
-    const array = $('select[name="unidad_diametros"]').toArray().slice(1);
 
     array.map((x) => {
         x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
