@@ -193,10 +193,6 @@ class PropiedadesTuboCarcasa(models.Model):
         ft = float(cond_tubo.flujo_masico)
         fc = float(cond_carcasa.flujo_masico)
 
-        print(self.pk)
-        print(ts)
-        print(ti)
-
         return evaluacion_tubo_carcasa(self, ti, ts, Ti, Ts, ft, fc, 
             self.numero_tubos, float(self.condicion_carcasa().fluido_cp), 
             float(self.condicion_tubo().fluido_cp))

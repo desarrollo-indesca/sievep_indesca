@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-r+q$9%9u7klq)&io^#yte@$07t=p_-q=dbus5@b!17o_6c#y$w
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1']
-
+LOGIN_URL = '/'
 
 # Application definition
 
@@ -87,7 +87,7 @@ WSGI_APPLICATION = 'simulaciones_pequiven.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sievep',
+        'NAME': 'sievep2',
         'USER': 'root',
         'PASSWORD': '',
         'HOST':'localhost',

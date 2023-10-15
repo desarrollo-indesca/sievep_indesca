@@ -19,7 +19,7 @@ Q_ = ur.Quantity
 
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
 
-class CrearIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
+class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
     context = {
         'titulo': "Creación de Intercambiador Tubo Carcasa"
     }
@@ -173,7 +173,7 @@ class CrearIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
 
         return render(request, 'tubo_carcasa/creacion.html', context=self.context)
 
-class CrearEvaluacionTuboCarcasa(View, LoginRequiredMixin):
+class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
     context = {
         'titulo': "Evaluación Tubo Carcasa"
     }
@@ -248,10 +248,11 @@ class CrearEvaluacionTuboCarcasa(View, LoginRequiredMixin):
         context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
         context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
         context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
+        self.context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
 
         return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
 
-class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
+class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
     context = {
         'titulo': "Edición de Intercambiador Tubo Carcasa"
     }
@@ -376,7 +377,7 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
 
         return render(request, 'tubo_carcasa/edicion.html', context=self.context)
 
-class ConsultaEvaluacionesTuboCarcasa(ListView, LoginRequiredMixin):
+class ConsultaEvaluacionesTuboCarcasa(LoginRequiredMixin, ListView):
     model = EvaluacionesIntercambiador
     template_name = 'tubo_carcasa/evaluaciones/consulta.html'
     paginate_by = 10
@@ -424,7 +425,7 @@ class ConsultaEvaluacionesTuboCarcasa(ListView, LoginRequiredMixin):
 
         return new_context
 
-class ConsultaTuboCarcasa(ListView, LoginRequiredMixin):
+class ConsultaTuboCarcasa(LoginRequiredMixin, ListView):
     model = PropiedadesTuboCarcasa
     template_name = 'tubo_carcasa/consulta.html'
     paginate_by = 10
@@ -493,7 +494,7 @@ class ConsultaTuboCarcasa(ListView, LoginRequiredMixin):
 
 # VISTAS GENERALES PARA LOS INTERCAMBIADORES DE CALOR
 
-class SeleccionTipo(View, LoginRequiredMixin):
+class SeleccionTipo(LoginRequiredMixin, View):
     context = {
         'titulo': "SIEVEP - Selección de Tipo de Intercambiador"
     }
@@ -503,7 +504,7 @@ class SeleccionTipo(View, LoginRequiredMixin):
 
 # VISTAS AJAX
 
-class EvaluarTuboCarcasa(View, LoginRequiredMixin):
+class EvaluarTuboCarcasa(LoginRequiredMixin, View):
     def get(self, request, pk):
         print(request.GET)
         intercambiador = PropiedadesTuboCarcasa.objects.get(id = pk)
@@ -526,7 +527,7 @@ class EvaluarTuboCarcasa(View, LoginRequiredMixin):
         print(res)
         return JsonResponse(res)
 
-class ConsultaCAS(View, LoginRequiredMixin):
+class ConsultaCAS(LoginRequiredMixin, View):
     def get(self, request):
         cas = request.GET['cas']
 
@@ -546,7 +547,7 @@ class ConsultaCAS(View, LoginRequiredMixin):
 
         return JsonResponse({'nombre': fluido, 'estado': estado})
 
-class ConsultaCP(View, LoginRequiredMixin):
+class ConsultaCP(LoginRequiredMixin, View):
     def get(self, request):
         fluido = request.GET['fluido']
         t1,t2 = float(request.GET['t1']), float(request.GET['t2'])
@@ -569,7 +570,7 @@ class ConsultaCP(View, LoginRequiredMixin):
         else:
             return JsonResponse({'cp': ''})
         
-class ConsultaGraficasEvaluacion(View, LoginRequiredMixin):
+class ConsultaGraficasEvaluacion(LoginRequiredMixin, View):
     def get(self, request, pk):
         evaluaciones = EvaluacionesIntercambiador.objects.filter(intercambiador = PropiedadesTuboCarcasa.objects.get(pk=pk).intercambiador).order_by('fecha')
         
@@ -581,4 +582,4 @@ class ConsultaGraficasEvaluacion(View, LoginRequiredMixin):
         
         print(evaluaciones)
 
-        return JsonResponse(list(evaluaciones.values('fecha','efectividad', 'u', 'ensuciamiento','eficiencia'))[:15], safe=False)
+        return JsonResponse(list(evaluaciones.values('fecha','efectividad', 'u', 'ensuciamiento','eficiencia', 'caida_presion_in', 'caida_presion_ex'))[:15], safe=False)

@@ -41,7 +41,7 @@
 
             <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="no_tubos">Número de Tubos:</label>
-                <input type="number" min="1" class="form-control" id="no_tubos" name="no_tubos" value="{{intercambiador.numero_tubos}}">
+                <input type="number" min="1" class="form-control campo" id="no_tubos" name="no_tubos" value="{{intercambiador.numero_tubos}}">
             </div>
         </div>
     
@@ -103,7 +103,9 @@
                         <div class="input-group mb-3">
                             <input style="width: 60% !important;" class="form-control campo" type="number" name="caida_carcasa" id="caida_carcasa" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 40% !important;" class="form-select campo" name="unidad_presion" id="unidad_presion">
-                                <option value="1">bar</option>
+                                {% for unidad in unidades_presion %}
+                                <option value="{{unidad.pk}}">{{unidad}}</option>
+                                {% endfor %}
                             </select>
                         </div>
                     </div>

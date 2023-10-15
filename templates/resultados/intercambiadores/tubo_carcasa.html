@@ -27,9 +27,9 @@
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="2">Fluido</th>
                             <th class="table-dark small">Nombre</th>
-                            <th class="table-dark small">Cp</th>
+                            <th class="table-dark small">Cp (J/KgK)</th>
                             <th class="table-dark small">Nombre</th>
-                            <th class="table-dark small">Cp</th>
+                            <th class="table-dark small">Cp (J/KgK)</th>
                           </tr>
                           <tr>
                             <td>
@@ -70,7 +70,7 @@
                             <td colspan="2">{{evaluacion.promedio_tubo}}</td>
                           </tr>
                           <tr>
-                            <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="2">Flujo Másico (Kg/h)</th>
+                            <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="2">Flujo Másico ({{evaluacion.unidad_flujo}})</th>
                             <th class="table-dark small" style="vertical-align: middle;" colspan="2">Externo</th>
                             <th class="table-dark small" style="vertical-align: middle;" colspan="2">Interno</th>
                           </tr>
@@ -94,7 +94,7 @@
                         <th class="table-info" colspan="4">Resultados de la Evaluación</th>
                       </tr>
                       <tr>
-                        <th class="table-dark" style="vertical-align: middle;">LMTD</th>
+                        <th class="table-dark" style="vertical-align: middle;">LMTD ({{evaluacion.temperaturas_unidad}})</th>
                         <td>{{evaluacion.lmtd}}</td>
                         <th class="table-dark" style="vertical-align: middle;">Área Transf. (m²)</th>
                         <td>{{evaluacion.area_transferencia}}</td>
@@ -120,13 +120,13 @@
                       <tr>
                         <th class="table-dark" style="vertical-align: middle;">Q (W)</th>
                         <td>{{evaluacion.q}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">Tubos</th>
+                        <th class="table-dark" style="vertical-align: middle;">Núm. Tubos</th>
                         <td>{{evaluacion.numero_tubos}}</td>
                       </tr>
                       <tr>
-                        <th class="table-dark" style="vertical-align: middle;">Caída Presión Tubo</th>
+                        <th class="table-dark" style="vertical-align: middle;">C. Presión Tubo ({{evaluacion.unidad_presion}})</th>
                         <td>{{evaluacion.caida_presion_in}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">Caída Presión Carcasa</th>
+                        <th class="table-dark" style="vertical-align: middle;">C. Presión Carcasa ({{evaluacion.unidad_presion}})</th>
                         <td>{{evaluacion.caida_presion_ex}}</td>
                       </tr>
                     </tbody>
@@ -165,13 +165,13 @@
                       <tr>
                         <th class="table-dark" style="vertical-align: middle;">Q (W)</th>
                         <td>{{diseno.q}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">Caída Presión Máx.</th>
+                        <th class="table-dark" style="vertical-align: middle;">C. Presión Máx. ({{intercambiador.condicion_tubo.unidad_presion}})</th>
                         <td>{{intercambiador.condicion_tubo.caida_presion_max}}</td>
                       </tr>
                       <tr>
-                        <th class="table-dark" style="vertical-align: middle;">Cp Tubo</th>
+                        <th class="table-dark" style="vertical-align: middle;">Cp Tubo (J/KgK)</th>
                         <td>{{intercambiador.condicion_tubo.fluido_cp}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">Cp Carcasa</th>
+                        <th class="table-dark" style="vertical-align: middle;">Cp Carcasa (J/KgK)</th>
                         <td>{{intercambiador.condicion_carcasa.fluido_cp}}</td>
                       </tr>
                     </tbody>

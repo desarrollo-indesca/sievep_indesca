@@ -22,6 +22,12 @@
                 <div class="col-6">
                     <canvas width="100%" id="grafica_historico4"></canvas>
                 </div>
+                <div class="col-6">
+                    <canvas width="100%" id="grafica_historico5"></canvas>
+                </div>
+                <div class="col-6">
+                    <canvas width="100%" id="grafica_historico6"></canvas>
+                </div>
             </div>
         </div>
 
@@ -36,7 +42,7 @@
 <script>
     canvas = document.getElementById('grafica_historico1').getContext('2d');
     let datosGraficaU = {}, datosGraficaEfectividad = {}, datosGraficaEnsuciamiento = {}, datosGraficaEficiencia = {};   
-
+    let datosGraficaCaidaPresionInterna = {}, datosGraficaCaidaPresionExterna = {};
     $.ajax({
         url: '/intercambiadores/evaluar/tubo_carcasa/grafica/{{intercambiador.pk}}/',
         data: {
@@ -52,7 +58,8 @@
                 datosGraficaEfectividad[fecha_str] = element.efectividad;
                 datosGraficaEnsuciamiento[fecha_str] = element.ensuciamiento;
                 datosGraficaEficiencia[fecha_str] = element.eficiencia;
-                console.log(datosGraficaU);
+                datosGraficaCaidaPresionExterna[fecha_str] = element.caida_presion_ex;
+                datosGraficaCaidaPresionInterna[fecha_str] = element.caida_presion_in;
             }
 
             let canvas = document.getElementById('grafica_historico1').getContext('2d');
@@ -63,7 +70,7 @@
                 data: {
                     datasets: [
                         {
-                            label: "U (multiplicado por 10000)",
+                            label: "U",
                             data: datosGraficaU,
                             backgroundColor: ['#777'],
                             borderColor: ['#777']
@@ -174,6 +181,66 @@
                         }        
                     }
             });         
+        
+            canvas = document.getElementById('grafica_historico5').getContext('2d');
+            $('#grafica_historico5').removeAttr('hidden');
+
+            chart = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: "Caída Presión Tubos",
+                            data: datosGraficaCaidaPresionInterna,
+                            backgroundColor: ['#00B7EB'],
+                            borderColor: ['#00B7EB']
+                            },
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Histórico de Caída Presión Tubos',
+                                position: 'top'
+                            },
+                            legend: {
+                                display: true
+                            }
+                        }        
+                    }
+            });
+
+            canvas = document.getElementById('grafica_historico6').getContext('2d');
+            $('#grafica_historico6').removeAttr('hidden');
+
+            chart = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: "Caída Presión Carcasa",
+                            data: datosGraficaCaidaPresionExterna,
+                            backgroundColor: ['#ff8000'],
+                            borderColor: ['#ff8000']
+                            },
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Histórico de Caída Presión Carcasa',
+                                position: 'top'
+                            },
+                            legend: {
+                                display: true
+                            }
+                        }        
+                    }
+            }); 
         }
     });
 </script>
