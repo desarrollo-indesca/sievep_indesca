@@ -625,8 +625,10 @@
                         <label class="form-label" for="pitch">Pitch:</label>
                         <div class="input-group mb-3">
                             <input value="{{intercambiador.pitch_tubos|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="pitch" id="pitch" step="0.0001" required>
-                            <select style="width: 40% !important;" class="form-select" name="unidad_diametros" id="unidad_diametros" disabled>
-                                <option value="1">mm</option>
+                            <select style="width: 40% !important;" class="form-select" name="unidades_pitch" id="unidades_pitch">
+                                {% for unidad in unidades_longitud %}
+                                <option value="{{unidad.pk}}" {% if intercambiador.unidades_pitch == unidad %}selected{%endif%}>{{unidad}}</option>
+                                {% endfor %}
                             </select>
                         </div>
                     </div>
@@ -668,102 +670,6 @@
 {% endblock %}
 
 {% block extra_javascript %}
-<script>
-    let chart = null;
-    let canvas = document.getElementById('grafica_1').getContext('2d');
-    let datosGrafica = undefined;
-
-    $('input.temperatura').change((e) => {
-        canvas = document.getElementById('grafica_1').getContext('2d');
-        
-        if(chart)
-            chart.destroy();
-
-        let data = [{data: {}},{data: {}}];
-
-        if($('#temp_in_tubo').val() !== ""){
-            data[0].data.Inicial = Number($('#temp_in_tubo').val());
-        }
-
-        if($('#temp_out_carcasa').val() !== ""){
-            data[0].data.Final = Number($('#temp_out_carcasa').val());
-        }
-
-        if($('#temp_in_tubo').val() !== ""){
-            data[1].data.Inicial = Number($('#temp_in_tubo').val());
-        }
-
-        if($('#temp_out_tubo').val() !== ""){
-            data[1].data.Final = Number($('#temp_out_tubo').val());
-        }
-
-        data[0].label = "Tubo Externo";
-        data[0].backgroundColor = ['#E31E24'];
-        data[0].borderColor = ['#E31E24'];
-
-        data[1].label = "Tubo Interno";
-        data[1].backgroundColor = ['#555'];
-        data[1].borderColor = ['#555'];
-
-        console.log(data);
-
-        chart = new Chart(canvas, {
-            type: 'line',
-            data: {
-                datasets: data
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Variación de las Temperaturas',
-                        position: 'top'
-                    },
-                    legend: {
-                        display: true
-                    }
-                }        
-            }
-        });
-    
-        console.log(chart.data);
-    });
-
-    chart = new Chart(canvas, {
-            type: 'line',
-            data: {
-                datasets: [
-                    {
-                        label: "Tubo Externo",
-                        data: {},
-                        backgroundColor: ['#E31E24'],
-                        borderColor: ['#E31E24']
-                    },
-                    {
-                        label: "Tubo Interno",
-                        data: {},
-                        backgroundColor: ['#555'],
-                        borderColor: ['#555']
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Variación de las Temperaturas',
-                        position: 'top'
-                    },
-                    legend: {
-                        display: true
-                    }
-                }        
-            }
-        });
-</script>
-
 <script>
     {% include 'scripts/ajaxCP.js' %}
 </script>

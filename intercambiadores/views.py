@@ -287,6 +287,7 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             propiedades.diametro_interno_tubos = request.POST['id_carcasa']
             propiedades.tipo_tubo = TiposDeTubo.objects.get(pk=request.POST['tipo_tubo'])
             propiedades.pitch_tubos = request.POST['pitch']
+            propiedades.unidades_pitch = Unidades.objects.get(pk=request.POST['unidades_pitch'])
             propiedades.material_carcasa = request.POST['material_carcasa']
             propiedades.material_tubo = request.POST['material_tubo']
             propiedades.q = request.POST['calor']

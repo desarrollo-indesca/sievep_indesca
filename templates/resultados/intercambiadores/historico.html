@@ -53,7 +53,8 @@
             for (let i = 0; i < res.length; i++) {
                 const element = res[i];
                 const fecha = new Date(Date.parse(element.fecha));
-                const fecha_str = `${fecha.getDay()}/${fecha.getMonth()}/${fecha.getFullYear()} ${fecha.getHours()}:${fecha.getMinutes()}:${fecha.getSeconds()}`;
+                const fecha_str = `${fecha.getDate()}/${fecha.getMonth()+1}/${fecha.getFullYear()} ${fecha.getHours()}:${fecha.getMinutes()}:${fecha.getSeconds()}`;
+                
                 datosGraficaU[fecha_str] = element.u;
                 datosGraficaEfectividad[fecha_str] = element.efectividad;
                 datosGraficaEnsuciamiento[fecha_str] = element.ensuciamiento;
