@@ -300,6 +300,10 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
             propiedades.numero_pasos_carcasa = request.POST['numero_pasos_carcasa']
             propiedades.fluido_tubo =  Fluido.objects.get(pk=request.POST['fluido_tubo']) if type(fluido_tubo) == str and fluido_tubo else fluido_tubo if type(fluido_tubo) == Fluido else None
             propiedades.fluido_carcasa = Fluido.objects.get(pk=request.POST['fluido_carcasa']) if type(fluido_carcasa) == str and fluido_carcasa else fluido_carcasa if type(fluido_carcasa) == Fluido else None
+            propiedades.area_unidad = Unidades.objects.get(pk=request.POST['unidad_area'])
+            propiedades.longitud_tubos_unidad = Unidades.objects.get(pk=request.POST['longitud_tubos_unidad'])
+            propiedades.diametro_tubos_unidad = Unidades.objects.get(pk=request.POST['unidad_diametros'])
+            
             propiedades.save()
 
             condiciones_tubo = propiedades.condicion_tubo()
@@ -315,7 +319,10 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
             condiciones_tubo.caida_presion_min = request.POST['caida_presion_min_tubo']
             condiciones_tubo.fouling = request.POST['fouling_tubo']
             condiciones_tubo.fluido_cp = request.POST['cp_tubo']
-            
+            condiciones_tubo.temperaturas_unidad = Unidades.objects.get(pk=request.POST['unidad_temperaturas'])
+            condiciones_tubo.unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presiones'])
+            condiciones_tubo.flujos_unidad = Unidades.objects.get(pk=request.POST['unidad_flujos'])
+
             if(fluido_tubo != ''):
                 condiciones_tubo.fluido_etiqueta = fluido_tubo[0] if type(fluido_tubo) != Fluido else None
 
@@ -334,6 +341,9 @@ class EditarIntercambiadorTuboCarcasa(View, LoginRequiredMixin):
             condiciones_carcasa.caida_presion_min = request.POST['caida_presion_min_carcasa']
             condiciones_carcasa.fouling = request.POST['fouling_carcasa']
             condiciones_carcasa.fluido_cp = request.POST['cp_carcasa']
+            condiciones_carcasa.temperaturas_unidad = Unidades.objects.get(pk=request.POST['unidad_temperaturas'])
+            condiciones_carcasa.unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presiones'])
+            condiciones_carcasa.flujos_unidad = Unidades.objects.get(pk=request.POST['unidad_flujos'])
             
             if(fluido_carcasa != ''):
                 print(fluido_carcasa)

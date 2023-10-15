@@ -73,6 +73,9 @@ class Unidades(models.Model):
     simbolo = models.CharField(max_length=10)
     tipo = models.CharField(max_length=1)
 
+    def __str__(self):
+        return self.simbolo
+
     class Meta:
         db_table = "unidades"
 

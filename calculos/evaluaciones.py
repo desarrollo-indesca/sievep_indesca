@@ -12,8 +12,8 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
     q_carcasa = cp_carcasa*Fc*abs(Ti-Ts) # W
     nt = nt if nt else float(intercambiador.numero_tubos)
 
-    diametro_tubo = normalizar_unidades_longitud(float(intercambiador.diametro_interno_tubos), intercambiador.diametro_tubos_unidad.pk)
-    longitud_tubo = normalizar_unidades_longitud(float(intercambiador.longitud_tubos), intercambiador.longitud_tubos_unidad)
+    diametro_tubo = normalizar_unidades_longitud([float(intercambiador.diametro_interno_tubos)], intercambiador.diametro_tubos_unidad.pk)[0]
+    longitud_tubo = normalizar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad)[0]
 
     area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
     dtml = abs(((Ts - ti) - (Ti - ts))/np.log(abs((Ts - ti)/(Ti - ts)))) #K

@@ -9,7 +9,7 @@ def normalizar_unidades_temperatura(args, unidad):
     for x in args:
         actualizadas.append(Q_(x, unidad).to(ur.kelvin).magnitude)
 
-    return actualizadas
+    return actualizadas if len(actualizadas) != 0 else args
 
 def normalizar_unidades_flujo(args, unidad):
     actualizadas = []
@@ -24,7 +24,7 @@ def normalizar_unidades_flujo(args, unidad):
         for x in args:
             actualizadas.append(Q_(x, ur.pound/ur.hour).to(ur.kilogram/ur.second).magnitude)
 
-    return actualizadas
+    return actualizadas if len(actualizadas) != 0 else args
 
 def normalizar_unidades_longitud(args, unidad):
     actualizadas = []
@@ -43,7 +43,7 @@ def normalizar_unidades_longitud(args, unidad):
             for x in args:
                 actualizadas.append(Q_(x, ur.inch).to(ur.meter).magnitude)
 
-    return actualizadas
+    return actualizadas if len(actualizadas) != 0 else args
 
 def normalizar_unidades_area(args, unidad):
     actualizadas = []
@@ -56,7 +56,7 @@ def normalizar_unidades_area(args, unidad):
             for x in args:
                 actualizadas.append(Q_(x, ur.inch ** 2).to(ur.meter ** 2).magnitude)
 
-    return actualizadas
+    return actualizadas if len(actualizadas) != 0 else args
 
 def normalizar_unidades_presion(args, unidad):
     actualizadas = []
@@ -72,7 +72,7 @@ def normalizar_unidades_presion(args, unidad):
             for x in args:
                 actualizadas.append(Q_(x, ur.mmHg).to(ur.bar).magnitude)
 
-    return actualizadas
+    return actualizadas if len(actualizadas) != 0 else args
 
 def normalizar_unidades_entropia_especifica(args, unidad):
     actualizadas = []
@@ -82,7 +82,7 @@ def normalizar_unidades_entropia_especifica(args, unidad):
             for x in args:
                 actualizadas.append(Q_(x, ur.Btu_it/ur.pound/ur.delta_degF).to(ur.joule/ur.kilogram/ur.kelvin).magnitude)
 
-    return actualizadas
+    return actualizadas if len(actualizadas) != 0 else args
 
 def normalizar_unidades_calor(args, unidad):
     actualizadas = []
@@ -95,4 +95,4 @@ def normalizar_unidades_calor(args, unidad):
             for x in args:
                 actualizadas.append(Q_(x, ur.Btu_it/ur.second).to(ur.watt).magnitude)
 
-    return actualizadas
+    return actualizadas if len(actualizadas) != 0 else args
