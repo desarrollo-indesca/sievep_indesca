@@ -52,10 +52,10 @@ def transformar_unidades_presion(args: list, unidad: int, unidad_salida: int = 7
 
     return actualizadas
 
-def transformar_unidades_entropia_especifica(args: list, unidad: int, unidad_salida: int = 27) -> list:
+def transformar_unidades_u(args: list, unidad: int, unidad_salida: int = 27) -> list:
     actualizadas = []
-    unidad_salida = ur.watt/ur.meter**2/ur.kelvin if unidad_salida == 27 else ur.Btu_it/ur.pound/ur.delta_degF
-    unidad = ur.watt/ur.meter**2/ur.kelvin if unidad == 27 else ur.Btu_it/ur.pound/ur.delta_degF
+    unidad_salida = ur.watt/ur.meter**2/ur.kelvin if unidad_salida == 27 else ur.Btu_it/ur.hour/ur.feet**2/ur.delta_degF
+    unidad = ur.watt/ur.meter**2/ur.kelvin if unidad == 27 else ur.Btu_it/ur.hour/ur.feet**2/ur.delta_degF
 
     for x in args:
         actualizadas.append(Q_(x, unidad).to(unidad_salida).magnitude)
@@ -72,4 +72,22 @@ def transformar_unidades_calor(args: list, unidad: int, unidad_salida: int = 28)
 
     return actualizadas
 
-print(transformar_unidades_flujo([10,100,300], 18))
+def transformar_unidades_cp(args: list, unidad: int, unidad_salida: int = 30) -> list:
+    actualizadas = []
+    unidad_salida = ur.joule/ur.kgram/ur.kelvin if unidad_salida == 29 else ur.Btu_it/ur.pound/ur.delta_degF
+    unidad = ur.joule/ur.kgram/ur.kelvin if unidad == 29 else ur.Btu_it/ur.pound/ur.delta_degF
+
+    for x in args:
+        actualizadas.append(Q_(x, unidad).to(unidad_salida).magnitude)
+
+    return actualizadas
+
+def transformar_unidades_ensuciamiento(args: list, unidad: int, unidad_salida: int = 31) -> list:
+    actualizadas = []
+    unidad_salida = ur.meter**2*ur.kelvin/ur.watt if unidad_salida == 31 else ur.hour*ur.feet**2*ur.delta_degF/ur.Btu_it
+    unidad = ur.meter**2*ur.kelvin/ur.watt if unidad == 31 else ur.hour*ur.feet**2*ur.delta_degF/ur.Btu_it
+
+    for x in args:
+        actualizadas.append(Q_(x, unidad).to(unidad_salida).magnitude)
+
+    return actualizadas

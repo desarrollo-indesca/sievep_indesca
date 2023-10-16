@@ -183,6 +183,10 @@ class PropiedadesTuboCarcasa(models.Model):
     u = models.DecimalField(max_digits=10, decimal_places=3, null=True)
     ensuciamiento = models.DecimalField(max_digits=10, decimal_places=3, null=True)
 
+    q_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE)
+    u_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE)
+    ensuciamiento_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE)
+
     def calcular_diseno(self):
         cond_tubo= self.condicion_tubo()
         cond_carcasa = self.condicion_carcasa()

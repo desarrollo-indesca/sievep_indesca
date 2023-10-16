@@ -488,6 +488,12 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ListView):
 
         return new_context
 
+class ConsultaVacia(LoginRequiredMixin, View):
+    template_name = 'pantalla_vacia.html'
+      
+    def get(self, request, tipo):
+        return render(request, self.template_name, {'tipo': tipo.title()})
+
 # VISTAS GENERALES PARA LOS INTERCAMBIADORES DE CALOR
 
 class SeleccionTipo(LoginRequiredMixin, View):
