@@ -1,19 +1,19 @@
 import numpy as np
-from .unidades import normalizar_unidades_temperatura, normalizar_unidades_flujo, normalizar_unidades_area, normalizar_unidades_longitud
+from .unidades import transformar_unidades_temperatura, transformar_unidades_flujo, transformar_unidades_longitud
 from ht import F_LMTD_Fakheri
 
 def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo = None, cp_carcasa = None, unidad_temp = 1, unidad_flujo = 6):
-    ti,ts,Ti,Ts = normalizar_unidades_temperatura([ti,ts,Ti,Ts], unidad=unidad_temp)
+    ti,ts,Ti,Ts = transformar_unidades_temperatura([ti,ts,Ti,Ts], unidad=unidad_temp)
     
     if(unidad_flujo != 10):
-        ft,Fc = normalizar_unidades_flujo([ft,Fc], unidad_flujo)
+        ft,Fc = transformar_unidades_flujo([ft,Fc], unidad_flujo)
 
     q_tubo = cp_tubo*ft*abs(ti-ts) # W
     q_carcasa = cp_carcasa*Fc*abs(Ti-Ts) # W
     nt = nt if nt else float(intercambiador.numero_tubos)
 
-    diametro_tubo = normalizar_unidades_longitud([float(intercambiador.diametro_externo_tubos)], intercambiador.diametro_tubos_unidad.pk)[0]
-    longitud_tubo = normalizar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad)[0]
+    diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_tubos)], intercambiador.diametro_tubos_unidad.pk)[0]
+    longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad)[0]
 
     area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
     dtml = abs(((Ts - ti) - (Ti - ts))/np.log(abs((Ts - ti)/(Ti - ts)))) #K

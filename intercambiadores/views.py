@@ -10,12 +10,7 @@ from thermo.chemical import search_chemical
 from calculos.termodinamicos import calcular_cp
 from calculos.evaluaciones import evaluacion_tubo_carcasa
 from reportes.pdfs import generar_pdf
-from pint import UnitRegistry
-from calculos.unidades import normalizar_unidades_temperatura
-
-# UNIDADES
-ur = UnitRegistry()
-Q_ = ur.Quantity
+from calculos.unidades import transformar_unidades_temperatura
 
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
 
@@ -554,7 +549,7 @@ class ConsultaCP(LoginRequiredMixin, View):
         t1,t2 = float(request.GET['t1']), float(request.GET['t2'])
         unidad = int(request.GET['unidad'])
 
-        t1,t2 = normalizar_unidades_temperatura([t1,t2], unidad=unidad)
+        t1,t2 = transformar_unidades_temperatura([t1,t2], unidad=unidad)
 
         if(fluido != ''):
             if(fluido.find('*') != -1):
