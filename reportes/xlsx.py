@@ -1,15 +1,19 @@
 import xlsxwriter
 import datetime
+from django.http import HttpResponse
+from io import BytesIO
 from intercambiadores.models import Planta, Complejo
+from simulaciones_pequiven.settings import BASE_DIR
 
 # Aquí irán los reportes en formato Excel
 alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-raiz = "C:\\Users\\rurdaneta\\sievep\\sievep_indesca\\"
 
 def reporte_tubo_carcasa(object_list, request): # JUSTO AHORA SOLO ESTÁ LA PRUEBA
+    excel_io = BytesIO()
+    workbook = xlsxwriter.Workbook(excel_io)
+    
     hora = datetime.datetime.now()
     nombre = f'reporte_tubo_carcasa_{hora.day}_{hora.hour}_{hora.second}_{hora.microsecond}.xlsx'
-    workbook = xlsxwriter.Workbook(nombre)
     worksheet = workbook.add_worksheet()
 
     # Widen the first column to make the text clearer.
@@ -31,9 +35,9 @@ def reporte_tubo_carcasa(object_list, request): # JUSTO AHORA SOLO ESTÁ LA PRUE
     bold_bordered.set_align('center')
     center_bordered.set_align('center')
 
-    worksheet.insert_image(0, 0, raiz + 'static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
     worksheet.write('C1', 'Reporte de Intercambiadores Tubo/Carcasa', bold)
-    worksheet.insert_image(0, 4, raiz + 'static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+    worksheet.insert_image(0, 4, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
 
     num = 6
     if(len(request.GET)):
@@ -66,5 +70,7 @@ def reporte_tubo_carcasa(object_list, request): # JUSTO AHORA SOLO ESTÁ LA PRUE
     worksheet.write(f"E{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
     worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)
     workbook.close()
-
-    return nombre
+    
+    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
+    
+    return response

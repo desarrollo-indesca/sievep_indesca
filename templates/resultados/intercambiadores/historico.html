@@ -16,11 +16,18 @@
                 <div class="col-lg-6 col-md-12">
                   <canvas width="100%" id="grafica_historico2"></canvas>
                 </div>
-                <div class="col-3"></div>
                 <div class="col-lg-6 col-md-12">
                   <canvas width="100%" id="grafica_historico3"></canvas>
                 </div>
-                <div class="col-3"></div>
+                <div class="col-6">
+                    <canvas width="100%" id="grafica_historico4"></canvas>
+                </div>
+                <div class="col-6">
+                    <canvas width="100%" id="grafica_historico5"></canvas>
+                </div>
+                <div class="col-6">
+                    <canvas width="100%" id="grafica_historico6"></canvas>
+                </div>
             </div>
         </div>
 
@@ -33,114 +40,208 @@
 </div>
 
 <script>
-  canvas = document.getElementById('grafica_historico1').getContext('2d');
-  datosGrafica = undefined;
+    canvas = document.getElementById('grafica_historico1').getContext('2d');
+    let datosGraficaU = {}, datosGraficaEfectividad = {}, datosGraficaEnsuciamiento = {}, datosGraficaEficiencia = {};   
+    let datosGraficaCaidaPresionInterna = {}, datosGraficaCaidaPresionExterna = {};
+    $.ajax({
+        url: '/intercambiadores/evaluar/tubo_carcasa/grafica/{{intercambiador.pk}}/',
+        data: {
+            desde: $('#desde').val(),
+            hasta: $('#hasta').val()
+        },
+        success: (res) => {
+            for (let i = 0; i < res.length; i++) {
+                const element = res[i];
+                const fecha = new Date(Date.parse(element.fecha));
+                const fecha_str = `${fecha.getDate()}/${fecha.getMonth()+1}/${fecha.getFullYear()} ${fecha.getHours()}:${fecha.getMinutes()}:${fecha.getSeconds()}`;
+                
+                datosGraficaU[fecha_str] = element.u;
+                datosGraficaEfectividad[fecha_str] = element.efectividad;
+                datosGraficaEnsuciamiento[fecha_str] = element.ensuciamiento;
+                datosGraficaEficiencia[fecha_str] = element.eficiencia;
+                datosGraficaCaidaPresionExterna[fecha_str] = element.caida_presion_ex;
+                datosGraficaCaidaPresionInterna[fecha_str] = element.caida_presion_in;
+            }
 
-  $('#grafica_historico1').removeAttr('hidden');
+            let canvas = document.getElementById('grafica_historico1').getContext('2d');
+            $('#grafica_historico1').removeAttr('hidden');
 
-  chart = new Chart(canvas, {
-          type: 'line',
-          data: {
-              datasets: [
-                  {
-                      label: "U",
-                      data: {
-                        '10/09/2023': 50,
-                        '11/09/2023': 80,
-                        '12/09/2023': 100,
-                        '13/09/2023': 75
-                      },
-                      backgroundColor: ['#777'],
-                      borderColor: ['#777']
-                  },
-              ]
-          },
-          options: {
-              responsive: true,
-              plugins: {
-                  title: {
-                      display: true,
-                      text: 'Histórico de U',
-                      position: 'top'
-                  },
-                  legend: {
-                      display: true
-                  }
-              }        
-          }
-  });
+            chart = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: "U",
+                            data: datosGraficaU,
+                            backgroundColor: ['#777'],
+                            borderColor: ['#777']
+                        },
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Histórico de U',
+                            position: 'top'
+                        },
+                        legend: {
+                            display: true
+                        }
+                    }        
+                }
+            });
 
-  canvas = document.getElementById('grafica_historico2').getContext('2d');
-  datosGrafica = undefined;
+            canvas = document.getElementById('grafica_historico2').getContext('2d');
 
-  $('#grafica_historico2').removeAttr('hidden');
+            chart = new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        datasets: [
+                            {
+                                label: "Efectividad",
+                                data: datosGraficaEfectividad,
+                                backgroundColor: ['#E31E24'],
+                                borderColor: ['#E31E24']
+                            },
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Histórico de Efectividad',
+                                position: 'top'
+                            },
+                            legend: {
+                                display: true
+                            }
+                        }        
+                    }
+            });
 
-  chart = new Chart(canvas, {
-          type: 'line',
-          data: {
-              datasets: [
-                  {
-                      label: "Efectividad",
-                      data: {
-                        '10/09/2023': 500,
-                        '11/09/2023': 250,
-                        '12/09/2023': 382,
-                        '13/09/2023': 410
-                      },
-                      backgroundColor: ['#E31E24'],
-                      borderColor: ['#E31E24']
-                  },
-              ]
-          },
-          options: {
-              responsive: true,
-              plugins: {
-                  title: {
-                      display: true,
-                      text: 'Histórico de Efectividad',
-                      position: 'top'
-                  },
-                  legend: {
-                      display: true
-                  }
-              }        
-          }
-  });
+            canvas = document.getElementById('grafica_historico3').getContext('2d');
 
-  canvas = document.getElementById('grafica_historico3').getContext('2d');
-  datosGrafica = undefined;
+            $('#grafica_historico3').removeAttr('hidden');
 
-  $('#grafica_historico3').removeAttr('hidden');
+            chart = new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        datasets: [
+                            {
+                                label: "Ensuciamiento",
+                                data: datosGraficaEnsuciamiento,
+                                backgroundColor: ['#006400'],
+                                borderColor: ['#006400']
+                                },
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Histórico de Ensuciamiento',
+                                    position: 'top'
+                                },
+                                legend: {
+                                    display: true
+                                }
+                            }        
+                        }
+                });
+            
+            canvas = document.getElementById('grafica_historico4').getContext('2d');
+            $('#grafica_historico4').removeAttr('hidden');
 
-  chart = new Chart(canvas, {
-          type: 'line',
-          data: {
-              datasets: [
-                  {
-                      label: "Ensuciamiento",
-                      data: {
-                        '10/09/2023': 50,
-                        '11/09/2023': 60,
-                        '12/09/2023': 80,
-                        '13/09/2023': 100
-                      },
-                      backgroundColor: ['#006400'],
-                      borderColor: ['#006400']
-                  },
-              ]
-          },
-          options: {
-              responsive: true,
-              plugins: {
-                  title: {
-                      display: true,
-                      text: 'Histórico de Ensuciamiento',
-                      position: 'top'
-                  },
-                  legend: {
-                      display: true
-                  }
-              }        
-          }
-  });
+            chart = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: "% Eficiencia",
+                            data: datosGraficaEficiencia,
+                            backgroundColor: ['#00F'],
+                            borderColor: ['#00F']
+                            },
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Histórico de Eficiencia',
+                                position: 'top'
+                            },
+                            legend: {
+                                display: true
+                            }
+                        }        
+                    }
+            });         
+        
+            canvas = document.getElementById('grafica_historico5').getContext('2d');
+            $('#grafica_historico5').removeAttr('hidden');
+
+            chart = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: "Caída Presión Tubos",
+                            data: datosGraficaCaidaPresionInterna,
+                            backgroundColor: ['#00B7EB'],
+                            borderColor: ['#00B7EB']
+                            },
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Histórico de Caída Presión Tubos',
+                                position: 'top'
+                            },
+                            legend: {
+                                display: true
+                            }
+                        }        
+                    }
+            });
+
+            canvas = document.getElementById('grafica_historico6').getContext('2d');
+            $('#grafica_historico6').removeAttr('hidden');
+
+            chart = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: "Caída Presión Carcasa",
+                            data: datosGraficaCaidaPresionExterna,
+                            backgroundColor: ['#ff8000'],
+                            borderColor: ['#ff8000']
+                            },
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Histórico de Caída Presión Carcasa',
+                                position: 'top'
+                            },
+                            legend: {
+                                display: true
+                            }
+                        }        
+                    }
+            }); 
+        }
+    });
 </script>

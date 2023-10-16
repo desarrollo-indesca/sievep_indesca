@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import logout, login, get_user_model
 from django.http import HttpResponse
 from intercambiadores.models import Fluido, Unidades, TiposDeTubo, Tema, Intercambiador, PropiedadesTuboCarcasa, CondicionesTuboCarcasa
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django import template
 from django.utils.http import urlencode
@@ -34,7 +35,8 @@ class Bienvenida(View):
         try:
             user = UserModel.objects.get(email=username)
         except UserModel.DoesNotExist:
-            return None
+            self.context['errores'] = 'Usuario no encontrado.'
+            return redirect('/')
         else:
             if user.check_password(password):
                 user = user
@@ -48,7 +50,7 @@ class Bienvenida(View):
             self.context['errores'] = 'Datos Incorrectos.'
             return redirect('/')
         
-class CerrarSesion(View):
+class CerrarSesion(LoginRequiredMixin, View):
     def get(self, request):
         logout(request)
         return redirect('/')
@@ -153,40 +155,44 @@ class ComponerIntercambiadores(View):
                 try:
                     row[51] = Tema.objects.get(codigo = row[51])
                 except:
-                    row[51] = Tema.objects.get(pk=8) 
+                    row[51] = Tema.objects.create(codigo = row[51].upper())
 
                 # Fluidos (Caso Especial) 5,18
                 etiqueta_carcasa = None
 
                 if(Fluido.objects.filter(nombre = row[5].upper()).exists()):
-                    row[5] = Fluido.objects.get(nombre = row[5])
-                    cp_carcasa = calcular_cp(row[5].cas, row[6], row[7], 'C')
+                    row[5] = Fluido.objects.get(nombre = row[5].upper())
+                    cp_carcasa = calcular_cp(row[5].cas, row[6]+273.15, row[7]+273.15)
                 elif(row[5] == 'Vapor' or 'AGUA' in row[5].upper()):
                     row[5] = Fluido.objects.get(nombre = 'AGUA')
-                    cp_carcasa = calcular_cp(row[5].cas, row[6], row[7], 'C')
+                    cp_carcasa = calcular_cp(row[5].cas, row[6]+273.15, row[7]+273.15)
                 else:
+                    bandera = False
                     for fluido in Fluido.objects.all():
                         if(fluido.nombre.upper() in row[5].upper()):
                             row[5] = fluido
+                            bandera = True
                             break
-                    else:
+                    if not bandera:
                         etiqueta_carcasa = row[5].upper()
                         cp_carcasa = random.uniform(-500, 500)
 
                 etiqueta_tubo = None
                 if(Fluido.objects.filter(nombre = row[18].upper()).exists()):
-                    row[18] = Fluido.objects.get(nombre = row[18])
-                    cp_tubo = calcular_cp(row[18].cas, row[19], row[20], 'C')
+                    row[18] = Fluido.objects.get(nombre = row[18].upper())
+                    cp_tubo = calcular_cp(row[18].cas, row[19]+273.15, row[20]+273.15)
                 elif(row[18] == 'Vapor' or 'AGUA' in row[18].upper()):
                     row[18] = Fluido.objects.get(nombre = 'AGUA')
-                    cp_tubo = calcular_cp(row[18].cas, row[19], row[20], 'C')
+                    cp_tubo = calcular_cp(row[18].cas, row[19]+273.15, row[20]+273.15)
                 else:
+                    bandera = False
                     for fluido in Fluido.objects.all():
                         if(fluido.nombre.upper() in row[18].upper()):
                             row[18] = fluido
-                            cp_tubo = calcular_cp(row[18].cas, row[19], row[20], 'C')
+                            cp_tubo = calcular_cp(row[18].cas, row[19]+273.15, row[20]+273.15)
+                            bandera = True
                             break
-                    else:
+                    if not bandera:
                         etiqueta_tubo = row[18].upper()
                         cp_tubo = random.uniform(-500, 500)
 
@@ -208,8 +214,8 @@ class ComponerIntercambiadores(View):
                             area_unidad = Unidades.objects.get(pk=3),
                             longitud_tubos = row[-16],
                             longitud_tubos_unidad = Unidades.objects.get(pk=4),
-                            diametro_externo_tubos = row[-15],
-                            diametro_interno_tubos = row[-14],
+                            diametro_externo_tubos = float(row[-15]),
+                            diametro_interno_tubos = float(row[-14]),
                             diametro_tubos_unidad = Unidades.objects.get(pk=5),
                             fluido_carcasa = row[5] if type(row[5]) == Fluido else None,
                             material_carcasa = row[-13],
