@@ -1,4 +1,5 @@
 from thermo.heat_capacity import HeatCapacityGas, HeatCapacityLiquid # CLASES
+import CoolProp.CoolProp as CP
 from thermo.heat_capacity import heat_capacity_gas_methods, heat_capacity_liquid_methods
 from thermo.chemical import Chemical
 import numpy
@@ -10,7 +11,7 @@ def calcular_cp(fluido, t1, t2):
     mw = quimico.MW # PESO MOLECULAR
 
     if(quimico.Tb == None):
-        return 1012.00
+        return round(CP.PropsSI('C','P',101325,'T',t,'Air.mix'), 4)
 
     if(t >= quimico.Tb):
         quimico = HeatCapacityGas(fluido)

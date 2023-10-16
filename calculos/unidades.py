@@ -73,6 +73,9 @@ def normalizar_unidades_presion(args, unidad):
         elif unidad == 22:
             for x in args:
                 actualizadas.append(Q_(x, ur.mmHg).to(ur.bar).magnitude)
+        elif unidad == 26:
+            for x in args:
+                actualizadas.append(Q_(x, ur.kPa).to(ur.bar).magnitude)
 
     return actualizadas if len(actualizadas) != 0 else args
 
