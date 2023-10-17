@@ -80,7 +80,7 @@
                       </td>
                     </tr>
                     <tr>
-                      <th class="table-dark" colspan="2">Capacidad Calorífica (J/KgK)</th>
+                      <th class="table-dark" colspan="2">Capacidad Calorífica ({{condiciones_tubo.unidad_cp}})</th>
                       <td>
                           {{condiciones_carcasa.fluido_cp}}                 
                       </td>
@@ -144,7 +144,7 @@
                       <td>{{condiciones_tubo.caida_presion_min}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark" colspan="2">Fouling (m²C/W)</th>
+                      <th class="table-dark" colspan="2">Fouling ({{intercambiador.ensuciamiento_unidad}})</th>
                       <td>{{condiciones_carcasa.fouling}}</td>
                       <td>{{condiciones_tubo.fouling}}</td>
                     </tr>
@@ -164,13 +164,13 @@
                       <th class="table-dark" colspan="4">Parámetros Adicionales</th>
                     </tr>
                     <tr>
-                      <th class="table-dark">Calor (W)</th>
+                      <th class="table-dark">Calor ({{intercambiador.q_unidad}})</th>
                       <td>{{intercambiador.q}}</td>
-                      <th class="table-dark">U (W/m²K)</th>
+                      <th class="table-dark">U ({{intercambiador.u_unidad}})</th>
                       <td>{{intercambiador.u}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark">Ensuciamiento</th>
+                      <th class="table-dark">Ensuciamiento ({{intercambiador.ensuciamiento_unidad}})</th>
                       <td>{{intercambiador.ensuciamiento}}</td>
                       <th class="table-dark">Área ({{intercambiador.area_unidad}})</th>
                       <td>{{intercambiador.area}}</td>

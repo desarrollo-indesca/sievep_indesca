@@ -307,7 +307,10 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             propiedades.area_unidad = Unidades.objects.get(pk=request.POST['unidad_area'])
             propiedades.longitud_tubos_unidad = Unidades.objects.get(pk=request.POST['longitud_tubos_unidad'])
             propiedades.diametro_tubos_unidad = Unidades.objects.get(pk=request.POST['unidad_diametros'])
-            
+            propiedades.q_unidad = Unidades.objects.get(pk=request.POST['unidad_q'])
+            propiedades.u_unidad = Unidades.objects.get(pk=request.POST['unidad_u'])
+            propiedades.ensuciamiento_unidad = Unidades.objects.get(pk=request.POST['unidad_fouling'])
+
             propiedades.save()
 
             condiciones_tubo = propiedades.condicion_tubo()
@@ -323,6 +326,7 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             condiciones_tubo.caida_presion_min = request.POST['caida_presion_min_tubo']
             condiciones_tubo.fouling = request.POST['fouling_tubo']
             condiciones_tubo.fluido_cp = request.POST['cp_tubo']
+            condiciones_tubo.unidad_cp = Unidades.objects.get(pk=request.POST['unidad_cp'])
             condiciones_tubo.temperaturas_unidad = Unidades.objects.get(pk=request.POST['unidad_temperaturas'])
             condiciones_tubo.unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presiones'])
             condiciones_tubo.flujos_unidad = Unidades.objects.get(pk=request.POST['unidad_flujos'])
@@ -345,6 +349,7 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             condiciones_carcasa.caida_presion_min = request.POST['caida_presion_min_carcasa']
             condiciones_carcasa.fouling = request.POST['fouling_carcasa']
             condiciones_carcasa.fluido_cp = request.POST['cp_carcasa']
+            condiciones_carcasa.unidad_cp = Unidades.objects.get(pk=request.POST['unidad_cp'])
             condiciones_carcasa.temperaturas_unidad = Unidades.objects.get(pk=request.POST['unidad_temperaturas'])
             condiciones_carcasa.unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presiones'])
             condiciones_carcasa.flujos_unidad = Unidades.objects.get(pk=request.POST['unidad_flujos'])
@@ -377,6 +382,10 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
         self.context['unidades_area'] = Unidades.objects.filter(tipo = 'A')
         self.context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
         self.context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
+        self.context['unidades_ensuciamiento'] = Unidades.objects.filter(tipo = 'E')
+        self.context['unidades_q'] = Unidades.objects.filter(tipo = 'Q')
+        self.context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
+        self.context['unidades_u'] = Unidades.objects.filter(tipo = 'u')
 
         return render(request, 'tubo_carcasa/edicion.html', context=self.context)
 
