@@ -150,13 +150,13 @@
                                 </div>
                             </div>
 
-                            <div class="col-2 d-flex  justify-content-center align-items-start">
-                                <button data-bs-toggle="modal" data-bs-target="#condiciones_diseno_fluido" class="btn btn-danger no-submit w-100">+</button>
-                                <div class="modal fade" id="condiciones_diseno_fluido" tabindex="-1" aria-labelledby="condiciones_diseno_fluidoLabel" aria-hidden="true">
+                            <div class="col-2 d-flex justify-content-center align-items-start">
+                                <button data-bs-toggle="modal" data-bs-target="#condiciones_diseno_fluido_carcasa" class="btn btn-danger no-submit w-100">+</button>
+                                <div class="modal fade" id="condiciones_diseno_fluido_carcasa" tabindex="-1" aria-labelledby="condiciones_diseno_fluido_carcasaLabel" aria-hidden="true">
                                     <div class="modal-dialog modal-lg modal-dialog-centered">
                                       <div class="modal-content">
                                         <div class="modal-header">
-                                          <h5 class="modal-title" id="condiciones_diseno_fluidoLabel">Registrar Fluido de Tubo</h5>
+                                          <h5 class="modal-title">Registrar Fluido de Carcasa</h5>
                                           <button id="condiciones_diseno_fluido_carcasaClose" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
@@ -168,10 +168,10 @@
                                                 </div>
                                                 <div class="col-5">
                                                     <label for="etiqueta">Cp del Compuesto:</label>
-                                                    <input class="form-control" id="cp_compuesto_carcasa"type="number" step="0.0001">
+                                                    <input class="form-control" id="cp_compuesto_carcasa" type="number" step="0.0001">
                                                 </div>
                                                 <div class="col-2 d-flex justify-content-center align-items-end">
-                                                    <button id="enviar_compuesto_carcasa_ficha" class="btn btn-danger w-100 no-submit" disabled>Enviar</button>
+                                                    <button id="enviar_compuesto_carcasa_ficha" class="no-submit btn btn-danger w-100" disabled>Enviar</button>
                                                 </div>
                                             </div>
                                           <hr>
@@ -351,7 +351,7 @@
                                     <option value="{{fluido.pk}}" {% if intercambiador.fluido_tubo == fluido %}selected{% endif %}>{{fluido}}</option>
                                     {% endfor %}
                                     {% if not intercambiador.fluido_tubo %}
-                                    <option value="" selected>{{condicion_tubo.etiqueta_fluido}}</option>
+                                    <option value="" selected>{{condicion_tubo.fluido_etiqueta}}</option>
                                     {%endif%}
                                 </select>
                             </div>
@@ -367,14 +367,14 @@
                                 </div>
                             </div>
         
-                            <div class="col-2 d-flex  justify-content-center align-items-start">
+                            <div class="col-2 d-flex justify-content-center align-items-start">
                                 <button data-bs-toggle="modal" data-bs-target="#condiciones_diseno_fluido" class="btn btn-danger no-submit w-100">+</button>
                                 <div class="modal fade" id="condiciones_diseno_fluido" tabindex="-1" aria-labelledby="condiciones_diseno_fluidoLabel" aria-hidden="true">
                                     <div class="modal-dialog modal-lg modal-dialog-centered">
                                       <div class="modal-content">
                                         <div class="modal-header">
                                           <h5 class="modal-title" id="condiciones_diseno_fluidoLabel">Registrar Fluido de Tubo</h5>
-                                          <button id="condiciones_diseno_fluido_tuboClose" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          <button id="condiciones_diseno_fluido_tuboLabel" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
                                             <h3 style="color: #e31e24;" class="text-center">Compuesto por Cp en Ficha</h3>
@@ -410,7 +410,7 @@
                                       </div>
                                     </div>
                                 </div>                    
-                            </div>
+                            </div>      
                         </div>
                     </div>                    
 
