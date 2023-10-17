@@ -183,9 +183,9 @@ class PropiedadesTuboCarcasa(models.Model):
     u = models.DecimalField(max_digits=10, decimal_places=3, null=True)
     ensuciamiento = models.DecimalField(max_digits=10, decimal_places=3, null=True)
 
-    q_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE)
-    u_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE)
-    ensuciamiento_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE)
+    q_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_q", default=28)
+    u_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_u", default=27)
+    ensuciamiento_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_ensuciamiento",default=31)
 
     def calcular_diseno(self):
         cond_tubo= self.condicion_tubo()
@@ -232,6 +232,7 @@ class CondicionesTuboCarcasa(models.Model):
     flujos_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="flujos_unidad_tubocarcasa", null=True)
     fluido_etiqueta = models.CharField(null=True, max_length=50)
     fluido_cp = models.DecimalField(null=True, max_digits=8, decimal_places=4)
+    unidad_cp = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_cp", default=29)
     
     cambio_de_fase  = models.CharField(max_length=1, choices=cambios_de_fase)
 

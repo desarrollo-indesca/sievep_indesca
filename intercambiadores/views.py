@@ -492,7 +492,7 @@ class ConsultaVacia(LoginRequiredMixin, View):
     template_name = 'pantalla_vacia.html'
       
     def get(self, request, tipo):
-        return render(request, self.template_name, {'tipo': tipo.title()})
+        return render(request, self.template_name, {'tipo': tipo, 'titulo': f'Consulta de Intercambiadores de Calor {tipo}'})
 
 # VISTAS GENERALES PARA LOS INTERCAMBIADORES DE CALOR
 
