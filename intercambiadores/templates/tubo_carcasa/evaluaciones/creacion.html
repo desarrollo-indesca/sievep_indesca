@@ -316,7 +316,7 @@
             return;
 
         en_uso = true;
-        await delay(500);
+        await delay(1000);
         en_uso = false;
 
         const in_carcasa = Number($('#temp_in_carcasa').val());
@@ -359,13 +359,13 @@
             
             if(in_tubo > out_tubo){
                 if(in_carcasa < in_tubo && out_carcasa > out_tubo){
-                    alert("Las líneas de la gráfica no se deben cruzar.");
+                    alert("Las temperaturas son inconsistentes.");
                     document.getElementById('registrar_resultado').setAttribute('disabled', true);
                     return;
                 }
             } else if(in_tubo < out_tubo){
                 if(in_carcasa > in_tubo && out_carcasa < out_tubo){
-                    alert("Las líneas de la gráfica no se deben cruzar.");
+                    alert("Las temperaturas son inconsistentes.");
                     document.getElementById('registrar_resultado').setAttribute('disabled', true);
                     return;
                 }

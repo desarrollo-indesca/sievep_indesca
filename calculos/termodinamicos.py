@@ -18,7 +18,7 @@ def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida = 29):
         unidad_salida: int -> ID de la unidad de salida
     
     Devuelve:
-        float: Cp del fluido en esas condiciones (J/KgK)
+        float: Cp del fluido en esas condiciones 
     """
     t = numpy.mean([t1, t2])
     quimico = Chemical(fluido)

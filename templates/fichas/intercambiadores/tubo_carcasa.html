@@ -11,7 +11,7 @@
 </style>
 
 <div class="modal fade" id="ficha_{{intercambiador.pk}}" tabindex="-1" aria-labelledby="ficha_{{intercambiador.pk}}Label" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
       <div class="modal-content text-dark">
         <div class="modal-header">
           <h5 class="modal-title" id="ficha_{{intercambiador.pk}}Label">Ficha Técnica Tubo/Carcasa {{generales.tag}} ({{generales.planta}})</h5>
@@ -134,7 +134,7 @@
                       <td>{{condiciones_tubo.cambio_fase_largo}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark" colspan="2">Caída Presión Entrada ({{condiciones_carcasa.unidad_presion}})</th>
+                      <th class="table-dark" colspan="2">Presión Entrada ({{condiciones_carcasa.unidad_presion}})</th>
                       <td>{{condiciones_carcasa.presion_entrada}}</td>
                       <td>{{condiciones_tubo.presion_entrada}}</td>
                     </tr>
