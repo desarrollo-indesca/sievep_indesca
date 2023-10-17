@@ -277,11 +277,12 @@ class EvaluacionesIntercambiador(models.Model):
 
     cp_tubo = models.DecimalField(max_digits=10, decimal_places=4)
     cp_carcasa = models.DecimalField(max_digits=10, decimal_places=4)
+    cp_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="cp_unidad_evaluacionintercambiador", default=29)
 
     # Datos de Salida
     lmtd = models.DecimalField(max_digits=12, decimal_places=5)
     area_transferencia = models.DecimalField(max_digits=12, decimal_places=4)
-    u = models.DecimalField(max_digits=15, decimal_places=8)
+    u = models.DecimalField(max_digits=15, decimal_places=8)    
     ua = models.DecimalField(max_digits=15, decimal_places=5) 
     ntu = models.DecimalField(max_digits=12, decimal_places=5)
     efectividad = models.DecimalField(max_digits=12, decimal_places=5)
