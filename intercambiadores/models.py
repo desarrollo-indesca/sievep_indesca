@@ -181,7 +181,7 @@ class PropiedadesTuboCarcasa(models.Model):
     # Datos calculados
     q = models.DecimalField(max_digits=10, decimal_places=3)
     u = models.DecimalField(max_digits=10, decimal_places=3, null=True)
-    ensuciamiento = models.DecimalField(max_digits=10, decimal_places=3, null=True)
+    ensuciamiento = models.DecimalField(max_digits=10, decimal_places=8, null=True)
 
     q_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_q", default=28)
     u_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_u", default=27)

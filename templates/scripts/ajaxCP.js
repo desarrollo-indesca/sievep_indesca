@@ -194,7 +194,8 @@ function ajaxCP(t1,t2,fluido, lado = 'T'){
             t1,
             t2,
             fluido,
-            unidad: $('#unidad_temperaturas').val()
+            unidad: $('#unidad_temperaturas').val(),
+            unidad_salida: $('#unidad_cp').val()
         },
         success: (res) => {
             if(res.cp !== '')
@@ -216,6 +217,16 @@ function ajaxCP(t1,t2,fluido, lado = 'T'){
 }
 
 $('#unidad_temperaturas').change((e) => {
+    if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
+        ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
+    }
+
+    if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
+        ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
+    }
+});
+
+$('#unidad_cp').change((e) => {
     if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
         ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
     }
@@ -259,6 +270,14 @@ $('#unidad_flujos').change((e) => {
 
 $('#unidad_fouling').change((e) => {
     const array = $('select[name="unidad_fouling"]').toArray().slice(1);
+
+    array.map((x) => {
+        x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+    });
+});
+
+$('#unidad_cp').change((e) => {
+    const array = $('select[name="unidad_cp"]').toArray().slice(1);
 
     array.map((x) => {
         x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";

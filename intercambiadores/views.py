@@ -90,8 +90,11 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
                 numero_pasos_tubo = request.POST['numero_pasos_tubo'],
                 numero_pasos_carcasa = request.POST['numero_pasos_carcasa'],
                 q =  float(request.POST['calor']),
+                q_unidad = Unidades.objects.get(pk=request.POST['unidad_calor']),
                 u =  float(request.POST['u']),
-                ensuciamiento = float(request.POST['ensuciamiento'])
+                u_unidad = Unidades.objects.get(pk=request.POST['unidad_u']),
+                ensuciamiento = float(request.POST['ensuciamiento']),
+                ensuciamiento_unidad = Unidades.objects.get(pk=request.POST['unidad_fouling'])
             )
 
             condiciones_diseno_tubo = CondicionesTuboCarcasa.objects.create(
@@ -159,6 +162,10 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
         self.context['unidades_area'] = Unidades.objects.filter(tipo = 'A')
         self.context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
         self.context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
+        self.context['unidades_ensuciamiento'] = Unidades.objects.filter(tipo = 'E')
+        self.context['unidades_q'] = Unidades.objects.filter(tipo = 'Q').order_by('-simbolo')
+        self.context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
+        self.context['unidades_u'] = Unidades.objects.filter(tipo = 'u').order_by('-simbolo')
 
         if(self.context.get('error')):
             del(self.context['error'])
@@ -243,7 +250,7 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
         context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
         context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
         context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
-        self.context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
+        context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
 
         return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
 
@@ -488,13 +495,13 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ListView):
 
         return new_context
 
+# VISTAS GENERALES PARA LOS INTERCAMBIADORES DE CALOR
+
 class ConsultaVacia(LoginRequiredMixin, View):
     template_name = 'pantalla_vacia.html'
       
     def get(self, request, tipo):
         return render(request, self.template_name, {'tipo': tipo, 'titulo': f'Consulta de Intercambiadores de Calor {tipo}'})
-
-# VISTAS GENERALES PARA LOS INTERCAMBIADORES DE CALOR
 
 class SeleccionTipo(LoginRequiredMixin, View):
     context = {
@@ -554,6 +561,7 @@ class ConsultaCP(LoginRequiredMixin, View):
         fluido = request.GET['fluido']
         t1,t2 = float(request.GET['t1']), float(request.GET['t2'])
         unidad = int(request.GET['unidad'])
+        unidad_salida = int(request.GET['unidad_salida'])
 
         t1,t2 = transformar_unidades_temperatura([t1,t2], unidad=unidad)
 
@@ -566,7 +574,7 @@ class ConsultaCP(LoginRequiredMixin, View):
             else:
                 cas = Fluido.objects.get(pk = fluido).cas
         
-            cp = calcular_cp(cas, t1, t2)
+            cp = calcular_cp(cas, t1, t2, unidad_salida)
 
             return JsonResponse({'cp': cp})
         else:
