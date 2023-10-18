@@ -191,7 +191,7 @@
 
                     <div class="input-group">
                         <input id="area" disabled type="text" class="form-control" style="width: 60% !important;">
-                        <select style="width: 40% !important;" class="form-select">
+                        <select style="width: 40% !important;" class="form-select" disabled>
                             <option value="">{{intercambiador.area_unidad}}</option>                                
                         </select>
                     </div>
@@ -209,34 +209,34 @@
                     <input id="eficiencia" disabled type="text" class="form-control">
                 </div>
                 <div class="col-4 d-flex flex-column">
-                    <label class="form-label">U</label>
-                    <div class="input-group">
-                        <input id="u" disabled type="text" class="form-control" style="width: 55% !important;">
-                        <select style="width: 45% !important;" class="form-select">
-                            <option value="">{{intercambiador.u_unidad}}</option>                                
-                        </select>
-                    </div>
-                </div>
-                <div class="col-2"></div>
-                <div class="col-4 d-flex flex-column">
-                    <label class="form-label">Ensuciamiento:</label>
-                    <div class="input-group">
-                        <input id="ensuciamiento" disabled type="text" class="form-control" style="width: 55%;">
-                        <select style="width: 45% !important;" class="form-select">
-                            <option value="">{{intercambiador.ensuciamiento_unidad}}</option>                                
-                        </select>
-                    </div>
-                </div>
-                <div class="col-4 d-flex flex-column">
                     <label class="form-label">Q:</label>
                     <div class="input-group">
                         <input id="q" disabled type="text" class="form-control" style="width: 60% !important;">
-                        <select style="width: 40% !important;" class="form-select">
+                        <select style="width: 40% !important;" class="form-select" disabled>
                             <option value="">{{intercambiador.q_unidad}}</option>                                
                         </select>
                     </div>
                 </div>
-                <div class="col-2"></div>
+                <div class="col-1"></div>
+                <div class="col-5 d-flex flex-column">
+                    <label class="form-label">Ensuciamiento:</label>
+                    <div class="input-group">
+                        <input id="ensuciamiento" disabled type="text" class="form-control" style="width: 55%;">
+                        <select style="width: 45% !important;" class="form-select" disabled>
+                            <option value="">{{intercambiador.ensuciamiento_unidad}}</option>                                
+                        </select>
+                    </div>
+                </div>
+                <div class="col-5 d-flex flex-column">
+                    <label class="form-label">U:</label>
+                    <div class="input-group">
+                        <input id="u" disabled type="text" class="form-control" style="width: 55% !important;">
+                        <select style="width: 45% !important;" class="form-select" disabled>
+                            <option value="">{{intercambiador.u_unidad}}</option>                                
+                        </select>
+                    </div>
+                </div>
+                <div class="col-1"></div>
             </div>
             <div class="col-6">
                 <canvas id="grafica_1" style="width: 100%;"></canvas> <!-- Gráfica -->
@@ -517,6 +517,14 @@
 
     $('#unidad_cp').change((e) => {
         const array = $('select[name="unidad_cp"]').toArray().slice(1);
+
+        array.map((x) => {
+            x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+        });
+    });
+
+    $('#unidad_presion').change((e) => {
+        const array = $('select[name="unidad_presion"]').toArray().slice(1);
 
         array.map((x) => {
             x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
