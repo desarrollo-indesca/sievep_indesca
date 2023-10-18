@@ -87,7 +87,7 @@ WSGI_APPLICATION = 'simulaciones_pequiven.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sievep2',
+        'NAME': 'sievep',
         'USER': 'root',
         'PASSWORD': '',
         'HOST':'localhost',

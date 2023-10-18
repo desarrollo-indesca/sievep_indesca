@@ -10,12 +10,7 @@ from thermo.chemical import search_chemical
 from calculos.termodinamicos import calcular_cp
 from calculos.evaluaciones import evaluacion_tubo_carcasa
 from reportes.pdfs import generar_pdf
-from pint import UnitRegistry
-from calculos.unidades import normalizar_unidades_temperatura
-
-# UNIDADES
-ur = UnitRegistry()
-Q_ = ur.Quantity
+from calculos.unidades import transformar_unidades_temperatura, transformar_unidades_cp
 
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
 
@@ -95,8 +90,11 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
                 numero_pasos_tubo = request.POST['numero_pasos_tubo'],
                 numero_pasos_carcasa = request.POST['numero_pasos_carcasa'],
                 q =  float(request.POST['calor']),
+                q_unidad = Unidades.objects.get(pk=request.POST['unidad_calor']),
                 u =  float(request.POST['u']),
-                ensuciamiento = float(request.POST['ensuciamiento'])
+                u_unidad = Unidades.objects.get(pk=request.POST['unidad_u']),
+                ensuciamiento = float(request.POST['ensuciamiento']),
+                ensuciamiento_unidad = Unidades.objects.get(pk=request.POST['unidad_fouling'])
             )
 
             condiciones_diseno_tubo = CondicionesTuboCarcasa.objects.create(
@@ -164,6 +162,10 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
         self.context['unidades_area'] = Unidades.objects.filter(tipo = 'A')
         self.context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
         self.context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
+        self.context['unidades_ensuciamiento'] = Unidades.objects.filter(tipo = 'E')
+        self.context['unidades_q'] = Unidades.objects.filter(tipo = 'Q').order_by('-simbolo')
+        self.context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
+        self.context['unidades_u'] = Unidades.objects.filter(tipo = 'u').order_by('-simbolo')
 
         if(self.context.get('error')):
             del(self.context['error'])
@@ -190,8 +192,8 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
             ft = (float(request.POST['flujo_tubo']))
             fc = (float(request.POST['flujo_carcasa']))
             nt = (float(request.POST['no_tubos']))
-            cp_tubo = float(request.POST['cp_tubo'])
-            cp_carcasa = float(request.POST['cp_carcasa'])
+            cp_tubo =  transformar_unidades_cp([float(request.POST['cp_tubo'].replace(',','.'))], unidad=request.POST['unidad_cp'])[0]
+            cp_carcasa =  transformar_unidades_cp([float(request.POST['cp_carcasa'].replace(',','.'))], unidad=request.POST['unidad_cp'])[0]
             unidad = int(request.POST['unidad_temperaturas'])
             unidad_flujo = int(request.POST['unidad_flujo'])
 
@@ -236,8 +238,9 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
                 numero_tubos = request.POST['no_tubos'],
 
                 # CP
-                cp_tubo = resultados['cp_tubo'],
-                cp_carcasa = resultados['cp_carcasa']
+                cp_tubo = request.POST['cp_tubo'],
+                cp_carcasa = request.POST['cp_carcasa'],
+                cp_unidad = Unidades.objects.get(pk=request.POST['unidad_cp'])
             )
 
         request.session['mensaje'] = "Guardado exitosamente."
@@ -248,7 +251,8 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
         context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
         context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
         context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
-        self.context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
+        context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
+        context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
 
         return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
 
@@ -305,7 +309,10 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             propiedades.area_unidad = Unidades.objects.get(pk=request.POST['unidad_area'])
             propiedades.longitud_tubos_unidad = Unidades.objects.get(pk=request.POST['longitud_tubos_unidad'])
             propiedades.diametro_tubos_unidad = Unidades.objects.get(pk=request.POST['unidad_diametros'])
-            
+            propiedades.q_unidad = Unidades.objects.get(pk=request.POST['unidad_q'])
+            propiedades.u_unidad = Unidades.objects.get(pk=request.POST['unidad_u'])
+            propiedades.ensuciamiento_unidad = Unidades.objects.get(pk=request.POST['unidad_fouling'])
+
             propiedades.save()
 
             condiciones_tubo = propiedades.condicion_tubo()
@@ -321,6 +328,7 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             condiciones_tubo.caida_presion_min = request.POST['caida_presion_min_tubo']
             condiciones_tubo.fouling = request.POST['fouling_tubo']
             condiciones_tubo.fluido_cp = request.POST['cp_tubo']
+            condiciones_tubo.unidad_cp = Unidades.objects.get(pk=request.POST['unidad_cp'])
             condiciones_tubo.temperaturas_unidad = Unidades.objects.get(pk=request.POST['unidad_temperaturas'])
             condiciones_tubo.unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presiones'])
             condiciones_tubo.flujos_unidad = Unidades.objects.get(pk=request.POST['unidad_flujos'])
@@ -343,6 +351,7 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             condiciones_carcasa.caida_presion_min = request.POST['caida_presion_min_carcasa']
             condiciones_carcasa.fouling = request.POST['fouling_carcasa']
             condiciones_carcasa.fluido_cp = request.POST['cp_carcasa']
+            condiciones_carcasa.unidad_cp = Unidades.objects.get(pk=request.POST['unidad_cp'])
             condiciones_carcasa.temperaturas_unidad = Unidades.objects.get(pk=request.POST['unidad_temperaturas'])
             condiciones_carcasa.unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presiones'])
             condiciones_carcasa.flujos_unidad = Unidades.objects.get(pk=request.POST['unidad_flujos'])
@@ -375,6 +384,10 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
         self.context['unidades_area'] = Unidades.objects.filter(tipo = 'A')
         self.context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
         self.context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
+        self.context['unidades_ensuciamiento'] = Unidades.objects.filter(tipo = 'E')
+        self.context['unidades_q'] = Unidades.objects.filter(tipo = 'Q')
+        self.context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
+        self.context['unidades_u'] = Unidades.objects.filter(tipo = 'u')
 
         return render(request, 'tubo_carcasa/edicion.html', context=self.context)
 
@@ -495,6 +508,12 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ListView):
 
 # VISTAS GENERALES PARA LOS INTERCAMBIADORES DE CALOR
 
+class ConsultaVacia(LoginRequiredMixin, View):
+    template_name = 'pantalla_vacia.html'
+      
+    def get(self, request, tipo):
+        return render(request, self.template_name, {'tipo': tipo, 'titulo': f'Consulta de Intercambiadores de Calor {tipo}'})
+
 class SeleccionTipo(LoginRequiredMixin, View):
     context = {
         'titulo': "SIEVEP - Selección de Tipo de Intercambiador"
@@ -517,8 +536,8 @@ class EvaluarTuboCarcasa(LoginRequiredMixin, View):
         ft = (float(request.GET['flujo_tubo'].replace(',','.')))
         fc = (float(request.GET['flujo_carcasa'].replace(',','.')))
         nt = (float(request.GET['no_tubos']))
-        cp_tubo = float(request.GET['cp_tubo'].replace(',','.'))
-        cp_carcasa = float(request.GET['cp_carcasa'].replace(',','.'))
+        cp_tubo = transformar_unidades_cp([float(request.GET['cp_tubo'].replace(',','.'))], unidad=request.GET['unidad_cp'])[0]
+        cp_carcasa = transformar_unidades_cp([float(request.GET['cp_carcasa'].replace(',','.'))], unidad=request.GET['unidad_cp'])[0]
         unidad = int(request.GET['unidad'])
         unidad_flujo = int(request.GET['unidad_flujo'])
 
@@ -553,8 +572,12 @@ class ConsultaCP(LoginRequiredMixin, View):
         fluido = request.GET['fluido']
         t1,t2 = float(request.GET['t1']), float(request.GET['t2'])
         unidad = int(request.GET['unidad'])
+        unidad_salida = int(request.GET.get('unidad_salida')) if request.GET.get('unidad_salida') else 29
 
-        t1,t2 = normalizar_unidades_temperatura([t1,t2], unidad=unidad)
+        print(unidad_salida)
+        print(request.GET.get('unidad_salida'))
+
+        t1,t2 = transformar_unidades_temperatura([t1,t2], unidad=unidad)
 
         if(fluido != ''):
             if(fluido.find('*') != -1):
@@ -565,7 +588,7 @@ class ConsultaCP(LoginRequiredMixin, View):
             else:
                 cas = Fluido.objects.get(pk = fluido).cas
         
-            cp = calcular_cp(cas, t1, t2)
+            cp = calcular_cp(cas, t1, t2, unidad_salida)
 
             return JsonResponse({'cp': cp})
         else:

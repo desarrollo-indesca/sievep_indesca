@@ -4,7 +4,7 @@
 
 {% block encabezado %}
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'seleccion_tipo_intercambiador' %}">↶ Regresar</a></div>
-  <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Intercambiadores de Calor Tubo/Carcasa</h3></div>
+  <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Intercambiadores de Calor {{tipo}}</h3></div>
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
     {% if request.user.is_superuser %}
     <a class="btn d-block btn-success" href="{% url 'crear_tubo_carcasa' %}">+ Nuevo</a>
@@ -59,11 +59,7 @@
   </tr>
 </thead>
 <tbody class="text-center" id="tabla-body">
-  {% if object_list.count %}
-  {% include 'tablas/intercambiadores/tubo_carcasa.html' %}
-  {% else %}
-  <td colspan="7">No se encontraron intercambiadores con los datos de filtrado proporcionados.</td>
-  {% endif %}
+  <td colspan="7">No se encontraron intercambiadores de este tipo en la base de datos.</td>
 </tbody>
 {% endblock %}
 
@@ -79,29 +75,13 @@
 </div>
 <footer aria-label="Page navigation example">
     <ul class="pagination">
-      <li class="page-item">
-        {% if page_obj.has_previous %}
-        <a class="page-link bg-dark text-white" href="?{% url_replace page=page_obj.previous_page_number %}" aria-label="Previous">
-          <span aria-hidden="true">&laquo;</span>
-        </a>
-        {% endif %}
-      </li>
-      <li class="page-item"><a class="page-link bg-dark text-white" href="#">{{ page_obj.number }}</a></li>
-      {% if page_obj.has_next %}
-      <li class="page-item">
-        <a class="page-link bg-dark text-white" href="?{% url_replace page=page_obj.next_page_number %}" aria-label="Next">
-          <span aria-hidden="true">&raquo;</span>
-        </a>
-      </li>
-      {% endif %}
+      <li class="page-item"><a class="page-link bg-dark text-white" href="#">1</a></li>
     </ul>
 </footer>
 {% endblock %}
 
 {% block extra_javascript %}
 <script>
-  $('select').change(() => {
-    $('#filtrado').submit();
-  });
+  $('form[method="get"]').submit((e) => false);
 </script>
 {% endblock %}

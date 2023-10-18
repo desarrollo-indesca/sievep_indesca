@@ -79,11 +79,13 @@
                         </select>
                     </div>
                     <div class="col-6 d-flex flex-column">
-                        <label class="form-label" for="cp_carcasa">Cp:</label>
+                        <label class="form-label" for="cp_carcasa">Capacidad Calorífica:</label>
                         <div class="input-group mb-3">
                             <input value="{% if not intercambiador.fluido_carcasa %}{{intercambiador.condicion_carcasa.fluido_cp|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" type="number" name="cp_carcasa" min="0.0001" id="cp_carcasa" class="form-control campo">
                             <select style="width: 40% !important;" class="form-select campo" name="unidad_cp" id="unidad_cp">
-                                <option value="1">J/KgK</option>
+                                {% for unidad in unidades_cp %}
+                                <option value="{{unidad.pk}}">{{unidad}}</option>
+                                {% endfor %}
                             </select>
                         </div>
                     </div>
@@ -139,7 +141,7 @@
                         </select>
                     </div>
                     <div class="col-6 d-flex flex-column">
-                        <label class="form-label" for="cp_tubo">Cp:</label>
+                        <label class="form-label" for="cp_tubo">Capacidad Calorífica:</label>
                         <div class="input-group mb-3">
                             <input value="{% if not intercambiador.fluido_tubo %}{{intercambiador.condicion_tubo.fluido_cp|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" type="number" name="cp_tubo" min="0.0001" id="cp_tubo" class="form-control campo">
                             <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
@@ -177,11 +179,22 @@
                 </div>
                 <div class="col-4 d-flex flex-column">
                     <label class="form-label">LMTD:</label>
-                    <input id="lmtd" disabled type="text" class="form-control">
+                    <div class="input-group">
+                        <input id="lmtd" disabled type="text" class="form-control" style="width: 60% !important;">
+                        <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                            <option value="">°C</option>                                
+                        </select>
+                    </div>
                 </div>
                 <div class="col-4 d-flex flex-column">
-                    <label class="form-label">Área Transf. (m²):</label>
-                    <input id="area" disabled type="text" class="form-control">
+                    <label class="form-label">Área Transf.:</label>
+
+                    <div class="input-group">
+                        <input id="area" disabled type="text" class="form-control" style="width: 60% !important;">
+                        <select style="width: 40% !important;" class="form-select" disabled>
+                            <option value="">{{intercambiador.area_unidad}}</option>                                
+                        </select>
+                    </div>
                 </div>
                 <div class="col-4 d-flex flex-column">
                     <label class="form-label">NTU:</label>
@@ -192,25 +205,38 @@
                     <input id="efectividad" disabled type="text" class="form-control">
                 </div>
                 <div class="col-4 d-flex flex-column">
-                    <label class="form-label">U (W/m²K)</label>
-                    <input id="u" disabled type="text" class="form-control">
-                </div>
-                <div class="col-4 d-flex flex-column">
-                    <label class="form-label">UA (W/K):</label>
-                    <input id="UA" disabled type="text" class="form-control">
-                </div>
-                <div class="col-4 d-flex flex-column">
                     <label class="form-label">% Eficiencia:</label>
                     <input id="eficiencia" disabled type="text" class="form-control">
                 </div>
                 <div class="col-4 d-flex flex-column">
+                    <label class="form-label">Q:</label>
+                    <div class="input-group">
+                        <input id="q" disabled type="text" class="form-control" style="width: 60% !important;">
+                        <select style="width: 40% !important;" class="form-select" disabled>
+                            <option value="">{{intercambiador.q_unidad}}</option>                                
+                        </select>
+                    </div>
+                </div>
+                <div class="col-1"></div>
+                <div class="col-5 d-flex flex-column">
                     <label class="form-label">Ensuciamiento:</label>
-                    <input id="ensuciamiento" disabled type="text" class="form-control">
+                    <div class="input-group">
+                        <input id="ensuciamiento" disabled type="text" class="form-control" style="width: 55%;">
+                        <select style="width: 45% !important;" class="form-select" disabled>
+                            <option value="">{{intercambiador.ensuciamiento_unidad}}</option>                                
+                        </select>
+                    </div>
                 </div>
-                <div class="col-4 d-flex flex-column">
-                    <label class="form-label">Q (W):</label>
-                    <input id="q" disabled type="text" class="form-control">
+                <div class="col-5 d-flex flex-column">
+                    <label class="form-label">U:</label>
+                    <div class="input-group">
+                        <input id="u" disabled type="text" class="form-control" style="width: 55% !important;">
+                        <select style="width: 45% !important;" class="form-select" disabled>
+                            <option value="">{{intercambiador.u_unidad}}</option>                                
+                        </select>
+                    </div>
                 </div>
+                <div class="col-1"></div>
             </div>
             <div class="col-6">
                 <canvas id="grafica_1" style="width: 100%;"></canvas> <!-- Gráfica -->
@@ -290,7 +316,7 @@
             return;
 
         en_uso = true;
-        await delay(500);
+        await delay(1000);
         en_uso = false;
 
         const in_carcasa = Number($('#temp_in_carcasa').val());
@@ -333,13 +359,13 @@
             
             if(in_tubo > out_tubo){
                 if(in_carcasa < in_tubo && out_carcasa > out_tubo){
-                    alert("Las líneas de la gráfica no se deben cruzar.");
+                    alert("Las temperaturas son inconsistentes.");
                     document.getElementById('registrar_resultado').setAttribute('disabled', true);
                     return;
                 }
             } else if(in_tubo < out_tubo){
                 if(in_carcasa > in_tubo && out_carcasa < out_tubo){
-                    alert("Las líneas de la gráfica no se deben cruzar.");
+                    alert("Las temperaturas son inconsistentes.");
                     document.getElementById('registrar_resultado').setAttribute('disabled', true);
                     return;
                 }
@@ -383,6 +409,7 @@
 
 <script>
     function ajaxCP(t1,t2,fluido, lado = 'T'){
+        console.log("AAA");
         if(lado === 'T' && $('#fluido_tubo').val()){
             $('#cp_tubo').val('');
             document.getElementById('cp_tubo').setAttribute('disabled', true);
@@ -398,7 +425,8 @@
                 t1,
                 t2,
                 fluido,
-                unidad: $('#unidad_temperaturas').val()
+                unidad: $('#unidad_temperaturas').val(),
+                unidad_salida: $('#unidad_cp').val()
             },
             success: (res) => {
                 if(res.cp !== '')
@@ -477,12 +505,37 @@
         ajaxEvaluacion();
     });
 
+    $('#unidad_cp').change((e) => {
+        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
+            ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
+        }
+
+        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
+            ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
+        }
+    });
+
+    $('#unidad_cp').change((e) => {
+        const array = $('select[name="unidad_cp"]').toArray().slice(1);
+
+        array.map((x) => {
+            x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+        });
+    });
+
+    $('#unidad_presion').change((e) => {
+        const array = $('select[name="unidad_presion"]').toArray().slice(1);
+
+        array.map((x) => {
+            x.innerHTML = "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+        });
+    });
+
     const vaciarCampos = () => {
         document.getElementById('lmtd').value = '';
         document.getElementById('area').value = '';
         document.getElementById('ntu').value = '';
         document.getElementById('u').value = '';
-        document.getElementById('UA').value = '';
         document.getElementById('eficiencia').value = '';
         document.getElementById('efectividad').value = '';
         document.getElementById('ensuciamiento').value = '';
@@ -508,6 +561,7 @@
                     no_tubos: document.getElementById('no_tubos').value,
                     cp_tubo: document.getElementById('cp_tubo').value,
                     cp_carcasa: document.getElementById('cp_carcasa').value,
+                    unidad_cp: $('#unidad_cp').val(),
                     unidad: document.getElementById('unidad_temperaturas').value,
                     unidad_flujo: document.getElementById('unidad_flujo').value
                 },
@@ -520,7 +574,6 @@
                         document.getElementById('area').value = res.area;
                         document.getElementById('ntu').value = res.ntu;
                         document.getElementById('u').value = res.u;
-                        document.getElementById('UA').value = res.ua;
                         document.getElementById('efectividad').value = res.efectividad;
                         document.getElementById('eficiencia').value = res.eficiencia;
                         document.getElementById('ensuciamiento').value = res.factor_ensuciamiento;
