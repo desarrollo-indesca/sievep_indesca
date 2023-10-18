@@ -1,6 +1,5 @@
 from thermo.heat_capacity import HeatCapacityGas, HeatCapacityLiquid, HeatCapacitySolid # CLASES
 import CoolProp.CoolProp as CP
-from thermo.heat_capacity import heat_capacity_gas_methods, heat_capacity_solid_methods, heat_capacity_liquid_methods
 from thermo.chemical import Chemical
 from .unidades import transformar_unidades_cp
 import numpy
@@ -31,7 +30,7 @@ def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida = 29):
 
     if(t >= quimico.Tb): # Caso Gas
         quimico = HeatCapacityGas(fluido)
-        for metodo in heat_capacity_gas_methods: # Búsqueda del método permitido
+        for metodo in HeatCapacityGas.ranked_methods: # Búsqueda del método permitido
             try:
                 cp = quimico.calculate(t, metodo)/mw*1000
                 break
@@ -40,7 +39,7 @@ def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida = 29):
                 continue
     elif(t <= quimico.Tm): # Caso Sólido
         quimico = HeatCapacitySolid(fluido)
-        for metodo in heat_capacity_solid_methods: # Búsqueda del método permitido
+        for metodo in HeatCapacitySolid.ranked_methods: # Búsqueda del método permitido
             try:
                 cp = quimico.calculate(t, metodo)/mw*1000
                 break
@@ -49,7 +48,7 @@ def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida = 29):
                 continue
     else: # Caso Líquido
         quimico = HeatCapacityLiquid(fluido)
-        for metodo in heat_capacity_liquid_methods: # Búsqueda del método permitido
+        for metodo in HeatCapacityLiquid.ranked_methods: # Búsqueda del método permitido
             try:
                 cp = quimico.calculate(t, metodo)/mw*1000
                 break
