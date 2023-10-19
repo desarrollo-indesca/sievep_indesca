@@ -33,10 +33,21 @@
                 <label class="form-label" for="correo">Correo Electrónico:</label>
                 <input value="{{previo.correo}}" type="email" name="correo" class="form-control" id="correo" maxlength="254" required>
             </div>
+            {% if not edicion %}
             <div class="col-6">
                 <label class="form-label" for="password">Contraseña:</label>
                 <input type="password" name="password" class="form-control" id="password" maxlength="100" minlength="8" required>
             </div>
+            {% else %}
+            <div class="col-6 d-flex justify-content-center align-items-end">
+                <div class="d-flex">
+                    <input type="checkbox" name="activo" class="form-check-input" id="activo" height="200px" width="200px"
+                    {% if previo.activo %}checked{%endif%}>
+                    &nbsp;
+                    <div><label class="form-label" for="activo">Activo</label></div>
+                </div>
+            </div>
+            {%endif%}
             <div class="col-6 d-flex justify-content-center align-items-end">
                 <div class="d-flex">
                     <input type="checkbox" name="superusuario" class="form-check-input" id="superusuario" height="200px" width="200px"

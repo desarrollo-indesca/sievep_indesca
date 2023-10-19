@@ -66,7 +66,7 @@ class CrearNuevoUsuario(LoginRequiredMixin, View):
 
     def validar(self, data):
         errores = []
-        if(self.modelo.objects.filter(email = data['correo']).exists()):
+        if(self.modelo.objects.filter(email = data['correo'].lower()).exists()):
             errores.append("Ya existe un usuario con ese correo registrado.")
 
         if(self.modelo.objects.filter(username = data['nombre'].title()).exists()):
@@ -97,3 +97,47 @@ class CrearNuevoUsuario(LoginRequiredMixin, View):
     def get(self, request):
         return render(request, 'creacion.html')
 
+class EditarUsuario(LoginRequiredMixin, View):
+    context = {
+        'titulo': "Editar Usuario"
+    }
+
+    modelo = get_user_model()
+
+    def validar(self, data):
+        errores = []
+        if(self.modelo.objects.filter(email = data['correo'].lower()).exclude(pk=self.kwargs['pk']).exists()):
+            errores.append("Ya existe un usuario con ese correo registrado.")
+
+        if(self.modelo.objects.filter(username = data['nombre'].title()).exclude(pk=self.kwargs['pk']).exists()):
+            errores.append("Ya existe un usuario con ese nombre registrado. Añada una característica diferenciadora.")
+
+        return errores
+
+    def post(self, request, pk): # Envío de Formulario de Creación
+        errores = self.validar(request.POST)
+        if(len(errores) == 0):
+            with transaction.atomic():
+                usuario = self.modelo.objects.get(pk=pk)
+                usuario.email = request.POST['correo'].lower()
+                usuario.username =  request.POST['nombre'].title()
+                usuario.is_active = 'activo' in request.POST.keys()
+                usuario.is_superuser = 'superusuario' in request.POST.keys()
+                usuario.save()
+
+                request.session['mensaje'] = "Se han registrado los cambios."
+
+                return redirect("/usuarios/")
+        else:
+            return render(request, 'creacion.html', {'errores': errores, 'previo': request.POST, 'edicion': True})
+    
+    def get(self, request, pk):
+        usuario = self.modelo.objects.get(pk=pk)
+        previo = {
+            'nombre': usuario.get_username(),
+            'correo': usuario.email,
+            'superusuario': usuario.is_superuser,
+            'activo': usuario.is_active
+        }
+
+        return render(request, 'creacion.html', context={'previo': previo, 'edicion': True})

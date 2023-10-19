@@ -14,7 +14,7 @@
     <td>{{usuario.is_superuser|yesno:"Sí,No"}}</td>
     <td>{{usuario.is_active|yesno:"Sí,No"}}</td>
     <td>
-        <a href="#" class="btn btn-primary">
+        <a href="{% url 'editar_usuario' pk=usuario.pk %}" class="btn btn-primary">
             Editar
         </a>
         <a href="#" class="btn btn-danger">
