@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 from django.db import transaction
 from django.contrib.auth.hashers import make_password
+from django.contrib import messages
 
 # Create your views here.
 
@@ -88,14 +89,14 @@ class CrearNuevoUsuario(SuperUserRequiredMixin, View):
                     is_superuser = 'superusuario' in request.POST.keys()
                 )
 
-                request.session['mensaje'] = "Se ha registrado al nuevo usuario correctamente."
+                messages.success(request, "Se ha registrado al nuevo usuario correctamente.")
 
                 return redirect("/usuarios/")
         else:
-            return render(request, 'creacion.html', {'errores': errores, 'previo': request.POST})
+            return render(request, 'creacion.html', {'errores': errores, 'previo': request.POST, **self.context})
     
     def get(self, request):
-        return render(request, 'creacion.html')
+        return render(request, 'creacion.html', self.context)
 
 class EditarUsuario(SuperUserRequiredMixin, View):
     context = {
@@ -125,11 +126,11 @@ class EditarUsuario(SuperUserRequiredMixin, View):
                 usuario.is_superuser = 'superusuario' in request.POST.keys()
                 usuario.save()
 
-                request.session['mensaje'] = "Se han registrado los cambios."
+                messages.success(request, "Se han registrado los cambios.")
 
                 return redirect("/usuarios/")
         else:
-            return render(request, 'creacion.html', {'errores': errores, 'previo': request.POST, 'edicion': True})
+            return render(request, 'creacion.html', {'errores': errores, 'previo': request.POST, 'edicion': True, **self.context})
     
     def get(self, request, pk):
         usuario = self.modelo.objects.get(pk=pk)
@@ -140,7 +141,7 @@ class EditarUsuario(SuperUserRequiredMixin, View):
             'activo': usuario.is_active
         }
 
-        return render(request, 'creacion.html', context={'previo': previo, 'edicion': True})
+        return render(request, 'creacion.html', context={'previo': previo, 'edicion': True, **self.context})
 
 class CambiarContrasena(SuperUserRequiredMixin, View):
     context = {
@@ -165,13 +166,13 @@ class CambiarContrasena(SuperUserRequiredMixin, View):
                 usuario.password = make_password(request.POST['password'])
                 usuario.save()
 
-                request.session['mensaje'] = "Se han registrado los cambios."
+                messages.success(request, "Se han registrado los cambios correctamente.")
 
                 return redirect("/usuarios/")
         else:
-            return render(request, 'cambiar_contrasena.html', {'errores': errores})
+            return render(request, 'cambiar_contrasena.html', {'errores': errores, **self.context})
     
     def get(self, request, pk):
         usuario = self.modelo.objects.get(pk=pk)
 
-        return render(request, 'cambiar_contrasena.html', context={'usuario': usuario, 'edicion': True})
+        return render(request, 'cambiar_contrasena.html', context={'usuario': usuario, 'edicion': True, **self.context})

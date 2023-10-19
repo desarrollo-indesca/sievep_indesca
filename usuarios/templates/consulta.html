@@ -3,7 +3,7 @@
 {% load templatetags %}
 
 {% block encabezado %}
-  <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'seleccion_tipo_intercambiador' %}">↶ Regresar</a></div>
+  <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'bienvenida' %}">↶ Regresar</a></div>
   <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Usuarios del Sistema</h3></div>
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
     {% if request.user.is_superuser %}
@@ -41,7 +41,7 @@
       <option value="0" {% if activo == "0" %}selected{% endif %}>No</option>
   </select>
 </div>
-<input type=submit hidden>
+<input type="submit" hidden>
 {% endblock %}
 
 {% block tabla %}
@@ -93,5 +93,10 @@
   $('select').change(() => {
     $('#filtrado').submit();
   });
+
+  $('.alert').delay(2000, async () => {
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    $('.alert').remove();
+  })
 </script>
 {% endblock %}

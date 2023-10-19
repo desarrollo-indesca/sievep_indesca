@@ -6,6 +6,13 @@
   {% endblock %}
 </div>
 <hr>
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }} mb-2" role="alert">
+  {{message}}
+</div>
+{% endfor %}
+{% endif %}
 
 <form id="filtrado" method="get">
   <div class="row mb-2">

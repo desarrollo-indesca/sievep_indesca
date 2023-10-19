@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
+from django.contrib import messages
 from .models import *
 from django.views.generic.list import ListView
 from django.db import transaction
@@ -146,7 +147,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
                 fluido_cp = request.POST['cp_carcasa']
             )
 
-            request.session['mensaje'] = "El nuevo intercambiador ha sido registrado exitosamente."
+            messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
 
             return redirect(f"/intercambiadores/tubo_carcasa/{propiedades.pk}/")
     
@@ -242,7 +243,8 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
                 cp_unidad = Unidades.objects.get(pk=request.POST['unidad_cp'])
             )
 
-        request.session['mensaje'] = "Guardado exitosamente."
+        messages.success(request, "La nueva evaluación ha sido registrada exitosamente.")
+
         return redirect(f'/intercambiadores/tubo_carcasa/{intercambiador.pk}/')        
 
     def get(self, request, pk):
@@ -367,6 +369,8 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             intercambiador.servicio = request.POST['servicio']
             intercambiador.arreglo_flujo = request.POST['flujo']
             intercambiador.save()
+
+        messages.success(request, "Se han editado las características del intercambiador exitosamente.")
 
         return redirect(f"/intercambiadores/tubo_carcasa/{propiedades.pk}/")
     
