@@ -27,9 +27,9 @@
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="2">Fluido</th>
                             <th class="table-dark small">Nombre</th>
-                            <th class="table-dark small">Cp (J/KgK)</th>
+                            <th class="table-dark small">Cp ({{evaluacion.cp_unidad}})</th>
                             <th class="table-dark small">Nombre</th>
-                            <th class="table-dark small">Cp (J/KgK)</th>
+                            <th class="table-dark small">Cp ({{evaluacion.cp_unidad}})</th>
                           </tr>
                           <tr>
                             <td>
@@ -96,7 +96,7 @@
                       <tr>
                         <th class="table-dark" style="vertical-align: middle;">LMTD ({{evaluacion.temperaturas_unidad}})</th>
                         <td>{{evaluacion.lmtd}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">Área Transf. (m²)</th>
+                        <th class="table-dark" style="vertical-align: middle;">Área Transf. ({{intercambiador.area_unidad}})</th>
                         <td>{{evaluacion.area_transferencia}}</td>
                       </tr>
                       <tr>
@@ -106,7 +106,7 @@
                         <td>{{evaluacion.efectividad}}</td>
                       </tr>
                       <tr>
-                        <th class="table-dark" style="vertical-align: middle;">U (W/m²K)</th>
+                        <th class="table-dark" style="vertical-align: middle;">U ({{intercambiador.u_unidad}})</th>
                         <td>{{evaluacion.u}}</td>
                         <th class="table-dark" style="vertical-align: middle;">UA (W/K)</th>
                         <td>{{evaluacion.ua}}</td>
@@ -118,7 +118,7 @@
                         <td>{{evaluacion.ensuciamiento}}</td>
                       </tr>
                       <tr>
-                        <th class="table-dark" style="vertical-align: middle;">Q (W)</th>
+                        <th class="table-dark" style="vertical-align: middle;">Q ({{intercambiador.q_unidad}})</th>
                         <td>{{evaluacion.q}}</td>
                         <th class="table-dark" style="vertical-align: middle;">Núm. Tubos</th>
                         <td>{{evaluacion.numero_tubos}}</td>
@@ -139,9 +139,9 @@
                         <th class="table-warning" colspan="4">Datos de Diseño</th>
                       </tr>
                       <tr>
-                        <th class="table-dark" style="vertical-align: middle;">LMTD</th>
+                        <th class="table-dark" style="vertical-align: middle;">LMTD ({{intercambiador.condicion_tubo.temperaturas_unidad}})</th>
                         <td>{{diseno.lmtd}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">Área Transf. (m²)</th>
+                        <th class="table-dark" style="vertical-align: middle;">Área Transf. ({{intercambiador.area_unidad}})</th>
                         <td>{{intercambiador.area}}</td>
                       </tr>
                       <tr>
@@ -151,7 +151,7 @@
                         <td>{{diseno.efectividad}}</td>
                       </tr>
                       <tr>
-                        <th class="table-dark" style="vertical-align: middle;">U (W/m²K)</th>
+                        <th class="table-dark" style="vertical-align: middle;">U ({{intercambiador.u_unidad}})</th>
                         <td>{{diseno.u}}</td>
                         <th class="table-dark" style="vertical-align: middle;">UA (W/K)</th>
                         <td>{{diseno.ua}}</td>
@@ -163,15 +163,15 @@
                         <td>{{diseno.factor_ensuciamiento}}</td>
                       </tr>
                       <tr>
-                        <th class="table-dark" style="vertical-align: middle;">Q (W)</th>
+                        <th class="table-dark" style="vertical-align: middle;">Q ({{intercambiador.q_unidad}})</th>
                         <td>{{diseno.q}}</td>
                         <th class="table-dark" style="vertical-align: middle;">C. Presión Máx. ({{intercambiador.condicion_tubo.unidad_presion}})</th>
                         <td>{{intercambiador.condicion_tubo.caida_presion_max}}</td>
                       </tr>
                       <tr>
-                        <th class="table-dark" style="vertical-align: middle;">Cp Tubo (J/KgK)</th>
+                        <th class="table-dark" style="vertical-align: middle;">Cp Tubo ({{intercambiador.condicion_tubo.unidad_cp}})</th>
                         <td>{{intercambiador.condicion_tubo.fluido_cp}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">Cp Carcasa (J/KgK)</th>
+                        <th class="table-dark" style="vertical-align: middle;">Cp Carcasa ({{intercambiador.condicion_carcasa.unidad_cp}})</th>
                         <td>{{intercambiador.condicion_carcasa.fluido_cp}}</td>
                       </tr>
                     </tbody>

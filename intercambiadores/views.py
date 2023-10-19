@@ -106,7 +106,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
 
                 cambio_de_fase = request.POST['cambio_fase_tubo'],
                 
-                flujo_masico = request.POST['flujo_tubo'],
+                flujo_masico = float(request.POST['flujo_vapor_in_tubo']) + float(request.POST['flujo_liquido_in_tubo']),
                 flujo_vapor_entrada = request.POST['flujo_vapor_in_tubo'],
                 flujo_vapor_salida = request.POST['flujo_vapor_out_tubo'],
                 flujo_liquido_entrada = request.POST['flujo_liquido_in_tubo'],
@@ -130,7 +130,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
 
                 cambio_de_fase = request.POST['cambio_fase_carcasa'],
                 
-                flujo_masico = request.POST['flujo_carcasa'],
+                flujo_masico = float(request.POST['flujo_vapor_in_carcasa']) + float(request.POST['flujo_liquido_in_carcasa']),
                 flujo_vapor_entrada = request.POST['flujo_vapor_in_carcasa'],
                 flujo_vapor_salida = request.POST['flujo_vapor_out_carcasa'],
                 flujo_liquido_entrada = request.POST['flujo_liquido_in_carcasa'],
