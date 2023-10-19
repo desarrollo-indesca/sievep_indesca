@@ -70,7 +70,7 @@ class CrearNuevoUsuario(SuperUserRequiredMixin, View):
         if(self.modelo.objects.filter(email = data['correo'].lower()).exists()):
             errores.append("Ya existe un usuario con ese correo registrado.")
 
-        if(self.modelo.objects.filter(username = data['nombre'].title()).exists()):
+        if(self.modelo.objects.filter(first_name = data['nombre'].title()).exists()):
             errores.append("Ya existe un usuario con ese nombre registrado. Añada una característica diferenciadora.")
 
         if(len(data['password']) < 8):
@@ -84,7 +84,8 @@ class CrearNuevoUsuario(SuperUserRequiredMixin, View):
             with transaction.atomic():
                 self.modelo.objects.create(
                     email = request.POST['correo'].lower(),
-                    username = request.POST['nombre'].title(),
+                    username = request.POST['correo'].lower(),
+                    first_name = request.POST['nombre'].title(),
                     password = make_password(request.POST['password']),
                     is_superuser = 'superusuario' in request.POST.keys()
                 )
@@ -110,7 +111,7 @@ class EditarUsuario(SuperUserRequiredMixin, View):
         if(self.modelo.objects.filter(email = data['correo'].lower()).exclude(pk=self.kwargs['pk']).exists()):
             errores.append("Ya existe un usuario con ese correo registrado.")
 
-        if(self.modelo.objects.filter(username = data['nombre'].title()).exclude(pk=self.kwargs['pk']).exists()):
+        if(self.modelo.objects.filter(first_name = data['nombre'].title()).exclude(pk=self.kwargs['pk']).exists()):
             errores.append("Ya existe un usuario con ese nombre registrado. Añada una característica diferenciadora.")
 
         return errores
@@ -121,7 +122,8 @@ class EditarUsuario(SuperUserRequiredMixin, View):
             with transaction.atomic():
                 usuario = self.modelo.objects.get(pk=pk)
                 usuario.email = request.POST['correo'].lower()
-                usuario.username =  request.POST['nombre'].title()
+                usuario.username = request.POST['correo'].lower()
+                usuario.first_name =  request.POST['nombre'].title()
                 usuario.is_active = 'activo' in request.POST.keys()
                 usuario.is_superuser = 'superusuario' in request.POST.keys()
                 usuario.save()
@@ -135,7 +137,7 @@ class EditarUsuario(SuperUserRequiredMixin, View):
     def get(self, request, pk):
         usuario = self.modelo.objects.get(pk=pk)
         previo = {
-            'nombre': usuario.get_username(),
+            'nombre': usuario.first_name,
             'correo': usuario.email,
             'superusuario': usuario.is_superuser,
             'activo': usuario.is_active
