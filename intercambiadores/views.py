@@ -323,7 +323,7 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             condiciones_tubo.flujo_liquido_salida = request.POST['flujo_vapor_out_tubo']
             condiciones_tubo.flujo_liquido_entrada = request.POST['flujo_liquido_in_tubo']
             condiciones_tubo.cambio_de_fase = request.POST['cambio_fase_tubo']
-            condiciones_tubo.flujo_masico = request.POST['flujo_tubo']
+            condiciones_tubo.flujo_masico = float(request.POST['flujo_vapor_in_tubo']) + float(request.POST['flujo_liquido_in_tubo'])
             condiciones_tubo.presion_entrada = request.POST['presion_entrada_tubo']
             condiciones_tubo.caida_presion_max = request.POST['caida_presion_max_tubo']
             condiciones_tubo.caida_presion_min = request.POST['caida_presion_min_tubo']
@@ -346,7 +346,7 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             condiciones_carcasa.flujo_liquido_salida = request.POST['flujo_vapor_out_carcasa']
             condiciones_carcasa.flujo_liquido_entrada = request.POST['flujo_liquido_in_carcasa']
             condiciones_carcasa.cambio_de_fase = request.POST['cambio_fase_carcasa']
-            condiciones_carcasa.flujo_masico = request.POST['flujo_carcasa']
+            condiciones_carcasa.flujo_masico = float(request.POST['flujo_vapor_in_carcasa']) + float(request.POST['flujo_liquido_in_carcasa'])
             condiciones_carcasa.presion_entrada = request.POST['presion_entrada_carcasa']
             condiciones_carcasa.caida_presion_max = request.POST['caida_presion_max_carcasa']
             condiciones_carcasa.caida_presion_min = request.POST['caida_presion_min_carcasa']
