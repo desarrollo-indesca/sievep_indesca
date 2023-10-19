@@ -9,7 +9,7 @@
       {{ forloop.counter }}
       {% endif %}
     </th>
-    <td>{{usuario.get_full_name}}</td>
+    <td>{{usuario.username}}</td>
     <td>{{usuario.email}}</td>
     <td>{{usuario.is_superuser|yesno:"Sí,No"}}</td>
     <td>{{usuario.is_active|yesno:"Sí,No"}}</td>
@@ -18,7 +18,7 @@
             Editar
         </a>
         <a href="#" class="btn btn-danger">
-            Desactivar
+            Cambiar contraseña
         </a>
     </td>
   </tr>

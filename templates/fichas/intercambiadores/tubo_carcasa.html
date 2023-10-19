@@ -11,7 +11,7 @@
 </style>
 
 <div class="modal fade" id="ficha_{{intercambiador.pk}}" tabindex="-1" aria-labelledby="ficha_{{intercambiador.pk}}Label" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
       <div class="modal-content text-dark">
         <div class="modal-header">
           <h5 class="modal-title" id="ficha_{{intercambiador.pk}}Label">Ficha Técnica Tubo/Carcasa {{generales.tag}} ({{generales.planta}})</h5>
@@ -92,15 +92,6 @@
                       </td>
                     </tr>
                     <tr>
-                      <th class="table-dark" colspan="2">Capacidad Calorífica ({{condiciones_tubo.unidad_cp}})</th>
-                      <td colspan="2">
-                          {{condiciones_carcasa.fluido_cp}}                 
-                      </td>
-                      <td colspan="2">
-                          {{condiciones_tubo.fluido_cp}}
-                      </td>
-                    </tr>
-                    <tr>
                       <th class="table-dark" colspan="2">Temperatura ({{condiciones_tubo.temperaturas_unidad}})</th>
                       <td>{{condiciones_carcasa.temp_entrada}}</td>
                       <td>{{condiciones_carcasa.temp_salida}}</td>
@@ -125,6 +116,15 @@
                       <th class="table-dark" colspan="2">Flujo Másico Total ({{condiciones_carcasa.flujos_unidad}})</th>
                       <td colspan="2">{{condiciones_carcasa.flujo_masico}}</td>
                       <td colspan="2">{{condiciones_tubo.flujo_masico}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Capacidad Calorífica ({{condiciones_tubo.unidad_cp}})</th>
+                      <td colspan="2">
+                          {{condiciones_carcasa.fluido_cp}}                 
+                      </td>
+                      <td colspan="2">
+                          {{condiciones_tubo.fluido_cp}}
+                      </td>
                     </tr>
                     <tr>
                       <th style="vertical-align: middle;" class="table-dark" colspan="2">Cambio de Fase</th>
@@ -209,8 +209,8 @@
                       <td>{{intercambiador.material_tubo}}</td>
                     </tr>
                     <tr>
-                      <th colspan="3" class="table-dark">Criticidad</th>
-                      <td colspan="3">{{intercambiador.criticidad_larga}}</td>
+                      <th colspan="2" class="table-dark">Criticidad</th>
+                      <td colspan="4">{{intercambiador.criticidad_larga}}</td>
                     </tr>
                   </tbody>
                 </table>

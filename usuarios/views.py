@@ -1,6 +1,10 @@
 from django.views.generic.list import ListView
+from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth import get_user_model
+from django.shortcuts import render, redirect
+from django.db import transaction
+from django.contrib.auth.hashers import make_password
 
 # Create your views here.
 
@@ -51,6 +55,45 @@ class ConsultaUsuarios(SuperUserRequiredMixin, ListView):
                 is_active = activo
             )
 
-        print(new_context)
+        return new_context.order_by('first_name','last_name')
 
-        return new_context
+class CrearNuevoUsuario(LoginRequiredMixin, View):
+    context = {
+        'titulo': "Registro de Nuevo Usuario"
+    }
+
+    modelo = get_user_model()
+
+    def validar(self, data):
+        errores = []
+        if(self.modelo.objects.filter(email = data['correo']).exists()):
+            errores.append("Ya existe un usuario con ese correo registrado.")
+
+        if(self.modelo.objects.filter(username = data['nombre'].title()).exists()):
+            errores.append("Ya existe un usuario con ese nombre registrado. Añada una característica diferenciadora.")
+
+        if(len(data['password']) < 8):
+            errores.append("La contraseña debe tener 8 caracteres.")
+
+        return errores
+
+    def post(self, request): # Envío de Formulario de Creación
+        errores = self.validar(request.POST)
+        if(len(errores) == 0):
+            with transaction.atomic():
+                self.modelo.objects.create(
+                    email = request.POST['correo'].lower(),
+                    username = request.POST['nombre'].title(),
+                    password = make_password(request.POST['password']),
+                    is_superuser = 'superusuario' in request.POST.keys()
+                )
+
+                request.session['mensaje'] = "Se ha registrado al nuevo usuario correctamente."
+
+                return redirect("/usuarios/")
+        else:
+            return render(request, 'creacion.html', {'errores': errores, 'previo': request.POST})
+    
+    def get(self, request):
+        return render(request, 'creacion.html')
+
