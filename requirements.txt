@@ -1,5 +1,4 @@
 asgiref==3.7.2
-backports.zoneinfo==0.2.1
 blinker==1.6.2
 chemicals==1.1.5
 click==8.1.7

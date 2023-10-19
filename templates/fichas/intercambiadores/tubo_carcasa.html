@@ -21,7 +21,7 @@
           <div class="row">
             <div class="col-12">
               <div class="row">
-                <table class="table table-light text-center table-bordered tabla_ficha">
+                <table border="2" class="table table-light text-center table-bordered tabla_ficha">
                   <tbody id="tabla_ficha_body">
                     <tr>
                       <th class="table-dark">Tag</th>
@@ -101,74 +101,65 @@
                       </td>
                     </tr>
                     <tr>
-                      <th class="table-dark" colspan="2">Temperatura IN ({{condiciones_tubo.temperaturas_unidad}})</th>
+                      <th class="table-dark" colspan="2">Temperatura ({{condiciones_tubo.temperaturas_unidad}})</th>
                       <td>{{condiciones_carcasa.temp_entrada}}</td>
-                      <td>{{condiciones_tubo.temp_entrada}}</td>
-                    </tr>
-                    <tr>
-                      <th class="table-dark" colspan="2">Temperatura OUT ({{condiciones_tubo.temperaturas_unidad}})</th>
                       <td>{{condiciones_carcasa.temp_salida}}</td>
+                      <td>{{condiciones_tubo.temp_entrada}}</td>
                       <td>{{condiciones_tubo.temp_salida}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark" colspan="2">Flujo Másico ({{condiciones_carcasa.flujos_unidad}})</th>
-                      <td>{{condiciones_carcasa.flujo_masico}}</td>
-                      <td>{{condiciones_tubo.flujo_masico}}</td>
-                    </tr>
-                    <tr>
-                      <th class="table-dark" colspan="2">Flujo Vapor IN ({{condiciones_carcasa.flujos_unidad}})</th>
+                      <th class="table-dark" colspan="2">Flujo Vapor ({{condiciones_carcasa.flujos_unidad}})</th>
                       <td>{% if condiciones_carcasa.flujo_vapor_entrada %}{{condiciones_carcasa.flujo_vapor_entrada}}{% else %}-{% endif %}</td>
-                      <td>{% if condiciones_tubo.flujo_vapor_entrada %}{{condiciones_tubo.flujo_vapor_entrada}}{% else %}-{% endif %}</td>
-                    </tr>
-                    <tr>
-                      <th class="table-dark" colspan="2">Flujo Vapor OUT ({{condiciones_carcasa.flujos_unidad}})</th>
                       <td>{% if condiciones_carcasa.flujo_vapor_salida %}{{condiciones_carcasa.flujo_vapor_salida}}{% else %}-{% endif %}</td>
+                      <td>{% if condiciones_tubo.flujo_vapor_entrada %}{{condiciones_tubo.flujo_vapor_entrada}}{% else %}-{% endif %}</td>
                       <td>{% if condiciones_tubo.flujo_vapor_salida %}{{condiciones_tubo.flujo_vapor_salida}}{% else %}-{% endif %}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark" colspan="2">Flujo Líquido IN ({{condiciones_carcasa.flujos_unidad}})</th>
+                      <th class="table-dark" colspan="2">Flujo Líquido ({{condiciones_carcasa.flujos_unidad}})</th>
                       <td>{% if condiciones_carcasa.flujo_liquido_entrada %}{{condiciones_carcasa.flujo_liquido_entrada}}{% else %}-{% endif %}</td>
-                      <td>{% if condiciones_tubo.flujo_liquido_entrada %}{{condiciones_tubo.flujo_liquido_entrada}}{% else %}-{% endif %}</td>
-                    </tr>
-                    <tr>
-                      <th class="table-dark" colspan="2">Flujo Líquido OUT ({{condiciones_carcasa.flujos_unidad}})</th>
                       <td>{% if condiciones_carcasa.flujo_liquido_salida %}{{condiciones_carcasa.flujo_liquido_salida}}{% else %}-{% endif %}</td>
+                      <td>{% if condiciones_tubo.flujo_liquido_entrada %}{{condiciones_tubo.flujo_liquido_entrada}}{% else %}-{% endif %}</td>
                       <td>{% if condiciones_tubo.flujo_liquido_salida %}{{condiciones_tubo.flujo_liquido_salida}}{% else %}-{% endif %}</td>
                     </tr>
                     <tr>
+                      <th class="table-dark" colspan="2">Flujo Másico Total ({{condiciones_carcasa.flujos_unidad}})</th>
+                      <td colspan="2">{{condiciones_carcasa.flujo_masico}}</td>
+                      <td colspan="2">{{condiciones_tubo.flujo_masico}}</td>
+                    </tr>
+                    <tr>
                       <th style="vertical-align: middle;" class="table-dark" colspan="2">Cambio de Fase</th>
-                      <td>{{condiciones_carcasa.cambio_fase_largo}}</td>
-                      <td>{{condiciones_tubo.cambio_fase_largo}}</td>
+                      <td colspan="2">{{condiciones_carcasa.cambio_fase_largo}}</td>
+                      <td colspan="2">{{condiciones_tubo.cambio_fase_largo}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark" colspan="2">Presión Entrada ({{condiciones_carcasa.unidad_presion}})</th>
-                      <td>{{condiciones_carcasa.presion_entrada}}</td>
-                      <td>{{condiciones_tubo.presion_entrada}}</td>
+                      <td colspan="2">{{condiciones_carcasa.presion_entrada}}</td>
+                      <td colspan="2">{{condiciones_tubo.presion_entrada}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark" colspan="2">Caída Presión Máxima ({{condiciones_carcasa.unidad_presion}})</th>
-                      <td>{{condiciones_carcasa.caida_presion_max}}</td>
-                      <td>{{condiciones_tubo.caida_presion_max}}</td>
+                      <td colspan="2">{{condiciones_carcasa.caida_presion_max}}</td>
+                      <td colspan="2">{{condiciones_tubo.caida_presion_max}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark" colspan="2">Caída Presión Mínima ({{condiciones_carcasa.unidad_presion}})</th>
-                      <td>{{condiciones_carcasa.caida_presion_min}}</td>
-                      <td>{{condiciones_tubo.caida_presion_min}}</td>
+                      <td colspan="2">{{condiciones_carcasa.caida_presion_min}}</td>
+                      <td colspan="2">{{condiciones_tubo.caida_presion_min}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark" colspan="2">Fouling ({{intercambiador.ensuciamiento_unidad}})</th>
-                      <td>{{condiciones_carcasa.fouling}}</td>
-                      <td>{{condiciones_tubo.fouling}}</td>
+                      <td colspan="2">{{condiciones_carcasa.fouling}}</td>
+                      <td colspan="2">{{condiciones_tubo.fouling}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark" colspan="2">Conexiones de Entrada</th>
-                      <td>{{intercambiador.conexiones_entrada_carcasa}}</td>
-                      <td>{{intercambiador.conexiones_entrada_tubos}}</td>
+                      <td colspan="2">{{intercambiador.conexiones_entrada_carcasa}}</td>
+                      <td colspan="2">{{intercambiador.conexiones_entrada_tubos}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark" colspan="2">Conexiones de Salida</th>
-                      <td>{{intercambiador.conexiones_salida_carcasa}}</td>
-                      <td>{{intercambiador.conexiones_salida_tubos}}</td>
+                      <td colspan="2">{{intercambiador.conexiones_salida_carcasa}}</td>
+                      <td colspan="2">{{intercambiador.conexiones_salida_tubos}}</td>
                     </tr>
                     {% endwith %}
                     {% endwith %}
@@ -176,49 +167,49 @@
                       <th class="table-dark" colspan="6">Parámetros de Diseño</th>
                     </tr>
                     <tr>
-                      <th class="table-dark">Calor ({{intercambiador.q_unidad}})</th>
+                      <th colspan="2" class="table-dark">Calor ({{intercambiador.q_unidad}})</th>
                       <td>{{intercambiador.q}}</td>
-                      <th class="table-dark">U ({{intercambiador.u_unidad}})</th>
+                      <th colspan="2" class="table-dark">U ({{intercambiador.u_unidad}})</th>
                       <td>{{intercambiador.u}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark">Ensuciamiento ({{intercambiador.ensuciamiento_unidad}})</th>
+                      <th colspan="2" class="table-dark">Ensuciamiento ({{intercambiador.ensuciamiento_unidad}})</th>
                       <td>{{intercambiador.ensuciamiento}}</td>
-                      <th class="table-dark">Área ({{intercambiador.area_unidad}})</th>
+                      <th colspan="2" class="table-dark">Área ({{intercambiador.area_unidad}})</th>
                       <td>{{intercambiador.area}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark">Arreglo Serie</th>
+                      <th colspan="2" class="table-dark">Arreglo Serie</th>
                       <td>{{intercambiador.arreglo_serie}}</td>
-                      <th class="table-dark">Arreglo Paralelo</th>
+                      <th colspan="2" class="table-dark">Arreglo Paralelo</th>
                       <td>{{intercambiador.arreglo_paralelo}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark">No. Tubos</th>
+                      <th colspan="2" class="table-dark">No. Tubos</th>
                       <td>{{intercambiador.numero_tubos}}</td>
-                      <th class="table-dark">Long. Tubos ({{intercambiador.longitud_tubos_unidad}})</th>
+                      <th colspan="2" class="table-dark">Long. Tubos ({{intercambiador.longitud_tubos_unidad}})</th>
                       <td>{{intercambiador.longitud_tubos}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark">OD Tubos ({{intercambiador.diametro_tubos_unidad}})</th>
+                      <th colspan="2" class="table-dark">OD Tubos ({{intercambiador.diametro_tubos_unidad}})</th>
                       <td>{{intercambiador.diametro_externo_tubos}}</td>
-                      <th class="table-dark">ID Carcasa ({{intercambiador.diametro_tubos_unidad}})</th>
+                      <th colspan="2" class="table-dark">ID Carcasa ({{intercambiador.diametro_tubos_unidad}})</th>
                       <td>{{intercambiador.diametro_interno_tubos}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark">Pitch ({{intercambiador.unidades_pitch}})</th>
+                      <th colspan="2" class="table-dark">Pitch ({{intercambiador.unidades_pitch}})</th>
                       <td>{{intercambiador.pitch_tubos}}</td>
-                      <th class="table-dark">Tipo Tubo</th>
+                      <th colspan="2" class="table-dark">Tipo Tubo</th>
                       <td>{{intercambiador.tipo_tubo}}</td>                      
                     </tr>
                     <tr>
-                      <th class="table-dark">Material Carc.</th>
+                      <th colspan="2" class="table-dark">Material Carc.</th>
                       <td>{{intercambiador.material_carcasa}}</td>
-                      <th colspan="1" class="table-dark">Material Tubo</th>
+                      <th colspan="2" colspan="1" class="table-dark">Material Tubo</th>
                       <td>{{intercambiador.material_tubo}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark">Criticidad</th>
+                      <th colspan="3" class="table-dark">Criticidad</th>
                       <td colspan="3">{{intercambiador.criticidad_larga}}</td>
                     </tr>
                   </tbody>
