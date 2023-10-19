@@ -17,7 +17,7 @@
         <a href="{% url 'editar_usuario' pk=usuario.pk %}" class="btn btn-primary">
             Editar
         </a>
-        <a href="#" class="btn btn-danger">
+        <a href="{% url 'cambiar_contrasena' pk=usuario.pk %}" class="btn btn-danger">
             Cambiar contraseña
         </a>
     </td>

@@ -57,7 +57,7 @@ class ConsultaUsuarios(SuperUserRequiredMixin, ListView):
 
         return new_context.order_by('first_name','last_name')
 
-class CrearNuevoUsuario(LoginRequiredMixin, View):
+class CrearNuevoUsuario(SuperUserRequiredMixin, View):
     context = {
         'titulo': "Registro de Nuevo Usuario"
     }
@@ -97,7 +97,7 @@ class CrearNuevoUsuario(LoginRequiredMixin, View):
     def get(self, request):
         return render(request, 'creacion.html')
 
-class EditarUsuario(LoginRequiredMixin, View):
+class EditarUsuario(SuperUserRequiredMixin, View):
     context = {
         'titulo': "Editar Usuario"
     }
@@ -141,3 +141,37 @@ class EditarUsuario(LoginRequiredMixin, View):
         }
 
         return render(request, 'creacion.html', context={'previo': previo, 'edicion': True})
+
+class CambiarContrasena(SuperUserRequiredMixin, View):
+    context = {
+        'titulo': "Cambiar Contraseña"
+    }
+
+    modelo = get_user_model()
+
+    def validar(self, data):
+        errores = []
+
+        if(len(data['password']) < 8):
+            errores.append("La contraseña debe contar con al menos 8 caracteres.")
+
+        return errores
+
+    def post(self, request, pk): # Envío de Formulario de Creación
+        errores = self.validar(request.POST)
+        if(len(errores) == 0):
+            with transaction.atomic():
+                usuario = self.modelo.objects.get(pk=pk)
+                usuario.password = make_password(request.POST['password'])
+                usuario.save()
+
+                request.session['mensaje'] = "Se han registrado los cambios."
+
+                return redirect("/usuarios/")
+        else:
+            return render(request, 'cambiar_contrasena.html', {'errores': errores})
+    
+    def get(self, request, pk):
+        usuario = self.modelo.objects.get(pk=pk)
+
+        return render(request, 'cambiar_contrasena.html', context={'usuario': usuario, 'edicion': True})
