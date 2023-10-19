@@ -1,0 +1,727 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block contenido %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_tubo_carcasa' %}">↶ Regresar</a></div>
+            <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Nuevo Intercambiador de Tubo/Carcasa</h3></div>
+            <div class="col-3"></div>
+        </div>
+    
+        <hr>
+
+        {% if error %}
+        <div>
+            <b class="text-center" style="color: #e31e24;">{{error}}</b>
+        </div>
+
+        <hr>
+        {% endif %}
+    
+        <div class="row">
+            <div class="col-12">
+                <h5 class="text-center" style="color: #e31e24;">Datos de Identificación</h5>
+            </div>
+
+            <div class="col-3 d-flex flex-column">
+                <label class="form-label" for="complejo">Complejo:</label>
+                <select required class="form-select" name="complejo" id="complejo">
+                    {% for complejo in complejos %}
+                    <option value="{{complejo.pk}}" {% if previo.complejo == complejo.pk|slugify %}selected{% endif %}>{{complejo}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+    
+            <div class="col-3 d-flex flex-column">
+                <label class="form-label" for="planta">Planta:</label>
+                <select required class="form-select" name="planta" id="planta">
+                    {% for planta in plantas %}
+                    <option value="{{planta.pk}}" {% if previo.planta == planta.pk|slugify %}selected{% endif %}>{{planta}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-3 d-flex flex-column">
+                <label class="form-label" for="tema">Tema:</label>
+                <select class="form-select" name="tema" id="tema">
+                    {% for tema in temas %}
+                    <option value="{{tema.pk}}" {% if previo.tema == tema.pk|slugify %}selected{% endif %}>{{tema}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-3 d-flex flex-column">
+                <label class="form-label" for="tag">Tag del Equipo:</label>
+                <input value="{{previo.tag}}" type="text" required class="form-control" name="tag" id="tag">
+            </div>
+
+            <div class="col-3 d-flex flex-column">
+                <label class="form-label" for="servicio">Servicio:</label>
+                <input value="{{previo.servicio}}" type="text" required class="form-control" name="servicio" id="servicio">
+            </div>
+            
+            <div class="col-3 d-flex flex-column">
+                <label class="form-label" for="flujo">Flujo:</label>
+                <select class="form-select" name="flujo" id="flujo">
+                    <option value="C" {% if previo.flujo == "C" %}selected{% endif %}>Cocorriente</option>
+                    <option value="c" {% if previo.flujo == "c" %}selected{% endif %}>Contracorriente</option>
+                    <option value="M" {% if previo.flujo == "M" %}selected{% endif %}>Flujo Cruzado Mezclado</option>
+                    <option value="m" {% if previo.flujo == "m" %}selected{% endif %}>Flujo Cruzado sin Mezclar</option>
+                </select>
+            </div>
+
+            <div class="col-3 d-flex flex-column">
+                <label class="form-label" for="fabricante">Fabricante:</label>
+                <input value="{{previo.fabricante}}" type="text" required class="form-control" name="fabricante" id="fabricante">
+            </div>
+
+            <div class="col-3 d-flex flex-column">
+                <label class="form-label" for="criticidad">Criticidad:</label>
+                <select class="form-select" name="criticidad" id="criticidad">
+                    <option value="N" {% if previo.criticidad == "N" %}selected{% endif %}>No Crítico</option>
+                    <option value="S" {% if previo.criticidad == "S" %}selected{% endif %}>Semi Crítico</option>
+                    <option value="C" {% if previo.criticidad == "C" %}selected{% endif %}>Crítico</option>
+                </select>
+            </div>
+        </div>
+    
+        <hr>
+    
+        <div class="row g-3">
+            <div class="col-12">
+                <h5 class="text-center" style="color: #e31e24;">Datos de Condiciones de Diseño</h5>
+            </div>
+
+            <div class="col-6 border-end">
+                <h4 class="text-center mb-3">Carcasa</h4>
+    
+                <div class="row">
+                    <div class="col-6">
+                        <label class="form-label" for="temp_in_carcasa">Temperatura Entrada:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{previo.temp_in_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" max="9999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas">
+                                {% for unidad in unidades_temperaturas %}
+                                <option value="{{unidad.pk}}">{{unidad.simbolo}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label" for="temp_out_carcasa">Temperatura Salida:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{previo.temp_out_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" max="9999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                <option value="1">°C</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="row">
+                            <div class="col-5">
+                                <label class="form-label" for="fluido_carcasa">Fluido:</label>                            
+                            </div>
+                            <div class="col-5">
+                                <label class="form-label" for="cp_carcasa">Capacidad Calorífica:</label>
+                            </div>
+                            <div class="col-2"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mb-2">
+                        <div class="row">
+                            <div class="col-5 d-flex flex-column">    
+                                <select class="form-select" name="fluido_carcasa" id="fluido_carcasa">
+                                    {% for fluido in fluidos %}
+                                    <option value="{{fluido.pk}}" {% if previo.fluido_carcasa == fluido.pk|slugify %}selected{% endif %}>{{fluido}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+        
+                            <div class="col-5">
+                                <div class="input-group mb-2">
+                                    <input style="width: 60% !important;" class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_carcasa" min="0.0001" id="cp_carcasa" disabled>
+                                    <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp">
+                                        {% for unidad in unidades_cp %}
+                                        <option value="{{unidad.pk}}">{{unidad}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>                                  
+                            </div>
+        
+                            <div class="col-2 d-flex justify-content-center align-items-start">
+                                <button data-bs-toggle="modal" data-bs-target="#condiciones_diseno_fluido_carcasa" class="btn btn-danger no-submit w-100">+</button>
+                                <div class="modal fade" id="condiciones_diseno_fluido_carcasa" tabindex="-1" aria-labelledby="condiciones_diseno_fluido_carcasaLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                                      <div class="modal-content">
+                                        <div class="modal-header">
+                                          <h5 class="modal-title">Registrar Fluido de Carcasa</h5>
+                                          <button id="condiciones_diseno_fluido_carcasaClose" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <h3 style="color: #e31e24;" class="text-center">Compuesto por Cp en Ficha</h3>
+                                            <div class="row">
+                                                <div class="col-5">
+                                                    <label for="etiqueta">Nombre del Compuesto:</label>
+                                                    <input class="form-control" id="nombre_compuesto_carcasa" type="text" maxlength="25">
+                                                </div>
+                                                <div class="col-5">
+                                                    <label for="etiqueta">Cp del Compuesto:</label>
+                                                    <input class="form-control" id="cp_compuesto_carcasa" type="number" step="0.0001">
+                                                </div>
+                                                <div class="col-2 d-flex justify-content-center align-items-end">
+                                                    <button id="enviar_compuesto_carcasa_ficha" class="no-submit btn btn-danger w-100" disabled>Enviar</button>
+                                                </div>
+                                            </div>
+                                          <hr>
+                                          <h3 style="color: #e31e24;" class="text-center">Compuesto por Código CAS</h3>
+                                            <div class="row">
+                                                <div class="col-5">
+                                                    <label for="etiqueta">Código CAS:</label>
+                                                    <input class="form-control" id="cas_compuesto_carcasa" type="text" maxlength="25" pattern="[0-9]+-[0-9]+-[0-9]+">
+                                                </div>
+                                                <div class="col-5">
+                                                    <label for="etiqueta">Nombre:</label>
+                                                    <input class="form-control" id="nombre_compuesto_carcasa_cas" type="text" maxlength="25">
+                                                </div>
+                                                <div class="col-2 d-flex justify-content-center align-items-end">
+                                                    <button id="guardar_datos_cas_carcasa" class="no-submit btn btn-danger w-100" disabled>Enviar</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>                    
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label" for="cambio_fase_carcasa">Cambio de Fase:</label>
+                        <div class="input-group mb-3">
+                            <select class="form-select" name="cambio_fase_carcasa" id="cambio_fase_carcasa">
+                                <option value="S" {% if previo.cambio_fase_carcasa == "S" %}selected{% endif %}>Sin Cambio de Fase</option>
+                                <option value="P" {% if previo.cambio_fase_carcasa == "P" %}selected{% endif %}>Cambio de Fase Parcial</option>
+                                <option value="T" {% if previo.cambio_fase_carcasa == "T" %}selected{% endif %}>Cambio de Fase Total</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label" for="flujo_carcasa">Flujo Másico:</label>
+                        <div class="input-group mb-3">
+                            <input min="0.01" value="{{previo.flujo_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" max="999999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos">
+                                {% for unidad in unidades_flujo %}
+                                <option value="{{unidad.pk}}" {% if condicion_tubo.flujos_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label" for="flujo_vapor_in_carcasa">Flujo de Vapor Entrada:</label>
+                        <div class="input-group mb-3">
+                            <input min="0.01" value="{{previo.flujo_vapor_in_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_in_carcasa" id="flujo_vapor_in_carcasa" step="0.01" max="9999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
+                                <option value="1">Kg/h</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label" for="flujo_vapor_out_carcasa">Flujo de Vapor Salida:</label>
+                        <div class="input-group mb-3">
+                            <input min="0.01" value="{{previo.flujo_vapor_out_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_out_carcasa" id="flujo_vapor_out_carcasa" step="0.01" max="9999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
+                                <option value="1">Kg/h</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label" for="flujo_liquido_in_carcasa">Flujo Líquido Entrada:</label>
+                        <div class="input-group mb-3">
+                            <input min="0.01" value="{{previo.flujo_liquido_in_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_in_carcasa" id="flujo_liquido_in_carcasa" step="0.01" max="9999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
+                                <option value="1">Kg/h</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label" for="flujo_liquido_out_carcasa">Flujo Líquido Salida:</label>
+                        <div class="input-group mb-3">
+                            <input min="0.01" value="{{previo.flujo_liquido_out_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_out_carcasa" id="flujo_liquido_out_carcasa" step="0.01" max="9999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
+                                <option value="1">Kg/h</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label" for="presion_entrada_carcasa">Presión Entrada:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{previo.presion_entrada_carcasa}}" style="width: 80% !important;" class="form-control" type="number" name="presion_entrada_carcasa" id="presion_entrada_carcasa" step="0.01" max="9999.99" required>
+                            <select style="width: 20% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones">
+                                {% for unidad in unidades_presion %}
+                                <option value="{{unidad.pk}}" {% if condicion_tubo.unidad_presions == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label" for="caida_presion_max_carcasa">Caída de Presión Máxima:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{previo.caida_presion_max_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_max_carcasa" id="caida_presion_max_carcasa" step="0.01" max="9999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
+                                <option value="1">bar</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label" for="caida_presion_min_carcasa">Caída de Presión Mínima:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{previo.caida_presion_min_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_min_carcasa" id="caida_presion_min_carcasa" step="0.01" max="9999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
+                                <option value="1">bar</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label" for="fouling_carcasa">Fouling:</label>
+
+                        <div class="input-group">
+                            <input min="0.00000001" max="9.99999999" value="{{previo.fouling_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="fouling_carcasa" id="fouling_carcasa" step="0.00000001" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_fouling" id="unidad_fouling">
+                                {% for unidad in unidades_ensuciamiento %}
+                                <option value="{{unidad.pk}}" {% if previo.unidad_ensuciamiento == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>                                
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6">
+                <h4 class="text-center mb-3">Tubo</h4>
+                <div class="row">
+                    <div class="col-6">
+                        <label class="form-label" for="temp_in_tubo">Temperatura Entrada:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{previo.temp_in_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" max="9999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                <option value="1">°C</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-6">
+                        <label class="form-label" for="temp_out_tubo">Temperatura Salida:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{previo.temp_out_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" max="9999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                <option value="1">°C</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="row">
+                            <div class="col-5">
+                                <label class="form-label" for="fluido_tubo">Fluido:</label>
+                            </div>
+        
+                            <div class="col-5">
+                                <label class="form-label" for="cp_tubo">Capacidad Calorífica:</label>
+                            </div>
+        
+                            <div class="col-2"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-5">
+                                <select class="form-select" name="fluido_tubo" id="fluido_tubo">
+                                    {% for fluido in fluidos %}
+                                    <option value="{{fluido.pk}}" {% if previo.fluido_tubo == fluido.pk|slugify %}selected{% endif %}>{{fluido}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+        
+                            <div class="col-5">
+                                <div class="input-group mb-3">
+                                    <input style="width: 60% !important;" class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_tubo" min="0.0001" id="cp_tubo" disabled>
+                                    <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
+                                        <option value="">J/KgK</option>
+                                    </select>
+                                </div>  
+                            </div>
+        
+                            <div class="col-2 d-flex justify-content-center align-items-start">
+                                <button data-bs-toggle="modal" data-bs-target="#condiciones_diseno_fluido" class="btn btn-danger no-submit w-100">+</button>
+                                <div class="modal fade" id="condiciones_diseno_fluido" tabindex="-1" aria-labelledby="condiciones_diseno_fluidoLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                                      <div class="modal-content">
+                                        <div class="modal-header">
+                                          <h5 class="modal-title" id="condiciones_diseno_fluidoLabel">Registrar Fluido de Tubo</h5>
+                                          <button id="condiciones_diseno_fluido_tuboLabel" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <h3 style="color: #e31e24;" class="text-center">Compuesto por Cp en Ficha</h3>
+                                            <div class="row">
+                                                <div class="col-5">
+                                                    <label for="etiqueta">Nombre del Compuesto:</label>
+                                                    <input class="form-control" id="nombre_compuesto_tubo" type="text" maxlength="25">
+                                                </div>
+                                                <div class="col-5">
+                                                    <label for="etiqueta">Cp del Compuesto:</label>
+                                                    <input class="form-control" id="cp_compuesto_tubo"type="number" step="0.0001">
+                                                </div>
+                                                <div class="col-2 d-flex justify-content-center align-items-end">
+                                                    <button id="enviar_compuesto_tubo_ficha" class="btn btn-danger w-100 no-submit" disabled>Enviar</button>
+                                                </div>
+                                            </div>
+                                          <hr>
+                                          <h3 style="color: #e31e24;" class="text-center">Compuesto por Código CAS</h3>
+                                            <div class="row">
+                                                <div class="col-5">
+                                                    <label for="etiqueta">Código CAS:</label>
+                                                    <input class="form-control" id="cas_compuesto_tubo" type="text" maxlength="25" pattern="[0-9]+-[0-9]+-[0-9]+">
+                                                </div>
+                                                <div class="col-5">
+                                                    <label for="etiqueta">Nombre:</label>
+                                                    <input class="form-control" id="nombre_compuesto_tubo_cas" type="text" maxlength="25">
+                                                </div>
+                                                <div class="col-2 d-flex justify-content-center align-items-end">
+                                                    <button id="guardar_datos_cas" class="no-submit btn btn-danger w-100" disabled>Enviar</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                </div>                    
+                            </div>                            
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label" for="cambio_fase_tubo">Cambio de Fase:</label>
+                        <div class="input-group mb-3">
+                            <select class="form-select" name="cambio_fase_tubo" id="cambio_fase_tubo">
+                                <option value="S" {% if previo.cambio_fase_tubo == 'S' %}selected{%endif%}>Sin Cambio de Fase</option>
+                                <option value="P" {% if previo.cambio_fase_tubo == 'P' %}selected{%endif%}>Cambio de Fase Parcial</option>
+                                <option value="T" {% if previo.cambio_fase_tubo == 'T' %}selected{%endif%}>Cambio de Fase Total</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label" for="flujo_tubo">Flujo Másico:</label>
+                        <div class="input-group mb-3">
+                            <input min="0.01" value="{{previo.flujo_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" max="999999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
+                                <option value="1">Kg/h</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label" for="flujo_vapor_in_tubo">Flujo de Vapor Entrada:</label>
+                        <div class="input-group mb-3">
+                            <input min="0.01" value="{{previo.flujo_vapor_in_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_in_tubo" id="flujo_vapor_in_tubo" step="0.01" max="999999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
+                                <option value="1">Kg/h</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label" for="flujo_vapor_out_tubo">Flujo de Vapor Salida:</label>
+                        <div class="input-group mb-3">
+                            <input min="0.01" value="{{previo.flujo_vapor_out_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_out_tubo" id="flujo_vapor_out_tubo" step="0.01" max="999999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
+                                <option value="1">Kg/h</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label" for="flujo_liquido_in_tubo">Flujo Líquido Entrada:</label>
+                        <div class="input-group mb-3">
+                            <input min="0.01" value="{{previo.flujo_liquido_in_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_in_tubo" id="flujo_liquido_in_tubo" step="0.01" max="999999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
+                                <option value="1">Kg/h</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label" for="flujo_liquido_out_tubo">Flujo Líquido Salida:</label>
+                        <div class="input-group mb-3">
+                            <input min="0.01" value="{{previo.flujo_liquido_out_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_out_tubo" id="flujo_liquido_out_tubo" step="0.01" max="999999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
+                                <option value="1">Kg/h</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label" for="presion_entrada_tubo">Presión Entrada:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{previo.presion_entrada_tubo}}" style="width: 80% !important;" class="form-control" type="number" name="presion_entrada_tubo" id="presion_entrada_tubo" step="0.01" max="99999.99" required>
+                            <select style="width: 20% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
+                                <option value="1">bar</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label" for="caida_presion_max_tubo">Caída de Presión Máxima:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{previo.caida_presion_max_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_max_tubo" id="caida_presion_max_tubo" step="0.01" max="99999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
+                                <option value="1">bar</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label" for="caida_presion_min_tubo">Caída de Presión Mínima:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{previo.caida_presion_min_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_min_tubo" id="caida_presion_min_tubo" step="0.01" max="99999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
+                                <option value="1">bar</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label" for="fouling_tubo">Fouling:</label>
+                        <div class="input-group">
+                            <input min="0.00000001" max="9.99999999" value="{{previo.fouling_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="fouling_tubo" id="fouling_tubo" step="0.00000001" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_fouling" id="unidad_fouling" disabled>
+                                <option value="1">m²K/W</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- <div class="col-12">
+                <hr style="width: 100%;">
+            </div>
+
+            <div class="col-12 d-flex justify-content-center">
+                <button class="btn btn-secondary">+ Añadir Condición</button>
+            </div> -->
+
+            <div class="col-12">
+                <hr style="width: 100%;">
+            </div>
+
+            <div class="col-6 border-end">
+                <div class="row">
+                    <div class="col-6">
+                        <label class="form-label" for="conexiones_entrada_tubo">Conexiones de Entrada Tubo:</label>
+                        <input value="{{previo.conexiones_entrada_tubo}}" class="form-control" type="text" maxlength="50" name="conexiones_entrada_tubo" id="conexiones_entrada_tubo">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" for="conexiones_salida_tubo">Conexiones de Salida Tubo:</label>
+                        <input value="{{previo.conexiones_salida_tubo}}" class="form-control" type="text" maxlength="50" name="conexiones_salida_tubo" id="conexiones_salida_tubo">
+                    </div>
+
+                    <div class="col-2"></div>
+
+                    <div class="col-8">
+                        <label class="form-label" for="numero_pasos_tubo">Número de Pasos Tubo:</label>
+                        <input value="{{previo.numero_pasos_tubo}}" class="form-control" type="text" maxlength="50" name="numero_pasos_tubo" id="numero_pasos_tubo">
+                    </div>
+
+                    <div class="col-2"></div>
+                </div>
+            </div>
+
+            <div class="col-6">
+                <div class="row">
+                    <div class="col-6">
+                        <label class="form-label" for="conexiones_entrada_carcasa">Conexiones de Entrada Carcasa:</label>
+                        <input value="{{previo.conexiones_entrada_carcasa}}" class="form-control" type="text" maxlength="50" name="conexiones_entrada_carcasa" id="conexiones_entrada_carcasa">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" for="conexiones_salida_carcasa">Conexiones de Salida Carcasa:</label>
+                        <input value="{{previo.conexiones_salida_tubo}}" class="form-control" type="text" maxlength="50" name="conexiones_salida_carcasa" id="conexiones_salida_carcasa">
+                    </div>
+
+                    <div class="col-2"></div>
+
+                    <div class="col-8">
+                        <label class="form-label" for="numero_pasos_carcasa">Número de Pasos Carcasa:</label>
+                        <input value="{{previo.numero_pasos_carcasa}}" class="form-control" type="text" maxlength="50" name="numero_pasos_carcasa" id="numero_pasos_carcasa">
+                    </div>
+
+                    <div class="col-2"></div>
+                </div>
+            </div>
+        </div>
+    
+        <hr>
+
+        <div class="row g-3">
+            <div class="col-12">
+                <h5 class="text-center" style="color: #e31e24;">Parámetros de Diseño</h5>
+            </div>
+
+            <div class="col-12">    
+                <div class="row">                    
+                    <div class="col-3">
+                        <label class="form-label" for="calor">Calor:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{previo.calor}}" style="width: 60% !important;" class="form-control" type="number" name="calor" id="calor" step="0.0001" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_calor" id="unidad_calor">
+                                {% for unidad in unidades_q %}
+                                <option value="{{unidad.pk}}" {% if previo.unidad_ensuciamiento == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>                                
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <label class="form-label" for="area">Área:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{previo.area}}" style="width: 60% !important;" class="form-control" type="number" name="area" id="area" step="0.0001" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_area" id="unidad_area">
+                                {% for unidad in unidades_area %}
+                                <option value="{{unidad.pk}}" {% if intercambiador.area_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <label class="form-label" for="arreglo_serie">Arreglo Serie:</label>
+                        <input value="{{previo.arreglo_serie}}" class="form-control" type="number" name="arreglo_serie" id="arreglo_serie" step="0.0001" required>
+                    </div>
+
+                    <div class="col-3">
+                        <label class="form-label" for="arreglo_paralelo">Arreglo Paralelo:</label>
+                        <input value="{{previo.arreglo_paralelo}}" class="form-control" type="number" name="arreglo_paralelo" id="arreglo_paralelo" step="0.0001" required>
+                    </div>
+
+                    <div class="col-3">
+                        <label class="form-label" for="no_tubos">No. Tubos:</label>
+                        <input value="{{previo.no_tubos}}" class="form-control" type="number" name="no_tubos" id="no_tubos" step="0.0001" required>
+                    </div>
+
+                    <div class="col-3">
+                        <label class="form-label" for="longitud_tubos">Longitud Tubos:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{previo.longitud_tubos}}" style="width: 60% !important;" class="form-control" type="number" name="longitud_tubos" id="longitud_tubos" step="0.0001" required>
+                            <select style="width: 40% !important;" class="form-select" name="longitud_tubos_unidad" id="longitud_tubos_unidad">
+                                {% for unidad in unidades_longitud %}
+                                <option value="{{unidad.pk}}" {% if intercambiador.longitud_tubos_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <label class="form-label" for="od_tubos">OD Tubos:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{previo.od_tubos}}" style="width: 60% !important;" class="form-control" type="number" name="od_tubos" id="od_tubos" step="0.0001" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_diametros" id="unidad_diametros">
+                                {% for unidad in unidades_longitud %}
+                                <option value="{{unidad.pk}}" {% if intercambiador.diametro_tubos_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <label class="form-label" for="id_carcasa">ID Carcasa:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{previo.id_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="id_carcasa" id="id_carcasa" step="0.0001" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_diametros" id="unidad_diametros" disabled>
+                                <option value="1">m</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <label class="form-label" for="tipo_tubo">Tipo de Tubo:</label>
+                        <select name="tipo_tubo" class="form-select" id="tipo_tubo">
+                            {% for tipo in tipos %}
+                            <option value="{{tipo.pk}}" {% if previo.tipo_tubo == tipo.pk|slugify %}selected{% endif %}>{{tipo}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-3">
+                        <label class="form-label" for="pitch">Pitch:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{previo.pitch}}" style="width: 60% !important;" class="form-control" type="number" name="pitch" id="pitch" step="0.0001" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidades_pitch" id="unidades_pitch">
+                                {% for unidad in unidades_longitud %}
+                                <option value="{{unidad.pk}}" {% if intercambiador.longitud_tubos_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <label class="form-label" for="material_carcasa">Material Carcasa:</label>
+                        <input value="{{previo.material_carcasa}}" class="form-control" type="text" name="material_carcasa" id="material_carcasa">
+                    </div>
+
+                    <div class="col-3">
+                        <label class="form-label" for="material_tubo">Material Tubo:</label>
+                        <input value="{{previo.material_tubo}}" class="form-control" type="text" name="material_tubo" id="material_tubo">
+                    </div>
+
+                    <div class="col-3"></div>
+
+                    <div class="col-3">
+                        <label class="form-label" for="u">U:</label>
+                        <div class="input-group">
+                            <input style="width: 60% !important;" value="{{previo.u}}" max="9999999.999" step="0.00000001" min="0.00000001" class="form-control" type="number" name="u" id="u">
+                            <select style="width: 40% !important;" class="form-select" name="unidad_u" id="unidad_u">
+                                {% for unidad in unidades_u %}
+                                <option value="{{unidad.pk}}" {% if intercambiador.u_unidad == unidad %}selected{%endif%}>{{unidad}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <label class="form-label" for="ensuciamiento">Ensuciamiento:</label>
+                        <div class="input-group">
+                            <input style="width: 60% !important;" value="{{previo.ensuciamiento}}" max="99.99999999" step="0.00000001" min="0" class="form-control" type="number" name="ensuciamiento" id="ensuciamiento">
+                            <select style="width: 40% !important;" class="form-select" name="unidad_fouling" id="unidad_fouling" disabled>
+                                <option value="1">m²K/W</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+        
+        <div class="d-flex justify-content-center mb-3">
+            <button class="btn btn-danger">Registrar Intercambiador</button>
+        </div>
+    </form>
+{% endblock %}
+
+{% block extra_javascript %}
+<script>
+    {% include 'scripts/ajaxCP.js' %}
+</script>
+{% endblock %}

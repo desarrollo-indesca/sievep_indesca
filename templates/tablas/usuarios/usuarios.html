@@ -1,0 +1,25 @@
+{% load static %}
+{% load mathfilters %}
+{% for usuario in object_list %}
+  <tr>
+    <th scope="row">
+      {% if page_obj.has_previous %}
+      {{ 10|mul:page_obj.previous_page_number|add:forloop.counter }}
+      {% else %}
+      {{ forloop.counter }}
+      {% endif %}
+    </th>
+    <td>{{usuario.get_full_name}}</td>
+    <td>{{usuario.email}}</td>
+    <td>{{usuario.is_superuser|yesno:"Sí,No"}}</td>
+    <td>{{usuario.is_active|yesno:"Sí,No"}}</td>
+    <td>
+        <a href="#" class="btn btn-primary">
+            Editar
+        </a>
+        <a href="#" class="btn btn-danger">
+            Desactivar
+        </a>
+    </td>
+  </tr>
+{% endfor %}

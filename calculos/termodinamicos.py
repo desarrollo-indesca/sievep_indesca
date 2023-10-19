@@ -18,6 +18,7 @@ def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida = 29):
     Devuelve:
         float: Cp del fluido en esas condiciones 
     """
+    
     t = numpy.mean([t1, t2])
     cp = Chemical(fluido,T=t).Cp if fluido != '132259-10-0' else Mixture('air',T=t).Cp
 

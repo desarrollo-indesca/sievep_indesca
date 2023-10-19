@@ -1,11 +1,10 @@
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from .models import *
 from django.views.generic.list import ListView
 from django.db import transaction
 from django.contrib.auth.mixins import LoginRequiredMixin
-import os
 from thermo.chemical import search_chemical
 from calculos.termodinamicos import calcular_cp
 from calculos.evaluaciones import evaluacion_tubo_carcasa

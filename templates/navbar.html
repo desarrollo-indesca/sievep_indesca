@@ -31,6 +31,9 @@
               {{request.user.get_full_name}}
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              {% if request.user.is_superuser %}
+              <li><a class="dropdown-item" href="{% url 'consultar_usuarios' %}">Administrar Usuarios</a></li>
+              {% endif %}
               <li><a class="dropdown-item" href="{% url 'cerrar_sesion' %}">Cerrar Sesión</a></li>
             </ul>
           </li>
