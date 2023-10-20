@@ -58,6 +58,8 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             else:
                 fluido_carcasa = Fluido.objects.get(pk=fluido_carcasa)
 
+            u = request.POST['u']
+
             propiedades = PropiedadesTuboCarcasa.objects.create(
                 intercambiador = intercambiador,
                 area = float(request.POST['area']),
@@ -91,7 +93,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
                 numero_pasos_carcasa = request.POST['numero_pasos_carcasa'],
                 q =  float(request.POST['calor']),
                 q_unidad = Unidades.objects.get(pk=request.POST['unidad_calor']),
-                u =  float(request.POST['u']),
+                u = u,
                 u_unidad = Unidades.objects.get(pk=request.POST['unidad_u']),
                 ensuciamiento = float(request.POST['ensuciamiento']),
                 ensuciamiento_unidad = Unidades.objects.get(pk=request.POST['unidad_fouling'])
@@ -407,7 +409,7 @@ class ConsultaEvaluacionesTuboCarcasa(LoginRequiredMixin, ListView):
         context['nombre'] = self.request.GET.get('nombre', '')
         context['desde'] = self.request.GET.get('desde', '')
         context['hasta'] = self.request.GET.get('hasta')
-        context['metodo'] = self.request.GET.get('metodo','')
+        context['usuario'] = self.request.GET.get('usuario','')
         context['condiciones'] = self.request.GET.get('condiciones', '')
 
         return context
@@ -416,8 +418,7 @@ class ConsultaEvaluacionesTuboCarcasa(LoginRequiredMixin, ListView):
         new_context = EvaluacionesIntercambiador.objects.filter(intercambiador=PropiedadesTuboCarcasa.objects.get(pk=self.kwargs['pk']).intercambiador)
         desde = self.request.GET.get('desde', '')
         hasta = self.request.GET.get('hasta', '')
-        condiciones = self.request.GET.get('condiciones', '')
-        metodo = self.request.GET.get('metodo', '')
+        usuario = self.request.GET.get('usuario', '')
         nombre = self.request.GET.get('nombre', '')
 
         if(desde != ''):
@@ -430,9 +431,9 @@ class ConsultaEvaluacionesTuboCarcasa(LoginRequiredMixin, ListView):
                 fecha__lte=hasta
             )
 
-        if(metodo != ''):
+        if(usuario != ''):
             new_context = new_context.filter(
-                metodo = metodo
+                creado_por__first_name__icontains = usuario
             )
 
         if(nombre != ''):

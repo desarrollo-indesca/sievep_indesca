@@ -11,8 +11,7 @@
     </th>
     <td>{{evaluacion.fecha}}</td>
     <td>{{evaluacion.nombre}}</td>
-    <td>De Diseño</td>
-    <td>Eficiencia-NTU</td>
+    <td>{{evaluacion.creado_por.first_name}}</td>
     <td>
       {% include 'resultados/intercambiadores/tubo_carcasa.html' %}
       

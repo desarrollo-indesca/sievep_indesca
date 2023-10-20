@@ -174,7 +174,7 @@
                     </tr>
                     <tr>
                       <th colspan="2" class="table-dark">Ensuciamiento ({{intercambiador.ensuciamiento_unidad}})</th>
-                      <td>{{intercambiador.ensuciamiento}}</td>
+                      <td>{% if intercambiador.ensuciamiento %}{{intercambiador.ensuciamiento}}{%else%}-{%endif%}</td>
                       <th colspan="2" class="table-dark">Área ({{intercambiador.area_unidad}})</th>
                       <td>{{intercambiador.area}}</td>
                     </tr>

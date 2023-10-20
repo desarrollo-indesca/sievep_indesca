@@ -5,12 +5,14 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
       <div class="modal-content text-dark">
         <div class="modal-header">
-          <h5 class="modal-title" id="resultados_{{evaluacion.pk}}Label">Resultados de la Evaluación #{{evaluacion.pk}} ({{intercambiador.intercambiador.tag}})</h5>
+          <h5 class="modal-title" id="resultados_{{evaluacion.pk}}Label">Resultados de la Evaluación "{{evaluacion.nombre}}" - 
+            {{evaluacion.fecha}} ({{intercambiador.intercambiador.tag}})
+          </h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
         {{esp}}
-        {% with diseno=intercambiador.calcular_diseno %}
+        
         <div class="modal-body text-start small pb-0">
             <div class="row">
                 <div class="col-lg-6 col-xs-12">
@@ -182,7 +184,6 @@
                 </div>
             </div>
         </div>
-        {% endwith %}
 
         <div class="modal-footer">
           <button class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</button>

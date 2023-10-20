@@ -19,52 +19,23 @@
 {% endblock %}
 
 {% block formulario_filtrado %}
-  <div class="d-flex flex-column col-2">
+  <div class="d-flex flex-column col-3">
     <label class="form-label" for="tag">Desde:</label>
     <input value="{{desde}}" type="datetime-local" class="form-control" name="desde" id="desde">
   </div>
-  <div class="d-flex flex-column col-2">
+  <div class="d-flex flex-column col-3">
       <label class="form-label" for="empresa">Hasta:</label>
       <input value="{{hasta}}" type="datetime-local" class="form-control" name="hasta" id="hasta">
   </div>
-  <div class="d-flex flex-column col-2">
-      <label class="form-label" for="condiciones">Condiciones:</label>
-      <select name="condiciones" id="condiciones" class="form-control">
-        <option value="">
-          ----------------------------
-        </option>
-        <option value="D" {%if condiciones == 'D'%}selected{%endif%}>
-          Diseño
-        </option>
-        <option value="M" {%if condiciones == 'M'%}selected{%endif%}>
-          Máximas
-        </option>
-        <option value="m" {%if condiciones == 'm'%}selected{%endif%}>
-          Mínimas                            
-        </option>
-        <option value="P" {%if condiciones == 'P'%}selected{%endif%}>
-          Planta
-        </option>
-      </select>
+  <div class="d-flex flex-column col-3">
+    <label class="form-label" for="usuario">Nombre del Usuario:</label>
+    <input value="{{usuario}}" type="text" name="usuario" id="usuario" class="form-control">
   </div>
-  <div class="d-flex flex-column col-2">
-    <label class="form-label" for="tag">Método:</label>
-    <select name="metodo" id="metodo" class="form-control">
-      <option value="">
-        ----------------------------
-      </option>
-      <option value="E" {%if metodo == 'E'%}selected{%endif%}>
-        Método Eficiencia-NTU
-      </option>
-      <option value="L" {%if metodo == 'L'%}selected{%endif%}>
-        Método LMTD
-      </option>
-    </select>
-  </div>
-  <div class="d-flex flex-column col-4">
-    <label class="form-label" for="tag">Nombre:</label>
+  <div class="d-flex flex-column col-3">
+    <label class="form-label" for="tag">Nombre de la Evaluación:</label>
     <input value="{{nombre}}" name="nombre" type="text" class="form-control">
   </div>
+  <input type="submit" hidden>
 {% endblock %}
   
 {% block tabla %}
@@ -73,14 +44,15 @@
     <th scope="col">#</th>
     <th scope="col">Fecha</th>
     <th scope="col">Nombre</th>
-    <th scope="col">Condiciones</th>
-    <th scope="col">Método</th>
+    <th scope="col">Realizada Por</th>
     <th scope="col">Resultados</th>
   </tr>
 </thead>
 <tbody class="text-center">
   {% if object_list.count %}
+  {% with diseno=intercambiador.calcular_diseno %}
   {% include 'tablas/intercambiadores/evaluaciones.html' %}
+  {% endwith %}
   {% else %}
   <td colspan="7">No se encontraron evaluaciones con los datos de filtrado proporcionados.</td>
   {% endif %}
