@@ -10,6 +10,7 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
 
     q_tubo = cp_tubo*ft*abs(ti-ts) # W
     q_carcasa = cp_carcasa*Fc*abs(Ti-Ts) # W
+    
     nt = nt if nt else float(intercambiador.numero_tubos)
 
     diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_tubos)], intercambiador.diametro_tubos_unidad.pk)[0]
