@@ -1,9 +1,21 @@
 from thermo.chemical import Chemical
+from math import ceil
 
-quimico = Chemical('H2O')
+quimico = Chemical('water',T=273.15, P=150e5)
+comp = 2695
+temp_f = 350
+tsat = quimico.Tsat(P=150e5)
+h_liquido_subenfriado = ceil(quimico.HeatCapacityLiquid.T_dependent_property_integral(273.15,tsat)/quimico.MW  - quimico.calc_H_excess(T=tsat, P=150e5)/1000) 
+quimico.calculate(tsat, P=150e5)
+h_liquido_saturado = ceil(quimico.Hvap/1000 - quimico.calc_H_excess(T=tsat, P=150e5)/1000) 
+quimico.calculate(273.15+temp_f)
+h_vapor_sobrecalentado = ceil(quimico.HeatCapacityGas.T_dependent_property_integral(tsat,273.15+temp_f)/quimico.MW) 
+print(tsat)
+print(f"Entalpía de líquido subenfriado (0-100 Celsius): {h_liquido_subenfriado} J/g")
+print(f"Entalpía de Vaporización (100 Celsius): {h_liquido_saturado} J/g")
+print(f"Entalpía de Vapor Sobrecalentado (100-200 Celsius): {h_vapor_sobrecalentado} J/g")
+dH = ceil(h_liquido_subenfriado+h_vapor_sobrecalentado+h_liquido_saturado)
+print((comp-dH)/comp*100)
 
-quimico.phase = 'g'
-
-print(quimico.calc_H(T=323.15,P=101325))
-print(quimico.Hf)
-print(quimico.calc_H(T=323.15,P=101325) + quimico.Hf)
+print(f"Delta H: {dH} J/g")
+print(quimico.H/quimico.MW/1000)
