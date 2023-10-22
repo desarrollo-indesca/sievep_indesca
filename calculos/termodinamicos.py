@@ -1,9 +1,10 @@
 from thermo.chemical import Chemical
 from thermo.mixture import Mixture
+import CoolProp.CoolProp as CP
 from .unidades import transformar_unidades_cp
 import numpy
 
-def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida = 29):
+def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida: int = 29, presion: float = 101325):
     """
     Resumen:
         Función para el cálculo de la capacidad calorífica del fluido mediante el CAS del fluido,
@@ -14,13 +15,39 @@ def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida = 29):
         t1: float -> Temperatura inicial (K)
         t2: float -> Temperatura final (K)
         unidad_salida: int -> ID de la unidad de salida
+        presion: float -> Presión
     
     Devuelve:
         float: Cp del fluido en esas condiciones 
     """
     
     t = numpy.mean([t1, t2])
-    cp = Chemical(fluido,T=t).Cp if fluido != '132259-10-0' else Mixture('air',T=t).Cp
+    
+    if(fluido == '132259-10-0'): # Caso especial del Aire
+        try: # Cálculo de Cp con CoolProp (Preferido)
+            cp = CP.PropsSI('C','T',t,'P',presion,'air')
+        except: # Cálculo de Cp con Thermo (En caso de falla)
+            quimico = Mixture('air',T=t,P=presion)
+            cp = quimico.Cp
+
+    quimico = Chemical(fluido,T=t,P=presion)
+    try: # Cálculo de Cp con CoolProp (Preferido)
+        cp = None
+        
+        # Conseguir nombre válido en CoolProp
+        for i in range(5):
+            try:
+                name = quimico.synonyms[i].title().replace(' ','').replace('O-','o-').replace('N-','n-').replace('P-','p-')
+                cp = CP.PropsSI('C','T',t,'P',presion,name)
+                break
+            except:
+                continue
+        
+        if(cp == None):
+            raise Exception     
+    except: # Cálculo de Cp con Thermo (En caso de falla)
+        cp = quimico.Cp 
+        print("THERMO")
 
     return round(transformar_unidades_cp([cp], 29, unidad_salida)[0], 4)
 
@@ -28,10 +55,9 @@ def calcular_entalpia_entre_puntos(fluido: str, t1: float, t2: float, presion: f
     quimico = Chemical(fluido,T=t1, P=presion)
     tsat = quimico.Tsat(P=presion)
 
-    # Caso Líquido > Gas
-    if(t1 <= tsat):
+    if(t1 <= tsat): # Caso Líquido > Gas
         return entalpia_l_a_g(quimico, t1, t2, presion, tsat)
-    else:
+    else: # Caso Gas > Líquido
         return entalpia_g_a_l(quimico, t1, t2, presion, tsat)
 
 def entalpia_l_a_g(quimico: Chemical, t1: float, t2: float, presion: float, tsat: float):
