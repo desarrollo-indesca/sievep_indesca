@@ -4,10 +4,6 @@
   .tabla_ficha {
     width: 100% ;
   }
-  
-  /* #tabla_ficha_body > tr > td {
-    width: 25% ;
-  } */
 </style>
 
 <div class="modal fade" id="ficha_{{intercambiador.pk}}" tabindex="-1" aria-labelledby="ficha_{{intercambiador.pk}}Label" aria-hidden="true">
@@ -21,34 +17,38 @@
           <div class="row">
             <div class="col-12">
               <div class="row">
-                <table border="2" class="table table-light text-center table-bordered tabla_ficha">
+                <table class="table table-light text-center table-bordered tabla_ficha">
                   <tbody id="tabla_ficha_body">
                     <tr>
                       <th class="table-dark">Tag</th>
-                      <td>{{generales.tag}}</td>
-                      <td colspan="4" rowspan="5" style="vertical-align: middle;">
-                        <img src="/static/img/temas/intercambiadores/{{generales.tema}}.png" class="w-100" alt="Imagen del Tema no Disponible">
+                      <td colspan="2">{{generales.tag}}</td>
+                      <td colspan="3" rowspan="5" style="vertical-align: middle;">
+                        <div class="d-flex justify-content-center align-items-center">
+                          <img style="max-width: 130px;" src="/static/img/temas/intercambiadores/partes/{{generales.tema.codigo.0}}.jpg" alt="Imagen del Tema no Disponible">
+                          <img style="max-width: 130px;" src="/static/img/temas/intercambiadores/partes/{{generales.tema.codigo.1}}.jpg" alt="Imagen del Tema no Disponible">
+                          <img style="max-width: 130px;" src="/static/img/temas/intercambiadores/partes/{{generales.tema_final}}.jpg" alt="Imagen del Tema no Disponible">
+                        </div>                        
                       </td>
                     </tr>
                     <tr>
                       <th class="table-dark">Planta</th>
-                      <td>{{generales.planta}}</td>
+                      <td colspan="2">{{generales.planta}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark">Tema</th>
-                      <td>{{generales.tema}}</td>
+                      <td colspan="2">{{generales.tema}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark">Fabricante</th>
-                      <td>{{generales.fabricante}}</td>
+                      <td colspan="2">{{generales.fabricante}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark">Tipo</th>
-                      <td>TUBO Y CARCASA</td>
+                      <th class="table-dark">Flujo</th>
+                      <td colspan="2">{{generales.flujo_largo}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark">Servicio</th>
-                      <td colspan="5">{{generales.servicio}}</td>
+                      <td colspan="5" colspan="5">{{generales.servicio}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark" colspan="6">

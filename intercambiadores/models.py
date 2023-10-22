@@ -124,6 +124,14 @@ class Intercambiador(models.Model):
 
     def intercambiador(self):
         return PropiedadesTuboCarcasa.objects.get(intercambiador = self)
+    
+    def tema_final(self):
+        return self.tema.codigo[2] if self.tema.codigo[2] != 'N' else 'N_2'
+    
+    def flujo_largo(self):
+        for flujo in arreglos_flujo:
+            if(flujo[0] == self.arreglo_flujo):
+                return flujo[1]
 
     class Meta:
         db_table = "intercambiador"
