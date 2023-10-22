@@ -21,10 +21,7 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
     num_pasos_carcasa = float(intercambiador.numero_pasos_carcasa)
     num_pasos_tubo = float(intercambiador.numero_pasos_tubo)
 
-    try:
-        factor = round(F_LMTD_Fakheri(Ti, Ts, ti, ts, num_pasos_carcasa),3)
-    except:
-        factor = round(factor_correccion_tubo_carcasa(ti, ts, Ti, Ts, num_pasos_tubo, num_pasos_carcasa),3)
+    factor = round(F_LMTD_Fakheri(Ti, Ts, ti, ts, num_pasos_carcasa),3) 
     
     print(f"FACTOR: {factor}")
     q_prom = np.mean([q_tubo,q_carcasa]) # W

@@ -194,8 +194,11 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
             ft = (float(request.POST['flujo_tubo']))
             fc = (float(request.POST['flujo_carcasa']))
             nt = (float(request.POST['no_tubos']))
-            cp_tubo =  transformar_unidades_cp([float(request.POST['cp_tubo'].replace(',','.'))], unidad=request.POST['unidad_cp'])[0]
-            cp_carcasa =  transformar_unidades_cp([float(request.POST['cp_carcasa'].replace(',','.'))], unidad=request.POST['unidad_cp'])[0]
+
+            cp_tubo = float(request.POST['cp_tubo']) if request.POST.get('cp_tubo') else float(intercambiador.condicion_tubo().fluido_cp)
+            cp_carcasa = float(request.POST['cp_carcasa']) if request.POST.get('cp_carcasa') else float(intercambiador.condicion_carcasa().fluido_cp)
+            unidad_cp = request.POST['unidad_cp'] if request.POST.get('unidad_cp') else  intercambiador.condicion_tubo().unidad_cp.pk
+            cp_tubo,cp_carcasa =  transformar_unidades_cp([cp_tubo,cp_carcasa], unidad=unidad_cp)
             unidad = int(request.POST['unidad_temperaturas'])
             unidad_flujo = int(request.POST['unidad_flujo'])
 
@@ -240,8 +243,8 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
                 numero_tubos = request.POST['no_tubos'],
 
                 # CP
-                cp_tubo = request.POST['cp_tubo'],
-                cp_carcasa = request.POST['cp_carcasa'],
+                cp_tubo = cp_tubo,
+                cp_carcasa = cp_carcasa,
                 cp_unidad = Unidades.objects.get(pk=request.POST['unidad_cp'])
             )
 

@@ -50,9 +50,9 @@
 </thead>
 <tbody class="text-center">
   {% if object_list.count %}
-  {% with diseno=intercambiador.calcular_diseno %}
+  {% with diseno=intercambiador.calcular_diseno %}  
   {% include 'tablas/intercambiadores/evaluaciones.html' %}
-  {% endwith %}
+  {% endwith %}  
   {% else %}
   <td colspan="7">No se encontraron evaluaciones con los datos de filtrado proporcionados.</td>
   {% endif %}
