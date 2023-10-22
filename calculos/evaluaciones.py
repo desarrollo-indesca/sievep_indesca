@@ -14,14 +14,18 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
     nt = nt if nt else float(intercambiador.numero_tubos)
 
     diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_tubos)], intercambiador.diametro_tubos_unidad.pk)[0]
-    longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad)[0]
+    longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad.pk)[0]
 
     area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
     dtml = abs(((Ts - ti) - (Ti - ts))/np.log(abs((Ts - ti)/(Ti - ts)))) #K
     num_pasos_carcasa = float(intercambiador.numero_pasos_carcasa)
     num_pasos_tubo = float(intercambiador.numero_pasos_tubo)
 
-    factor = round(F_LMTD_Fakheri(Ti, Ts, ti, ts, num_pasos_carcasa),3)
+    try:
+        factor = round(F_LMTD_Fakheri(Ti, Ts, ti, ts, num_pasos_carcasa),3)
+    except:
+        factor = round(factor_correccion_tubo_carcasa(ti, ts, Ti, Ts, num_pasos_tubo, num_pasos_carcasa),3)
+    
     print(f"FACTOR: {factor}")
     q_prom = np.mean([q_tubo,q_carcasa]) # W
     ucalc = q_prom/(area_calculada*dtml*factor) # Wm2/K
@@ -83,8 +87,15 @@ def truncar(numero, decimales = 2):
     return int(numero*factor)/100
 
 def factor_correccion_tubo_carcasa(ti, ts, Ti, Ts, num_pasos_tubo, num_pasos_carcasa):
-    P = abs((ts - ti)/(Ti - ti))
-    R = abs((Ti - Ts)/(ts - ti))
+    try:
+        P = abs((ts - ti)/(Ti - ti))
+    except:
+        P = abs((ts-ti)/0.01)
+    
+    try:
+        R = abs((Ti - Ts)/(ts - ti))
+    except:
+        R = abs((Ti - Ts)/(0.01))    
     
     if(num_pasos_carcasa > 1):
         a = 1.8008

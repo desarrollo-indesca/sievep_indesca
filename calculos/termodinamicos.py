@@ -31,6 +31,7 @@ def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida: int = 29, pres
             cp = quimico.Cp
 
     quimico = Chemical(fluido,T=t,P=presion)
+    
     try: # Cálculo de Cp con CoolProp (Preferido)
         cp = None
         

@@ -198,16 +198,17 @@ class PropiedadesTuboCarcasa(models.Model):
     def calcular_diseno(self):
         cond_tubo= self.condicion_tubo()
         cond_carcasa = self.condicion_carcasa()
-        ti = float(cond_carcasa.temp_entrada)
-        ts = float(cond_carcasa.temp_salida)
-        Ti = float(cond_tubo.temp_entrada)
-        Ts = float(cond_tubo.temp_salida)
+        ti = float(cond_tubo.temp_entrada)
+        ts = float(cond_tubo.temp_salida)
+        Ti = float(cond_carcasa.temp_entrada)
+        Ts = float(cond_carcasa.temp_salida)
         ft = float(cond_tubo.flujo_masico)
         fc = float(cond_carcasa.flujo_masico)
 
         return evaluacion_tubo_carcasa(self, ti, ts, Ti, Ts, ft, fc, 
-            self.numero_tubos, float(self.condicion_carcasa().fluido_cp), 
-            float(self.condicion_tubo().fluido_cp))
+            self.numero_tubos,  float(self.condicion_tubo().fluido_cp),
+            float(self.condicion_carcasa().fluido_cp),
+            unidad_flujo=self.condicion_carcasa().flujos_unidad.pk)
 
     def condicion_tubo(self):
         return self.condiciones.get(lado='T')
