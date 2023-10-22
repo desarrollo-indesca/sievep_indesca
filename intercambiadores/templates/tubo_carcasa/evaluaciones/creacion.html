@@ -532,7 +532,8 @@
             $('#cp_carcasa').val($('#cp_ficha_carcasa').html().replace(',','.').replace(/[\n|\s]+/g,''));
             $('#cp_carcasa').attr('disabled',true);
             $('#unidad_cp').attr('disabled',true);
-        } else{
+        } 
+        else{
             $('#unidad_cp').removeAttr('disabled');
             if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
                 ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
