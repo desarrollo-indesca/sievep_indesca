@@ -8,8 +8,24 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
     if(unidad_flujo != 10):
         ft,Fc = transformar_unidades_flujo([ft,Fc], unidad_flujo)
 
-    q_tubo = cp_tubo*ft*abs(ti-ts) # W
-    q_carcasa = cp_carcasa*Fc*abs(Ti-Ts) # W
+    condicion_tubo = intercambiador.condicion_tubo()
+    condicion_carcasa = intercambiador.condicion_carcasa()
+
+    # Cálculo de Calor del Tubo
+    if(condicion_tubo.cambio_de_fase == 'S'): # Caso 1: Sin Cambio de Fase
+        q_tubo = cp_tubo*ft*abs(ti-ts) # W
+    elif(condicion_tubo.cambio_de_fase == 'T'): # Caso 2: Cambio de Fase Total
+        pass
+    elif(condicion_tubo.cambio_de_fase == 'P'):
+        pass
+
+    # Cálculo Calor Carcasa
+    if(condicion_carcasa.cambio_de_fase == 'S'): # Caso 1: Sin Cambio de Fase
+        q_carcasa = cp_carcasa*Fc*abs(Ti-Ts) # W
+    elif(condicion_carcasa.cambio_de_fase == 'T'): # Caso 2: Cambio de Fase Total
+        pass
+    elif(condicion_carcasa.cambio_de_fase == 'P'):
+        pass    
     
     nt = nt if nt else float(intercambiador.numero_tubos)
 
