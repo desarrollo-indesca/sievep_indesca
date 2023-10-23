@@ -53,7 +53,7 @@ def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida: int = 29, pres
     return round(transformar_unidades_cp([cp], 29, unidad_salida)[0], 4)
 
 def calcular_entalpia_entre_puntos(fluido: str, t1: float, t2: float, presion: float):
-    quimico = Chemical(fluido,T=t1, P=presion)
+    quimico = Chemical(fluido,T=t1,P=presion)
     tsat = quimico.Tsat(P=presion)
 
     if(t1 <= tsat): # Caso Líquido > Gas

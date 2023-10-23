@@ -28,7 +28,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
 
             return render(request, 'tubo_carcasa/creacion.html', context=self.context)
         
-        with transaction.atomic():
+        with transaction.atomic(): # Transacción de Creación del Intercambiador
             # Creación de Modelo General de Intercambiador
             intercambiador = Intercambiador.objects.create(
                 tag = request.POST['tag'],
@@ -279,22 +279,23 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             fluido_tubo = request.POST['fluido_tubo']
             fluido_carcasa = request.POST['fluido_carcasa']
 
-            if(fluido_tubo.find('*') != -1):
+            # Determinación Dinámica del Fluido del Tubo
+            if(fluido_tubo.find('*') != -1): # Fluido no existe
                 fluido_tubo = fluido_tubo.split('*')
                 if(fluido_tubo[1].find('-') != -1):
-                    quimico = search_chemical(fluido_tubo[1], cache=True)
-                    fluido_tubo = Fluido.objects.create(nombre = fluido_tubo[0].upper(), cas = fluido_tubo[1], peso_molecular = quimico.MW)
-            elif fluido_tubo != '':
+                    fluido_tubo = Fluido.objects.get_or_create(nombre = fluido_tubo[0].upper(), cas = fluido_tubo[1])
+            elif fluido_tubo != '': # Fluido Existente
                 fluido_tubo = Fluido.objects.get(pk=fluido_tubo)
 
-            if(fluido_carcasa.find('*') != -1):
+            # Determinación Dinámica del Fluido de la Carcasa
+            if(fluido_carcasa.find('*') != -1): # Fluido no existe
                 fluido_carcasa = fluido_carcasa.split('*')
                 if(fluido_carcasa[1].find('-') != -1):
-                    quimico = search_chemical(fluido_carcasa[1], cache=True)
-                    fluido_carcasa = Fluido.objects.create(nombre = fluido_carcasa[0].upper(), cas = fluido_carcasa[1], peso_molecular = quimico.MW)
-            elif fluido_carcasa != '':
+                    fluido_carcasa = Fluido.objects.get_or_create(nombre = fluido_carcasa[0].upper(), cas = fluido_carcasa[1])
+            elif fluido_carcasa != '': # Fluido existe
                 fluido_carcasa = Fluido.objects.get(pk=fluido_carcasa)
 
+            # Actualización propiedades de tubo y carcasa
             propiedades = PropiedadesTuboCarcasa.objects.get(pk=pk)
             propiedades.area = request.POST['area']
             propiedades.numero_tubos = request.POST['no_tubos']
@@ -327,6 +328,7 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
 
             propiedades.save()
 
+            # Actualización condiciones de diseño del tubo
             condiciones_tubo = propiedades.condicion_tubo()
             condiciones_tubo.temp_entrada = request.POST['temp_in_tubo']
             condiciones_tubo.temp_salida = request.POST['temp_out_tubo']
@@ -334,8 +336,9 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             condiciones_tubo.flujo_vapor_salida = request.POST['flujo_vapor_out_tubo']
             condiciones_tubo.flujo_liquido_salida = request.POST['flujo_liquido_out_tubo']
             condiciones_tubo.flujo_liquido_entrada = request.POST['flujo_liquido_in_tubo']
-            condiciones_tubo.cambio_de_fase = request.POST['cambio_fase_tubo']
-            condiciones_tubo.flujo_masico = float(request.POST['flujo_vapor_in_tubo']) + float(request.POST['flujo_liquido_in_tubo'])
+            condiciones_tubo.flujo_masico = float(request.POST['flujo_liquido_in_tubo']) + float(request.POST['flujo_vapor_in_tubo'])
+            condiciones_tubo.cambio_de_fase = obtener_cambio_fase(float(request.POST['flujo_vapor_in_tubo']),float(request.POST['flujo_vapor_out_tubo']), 
+                                    float(request.POST['flujo_liquido_in_tubo']), float(request.POST['flujo_liquido_out_tubo']))
             condiciones_tubo.presion_entrada = request.POST['presion_entrada_tubo']
             condiciones_tubo.caida_presion_max = request.POST['caida_presion_max_tubo']
             condiciones_tubo.caida_presion_min = request.POST['caida_presion_min_tubo']
@@ -358,8 +361,9 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             condiciones_carcasa.flujo_vapor_salida = request.POST['flujo_vapor_out_carcasa']
             condiciones_carcasa.flujo_liquido_salida = request.POST['flujo_liquido_out_carcasa']
             condiciones_carcasa.flujo_liquido_entrada = request.POST['flujo_liquido_in_carcasa']
-            condiciones_carcasa.cambio_de_fase = request.POST['cambio_fase_carcasa']
             condiciones_carcasa.flujo_masico = float(request.POST['flujo_vapor_in_carcasa']) + float(request.POST['flujo_liquido_in_carcasa'])
+            condiciones_tubo.cambio_de_fase = obtener_cambio_fase(float(request.POST['flujo_vapor_in_carcasa']),float(request.POST['flujo_vapor_out_carcasa']), 
+                                    float(request.POST['flujo_liquido_in_carcasa']), float(request.POST['flujo_liquido_out_carcasa']))
             condiciones_carcasa.presion_entrada = request.POST['presion_entrada_carcasa']
             condiciones_carcasa.caida_presion_max = request.POST['caida_presion_max_carcasa']
             condiciones_carcasa.caida_presion_min = request.POST['caida_presion_min_carcasa']

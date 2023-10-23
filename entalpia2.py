@@ -1,7 +1,7 @@
 from thermo.chemical import Chemical
 from math import ceil
 
-quimico = Chemical('methanol',T=273.15, P=1e5)
+quimico = Chemical('water',T=273.15, P=1e5)
 comp = 2695
 temp_f = 100
 tsat = quimico.Tsat(P=1e5)

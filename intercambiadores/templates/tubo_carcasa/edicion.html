@@ -200,10 +200,11 @@
                     <div class="col-6">
                         <label class="form-label" for="cambio_fase_carcasa">Cambio de Fase:</label>
                         <div class="input-group mb-3">
-                            <select class="form-select" name="cambio_fase_carcasa" id="cambio_fase_carcasa">
+                            <select disabled class="form-select" name="cambio_fase_carcasa" id="cambio_fase_carcasa">
                                 <option value="S" {% if 'S' == condicion_carcasa.cambio_de_fase %}selected{% endif %}>Sin Cambio de Fase</option>
                                 <option value="P" {% if 'P' == condicion_carcasa.cambio_de_fase %}selected{% endif %}>Cambio de Fase Parcial</option>
                                 <option value="T" {% if 'T' == condicion_carcasa.cambio_de_fase %}selected{% endif %}>Cambio de Fase Total</option>
+                                <option value="-">-</option>
                             </select>
                         </div>
                     </div>
@@ -211,7 +212,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_carcasa">Flujo Másico:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_carcasa.flujo_masico|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_carcasa" id="flujo_carcasa" min="0.01" step="0.01" max="99999999.99" required>
+                            <input disabled value="{{condicion_carcasa.flujo_masico|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_carcasa" id="flujo_carcasa" min="0.01" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos">
                                 {% for unidad in unidades_flujo %}
                                 <option value="{{unidad.pk}}" {% if condicion_carcasa.flujos_unidad == unidad %}selected{%endif%}>{{unidad}}</option>
@@ -435,10 +436,11 @@
                     <div class="col-6">
                         <label class="form-label" for="cambio_fase_tubo">Cambio de Fase:</label>
                         <div class="input-group mb-3">
-                            <select class="form-select" name="cambio_fase_tubo" id="cambio_fase_tubo">
+                            <select disabled class="form-select" name="cambio_fase_tubo" id="cambio_fase_tubo">
                                 <option value="S" {% if 'S' == condicion_tubo.cambio_de_fase %}selected{% endif %}>Sin Cambio de Fase</option>
                                 <option value="P" {% if 'P' == condicion_tubo.cambio_de_fase %}selected{% endif %}>Cambio de Fase Parcial</option>
                                 <option value="T" {% if 'T' == condicion_tubo.cambio_de_fase %}selected{% endif %}>Cambio de Fase Total</option>
+                                <option value="-">-</option>
                             </select>
                         </div>
                     </div>
@@ -446,7 +448,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_tubo">Flujo Másico:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_tubo.flujo_masico|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" max="99999999.99" required>
+                            <input disabled value="{{condicion_tubo.flujo_masico|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
                                 <option value="{{unidad.pk}}" {% if condicion_tubo.flujos_unidad == unidad %}selected{%endif%}>{{condicion_tubo.flujos_unidad}}</option>
                             </select>
@@ -705,7 +707,7 @@
         <hr>
         
         <div class="d-flex justify-content-center mb-3">
-            <button class="btn btn-danger">Registrar Cambios</button>
+            <button type="submit" class="btn btn-danger">Registrar Cambios</button>
         </div>
     </form>
     {% endwith %}
@@ -714,5 +716,7 @@
 {% block extra_javascript %}
 <script>
     {% include 'scripts/ajaxCP.js' %}
+
+    {% include 'scripts/validaciones_flujo.js' %}
 </script>
 {% endblock %}
