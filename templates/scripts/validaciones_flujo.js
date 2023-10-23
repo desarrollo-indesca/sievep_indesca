@@ -81,3 +81,11 @@ $('#flujo_vapor_out_carcasa').keyup(determinar_cambio_de_fase_carcasa);
 $('#flujo_vapor_in_carcasa').keyup(determinar_cambio_de_fase_carcasa);
 $('#flujo_liquido_in_carcasa').keyup(determinar_cambio_de_fase_carcasa);
 $('#flujo_liquido_out_carcasa').keyup(determinar_cambio_de_fase_carcasa);
+
+if($('#flujo_vapor_out_tubo').val() && $('#flujo_vapor_in_tubo').val() && $('#flujo_liquido_in_tubo').val() && $('#flujo_liquido_out_tubo').val()){
+    determinar_cambio_de_fase_tubo();
+}
+
+if($('#flujo_vapor_out_carcasa').val() && $('#flujo_vapor_in_carcasa').val() && $('#flujo_liquido_in_carcasa').val() && $('#flujo_liquido_out_carcasa').val()){
+    determinar_cambio_de_fase_carcasa();
+}

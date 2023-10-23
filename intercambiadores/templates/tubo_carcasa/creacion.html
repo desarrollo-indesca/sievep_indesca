@@ -104,7 +104,7 @@
                             <input value="{{previo.temp_in_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" max="99999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas">
                                 {% for unidad in unidades_temperaturas %}
-                                <option value="{{unidad.pk}}">{{unidad.simbolo}}</option>
+                                <option value="{{unidad.pk|slugify}}">{{unidad.simbolo}}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -115,7 +115,15 @@
                         <div class="input-group mb-3">
                             <input value="{{previo.temp_out_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" max="99999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                {% if previo.unidad_temperaturas %}
+                                {% for unidad in unidades_temperaturas %}
+                                {% if unidad.pk|slugify == previo.unidad_temperaturas %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">°C</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -148,7 +156,7 @@
                                     {% if not previo.cp_tubo %}disabled{% endif %} value="{{previo.cp_carcasa}}">
                                     <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp">
                                         {% for unidad in unidades_cp %}
-                                        <option value="{{unidad.pk}}">{{unidad}}</option>
+                                        <option value="{{unidad.pk|slugify}}">{{unidad}}</option>
                                         {% endfor %}
                                     </select>
                                 </div>                                  
@@ -219,7 +227,7 @@
                             <input disabled min="0.01" value="{{previo.flujo_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos">
                                 {% for unidad in unidades_flujo %}
-                                <option value="{{unidad.pk}}" {% if condicion_tubo.flujos_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
+                                <option value="{{unidad.pk|slugify}}" {% if previo.unidad_flujos == unidad.pk|slugify %}selected{%endif%}>{{unidad.simbolo}}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -230,7 +238,15 @@
                         <div class="input-group mb-3">
                             <input value="{{previo.flujo_vapor_in_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_in_carcasa" id="flujo_vapor_in_carcasa" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
+                                {% if previo.unidad_flujos %}
+                                {% for unidad in unidades_flujo %}
+                                {% if unidad.pk|slugify == previo.unidad_flujos %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">Kg/h</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -240,7 +256,15 @@
                         <div class="input-group mb-3">
                             <input value="{{previo.flujo_vapor_out_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_out_carcasa" id="flujo_vapor_out_carcasa" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
+                                {% if previo.unidad_flujos %}
+                                {% for unidad in unidades_flujo %}
+                                {% if unidad.pk|slugify == previo.unidad_flujos %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">Kg/h</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -250,7 +274,15 @@
                         <div class="input-group mb-3">
                             <input value="{{previo.flujo_liquido_in_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_in_carcasa" id="flujo_liquido_in_carcasa" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
+                                {% if previo.unidad_flujos %}
+                                {% for unidad in unidades_flujo %}
+                                {% if unidad.pk|slugify == previo.unidad_flujos %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">Kg/h</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -260,7 +292,15 @@
                         <div class="input-group mb-3">
                             <input value="{{previo.flujo_liquido_out_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_out_carcasa" id="flujo_liquido_out_carcasa" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
+                                {% if previo.unidad_flujos %}
+                                {% for unidad in unidades_flujo %}
+                                {% if unidad.pk|slugify == previo.unidad_flujos %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">Kg/h</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -271,7 +311,7 @@
                             <input value="{{previo.presion_entrada_carcasa}}" style="width: 80% !important;" class="form-control" type="number" name="presion_entrada_carcasa" id="presion_entrada_carcasa" step="0.01" max="99999999.99" required>
                             <select style="width: 20% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones">
                                 {% for unidad in unidades_presion %}
-                                <option value="{{unidad.pk}}" {% if condicion_tubo.unidad_presions == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
+                                <option value="{{unidad.pk|slugify}}" {% if previo.unidad_presiones == unidad.pk|slugify %}selected{%endif%}>{{unidad.simbolo}}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -282,7 +322,15 @@
                         <div class="input-group mb-3">
                             <input value="{{previo.caida_presion_max_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_max_carcasa" id="caida_presion_max_carcasa" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
+                                {% if previo.unidad_presiones %}
+                                {% for unidad in unidades_presion %}
+                                {% if unidad.pk|slugify == previo.unidad_presiones %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">bar</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -292,7 +340,15 @@
                         <div class="input-group mb-3">
                             <input value="{{previo.caida_presion_min_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_min_carcasa" id="caida_presion_min_carcasa" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
+                                {% if previo.unidad_presiones %}
+                                {% for unidad in unidades_presion %}
+                                {% if unidad.pk|slugify == previo.unidad_presiones %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">bar</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -304,7 +360,7 @@
                             <input min="0.00000001" max="999.99999999" value="{{previo.fouling_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="fouling_carcasa" id="fouling_carcasa" step="0.00000001" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_fouling" id="unidad_fouling">
                                 {% for unidad in unidades_ensuciamiento %}
-                                <option value="{{unidad.pk}}" {% if previo.unidad_ensuciamiento == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>                                
+                                <option value="{{unidad.pk|slugify}}" {% if previo.unidad_ensuciamiento == unidad.pk|slugify %}selected{%endif%}>{{unidad.simbolo}}</option>                                
                                 {% endfor %}
                             </select>
                         </div>
@@ -339,7 +395,15 @@
                         <div class="input-group mb-3">
                             <input value="{{previo.temp_in_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" max="99999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                {% if previo.unidad_temperaturas %}
+                                {% for unidad in unidades_temperaturas %}
+                                {% if unidad.pk|slugify == previo.unidad_temperaturas %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">°C</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -349,7 +413,15 @@
                         <div class="input-group mb-3">
                             <input value="{{previo.temp_out_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" max="99999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                {% if previo.unidad_temperaturas %}
+                                {% for unidad in unidades_temperaturas %}
+                                {% if unidad.pk|slugify == previo.unidad_temperaturas %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">°C</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -380,7 +452,15 @@
                                     <input style="width: 60% !important;" class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_tubo" min="0.0001" id="cp_tubo" 
                                     {% if not previo.cp_tubo %}disabled{% endif %} value="{{previo.cp_tubo}}">
                                     <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
-                                        <option value="">J/KgK</option>
+                                        {% if previo.unidad_cp %}
+                                        {% for unidad in unidades_cp %}
+                                        {% if unidad.pk|slugify == previo.unidad_cp %}
+                                        <option value="1">{{unidad}}</option>
+                                        {%endif%}
+                                        {% endfor %}
+                                        {% else %}
+                                        <option value="1">J/KgK</option>
+                                        {%endif%}
                                     </select>
                                 </div>  
                             </div>
@@ -449,7 +529,15 @@
                         <div class="input-group mb-3">
                             <input disabled min="0.01" value="{{previo.flujo_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
+                                {% if previo.unidad_flujos %}
+                                {% for unidad in unidades_flujo %}
+                                {% if unidad.pk|slugify == previo.unidad_flujos %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">Kg/h</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -459,7 +547,15 @@
                         <div class="input-group mb-3">
                             <input value="{{previo.flujo_vapor_in_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_in_tubo" id="flujo_vapor_in_tubo" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
+                                {% if previo.unidad_flujos %}
+                                {% for unidad in unidades_flujo %}
+                                {% if unidad.pk|slugify == previo.unidad_flujos %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">Kg/h</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -469,7 +565,15 @@
                         <div class="input-group mb-3">
                             <input value="{{previo.flujo_vapor_out_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_out_tubo" id="flujo_vapor_out_tubo" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
+                                {% if previo.unidad_flujos %}
+                                {% for unidad in unidades_flujo %}
+                                {% if unidad.pk|slugify == previo.unidad_flujos %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">Kg/h</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -479,7 +583,15 @@
                         <div class="input-group mb-3">
                             <input value="{{previo.flujo_liquido_in_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_in_tubo" id="flujo_liquido_in_tubo" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
+                                {% if previo.unidad_flujos %}
+                                {% for unidad in unidades_flujo %}
+                                {% if unidad.pk|slugify == previo.unidad_flujos %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">Kg/h</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -489,7 +601,15 @@
                         <div class="input-group mb-3">
                             <input value="{{previo.flujo_liquido_out_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_out_tubo" id="flujo_liquido_out_tubo" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
+                                {% if previo.unidad_flujos %}
+                                {% for unidad in unidades_flujo %}
+                                {% if unidad.pk|slugify == previo.unidad_flujos %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">Kg/h</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -499,7 +619,15 @@
                         <div class="input-group mb-3">
                             <input value="{{previo.presion_entrada_tubo}}" style="width: 80% !important;" class="form-control" type="number" name="presion_entrada_tubo" id="presion_entrada_tubo" step="0.01" max="99999999.99" required>
                             <select style="width: 20% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
+                                {% if previo.unidad_presiones %}
+                                {% for unidad in unidades_presion %}
+                                {% if unidad.pk|slugify == previo.unidad_presiones %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">bar</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -509,7 +637,15 @@
                         <div class="input-group mb-3">
                             <input value="{{previo.caida_presion_max_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_max_tubo" id="caida_presion_max_tubo" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
+                                {% if previo.unidad_presiones %}
+                                {% for unidad in unidades_presion %}
+                                {% if unidad.pk|slugify == previo.unidad_presiones %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">bar</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -519,7 +655,15 @@
                         <div class="input-group mb-3">
                             <input value="{{previo.caida_presion_min_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_min_tubo" id="caida_presion_min_tubo" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
+                                {% if previo.unidad_presiones %}
+                                {% for unidad in unidades_presion %}
+                                {% if unidad.pk|slugify == previo.unidad_presiones %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">bar</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -529,7 +673,15 @@
                         <div class="input-group">
                             <input min="0.00000001" max="999.99999999" value="{{previo.fouling_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="fouling_tubo" id="fouling_tubo" step="0.00000001" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_fouling" id="unidad_fouling" disabled>
+                                {% if previo.unidad_fouling %}
+                                {% for unidad in unidades_ensuciamiento %}
+                                {% if unidad.pk|slugify == previo.unidad_fouling %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">m²K/W</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -548,7 +700,7 @@
 
                     <div class="col-8">
                         <label class="form-label" for="numero_pasos_tubo">Número de Pasos Tubo:</label>
-                        <input value="{{previo.numero_pasos_tubo}}" class="form-control" type="text" maxlength="50" name="numero_pasos_tubo" id="numero_pasos_tubo">
+                        <input value="{{previo.numero_pasos_tubo}}" class="form-control" type="number" step="1" name="numero_pasos_tubo" id="numero_pasos_tubo">
                     </div>
 
                     <div class="col-2"></div>
@@ -579,7 +731,7 @@
                             <input value="{{previo.calor}}" style="width: 60% !important;" class="form-control" type="number" name="calor" id="calor" max="999999999.999" step="0.001" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_calor" id="unidad_calor">
                                 {% for unidad in unidades_q %}
-                                <option value="{{unidad.pk}}" {% if previo.unidad_ensuciamiento == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>                                
+                                <option value="{{unidad.pk|slugify}}" {% if previo.unidad_ensuciamiento == unidad.pk|slugify %}selected{%endif%}>{{unidad.simbolo}}</option>                                
                                 {% endfor %}
                             </select>
                         </div>
@@ -591,7 +743,7 @@
                             <input value="{{previo.area}}" style="width: 60% !important;" class="form-control" type="number" name="area" id="area" step="0.01" min="0.01" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_area" id="unidad_area">
                                 {% for unidad in unidades_area %}
-                                <option value="{{unidad.pk}}" {% if intercambiador.area_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
+                                <option value="{{unidad.pk|slugify}}" {% if intercambiador.area_unidad == unidad.pk|slugify %}selected{%endif%}>{{unidad.simbolo}}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -618,7 +770,7 @@
                             <input value="{{previo.longitud_tubos}}" style="width: 60% !important;" class="form-control" type="number" name="longitud_tubos" id="longitud_tubos" min="0.01" max="999999.99" step="0.01" required>
                             <select style="width: 40% !important;" class="form-select" name="longitud_tubos_unidad" id="longitud_tubos_unidad">
                                 {% for unidad in unidades_longitud %}
-                                <option value="{{unidad.pk}}" {% if intercambiador.longitud_tubos_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
+                                <option value="{{unidad.pk|slugify}}" {% if previo.longitud_tubos_unidad == unidad.pk|slugify %}selected{%endif%}>{{unidad.simbolo}}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -630,7 +782,7 @@
                             <input value="{{previo.od_tubos}}" style="width: 60% !important;" class="form-control" type="number" name="od_tubos" id="od_tubos" step="0.01" min="0.01" max="999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_diametros" id="unidad_diametros">
                                 {% for unidad in unidades_longitud %}
-                                <option value="{{unidad.pk}}" {% if intercambiador.diametro_tubos_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
+                                <option value="{{unidad.pk|slugify}}" {% if previo.unidad_diametros == unidad.pk|slugify %}selected{%endif%}>{{unidad.simbolo}}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -641,7 +793,15 @@
                         <div class="input-group mb-3">
                             <input value="{{previo.id_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="id_carcasa" id="id_carcasa" step="0.01" min="0.01" max="999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_diametros" id="unidad_diametros" disabled>
+                                {% if previo.unidad_diametros %}
+                                {% for unidad in unidades_longitud %}
+                                {% if unidad.pk|slugify == previo.unidad_diametros %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">m</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -661,7 +821,7 @@
                             <input value="{{previo.pitch}}" style="width: 60% !important;" class="form-control" type="number" name="pitch" id="pitch" min="0.0001" max="9999.9999" step="0.0001" required>
                             <select style="width: 40% !important;" class="form-select" name="unidades_pitch" id="unidades_pitch">
                                 {% for unidad in unidades_longitud %}
-                                <option value="{{unidad.pk}}" {% if intercambiador.longitud_tubos_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
+                                <option value="{{unidad.pk|slugify}}" {% if previo.unidades_pitch == unidad.pk|slugify %}selected{%endif%}>{{unidad.simbolo}}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -685,7 +845,7 @@
                             <input style="width: 60% !important;" value="{{previo.u}}" max="99999999.999" step="0.001" min="0.001" class="form-control" type="number" name="u" id="u">
                             <select style="width: 40% !important;" class="form-select" name="unidad_u" id="unidad_u">
                                 {% for unidad in unidades_u %}
-                                <option value="{{unidad.pk}}" {% if intercambiador.u_unidad == unidad %}selected{%endif%}>{{unidad}}</option>
+                                <option value="{{unidad.pk|slugify}}" {% if previo.unidad_u == unidad.pk|slugify %}selected{%endif%}>{{unidad}}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -696,7 +856,16 @@
                         <div class="input-group">
                             <input style="width: 60% !important;" value="{{previo.ensuciamiento}}" max="999.999999999" step="0.000000001" min="0" class="form-control" type="number" name="ensuciamiento" id="ensuciamiento">
                             <select style="width: 40% !important;" class="form-select" name="unidad_fouling" id="unidad_fouling" disabled>
+                                {% if previo.unidad_fouling %}
+                                {% for unidad in unidades_ensuciamiento %}
+                                {% if unidad.pk|slugify == previo.unidad_fouling %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% empty %}
+                                {% endfor %}
+                                {% else %}
                                 <option value="1">m²K/W</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>

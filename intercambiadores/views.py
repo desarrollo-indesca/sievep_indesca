@@ -26,7 +26,22 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             copia_context['previo'] = request.POST
             copia_context['error'] = f'El tag {request.POST["tag"]} ya está registrado en el sistema.' 
 
-            return render(request, 'tubo_carcasa/creacion.html', context=self.context)
+            copia_context['complejos'] = Complejo.objects.all()
+            copia_context['plantas'] = Planta.objects.filter(complejo__pk=1)
+            copia_context['tipos'] = TiposDeTubo.objects.all()
+            copia_context['temas'] = Tema.objects.all()
+            copia_context['fluidos'] = Fluido.objects.all()
+            copia_context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
+            copia_context['unidades_longitud'] = Unidades.objects.filter(tipo = 'L')
+            copia_context['unidades_area'] = Unidades.objects.filter(tipo = 'A')
+            copia_context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
+            copia_context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
+            copia_context['unidades_ensuciamiento'] = Unidades.objects.filter(tipo = 'E')
+            copia_context['unidades_q'] = Unidades.objects.filter(tipo = 'Q').order_by('-simbolo')
+            copia_context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
+            copia_context['unidades_u'] = Unidades.objects.filter(tipo = 'u').order_by('-simbolo')
+
+            return render(request, 'tubo_carcasa/creacion.html', context=copia_context)
         
         with transaction.atomic(): # Transacción de Creación del Intercambiador
             # Creación de Modelo General de Intercambiador
