@@ -79,6 +79,28 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
 
     return resultados
 
+def obtener_cambio_fase(flujo_vapor_in: float, flujo_vapor_out: float, flujo_liquido_in: float, flujo_liquido_out: float):
+    if(flujo_vapor_in and flujo_liquido_in):
+        if(flujo_vapor_in != flujo_vapor_out):
+            return "P"
+        else:
+           return "S"
+
+    if(flujo_vapor_in):
+        if(flujo_vapor_in == flujo_vapor_out):
+            return "S"
+        elif(flujo_vapor_in == flujo_liquido_out):
+            return "T"
+        else:
+            return "P"
+    elif(flujo_liquido_in):
+        if(flujo_liquido_out == flujo_liquido_in):
+            return "S"
+        elif(flujo_liquido_in == flujo_vapor_out):
+            return "T"
+        else:
+            return "P"
+
 def truncar(numero, decimales = 2):
     factor = 10**decimales
     return int(numero*factor)/100

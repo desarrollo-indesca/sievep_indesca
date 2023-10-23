@@ -223,7 +223,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_vapor_in_carcasa">Flujo Vapor Entrada:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_carcasa.flujo_vapor_entrada|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_in_carcasa" id="flujo_vapor_in_carcasa" min="0.01" step="0.01" max="99999999.99" required>
+                            <input value="{{condicion_carcasa.flujo_vapor_entrada|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_in_carcasa" id="flujo_vapor_in_carcasa" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
                                 <option>{{condicion_carcasa.flujos_unidad}}</option>
                             </select>
@@ -233,7 +233,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_vapor_out_carcasa">Flujo de Vapor Salida:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_carcasa.flujo_vapor_salida|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_out_carcasa" id="flujo_vapor_out_carcasa" min="0.01" step="0.01" max="99999999.99" required>
+                            <input value="{{condicion_carcasa.flujo_vapor_salida|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_out_carcasa" id="flujo_vapor_out_carcasa" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
                                 <option>{{condicion_carcasa.flujos_unidad}}</option>
                             </select>
@@ -243,7 +243,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_liquido_in_carcasa">Flujo Líquido Entrada:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_carcasa.flujo_liquido_entrada|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_in_carcasa" id="flujo_liquido_in_carcasa" min="0.01" step="0.01" max="99999999.99" required>
+                            <input value="{{condicion_carcasa.flujo_liquido_entrada|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_in_carcasa" id="flujo_liquido_in_carcasa" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
                                 <option>{{condicion_carcasa.flujos_unidad}}</option>
                             </select>
@@ -253,7 +253,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_liquido_out_carcasa">Flujo Líquido Salida:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_carcasa.flujo_liquido_salida|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_out_carcasa" id="flujo_liquido_out_carcasa" min="0.01" step="0.01" max="99999999.99" required>
+                            <input value="{{condicion_carcasa.flujo_liquido_salida|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_out_carcasa" id="flujo_liquido_out_carcasa" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
                                 <option>{{condicion_carcasa.flujos_unidad}}</option>
                             </select>
@@ -306,19 +306,19 @@
                     {% endwith %}
                     <div class="col-6">
                         <label class="form-label" for="conexiones_entrada_tubo">Conexiones de Entrada Tubo:</label>
-                        <input maxlength="50" value="{{intercambiador.conexiones_entrada_tubos}}" class="form-control" type="text" maxlength="50" name="conexiones_entrada_tubo" id="conexiones_entrada_tubo">
+                        <input maxlength="50" value="{{intercambiador.conexiones_entrada_tubos}}" class="form-control" type="text" name="conexiones_entrada_tubo" id="conexiones_entrada_tubo">
                     </div>
 
                     <div class="col-6">
                         <label class="form-label" for="conexiones_salida_tubo">Conexiones de Salida Tubo:</label>
-                        <input maxlength="50" value="{{intercambiador.conexiones_salida_tubos}}" class="form-control" type="text" maxlength="50" name="conexiones_salida_tubo" id="conexiones_salida_tubo">
+                        <input maxlength="50" value="{{intercambiador.conexiones_salida_tubos}}" class="form-control" type="text" name="conexiones_salida_tubo" id="conexiones_salida_tubo">
                     </div>
 
                     <div class="col-2"></div>
 
                     <div class="col-8">
                         <label class="form-label" for="numero_pasos_tubo">Número de Pasos Tubo:</label>
-                        <input maxlength="50" value="{{intercambiador.numero_pasos_tubo}}" class="form-control" type="text" maxlength="50" name="numero_pasos_tubo" id="numero_pasos_tubo">
+                        <input value="{{intercambiador.numero_pasos_tubo}}" class="form-control" type="text" step="1" name="numero_pasos_tubo" id="numero_pasos_tubo">
                     </div>
 
                     <div class="col-2"></div>

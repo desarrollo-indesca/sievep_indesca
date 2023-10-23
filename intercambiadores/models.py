@@ -20,7 +20,7 @@ tipos_condiciones = [
 ]
 
 cambios_de_fase = [
-    ('S', 'Sin cambio de fase'),
+    ('S', 'Sin Cambio de Fase'),
     ('P','Cambio de Fase Parcial'),
     ('T', 'Cambio de Fase Total')
 ]

@@ -204,7 +204,8 @@
                     <div class="col-6">
                         <label class="form-label" for="cambio_fase_carcasa">Cambio de Fase:</label>
                         <div class="input-group mb-3">
-                            <select class="form-select" name="cambio_fase_carcasa" id="cambio_fase_carcasa">
+                            <select disabled class="form-select" name="cambio_fase_carcasa" id="cambio_fase_carcasa">
+                                <option value="-">-</option>
                                 <option value="S" {% if previo.cambio_fase_carcasa == "S" %}selected{% endif %}>Sin Cambio de Fase</option>
                                 <option value="P" {% if previo.cambio_fase_carcasa == "P" %}selected{% endif %}>Cambio de Fase Parcial</option>
                                 <option value="T" {% if previo.cambio_fase_carcasa == "T" %}selected{% endif %}>Cambio de Fase Total</option>
@@ -215,7 +216,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_carcasa">Flujo Másico:</label>
                         <div class="input-group mb-3">
-                            <input min="0.01" value="{{previo.flujo_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" max="99999999.99" required>
+                            <input disabled min="0.01" value="{{previo.flujo_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos">
                                 {% for unidad in unidades_flujo %}
                                 <option value="{{unidad.pk}}" {% if condicion_tubo.flujos_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
@@ -434,10 +435,11 @@
                     <div class="col-6">
                         <label class="form-label" for="cambio_fase_tubo">Cambio de Fase:</label>
                         <div class="input-group mb-3">
-                            <select class="form-select" name="cambio_fase_tubo" id="cambio_fase_tubo">
+                            <select disabled class="form-select" name="cambio_fase_tubo" id="cambio_fase_tubo">
+                                <option  value="-">-</option>
                                 <option value="S" {% if previo.cambio_fase_tubo == 'S' %}selected{%endif%}>Sin Cambio de Fase</option>
                                 <option value="P" {% if previo.cambio_fase_tubo == 'P' %}selected{%endif%}>Cambio de Fase Parcial</option>
-                                <option value="T" {% if previo.cambio_fase_tubo == 'T' %}selected{%endif%}>Cambio de Fase Total</option>
+                                <option value="T" {% if previo.cambio_fase_tubo == 'T' %}selected{%endif%}>Cambio de Fase Total</option>                            
                             </select>
                         </div>
                     </div>
@@ -445,7 +447,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_tubo">Flujo Másico:</label>
                         <div class="input-group mb-3">
-                            <input min="0.01" value="{{previo.flujo_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" max="99999999.99" required>
+                            <input disabled min="0.01" value="{{previo.flujo_tubo}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" max="99999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
                                 <option value="1">Kg/h</option>
                             </select>
@@ -707,7 +709,7 @@
         <hr>
         
         <div class="d-flex justify-content-center mb-3">
-            <button class="btn btn-danger">Registrar Intercambiador</button>
+            <button type="submit" class="btn btn-danger" disabled>Registrar Intercambiador</button>
         </div>
     </form>
 {% endblock %}
@@ -715,5 +717,7 @@
 {% block extra_javascript %}
 <script>
     {% include 'scripts/ajaxCP.js' %}
+
+    {% include 'scripts/validaciones_flujo.js' %}
 </script>
 {% endblock %}
