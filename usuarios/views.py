@@ -10,10 +10,41 @@ from django.contrib import messages
 # Create your views here.
 
 class SuperUserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    """
+    Resumen:
+        Mixin para verificar que un usuario sea superusuario, para permitir o denegar su acceso.
+    
+    Métodos:
+        test_func(self, request)
+            Función heredada de UserPassesTestMixin, verifica si el usuario es un superusuario o no.
+    """
     def test_func(self):
         return self.request.user.is_superuser
 
 class ConsultaUsuarios(SuperUserRequiredMixin, ListView):
+    """
+    Resumen:
+        Vista de consulta de usuarios. Contiene la lógica de filtrado y paginación
+        para los usuarios del sistema. Únicamente pueden acceder superusuarios.
+
+    Atributos:
+        model: Model
+            Modelo (User) de la consulta.
+
+        template_name: str
+            Nombre de la plantilla a renderizar.
+
+        paginate_by: int
+            Número de registros de usuarios que se pueden ver por página.
+    
+    Métodos:
+        get_context_data(self, **kwargs)
+            Rellena los datos contextuales de la vista para el filtrado.
+
+        def get_queryset(self)
+            Filtra los usuarios de acuerdo a los datos de filtrado proporcionados.
+    """
+
     model = get_user_model()
     template_name = 'consulta.html'
     paginate_by = 10
@@ -59,6 +90,30 @@ class ConsultaUsuarios(SuperUserRequiredMixin, ListView):
         return new_context.order_by('first_name','last_name')
 
 class CrearNuevoUsuario(SuperUserRequiredMixin, View):
+    """
+    Resumen:
+        Vista de creación de un nuevo usuario. 
+        Únicamente pueden acceder superusuarios.
+
+    Atributos:
+        modelo: Model
+            Modelo (User) de la creación.
+
+        context: dict
+            Diccionario que contiene la data contextual de la vista.
+            Incluye inicialmente el título.
+    
+    Métodos:
+        validar(self, data)
+            Contiene la lógica de validación para la creación de un usuario.
+
+        def post(self, request)
+            Contiene la lógica de almacenamiento de un nuevo usuario.
+
+        def get(self, request)
+            Contiene la lógica de renderizado del formulario.
+    """
+
     context = {
         'titulo': "Registro de Nuevo Usuario"
     }
@@ -100,6 +155,31 @@ class CrearNuevoUsuario(SuperUserRequiredMixin, View):
         return render(request, 'creacion.html', self.context)
 
 class EditarUsuario(SuperUserRequiredMixin, View):
+    """
+    Resumen:
+        Vista de edición un usuario existente.
+        Los usuarios pueden activarse y desactivarse por esta vía.
+        Únicamente pueden acceder superusuarios.
+
+    Atributos:
+        modelo: Model
+            Modelo (User) de la creación.
+
+        context: dict
+            Diccionario que contiene la data contextual de la vista.
+            Incluye inicialmente el título.
+    
+    Métodos:
+        validar(self, data)
+            Contiene la lógica de validación para la edición de un usuario.
+
+        def post(self, request)
+            Contiene la lógica de actualización de un usuario editado.
+
+        def get(self, request)
+            Contiene la lógica de renderizado del formulario.
+    """
+
     context = {
         'titulo': "Editar Usuario"
     }
@@ -146,6 +226,30 @@ class EditarUsuario(SuperUserRequiredMixin, View):
         return render(request, 'creacion.html', context={'previo': previo, 'edicion': True, **self.context})
 
 class CambiarContrasena(SuperUserRequiredMixin, View):
+    """
+    Resumen:
+        Vista del formulario de cambio de contraseña de un usuario existente. 
+        Únicamente pueden acceder superusuarios.
+
+    Atributos:
+        modelo: Model
+            Modelo (User) de la creación.
+
+        context: dict
+            Diccionario que contiene la data contextual de la vista.
+            Incluye inicialmente el título.
+    
+    Métodos:
+        validar(self, data)
+            Contiene la lógica de validación para el cambio de contraseña.
+
+        def post(self, request)
+            Contiene la lógica de actualización de contraseña para el usuario.
+
+        def get(self, request)
+            Contiene la lógica de renderizado del formulario.
+    """
+
     context = {
         'titulo': "Cambiar Contraseña"
     }
