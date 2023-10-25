@@ -15,6 +15,25 @@ from calculos.unidades import transformar_unidades_temperatura, transformar_unid
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
 
 class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Vista de Creación (Formulario) de un nuevo intercambiador de tubo/carcasa. 
+        Requiere de un usuario autenticado para poder ser accedida.
+
+    Atributos:
+        context: dict
+            Contexto inicial de la vista. Incluye el título.
+    
+    Métodos:
+        post(self, request)
+            Función que contiene la lógica de almacenamiento en la BDD al realizar 
+            una solicitud POST en la vista. Contiene además el manejo de errores
+            de validación en el formulario de creación.
+        
+        get(self, request)
+            Contiene la lógica de renderizado del formulario y de carga de unidades (GET).
+    """
+
     context = {
         'titulo': "Creación de Intercambiador Tubo Carcasa"
     }
@@ -199,6 +218,24 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
         return render(request, 'tubo_carcasa/creacion.html', context=self.context)
 
 class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Vista de Creación (Formulario) de una nueva evaluación de un intercambiador tubo/carcasa. 
+        Requiere de un usuario autenticado para poder ser accedida.
+
+    Atributos:
+        context: dict
+            Contexto inicial de la vista. Incluye el título.
+    
+    Métodos:
+        post(self, request)
+            Función que contiene la lógica de almacenamiento en la BDD al realizar 
+            una solicitud POST en la vista.
+        
+        get(self, request)
+            Contiene la lógica de renderizado del formulario y de carga de unidades (GET).
+    """
+
     context = {
         'titulo': "Evaluación Tubo Carcasa"
     }
@@ -284,6 +321,24 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
         return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
 
 class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Vista de Edición (Formulario) de un intercambiador tubo/carcasa. 
+        Requiere de un usuario autenticado para poder ser accedida.
+
+    Atributos:
+        context: dict
+            Contexto inicial de la vista. Incluye el título.
+    
+    Métodos:
+        post(self, request)
+            Función que contiene la lógica de actualización en la BDD al realizar 
+            una solicitud POST en la vista.
+        
+        get(self, request)
+            Contiene la lógica de renderizado del formulario y de carga de unidades y datos (GET).
+    """
+
     context = {
         'titulo': "Edición de Intercambiador Tubo Carcasa"
     }
@@ -425,12 +480,38 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
         return render(request, 'tubo_carcasa/edicion.html', context=self.context)
 
 class ConsultaEvaluacionesTuboCarcasa(LoginRequiredMixin, ListView):
+    """
+    Resumen:
+        Vista de consulta de evaluaciones. Contiene la lógica de eliminación (ocultación) de evaluaciones,
+        filtrado y paginación. Requiere de inicio de sesión.
+
+    Atributos:
+        model: Model
+            Modelo a mostrar en la consulta. EvaluacionesIntercambiador en este caso.
+
+        template_name: str
+            Nombre de la plantilla a renderizar.
+        
+        paginate_by: int
+            Número de registros por pantalla. 
+    
+    Métodos:
+        post(self, request, **kwargs)
+            Función que contiene la lógica de "eliminación" de evaluaciones.
+        
+        get_context_data(self, **kwargs)
+            Lleva al contexto los datos de filtrado.
+
+        get_queryset(self)
+            Filtra los datos de acuerdo a los parámetros de filtrado.
+    """
+
     model = EvaluacionesIntercambiador
     template_name = 'tubo_carcasa/evaluaciones/consulta.html'
     paginate_by = 10
 
     def post(self, request, **kwargs):
-        if(request.user.is_superuser):
+        if(request.user.is_superuser): # Lógica de "Eliminación"
             evaluacion = EvaluacionesIntercambiador.objects.get(pk=request.POST['evaluacion'])
             evaluacion.visible = False
             evaluacion.save()
@@ -483,6 +564,31 @@ class ConsultaEvaluacionesTuboCarcasa(LoginRequiredMixin, ListView):
         return new_context
 
 class ConsultaTuboCarcasa(LoginRequiredMixin, ListView):
+    """
+    Resumen:
+        Vista de consulta de evaluaciones. Contiene la lógica de filtrado y paginación.
+        Requiere de inicio de sesión.
+
+    Atributos:
+        model: Model
+            Modelo a mostrar en la consulta. PropiedadesTuboCarcasa en este caso.
+
+        template_name: str
+            Nombre de la plantilla a renderizar.
+        
+        paginate_by: int
+            Número de registros por pantalla. 
+    
+    Métodos:
+        post(self, request, **kwargs)
+            Función que contiene la lógica de obtención de reportes PDF o XLSX.
+        
+        get_context_data(self, **kwargs)
+            Lleva al contexto los datos de filtrado.
+
+        get_queryset(self)
+            Filtra los datos de acuerdo a los parámetros de filtrado.
+    """
     model = PropiedadesTuboCarcasa
     template_name = 'tubo_carcasa/consulta.html'
     paginate_by = 10
@@ -552,12 +658,37 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ListView):
 # VISTAS GENERALES PARA LOS INTERCAMBIADORES DE CALOR
 
 class ConsultaVacia(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Vista de consulta para tipos de intercambiadores aún no desarrollados.
+        Requiere de inicio de sesión.
+
+    Atributos:
+        template_name: str
+            Nombre de la plantilla a renderizar.
+    
+    Métodos:
+        get(self, request, tipo)
+            Renderiza la plantilla de consulta vacía del tipo pasado por KWARGS.
+    """
     template_name = 'pantalla_vacia.html'
       
     def get(self, request, tipo):
         return render(request, self.template_name, {'tipo': tipo, 'titulo': f'Consulta de Intercambiadores de Calor {tipo}'})
 
 class SeleccionTipo(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Vista de consulta de tipos de intercambiadores planteados en el diseño.
+
+    Atributos:
+        context: dict
+            Contexto de la vista. Actualmente solo incluye el título predeterminado.
+    
+    Métodos:
+        get(self, request)
+            Renderiza la plantilla de selección de tipo.
+    """
     context = {
         'titulo': "SIEVEP - Selección de Tipo de Intercambiador"
     }
@@ -568,6 +699,15 @@ class SeleccionTipo(LoginRequiredMixin, View):
 # VISTAS AJAX
 
 class EvaluarTuboCarcasa(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Vista AJAX de evaluación de tubo/carcasa, es llamada varias veces en CrearEvaluacionTuboCarcasa.
+    
+    Métodos:
+        get(self, request, pk)
+            Envía los datos de la evaluación del intercambiador con la PK enviada, y otros
+            datos pasados por el body del request.
+    """
     def get(self, request, pk):
         print(request.GET)
         intercambiador = PropiedadesTuboCarcasa.objects.get(id = pk)
@@ -591,6 +731,15 @@ class EvaluarTuboCarcasa(LoginRequiredMixin, View):
         return JsonResponse(res)
 
 class ConsultaCAS(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Vista AJAX de evaluación de tubo/carcasa, es llamada en CrearIntercambiadorTuboCarcasa y en EditarIntercambiadorTuboCarcasa.
+        Se utiliza para obtener el nombre de un fluido aún no incluido en la base de datos por medio de su CAS.
+    
+    Métodos:
+        get(self, request)
+            Envía el nombre del químico del CAS enviado si existe.
+    """
     def get(self, request):
         cas = request.GET['cas']
 
@@ -611,6 +760,15 @@ class ConsultaCAS(LoginRequiredMixin, View):
         return JsonResponse({'nombre': fluido, 'estado': estado})
 
 class ConsultaCP(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Vista AJAX de evaluación de tubo/carcasa, es llamada varias veces en CrearEvaluacionTuboCarcasa,
+        EdicionTuboCarcasa y CrearEvaluacionTuboCarcasa. Calcula el Cp de un fluido en las temperaturas enviadas.
+    
+    Métodos:
+        get(self, request)
+            Envía los datos del Cp del fluido enviado de acuerdo a las temperaturas y unidad de salida y entrada.
+    """
     def get(self, request):
         fluido = request.GET['fluido']
         t1,t2 = float(request.GET['t1']), float(request.GET['t2'])
@@ -638,6 +796,16 @@ class ConsultaCP(LoginRequiredMixin, View):
             return JsonResponse({'cp': ''})
         
 class ConsultaGraficasEvaluacion(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Vista AJAX para la generación de las gráficas históricas en ConsultaEvaluacionesTuboCarcasa.
+    
+    Métodos:
+        get(self, request)
+            Envía los datos entre fechas de las evaluaciones visibles para los datos con los cuales se
+            registran las gráficas.
+    """
+
     def get(self, request, pk):
         evaluaciones = EvaluacionesIntercambiador.objects.filter(intercambiador = PropiedadesTuboCarcasa.objects.get(pk=pk).intercambiador, visible=True).order_by('fecha')
         
