@@ -83,7 +83,7 @@ def entalpia_l_a_g(quimico: Chemical, t1: float, t2: float, presion: float, tsat
     except:
         h_vapor_sobrecalentado = numpy.ceil(quimico.HeatCapacityGas.T_dependent_property_integral(tsat,t2)/quimico.MW)
 
-    return numpy.ceil(h_liquido_subenfriado+h_vapor_sobrecalentado+h_liquido_saturado)
+    return numpy.ceil(h_liquido_subenfriado+h_vapor_sobrecalentado+h_liquido_saturado)*1000
 
 def entalpia_g_a_l(quimico: Chemical, t1: float, t2: float, presion: float, tsat: float):
     try:
@@ -98,7 +98,7 @@ def entalpia_g_a_l(quimico: Chemical, t1: float, t2: float, presion: float, tsat
         h_liquido_saturado = numpy.ceil(quimico.Hvap/1000 - quimico.calc_H_excess(T=tsat, P=presion)/1000) 
     except:
         h_liquido_saturado = numpy.ceil(quimico.Hvap/1000) 
-    
+   
     quimico.calculate(t2)
     
     try:
@@ -107,4 +107,4 @@ def entalpia_g_a_l(quimico: Chemical, t1: float, t2: float, presion: float, tsat
     except:
         h_liquido_subenfriado = numpy.ceil(quimico.HeatCapacityLiquid.T_dependent_property_integral(tsat,t1)/quimico.MW)
 
-    return numpy.ceil(h_liquido_subenfriado+h_vapor_sobrecalentado+h_liquido_saturado)
+    return numpy.ceil(h_liquido_subenfriado+h_vapor_sobrecalentado+h_liquido_saturado)*1000

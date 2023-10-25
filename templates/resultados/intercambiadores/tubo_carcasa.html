@@ -190,7 +190,7 @@
           <button class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</button>
           <form method="post">
             {% csrf_token %}
-            <button type="submit" class="eliminacion" name="evaluacion" value="{{evaluacion.pk}}" onclick="return confirm('¿De verdad desea eliminar esta evaluación?');">Eliminar Evaluación</button>
+            <button type="submit" class="btn btn-danger" name="evaluacion" value="{{evaluacion.pk}}" onclick="return confirm('¿De verdad desea eliminar esta evaluación?');">Eliminar Evaluación</button>
           </form>
         </div>
       </div>

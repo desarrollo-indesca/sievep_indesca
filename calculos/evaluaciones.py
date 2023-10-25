@@ -1,6 +1,7 @@
 import numpy as np
 from .unidades import transformar_unidades_temperatura, transformar_unidades_flujo, transformar_unidades_longitud
 from ht import F_LMTD_Fakheri
+from .termodinamicos import calcular_entalpia_entre_puntos
 
 def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo = None, cp_carcasa = None, unidad_temp = 1, unidad_flujo = 6):
     ti,ts,Ti,Ts = transformar_unidades_temperatura([ti,ts,Ti,Ts], unidad=unidad_temp)
@@ -8,27 +9,11 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
     if(unidad_flujo != 10):
         ft,Fc = transformar_unidades_flujo([ft,Fc], unidad_flujo)
 
-    condicion_tubo = intercambiador.condicion_tubo()
-    condicion_carcasa = intercambiador.condicion_carcasa()
+    q_tubo = calcular_calor(ft, ti, ts, intercambiador) # W
+    q_carcasa = calcular_calor(Fc, Ti, Ts, intercambiador, 'C') # W      
 
-    # Cálculo de Calor del Tubo
-    if(condicion_tubo.cambio_de_fase == 'S'): # Caso 1: Sin Cambio de Fase
-        pass
-    elif(condicion_tubo.cambio_de_fase == 'T'): # Caso 2: Cambio de Fase Total
-        pass
-    elif(condicion_tubo.cambio_de_fase == 'P'):
-        pass
-
-    q_tubo = cp_tubo*ft*abs(ti-ts) # W
-    q_carcasa = cp_carcasa*Fc*abs(Ti-Ts) # W
-
-    # Cálculo Calor Carcasa
-    if(condicion_carcasa.cambio_de_fase == 'S'): # Caso 1: Sin Cambio de Fase
-        pass
-    elif(condicion_carcasa.cambio_de_fase == 'T'): # Caso 2: Cambio de Fase Total
-        pass
-    elif(condicion_carcasa.cambio_de_fase == 'P'):
-        pass    
+    print(q_tubo)
+    print(q_carcasa)
     
     nt = nt if nt else float(intercambiador.numero_tubos)
 
@@ -97,6 +82,37 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
     }
 
     return resultados
+
+def calcular_calor(flujo: float, t1: float, t2: float, intercambiador, lado: str = 'T'):
+    """
+    Resumen:
+        Esta función calcula el calor intercambiado en uno de los lados de un intercambiador.
+    
+    Parámetros:
+        flujo: float -> Flujo másico (Kg/s)
+        t1: float -> Temperatura de Entrada (K)
+        t2: float -> Temperatura de Salida (K)
+        intercambiador: Intercambiador -> Intercambiador al cual se le calculará el calor.
+        lado: str -> T si es el calor del lado del tubo, C si es el calor de la carcasa.
+
+    Devuelve:
+        float -> Q (W) del lado del intercambiador
+    """
+
+    fluido = intercambiador.fluido_tubo if lado == 'T' else intercambiador.fluido_carcasa
+    datos = intercambiador.condicion_tubo() if lado == 'T' else intercambiador.condicion_carcasa()
+
+    if(fluido == None):
+        fluido = datos.fluido_etiqueta if lado == 'T' else datos.fluido_etiqueta
+
+    print(f"ENTALPÍA: {calcular_entalpia_entre_puntos(fluido.cas, t1, t2, float(datos.presion_entrada)*1e5)}")
+
+    if(datos.cambio_de_fase == 'S'): # Caso 1: Sin Cambio de Fase
+        return flujo * datos.fluido_cp * abs(t2-t1)
+    else: # Caso 2: Cambio de Fase Total
+        return flujo*calcular_entalpia_entre_puntos(fluido.cas, t1, t2, float(datos.presion_entrada)*1e5)
+    # elif(datos.cambio_de_fase == 'P'): # Caso 3: Cambio de Fase Parcial
+        # pass  
 
 def obtener_cambio_fase(flujo_vapor_in: float, flujo_vapor_out: float, flujo_liquido_in: float, flujo_liquido_out: float):
     if(flujo_vapor_in and flujo_liquido_in):
