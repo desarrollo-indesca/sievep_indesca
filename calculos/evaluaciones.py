@@ -3,14 +3,14 @@ from .unidades import transformar_unidades_temperatura, transformar_unidades_flu
 from ht import F_LMTD_Fakheri
 from .termodinamicos import calcular_entalpia_entre_puntos
 
-def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo = None, cp_carcasa = None, unidad_temp = 1, unidad_flujo = 6):
+def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo = None, cp_carcasa = None, unidad_temp = 1, unidad_flujo = 6) -> dict:
     ti,ts,Ti,Ts = transformar_unidades_temperatura([ti,ts,Ti,Ts], unidad=unidad_temp)
     
     if(unidad_flujo != 10):
         ft,Fc = transformar_unidades_flujo([ft,Fc], unidad_flujo)
 
     q_tubo = calcular_calor(ft, ti, ts, intercambiador) # W
-    q_carcasa = calcular_calor(Fc, Ti, Ts, intercambiador, 'C') # W      
+    q_carcasa = calcular_calor(Fc, Ti, Ts, intercambiador, 'C') # W
 
     print(q_tubo)
     print(q_carcasa)
@@ -83,7 +83,7 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
 
     return resultados
 
-def calcular_calor(flujo: float, t1: float, t2: float, intercambiador, lado: str = 'T'):
+def calcular_calor(flujo: float, t1: float, t2: float, intercambiador, lado: str = 'T') -> float:
     """
     Resumen:
         Esta función calcula el calor intercambiado en uno de los lados de un intercambiador.
@@ -105,8 +105,6 @@ def calcular_calor(flujo: float, t1: float, t2: float, intercambiador, lado: str
     if(fluido == None):
         fluido = datos.fluido_etiqueta if lado == 'T' else datos.fluido_etiqueta
 
-    print(f"ENTALPÍA: {calcular_entalpia_entre_puntos(fluido.cas, t1, t2, float(datos.presion_entrada)*1e5)}")
-
     if(datos.cambio_de_fase == 'S'): # Caso 1: Sin Cambio de Fase
         return flujo * datos.fluido_cp * abs(t2-t1)
     else: # Caso 2: Cambio de Fase Total
@@ -114,7 +112,21 @@ def calcular_calor(flujo: float, t1: float, t2: float, intercambiador, lado: str
     # elif(datos.cambio_de_fase == 'P'): # Caso 3: Cambio de Fase Parcial
         # pass  
 
-def obtener_cambio_fase(flujo_vapor_in: float, flujo_vapor_out: float, flujo_liquido_in: float, flujo_liquido_out: float):
+def obtener_cambio_fase(flujo_vapor_in: float, flujo_vapor_out: float, flujo_liquido_in: float, flujo_liquido_out: float) -> str:
+    """
+    Resumen:
+        Función que determina el tipo de cambio de fase dados los flujos en líquido y en vapor.
+    
+    Parámetros:
+        flujo_vapor_in: float -> Flujo de vapor de entrada.
+        flujo_vapor_out float -> Flujo de vapor de salida.
+        flujo_liquido_in: float -> Flujo de líquido de entrada.
+        flujo_liquido_out: float -> Flujo de líquido de salida.
+    
+    Devuelve:
+        str -> Letra indicando el cambio de fase. P si es parcial. S si no tiene. T si es total.
+    """
+
     if(flujo_vapor_in and flujo_liquido_in):
         if(flujo_vapor_in != flujo_vapor_out):
             return "P"
@@ -136,11 +148,26 @@ def obtener_cambio_fase(flujo_vapor_in: float, flujo_vapor_out: float, flujo_liq
         else:
             return "P"
 
-def truncar(numero, decimales = 2):
-    factor = 10**decimales
-    return int(numero*factor)/100
+def truncar(numero: float, decimales: int = 2) -> float:
+    """
+    Resumen:
+        Rutina para truncar los números a la cantidad de decimales enviada (por defecto 2).
 
-def factor_correccion_tubo_carcasa(ti, ts, Ti, Ts, num_pasos_tubo, num_pasos_carcasa):
+    Parámetros:
+        numero: float -> Número a truncar.
+        decimales: int -> Cantidad de decimales.
+
+    Devuelve:
+        float -> Número truncado.
+    """
+    factor = 10**decimales
+    return int(numero*factor)/factor
+
+def factor_correccion_tubo_carcasa(ti, ts, Ti, Ts, num_pasos_tubo, num_pasos_carcasa) -> float:
+    '''
+    Resumen:
+        Rutina aproximada para el factor de corrección de LMTD.
+    '''
     try:
         P = abs((ts - ti)/(Ti - ti))
     except:

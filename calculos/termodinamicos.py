@@ -4,7 +4,7 @@ import CoolProp.CoolProp as CP
 from .unidades import transformar_unidades_cp
 import numpy
 
-def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida: int = 29, presion: float = 101325):
+def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida: int = 29, presion: float = 101325) -> float:
     """
     Resumen:
         Función para el cálculo de la capacidad calorífica del fluido mediante el CAS del fluido,
@@ -52,7 +52,20 @@ def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida: int = 29, pres
 
     return round(transformar_unidades_cp([cp], 29, unidad_salida)[0], 4)
 
-def calcular_entalpia_entre_puntos(fluido: str, t1: float, t2: float, presion: float):
+def calcular_entalpia_entre_puntos(fluido: str, t1: float, t2: float, presion: float) -> float:
+    """
+    Resumen:
+        Calcula la entalpía entre dos temperaturas y una presión dada en caso de que haya cambio de fase.
+    
+    Parámetros:
+        fluido: str -> CAS del fluido 
+        t1: float -> Temperatura inicial (K)
+        t2: float -> Temperatura final (K)
+        presion: float -> Presión de entrada (Pa)
+
+    Devuelve:
+        float -> Entalpía calculada
+    """
     quimico = Chemical(fluido,T=t1,P=presion)
     tsat = quimico.Tsat(P=presion)
 
@@ -61,7 +74,12 @@ def calcular_entalpia_entre_puntos(fluido: str, t1: float, t2: float, presion: f
     else: # Caso Gas > Líquido
         return entalpia_g_a_l(quimico, t1, t2, presion, tsat)
 
-def entalpia_l_a_g(quimico: Chemical, t1: float, t2: float, presion: float, tsat: float):
+def entalpia_l_a_g(quimico: Chemical, t1: float, t2: float, presion: float, tsat: float) -> float:
+    """
+    Resumen:
+        Calcula la entalpía de líquido a gas del fluido en la temperatura y presion dadas.
+        Utiliza las integrales del Cp y el exceso dado por la librería thermo.
+    """
     try:
         h_liquido_subenfriado = numpy.ceil(quimico.HeatCapacityLiquid.T_dependent_property_integral(t1,tsat)/quimico.MW  
                                 - quimico.calc_H_excess(T=tsat, P=presion)/1000)
@@ -75,7 +93,7 @@ def entalpia_l_a_g(quimico: Chemical, t1: float, t2: float, presion: float, tsat
     except:
         h_liquido_saturado = numpy.ceil(quimico.Hvap/1000)
 
-    quimico.calculate(t2)
+    quimico.calculate(t2, P=presion)
 
     try:
         h_vapor_sobrecalentado = numpy.ceil(quimico.HeatCapacityGas.T_dependent_property_integral(tsat,t2)/quimico.MW
@@ -85,7 +103,13 @@ def entalpia_l_a_g(quimico: Chemical, t1: float, t2: float, presion: float, tsat
 
     return numpy.ceil(h_liquido_subenfriado+h_vapor_sobrecalentado+h_liquido_saturado)*1000
 
-def entalpia_g_a_l(quimico: Chemical, t1: float, t2: float, presion: float, tsat: float):
+def entalpia_g_a_l(quimico: Chemical, t1: float, t2: float, presion: float, tsat: float) -> float:
+    """
+    Resumen:
+        Calcula la entalpía de gas a líquido del fluido en la temperatura y presion dadas.
+        Utiliza las integrales del Cp y el exceso dado por la librería thermo.
+    """
+
     try:
         h_vapor_sobrecalentado = numpy.ceil(quimico.HeatCapacityGas.T_dependent_property_integral(t1,tsat)/quimico.MW
                                 - quimico.calc_H_excess(T=tsat, P=presion)/1000) 
@@ -99,7 +123,7 @@ def entalpia_g_a_l(quimico: Chemical, t1: float, t2: float, presion: float, tsat
     except:
         h_liquido_saturado = numpy.ceil(quimico.Hvap/1000) 
    
-    quimico.calculate(t2)
+    quimico.calculate(t2, P=presion)
     
     try:
         h_liquido_subenfriado = numpy.ceil(quimico.HeatCapacityLiquid.T_dependent_property_integral(tsat,t1)/quimico.MW  
