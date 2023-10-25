@@ -16,18 +16,17 @@
         <div class="modal-body text-start small">
           <div class="row">
             <div class="col-12">
-              <div class="row">
-                <table class="table table-light text-center table-bordered tabla_ficha">
+              <div class="d-flex flex-column">
+                <table class="table table-light text-center table-bordered tabla_ficha mb-0">
                   <tbody id="tabla_ficha_body">
                     <tr>
                       <th class="table-dark">Tag</th>
                       <td colspan="2">{{generales.tag}}</td>
                       <td colspan="3" rowspan="5" style="vertical-align: middle;">
                         <div class="d-flex justify-content-center align-items-center">
-                          <img style="max-width: 130px;" src="/static/img/temas/intercambiadores/partes/{{generales.tema.codigo.0}}.jpg" alt="Imagen del Tema no Disponible">
-                          <img style="max-width: 130px;" src="/static/img/temas/intercambiadores/partes/{{generales.tema.codigo.1}}.jpg" alt="Imagen del Tema no Disponible">
-                          <img style="max-width: 130px;" src="/static/img/temas/intercambiadores/partes/{{generales.tema_final}}.jpg" alt="Imagen del Tema no Disponible">
-                        </div>                        
+                          <img style="max-width: 33.33%;" src="/static/img/temas/intercambiadores/partes/{{generales.tema.codigo.0}}.jpg" alt="Imagen del Tema no Disponible">
+                          <img style="max-width: 33.33%;" src="/static/img/temas/intercambiadores/partes/{{generales.tema.codigo.1}}.jpg" alt="Imagen del Tema no Disponible">
+                          <img style="max-width: 33.33%;" src="/static/img/temas/intercambiadores/partes/{{generales.tema.codigo.2}}.jpg" alt="Imagen del Tema no Disponible">
                       </td>
                     </tr>
                     <tr>
@@ -50,6 +49,10 @@
                       <th class="table-dark">Servicio</th>
                       <td colspan="5" colspan="5">{{generales.servicio}}</td>
                     </tr>
+                  </tbody>
+                </table>
+                <table class="table table-light text-center table-bordered tabla_ficha mt-0">
+                  <tbody>
                     <tr>
                       <th class="table-dark" colspan="6">
                         <div class="d-inline-flex align-items-center">
