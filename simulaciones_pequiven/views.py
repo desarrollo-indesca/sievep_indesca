@@ -110,10 +110,10 @@ class ComponerIntercambiadores(View):
                     print(f"SKIP {row[2]}")
                     continue
                 
-                row[9] = float(row[9].replace(',','.')) if len(row[9]) else ''
-                row[10] = float(row[10].replace(',','.')) if len(row[10]) else ''
-                row[11] = float(row[11].replace(',','.')) if len(row[11]) else ''
-                row[12] = float(row[12].replace(',','.')) if len(row[12]) else ''
+                row[9] = float(row[9].replace(',','.')) if len(row[9]) else 0
+                row[10] = float(row[10].replace(',','.')) if len(row[10]) else 0
+                row[11] = float(row[11].replace(',','.')) if len(row[11]) else 0
+                row[12] = float(row[12].replace(',','.')) if len(row[12]) else 0
 
                 row[13] = 'P' if 'Parcial' in row[13] else 'S' if 'Sin' in row[13] else 'T'
                 row[14] = float(row[14].replace(',','.')) if len(row[14]) else ''
@@ -121,10 +121,10 @@ class ComponerIntercambiadores(View):
                 row[16] = float(row[16].replace(',','.')) if len(row[16]) else ''
                 row[17] = float(row[17].replace(',','.')) if len(row[17]) else ''
                 
-                row[22] = float(row[22].replace(',','.')) if len(row[22]) else ''
-                row[23] = float(row[23].replace(',','.')) if len(row[23]) else ''
-                row[24] = float(row[24].replace(',','.')) if len(row[24]) else ''
-                row[25] = float(row[25].replace(',','.')) if len(row[25]) else ''
+                row[22] = float(row[22].replace(',','.')) if len(row[22]) else 0
+                row[23] = float(row[23].replace(',','.')) if len(row[23]) else 0
+                row[24] = float(row[24].replace(',','.')) if len(row[24]) else 0
+                row[25] = float(row[25].replace(',','.')) if len(row[25]) else 0
 
                 row[26] = 'P' if 'Parcial' in row[26] else 'S' if 'Sin' in row[26] else 'T'
                 row[27] = float(row[27].replace(',','.')) if len(row[27]) else ''

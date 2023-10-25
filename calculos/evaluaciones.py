@@ -106,8 +106,10 @@ def calcular_calor(flujo: float, t1: float, t2: float, intercambiador, lado: str
         fluido = datos.fluido_etiqueta if lado == 'T' else datos.fluido_etiqueta
 
     if(datos.cambio_de_fase == 'S'): # Caso 1: Sin Cambio de Fase
+        print("Sin cambio de fase")
         return flujo * datos.fluido_cp * abs(t2-t1)
     else: # Caso 2: Cambio de Fase Total
+        print("Cambio de Fase Total")
         return flujo*calcular_entalpia_entre_puntos(fluido.cas, t1, t2, float(datos.presion_entrada)*1e5)
     # elif(datos.cambio_de_fase == 'P'): # Caso 3: Cambio de Fase Parcial
         # pass  
