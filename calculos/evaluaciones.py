@@ -13,15 +13,18 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
 
     # Cálculo de Calor del Tubo
     if(condicion_tubo.cambio_de_fase == 'S'): # Caso 1: Sin Cambio de Fase
-        q_tubo = cp_tubo*ft*abs(ti-ts) # W
+        pass
     elif(condicion_tubo.cambio_de_fase == 'T'): # Caso 2: Cambio de Fase Total
         pass
     elif(condicion_tubo.cambio_de_fase == 'P'):
         pass
 
+    q_tubo = cp_tubo*ft*abs(ti-ts) # W
+    q_carcasa = cp_carcasa*Fc*abs(Ti-Ts) # W
+
     # Cálculo Calor Carcasa
     if(condicion_carcasa.cambio_de_fase == 'S'): # Caso 1: Sin Cambio de Fase
-        q_carcasa = cp_carcasa*Fc*abs(Ti-Ts) # W
+        pass
     elif(condicion_carcasa.cambio_de_fase == 'T'): # Caso 2: Cambio de Fase Total
         pass
     elif(condicion_carcasa.cambio_de_fase == 'P'):

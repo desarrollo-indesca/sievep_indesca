@@ -45,7 +45,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="temp_in_carcasa">Temperatura Entrada:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control temperatura" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control temperatura campo" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 40% !important;" class="form-select campo" name="unidad_temperaturas" id="unidad_temperaturas">
                                 {% for unidad in unidades_temperaturas %}
                                 <option value="{{unidad.pk}}">{{unidad.simbolo}}</option>
@@ -56,7 +56,7 @@
                     <div class="col-6">
                         <label class="form-label" for="temp_out_carcasa">Temperatura Salida:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control temperatura" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control temperatura campo" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -109,7 +109,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="temp_in_tubo">Temperatura Entrada:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control temperatura" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control temperatura campo" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -118,7 +118,7 @@
                     <div class="col-6">
                         <label class="form-label" for="temp_out_tubo">Temperatura Salida:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control temperatura" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control temperatura campo" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -310,7 +310,6 @@
         en_uso = false;
 
         if (e.keyCode == 46) {
-            console.log("delete press");
             e.stopPropagation();
             e.preventDefault();
         }
@@ -405,44 +404,47 @@
 
 <script>
     function ajaxCP(t1,t2,fluido, lado = 'T'){
-        if(lado === 'T' && $('#fluido_tubo').val()){
-            $('#cp_tubo').val('');
-            document.getElementById('cp_tubo').setAttribute('disabled', true);
-        }
-        else if(lado === 'C' && $('#fluido_carcasa').val()){
-            $('#cp_carcasa').val('');
-            document.getElementById('cp_carcasa').setAttribute('disabled', true);
-        }
-
-        $.ajax({
-            url: '/intercambiadores/calcular_cp/',
-            data: {
-                t1,
-                t2,
-                fluido,
-                unidad: $('#unidad_temperaturas').val(),
-                unidad_salida: $('#unidad_cp').val()
-            },
-            success: (res) => {
-                if(res.cp !== '')
-                    if(lado === 'T'){
-                        $('#cp_tubo').val(res.cp);
-                        $('#cp_tubo').removeAttr('disabled');
-                        $('#cp_tubo').change();
-                    }
-                    else{
-                        $('#cp_carcasa').val(res.cp);
-                        $('#cp_carcasa').removeAttr('disabled');
-                        $('#cp_carcasa').change();
-                    }
-                    ajaxEvaluacion();                    
-            }, 
-            error: (res) => {
-                console.log(res);
-                $('#cp_tubo').removeAttr('disabled');
-                $('#cp_carcasa').removeAttr('disabled');
+        console.log("Calculando Cp...");
+        if(!$('#cp_ficha').is(':checked')){
+            if(lado === 'T' && $('#fluido_tubo').val()){
+                $('#cp_tubo').val('');
+                document.getElementById('cp_tubo').setAttribute('disabled', true);
             }
-        });
+            else if(lado === 'C' && $('#fluido_carcasa').val()){
+                $('#cp_carcasa').val('');
+                document.getElementById('cp_carcasa').setAttribute('disabled', true);
+            }
+
+            $.ajax({
+                url: '/intercambiadores/calcular_cp/',
+                data: {
+                    t1,
+                    t2,
+                    fluido,
+                    unidad: $('#unidad_temperaturas').val(),
+                    unidad_salida: $('#unidad_cp').val()
+                },
+                success: (res) => {
+                    if(res.cp !== '')
+                        if(lado === 'T'){
+                            $('#cp_tubo').val(res.cp);
+                            $('#cp_tubo').removeAttr('disabled');
+                            $('#cp_tubo').change();
+                        }
+                        else{
+                            $('#cp_carcasa').val(res.cp);
+                            $('#cp_carcasa').removeAttr('disabled');
+                            $('#cp_carcasa').change();
+                        }
+                        ajaxEvaluacion();                    
+                }, 
+                error: (res) => {
+                    console.log(res);
+                    $('#cp_tubo').removeAttr('disabled');
+                    $('#cp_carcasa').removeAttr('disabled');
+                }
+            });
+        }        
     }
 
     $('#temp_out_carcasa').keyup((e) => {
@@ -532,6 +534,7 @@
 
     $('#cp_ficha').click((e) => {
         if($('#cp_ficha').is(':checked')){
+            console.log("Colocando CP de Ficha");
             $('#cp_tubo').val($('#cp_ficha_tubo').html().replace(',','.').replace(/[\n|\s]+/g,''));
             $('#cp_tubo').attr('disabled',true);
             $('#cp_carcasa').val($('#cp_ficha_carcasa').html().replace(',','.').replace(/[\n|\s]+/g,''));
@@ -541,6 +544,7 @@
             $('#unidad_cp').attr('disabled',true);
         } 
         else{
+            console.log("Descheckeaste, poniendo Cp automatico.");
             $('#unidad_cp').removeAttr('disabled');
             if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== '')
                 ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
@@ -553,9 +557,8 @@
                 $('#cp_tubo').removeAttr('disabled');
         }
         
-        ajaxEvaluacion();
-        
-    })
+        ajaxEvaluacion();        
+    });
 
     const vaciarCampos = () => {
         document.getElementById('lmtd').value = '';
@@ -570,11 +573,10 @@
     }
 
     const ajaxEvaluacion = async () => {
-
-        if(!en_uso)
-            await delay(1000)
-        else
-            return
+        console.log("Evaluando");
+        
+        if(en_uso)
+            await delay(500)
 
         const array = $('.campo').toArray();
 

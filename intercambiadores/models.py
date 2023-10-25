@@ -300,6 +300,8 @@ class EvaluacionesIntercambiador(models.Model):
     q = models.DecimalField(max_digits=12, decimal_places=5)
     numero_tubos = models.IntegerField()
 
+    visible = models.BooleanField(default=True)
+
     def promedio_carcasa(self):
         return (self.temp_ex_entrada + self.temp_ex_salida)/2
 

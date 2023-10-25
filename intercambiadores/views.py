@@ -395,7 +395,6 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             condiciones_carcasa.save()
 
             intercambiador = Intercambiador.objects.get(pk=propiedades.intercambiador.pk)
-            intercambiador.tag = request.POST['tag']
             intercambiador.fabricante = request.POST['fabricante']
             intercambiador.servicio = request.POST['servicio']
             intercambiador.arreglo_flujo = request.POST['flujo']
@@ -430,6 +429,17 @@ class ConsultaEvaluacionesTuboCarcasa(LoginRequiredMixin, ListView):
     template_name = 'tubo_carcasa/evaluaciones/consulta.html'
     paginate_by = 10
 
+    def post(self, request, **kwargs):
+        if(request.user.is_superuser):
+            evaluacion = EvaluacionesIntercambiador.objects.get(pk=request.POST['evaluacion'])
+            evaluacion.visible = False
+            evaluacion.save()
+            messages.success(request, "Evaluación eliminada exitosamente.")
+        else:
+            messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
+
+        return self.get(request, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["titulo"] = "SIEVEP - Consulta de Evaluaciones"
@@ -444,7 +454,7 @@ class ConsultaEvaluacionesTuboCarcasa(LoginRequiredMixin, ListView):
         return context
     
     def get_queryset(self):
-        new_context = EvaluacionesIntercambiador.objects.filter(intercambiador=PropiedadesTuboCarcasa.objects.get(pk=self.kwargs['pk']).intercambiador)
+        new_context = EvaluacionesIntercambiador.objects.filter(intercambiador=PropiedadesTuboCarcasa.objects.get(pk=self.kwargs['pk']).intercambiador, visible=True)
         desde = self.request.GET.get('desde', '')
         hasta = self.request.GET.get('hasta', '')
         usuario = self.request.GET.get('usuario', '')
@@ -629,7 +639,7 @@ class ConsultaCP(LoginRequiredMixin, View):
         
 class ConsultaGraficasEvaluacion(LoginRequiredMixin, View):
     def get(self, request, pk):
-        evaluaciones = EvaluacionesIntercambiador.objects.filter(intercambiador = PropiedadesTuboCarcasa.objects.get(pk=pk).intercambiador).order_by('fecha')
+        evaluaciones = EvaluacionesIntercambiador.objects.filter(intercambiador = PropiedadesTuboCarcasa.objects.get(pk=pk).intercambiador, visible=True).order_by('fecha')
         
         if(request.GET.get('desde')):
             evaluaciones = evaluaciones.filter(fecha__gte = request.GET.get('desde'))

@@ -188,6 +188,10 @@
         <div class="modal-footer">
           <button class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</button>
           <button class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</button>
+          <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="eliminacion" name="evaluacion" value="{{evaluacion.pk}}" onclick="return confirm('¿De verdad desea eliminar esta evaluación?');">Eliminar Evaluación</button>
+          </form>
         </div>
       </div>
     </div>
@@ -197,22 +201,7 @@
   canvas = document.getElementById('grafica_{{evaluacion.pk}}').getContext('2d');
   datosGrafica = undefined;
 
-  // $.ajax({
-  //     url: `datos_grafica.php?id=<?php echo $_GET['id_pozo']; ?>&fecha_max=${$('#fecha_max').val()}&fecha_min=${$('#fecha_min').val()}`,
-  //     method: "GET",
-  //     async: false,
-  //     success: function(data){
-  //         console.log(data);
-  //         datosGrafica = JSON.parse(data);
-  //     },
-  //     error: function(error){
-  //         console.log(error);
-  //     }
-  // });
-
   $('#grafica_{{evaluacion.pk}}').removeAttr('hidden');
-  // if(chart)
-  //   chart.destroy();
 
   chart = new Chart(canvas, {
           type: 'line',
