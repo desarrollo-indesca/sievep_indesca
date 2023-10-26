@@ -698,6 +698,20 @@ class SeleccionTipo(LoginRequiredMixin, View):
 
 # VISTAS AJAX
 
+class RenderizarCambioFase(LoginRequiredMixin, View):
+    def get(self, request):
+        context = {}
+        context['lado'] = 'tubo' if request.GET['lado'] == 'T' else 'carcasa'
+        cambio_fase = request.GET['cambio_fase']
+
+        context['fluidos'] = Fluido.objects.all()
+        context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
+
+        if(cambio_fase == 'S'):
+            return render(request, 'partials/cp_scdf.html', context)
+        else:
+            return render(request, 'partials/cp_cdf.html', context)
+
 class EvaluarTuboCarcasa(LoginRequiredMixin, View):
     """
     Resumen:

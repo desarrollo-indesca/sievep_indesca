@@ -66,6 +66,15 @@ const determinar_cambio_de_fase_carcasa = () => {
     );
 
     $('#cambio_fase_carcasa').val(cambio_fase).change();
+
+    if(cambio_fase !== '-')
+        if(Number($('#fluido_carcasa').val()) || $('#fluido_carcasa').val().split('*')[1].includes('-'))
+            // Si tiene un tipo de cambio de fase y es un fluido puro
+            cambiar_segun_tipo_y_cambio();
+        else{
+            // Si tiene un tipo de cambio de fase y es un fluido no registrado
+            // Básicamente hay que tratar todo como si fuera manual
+        }
 }
 
 const flujos_validos = (fve, fvs, fle, fls) => {

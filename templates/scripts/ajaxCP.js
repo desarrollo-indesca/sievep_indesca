@@ -1,3 +1,5 @@
+// Lógica de cuando se registrará un nuevo fluido
+
 $('.no-submit').click((e) => {
     e.preventDefault();
 });
@@ -124,16 +126,14 @@ $('#enviar_compuesto_carcasa_ficha').click((e) => {
     $('#condiciones_diseno_fluido_carcasaClose').click();
 });
 
+// Cálculo de Cp
+
 $('#temp_in_carcasa').keyup((e) => {
-    if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
-        ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
-    }
+    ajaxCPCarcasa();
 });
 
 $('#temp_out_carcasa').keyup((e) => {
-    if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
-        ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
-    }
+    ajaxCPCarcasa();
 });
 
 $('#fluido_carcasa').change((e) => {
@@ -152,15 +152,11 @@ $('#fluido_carcasa').change((e) => {
 });
 
 $('#temp_in_tubo').keyup((e) => {
-    if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
-         ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
-    }
+    ajaxCPTubo();
 });
 
 $('#temp_out_tubo').keyup((e) => {
-    if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
-         ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
-    }
+    ajaxCPTubo();
 });
 
 $('#fluido_tubo').change((e) => {
@@ -179,42 +175,52 @@ $('#fluido_tubo').change((e) => {
 });
 
 function ajaxCP(t1,t2,fluido, lado = 'T'){
-    if(lado === 'T'){
-        $('#cp_tubo').val('');
-        document.getElementById('cp_tubo').setAttribute('disabled', true);
-    }
-    else{
-        $('#cp_carcasa').val('');
-        document.getElementById('cp_carcasa').setAttribute('disabled', true);
-    }
-    
-    $.ajax({
-        url: '/intercambiadores/calcular_cp/',
-        data: {
-            t1,
-            t2,
-            fluido,
-            unidad: $('#unidad_temperaturas').val(),
-            unidad_salida: $('#unidad_cp').val()
-        },
-        success: (res) => {
-            if(res.cp !== '')
+    if(lado === 'T' && $('#cambio_fase_tubo').val() !== '-' && $('#tipo_cp_tubo').val() === 'A' 
+    || lado === 'C' && $('#cambio_fase_carcasa').val() !== '-' && $('#tipo_cp_carcasa').val() === 'A'){
+        let cambio_fase = lado === 'C' ? $('#cambio_fase_carcasa').val() : $('#cambio_fase_tubo').val();
+        $.ajax({
+            url: '/intercambiadores/calcular_cp/',
+            data: {
+                t1,
+                t2,
+                fluido,
+                unidad: $('#unidad_temperaturas').val(),
+                unidad_salida: $('#unidad_cp').val(),
+                cambio_fase
+            },
+            success: (res) => {
                 if(lado === 'T'){
-                    $('#cp_tubo').val(res.cp);
-                    $('#cp_tubo').removeAttr('disabled');
+
                 }
                 else{
-                    $('#cp_carcasa').val(res.cp);
-                    $('#cp_carcasa').removeAttr('disabled');
+                    if(cambio_fase === 'S')
+                        $('#cp_carcasa').val(res.cp);
+                    else{                        
+                        $('#cp_liquido_carcasa').val(res.cp_liquido);
+                        $('#cp_gas_carcasa').val(res.cp_gas);
+                    }
                 }
-        }, 
-        error: (res) => {
-            console.log(res);
-            $('#cp_tubo').removeAttr('disabled');
-            $('#cp_carcasa').removeAttr('disabled');
-        }
-    });
+            }, 
+            error: (res) => {
+                console.log(res);
+            }
+        });
+    }
 }
+
+function ajaxCPCarcasa(){
+    if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
+        ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
+    }
+}
+
+function ajaxCPTubo(){
+    if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
+        ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
+    }
+}
+
+// Cambio automático de unidades
 
 $('#unidad_temperaturas').change((e) => {
     if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
