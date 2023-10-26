@@ -186,7 +186,9 @@ function ajaxCP(t1,t2,fluido, lado = 'T'){
                 fluido,
                 unidad: $('#unidad_temperaturas').val(),
                 unidad_salida: $('#unidad_cp').val(),
-                cambio_fase
+                cambio_fase,
+                presion: lado === 'C' ? $('#presion_entrada_carcasa').val() : $('#presion_entrada_tubo').val(),
+                unidad_presiones: $('#unidad_presiones').val()
             },
             success: (res) => {
                 if(lado === 'T'){

@@ -193,6 +193,18 @@
                             </select>
                         </div>
                     </div>
+                    
+                    <div class="col-12">
+                        <label class="form-label" for="presion_entrada_carcasa">Presión Entrada:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{previo.presion_entrada_carcasa}}" style="width: 80% !important;" class="form-control" type="number" name="presion_entrada_carcasa" id="presion_entrada_carcasa" step="0.01" max="99999999.99" required>
+                            <select style="width: 20% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones">
+                                {% for unidad in unidades_presion %}
+                                <option value="{{unidad.pk|slugify}}" {% if previo.unidad_presiones == unidad.pk|slugify %}selected{%endif%}>{{unidad.simbolo}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
 
                     <div class="col-6">
                         <label class="form-label" for="temp_in_carcasa">Temperatura Entrada:</label>
@@ -316,19 +328,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    
-
-                    <div class="col-12">
-                        <label class="form-label" for="presion_entrada_carcasa">Presión Entrada:</label>
-                        <div class="input-group mb-3">
-                            <input value="{{previo.presion_entrada_carcasa}}" style="width: 80% !important;" class="form-control" type="number" name="presion_entrada_carcasa" id="presion_entrada_carcasa" step="0.01" max="99999999.99" required>
-                            <select style="width: 20% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones">
-                                {% for unidad in unidades_presion %}
-                                <option value="{{unidad.pk|slugify}}" {% if previo.unidad_presiones == unidad.pk|slugify %}selected{%endif%}>{{unidad.simbolo}}</option>
-                                {% endfor %}
-                            </select>
                         </div>
                     </div>
 

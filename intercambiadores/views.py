@@ -6,11 +6,11 @@ from .models import *
 from django.views.generic.list import ListView
 from django.db import transaction
 from django.contrib.auth.mixins import LoginRequiredMixin
-from thermo.chemical import search_chemical
+from thermo.chemical import search_chemical, Chemical
 from calculos.termodinamicos import calcular_cp
 from calculos.evaluaciones import evaluacion_tubo_carcasa, obtener_cambio_fase
 from reportes.pdfs import generar_pdf
-from calculos.unidades import transformar_unidades_temperatura, transformar_unidades_cp
+from calculos.unidades import transformar_unidades_temperatura, transformar_unidades_cp, transformar_unidades_presion
 
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
 
@@ -788,9 +788,9 @@ class ConsultaCP(LoginRequiredMixin, View):
         t1,t2 = float(request.GET['t1']), float(request.GET['t2'])
         unidad = int(request.GET['unidad'])
         unidad_salida = int(request.GET.get('unidad_salida')) if request.GET.get('unidad_salida') else 29
-
-        print(unidad_salida)
-        print(request.GET.get('unidad_salida'))
+        cambio_fase = request.GET['cambio_fase']
+        unidad_presiones = int(request.GET['unidad_presiones'])
+        presion = transformar_unidades_presion([float(request.GET.get('presion'))], unidad_presiones)[0] if request.GET.get('presion') else 1e5
 
         t1,t2 = transformar_unidades_temperatura([t1,t2], unidad=unidad)
 
@@ -802,10 +802,20 @@ class ConsultaCP(LoginRequiredMixin, View):
                     return JsonResponse({'cp': fluido.split('*')[1]})
             else:
                 cas = Fluido.objects.get(pk = fluido).cas
-        
-            cp = calcular_cp(cas, t1, t2, unidad_salida)
 
-            return JsonResponse({'cp': cp})
+            if(cambio_fase == 'S'):
+                cp = calcular_cp(cas, t1, t2, unidad_salida)
+                return JsonResponse({'cp': cp})
+            else:
+                tsat = Chemical(cas).Tsat(presion)
+                print(tsat)
+                if(t1 <= t2):
+                    cp_liq = calcular_cp(cas, t1, tsat)
+                    cp_gas = calcular_cp(cas, tsat, t2)
+                else:
+                    cp_liq = calcular_cp(cas, tsat, t2)
+                    cp_gas = calcular_cp(cas, t1, tsat)
+                return JsonResponse({'cp_liquido': cp_liq, 'cp_gas': cp_gas})
         else:
             return JsonResponse({'cp': ''})
         

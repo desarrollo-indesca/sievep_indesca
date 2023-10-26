@@ -83,10 +83,8 @@
                 <div class="input-group mb-2">
                     <input style="width: 60% !important;" class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_gas_carcasa" min="0.0001" id="cp_gas_carcasa" 
                     {% if not previo.cp_tubo %}disabled{% endif %} value="{{previo.cp_gas_carcasa}}">
-                    <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp">
-                        {% for unidad in unidades_cp %}
-                        <option value="{{unidad.pk|slugify}}">{{unidad}}</option>
-                        {% endfor %}
+                    <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
+                        <option value="">J/KgK</option>
                     </select>
                 </div>  
             </div>
