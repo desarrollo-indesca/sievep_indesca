@@ -4,6 +4,12 @@
   .tabla_ficha {
     width: 100% ;
   }
+  #tabla_ficha_contenido_body > tr > td{
+    width: 16.66%;
+  }
+  #tabla_ficha_contenido_body > tr > th{
+    width: 33% !important;
+  }
 </style>
 
 <div class="modal fade" id="ficha_{{intercambiador.pk}}" tabindex="-1" aria-labelledby="ficha_{{intercambiador.pk}}Label" aria-hidden="true">
@@ -52,7 +58,7 @@
                   </tbody>
                 </table>
                 <table class="table table-light text-center table-bordered tabla_ficha mt-0">
-                  <tbody>
+                  <tbody id="tabla_ficha_contenido_body">
                     <tr>
                       <th class="table-dark" colspan="6">
                         <div class="d-inline-flex align-items-center">

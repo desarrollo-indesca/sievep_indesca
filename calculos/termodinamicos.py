@@ -1,7 +1,7 @@
 from thermo.chemical import Chemical
 from thermo.mixture import Mixture
 import CoolProp.CoolProp as CP
-from unidades import transformar_unidades_cp
+from .unidades import transformar_unidades_cp
 import numpy
 
 def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida: int = 29, presion: float = 101325) -> float:
@@ -132,10 +132,3 @@ def entalpia_g_a_l(quimico: Chemical, t1: float, t2: float, presion: float, tsat
         h_liquido_subenfriado = numpy.ceil(quimico.HeatCapacityLiquid.T_dependent_property_integral(tsat,t1)/quimico.MW)
 
     return numpy.ceil(h_liquido_subenfriado+h_vapor_sobrecalentado+h_liquido_saturado)*1000
-
-quimico = Chemical('ethanol')
-cp_liquido = Chemical('ethanol', T=(273.15+273.15+70)/2).Cp
-cp_gas = Chemical('ethanol', T=100+273.15).Cp
-
-print(cp_liquido*(70) + quimico.Hvap_Tb + cp_gas+(100-70))
-print(calcular_entalpia_entre_puntos('ethanol', 273.15, 273.15+100, 101325))
