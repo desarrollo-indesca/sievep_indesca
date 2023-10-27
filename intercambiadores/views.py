@@ -804,17 +804,17 @@ class ConsultaCP(LoginRequiredMixin, View):
                 cas = Fluido.objects.get(pk = fluido).cas
 
             if(cambio_fase == 'S'):
-                cp = calcular_cp(cas, t1, t2, unidad_salida)
+                cp = calcular_cp(cas, t1, t2, unidad_salida, presion)
                 return JsonResponse({'cp': cp})
             else:
                 tsat = Chemical(cas).Tsat(presion)
                 print(tsat)
                 if(t1 <= t2):
-                    cp_liq = calcular_cp(cas, t1, tsat)
-                    cp_gas = calcular_cp(cas, tsat, t2)
+                    cp_liq = calcular_cp(cas, t1, tsat, unidad_salida, presion)
+                    cp_gas = calcular_cp(cas, tsat, t2, unidad_salida, presion)
                 else:
-                    cp_liq = calcular_cp(cas, tsat, t2)
-                    cp_gas = calcular_cp(cas, t1, tsat)
+                    cp_liq = calcular_cp(cas, tsat, t2, unidad_salida, presion)
+                    cp_gas = calcular_cp(cas, t1, tsat, unidad_salida, presion)
                 return JsonResponse({'cp_liquido': cp_liq, 'cp_gas': cp_gas})
         else:
             return JsonResponse({'cp': ''})

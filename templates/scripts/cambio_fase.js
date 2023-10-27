@@ -1,5 +1,6 @@
 $('#tipo_cp_carcasa').change(() => {
     cambiar_segun_tipo_y_cambio();
+    actualizar_fluidos("C");
 });
 
 function cambiar_segun_tipo_y_cambio(lado = 'C') {
@@ -38,5 +39,7 @@ function cambiar_segun_tipo_y_cambio(lado = 'C') {
         }
         else if($('#cambio_fase_carcasa').val() === '-')
             $('#cp_carcasa').attr('disabled',true);
+
+        anadir_listeners();
     }
 }

@@ -47,8 +47,7 @@ def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida: int = 29, pres
         if(cp == None):
             raise Exception     
     except: # Cálculo de Cp con Thermo (En caso de falla)
-        cp = quimico.Cp 
-        print("THERMO")
+        cp = quimico.Cp
 
     return round(transformar_unidades_cp([cp], 29, unidad_salida)[0], 4)
 

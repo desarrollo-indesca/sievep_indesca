@@ -20,7 +20,7 @@
 
     <div class="col-5">
         <div class="input-group mb-2">
-            <input style="width: 60% !important;" class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_carcasa" min="0.0001" id="cp_carcasa"
+            <input style="width: 60% !important;" class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_{{lado}}" min="0.0001" id="cp_{{lado}}"
             {% if not previo.cp_carcasa %}disabled{% endif %} value="{{previo.cp_carcasa}}">
             <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp">
                 {% for unidad in unidades_cp %}
@@ -31,27 +31,27 @@
     </div>
 
     <div class="col-2 d-flex justify-content-center align-items-start">
-        <button data-bs-toggle="modal" data-bs-target="#condiciones_diseno_fluido" class="btn btn-danger no-submit w-100">+</button>
-        <div class="modal fade" id="condiciones_diseno_fluido" tabindex="-1" aria-labelledby="condiciones_diseno_fluidoLabel" aria-hidden="true">
+        <button data-bs-toggle="modal" data-bs-target="#condiciones_diseno_fluido_{{lado}}" class="btn btn-danger no-submit w-100">+</button>
+        <div class="modal fade" id="condiciones_diseno_fluido_{{lado}}" tabindex="-1" aria-labelledby="condiciones_diseno_fluido_{{lado}}Label" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="condiciones_diseno_fluidoLabel">Registrar Fluido de Tubo</h5>
-                  <button id="condiciones_diseno_fluido_tuboLabel" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  <h5 class="modal-title" id="condiciones_diseno_fluido_{{lado}}Label">Registrar Fluido de Tubo</h5>
+                  <button id="condiciones_diseno_fluido_{{lado}}Close" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <h3 style="color: #e31e24;" class="text-center">Compuesto por Cp en Ficha</h3>
                     <div class="row">
                         <div class="col-5">
                             <label for="etiqueta">Nombre del Compuesto:</label>
-                            <input class="form-control" id="nombre_compuesto_tubo" type="text" maxlength="25">
+                            <input class="form-control" id="nombre_compuesto_{{lado}}" type="text" maxlength="25">
                         </div>
                         <div class="col-5">
                             <label for="etiqueta">Cp del Compuesto:</label>
-                            <input class="form-control" id="cp_compuesto_tubo"type="number" step="0.0001">
+                            <input class="form-control" id="cp_compuesto_{{lado}}"type="number" step="0.0001">
                         </div>
                         <div class="col-2 d-flex justify-content-center align-items-end">
-                            <button id="enviar_compuesto_tubo_ficha" class="btn btn-danger w-100 no-submit" disabled>Enviar</button>
+                            <button id="enviar_compuesto_{{lado}}_ficha" class="btn btn-danger w-100 no-submit" disabled>Enviar</button>
                         </div>
                     </div>
                   <hr>
@@ -59,14 +59,14 @@
                     <div class="row">
                         <div class="col-5">
                             <label for="etiqueta">Código CAS:</label>
-                            <input class="form-control" id="cas_compuesto_tubo" type="text" maxlength="25" pattern="[0-9]+-[0-9]+-[0-9]+">
+                            <input class="form-control" id="cas_compuesto_{{lado}}" type="text" maxlength="25" pattern="[0-9]+-[0-9]+-[0-9]+">
                         </div>
                         <div class="col-5">
                             <label for="etiqueta">Nombre:</label>
-                            <input class="form-control" id="nombre_compuesto_tubo_cas" type="text" maxlength="25">
+                            <input class="form-control" id="nombre_compuesto_{{lado}}_cas" type="text" maxlength="25">
                         </div>
                         <div class="col-2 d-flex justify-content-center align-items-end">
-                            <button id="guardar_datos_cas" class="no-submit btn btn-danger w-100" disabled>Enviar</button>
+                            <button id="guardar_datos_cas_{{lado}}" class="no-submit btn btn-danger w-100" disabled>Enviar</button>
                         </div>
                     </div>
                 </div>
