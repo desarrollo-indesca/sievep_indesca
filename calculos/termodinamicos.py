@@ -80,10 +80,10 @@ def entalpia_l_a_g(quimico: Chemical, t1: float, t2: float, presion: float, tsat
         Utiliza las integrales del Cp y el exceso dado por la librería thermo.
     """
     try:
-        h_liquido_subenfriado = numpy.ceil(quimico.HeatCapacityLiquid.T_dependent_property_integral(t1,tsat)/quimico.MW  
+        h_liquido = numpy.ceil(quimico.HeatCapacityLiquid.T_dependent_property_integral(t1,tsat)/quimico.MW  
                                 - quimico.calc_H_excess(T=tsat, P=presion)/1000)
     except:
-        h_liquido_subenfriado = numpy.ceil(quimico.HeatCapacityLiquid.T_dependent_property_integral(t1,tsat)/quimico.MW)
+        h_liquido = numpy.ceil(quimico.HeatCapacityLiquid.T_dependent_property_integral(t1,tsat)/quimico.MW)
 
     quimico.calculate(tsat, P=presion)
 
@@ -95,12 +95,12 @@ def entalpia_l_a_g(quimico: Chemical, t1: float, t2: float, presion: float, tsat
     quimico.calculate(t2, P=presion)
 
     try:
-        h_vapor_sobrecalentado = numpy.ceil(quimico.HeatCapacityGas.T_dependent_property_integral(tsat,t2)/quimico.MW
+        h_vapor = numpy.ceil(quimico.HeatCapacityGas.T_dependent_property_integral(tsat,t2)/quimico.MW
                                     - quimico.calc_H_excess(T=t2, P=presion)/1000)
     except:
-        h_vapor_sobrecalentado = numpy.ceil(quimico.HeatCapacityGas.T_dependent_property_integral(tsat,t2)/quimico.MW)
+        h_vapor = numpy.ceil(quimico.HeatCapacityGas.T_dependent_property_integral(tsat,t2)/quimico.MW)
 
-    return numpy.ceil(h_liquido_subenfriado+h_vapor_sobrecalentado+h_liquido_saturado)*1000
+    return numpy.ceil(h_liquido+h_vapor+h_liquido_saturado)*1000 # J/Kg
 
 def entalpia_g_a_l(quimico: Chemical, t1: float, t2: float, presion: float, tsat: float) -> float:
     """
@@ -110,10 +110,10 @@ def entalpia_g_a_l(quimico: Chemical, t1: float, t2: float, presion: float, tsat
     """
 
     try:
-        h_vapor_sobrecalentado = numpy.ceil(quimico.HeatCapacityGas.T_dependent_property_integral(t1,tsat)/quimico.MW
+        h_vapor = numpy.ceil(quimico.HeatCapacityGas.T_dependent_property_integral(t1,tsat)/quimico.MW
                                 - quimico.calc_H_excess(T=tsat, P=presion)/1000) 
     except:
-        h_vapor_sobrecalentado = numpy.ceil(quimico.HeatCapacityGas.T_dependent_property_integral(t1,tsat)/quimico.MW) 
+        h_vapor = numpy.ceil(quimico.HeatCapacityGas.T_dependent_property_integral(t1,tsat)/quimico.MW) 
     
     quimico.calculate(tsat, P=presion)
 
@@ -125,9 +125,9 @@ def entalpia_g_a_l(quimico: Chemical, t1: float, t2: float, presion: float, tsat
     quimico.calculate(t2, P=presion)
     
     try:
-        h_liquido_subenfriado = numpy.ceil(quimico.HeatCapacityLiquid.T_dependent_property_integral(tsat,t1)/quimico.MW  
+        h_liquido = numpy.ceil(quimico.HeatCapacityLiquid.T_dependent_property_integral(tsat,t1)/quimico.MW  
                                 - quimico.calc_H_excess(T=tsat, P=presion)/1000)
     except:
-        h_liquido_subenfriado = numpy.ceil(quimico.HeatCapacityLiquid.T_dependent_property_integral(tsat,t1)/quimico.MW)
+        h_liquido = numpy.ceil(quimico.HeatCapacityLiquid.T_dependent_property_integral(tsat,t1)/quimico.MW)
 
-    return numpy.ceil(h_liquido_subenfriado+h_vapor_sobrecalentado+h_liquido_saturado)*1000
+    return numpy.ceil(h_liquido+h_vapor+h_liquido_saturado)*1000 # J/Kg
