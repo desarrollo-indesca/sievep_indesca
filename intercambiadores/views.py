@@ -808,10 +808,10 @@ class ConsultaCP(LoginRequiredMixin, View):
                 return JsonResponse({'cp': cp})
             elif(cambio_fase == 'P'): # Cambio de Fase Parcial
                 flujos = {
-                    'flujo_vapor_in': float(request.GET['flujo_vapor_in']),
-                    'flujo_vapor_out': float(request.GET['flujo_vapor_out']),
-                    'flujo_liquido_in': float(request.GET['flujo_liquido_in']),
-                    'flujo_liquido_out': float(request.GET['flujo_liquido_out'])
+                    'flujo_vapor_in': float(request.GET['flujo_vapor_in']) if request.GET.get('flujo_vapor_in') else 0,
+                    'flujo_vapor_out': float(request.GET['flujo_vapor_out']) if request.GET.get('flujo_vapor_out') else 0,
+                    'flujo_liquido_in': float(request.GET['flujo_liquido_in']) if request.GET.get('flujo_liquido_in') else 0,
+                    'flujo_liquido_out': float(request.GET['flujo_liquido_out']) if request.GET.get('flujo_liquido_out') else 0
                 }
                 caso = determinar_cambio_parcial(**flujos)
 

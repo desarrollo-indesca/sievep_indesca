@@ -181,6 +181,7 @@ function anadir_listeners_registro() {
 // Cálculo de Cp
 
 function ajaxCP(t1,t2,fluido, lado = 'T'){
+    console.log("A");
     if(lado === 'T' && $('#cambio_fase_tubo').val() !== '-' && $('#tipo_cp_tubo').val() === 'A' 
     || lado === 'C' && $('#cambio_fase_carcasa').val() !== '-' && $('#tipo_cp_carcasa').val() === 'A'){
         let cambio_fase = lado === 'C' ? $('#cambio_fase_carcasa').val() : $('#cambio_fase_tubo').val();

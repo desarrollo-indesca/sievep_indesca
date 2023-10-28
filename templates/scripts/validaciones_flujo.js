@@ -54,6 +54,34 @@ const determinar_cambio_de_fase_tubo = () => {
     );
 
     $('#cambio_fase_tubo').val(cambio_fase).change();
+
+    if(cambio_fase !== '-'){
+        if(Number($('#fluido_tubo').val()) || $('#fluido_tubo').val().split('*')[1].includes('-'))
+            // Si tiene un tipo de cambio de fase y es un fluido puro
+            cambiar_segun_tipo_y_cambio('T');
+        else{
+            // Si tiene un tipo de cambio de fase y es un fluido no registrado, se trata todo manual
+            $.ajax({
+                url: '/intercambiadores/renderizar/', data: {
+                    'lado': 'T',
+                    'cambio_fase': $('#cambio_fase_tubo').val()
+                }, success: (res) => {
+                    $('#parte_dinamica_tubo').html(res);
+                    $('#cp_tubo').removeAttr('disabled');
+                    $('#cp_liquido_tubo').removeAttr('disabled');
+                    $('#cp_gas_tubo').removeAttr('disabled');
+                }, error: (res) => {
+                    console.log(res);
+                },
+                async: false
+            });
+        }
+
+        actualizar_fluidos('T');
+        actualizar_tipos('T');
+    }
+
+    anadir_listeners();
 }
 
 const determinar_cambio_de_fase_carcasa = () => {
