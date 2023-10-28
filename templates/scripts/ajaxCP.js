@@ -194,13 +194,28 @@ function ajaxCP(t1,t2,fluido, lado = 'T'){
                 unidad_salida: $('#unidad_cp').val(),
                 cambio_fase,
                 presion: lado === 'C' ? $('#presion_entrada_carcasa').val() : $('#presion_entrada_tubo').val(),
-                unidad_presiones: $('#unidad_presiones').val()
+                unidad_presiones: $('#unidad_presiones').val(),
+                flujo_vapor_in: lado === 'C' ? $('#flujo_vapor_in_carcasa').val() : $('#flujo_vapor_in_tubo').val(),
+                flujo_vapor_out: lado === 'C' ? $('#flujo_vapor_out_carcasa').val() : $('#flujo_vapor_out_tubo').val(),
+                flujo_liquido_in: lado === 'C' ? $('#flujo_liquido_in_carcasa').val() : $('#flujo_liquido_in_tubo').val(),
+                flujo_liquido_out: lado === 'C' ? $('#flujo_liquido_out_carcasa').val() : $('#flujo_liquido_out_tubo').val()
             },
             success: (res) => {
                 if(lado === 'T'){
+                    if(cambio_fase !== '-' && res.cp !== '' && $('#cambio_fase_carcasa').val() !== '-')
+                        $('button[type="submit"]').removeAttr('disabled');
 
+                    if(cambio_fase === 'S')
+                        $('#cp_tubo').val(res.cp);
+                    else{                        
+                        $('#cp_liquido_tubo').val(res.cp_liquido);
+                        $('#cp_gas_tubo').val(res.cp_gas);
+                    }
                 }
                 else{
+                    if(cambio_fase !== '-' && res.cp !== '' && $('#cambio_fase_tubo').val() !== '-')
+                        $('button[type="submit"]').removeAttr('disabled');
+
                     if(cambio_fase === 'S')
                         $('#cp_carcasa').val(res.cp);
                     else{                        
@@ -210,7 +225,7 @@ function ajaxCP(t1,t2,fluido, lado = 'T'){
                 }
             }, 
             error: (res) => {
-                console.log(res);
+                $('button[type="submit"]').attr('disabled', true);
             }
         });
     }

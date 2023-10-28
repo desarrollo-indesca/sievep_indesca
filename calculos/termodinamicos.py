@@ -4,49 +4,36 @@ import CoolProp.CoolProp as CP
 from .unidades import transformar_unidades_cp
 import numpy
 
-def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida: int = 29, presion: float = 101325) -> float:
+def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida: int = 29, presion: float = 101325, fase: str = 'a') -> float:
     """
     Resumen:
-        Función para el cálculo de la capacidad calorífica del fluido mediante el CAS del fluido,
-        temperatura de entrada y temperatura de salida.
+        Función para el cálculo de la capacidad calorífica del fluido mediante
+        el CAS del fluido, temperatura de entrada y temperatura de salida.
 
     Parámetros:
         fluido: str -> CAS del fluido
         t1: float -> Temperatura inicial (K)
         t2: float -> Temperatura final (K)
         unidad_salida: int -> ID de la unidad de salida
-        presion: float -> Presión
+        presion: float -> Presión para el cálculo (Pa). El default es 101325Pa.
+        fase: string -> 'a' es automático. 'g' es gas. 'l' líquido.
     
     Devuelve:
-        float: Cp del fluido en esas condiciones 
+        float: Cp del fluido en esas condiciones
     """
     
-    t = numpy.mean([t1, t2])
+    t = numpy.mean([t1, t2]) # Promedio de temperaturas
     
     if(fluido == '132259-10-0'): # Caso especial del Aire
-        try: # Cálculo de Cp con CoolProp (Preferido)
-            cp = CP.PropsSI('C','T',t,'P',presion,'air')
-        except: # Cálculo de Cp con Thermo (En caso de falla)
-            quimico = Mixture('air',T=t,P=presion)
-            cp = quimico.Cp
-
-    quimico = Chemical(fluido,T=t,P=presion)
-    
-    try: # Cálculo de Cp con CoolProp (Preferido)
-        cp = None
-        
-        # Conseguir nombre válido en CoolProp
-        for i in range(5):
-            try:
-                name = quimico.synonyms[i].title().replace(' ','').replace('O-','o-').replace('N-','n-').replace('P-','p-')
-                cp = CP.PropsSI('C','T',t,'P',presion,name)
-                break
-            except:
-                continue
-        
-        if(cp == None):
-            raise Exception     
-    except: # Cálculo de Cp con Thermo (En caso de falla)
+        quimico = Mixture('air',T=t,P=presion)
+    else: # Demás casos
+        quimico = Chemical(fluido,T=t,P=presion)
+ 
+    if(fase == 'l'): # Líquido
+        cp = quimico.Cpl
+    elif(fase == 'g'): # Gase
+        cp = quimico.Cpg
+    else: # Automático
         cp = quimico.Cp
 
     return round(transformar_unidades_cp([cp], 29, unidad_salida)[0], 4)
