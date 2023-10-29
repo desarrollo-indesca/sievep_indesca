@@ -45,7 +45,6 @@ function cambiar_segun_tipo_y_cambio(lado = 'C') {
         else if($('#cambio_fase_carcasa').val() === '-')
             $('#cp_carcasa').attr('disabled',true);
     } else if(lado === 'T'){
-        console.log("HACIENDO LO DE TUBO XD");
         $.ajax({
             url: '/intercambiadores/renderizar/', data: {
                 'lado': 'T',
