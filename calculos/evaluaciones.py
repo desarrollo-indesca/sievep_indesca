@@ -151,6 +151,18 @@ def obtener_cambio_fase(flujo_vapor_in: float, flujo_vapor_out: float, flujo_liq
         else:
             return "P"
 
+def determinar_cambio_parcial(flujo_vapor_in: float, flujo_vapor_out: float, flujo_liquido_in: float, flujo_liquido_out: float):
+    if(flujo_vapor_in == 0): # Líquido a Domo
+        return "LD"
+    elif(flujo_liquido_in == 0): # Vapor a Domo
+        return "VD"
+    elif(flujo_liquido_out == 0): # Domo a Vapor
+        return "DV"
+    elif(flujo_vapor_out == 0): # Domo a Líquido
+        return "DL"
+    else: # Domo a Domo
+        return "DD"
+
 def truncar(numero: float, decimales: int = 2) -> float:
     """
     Resumen:

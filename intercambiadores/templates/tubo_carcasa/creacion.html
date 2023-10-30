@@ -506,6 +506,24 @@
                         </div>
                     </div>
 
+                    <div class="col-12">
+                        <label class="form-label" for="presion_entrada_tubo">Presión Entrada:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{previo.presion_entrada_tubo}}" style="width: 80% !important;" class="form-control" type="number" name="presion_entrada_tubo" id="presion_entrada_tubo" step="0.01" max="99999999.99" required>
+                            <select style="width: 20% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
+                                {% if previo.unidad_presiones %}
+                                {% for unidad in unidades_presion %}
+                                {% if unidad.pk|slugify == previo.unidad_presiones %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% endfor %}
+                                {% else %}
+                                <option value="1">bar</option>
+                                {%endif%}
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="col-6">
                         <label class="form-label" for="temp_in_tubo">Temperatura Entrada:</label>
                         <div class="input-group mb-3">
@@ -541,6 +559,16 @@
                             </select>
                         </div>
                     </div>
+
+                    <div class="col-12 d-flex justify-content-center mb-2">
+                        <div style="width: 50%;">
+                            <label for="tipo_cp_tubo">Cálculo del Cp:</label>
+                            <select class="form-select" name="tipo_cp_tubo" id="tipo_cp_tubo">
+                                <option value="A">Automático</option>
+                                <option value="M">Manual</option>
+                            </select>
+                        </div>
+                    </div>                    
 
                     <div class="col-12" id="parte_dinamica_tubo">
                         <div class="row">
@@ -588,7 +616,7 @@
                                       <div class="modal-content">
                                         <div class="modal-header">
                                           <h5 class="modal-title" id="condiciones_diseno_fluidoLabel">Registrar Fluido de Tubo</h5>
-                                          <button id="condiciones_diseno_fluido_tuboLabel" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          <button id="condiciones_diseno_fluido_tuboClose" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
                                             <h3 style="color: #e31e24;" class="text-center">Compuesto por Cp en Ficha</h3>
@@ -617,7 +645,7 @@
                                                     <input class="form-control" id="nombre_compuesto_tubo_cas" type="text" maxlength="25">
                                                 </div>
                                                 <div class="col-2 d-flex justify-content-center align-items-end">
-                                                    <button id="guardar_datos_cas" class="no-submit btn btn-danger w-100" disabled>Enviar</button>
+                                                    <button id="guardar_datos_cas_tubo" class="no-submit btn btn-danger w-100" disabled>Enviar</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -625,24 +653,6 @@
                                     </div>
                                 </div>                    
                             </div>                            
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <label class="form-label" for="presion_entrada_tubo">Presión Entrada:</label>
-                        <div class="input-group mb-3">
-                            <input value="{{previo.presion_entrada_tubo}}" style="width: 80% !important;" class="form-control" type="number" name="presion_entrada_tubo" id="presion_entrada_tubo" step="0.01" max="99999999.99" required>
-                            <select style="width: 20% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
-                                {% if previo.unidad_presiones %}
-                                {% for unidad in unidades_presion %}
-                                {% if unidad.pk|slugify == previo.unidad_presiones %}
-                                <option>{{unidad}}</option>
-                                {%endif%}
-                                {% endfor %}
-                                {% else %}
-                                <option value="1">bar</option>
-                                {%endif%}
-                            </select>
                         </div>
                     </div>
 
