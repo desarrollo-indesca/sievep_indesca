@@ -118,3 +118,11 @@ def entalpia_g_a_l(quimico: Chemical, t1: float, t2: float, presion: float, tsat
         h_liquido = numpy.ceil(quimico.HeatCapacityLiquid.T_dependent_property_integral(tsat,t1)/quimico.MW)
 
     return numpy.ceil(h_liquido+h_vapor+h_liquido_saturado)*1000 # J/Kg
+
+def calcular_fase(cas: str, t1: float, t2: float, presion) -> str:
+    """
+    Resumen:
+        Esta función calculará la fase del fluido de los datos dados.
+    """
+
+    return Chemical(cas,T=numpy.mean([t1,t2]), P=presion).phase

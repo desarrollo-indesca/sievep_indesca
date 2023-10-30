@@ -1,8 +1,5 @@
 // Lógica de cuando se registrará un nuevo fluido
 
-let fluidos_tubo = [];
-let fluidos_carcasa = [];
-
 function anadir_listeners_registro() {
     $('.no-submit').click((e) => {
         e.preventDefault();
@@ -125,29 +122,31 @@ function anadir_listeners_registro() {
         const cambio_fase = $('#cambio_fase_tubo').val();
 
         document.getElementById('fluido_tubo').innerHTML += `<option value="${valor}" selected>${document.getElementById('nombre_compuesto_tubo').value.toUpperCase()}</option>`;
-       
-        if(cambio_fase === 'S')
-            document.getElementById('cp_tubo').value = document.getElementById('cp_compuesto_tubo').value;
+        console.log('A');
+        if(cambio_fase === 'S'){
+            // De acuerdo a lo flujos dados determinar cual se activa y desactiva
+            if(Number($('#flujo_liquido_in_tubo').val()) !== 0 && Number($('#flujo_liquido_in_tubo').val()) === Number($('#flujo_liquido_out_tubo').val())){
+                $('#cp_liquido_tubo').removeAttr('disabled');
+                $('#cp_liquido_tubo').val(document.getElementById('cp_compuesto_tubo').value);
+                $('#cp_gas_tubo').attr('disabled', true);
+                $('#cp_gas_tubo').val('');             
+            }
+            else if(Number($('#flujo_vapor_in_tubo').val()) !== 0 && Number($('#flujo_vapor_in_tubo').val()) === Number($('#flujo_vapor_out_tubo').val())){
+                $('#cp_gas_tubo').removeAttr('disabled');
+                $('#cp_gas_tubo').val(document.getElementById('cp_compuesto_tubo').value);
+                $('#cp_liquido_tubo').attr('disabled', true);
+                $('#cp_liquido_tubo').val('');            
+            }
+        }
         else if (cambio_fase !== '-'){
-            document.getElementById('cp_liquido_tubo').value = document.getElementById('cp_compuesto_tubo').value;
-            document.getElementById('cp_gas_tubo').value = document.getElementById('cp_compuesto_tubo').value;
+            $('#cp_liquido_carcasa').removeAttr('disabled');
+            $('#cp_gas_carcasa').removeAttr('disabled');
+            document.getElementById('cp_liquido_carcasa').value = document.getElementById('cp_compuesto_carcasa').value;
+            document.getElementById('cp_gas_carcasa').value = document.getElementById('cp_compuesto_carcasa').value;
         }
 
-        fluidos_tubo.forEach(x => {
-            x.selecto = false;
-        });
-
-        fluidos_tubo.push({'nombre': document.getElementById('nombre_compuesto_tubo').value.toUpperCase(), 
-            'valor': valor, 'selecto': true});
-
-        console.log(fluidos_tubo);
-
-        $('#cp_tubo').removeAttr('disabled');
-        $('#cp_liquido_tubo').removeAttr('disabled');
-        $('#cp_gas_tubo').removeAttr('disabled');
-    
-        $('#condiciones_diseno_fluido_tuboClose').click();
-        actualizar_tipos('T');
+        $('#condiciones_diseno_fluido_carcasaClose').click();
+        actualizar_tipos('C');
     });
     
     $('#nombre_compuesto_carcasa').keyup((e) => {
@@ -169,23 +168,27 @@ function anadir_listeners_registro() {
         const cambio_fase = $('#cambio_fase_carcasa').val();
         document.getElementById('fluido_carcasa').innerHTML += `<option value="${valor}" selected>${document.getElementById('nombre_compuesto_carcasa').value.toUpperCase()}</option>`;
         
-        if(cambio_fase === 'S')
-            document.getElementById('cp_carcasa').value = document.getElementById('cp_compuesto_carcasa').value;
+        if(cambio_fase === 'S'){
+            // De acuerdo a lo flujos dados determinar cual se activa y desactiva
+            if(Number($('#flujo_liquido_in_carcasa').val()) !== 0 && Number($('#flujo_liquido_in_carcasa').val()) === Number($('#flujo_liquido_out_carcasa').val())){
+                $('#cp_liquido_carcasa').removeAttr('disabled');
+                $('#cp_liquido_carcasa').val(document.getElementById('cp_compuesto_carcasa').value);
+                $('#cp_gas_carcasa').attr('disabled', true);
+                $('#cp_gas_carcasa').val('');             
+            }
+            else if(Number($('#flujo_vapor_in_carcasa').val()) !== 0 && Number($('#flujo_vapor_in_carcasa').val()) === Number($('#flujo_vapor_out_carcasa').val())){
+                $('#cp_gas_carcasa').removeAttr('disabled');
+                $('#cp_gas_carcasa').val(document.getElementById('cp_compuesto_carcasa').value);
+                $('#cp_liquido_carcasa').attr('disabled', true);  
+                $('#cp_liquido_carcasa').val('');          
+            }
+        }
         else if (cambio_fase !== '-'){
+            $('#cp_liquido_carcasa').removeAttr('disabled');
+            $('#cp_gas_carcasa').removeAttr('disabled');
             document.getElementById('cp_liquido_carcasa').value = document.getElementById('cp_compuesto_carcasa').value;
             document.getElementById('cp_gas_carcasa').value = document.getElementById('cp_compuesto_carcasa').value;
         }
-
-        fluidos_carcasa.forEach(x => {
-            x.selecto = false;
-        });
-
-        fluidos_carcasa.push({'nombre': document.getElementById('nombre_compuesto_carcasa').value.toUpperCase(), 
-            'valor': valor, 'selecto': true});
-
-        $('#cp_carcasa').removeAttr('disabled');
-        $('#cp_liquido_carcasa').removeAttr('disabled');
-        $('#cp_gas_carcasa').removeAttr('disabled');
 
         $('#condiciones_diseno_fluido_carcasaClose').click();
         actualizar_tipos('C');
@@ -195,7 +198,6 @@ function anadir_listeners_registro() {
 // Cálculo de Cp
 
 function ajaxCP(t1,t2,fluido, lado = 'T'){
-    console.log("A");
     if(lado === 'T' && $('#cambio_fase_tubo').val() !== '-' && $('#tipo_cp_tubo').val() === 'A' 
     || lado === 'C' && $('#cambio_fase_carcasa').val() !== '-' && $('#tipo_cp_carcasa').val() === 'A'){
         let cambio_fase = lado === 'C' ? $('#cambio_fase_carcasa').val() : $('#cambio_fase_tubo').val();
@@ -221,7 +223,14 @@ function ajaxCP(t1,t2,fluido, lado = 'T'){
                         $('button[type="submit"]').removeAttr('disabled');
 
                     if(cambio_fase === 'S')
-                        $('#cp_tubo').val(res.cp);
+                        if(res.fase === 'g'){
+                            $('#cp_gas_tubo').val(res.cp);
+                            $('#cp_liquido_tubo').val('');
+                        }
+                        else{
+                            $('#cp_liquido_tubo').val(res.cp);
+                            $('#cp_gas_tubo').val('');
+                        }
                     else{                        
                         $('#cp_liquido_tubo').val(res.cp_liquido);
                         $('#cp_gas_tubo').val(res.cp_gas);
@@ -232,7 +241,14 @@ function ajaxCP(t1,t2,fluido, lado = 'T'){
                         $('button[type="submit"]').removeAttr('disabled');
 
                     if(cambio_fase === 'S')
-                        $('#cp_carcasa').val(res.cp);
+                        if(res.fase === 'g'){
+                            $('#cp_gas_carcasa').val(res.cp);
+                            $('#cp_liquido_carcasa').val('');
+                        }
+                        else{
+                            $('#cp_liquido_carcasa').val(res.cp);
+                            $('#cp_gas_carcasa').val('');
+                        }
                     else{                        
                         $('#cp_liquido_carcasa').val(res.cp_liquido);
                         $('#cp_gas_carcasa').val(res.cp_gas);
@@ -275,15 +291,11 @@ function anadir_listeners_cp() {
             else{
                 const splitted = val.split('*');
                 if(Number(splitted[1]))
-                    $('#cp_carcasa').val(Number(splitted[1]));
+                   console.log("carcasa");
                 else
                     ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), val, 'C');
             }
         }
-        
-        fluidos_carcasa.forEach((x) => {
-            x.selecto = x.valor === e.target.value;
-        });
 
         actualizar_tipos('C');
     });
@@ -304,15 +316,11 @@ function anadir_listeners_cp() {
             else{
                 const splitted = val.split('*');
                 if(Number(splitted[1]))
-                    $('#cp_tubo').val(Number(splitted[1]));
+                    console.log("tubo");
                 else
                     ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), val, 'T');
             }
         }
-
-        fluidos_tubo.forEach((x) => {
-            x.selecto = x.valor === e.target.value;
-        });
 
         actualizar_tipos('T');
     });
@@ -398,28 +406,10 @@ function anadir_listeners_unidades() {
     });    
 }
 
-$(document).ready(() => {
-    $('#fluido_carcasa > option').toArray().forEach(elemento => {
-        fluidos_tubo.push({'nombre': elemento.innerHTML, 'valor': elemento.value, 'selecto': $(elemento).is(':selected')})
-        fluidos_carcasa.push({'nombre': elemento.innerHTML, 'valor': elemento.value, 'selecto': $(elemento).is(':selected')});
-    });
-});
-
 function anadir_listeners() {
     anadir_listeners_registro();
     anadir_listeners_cp();
     anadir_listeners_unidades();
-}
-
-function actualizar_fluidos(lado = "T") {
-    if(lado === 'T')
-        fluidos_tubo.forEach((x) => {
-            document.getElementById('fluido_tubo').innerHTML += `<option value="${x.valor}" ${x.selecto ? 'selected' : ''}>${x.nombre}</option>`;
-        });
-    else
-        fluidos_carcasa.forEach((x) => {
-            document.getElementById('fluido_carcasa').innerHTML += `<option value="${x.valor}" ${x.selecto ? 'selected' : ''}>${x.nombre}</option>`;
-        });
 }
 
 function actualizar_tipos(lado = "T") {
@@ -434,8 +424,7 @@ function actualizar_tipos(lado = "T") {
         `);
 
         if($(id_cdf).val() === 'S'){
-            const id_cp = lado === 'T' ? '#cp_tubo' : '#cp_carcasa';
-            $(id_cp).removeAttr('disabled');
+            cambiar_accesibilidad_por_fase(lado);
         }
         else{
             const id_cp_liq = lado === 'T' ? '#cp_liquido_tubo' : '#cp_liquido_carcasa';
@@ -448,18 +437,12 @@ function actualizar_tipos(lado = "T") {
         $(id).html(`
             <option value="A">Automático</option>
             <option value="M">Manual</option>
-        `);  
+        `);
 
-        if($(id_cdf).val() === 'S'){
-            const id_cp = lado === 'T' ? '#cp_tubo' : '#cp_carcasa';
-            $(id_cp).attr('disabled', true);
-        }
-        else{
-            const id_cp_liq = lado === 'T' ? '#cp_liquido_tubo' : '#cp_liquido_carcasa';
-            const id_cp_gas = lado === 'T' ? '#cp_gas_tubo' : '#cp_gas_carcasa';
-            $(id_cp_liq).attr('disabled', true);  
-            $(id_cp_gas).attr('disabled', true);            
-        }
+        const id_cp_liq = lado === 'T' ? '#cp_liquido_tubo' : '#cp_liquido_carcasa';
+        const id_cp_gas = lado === 'T' ? '#cp_gas_tubo' : '#cp_gas_carcasa';
+        $(id_cp_liq).attr('disabled', true);  
+        $(id_cp_gas).attr('disabled', true);            
     }
 }
 

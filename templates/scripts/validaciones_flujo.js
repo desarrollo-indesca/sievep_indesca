@@ -61,23 +61,13 @@ const determinar_cambio_de_fase_tubo = () => {
             cambiar_segun_tipo_y_cambio('T');
         else{
             // Si tiene un tipo de cambio de fase y es un fluido no registrado, se trata todo manual
-            $.ajax({
-                url: '/intercambiadores/renderizar/', data: {
-                    'lado': 'T',
-                    'cambio_fase': $('#cambio_fase_tubo').val()
-                }, success: (res) => {
-                    $('#parte_dinamica_tubo').html(res);
-                    $('#cp_tubo').removeAttr('disabled');
-                    $('#cp_liquido_tubo').removeAttr('disabled');
-                    $('#cp_gas_tubo').removeAttr('disabled');
-                }, error: (res) => {
-                    console.log(res);
-                },
-                async: false
-            });
+            if(cambio_fase === 'S')
+                cambiar_accesibilidad_por_fase('T');
+            else{
+                $('#cp_liquido_tubo').removeAttr('disabled');
+                $('#cp_gas_tubo').removeAttr('disabled');  
+            }   
         }
-
-        actualizar_fluidos('T');
         actualizar_tipos('T');
     }
 
@@ -101,27 +91,16 @@ const determinar_cambio_de_fase_carcasa = () => {
             cambiar_segun_tipo_y_cambio();
         else{
             // Si tiene un tipo de cambio de fase y es un fluido no registrado, se trata todo manual
-            $.ajax({
-                url: '/intercambiadores/renderizar/', data: {
-                    'lado': 'C',
-                    'cambio_fase': $('#cambio_fase_carcasa').val()
-                }, success: (res) => {
-                    $('#parte_dinamica_carcasa').html(res);
-                    $('#cp_carcasa').removeAttr('disabled');
-                    $('#cp_liquido_carcasa').removeAttr('disabled');
-                    $('#cp_gas_carcasa').removeAttr('disabled');
-                }, error: (res) => {
-                    console.log(res);
-                },
-                async: false
-            });
+            if(cambio_fase === 'S')
+                cambiar_accesibilidad_por_fase('T');
+            else{
+                $('#cp_liquido_carcasa').removeAttr('disabled');
+                $('#cp_gas_carcasa').removeAttr('disabled');  
+            }   
         }
 
-        actualizar_fluidos('C');
         actualizar_tipos('C');
     }
-
-    anadir_listeners();
 }
 
 const flujos_validos = (fve, fvs, fle, fls) => {

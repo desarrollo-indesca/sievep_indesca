@@ -18,8 +18,5 @@ urlpatterns = [
     path('consultar_cas/', ConsultaCAS.as_view(), name="consultar_cas"),
     path('calcular_cp/', ConsultaCP.as_view(), name="consultar_cp"),
     path('evaluar/tubo_carcasa/<int:pk>/', EvaluarTuboCarcasa.as_view(), name="evaluar_tubo_carcasa"),
-    path('evaluar/tubo_carcasa/grafica/<int:pk>/', ConsultaGraficasEvaluacion.as_view(), name="evaluar_tubo_carcasa"),
-
-    # AJAX adicionales
-    path('renderizar/',RenderizarCambioFase.as_view(), name="renderizar_cambio_de_fase")
+    path('evaluar/tubo_carcasa/grafica/<int:pk>/', ConsultaGraficasEvaluacion.as_view(), name="evaluar_tubo_carcasa")
 ]

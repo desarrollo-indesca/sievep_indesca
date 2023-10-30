@@ -7,7 +7,7 @@ from django.views.generic.list import ListView
 from django.db import transaction
 from django.contrib.auth.mixins import LoginRequiredMixin
 from thermo.chemical import search_chemical, Chemical
-from calculos.termodinamicos import calcular_cp
+from calculos.termodinamicos import calcular_cp, calcular_fase
 from calculos.evaluaciones import evaluacion_tubo_carcasa, obtener_cambio_fase, determinar_cambio_parcial
 from reportes.pdfs import generar_pdf
 from calculos.unidades import transformar_unidades_temperatura, transformar_unidades_cp, transformar_unidades_presion
@@ -697,21 +697,6 @@ class SeleccionTipo(LoginRequiredMixin, View):
         return render(request, 'seleccion_tipo.html', context=self.context)
 
 # VISTAS AJAX
-
-class RenderizarCambioFase(LoginRequiredMixin, View):
-    def get(self, request):
-        context = {}
-        context['lado'] = 'tubo' if request.GET['lado'] == 'T' else 'carcasa'
-        cambio_fase = request.GET['cambio_fase']
-
-        context['fluidos'] = Fluido.objects.all()
-        context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
-
-        if(cambio_fase == 'S'):
-            return render(request, 'partials/cp_scdf.html', context)
-        else:
-            return render(request, 'partials/cp_cdf.html', context)
-
 class EvaluarTuboCarcasa(LoginRequiredMixin, View):
     """
     Resumen:
@@ -804,8 +789,15 @@ class ConsultaCP(LoginRequiredMixin, View):
                 cas = Fluido.objects.get(pk = fluido).cas
 
             if(cambio_fase == 'S'): # Sin Cambio de Fase
-                cp = calcular_cp(cas, t1, t2, unidad_salida, presion)
-                return JsonResponse({'cp': cp})
+                flujos = {
+                    'flujo_vapor_in': float(request.GET['flujo_vapor_in']) if request.GET.get('flujo_vapor_in') else 0,
+                    'flujo_vapor_out': float(request.GET['flujo_vapor_out']) if request.GET.get('flujo_vapor_out') else 0,
+                    'flujo_liquido_in': float(request.GET['flujo_liquido_in']) if request.GET.get('flujo_liquido_in') else 0,
+                    'flujo_liquido_out': float(request.GET['flujo_liquido_out']) if request.GET.get('flujo_liquido_out') else 0
+                }
+                fase = 'g' if flujos['flujo_vapor_in'] != 0 else 'l'
+                cp = calcular_cp(cas, t1, t2, unidad_salida, presion, fase)
+                return JsonResponse({'cp': cp, 'fase': fase})
             elif(cambio_fase == 'P'): # Cambio de Fase Parcial
                 flujos = {
                     'flujo_vapor_in': float(request.GET['flujo_vapor_in']) if request.GET.get('flujo_vapor_in') else 0,
@@ -813,24 +805,24 @@ class ConsultaCP(LoginRequiredMixin, View):
                     'flujo_liquido_in': float(request.GET['flujo_liquido_in']) if request.GET.get('flujo_liquido_in') else 0,
                     'flujo_liquido_out': float(request.GET['flujo_liquido_out']) if request.GET.get('flujo_liquido_out') else 0
                 }
+
                 caso = determinar_cambio_parcial(**flujos)
 
-                match caso:
-                    case 'DD': # Domo a Domo. t1 y t2 se consideran iguales
-                        cp_gas = calcular_cp(cas, t1, t1, unidad_salida, presion, 'g')
-                        cp_liq = calcular_cp(cas, t1, t1, unidad_salida, presion, 'l')  
-                    case 'VD': # Vapor a Domo. Se considera t1 > t2.
-                        cp_gas = calcular_cp(cas, t1, t2, unidad_salida, presion, 'g')
-                        cp_liq = calcular_cp(cas, t2, t2, unidad_salida, presion, 'l')    
-                    case 'LD': # Líquido a Domo. Se considera t2 > t1.
-                        cp_gas = calcular_cp(cas, t2, t2, unidad_salida, presion, 'g')
-                        cp_liq = calcular_cp(cas, t2, t1, unidad_salida, presion, 'l')  
-                    case 'DL': # Domo a Líquido. Se asume que t2 < t1.
-                        cp_gas = calcular_cp(cas, t1, t1, unidad_salida, presion, 'g')
-                        cp_liq = calcular_cp(cas, t1, t2, unidad_salida, presion, 'l')    
-                    case 'DV': # Domo a Vapor. Se asume que t2 > t1.
-                        cp_gas = calcular_cp(cas, t2, t1, unidad_salida, presion, 'g')
-                        cp_liq = calcular_cp(cas, t1, t1, unidad_salida, presion, 'l')
+                if(caso == 'DD'): # Domo a Domo. t1 y t2 se consideran iguales
+                    cp_gas = calcular_cp(cas, t1, t1, unidad_salida, presion, 'g')
+                    cp_liq = calcular_cp(cas, t1, t1, unidad_salida, presion, 'l')  
+                if(caso == 'VD'): # Vapor a Domo. Se considera t1 > t2.
+                    cp_gas = calcular_cp(cas, t1, t2, unidad_salida, presion, 'g')
+                    cp_liq = calcular_cp(cas, t2, t2, unidad_salida, presion, 'l')    
+                if(caso == 'LD'): # Líquido a Domo. Se considera t2 > t1.
+                    cp_gas = calcular_cp(cas, t2, t2, unidad_salida, presion, 'g')
+                    cp_liq = calcular_cp(cas, t2, t1, unidad_salida, presion, 'l')  
+                if(caso == 'DL'): # Domo a Líquido. Se asume que t2 < t1.
+                    cp_gas = calcular_cp(cas, t1, t1, unidad_salida, presion, 'g')
+                    cp_liq = calcular_cp(cas, t1, t2, unidad_salida, presion, 'l')    
+                if(caso == 'DV'): # Domo a Vapor. Se asume que t2 > t1.
+                    cp_gas = calcular_cp(cas, t2, t1, unidad_salida, presion, 'g')
+                    cp_liq = calcular_cp(cas, t1, t1, unidad_salida, presion, 'l')
             else: # Cambio de Fase Total
                 tsat = Chemical(cas).Tsat(presion)
                 if(t1 <= t2):
