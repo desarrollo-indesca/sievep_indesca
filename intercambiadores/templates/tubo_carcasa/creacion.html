@@ -240,8 +240,8 @@
                         <div style="width: 50%;">
                             <label for="tipo_cp_carcasa">Cálculo del Cp:</label>
                             <select class="form-select" name="tipo_cp_carcasa" id="tipo_cp_carcasa">
-                                <option value="A">Automático</option>
-                                <option value="M">Manual</option>
+                                <option value="A" {% if previo.tipo_cp_carcasa == 'A' %} selected {% endif %}>Automático</option>
+                                <option value="M" {% if previo.tipo_cp_carcasa == 'M' %} selected {% endif %}>Manual</option>
                             </select>
                         </div>
                     </div>
@@ -320,9 +320,9 @@
                                         <div class="input-group mb-2">
                                             <input style="width: 60% !important;" class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_liquido_carcasa" min="0.0001" id="cp_liquido_carcasa" 
                                             {% if not previo.cp_tubo %}disabled{% endif %} value="{{previo.cp_liquido_carcasa}}">
-                                            <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" {% if lado == 'tubo' %}disabled{% endif %}>
+                                            <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp">
                                                 {% for unidad in unidades_cp %}
-                                                <option value="{{unidad.pk|slugify}}">{{unidad}}</option>
+                                                <option value="{{unidad.pk}}" {% if previo.unidad_cp == unidad.pk|slugify %}selected{%endif%}>{{unidad}}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>  
@@ -575,8 +575,8 @@
                         <div style="width: 50%;">
                             <label for="tipo_cp_tubo">Cálculo del Cp:</label>
                             <select class="form-select" name="tipo_cp_tubo" id="tipo_cp_tubo">
-                                <option value="A">Automático</option>
-                                <option value="M">Manual</option>
+                                <option value="A" {% if previo.tipo_cp_tubo == 'A' %} selected {% endif %}>Automático</option>
+                                <option value="M" {% if previo.tipo_cp_tubo == 'M' %} selected {% endif %}>Manual</option>
                             </select>
                         </div>
                     </div>

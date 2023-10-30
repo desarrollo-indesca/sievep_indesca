@@ -136,11 +136,19 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             )
 
             # Condiciones de Diseño del Tubo
+            t1,t2 = transformar_unidades_temperatura([float(request.POST['temp_in_tubo']), float(request.POST['temp_out_tubo'])], int(request.POST['unidad_temperaturas']))
+            presion = transformar_unidades_presion([float(request.POST['presion_entrada_tubo'])], int(request.POST['unidad_presiones']))[0]
+            fase = calcular_fase(fluido_carcasa.cas, t1, t2, presion)
+            tipo_cp = request.POST.get('tipo_cp_tubo')
+            unidad_cp = int(request.POST['unidad_cp'])
+            cp_gas = request.POST.get('cp_gas_tubo') if tipo_cp == 'M' else calcular_cp(fluido_tubo.cas, t1, t2, unidad_cp, presion, fase)
+            cp_liquido = request.POST.get('cp_liquido_tubo') if tipo_cp == 'M' else calcular_cp(fluido_tubo.cas, t1, t2, unidad_cp, presion, fase)
+
             condiciones_diseno_tubo = CondicionesTuboCarcasa.objects.create(
                 intercambiador = propiedades,
                 lado = 'T',
-                temp_entrada = request.POST['temp_in_tubo'],
-                temp_salida = request.POST['temp_out_tubo'],
+                temp_entrada = float(request.POST['temp_in_tubo']),
+                temp_salida = float(request.POST['temp_out_tubo']),
                 temperaturas_unidad = Unidades.objects.get(pk=request.POST['unidad_temperaturas']),
 
                 cambio_de_fase = obtener_cambio_fase(float(request.POST['flujo_vapor_in_tubo']),float(request.POST['flujo_vapor_out_tubo']), 
@@ -158,10 +166,21 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
 
                 fouling = request.POST['fouling_tubo'],
                 fluido_etiqueta = fluido_tubo[0] if type(fluido_tubo) != Fluido else None,
-                fluido_cp = request.POST['cp_tubo']
+                fluido_cp_gas = cp_gas,
+                fluido_cp_liquido = cp_liquido,
+                unidad_cp = Unidades.objects.get(pk=unidad_cp),
+                tipo_cp = tipo_cp
             )
 
             # Condiciones de Diseño de la Carcasa
+            t1,t2 = transformar_unidades_temperatura([float(request.POST['temp_in_carcasa']), float(request.POST['temp_out_carcasa'])], int(request.POST['unidad_temperaturas']))
+            presion = transformar_unidades_presion([float(request.POST['presion_entrada_carcasa'])], int(request.POST['unidad_presiones']))[0]
+            fase = calcular_fase(fluido_carcasa.cas, t1, t2, presion)
+            tipo_cp = request.POST.get('tipo_cp_carcasa')
+            unidad_cp = int(request.POST['unidad_cp'])
+            cp_gas = request.POST.get('cp_gas_carcasa') if tipo_cp == 'M' else calcular_cp(fluido_carcasa.cas, t1, t2, unidad_cp, presion, fase)
+            cp_liquido = request.POST.get('cp_liquido_carcasa') if tipo_cp == 'M' else calcular_cp(fluido_carcasa.cas, t1, t2, unidad_cp, presion, fase)
+
             condiciones_diseno_carcasa = CondicionesTuboCarcasa.objects.create(
                 intercambiador = propiedades,
                 lado = 'C',
@@ -186,7 +205,10 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
 
                 fouling = request.POST['fouling_carcasa'],
                 fluido_etiqueta = fluido_carcasa[0] if type(fluido_carcasa) != Fluido else None,
-                fluido_cp = request.POST['cp_carcasa']
+                fluido_cp_gas = cp_gas,
+                fluido_cp_liquido = cp_liquido,
+                tipo_cp = tipo_cp,
+                unidad_cp = Unidades.objects.get(pk=unidad_cp)
             )
 
             messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")

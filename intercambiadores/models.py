@@ -240,7 +240,9 @@ class CondicionesTuboCarcasa(models.Model):
     flujo_liquido_salida = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     flujos_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="flujos_unidad_tubocarcasa", null=True)
     fluido_etiqueta = models.CharField(null=True, max_length=50)
-    fluido_cp = models.DecimalField(null=True, max_digits=8, decimal_places=4)
+    tipo_cp = models.CharField(null=False, choices=[['M','Manual'],['A','Automático']], max_length=1)
+    fluido_cp_liquido = models.DecimalField(null=True, max_digits=8, decimal_places=4)
+    fluido_cp_gas = models.DecimalField(null=True, max_digits=8, decimal_places=4)
     unidad_cp = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_cp", default=29)
     
     cambio_de_fase  = models.CharField(max_length=1, choices=cambios_de_fase)
