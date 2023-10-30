@@ -9,7 +9,7 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
     if(unidad_flujo != 10):
         ft,Fc = transformar_unidades_flujo([ft,Fc], unidad_flujo)
 
-    q_tubo = calcular_calor(ft, ti, ts, intercambiador, cp_tubo 'T') # W
+    q_tubo = calcular_calor(ft, ti, ts, intercambiador, cp_tubo, 'T') # W
     q_carcasa = calcular_calor(Fc, Ti, Ts, intercambiador, cp_carcasa, 'C') # W
 
     print(q_tubo)
