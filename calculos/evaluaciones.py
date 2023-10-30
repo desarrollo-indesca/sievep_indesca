@@ -1,5 +1,5 @@
 import numpy as np
-from .unidades import transformar_unidades_temperatura, transformar_unidades_flujo, transformar_unidades_longitud
+from .unidades import transformar_unidades_temperatura, transformar_unidades_flujo, transformar_unidades_longitud, transformar_unidades_presion
 from ht import F_LMTD_Fakheri
 from .termodinamicos import calcular_entalpia_entre_puntos
 
@@ -9,8 +9,8 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
     if(unidad_flujo != 10):
         ft,Fc = transformar_unidades_flujo([ft,Fc], unidad_flujo)
 
-    q_tubo = calcular_calor(ft, ti, ts, intercambiador) # W
-    q_carcasa = calcular_calor(Fc, Ti, Ts, intercambiador, 'C') # W
+    q_tubo = calcular_calor(ft, ti, ts, intercambiador, cp_tubo 'T') # W
+    q_carcasa = calcular_calor(Fc, Ti, Ts, intercambiador, cp_carcasa, 'C') # W
 
     print(q_tubo)
     print(q_carcasa)
@@ -83,7 +83,7 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
 
     return resultados
 
-def calcular_calor(flujo: float, t1: float, t2: float, intercambiador, lado: str = 'T') -> float:
+def calcular_calor(flujo: float, t1: float, t2: float, cp: float, intercambiador, lado: str = 'T') -> float:
     """
     Resumen:
         Esta función calcula el calor intercambiado en uno de los lados de un intercambiador.
@@ -93,6 +93,7 @@ def calcular_calor(flujo: float, t1: float, t2: float, intercambiador, lado: str
         t1: float -> Temperatura de Entrada (K)
         t2: float -> Temperatura de Salida (K)
         intercambiador: Intercambiador -> Intercambiador al cual se le calculará el calor.
+        cp: float -> Cp en J/KgK del fluido
         lado: str -> T si es el calor del lado del tubo, C si es el calor de la carcasa.
 
     Devuelve:
@@ -107,10 +108,10 @@ def calcular_calor(flujo: float, t1: float, t2: float, intercambiador, lado: str
 
     if(datos.cambio_de_fase == 'S'): # Caso 1: Sin Cambio de Fase
         print("Sin cambio de fase")
-        return flujo * datos.fluido_cp * abs(t2-t1)
+        return flujo * cp * abs(t2-t1)
     else: # Caso 2: Cambio de Fase Total
         print("Cambio de Fase Total")
-        return flujo*calcular_entalpia_entre_puntos(fluido.cas, t1, t2, float(datos.presion_entrada)*1e5)
+        return flujo*calcular_entalpia_entre_puntos(fluido.cas, t1, t2, transformar_unidades_presion(float(datos.presion_entrada), datos.unidad_presion))
     # elif(datos.cambio_de_fase == 'P'): # Caso 3: Cambio de Fase Parcial
         # pass  
 
