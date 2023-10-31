@@ -7,7 +7,7 @@ from django.views.generic.list import ListView
 from django.db import transaction
 from django.contrib.auth.mixins import LoginRequiredMixin
 from thermo.chemical import search_chemical, Chemical
-from calculos.termodinamicos import calcular_cp, calcular_fase
+from calculos.termodinamicos import calcular_cp
 from calculos.evaluaciones import evaluacion_tubo_carcasa, obtener_cambio_fase, determinar_cambio_parcial
 from reportes.pdfs import generar_pdf
 from calculos.unidades import transformar_unidades_temperatura, transformar_unidades_cp, transformar_unidades_presion
