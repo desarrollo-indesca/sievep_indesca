@@ -127,12 +127,37 @@
                       <td colspan="2">{{condiciones_tubo.flujo_masico}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark" colspan="2">Capacidad Calorífica (<span id="unidad_cp_ficha">{{condiciones_tubo.unidad_cp}}</span>)</th>
+                      <th class="table-dark" colspan="2">Cap. Calorífica Vapor (<span id="unidad_cp_ficha">{{condiciones_tubo.unidad_cp}}</span>)</th>
                       <td colspan="2" id="cp_ficha_carcasa">
-                          {{condiciones_carcasa.fluido_cp}}                 
+                          {% if condiciones_carcasa.fluido_cp_gas %}
+                          {{condiciones_carcasa.fluido_cp_gas}}
+                          {%else%}
+                          -
+                          {%endif%}               
                       </td>
                       <td colspan="2" id="cp_ficha_tubo">
-                          {{condiciones_tubo.fluido_cp}}
+                        {% if condiciones_tubo.fluido_cp_gas %}
+                          {{condiciones_tubo.fluido_cp_gas}}
+                        {%else%}
+                        -
+                        {%endif%}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Cap. Calorífica Líquido (<span id="unidad_cp_ficha">{{condiciones_tubo.unidad_cp}}</span>)</th>
+                      <td colspan="2" id="cp_ficha_carcasa">
+                        {% if condiciones_carcasa.fluido_cp_liquido %}
+                          {{condiciones_carcasa.fluido_cp_liquido}}
+                        {%else%}
+                        -
+                        {%endif%}         
+                      </td>
+                      <td colspan="2" id="cp_ficha_tubo">
+                        {% if condiciones_tubo.fluido_cp_liquido %}
+                          {{condiciones_tubo.fluido_cp_liquido}}
+                        {%else%}
+                        -
+                        {%endif%}
                       </td>
                     </tr>
                     <tr>
@@ -169,6 +194,11 @@
                       <th class="table-dark" colspan="2">Conexiones de Salida</th>
                       <td colspan="2">{{intercambiador.conexiones_salida_carcasa}}</td>
                       <td colspan="2">{{intercambiador.conexiones_salida_tubos}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Pasos</th>
+                      <td colspan="2">{{intercambiador.numero_pasos_carcasa}}</td>
+                      <td colspan="2">{{intercambiador.numero_pasos_tubo}}</td>
                     </tr>
                     {% endwith %}
                     {% endwith %}
