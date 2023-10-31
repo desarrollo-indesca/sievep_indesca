@@ -56,7 +56,7 @@ const determinar_cambio_de_fase_tubo = () => {
     $('#cambio_fase_tubo').val(cambio_fase).change();
 
     if(cambio_fase !== '-'){
-        if(Number($('#fluido_tubo').val()) || $('#fluido_tubo').val().split('*')[1].includes('-'))
+        if($('#fluido_tubo').val() !== '' && (Number($('#fluido_tubo').val()) || $('#fluido_tubo').val().split('*')[1].includes('-')))
             // Si tiene un tipo de cambio de fase y es un fluido puro
             cambiar_segun_tipo_y_cambio('T');
         else{
@@ -86,7 +86,7 @@ const determinar_cambio_de_fase_carcasa = () => {
     $('#cambio_fase_carcasa').val(cambio_fase).change();
 
     if(cambio_fase !== '-'){
-        if(Number($('#fluido_carcasa').val()) || $('#fluido_carcasa').val().split('*')[1].includes('-'))
+        if($('#fluido_carcasa').val() !== '' && (Number($('#fluido_carcasa').val()) || $('#fluido_carcasa').val().split('*')[1].includes('-')))
             // Si tiene un tipo de cambio de fase y es un fluido puro
             cambiar_segun_tipo_y_cambio();
         else{

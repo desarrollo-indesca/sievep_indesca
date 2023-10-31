@@ -93,111 +93,6 @@
                 <div class="row">
                     {% with condicion_carcasa=intercambiador.condicion_carcasa %}
                     <div class="col-6">
-                        <label class="form-label" for="temp_in_carcasa">Temperatura Entrada:</label>
-                        <div class="input-group mb-3">
-                            <input value="{{condicion_carcasa.temp_entrada|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" max="99999.99" required>
-                            <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas">
-                                {% for unidad in unidades_temperaturas %}
-                                <option value="{{unidad.pk}}" {% if condicion_carcasa.unidad_temperaturas == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="col-6">
-                        <label class="form-label" for="temp_out_carcasa">Temperatura Salida:</label>
-                        <div class="input-group mb-3">
-                            <input value="{{condicion_carcasa.temp_salida|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" max="99999.99" required>
-                            <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
-                                <option>{{condicion_carcasa.temperaturas_unidad}}</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <div class="row">
-                            <div class="col-5">
-                                <label class="form-label" for="fluido_carcasa">Fluido:</label>                            
-                            </div>
-                            <div class="col-5">
-                                <label class="form-label" for="cp_carcasa">Capacidad Calorífica Prom.:</label>
-                            </div>
-                            <div class="col-2"></div>
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <div class="row mb-2">
-                            <div class="col-5 d-flex flex-column">
-                                <select class="form-select" name="fluido_carcasa" id="fluido_carcasa">
-                                    {% for fluido in fluidos %}
-                                    <option value="{{fluido.pk}}" {% if intercambiador.fluido_carcasa == fluido %}selected{% endif %}>{{fluido}}</option>
-                                    {% endfor %}
-                                    {% if not intercambiador.fluido_carcasa %}
-                                    <option value="" selected>{{condicion_carcasa.fluido_etiqueta}}</option>
-                                    {%endif%}
-                                </select>
-                            </div>
-
-                            <div class="col-5">
-                                <div class="input-group mb-3">
-                                    <input style="width: 60% !important;" class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_carcasa" min="0.0001" id="cp_carcasa" value="{{condicion_carcasa.fluido_cp|unlocalize}}">
-                                    <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp">
-                                        {% for unidad in unidades_cp %}
-                                        <option value="{{unidad.pk}}" {% if condicion_carcasa.unidad_cp == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="col-2 d-flex justify-content-center align-items-start">
-                                <button data-bs-toggle="modal" data-bs-target="#condiciones_diseno_fluido_carcasa" class="btn btn-danger no-submit w-100">+</button>
-                                <div class="modal fade" id="condiciones_diseno_fluido_carcasa" tabindex="-1" aria-labelledby="condiciones_diseno_fluido_carcasaLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg modal-dialog-centered">
-                                      <div class="modal-content">
-                                        <div class="modal-header">
-                                          <h5 class="modal-title">Registrar Fluido de Carcasa</h5>
-                                          <button id="condiciones_diseno_fluido_carcasaClose" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <h3 style="color: #e31e24;" class="text-center">Compuesto por Cp en Ficha</h3>
-                                            <div class="row">
-                                                <div class="col-5">
-                                                    <label for="etiqueta">Nombre del Compuesto:</label>
-                                                    <input class="form-control" id="nombre_compuesto_carcasa" type="text" maxlength="25">
-                                                </div>
-                                                <div class="col-5">
-                                                    <label for="etiqueta">Cp del Compuesto:</label>
-                                                    <input class="form-control" id="cp_compuesto_carcasa" type="number" step="0.0001">
-                                                </div>
-                                                <div class="col-2 d-flex justify-content-center align-items-end">
-                                                    <button id="enviar_compuesto_carcasa_ficha" class="no-submit btn btn-danger w-100" disabled>Enviar</button>
-                                                </div>
-                                            </div>
-                                          <hr>
-                                          <h3 style="color: #e31e24;" class="text-center">Compuesto por Código CAS</h3>
-                                            <div class="row">
-                                                <div class="col-5">
-                                                    <label for="etiqueta">Código CAS:</label>
-                                                    <input class="form-control" id="cas_compuesto_carcasa" type="text" maxlength="25" pattern="[0-9]+-[0-9]+-[0-9]+">
-                                                </div>
-                                                <div class="col-5">
-                                                    <label for="etiqueta">Nombre:</label>
-                                                    <input class="form-control" id="nombre_compuesto_carcasa_cas" type="text" maxlength="25">
-                                                </div>
-                                                <div class="col-2 d-flex justify-content-center align-items-end">
-                                                    <button id="guardar_datos_cas_carcasa" class="no-submit btn btn-danger w-100" disabled>Enviar</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                </div>                    
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-6">
                         <label class="form-label" for="cambio_fase_carcasa">Cambio de Fase:</label>
                         <div class="input-group mb-3">
                             <select disabled class="form-select" name="cambio_fase_carcasa" id="cambio_fase_carcasa">
@@ -274,6 +169,126 @@
                     </div>
 
                     <div class="col-6">
+                        <label class="form-label" for="temp_in_carcasa">Temperatura Entrada:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{condicion_carcasa.temp_entrada|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" max="99999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas">
+                                {% for unidad in unidades_temperaturas %}
+                                <option value="{{unidad.pk}}" {% if condicion_carcasa.unidad_temperaturas == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label" for="temp_out_carcasa">Temperatura Salida:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{condicion_carcasa.temp_salida|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" max="99999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                <option>{{condicion_carcasa.temperaturas_unidad}}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-12 d-flex justify-content-center mb-3">
+                        <div style="width: 50%;">
+                            <label for="tipo_cp_carcasa">Cálculo del Cp:</label>
+                            <select class="form-select" name="tipo_cp_carcasa" id="tipo_cp_carcasa">
+                                <option value="A" {% if condicion_carcasa.tipo_cp == 'A' %} selected {% endif %}>Automático</option>
+                                <option value="M" {% if condicion_carcasa.tipo_cp == 'M' %} selected {% endif %}>Manual</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 mb-2">
+                            <div class="row">
+                                <div class="col-8 d-flex flex-column">    
+                                    <select class="form-select" name="fluido_carcasa" id="fluido_carcasa">
+                                        {% for fluido in fluidos %}
+                                        <option value="{{fluido.pk}}" {% if intercambiador.fluido_carcasa == fluido %}selected{% endif %}>{{fluido}}</option>
+                                        {% endfor %}
+                                        {% if not intercambiador.fluido_carcasa %}
+                                        <option value="" selected>{{condicion_carcasa.fluido_etiqueta}}</option>
+                                        {%endif%}
+                                    </select>
+                                </div>
+                        
+                                <div class="col-4 d-flex justify-content-center align-items-start">
+                                    <button data-bs-toggle="modal" data-bs-target="#condiciones_diseno_fluido_carcasa" class="btn btn-danger no-submit w-100">+</button>
+                                    <div class="modal fade" id="condiciones_diseno_fluido_carcasa" tabindex="-1" aria-labelledby="condiciones_diseno_fluido_carcasaLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                                          <div class="modal-content">
+                                            <div class="modal-header">
+                                              <h5 class="modal-title">Registrar Fluido de Carcasa</h5>
+                                              <button id="condiciones_diseno_fluido_carcasaClose" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <h3 style="color: #e31e24;" class="text-center">Compuesto por Cp en Ficha</h3>
+                                                <div class="row">
+                                                    <div class="col-5">
+                                                        <label for="etiqueta">Nombre del Compuesto:</label>
+                                                        <input class="form-control" id="nombre_compuesto_carcasa" type="text" maxlength="25">
+                                                    </div>
+                                                    <div class="col-5">
+                                                        <label for="etiqueta">Cp del Compuesto:</label>
+                                                        <input class="form-control" id="cp_compuesto_carcasa" type="number" step="0.0001">
+                                                    </div>
+                                                    <div class="col-2 d-flex justify-content-center align-items-end">
+                                                        <button id="enviar_compuesto_carcasa_ficha" class="no-submit btn btn-danger w-100" disabled>Enviar</button>
+                                                    </div>
+                                                </div>
+                                              <hr>
+                                              <h3 style="color: #e31e24;" class="text-center">Compuesto por Código CAS</h3>
+                                                <div class="row">
+                                                    <div class="col-5">
+                                                        <label for="etiqueta">Código CAS:</label>
+                                                        <input class="form-control" id="cas_compuesto_carcasa" type="text" maxlength="25" pattern="[0-9]+-[0-9]+-[0-9]+">
+                                                    </div>
+                                                    <div class="col-5">
+                                                        <label for="etiqueta">Nombre:</label>
+                                                        <input class="form-control" id="nombre_compuesto_carcasa_cas" type="text" maxlength="25">
+                                                    </div>
+                                                    <div class="col-2 d-flex justify-content-center align-items-end">
+                                                        <button id="guardar_datos_cas_carcasa" class="no-submit btn btn-danger w-100" disabled>Enviar</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                    </div>                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                                <div class="row">
+                                    <div class="col-6 d-flex flex-column">
+                                        <label for="cp_liquido_carcasa">Cp Prom. Líquido:</label>
+                                        <div class="input-group mb-2">
+                                            <input style="width: 60% !important;" class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_liquido_carcasa" min="0.0001" id="cp_liquido_carcasa" 
+                                            {% if condicion_carcasa.tipo_cp == 'A' or not condicion_carcasa.fluido_cp_liquido %}disabled{% endif %} value="{{condicion_carcasa.fluido_cp_liquido|unlocalize}}">
+                                            <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp">
+                                                {% for unidad in unidades_cp %}
+                                                <option value="{{unidad.pk}}" {% if condicion_carcasa.unidad_cp == unidad.pk|slugify %}selected{%endif%}>{{unidad}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>  
+                                    </div>
+                                    <div class="col-6 d-flex flex-column">
+                                        <label for="cp_gas_carcasa">Cp Prom. Gas:</label>
+                                        <div class="input-group mb-2">
+                                            <input style="width: 60% !important;" class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_gas_carcasa" min="0.0001" id="cp_gas_carcasa" 
+                                            {% if condicion_carcasa.tipo_cp == 'A' or not condicion_carcasa.fluido_cp_gas %}disabled{% endif %} value="{{condicion_carcasa.fluido_cp_gas|unlocalize}}">
+                                            <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
+                                                <option value="">J/KgK</option>
+                                            </select>
+                                        </div>  
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+
+                    <div class="col-6">
                         <label class="form-label" for="caida_presion_permitida_carcasa">Caída de Presión Máxima:</label>
                         <div class="input-group mb-3">
                             <input value="{{condicion_carcasa.caida_presion_max|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_max_carcasa" id="caida_presion_max_carcasa" step="0.01" max="99999999.99" required>
@@ -329,110 +344,7 @@
             <div class="col-6">
                 <h4 class="text-center mb-3">Tubo</h4>
                 <div class="row">
-                    {% with condicion_tubo=intercambiador.condicion_tubo %}                    
-                    <div class="col-6">
-                        <label class="form-label" for="temp_in_tubo">Temperatura Entrada:</label>
-                        <div class="input-group mb-3">
-                            <input value="{{condicion_tubo.temp_entrada|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" max="99999.99" required>
-                            <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
-                                <option>{{condicion_tubo.temperaturas_unidad}}</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="col-6">
-                        <label class="form-label" for="temp_out_tubo">Temperatura Salida:</label>
-                        <div class="input-group mb-3">
-                            <input value="{{condicion_tubo.temp_salida|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" max="99999.99" required>
-                            <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
-                                <option>{{condicion_tubo.temperaturas_unidad}}</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <div class="row">
-                            <div class="col-5">
-                                <label class="form-label" for="fluido_carcasa">Fluido:</label>                            
-                            </div>
-                            <div class="col-5">
-                                <label class="form-label" for="cp_carcasa">Capacidad Calorífica Prom.:</label>
-                            </div>
-                            <div class="col-2"></div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 mb-2">
-                        <div class="row">
-                            <div class="col-5 d-flex flex-column">
-                                <select class="form-select" name="fluido_tubo" id="fluido_tubo">
-                                    {% for fluido in fluidos %}
-                                    <option value="{{fluido.pk}}" {% if intercambiador.fluido_tubo == fluido %}selected{% endif %}>{{fluido}}</option>
-                                    {% endfor %}
-                                    {% if not intercambiador.fluido_tubo %}
-                                    <option value="" selected>{{condicion_tubo.fluido_etiqueta}}</option>
-                                    {%endif%}
-                                </select>
-                            </div>
-        
-                            <div class="col-5">
-                                <div class="input-group mb-3">
-                                    <input style="width: 60% !important;" class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_tubo" min="0.0001" id="cp_tubo" value="{{condicion_tubo.fluido_cp|unlocalize}}">
-                                    <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
-                                        {% for unidad in unidades_cp %}
-                                        <option value="{{unidad.pk}}" {% if condicion_tubo.unidad_cp == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-        
-                            <div class="col-2 d-flex justify-content-center align-items-start">
-                                <button data-bs-toggle="modal" data-bs-target="#condiciones_diseno_fluido" class="btn btn-danger no-submit w-100">+</button>
-                                <div class="modal fade" id="condiciones_diseno_fluido" tabindex="-1" aria-labelledby="condiciones_diseno_fluidoLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg modal-dialog-centered">
-                                      <div class="modal-content">
-                                        <div class="modal-header">
-                                          <h5 class="modal-title" id="condiciones_diseno_fluidoLabel">Registrar Fluido de Tubo</h5>
-                                          <button id="condiciones_diseno_fluido_tuboClose" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <h3 style="color: #e31e24;" class="text-center">Compuesto por Cp en Ficha</h3>
-                                            <div class="row">
-                                                <div class="col-5">
-                                                    <label for="etiqueta">Nombre del Compuesto:</label>
-                                                    <input class="form-control" id="nombre_compuesto_tubo" type="text" maxlength="25">
-                                                </div>
-                                                <div class="col-5">
-                                                    <label for="etiqueta">Cp del Compuesto:</label>
-                                                    <input class="form-control" id="cp_compuesto_tubo"type="number" step="0.0001">
-                                                </div>
-                                                <div class="col-2 d-flex justify-content-center align-items-end">
-                                                    <button id="enviar_compuesto_tubo_ficha" class="btn btn-danger w-100 no-submit" disabled>Enviar</button>
-                                                </div>
-                                            </div>
-                                          <hr>
-                                          <h3 style="color: #e31e24;" class="text-center">Compuesto por Código CAS</h3>
-                                            <div class="row">
-                                                <div class="col-5">
-                                                    <label for="etiqueta">Código CAS:</label>
-                                                    <input class="form-control" id="cas_compuesto_tubo" type="text" maxlength="25" pattern="[0-9]+-[0-9]+-[0-9]+">
-                                                </div>
-                                                <div class="col-5">
-                                                    <label for="etiqueta">Nombre:</label>
-                                                    <input class="form-control" id="nombre_compuesto_tubo_cas" type="text" maxlength="25">
-                                                </div>
-                                                <div class="col-2 d-flex justify-content-center align-items-end">
-                                                    <button id="guardar_datos_cas_tubo" class="no-submit btn btn-danger w-100" disabled>Enviar</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                </div>                    
-                            </div>      
-                        </div>
-                    </div>                    
-
+                    {% with condicion_tubo=intercambiador.condicion_tubo %}   
                     <div class="col-6">
                         <label class="form-label" for="cambio_fase_tubo">Cambio de Fase:</label>
                         <div class="input-group mb-3">
@@ -504,6 +416,122 @@
                             </select>
                         </div>
                     </div>
+                                     
+                    <div class="col-6">
+                        <label class="form-label" for="temp_in_tubo">Temperatura Entrada:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{condicion_tubo.temp_entrada|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" max="99999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                <option>{{condicion_tubo.temperaturas_unidad}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-6">
+                        <label class="form-label" for="temp_out_tubo">Temperatura Salida:</label>
+                        <div class="input-group mb-3">
+                            <input value="{{condicion_tubo.temp_salida|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" max="99999.99" required>
+                            <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                <option>{{condicion_tubo.temperaturas_unidad}}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-12 d-flex justify-content-center mb-3">
+                        <div style="width: 50%;">
+                            <label for="tipo_cp_tubo">Cálculo del Cp:</label>
+                            <select class="form-select" name="tipo_cp_tubo" id="tipo_cp_tubo">
+                                <option value="A" {% if condicion_tubo.tipo_cp == 'A' %} selected {% endif %}>Automático</option>
+                                <option value="M" {% if condicion_tubo.tipo_cp == 'M' %} selected {% endif %}>Manual</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 mb-2">
+                            <div class="row">
+                                <div class="col-8 d-flex flex-column">    
+                                    <select class="form-select" name="fluido_tubo" id="fluido_tubo">
+                                        {% for fluido in fluidos %}
+                                        <option value="{{fluido.pk}}" {% if intercambiador.fluido_tubo == fluido %}selected{% endif %}>{{fluido}}</option>
+                                        {% endfor %}
+                                        {% if not intercambiador.fluido_tubo %}
+                                        <option value="" selected>{{condicion_tubo.fluido_etiqueta}}</option>
+                                        {%endif%}
+                                    </select>
+                                </div>
+                        
+                                <div class="col-4 d-flex justify-content-center align-items-start">
+                                    <button data-bs-toggle="modal" data-bs-target="#condiciones_diseno_fluido_tubo" class="btn btn-danger no-submit w-100">+</button>
+                                    <div class="modal fade" id="condiciones_diseno_fluido_tubo" tabindex="-1" aria-labelledby="condiciones_diseno_fluido_tuboLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                                          <div class="modal-content">
+                                            <div class="modal-header">
+                                              <h5 class="modal-title">Registrar Fluido de Carcasa</h5>
+                                              <button id="condiciones_diseno_fluido_tuboClose" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <h3 style="color: #e31e24;" class="text-center">Compuesto por Cp en Ficha</h3>
+                                                <div class="row">
+                                                    <div class="col-5">
+                                                        <label for="etiqueta">Nombre del Compuesto:</label>
+                                                        <input class="form-control" id="nombre_compuesto_tubo" type="text" maxlength="25">
+                                                    </div>
+                                                    <div class="col-5">
+                                                        <label for="etiqueta">Cp del Compuesto:</label>
+                                                        <input class="form-control" id="cp_compuesto_tubo" type="number" step="0.0001">
+                                                    </div>
+                                                    <div class="col-2 d-flex justify-content-center align-items-end">
+                                                        <button id="enviar_compuesto_tubo_ficha" class="no-submit btn btn-danger w-100" disabled>Enviar</button>
+                                                    </div>
+                                                </div>
+                                              <hr>
+                                              <h3 style="color: #e31e24;" class="text-center">Compuesto por Código CAS</h3>
+                                                <div class="row">
+                                                    <div class="col-5">
+                                                        <label for="etiqueta">Código CAS:</label>
+                                                        <input class="form-control" id="cas_compuesto_tubo" type="text" maxlength="25" pattern="[0-9]+-[0-9]+-[0-9]+">
+                                                    </div>
+                                                    <div class="col-5">
+                                                        <label for="etiqueta">Nombre:</label>
+                                                        <input class="form-control" id="nombre_compuesto_tubo_cas" type="text" maxlength="25">
+                                                    </div>
+                                                    <div class="col-2 d-flex justify-content-center align-items-end">
+                                                        <button id="guardar_datos_cas_tubo" class="no-submit btn btn-danger w-100" disabled>Enviar</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                    </div>                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                                <div class="row">
+                                    <div class="col-6 d-flex flex-column">
+                                        <label for="cp_liquido_tubo">Cp Prom. Líquido:</label>
+                                        <div class="input-group mb-2">
+                                            <input style="width: 60% !important;" class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_liquido_tubo" min="0.0001" id="cp_liquido_tubo" 
+                                            {% if condicion_tubo.tipo_cp == 'A' or not condicion_tubo.fluido_cp_liquido %}disabled{% endif %} value="{{condicion_tubo.fluido_cp_liquido|unlocalize}}">
+                                            <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
+                                                <option>{{condicion_tubo.unidad_cp}}</option>
+                                            </select>
+                                        </div>  
+                                    </div>
+                                    <div class="col-6 d-flex flex-column">
+                                        <label for="cp_gas_tubo">Cp Prom. Gas:</label>
+                                        <div class="input-group mb-2">
+                                            <input style="width: 60% !important;" class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_gas_tubo" min="0.0001" id="cp_gas_tubo" 
+                                            {% if condicion_tubo.tipo_cp == 'A' or not condicion_tubo.fluido_cp_gas %}disabled{% endif %} value="{{condicion_tubo.fluido_cp_gas|unlocalize}}">
+                                            <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
+                                                <option>{{condicion_tubo.unidad_cp}}</option>
+                                            </select>
+                                        </div>  
+                                    </div>
+                                </div>
+                            </div>
+                    </div>               
 
                     <div class="col-6">
                         <label class="form-label" for="caida_presion_max_tubo">Caída de Presión Máxima:</label>
@@ -716,6 +744,8 @@
 {% block extra_javascript %}
 <script>
     {% include 'scripts/ajaxCP.js' %}
+
+    {% include 'scripts/cambio_fase.js' %}
 
     {% include 'scripts/validaciones_flujo.js' %}
 </script>

@@ -9,7 +9,6 @@ $('#tipo_cp_tubo').change(() => {
 function cambiar_accesibilidad_por_fase(lado = 'T'){
     if(lado === 'C'){ // Lado Carcasa
         if(Number($('#flujo_liquido_in_carcasa').val()) !== 0 && Number($('#flujo_liquido_in_carcasa').val()) === Number($('#flujo_liquido_out_carcasa').val())){
-            console.log("A");
             $('#cp_liquido_carcasa').removeAttr('disabled');
             $('#cp_gas_carcasa').val('');
             $('#cp_gas_carcasa').attr('disabled', true);             
