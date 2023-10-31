@@ -56,8 +56,10 @@ def calcular_entalpia_entre_puntos(fluido: str, t1: float, t2: float, presion: f
     tsat = quimico.Tsat(P=presion)
 
     if(t1 <= tsat): # Caso Líquido > Gas
+        print(1)
         return entalpia_l_a_g(quimico, t1, t2, presion, tsat)
     else: # Caso Gas > Líquido
+        print(2)
         return entalpia_g_a_l(quimico, t1, t2, presion, tsat)
 
 def entalpia_l_a_g(quimico: Chemical, t1: float, t2: float, presion: float, tsat: float) -> float:
@@ -112,12 +114,12 @@ def entalpia_g_a_l(quimico: Chemical, t1: float, t2: float, presion: float, tsat
     quimico.calculate(t2, P=presion)
     
     try:
-        h_liquido = numpy.ceil(quimico.HeatCapacityLiquid.T_dependent_property_integral(tsat,t1)/quimico.MW  
+        h_liquido = numpy.ceil(quimico.HeatCapacityLiquid.T_dependent_property_integral(tsat,t2)/quimico.MW  
                                 - quimico.calc_H_excess(T=tsat, P=presion)/1000)
     except:
-        h_liquido = numpy.ceil(quimico.HeatCapacityLiquid.T_dependent_property_integral(tsat,t1)/quimico.MW)
+        h_liquido = numpy.ceil(quimico.HeatCapacityLiquid.T_dependent_property_integral(tsat,t2)/quimico.MW)
 
-    return numpy.ceil(h_liquido+h_vapor+h_liquido_saturado)*1000 # J/Kg
+    return abs(numpy.ceil(h_liquido+h_vapor-h_liquido_saturado)*1000) # J/Kg
 
 def calcular_fase(cas: str, t1: float, t2: float, presion) -> str:
     """

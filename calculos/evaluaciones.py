@@ -9,8 +9,8 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
     if(unidad_flujo != 10):
         ft,Fc = transformar_unidades_flujo([ft,Fc], unidad_flujo)
 
-    q_tubo = calcular_calor(ft, ti, ts, intercambiador, cp_tubo, 'T') # W
-    q_carcasa = calcular_calor(Fc, Ti, Ts, intercambiador, cp_carcasa, 'C') # W
+    q_tubo = calcular_calor(ft, ti, ts, cp_tubo, intercambiador, 'T') # W
+    q_carcasa = calcular_calor(Fc, Ti, Ts, cp_carcasa, intercambiador, 'C') # W
 
     print(q_tubo)
     print(q_carcasa)
@@ -111,7 +111,7 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp: float, intercambiador
         return flujo * cp * abs(t2-t1)
     else: # Caso 2: Cambio de Fase Total
         print("Cambio de Fase Total")
-        return flujo*calcular_entalpia_entre_puntos(fluido.cas, t1, t2, transformar_unidades_presion(float(datos.presion_entrada), datos.unidad_presion))
+        return flujo*calcular_entalpia_entre_puntos(fluido.cas, t1, t2, transformar_unidades_presion([float(datos.presion_entrada)], datos.unidad_presion)[0])
     # elif(datos.cambio_de_fase == 'P'): # Caso 3: Cambio de Fase Parcial
         # pass  
 
@@ -217,3 +217,26 @@ def factor_correccion_tubo_carcasa(ti, ts, Ti, Ts, num_pasos_tubo, num_pasos_car
         factor = 1
 
     return factor
+
+def determinar_flujo(flujos: dict):
+    return 1 if float(flujos['flujo_liquido_in']) != 0 else 2
+
+def determinar_hvap_cdf_total(calor: float, flujo: float, cp_gas: float, cp_liquido: float, t1: float, t2: float, tsat: float):
+    """
+    Resumen:
+        
+    Parámetros:
+        calor: float -> Calor de diseño (W)
+        flujo: float -> Flujo Másico total (Kg/s)
+        cp_gas: float -> Cp de gas (Kg/s)
+        cp_liquido: float -> Cp de líquido (Kg/s)
+        t1: float -> Temperatura 1 (K)
+        t2: float -> Temperatura 2 (K)
+        tsat: float -> Temperatura de Saturación (K)
+    """
+    # Determinar dirección del flujo gas -> liquido o liquido -> gas
+
+    # Calcular segun el caso
+
+    # Devolver Hvap calculado
+    return calor/flujo - cp_gas*(tsat-t1) - cp_liquido*(t2-tsat)

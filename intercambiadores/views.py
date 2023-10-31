@@ -795,8 +795,8 @@ class ConsultaCP(LoginRequiredMixin, View):
         t1,t2 = float(request.GET['t1']), float(request.GET['t2'])
         unidad = int(request.GET['unidad'])
         unidad_salida = int(request.GET.get('unidad_salida')) if request.GET.get('unidad_salida') else 29
-        cambio_fase = request.GET['cambio_fase']
-        unidad_presiones = int(request.GET['unidad_presiones'])
+        cambio_fase = request.GET['cambio_fase'] if request.GET.get('cambio_fase') else 'S'
+        unidad_presiones = int(request.GET['unidad_presiones']) if request.GET.get('unidad_presiones') else 33
         presion = transformar_unidades_presion([float(request.GET.get('presion'))], unidad_presiones)[0] if request.GET.get('presion') else 1e5
 
         t1,t2 = transformar_unidades_temperatura([t1,t2], unidad=unidad)

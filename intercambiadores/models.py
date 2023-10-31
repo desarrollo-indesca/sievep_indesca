@@ -206,8 +206,8 @@ class PropiedadesTuboCarcasa(models.Model):
         fc = float(cond_carcasa.flujo_masico)
 
         return evaluacion_tubo_carcasa(self, ti, ts, Ti, Ts, ft, fc, 
-            self.numero_tubos,  float(self.condicion_tubo().fluido_cp),
-            float(self.condicion_carcasa().fluido_cp),
+            self.numero_tubos,  float(self.condicion_tubo().fluido_cp_gas),
+            float(self.condicion_carcasa().fluido_cp_gas),
             unidad_flujo=self.condicion_carcasa().flujos_unidad.pk)
 
     def condicion_tubo(self):
@@ -243,6 +243,7 @@ class CondicionesTuboCarcasa(models.Model):
     tipo_cp = models.CharField(null=False, choices=[['M','Manual'],['A','Automático']], max_length=1)
     fluido_cp_liquido = models.DecimalField(null=True, max_digits=8, decimal_places=4)
     fluido_cp_gas = models.DecimalField(null=True, max_digits=8, decimal_places=4)
+    hvap = models.DecimalField(max_digits=10, decimal_places=4, null=True)
     unidad_cp = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_cp", default=29)
     
     cambio_de_fase  = models.CharField(max_length=1, choices=cambios_de_fase)
