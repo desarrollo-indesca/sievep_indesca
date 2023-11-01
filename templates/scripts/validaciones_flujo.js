@@ -65,9 +65,10 @@ const determinar_cambio_de_fase_tubo = () => {
                 cambiar_accesibilidad_por_fase('T');
             else{
                 $('#cp_liquido_tubo').removeAttr('disabled');
-                $('#cp_gas_tubo').removeAttr('disabled');  
-            }   
+                $('#cp_gas_tubo').removeAttr('disabled');
+            }
         }
+        
         actualizar_tipos('T');
     }
 
@@ -99,7 +100,9 @@ const determinar_cambio_de_fase_carcasa = () => {
             }   
         }
 
+        // {% if intercambiador %}
         actualizar_tipos('C');
+        // {% endif %}
     }
 }
 
@@ -117,6 +120,8 @@ $('#flujo_vapor_in_carcasa').keyup(determinar_cambio_de_fase_carcasa);
 $('#flujo_liquido_in_carcasa').keyup(determinar_cambio_de_fase_carcasa);
 $('#flujo_liquido_out_carcasa').keyup(determinar_cambio_de_fase_carcasa);
 
+// {% if not intercambiador %}
+
 if($('#flujo_vapor_out_tubo').val() && $('#flujo_vapor_in_tubo').val() && $('#flujo_liquido_in_tubo').val() && $('#flujo_liquido_out_tubo').val()){
     determinar_cambio_de_fase_tubo();
 }
@@ -124,3 +129,5 @@ if($('#flujo_vapor_out_tubo').val() && $('#flujo_vapor_in_tubo').val() && $('#fl
 if($('#flujo_vapor_out_carcasa').val() && $('#flujo_vapor_in_carcasa').val() && $('#flujo_liquido_in_carcasa').val() && $('#flujo_liquido_out_carcasa').val()){
     determinar_cambio_de_fase_carcasa();
 }
+
+// {% endif %}

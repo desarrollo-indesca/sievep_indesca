@@ -108,20 +108,18 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp: float, intercambiador
         fluido = datos.fluido_etiqueta if lado == 'T' else datos.fluido_etiqueta
 
     if(datos.cambio_de_fase == 'S'): # Caso 1: Sin Cambio de Fase
-        print("Sin cambio de fase")
         return flujo * cp * abs(t2-t1)
     else: # Caso 2: Cambio de Fase Total
-        print("Cambio de Fase Total")
         if(datos.tipo_cp == 'A'):
             return flujo*calcular_entalpia_entre_puntos(fluido.cas, t1, t2, presion)
         else:
             if(type(fluido) != str):
                 tsat,hvap = calcular_tsat_hvap(fluido.cas, presion)
             else:
-                tsat = transformar_unidades_temperatura([datos.tsat], datos.unidad_temperaturas)[0]
-                hvap = datos.hvap
+                tsat = transformar_unidades_temperatura([float(datos.tsat)], datos.temperaturas_unidad)[0]
+                hvap = float(datos.hvap) if datos.hvap else 5000
             
-            fluido_cp_gas, fluido_cp_liquido = transformar_unidades_cp([datos.fluido_cp_gas,datos.fluido_cp_liquido], datos.unidad_cp)
+            fluido_cp_gas, fluido_cp_liquido = transformar_unidades_cp([float(datos.fluido_cp_gas),float(datos.fluido_cp_liquido)], datos.unidad_cp)
             if(t1 <= t2): # Vaporización
                 return flujo*(fluido_cp_gas*(t2-tsat)+hvap+fluido_cp_liquido*(tsat-t1))
             else: # Condensación

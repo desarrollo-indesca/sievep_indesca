@@ -331,7 +331,7 @@ function anadir_listeners_cp() {
     
     $('#presion_entrada_tubo').keyup((e) => {
         ajaxCPTubo();
-    });    
+    });
 }
 
 // Cambio automático de unidades
@@ -418,7 +418,7 @@ function actualizar_tipos(lado = "T") {
     const id_cdf = lado === 'T' ? '#cambio_fase_tubo' : '#cambio_fase_carcasa';
     $(id).empty();
 
-    if($(id_fluido).val().includes("*") && !$(id_fluido).val().split('*')[1].includes('-')){
+    if($(id_fluido).val() === '' || $(id_fluido).val().includes("*") && !$(id_fluido).val().split('*')[1].includes('-')){
         $(id).html(`
             <option value="M">Manual</option>
         `);
