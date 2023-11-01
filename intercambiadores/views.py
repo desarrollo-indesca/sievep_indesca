@@ -428,6 +428,19 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             propiedades.save()
 
             # Actualización condiciones de diseño del tubo
+            t1,t2 = transformar_unidades_temperatura([float(request.POST['temp_in_tubo']), float(request.POST['temp_out_tubo'])], int(request.POST['unidad_temperaturas']))
+            presion = transformar_unidades_presion([float(request.POST['presion_entrada_tubo'])], int(request.POST['unidad_presiones']))[0]
+            tipo_cp = request.POST.get('tipo_cp_tubo')
+            unidad_cp = int(request.POST['unidad_cp'])
+            flujo_liquido_in,flujo_liquido_out = float(request.POST.get('flujo_liquido_in_tubo')),float(request.POST.get('flujo_liquido_out_tubo'))
+            flujo_vapor_in,flujo_vapor_out = float(request.POST.get('flujo_vapor_in_tubo')), float(request.POST.get('flujo_vapor_out_tubo'))
+            cambio_fase = obtener_cambio_fase(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in,flujo_liquido_out)
+
+            if(tipo_cp == 'A'):
+                cp_liquido,cp_gas = obtener_cps(t1,t2,presion,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in,flujo_vapor_out,Fluido.objects.get(pk=request.POST.get('fluido_tubo')).cas,cambio_fase,unidad_cp)
+            else:
+                cp_liquido,cp_gas = request.POST.get('cp_liquido_tubo'),request.POST.get('cp_gas_tubo')
+            
             condiciones_tubo = propiedades.condicion_tubo()
             condiciones_tubo.temp_entrada = request.POST['temp_in_tubo']
             condiciones_tubo.temp_salida = request.POST['temp_out_tubo']
@@ -436,13 +449,14 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             condiciones_tubo.flujo_liquido_salida = request.POST['flujo_liquido_out_tubo']
             condiciones_tubo.flujo_liquido_entrada = request.POST['flujo_liquido_in_tubo']
             condiciones_tubo.flujo_masico = float(request.POST['flujo_liquido_in_tubo']) + float(request.POST['flujo_vapor_in_tubo'])
-            condiciones_tubo.cambio_de_fase = obtener_cambio_fase(float(request.POST['flujo_vapor_in_tubo']),float(request.POST['flujo_vapor_out_tubo']), 
-                                    float(request.POST['flujo_liquido_in_tubo']), float(request.POST['flujo_liquido_out_tubo']))
+            condiciones_tubo.cambio_de_fase = cambio_fase
             condiciones_tubo.presion_entrada = request.POST['presion_entrada_tubo']
             condiciones_tubo.caida_presion_max = request.POST['caida_presion_max_tubo']
             condiciones_tubo.caida_presion_min = request.POST['caida_presion_min_tubo']
             condiciones_tubo.fouling = request.POST['fouling_tubo']
-            condiciones_tubo.fluido_cp = request.POST['cp_tubo']
+            condiciones_tubo.fluido_cp_gas = cp_gas
+            condiciones_tubo.fluido_cp_liquido = cp_liquido
+            condiciones_tubo.tipo_cp = tipo_cp
             condiciones_tubo.unidad_cp = Unidades.objects.get(pk=request.POST['unidad_cp'])
             condiciones_tubo.temperaturas_unidad = Unidades.objects.get(pk=request.POST['unidad_temperaturas'])
             condiciones_tubo.unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presiones'])
@@ -453,6 +467,19 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
 
             condiciones_tubo.save()
 
+            t1,t2 = transformar_unidades_temperatura([float(request.POST['temp_in_carcasa']), float(request.POST['temp_out_carcasa'])], int(request.POST['unidad_temperaturas']))
+            presion = transformar_unidades_presion([float(request.POST['presion_entrada_carcasa'])], int(request.POST['unidad_presiones']))[0]
+            tipo_cp = request.POST.get('tipo_cp_carcasa')
+            unidad_cp = int(request.POST['unidad_cp'])
+            flujo_liquido_in,flujo_liquido_out = float(request.POST.get('flujo_liquido_in_carcasa')),float(request.POST.get('flujo_liquido_out_carcasa'))
+            flujo_vapor_in,flujo_vapor_out = float(request.POST.get('flujo_vapor_in_carcasa')), float(request.POST.get('flujo_vapor_out_carcasa'))
+            cambio_fase = obtener_cambio_fase(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in,flujo_liquido_out)
+
+            if(tipo_cp == 'A'):
+                cp_liquido,cp_gas = obtener_cps(t1,t2,presion,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in,flujo_vapor_out,Fluido.objects.get(pk=request.POST.get('fluido_carcasa')).cas,cambio_fase,unidad_cp)
+            else:
+                cp_liquido,cp_gas = request.POST.get('cp_liquido_carcasa'),request.POST.get('cp_gas_carcasa')
+
             condiciones_carcasa = propiedades.condicion_carcasa()
             condiciones_carcasa.temp_entrada = request.POST['temp_in_carcasa']
             condiciones_carcasa.temp_salida = request.POST['temp_out_carcasa']
@@ -461,13 +488,14 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             condiciones_carcasa.flujo_liquido_salida = request.POST['flujo_liquido_out_carcasa']
             condiciones_carcasa.flujo_liquido_entrada = request.POST['flujo_liquido_in_carcasa']
             condiciones_carcasa.flujo_masico = float(request.POST['flujo_vapor_in_carcasa']) + float(request.POST['flujo_liquido_in_carcasa'])
-            condiciones_tubo.cambio_de_fase = obtener_cambio_fase(float(request.POST['flujo_vapor_in_carcasa']),float(request.POST['flujo_vapor_out_carcasa']), 
-                                    float(request.POST['flujo_liquido_in_carcasa']), float(request.POST['flujo_liquido_out_carcasa']))
+            condiciones_carcasa.cambio_de_fase = cambio_fase
             condiciones_carcasa.presion_entrada = request.POST['presion_entrada_carcasa']
             condiciones_carcasa.caida_presion_max = request.POST['caida_presion_max_carcasa']
             condiciones_carcasa.caida_presion_min = request.POST['caida_presion_min_carcasa']
             condiciones_carcasa.fouling = request.POST['fouling_carcasa']
-            condiciones_carcasa.fluido_cp = request.POST['cp_carcasa']
+            condiciones_carcasa.fluido_cp_gas = cp_gas
+            condiciones_carcasa.fluido_cp_liquido = cp_liquido
+            condiciones_carcasa.tipo_cp = tipo_cp
             condiciones_carcasa.unidad_cp = Unidades.objects.get(pk=request.POST['unidad_cp'])
             condiciones_carcasa.temperaturas_unidad = Unidades.objects.get(pk=request.POST['unidad_temperaturas'])
             condiciones_carcasa.unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presiones'])
