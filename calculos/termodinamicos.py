@@ -1,6 +1,5 @@
 from thermo.chemical import Chemical
 from thermo.mixture import Mixture
-import CoolProp.CoolProp as CP
 from .unidades import transformar_unidades_cp
 import numpy
 

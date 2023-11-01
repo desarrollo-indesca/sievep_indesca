@@ -122,7 +122,7 @@ function anadir_listeners_registro() {
         const cambio_fase = $('#cambio_fase_tubo').val();
 
         document.getElementById('fluido_tubo').innerHTML += `<option value="${valor}" selected>${document.getElementById('nombre_compuesto_tubo').value.toUpperCase()}</option>`;
-        console.log('A');
+
         if(cambio_fase === 'S'){
             // De acuerdo a lo flujos dados determinar cual se activa y desactiva
             if(Number($('#flujo_liquido_in_tubo').val()) !== 0 && Number($('#flujo_liquido_in_tubo').val()) === Number($('#flujo_liquido_out_tubo').val())){
@@ -139,14 +139,14 @@ function anadir_listeners_registro() {
             }
         }
         else if (cambio_fase !== '-'){
-            $('#cp_liquido_carcasa').removeAttr('disabled');
-            $('#cp_gas_carcasa').removeAttr('disabled');
-            document.getElementById('cp_liquido_carcasa').value = document.getElementById('cp_compuesto_carcasa').value;
-            document.getElementById('cp_gas_carcasa').value = document.getElementById('cp_compuesto_carcasa').value;
+            $('#cp_liquido_tubo').removeAttr('disabled');
+            $('#cp_gas_tubo').removeAttr('disabled');
+            document.getElementById('cp_liquido_tubo').value = document.getElementById('cp_compuesto_tubo').value;
+            document.getElementById('cp_gas_tubo').value = document.getElementById('cp_compuesto_tubo').value;
         }
 
-        $('#condiciones_diseno_fluido_carcasaClose').click();
-        actualizar_tipos('C');
+        $('#condiciones_diseno_fluido_tuboClose').click();
+        actualizar_tipos('T');
     });
     
     $('#nombre_compuesto_carcasa').keyup((e) => {
@@ -312,13 +312,13 @@ function anadir_listeners_cp() {
         if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
             const val = $('#fluido_tubo').val();
             if(Number(val))
-                ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), val, 'T');
+                ajaxCPTubo();
             else{
                 const splitted = val.split('*');
                 if(Number(splitted[1]))
                     console.log("tubo");
                 else
-                    ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), val, 'T');
+                    ajaxCPTubo();
             }
         }
 

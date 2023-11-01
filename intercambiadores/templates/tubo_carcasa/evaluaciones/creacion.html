@@ -235,7 +235,7 @@
         <hr>
         
         <div class="d-flex justify-content-center mb-3">
-            <button id="registrar_resultado" class="btn btn-danger" disabled>Registrar Resultados De La Evaluación</button>
+            <button onclick="this.form.submit(); this.disabled = true;" id="registrar_resultado" class="btn btn-danger" disabled>Registrar Resultados De La Evaluación</button>
         </div>
     </form>
 {% endblock %}

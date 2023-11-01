@@ -921,7 +921,7 @@
         <hr>
         
         <div class="d-flex justify-content-center mb-3">
-            <button type="submit" class="btn btn-danger" disabled>Registrar Intercambiador</button>
+            <button type="submit" onclick="this.form.submit(); this.disabled = true;" class="btn btn-danger" disabled>Registrar Intercambiador</button>
         </div>
     </form>
 {% endblock %}
