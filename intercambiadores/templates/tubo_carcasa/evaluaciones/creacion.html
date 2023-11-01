@@ -62,20 +62,29 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-6 d-flex flex-column">
+                    <div class="col-12 d-flex flex-column">
                         <label class="form-label" for="fluido_carcasa">Fluido:</label>
                         <select disabled class="form-select" name="fluido_carcasa" id="fluido_carcasa" disabled>
                             <option value="{{intercambiador.fluido_carcasa.pk}}">{% if intercambiador.fluido_carcasa %}{{intercambiador.fluido_carcasa}}{%else%}{{intercambiador.condicion_carcasa.fluido_etiqueta}}{%endif%}</option>
                         </select>
                     </div>
                     <div class="col-6 d-flex flex-column">
-                        <label class="form-label" for="cp_carcasa">Capacidad Calorífica Prom.:</label>
+                        <label class="form-label" for="cp_carcasa_liquido">Cp Líquido Prom.:</label>
                         <div class="input-group mb-3">
-                            <input value="{% if not intercambiador.fluido_carcasa %}{{intercambiador.condicion_carcasa.fluido_cp|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" type="number" name="cp_carcasa" min="0.0001" id="cp_carcasa" class="form-control campo">
+                            <input value="{% if not intercambiador.fluido_carcasa %}{{intercambiador.condicion_carcasa.fluido_cp|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" type="number" name="cp_carcasa_liquido" min="0.0001" id="cp_carcasa_liquido" class="form-control campo">
                             <select style="width: 40% !important;" class="form-select campo" name="unidad_cp" id="unidad_cp">
                                 {% for unidad in unidades_cp %}
                                 <option value="{{unidad.pk}}">{{unidad}}</option>
                                 {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-6 d-flex flex-column">
+                        <label class="form-label" for="cp_carcasa_gas">Cp Gas Prom.:</label>
+                        <div class="input-group mb-3">
+                            <input value="{% if not intercambiador.fluido_carcasa %}{{intercambiador.condicion_carcasa.fluido_cp|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" type="number" name="cp_carcasa_gas" min="0.0001" id="cp_carcasa_gas" class="form-control campo">
+                            <select style="width: 40% !important;" class="form-select campo" name="unidad_cp" id="unidad_cp" disabled>
+                                <option>J/KgK</option>
                             </select>
                         </div>
                     </div>
@@ -124,16 +133,25 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-6 d-flex flex-column">
+                    <div class="col-12 d-flex flex-column">
                         <label class="form-label" for="fluido_tubo">Fluido:</label>
                         <select disabled class="form-select" name="fluido_tubo" id="fluido_tubo" disabled>
                             <option value="{{intercambiador.fluido_tubo.pk}}">{% if intercambiador.fluido_tubo %}{{intercambiador.fluido_tubo}}{%else%}{{intercambiador.condicion_tubo.fluido_etiqueta}}{%endif%}</option>
                         </select>
                     </div>
                     <div class="col-6 d-flex flex-column">
-                        <label class="form-label" for="cp_tubo">Capacidad Calorífica Prom.:</label>
+                        <label class="form-label" for="cp_tubo_liquido">Cp Líquido Prom.:</label>
                         <div class="input-group mb-3">
-                            <input value="{% if not intercambiador.fluido_tubo %}{{intercambiador.condicion_tubo.fluido_cp|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" type="number" name="cp_tubo" min="0.0001" id="cp_tubo" class="form-control campo">
+                            <input value="{% if not intercambiador.fluido_tubo %}{{intercambiador.condicion_tubo.fluido_cp_liquido|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" type="number" name="cp_tubo_liquido" min="0.0001" id="cp_tubo_liquido" class="form-control campo">
+                            <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
+                                <option value="1">J/KgK</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-6 d-flex flex-column">
+                        <label class="form-label" for="cp_tubo_gas">Cp Gas Prom.:</label>
+                        <div class="input-group mb-3">
+                            <input value="{% if not intercambiador.fluido_tubo %}{{intercambiador.condicion_tubo.fluido_cp_gas|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" type="number" name="cp_tubo_gas" min="0.0001" id="cp_tubo_gas" class="form-control campo">
                             <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
                                 <option value="1">J/KgK</option>
                             </select>

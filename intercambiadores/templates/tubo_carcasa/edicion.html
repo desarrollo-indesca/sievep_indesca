@@ -194,8 +194,12 @@
                         <div style="width: 50%;">
                             <label for="tipo_cp_carcasa">Cálculo del Cp:</label>
                             <select class="form-select" name="tipo_cp_carcasa" id="tipo_cp_carcasa">
+                                {% if condicion_tubo.fluido_etiqueta != '' %}
+                                <option value="M" {% if condicion_carcasa.tipo_cp == 'M' %} selected {% endif %}>Manual</option>
+                                {% else %}
                                 <option value="A" {% if condicion_carcasa.tipo_cp == 'A' %} selected {% endif %}>Automático</option>
                                 <option value="M" {% if condicion_carcasa.tipo_cp == 'M' %} selected {% endif %}>Manual</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
@@ -441,8 +445,12 @@
                         <div style="width: 50%;">
                             <label for="tipo_cp_tubo">Cálculo del Cp:</label>
                             <select class="form-select" name="tipo_cp_tubo" id="tipo_cp_tubo">
+                                {% if condicion_tubo.fluido_etiqueta != '' %}
+                                <option value="M" {% if condicion_tubo.tipo_cp == 'M' %} selected {% endif %}>Manual</option>
+                                {% else %}
                                 <option value="A" {% if condicion_tubo.tipo_cp == 'A' %} selected {% endif %}>Automático</option>
                                 <option value="M" {% if condicion_tubo.tipo_cp == 'M' %} selected {% endif %}>Manual</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>

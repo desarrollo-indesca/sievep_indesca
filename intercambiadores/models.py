@@ -288,8 +288,11 @@ class EvaluacionesIntercambiador(models.Model):
     caida_presion_ex = models.DecimalField(max_digits=10, decimal_places=3)
     unidad_presion = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="presion_unidad_evaluacionintercambiador")
 
-    cp_tubo = models.DecimalField(max_digits=10, decimal_places=4)
-    cp_carcasa = models.DecimalField(max_digits=10, decimal_places=4)
+    cp_tubo_gas = models.DecimalField(max_digits=10, decimal_places=4, null=True)
+    cp_tubo_liquido = models.DecimalField(max_digits=10, decimal_places=4, null=True)
+    cp_carcasa_gas = models.DecimalField(max_digits=10, decimal_places=4, null=True)
+    cp_carcasa_liquido = models.DecimalField(max_digits=10, decimal_places=4, null=True)
+    tipo = models.CharField(max_length=1, choices=[['A', 'Automático'], ['M','Manual']])
     cp_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="cp_unidad_evaluacionintercambiador", default=29)
 
     # Datos de Salida
