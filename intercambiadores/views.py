@@ -138,56 +138,17 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             # Condiciones de Diseño del Tubo
             t1,t2 = transformar_unidades_temperatura([float(request.POST['temp_in_tubo']), float(request.POST['temp_out_tubo'])], int(request.POST['unidad_temperaturas']))
             presion = transformar_unidades_presion([float(request.POST['presion_entrada_tubo'])], int(request.POST['unidad_presiones']))[0]
-            cambio_fase = obtener_cambio_fase(float(request.POST['flujo_vapor_in_tubo']),float(request.POST['flujo_vapor_out_tubo']), 
-                                                float(request.POST['flujo_liquido_in_tubo']), float(request.POST['flujo_liquido_out_tubo']))
             tipo_cp = request.POST.get('tipo_cp_tubo')
             unidad_cp = int(request.POST['unidad_cp'])
-            cp_gas = None
-            cp_liquido = None
+            flujo_liquido_in,flujo_liquido_out = float(request.POST.get('flujo_liquido_in_tubo')),float(request.POST.get('flujo_liquido_out_tubo'))
+            flujo_vapor_in,flujo_vapor_out = float(request.POST.get('flujo_vapor_in_tubo')), float(request.POST.get('flujo_vapor_out_tubo'))
+            cambio_fase = obtener_cambio_fase(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in,flujo_liquido_out)
 
-            # TODO es necesario cambiar esto de acuerdo a una función
             if(tipo_cp == 'A'):
-                flujos = {
-                    'flujo_vapor_in': float(request.POST['flujo_vapor_in_tubo']) if request.POST.get('flujo_vapor_in_tubo') else 0,
-                    'flujo_vapor_out': float(request.POST['flujo_vapor_out_tubo']) if request.POST.get('flujo_vapor_out_tubo') else 0,
-                    'flujo_liquido_in': float(request.POST['flujo_liquido_in_tubo']) if request.POST.get('flujo_liquido_in_tubo') else 0,
-                    'flujo_liquido_out': float(request.POST['flujo_liquido_out_tubo']) if request.POST.get('flujo_liquido_out_tubo') else 0
-                }
-                if(cambio_fase == 'S'): # Sin Cambio de Fase
-                    fase = 'g' if flujos['flujo_vapor_in'] != 0 else 'l'
-                    if(fase == 'g'):
-                        cp_gas = calcular_cp(fluido_tubo.cas, t1, t2, unidad_cp, presion, fase)
-                    else:
-                        cp_liquido = calcular_cp(fluido_tubo.cas, t1, t2, unidad_cp, presion, fase)
-                elif(cambio_fase == 'P'): # Cambio de Fase Parcial
-                    caso = determinar_cambio_parcial(**flujos)
-                    if(caso == 'DD'): # Domo a Domo. t1 y t2 se consideran iguales
-                        cp_gas = calcular_cp(fluido_tubo.cas, t1, t1, unidad_cp, presion, 'g')
-                        cp_liquido = calcular_cp(fluido_tubo.cas, t1, t1, unidad_cp, presion, 'l')  
-                    if(caso == 'VD'): # Vapor a Domo. Se considera t1 > t2.
-                        cp_gas = calcular_cp(fluido_tubo.cas, t1, t2, unidad_cp, presion, 'g')
-                        cp_liquido = calcular_cp(fluido_tubo.cas, t2, t2, unidad_cp, presion, 'l')    
-                    if(caso == 'LD'): # Líquido a Domo. Se considera t2 > t1.
-                        cp_gas = calcular_cp(fluido_tubo.cas, t2, t2, unidad_cp, presion, 'g')
-                        cp_liquido = calcular_cp(fluido_tubo.cas, t2, t1, unidad_cp, presion, 'l')  
-                    if(caso == 'DL'): # Domo a Líquido. Se asume que t2 < t1.
-                        cp_gas = calcular_cp(fluido_tubo.cas, t1, t1, unidad_cp, presion, 'g')
-                        cp_liquido = calcular_cp(fluido_tubo.cas, t1, t2, unidad_cp, presion, 'l')    
-                    if(caso == 'DV'): # Domo a Vapor. Se asume que t2 > t1.
-                        cp_gas = calcular_cp(fluido_tubo.cas, t2, t1, unidad_cp, presion, 'g')
-                        cp_liquido = calcular_cp(fluido_tubo.cas, t1, t1, unidad_cp, presion, 'l')
-                else: # Cambio de Fase Total
-                    tsat = Chemical(fluido_tubo.cas).Tsat(presion)
-                    if(t1 <= t2):
-                        cp_liquido = calcular_cp(fluido_tubo.cas, t1, tsat, unidad_cp, presion, 'l')
-                        cp_gas = calcular_cp(fluido_tubo.cas, tsat, t2, unidad_cp, presion, 'g')
-                    else:
-                        cp_liquido = calcular_cp(fluido_tubo.cas, tsat, t2, unidad_cp, presion, 'l')
-                        cp_gas = calcular_cp(fluido_tubo.cas, t1, tsat, unidad_cp, presion, 'g')
+                cp_liquido,cp_gas = obtener_cps(t1,t2,presion,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in,flujo_vapor_out,Fluido.objects.get(pk=request.POST.get('fluido_tubo')).cas,cambio_fase,unidad_cp)
             else:
-                cp_gas = request.POST.get('cp_gas_tubo')
-                cp_liquido = request.POST.get('cp_liquido_tubo')
-
+                cp_liquido,cp_gas = request.POST.get('cp_liquido_tubo'),request.POST.get('cp_gas_tubo')
+            
             condiciones_diseno_tubo = CondicionesTuboCarcasa.objects.create(
                 intercambiador = propiedades,
                 lado = 'T',
@@ -218,57 +179,17 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             # Condiciones de Diseño de la Carcasa
             t1,t2 = transformar_unidades_temperatura([float(request.POST['temp_in_carcasa']), float(request.POST['temp_out_carcasa'])], int(request.POST['unidad_temperaturas']))
             presion = transformar_unidades_presion([float(request.POST['presion_entrada_carcasa'])], int(request.POST['unidad_presiones']))[0]
-            cambio_fase = obtener_cambio_fase(float(request.POST['flujo_vapor_in_carcasa']),float(request.POST['flujo_vapor_out_carcasa']), 
-                                    float(request.POST['flujo_liquido_in_carcasa']), float(request.POST['flujo_liquido_out_carcasa']))
             tipo_cp = request.POST.get('tipo_cp_carcasa')
             unidad_cp = int(request.POST['unidad_cp'])
+            flujo_liquido_in,flujo_liquido_out = float(request.POST.get('flujo_liquido_in_carcasa')),float(request.POST.get('flujo_liquido_out_carcasa'))
+            flujo_vapor_in,flujo_vapor_out = float(request.POST.get('flujo_vapor_in_carcasa')), float(request.POST.get('flujo_vapor_out_carcasa'))
+            cambio_fase = obtener_cambio_fase(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in,flujo_liquido_out)
 
-            cp_gas = None
-            cp_liquido = None
-
-            # TODO es necesario cambiar esto de acuerdo a una función
             if(tipo_cp == 'A'):
-                flujos = {
-                    'flujo_vapor_in': float(request.POST['flujo_vapor_in_carcasa']) if request.POST.get('flujo_vapor_in_carcasa') else 0,
-                    'flujo_vapor_out': float(request.POST['flujo_vapor_out_carcasa']) if request.POST.get('flujo_vapor_out_carcasa') else 0,
-                    'flujo_liquido_in': float(request.POST['flujo_liquido_in_carcasa']) if request.POST.get('flujo_liquido_in_carcasa') else 0,
-                    'flujo_liquido_out': float(request.POST['flujo_liquido_out_carcasa']) if request.POST.get('flujo_liquido_out_carcasa') else 0
-                } 
-                if(cambio_fase == 'S'): # Sin Cambio de Fase
-                    fase = 'g' if flujos['flujo_vapor_in'] != 0 else 'l'
-                    if(fase == 'g'):
-                        cp_gas = calcular_cp(fluido_carcasa.cas, t1, t2, unidad_cp, presion, fase)
-                    else:
-                        cp_liquido = calcular_cp(fluido_carcasa.cas, t1, t2, unidad_cp, presion, fase)
-                elif(cambio_fase == 'P'): # Cambio de Fase Parcial
-                    caso = determinar_cambio_parcial(**flujos)
-                    if(caso == 'DD'): # Domo a Domo. t1 y t2 se consideran iguales
-                        cp_gas = calcular_cp(fluido_carcasa.cas, t1, t1, unidad_cp, presion, 'g')
-                        cp_liquido = calcular_cp(fluido_carcasa.cas, t1, t1, unidad_cp, presion, 'l')  
-                    if(caso == 'VD'): # Vapor a Domo. Se considera t1 > t2.
-                        cp_gas = calcular_cp(fluido_carcasa.cas, t1, t2, unidad_cp, presion, 'g')
-                        cp_liquido = calcular_cp(fluido_carcasa.cas, t2, t2, unidad_cp, presion, 'l')    
-                    if(caso == 'LD'): # Líquido a Domo. Se considera t2 > t1.
-                        cp_gas = calcular_cp(fluido_carcasa.cas, t2, t2, unidad_cp, presion, 'g')
-                        cp_liquido = calcular_cp(fluido_carcasa.cas, t2, t1, unidad_cp, presion, 'l')  
-                    if(caso == 'DL'): # Domo a Líquido. Se asume que t2 < t1.
-                        cp_gas = calcular_cp(fluido_carcasa.cas, t1, t1, unidad_cp, presion, 'g')
-                        cp_liquido = calcular_cp(fluido_carcasa.cas, t1, t2, unidad_cp, presion, 'l')    
-                    if(caso == 'DV'): # Domo a Vapor. Se asume que t2 > t1.
-                        cp_gas = calcular_cp(fluido_carcasa.cas, t2, t1, unidad_cp, presion, 'g')
-                        cp_liquido = calcular_cp(fluido_carcasa.cas, t1, t1, unidad_cp, presion, 'l')
-                else: # Cambio de Fase Total
-                    tsat = Chemical(fluido_carcasa.cas).Tsat(presion)
-                    if(t1 <= t2):
-                        cp_liquido = calcular_cp(fluido_carcasa.cas, t1, tsat, unidad_cp, presion, 'l')
-                        cp_gas = calcular_cp(fluido_carcasa.cas, tsat, t2, unidad_cp, presion, 'g')
-                    else:
-                        cp_liquido = calcular_cp(fluido_carcasa.cas, tsat, t2, unidad_cp, presion, 'l')
-                        cp_gas = calcular_cp(fluido_carcasa.cas, t1, tsat, unidad_cp, presion, 'g')
+                cp_liquido,cp_gas = obtener_cps(t1,t2,presion,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in,flujo_vapor_out,Fluido.objects.get(pk=request.POST.get('fluido_carcasa')).cas,cambio_fase,unidad_cp)
             else:
-                cp_gas = request.POST.get('cp_gas_carcasa')
-                cp_liquido = request.POST.get('cp_liquido_carcasa')
-
+                cp_liquido,cp_gas = request.POST.get('cp_liquido_carcasa'),request.POST.get('cp_gas_carcasa')
+           
             condiciones_diseno_carcasa = CondicionesTuboCarcasa.objects.create(
                 intercambiador = propiedades,
                 lado = 'C',
@@ -1050,3 +971,40 @@ class ArreglarCpsSegunTipo(LoginRequiredMixin, View):
                         print(cp_liquido)
                         print("************")
                         break
+
+def obtener_cps(t1, t2, presion, flujo_liquido_in, flujo_liquido_out, flujo_vapor_in, flujo_vapor_out, fluido, cambio_fase, unidad_cp):                                   
+    cp_gas = None
+    cp_liquido = None
+    if(cambio_fase == 'S'): # Sin Cambio de Fase
+        fase = 'g' if flujo_vapor_in != 0 else 'l'
+        if(fase == 'g'):
+            cp_gas = calcular_cp(fluido, t1, t2, unidad_cp, presion, fase)
+        else:
+            cp_liquido = calcular_cp(fluido, t1, t2, unidad_cp, presion, fase)
+    elif(cambio_fase == 'P'): # Cambio de Fase Parcial
+        caso = determinar_cambio_parcial(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out)
+        if(caso == 'DD'): # Domo a Domo. t1 y t2 se consideran iguales
+            cp_gas = calcular_cp(fluido, t1, t1, unidad_cp, presion, 'g')
+            cp_liquido = calcular_cp(fluido, t1, t1, unidad_cp, presion, 'l')  
+        if(caso == 'VD'): # Vapor a Domo. Se considera t1 > t2.
+            cp_gas = calcular_cp(fluido, t1, t2, unidad_cp, presion, 'g')
+            cp_liquido = calcular_cp(fluido, t2, t2, unidad_cp, presion, 'l')    
+        if(caso == 'LD'): # Líquido a Domo. Se considera t2 > t1.
+            cp_gas = calcular_cp(fluido, t2, t2, unidad_cp, presion, 'g')
+            cp_liquido = calcular_cp(fluido, t2, t1, unidad_cp, presion, 'l')  
+        if(caso == 'DL'): # Domo a Líquido. Se asume que t2 < t1.
+            cp_gas = calcular_cp(fluido, t1, t1, unidad_cp, presion, 'g')
+            cp_liquido = calcular_cp(fluido, t1, t2, unidad_cp, presion, 'l')    
+        if(caso == 'DV'): # Domo a Vapor. Se asume que t2 > t1.
+            cp_gas = calcular_cp(fluido, t2, t1, unidad_cp, presion, 'g')
+            cp_liquido = calcular_cp(fluido, t1, t1, unidad_cp, presion, 'l')
+    else: # Cambio de Fase Total
+        tsat = Chemical(fluido).Tsat(presion)
+        if(t1 <= t2):
+            cp_liquido = calcular_cp(fluido, t1, tsat, unidad_cp, presion, 'l')
+            cp_gas = calcular_cp(fluido, tsat, t2, unidad_cp, presion, 'g')
+        else:
+            cp_liquido = calcular_cp(fluido, tsat, t2, unidad_cp, presion, 'l')
+            cp_gas = calcular_cp(fluido, t1, tsat, unidad_cp, presion, 'g')
+    
+    return [cp_liquido,cp_gas]
