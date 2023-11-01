@@ -1,7 +1,7 @@
 import numpy as np
-from .unidades import transformar_unidades_temperatura, transformar_unidades_flujo, transformar_unidades_longitud, transformar_unidades_presion
+from .unidades import transformar_unidades_temperatura, transformar_unidades_flujo, transformar_unidades_longitud, transformar_unidades_presion, transformar_unidades_cp
 from ht import F_LMTD_Fakheri
-from .termodinamicos import calcular_entalpia_entre_puntos
+from .termodinamicos import calcular_entalpia_entre_puntos, calcular_tsat_hvap
 
 def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo = None, cp_carcasa = None, unidad_temp = 1, unidad_flujo = 6) -> dict:
     ti,ts,Ti,Ts = transformar_unidades_temperatura([ti,ts,Ti,Ts], unidad=unidad_temp)
@@ -102,6 +102,7 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp: float, intercambiador
 
     fluido = intercambiador.fluido_tubo if lado == 'T' else intercambiador.fluido_carcasa
     datos = intercambiador.condicion_tubo() if lado == 'T' else intercambiador.condicion_carcasa()
+    presion = transformar_unidades_presion([float(datos.presion_entrada)], datos.unidad_presion)[0]
 
     if(fluido == None):
         fluido = datos.fluido_etiqueta if lado == 'T' else datos.fluido_etiqueta
@@ -111,7 +112,21 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp: float, intercambiador
         return flujo * cp * abs(t2-t1)
     else: # Caso 2: Cambio de Fase Total
         print("Cambio de Fase Total")
-        return flujo*calcular_entalpia_entre_puntos(fluido.cas, t1, t2, transformar_unidades_presion([float(datos.presion_entrada)], datos.unidad_presion)[0])
+        if(datos.tipo_cp == 'A'):
+            return flujo*calcular_entalpia_entre_puntos(fluido.cas, t1, t2, presion)
+        else:
+            if(type(fluido) != str):
+                tsat,hvap = calcular_tsat_hvap(fluido.cas, presion)
+            else:
+                tsat = transformar_unidades_temperatura([datos.tsat], datos.unidad_temperaturas)[0]
+                hvap = datos.hvap
+            
+            fluido_cp_gas, fluido_cp_liquido = transformar_unidades_cp([datos.fluido_cp_gas,datos.fluido_cp_liquido], datos.unidad_cp)
+            if(t1 <= t2): # Vaporización
+                return flujo*(fluido_cp_gas*(t2-tsat)+hvap+fluido_cp_liquido*(tsat-t1))
+            else: # Condensación
+                return abs(flujo*(fluido_cp_gas*(t1-tsat)-hvap+fluido_cp_liquido*(t2-tsat)))
+                       
     # elif(datos.cambio_de_fase == 'P'): # Caso 3: Cambio de Fase Parcial
         # pass  
 
