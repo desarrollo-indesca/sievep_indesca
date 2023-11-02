@@ -775,15 +775,16 @@ class EvaluarTuboCarcasa(LoginRequiredMixin, View):
         ft = (float(request.GET['flujo_tubo'].replace(',','.')))
         fc = (float(request.GET['flujo_carcasa'].replace(',','.')))
         nt = (float(request.GET['no_tubos']))
-        cp_tubo = transformar_unidades_cp([float(request.GET['cp_tubo'].replace(',','.'))], unidad=request.GET['unidad_cp'])[0]
-        cp_carcasa = transformar_unidades_cp([float(request.GET['cp_carcasa'].replace(',','.'))], unidad=request.GET['unidad_cp'])[0]
+        cp_gas_tubo = transformar_unidades_cp([float(request.GET['cp_gas_tubo'])], unidad=request.GET['unidad_cp'])[0] if request.GET.get('cp_gas_tubo') else None
+        cp_liquido_tubo = transformar_unidades_cp([float(request.GET['cp_liquido_tubo'])], unidad=request.GET['unidad_cp'])[0] if request.GET.get('cp_liquido_tubo') else None
+        cp_gas_carcasa = transformar_unidades_cp([float(request.GET['cp_gas_carcasa'])], unidad=request.GET['unidad_cp'])[0] if request.GET.get('cp_gas_carcasa') else None
+        cp_liquido_carcasa = transformar_unidades_cp([float(request.GET['cp_liquido_carcasa'])], unidad=request.GET['unidad_cp'])[0] if request.GET.get('cp_liquido_carcasa') else None
         unidad = int(request.GET['unidad'])
         unidad_flujo = int(request.GET['unidad_flujo'])
 
-        print(ti, ts, Ti, Ts, ft, fc, cp_tubo, cp_carcasa)
+        print(ti, ts, Ti, Ts, ft, fc, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa)
 
-        res = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_tubo, cp_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
-        print(res)
+        res = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
         return JsonResponse(res)
 
 class ConsultaCAS(LoginRequiredMixin, View):

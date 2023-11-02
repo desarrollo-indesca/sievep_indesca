@@ -3,14 +3,14 @@ from .unidades import transformar_unidades_temperatura, transformar_unidades_flu
 from ht import F_LMTD_Fakheri
 from .termodinamicos import calcular_entalpia_entre_puntos, calcular_tsat_hvap
 
-def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo = None, cp_carcasa = None, unidad_temp = 1, unidad_flujo = 6) -> dict:
+def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_tubo = None, cp_liquido_tubo = None, cp_gas_carcasa = None, cp_liquido_carcasa = None, unidad_temp = 1, unidad_flujo = 6) -> dict:
     ti,ts,Ti,Ts = transformar_unidades_temperatura([ti,ts,Ti,Ts], unidad=unidad_temp)
     
     if(unidad_flujo != 10):
         ft,Fc = transformar_unidades_flujo([ft,Fc], unidad_flujo)
 
-    q_tubo = calcular_calor(ft, ti, ts, cp_tubo, intercambiador, 'T') # W
-    q_carcasa = calcular_calor(Fc, Ti, Ts, cp_carcasa, intercambiador, 'C') # W
+    q_tubo = calcular_calor(ft, ti, ts, cp_gas_tubo, cp_liquido_tubo, intercambiador, 'T') # W
+    q_carcasa = calcular_calor(Fc, Ti, Ts, cp_gas_carcasa, cp_liquido_carcasa, intercambiador, 'C') # W
 
     print(q_tubo)
     print(q_carcasa)
@@ -32,8 +32,8 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
     ucalc = q_prom/(area_calculada*dtml*factor) # Wm2/K
     RF = 1/ucalc - 1/float(intercambiador.u) 
     
-    ct = ft*cp_tubo
-    cc = Fc*cp_carcasa
+    ct = ft*cp_gas_tubo if cp_gas_tubo else ft*cp_liquido_tubo 
+    cc = Fc*cp_gas_carcasa if cp_gas_carcasa else Fc*cp_liquido_carcasa 
 
     if(ct < cc):
         cmin = ct
@@ -76,14 +76,12 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_tubo 
         'ntu': round(ntu,4),
         'u': round(ucalc,8),
         'ua': round(ucalc*area_calculada,4),
-        'cp_tubo': round(cp_tubo,4),
-        'cp_carcasa': round(cp_carcasa,4),
         'factor_ensuciamiento': round(RF,4),
     }
 
     return resultados
 
-def calcular_calor(flujo: float, t1: float, t2: float, cp: float, intercambiador, lado: str = 'T') -> float:
+def calcular_calor(flujo: float, t1: float, t2: float, cp_gas: float, cp_liquido: float,  intercambiador, lado: str = 'T') -> float:
     """
     Resumen:
         Esta función calcula el calor intercambiado en uno de los lados de un intercambiador.
@@ -108,7 +106,7 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp: float, intercambiador
         fluido = datos.fluido_etiqueta if lado == 'T' else datos.fluido_etiqueta
 
     if(datos.cambio_de_fase == 'S'): # Caso 1: Sin Cambio de Fase
-        return flujo * cp * abs(t2-t1)
+        return flujo * cp_liquido * abs(t2-t1) if cp_liquido else flujo * cp_gas * abs(t2-t1)
     else: # Caso 2: Cambio de Fase Total
         if(datos.tipo_cp == 'A'):
             return flujo*calcular_entalpia_entre_puntos(fluido.cas, t1, t2, presion)
@@ -119,11 +117,12 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp: float, intercambiador
                 tsat = transformar_unidades_temperatura([float(datos.tsat)], datos.temperaturas_unidad)[0]
                 hvap = float(datos.hvap) if datos.hvap else 5000
             
-            fluido_cp_gas, fluido_cp_liquido = transformar_unidades_cp([float(datos.fluido_cp_gas),float(datos.fluido_cp_liquido)], datos.unidad_cp)
+            fluido_cp_gas, fluido_cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], datos.unidad_cp)
+
             if(t1 <= t2): # Vaporización
                 return flujo*(fluido_cp_gas*(t2-tsat)+hvap+fluido_cp_liquido*(tsat-t1))
             else: # Condensación
-                return abs(flujo*(fluido_cp_gas*(t1-tsat)-hvap+fluido_cp_liquido*(t2-tsat)))
+                return abs(flujo*(fluido_cp_gas*(tsat-t1)-hvap+fluido_cp_liquido*(t2-tsat)))
                        
     # elif(datos.cambio_de_fase == 'P'): # Caso 3: Cambio de Fase Parcial
         # pass  

@@ -694,8 +694,6 @@
     }
 
     const ajaxEvaluacion = async () => {
-        console.log("Evaluando");
-        
         if(en_uso)
             await delay(500)
 
@@ -714,8 +712,10 @@
                     flujo_tubo: document.getElementById('flujo_tubo').value,
                     flujo_carcasa: document.getElementById('flujo_carcasa').value,
                     no_tubos: document.getElementById('no_tubos').value,
-                    cp_tubo: document.getElementById('cp_tubo').value,
-                    cp_carcasa: document.getElementById('cp_carcasa').value,
+                    cp_gas_tubo: document.getElementById('cp_gas_tubo').value,
+                    cp_liquido_tubo: document.getElementById('cp_liquido_tubo').value,
+                    cp_gas_carcasa: document.getElementById('cp_gas_carcasa').value,
+                    cp_liquido_carcasa: document.getElementById('cp_liquido_carcasa').value,
                     unidad_cp: $('#unidad_cp').val(),
                     unidad: document.getElementById('unidad_temperaturas').value,
                     unidad_flujo: document.getElementById('unidad_flujo').value
