@@ -205,10 +205,15 @@ class PropiedadesTuboCarcasa(models.Model):
         ft = float(cond_tubo.flujo_masico)
         fc = float(cond_carcasa.flujo_masico)
 
+        fluido_cp_gas_tubo = float(cond_tubo.fluido_cp_gas) if cond_tubo.fluido_cp_gas else None
+        fluido_cp_liquido_tubo = float(cond_tubo.fluido_cp_liquido) if cond_tubo.fluido_cp_liquido else None
+        fluido_cp_gas_carcasa = float(cond_carcasa.fluido_cp_gas) if cond_carcasa.fluido_cp_gas else None
+        fluido_cp_liquido_carcasa = float(cond_carcasa.fluido_cp_liquido) if cond_carcasa.fluido_cp_liquido else None
+
         return evaluacion_tubo_carcasa(self, ti, ts, Ti, Ts, ft, fc, 
-            self.numero_tubos,  float(self.condicion_tubo().fluido_cp_gas),
-            float(self.condicion_carcasa().fluido_cp_gas),
-            unidad_flujo=self.condicion_carcasa().flujos_unidad.pk)
+            self.numero_tubos,  fluido_cp_gas_tubo, fluido_cp_liquido_tubo,
+            fluido_cp_gas_carcasa, fluido_cp_liquido_carcasa,
+            unidad_temp=cond_carcasa.temperaturas_unidad.pk, unidad_flujo=cond_carcasa.flujos_unidad.pk)
 
     def condicion_tubo(self):
         return self.condiciones.get(lado='T')

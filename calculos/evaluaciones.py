@@ -108,6 +108,7 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp_gas: float, cp_liquido
     if(datos.cambio_de_fase == 'S'): # Caso 1: Sin Cambio de Fase
         return flujo * cp_liquido * abs(t2-t1) if cp_liquido else flujo * cp_gas * abs(t2-t1)
     else: # Caso 2: Cambio de Fase Total
+        print(lado)
         if(datos.tipo_cp == 'A'):
             return flujo*calcular_entalpia_entre_puntos(fluido.cas, t1, t2, presion)
         else:
