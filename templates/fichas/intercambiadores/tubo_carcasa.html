@@ -128,14 +128,14 @@
                     </tr>
                     <tr>
                       <th class="table-dark" colspan="2">Cap. Calorífica Vapor (<span id="unidad_cp_ficha">{{condiciones_tubo.unidad_cp}}</span>)</th>
-                      <td colspan="2" id="cp_ficha_carcasa">
+                      <td colspan="2" id="cp_vapor_ficha_carcasa">
                           {% if condiciones_carcasa.fluido_cp_gas %}
                           {{condiciones_carcasa.fluido_cp_gas}}
                           {%else%}
                           -
                           {%endif%}               
                       </td>
-                      <td colspan="2" id="cp_ficha_tubo">
+                      <td colspan="2" id="cp_vapor_ficha_tubo">
                         {% if condiciones_tubo.fluido_cp_gas %}
                           {{condiciones_tubo.fluido_cp_gas}}
                         {%else%}
@@ -144,15 +144,15 @@
                       </td>
                     </tr>
                     <tr>
-                      <th class="table-dark" colspan="2">Cap. Calorífica Líquido (<span id="unidad_cp_ficha">{{condiciones_tubo.unidad_cp}}</span>)</th>
-                      <td colspan="2" id="cp_ficha_carcasa">
+                      <th class="table-dark" colspan="2">Cap. Calorífica Líquido ({{condiciones_tubo.unidad_cp}})</th>
+                      <td colspan="2" id="cp_liquido_ficha_carcasa">
                         {% if condiciones_carcasa.fluido_cp_liquido %}
                           {{condiciones_carcasa.fluido_cp_liquido}}
                         {%else%}
                         -
                         {%endif%}         
                       </td>
-                      <td colspan="2" id="cp_ficha_tubo">
+                      <td colspan="2" id="cp_liquido_ficha_tubo">
                         {% if condiciones_tubo.fluido_cp_liquido %}
                           {{condiciones_tubo.fluido_cp_liquido}}
                         {%else%}
@@ -162,13 +162,16 @@
                     </tr>
                     <tr>
                       <th style="vertical-align: middle;" class="table-dark" colspan="2">Cambio de Fase</th>
-                      <td colspan="2">{{condiciones_carcasa.cambio_fase_largo}}</td>
-                      <td colspan="2">{{condiciones_tubo.cambio_fase_largo}}</td>
+                      <td colspan="2">{{condiciones_carcasa.cambio_fase_largo}} 
+                        <span id="cambio_fase_ficha_carcasa" hidden>{{condiciones_carcasa.cambio_de_fase}}</span></td>
+                      <td colspan="2">{{condiciones_tubo.cambio_fase_largo}}
+                        <span id="cambio_fase_ficha_tubo" hidden>{{condiciones_tubo.cambio_de_fase}}</span>
+                      </td>
                     </tr>
                     <tr>
-                      <th class="table-dark" colspan="2">Presión Entrada ({{condiciones_carcasa.unidad_presion}})</th>
-                      <td colspan="2">{{condiciones_carcasa.presion_entrada}}</td>
-                      <td colspan="2">{{condiciones_tubo.presion_entrada}}</td>
+                      <th class="table-dark" colspan="2">Presión Entrada (<span class="unidad_presion_ficha">{{condiciones_carcasa.unidad_presion}}</span>)</th>
+                      <td colspan="2"><span id="presion_entrada_carcasa_ficha">{{condiciones_carcasa.presion_entrada}}</span></td>
+                      <td colspan="2"><span id="presion_entrada_tubo_ficha">{{condiciones_tubo.presion_entrada}}</span></td>
                     </tr>
                     <tr>
                       <th class="table-dark" colspan="2">Caída Presión Máxima ({{condiciones_carcasa.unidad_presion}})</th>
