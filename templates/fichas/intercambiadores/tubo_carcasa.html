@@ -27,7 +27,7 @@
                   <tbody id="tabla_ficha_body">
                     <tr>
                       <th class="table-dark">Tag</th>
-                      <td colspan="2">{{generales.tag}}</td>
+                      <td colspan="2"><span id="tag_ficha">{{generales.tag}}</span></td>
                       <td colspan="3" rowspan="5" style="vertical-align: middle;">
                         <div class="d-flex justify-content-center align-items-center">
                           <img style="max-width: 33.33%;" src="/static/img/temas/intercambiadores/partes/{{generales.tema.codigo.0}}.jpg" alt="Imagen del Tema no Disponible">
@@ -169,7 +169,7 @@
                       </td>
                     </tr>
                     <tr>
-                      <th class="table-dark" colspan="2">Presión Entrada (<span class="unidad_presion_ficha">{{condiciones_carcasa.unidad_presion}}</span>)</th>
+                      <th class="table-dark" colspan="2">Presión Entrada (<span id="unidad_presion_ficha">{{condiciones_carcasa.unidad_presion}}</span>)</th>
                       <td colspan="2"><span id="presion_entrada_carcasa_ficha">{{condiciones_carcasa.presion_entrada}}</span></td>
                       <td colspan="2"><span id="presion_entrada_tubo_ficha">{{condiciones_tubo.presion_entrada}}</span></td>
                     </tr>

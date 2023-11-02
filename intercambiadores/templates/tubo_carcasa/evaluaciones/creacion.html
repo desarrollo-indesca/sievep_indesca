@@ -437,7 +437,8 @@
 <script>
     function ajaxCP(t1,t2,fluido, lado = 'T'){
         const tipo_cp = lado === 'C' ? $('#tipo_cp_carcasa').val() : $('#tipo_cp_tubo').val();
-        const unidad_presion_valor = $('#unidad_presion > option').toArray().filter(x => x.innerHTML === $('#unidad_presion_ficha').html())[0].value;
+        const unidad_presion_valor = $('#unidad_presion > option').toArray().filter(x => x.innerHTML === $('#unidad_presion_ficha').html().trim())[0].value;
+        
         if(!$('#cp_ficha').is(':checked') && tipo_cp === 'A'){
             if(lado === 'T' && $('#fluido_tubo').val()){
                 $('#cp_liquido_tubo').val('');
@@ -461,31 +462,30 @@
                     unidad: $('#unidad_temperaturas').val(),
                     unidad_salida: $('#unidad_cp').val(),
                     cambio_fase: lado === 'C' ? $('#cambio_fase_ficha_carcasa').html() : $('#cambio_fase_ficha_tubo').html(),
-                    presion: lado === 'C' ? $('presion_entrada_carcasa_ficha').html() : $('presion_entrada_tubo_ficha').html(),
+                    presion: lado === 'C' ? transformarNumero($('#presion_entrada_carcasa_ficha').html()) : transformarNumero($('#presion_entrada_tubo_ficha').html()),
+                    unidad_presion: unidad_presion_valor,
+                    intercambiador: $('#tag_ficha').val(),
+                    lado: lado
                 },
                 success: (res) => {
                     if(lado === 'T'){
                             if(res.cp_liquido){
-                                $('#cp_liquido_tubo').val(res.cp_liquido);
-                                $('#cp_liquido_tubo').removeAttr('disabled');
+                                $('#cp_liquido_tubo').val(res.cp_liquido)
                                 $('#cp_liquido_tubo').change();
                             }
 
                             if(res.cp_gas){
-                                $('#cp_gas_tubo').val(res.cp_gas);
-                                $('#cp_gas_tubo').removeAttr('disabled');
+                                $('#cp_gas_tubo').val(res.cp_gas)
                                 $('#cp_gas_tubo').change();
                             }
 
                             if(res.cp){
                                 if(res.fase === 'l'){                                    
                                     $('#cp_liquido_tubo').val(res.cp);
-                                    $('#cp_liquido_tubo').removeAttr('disabled');
                                     $('#cp_liquido_tubo').change();
                                 }
                                 else{
                                     $('#cp_liquido_tubo').val(res.cp);
-                                    $('#cp_liquido_tubo').removeAttr('disabled');
                                     $('#cp_liquido_tubo').change();
                                 }
                             }
@@ -493,25 +493,21 @@
                     else{
                             if(res.cp_liquido){
                                 $('#cp_liquido_carcasa').val(res.cp_liquido);
-                                $('#cp_liquido_carcasa').removeAttr('disabled');
                                 $('#cp_liquido_carcasa').change();
                             }
 
                             if(res.cp_gas){
                                 $('#cp_gas_carcasa').val(res.cp_gas);
-                                $('#cp_gas_carcasa').removeAttr('disabled');
                                 $('#cp_gas_carcasa').change();
                             }
 
                             if(res.cp){
                                 if(res.fase === 'l'){                                    
                                     $('#cp_liquido_carcasa').val(res.cp);
-                                    $('#cp_liquido_carcasa').removeAttr('disabled');
                                     $('#cp_liquido_carcasa').change();
                                 }
                                 else{
                                     $('#cp_liquido_carcasa').val(res.cp);
-                                    $('#cp_liquido_carcasa').removeAttr('disabled');
                                     $('#cp_liquido_carcasa').change();
                                 }
                             }
@@ -637,22 +633,22 @@
         else{
             console.log("Descheckeaste, poniendo Cp automatico.");
             $('#unidad_cp').removeAttr('disabled');
-            if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== '')
+            if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== '' && $('#tipo_cp_carcasa').val() === 'A')
                 ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
             else{
                 $('#cp_gas_carcasa').removeAttr('disabled');
                 $('#cp_liquido_carcasa').removeAttr('disabled');                
             }
 
-            if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== '')
+            if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== '' && $('#tipo_cp_tubo').val() === 'A')
                 ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
             else{
                 $('#cp_gas_tubo').removeAttr('disabled');
                 $('#cp_liquido_tubo').removeAttr('disabled');                
             }
 
-            $('#tipo_cp_carcasa').removeAttr("disabled", true);
-            $('#tipo_cp_tubo').removeAttr("disabled", true);
+            $('#tipo_cp_carcasa').removeAttr("disabled");
+            $('#tipo_cp_tubo').removeAttr("disabled");
         }
         
         ajaxEvaluacion();        
@@ -680,6 +676,11 @@
         }
     });
 
+    const transformarNumero = (str) => {
+        console.log(str);
+        return Number(str.replace(',','.').replace(/[\n|\s]+/g,''))
+    }
+    
     const vaciarCampos = () => {
         document.getElementById('lmtd').value = '';
         document.getElementById('area').value = '';

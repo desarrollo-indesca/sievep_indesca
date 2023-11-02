@@ -833,7 +833,6 @@ class ConsultaCP(LoginRequiredMixin, View):
         cambio_fase = request.GET['cambio_fase'] if request.GET.get('cambio_fase') else 'S'
         unidad_presiones = int(request.GET['unidad_presiones']) if request.GET.get('unidad_presiones') else 33
         presion = transformar_unidades_presion([float(request.GET.get('presion'))], unidad_presiones)[0] if request.GET.get('presion') else 1e5
-
         t1,t2 = transformar_unidades_temperatura([t1,t2], unidad=unidad)
 
         if(fluido != ''):
@@ -845,24 +844,31 @@ class ConsultaCP(LoginRequiredMixin, View):
             else:
                 cas = Fluido.objects.get(pk = fluido).cas
 
-            if(cambio_fase == 'S'): # Sin Cambio de Fase
+            if(not request.GET.get('intercambiador')):
                 flujos = {
                     'flujo_vapor_in': float(request.GET['flujo_vapor_in']) if request.GET.get('flujo_vapor_in') else 0,
                     'flujo_vapor_out': float(request.GET['flujo_vapor_out']) if request.GET.get('flujo_vapor_out') else 0,
                     'flujo_liquido_in': float(request.GET['flujo_liquido_in']) if request.GET.get('flujo_liquido_in') else 0,
                     'flujo_liquido_out': float(request.GET['flujo_liquido_out']) if request.GET.get('flujo_liquido_out') else 0
                 }
+            else:
+                if(request.GET['lado'] == 'C'):
+                    condiciones = Intercambiador.objects.get(tag = request['intercambiador']).intercambiador().condicion_carcasa()
+                else:
+                    condiciones = Intercambiador.objects.get(tag = request['intercambiador']).intercambiador().condicion_tubo()
+
+                flujos = {
+                    'flujo_vapor_in': float(condiciones.flujo_vapor_in),
+                    'flujo_vapor_out': float(condiciones.flujo_vapor_out),
+                    'flujo_liquido_in': float(condiciones.flujo_liquido_in),
+                    'flujo_liquido_out': float(condiciones.flujo_liquido_out)                    
+                }
+
+            if(cambio_fase == 'S'): # Sin Cambio de Fase
                 fase = 'g' if flujos['flujo_vapor_in'] != 0 else 'l'
                 cp = calcular_cp(cas, t1, t2, unidad_salida, presion, fase)
                 return JsonResponse({'cp': cp, 'fase': fase})
             elif(cambio_fase == 'P'): # Cambio de Fase Parcial
-                flujos = {
-                    'flujo_vapor_in': float(request.GET['flujo_vapor_in']) if request.GET.get('flujo_vapor_in') else 0,
-                    'flujo_vapor_out': float(request.GET['flujo_vapor_out']) if request.GET.get('flujo_vapor_out') else 0,
-                    'flujo_liquido_in': float(request.GET['flujo_liquido_in']) if request.GET.get('flujo_liquido_in') else 0,
-                    'flujo_liquido_out': float(request.GET['flujo_liquido_out']) if request.GET.get('flujo_liquido_out') else 0
-                }
-
                 caso = determinar_cambio_parcial(**flujos)
 
                 if(caso == 'DD'): # Domo a Domo. t1 y t2 se consideran iguales
