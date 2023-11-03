@@ -20,7 +20,7 @@ tipos_condiciones = [
 ]
 
 cambios_de_fase = [
-    ('S', 'Sin cambio de fase'),
+    ('S', 'Sin Cambio de Fase'),
     ('P','Cambio de Fase Parcial'),
     ('T', 'Cambio de Fase Total')
 ]
@@ -124,6 +124,14 @@ class Intercambiador(models.Model):
 
     def intercambiador(self):
         return PropiedadesTuboCarcasa.objects.get(intercambiador = self)
+    
+    def tema_final(self):
+        return self.tema.codigo[2] if self.tema.codigo[2] != 'N' else 'N_2'
+    
+    def flujo_largo(self):
+        for flujo in arreglos_flujo:
+            if(flujo[0] == self.arreglo_flujo):
+                return flujo[1]
 
     class Meta:
         db_table = "intercambiador"
@@ -143,7 +151,7 @@ class PropiedadesTuboCarcasa(models.Model):
     intercambiador = models.OneToOneField(Intercambiador, related_name="datos_tubo_carcasa", on_delete=models.DO_NOTHING)
 
     # Datos del área
-    area = models.DecimalField(max_digits=12, decimal_places=5)
+    area = models.DecimalField(max_digits=12, decimal_places=2)
     area_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="area_unidad_tubocarcasa")
 
     numero_tubos = models.IntegerField(null=True)
@@ -151,8 +159,8 @@ class PropiedadesTuboCarcasa(models.Model):
     longitud_tubos = models.DecimalField(decimal_places=2, max_digits=8, null=True)
     longitud_tubos_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="longitud_tubos_tubocarcasa")
 
-    diametro_externo_tubos = models.DecimalField(max_digits=8, decimal_places=4, null=True)
-    diametro_interno_tubos = models.DecimalField(max_digits=8, decimal_places=4, null=True)
+    diametro_externo_tubos = models.DecimalField(max_digits=8, decimal_places=2, null=True)
+    diametro_interno_tubos = models.DecimalField(max_digits=8, decimal_places=2, null=True)
     diametro_tubos_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="diametros_unidad_tubocarcasa")
 
     # Datos Carcasa
@@ -179,9 +187,9 @@ class PropiedadesTuboCarcasa(models.Model):
     numero_pasos_carcasa = models.IntegerField(default=1)
 
     # Datos calculados
-    q = models.DecimalField(max_digits=10, decimal_places=3)
+    q = models.DecimalField(max_digits=12, decimal_places=3)
     u = models.DecimalField(max_digits=10, decimal_places=3, null=True)
-    ensuciamiento = models.DecimalField(max_digits=10, decimal_places=8, null=True)
+    ensuciamiento = models.DecimalField(max_digits=12, decimal_places=9, null=True)
 
     q_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_q", default=28)
     u_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_u", default=27)
@@ -190,16 +198,22 @@ class PropiedadesTuboCarcasa(models.Model):
     def calcular_diseno(self):
         cond_tubo= self.condicion_tubo()
         cond_carcasa = self.condicion_carcasa()
-        ti = float(cond_carcasa.temp_entrada)
-        ts = float(cond_carcasa.temp_salida)
-        Ti = float(cond_tubo.temp_entrada)
-        Ts = float(cond_tubo.temp_salida)
+        ti = float(cond_tubo.temp_entrada)
+        ts = float(cond_tubo.temp_salida)
+        Ti = float(cond_carcasa.temp_entrada)
+        Ts = float(cond_carcasa.temp_salida)
         ft = float(cond_tubo.flujo_masico)
         fc = float(cond_carcasa.flujo_masico)
 
+        fluido_cp_gas_tubo = float(cond_tubo.fluido_cp_gas) if cond_tubo.fluido_cp_gas else None
+        fluido_cp_liquido_tubo = float(cond_tubo.fluido_cp_liquido) if cond_tubo.fluido_cp_liquido else None
+        fluido_cp_gas_carcasa = float(cond_carcasa.fluido_cp_gas) if cond_carcasa.fluido_cp_gas else None
+        fluido_cp_liquido_carcasa = float(cond_carcasa.fluido_cp_liquido) if cond_carcasa.fluido_cp_liquido else None
+
         return evaluacion_tubo_carcasa(self, ti, ts, Ti, Ts, ft, fc, 
-            self.numero_tubos, float(self.condicion_carcasa().fluido_cp), 
-            float(self.condicion_tubo().fluido_cp))
+            self.numero_tubos,  fluido_cp_gas_tubo, fluido_cp_liquido_tubo,
+            fluido_cp_gas_carcasa, fluido_cp_liquido_carcasa,
+            unidad_temp=cond_carcasa.temperaturas_unidad.pk, unidad_flujo=cond_carcasa.flujos_unidad.pk)
 
     def condicion_tubo(self):
         return self.condiciones.get(lado='T')
@@ -224,24 +238,28 @@ class CondicionesTuboCarcasa(models.Model):
     temp_salida = models.DecimalField(max_digits=7, decimal_places=2)
     temperaturas_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="temperaturas_condiciones_unidades_tubocarcasa", null=True)
 
-    flujo_masico = models.DecimalField(max_digits=12, decimal_places=5)
-    flujo_vapor_entrada = models.DecimalField(max_digits=12, decimal_places=5, null=True)
-    flujo_vapor_salida = models.DecimalField(max_digits=12, decimal_places=5, null=True)
-    flujo_liquido_entrada = models.DecimalField(max_digits=12, decimal_places=5, null=True)
-    flujo_liquido_salida = models.DecimalField(max_digits=12, decimal_places=5, null=True)
+    flujo_masico = models.DecimalField(max_digits=10, decimal_places=2)
+    flujo_vapor_entrada = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    flujo_vapor_salida = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    flujo_liquido_entrada = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    flujo_liquido_salida = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     flujos_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="flujos_unidad_tubocarcasa", null=True)
     fluido_etiqueta = models.CharField(null=True, max_length=50)
-    fluido_cp = models.DecimalField(null=True, max_digits=8, decimal_places=4)
+    tipo_cp = models.CharField(null=False, choices=[['M','Manual'],['A','Automático']], max_length=1)
+    fluido_cp_liquido = models.DecimalField(null=True, max_digits=8, decimal_places=4)
+    fluido_cp_gas = models.DecimalField(null=True, max_digits=8, decimal_places=4)
+    hvap = models.DecimalField(max_digits=10, decimal_places=4, null=True)
+    tsat = models.DecimalField(max_digits=6, decimal_places=2, null=True)
     unidad_cp = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_cp", default=29)
     
     cambio_de_fase  = models.CharField(max_length=1, choices=cambios_de_fase)
 
-    presion_entrada = models.DecimalField(max_digits=10, decimal_places=4, null=True)
-    caida_presion_max = models.DecimalField(max_digits=10, decimal_places=5, null=True)
-    caida_presion_min = models.DecimalField(max_digits=10, decimal_places=5, null=True)
+    presion_entrada = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    caida_presion_max = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    caida_presion_min = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     unidad_presion = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="presion_unidad_tubocarcasa")
 
-    fouling = models.DecimalField(max_digits=10, decimal_places=9, null=True) #m^2*C/W
+    fouling = models.DecimalField(max_digits=12, decimal_places=9, null=True) #m^2*C/W
 
     def cambio_fase_largo(self):
         for x in cambios_de_fase:
@@ -275,8 +293,12 @@ class EvaluacionesIntercambiador(models.Model):
     caida_presion_ex = models.DecimalField(max_digits=10, decimal_places=3)
     unidad_presion = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="presion_unidad_evaluacionintercambiador")
 
-    cp_tubo = models.DecimalField(max_digits=10, decimal_places=4)
-    cp_carcasa = models.DecimalField(max_digits=10, decimal_places=4)
+    cp_tubo_gas = models.DecimalField(max_digits=10, decimal_places=4, null=True)
+    cp_tubo_liquido = models.DecimalField(max_digits=10, decimal_places=4, null=True)
+    cp_carcasa_gas = models.DecimalField(max_digits=10, decimal_places=4, null=True)
+    cp_carcasa_liquido = models.DecimalField(max_digits=10, decimal_places=4, null=True)
+    tipo_cp_carcasa = models.CharField(max_length=1, choices=[['A', 'Automático'], ['M','Manual']])
+    tipo_cp_tubo = models.CharField(max_length=1, choices=[['A', 'Automático'], ['M','Manual']])
     cp_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="cp_unidad_evaluacionintercambiador", default=29)
 
     # Datos de Salida
@@ -290,6 +312,8 @@ class EvaluacionesIntercambiador(models.Model):
     ensuciamiento = models.DecimalField(max_digits=15, decimal_places=5)
     q = models.DecimalField(max_digits=12, decimal_places=5)
     numero_tubos = models.IntegerField()
+
+    visible = models.BooleanField(default=True)
 
     def promedio_carcasa(self):
         return (self.temp_ex_entrada + self.temp_ex_salida)/2

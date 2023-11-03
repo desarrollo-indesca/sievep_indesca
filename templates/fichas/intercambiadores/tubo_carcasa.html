@@ -4,14 +4,16 @@
   .tabla_ficha {
     width: 100% ;
   }
-  
-  #tabla_ficha_body > tr > td {
-    width: 25% ;
+  #tabla_ficha_contenido_body > tr > td{
+    width: 16.66%;
+  }
+  #tabla_ficha_contenido_body > tr > th{
+    width: 33% !important;
   }
 </style>
 
 <div class="modal fade" id="ficha_{{intercambiador.pk}}" tabindex="-1" aria-labelledby="ficha_{{intercambiador.pk}}Label" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
       <div class="modal-content text-dark">
         <div class="modal-header">
           <h5 class="modal-title" id="ficha_{{intercambiador.pk}}Label">Ficha Técnica Tubo/Carcasa {{generales.tag}} ({{generales.planta}})</h5>
@@ -20,38 +22,45 @@
         <div class="modal-body text-start small">
           <div class="row">
             <div class="col-12">
-              <div class="row">
-                <table class="table table-light text-center table-bordered tabla_ficha">
+              <div class="d-flex flex-column">
+                <table class="table table-light text-center table-bordered tabla_ficha mb-0">
                   <tbody id="tabla_ficha_body">
                     <tr>
                       <th class="table-dark">Tag</th>
-                      <td>{{generales.tag}}</td>
-                      <td colspan="2" rowspan="5" style="vertical-align: middle;">
-                        <img src="/static/img/temas/intercambiadores/{{generales.tema}}.png" class="w-100" alt="Imagen del Tema no Disponible">
+                      <td colspan="2"><span id="tag_ficha">{{generales.tag}}</span></td>
+                      <td colspan="3" rowspan="5" style="vertical-align: middle;">
+                        <div class="d-flex justify-content-center align-items-center">
+                          <img style="max-width: 33.33%;" src="/static/img/temas/intercambiadores/partes/{{generales.tema.codigo.0}}.jpg" alt="Imagen del Tema no Disponible">
+                          <img style="max-width: 33.33%;" src="/static/img/temas/intercambiadores/partes/{{generales.tema.codigo.1}}.jpg" alt="Imagen del Tema no Disponible">
+                          <img style="max-width: 33.33%;" src="/static/img/temas/intercambiadores/partes/{{generales.tema_final}}.jpg" alt="Imagen del Tema no Disponible">
                       </td>
                     </tr>
                     <tr>
                       <th class="table-dark">Planta</th>
-                      <td>{{generales.planta}}</td>
+                      <td colspan="2">{{generales.planta}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark">Tema</th>
-                      <td>{{generales.tema}}</td>
+                      <td colspan="2">{{generales.tema}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark">Fabricante</th>
-                      <td>{{generales.fabricante}}</td>
+                      <td colspan="2">{{generales.fabricante}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark">Tipo</th>
-                      <td>TUBO Y CARCASA</td>
+                      <th class="table-dark">Flujo</th>
+                      <td colspan="2">{{generales.flujo_largo}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark">Servicio</th>
-                      <td colspan="3">{{generales.servicio}}</td>
+                      <td colspan="5" colspan="5">{{generales.servicio}}</td>
                     </tr>
+                  </tbody>
+                </table>
+                <table class="table table-light text-center table-bordered tabla_ficha mt-0">
+                  <tbody id="tabla_ficha_contenido_body">
                     <tr>
-                      <th class="table-dark" colspan="4">
+                      <th class="table-dark" colspan="6">
                         <div class="d-inline-flex align-items-center">
                           Condiciones&nbsp;
                           <select name="condicion" id="condicion">
@@ -60,23 +69,30 @@
                         </div>
                       </th>
                     </tr>
-                    <tr>
-                      <th colspan="2" class="table-dark">Ítem</th>
-                      <th class="table-dark">Lado Carcasa</th>
-                      <th class="table-dark">Lado Tubo</th>
+                    <tr class="table-dark">
+                      <th class="table-dark" colspan="2"></th>
+                      <th class="table-dark" colspan="2">Lado Carcasa</th>
+                      <th class="table-dark" colspan="2">Lado Tubo</th>
                     </tr>
                     {% with condiciones_tubo=intercambiador.condicion_tubo %}
                     {% with condiciones_carcasa=intercambiador.condicion_carcasa %}
+                    <tr class="table-dark">
+                      <td colspan="2"></td>
+                      <td>IN</td>
+                      <td>OUT</td>
+                      <td>IN</td>
+                      <td>OUT</td>
+                    </tr>
                     <tr>
                       <th class="table-dark" colspan="2">Fluido</th>
-                      <td>
+                      <td colspan="2">
                         {% if intercambiador.fluido_carcasa %}
                           {{intercambiador.fluido_carcasa}}
                         {% else %}
                           {{condiciones_carcasa.fluido_etiqueta}}
                         {% endif %}
                       </td>
-                      <td>
+                      <td colspan="2">
                         {% if intercambiador.fluido_tubo %}
                           {{intercambiador.fluido_tubo}}
                         {% else %}
@@ -85,134 +101,158 @@
                       </td>
                     </tr>
                     <tr>
-                      <th class="table-dark" colspan="2">Capacidad Calorífica ({{condiciones_tubo.unidad_cp}})</th>
-                      <td>
-                          {{condiciones_carcasa.fluido_cp}}                 
-                      </td>
-                      <td>
-                          {{condiciones_tubo.fluido_cp}}
-                      </td>
-                    </tr>
-                    <tr>
-                      <th class="table-dark" colspan="2">Temperatura IN ({{condiciones_tubo.temperaturas_unidad}})</th>
+                      <th class="table-dark" colspan="2">Temperatura ({{condiciones_tubo.temperaturas_unidad}})</th>
                       <td>{{condiciones_carcasa.temp_entrada}}</td>
-                      <td>{{condiciones_tubo.temp_entrada}}</td>
-                    </tr>
-                    <tr>
-                      <th class="table-dark" colspan="2">Temperatura OUT ({{condiciones_tubo.temperaturas_unidad}})</th>
                       <td>{{condiciones_carcasa.temp_salida}}</td>
+                      <td>{{condiciones_tubo.temp_entrada}}</td>
                       <td>{{condiciones_tubo.temp_salida}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark" colspan="2">Flujo Másico ({{condiciones_carcasa.flujos_unidad}})</th>
-                      <td>{{condiciones_carcasa.flujo_masico}}</td>
-                      <td>{{condiciones_tubo.flujo_masico}}</td>
-                    </tr>
-                    <tr>
-                      <th class="table-dark" colspan="2">Flujo Vapor IN ({{condiciones_carcasa.flujos_unidad}})</th>
+                      <th class="table-dark" colspan="2">Flujo Vapor ({{condiciones_carcasa.flujos_unidad}})</th>
                       <td>{% if condiciones_carcasa.flujo_vapor_entrada %}{{condiciones_carcasa.flujo_vapor_entrada}}{% else %}-{% endif %}</td>
-                      <td>{% if condiciones_tubo.flujo_vapor_entrada %}{{condiciones_tubo.flujo_vapor_entrada}}{% else %}-{% endif %}</td>
-                    </tr>
-                    <tr>
-                      <th class="table-dark" colspan="2">Flujo Vapor OUT ({{condiciones_carcasa.flujos_unidad}})</th>
                       <td>{% if condiciones_carcasa.flujo_vapor_salida %}{{condiciones_carcasa.flujo_vapor_salida}}{% else %}-{% endif %}</td>
+                      <td>{% if condiciones_tubo.flujo_vapor_entrada %}{{condiciones_tubo.flujo_vapor_entrada}}{% else %}-{% endif %}</td>
                       <td>{% if condiciones_tubo.flujo_vapor_salida %}{{condiciones_tubo.flujo_vapor_salida}}{% else %}-{% endif %}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark" colspan="2">Flujo Líquido IN ({{condiciones_carcasa.flujos_unidad}})</th>
+                      <th class="table-dark" colspan="2">Flujo Líquido ({{condiciones_carcasa.flujos_unidad}})</th>
                       <td>{% if condiciones_carcasa.flujo_liquido_entrada %}{{condiciones_carcasa.flujo_liquido_entrada}}{% else %}-{% endif %}</td>
-                      <td>{% if condiciones_tubo.flujo_liquido_entrada %}{{condiciones_tubo.flujo_liquido_entrada}}{% else %}-{% endif %}</td>
-                    </tr>
-                    <tr>
-                      <th class="table-dark" colspan="2">Flujo Líquido OUT ({{condiciones_carcasa.flujos_unidad}})</th>
                       <td>{% if condiciones_carcasa.flujo_liquido_salida %}{{condiciones_carcasa.flujo_liquido_salida}}{% else %}-{% endif %}</td>
+                      <td>{% if condiciones_tubo.flujo_liquido_entrada %}{{condiciones_tubo.flujo_liquido_entrada}}{% else %}-{% endif %}</td>
                       <td>{% if condiciones_tubo.flujo_liquido_salida %}{{condiciones_tubo.flujo_liquido_salida}}{% else %}-{% endif %}</td>
                     </tr>
                     <tr>
-                      <th style="vertical-align: middle;" class="table-dark" colspan="2">Cambio de Fase</th>
-                      <td>{{condiciones_carcasa.cambio_fase_largo}}</td>
-                      <td>{{condiciones_tubo.cambio_fase_largo}}</td>
+                      <th class="table-dark" colspan="2">Flujo Másico Total ({{condiciones_carcasa.flujos_unidad}})</th>
+                      <td colspan="2">{{condiciones_carcasa.flujo_masico}}</td>
+                      <td colspan="2">{{condiciones_tubo.flujo_masico}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark" colspan="2">Presión Entrada ({{condiciones_carcasa.unidad_presion}})</th>
-                      <td>{{condiciones_carcasa.presion_entrada}}</td>
-                      <td>{{condiciones_tubo.presion_entrada}}</td>
+                      <th class="table-dark" colspan="2">Cap. Calorífica Vapor (<span id="unidad_cp_ficha">{{condiciones_tubo.unidad_cp}}</span>)</th>
+                      <td colspan="2" id="cp_vapor_ficha_carcasa">
+                          {% if condiciones_carcasa.fluido_cp_gas %}
+                          {{condiciones_carcasa.fluido_cp_gas}}
+                          {%else%}
+                          -
+                          {%endif%}               
+                      </td>
+                      <td colspan="2" id="cp_vapor_ficha_tubo">
+                        {% if condiciones_tubo.fluido_cp_gas %}
+                          {{condiciones_tubo.fluido_cp_gas}}
+                        {%else%}
+                        -
+                        {%endif%}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Cap. Calorífica Líquido ({{condiciones_tubo.unidad_cp}})</th>
+                      <td colspan="2" id="cp_liquido_ficha_carcasa">
+                        {% if condiciones_carcasa.fluido_cp_liquido %}
+                          {{condiciones_carcasa.fluido_cp_liquido}}
+                        {%else%}
+                        -
+                        {%endif%}         
+                      </td>
+                      <td colspan="2" id="cp_liquido_ficha_tubo">
+                        {% if condiciones_tubo.fluido_cp_liquido %}
+                          {{condiciones_tubo.fluido_cp_liquido}}
+                        {%else%}
+                        -
+                        {%endif%}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th style="vertical-align: middle;" class="table-dark" colspan="2">Cambio de Fase</th>
+                      <td colspan="2">{{condiciones_carcasa.cambio_fase_largo}} 
+                        <span id="cambio_fase_ficha_carcasa" hidden>{{condiciones_carcasa.cambio_de_fase}}</span></td>
+                      <td colspan="2">{{condiciones_tubo.cambio_fase_largo}}
+                        <span id="cambio_fase_ficha_tubo" hidden>{{condiciones_tubo.cambio_de_fase}}</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Presión Entrada (<span id="unidad_presion_ficha">{{condiciones_carcasa.unidad_presion}}</span>)</th>
+                      <td colspan="2"><span id="presion_entrada_carcasa_ficha">{{condiciones_carcasa.presion_entrada}}</span></td>
+                      <td colspan="2"><span id="presion_entrada_tubo_ficha">{{condiciones_tubo.presion_entrada}}</span></td>
                     </tr>
                     <tr>
                       <th class="table-dark" colspan="2">Caída Presión Máxima ({{condiciones_carcasa.unidad_presion}})</th>
-                      <td>{{condiciones_carcasa.caida_presion_max}}</td>
-                      <td>{{condiciones_tubo.caida_presion_max}}</td>
+                      <td colspan="2">{{condiciones_carcasa.caida_presion_max}}</td>
+                      <td colspan="2">{{condiciones_tubo.caida_presion_max}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark" colspan="2">Caída Presión Mínima ({{condiciones_carcasa.unidad_presion}})</th>
-                      <td>{{condiciones_carcasa.caida_presion_min}}</td>
-                      <td>{{condiciones_tubo.caida_presion_min}}</td>
+                      <td colspan="2">{{condiciones_carcasa.caida_presion_min}}</td>
+                      <td colspan="2">{{condiciones_tubo.caida_presion_min}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark" colspan="2">Fouling ({{intercambiador.ensuciamiento_unidad}})</th>
-                      <td>{{condiciones_carcasa.fouling}}</td>
-                      <td>{{condiciones_tubo.fouling}}</td>
+                      <td colspan="2">{{condiciones_carcasa.fouling}}</td>
+                      <td colspan="2">{{condiciones_tubo.fouling}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark" colspan="2">Conexiones de Entrada</th>
-                      <td>{{intercambiador.conexiones_entrada_carcasa}}</td>
-                      <td>{{intercambiador.conexiones_entrada_tubos}}</td>
+                      <td colspan="2">{{intercambiador.conexiones_entrada_carcasa}}</td>
+                      <td colspan="2">{{intercambiador.conexiones_entrada_tubos}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark" colspan="2">Conexiones de Salida</th>
-                      <td>{{intercambiador.conexiones_salida_carcasa}}</td>
-                      <td>{{intercambiador.conexiones_salida_tubos}}</td>
+                      <td colspan="2">{{intercambiador.conexiones_salida_carcasa}}</td>
+                      <td colspan="2">{{intercambiador.conexiones_salida_tubos}}</td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark" colspan="2">Pasos</th>
+                      <td colspan="2">{{intercambiador.numero_pasos_carcasa}}</td>
+                      <td colspan="2">{{intercambiador.numero_pasos_tubo}}</td>
                     </tr>
                     {% endwith %}
                     {% endwith %}
                     <tr>
-                      <th class="table-dark" colspan="4">Parámetros Adicionales</th>
+                      <th class="table-dark" colspan="6">Parámetros de Diseño</th>
                     </tr>
                     <tr>
-                      <th class="table-dark">Calor ({{intercambiador.q_unidad}})</th>
+                      <th colspan="2" class="table-dark">Calor ({{intercambiador.q_unidad}})</th>
                       <td>{{intercambiador.q}}</td>
-                      <th class="table-dark">U ({{intercambiador.u_unidad}})</th>
+                      <th colspan="2" class="table-dark">U ({{intercambiador.u_unidad}})</th>
                       <td>{{intercambiador.u}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark">Ensuciamiento ({{intercambiador.ensuciamiento_unidad}})</th>
-                      <td>{{intercambiador.ensuciamiento}}</td>
-                      <th class="table-dark">Área ({{intercambiador.area_unidad}})</th>
+                      <th colspan="2" class="table-dark">Ensuciamiento ({{intercambiador.ensuciamiento_unidad}})</th>
+                      <td>{% if intercambiador.ensuciamiento %}{{intercambiador.ensuciamiento}}{%else%}-{%endif%}</td>
+                      <th colspan="2" class="table-dark">Área ({{intercambiador.area_unidad}})</th>
                       <td>{{intercambiador.area}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark">Arreglo Serie</th>
+                      <th colspan="2" class="table-dark">Arreglo Serie</th>
                       <td>{{intercambiador.arreglo_serie}}</td>
-                      <th class="table-dark">Arreglo Paralelo</th>
+                      <th colspan="2" class="table-dark">Arreglo Paralelo</th>
                       <td>{{intercambiador.arreglo_paralelo}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark">No. Tubos</th>
+                      <th colspan="2" class="table-dark">No. Tubos</th>
                       <td>{{intercambiador.numero_tubos}}</td>
-                      <th class="table-dark">Long. Tubos ({{intercambiador.longitud_tubos_unidad}})</th>
+                      <th colspan="2" class="table-dark">Long. Tubos ({{intercambiador.longitud_tubos_unidad}})</th>
                       <td>{{intercambiador.longitud_tubos}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark">OD Tubos ({{intercambiador.diametro_tubos_unidad}})</th>
+                      <th colspan="2" class="table-dark">OD Tubos ({{intercambiador.diametro_tubos_unidad}})</th>
                       <td>{{intercambiador.diametro_externo_tubos}}</td>
-                      <th class="table-dark">ID Carcasa ({{intercambiador.diametro_tubos_unidad}})</th>
+                      <th colspan="2" class="table-dark">ID Carcasa ({{intercambiador.diametro_tubos_unidad}})</th>
                       <td>{{intercambiador.diametro_interno_tubos}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark">Pitch ({{intercambiador.unidades_pitch}})</th>
+                      <th colspan="2" class="table-dark">Pitch ({{intercambiador.unidades_pitch}})</th>
                       <td>{{intercambiador.pitch_tubos}}</td>
-                      <th class="table-dark">Tipo Tubo</th>
+                      <th colspan="2" class="table-dark">Tipo Tubo</th>
                       <td>{{intercambiador.tipo_tubo}}</td>                      
                     </tr>
                     <tr>
-                      <th class="table-dark">Material Carc.</th>
+                      <th colspan="2" class="table-dark">Material Carc.</th>
                       <td>{{intercambiador.material_carcasa}}</td>
-                      <th colspan="1" class="table-dark">Material Tubo</th>
+                      <th colspan="2" colspan="1" class="table-dark">Material Tubo</th>
                       <td>{{intercambiador.material_tubo}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark">Criticidad</th>
-                      <td colspan="3">{{intercambiador.criticidad_larga}}</td>
+                      <th colspan="2" class="table-dark">Criticidad</th>
+                      <td colspan="4">{{intercambiador.criticidad_larga}}</td>
                     </tr>
                   </tbody>
                 </table>

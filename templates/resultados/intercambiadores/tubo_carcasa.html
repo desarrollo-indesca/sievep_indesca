@@ -5,12 +5,14 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
       <div class="modal-content text-dark">
         <div class="modal-header">
-          <h5 class="modal-title" id="resultados_{{evaluacion.pk}}Label">Resultados de la Evaluación #{{evaluacion.pk}} ({{intercambiador.intercambiador.tag}})</h5>
+          <h5 class="modal-title" id="resultados_{{evaluacion.pk}}Label">Resultados de la Evaluación "{{evaluacion.nombre}}" - 
+            {{evaluacion.fecha}} ({{intercambiador.intercambiador.tag}})
+          </h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
         {{esp}}
-        {% with diseno=intercambiador.calcular_diseno %}
+        
         <div class="modal-body text-start small pb-0">
             <div class="row">
                 <div class="col-lg-6 col-xs-12">
@@ -27,9 +29,9 @@
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="2">Fluido</th>
                             <th class="table-dark small">Nombre</th>
-                            <th class="table-dark small">Cp (J/KgK)</th>
+                            <th class="table-dark small">Cp ({{evaluacion.cp_unidad}})</th>
                             <th class="table-dark small">Nombre</th>
-                            <th class="table-dark small">Cp (J/KgK)</th>
+                            <th class="table-dark small">Cp ({{evaluacion.cp_unidad}})</th>
                           </tr>
                           <tr>
                             <td>
@@ -96,7 +98,7 @@
                       <tr>
                         <th class="table-dark" style="vertical-align: middle;">LMTD ({{evaluacion.temperaturas_unidad}})</th>
                         <td>{{evaluacion.lmtd}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">Área Transf. (m²)</th>
+                        <th class="table-dark" style="vertical-align: middle;">Área Transf. ({{intercambiador.area_unidad}})</th>
                         <td>{{evaluacion.area_transferencia}}</td>
                       </tr>
                       <tr>
@@ -106,7 +108,7 @@
                         <td>{{evaluacion.efectividad}}</td>
                       </tr>
                       <tr>
-                        <th class="table-dark" style="vertical-align: middle;">U (W/m²K)</th>
+                        <th class="table-dark" style="vertical-align: middle;">U ({{intercambiador.u_unidad}})</th>
                         <td>{{evaluacion.u}}</td>
                         <th class="table-dark" style="vertical-align: middle;">UA (W/K)</th>
                         <td>{{evaluacion.ua}}</td>
@@ -118,7 +120,7 @@
                         <td>{{evaluacion.ensuciamiento}}</td>
                       </tr>
                       <tr>
-                        <th class="table-dark" style="vertical-align: middle;">Q (W)</th>
+                        <th class="table-dark" style="vertical-align: middle;">Q ({{intercambiador.q_unidad}})</th>
                         <td>{{evaluacion.q}}</td>
                         <th class="table-dark" style="vertical-align: middle;">Núm. Tubos</th>
                         <td>{{evaluacion.numero_tubos}}</td>
@@ -139,9 +141,9 @@
                         <th class="table-warning" colspan="4">Datos de Diseño</th>
                       </tr>
                       <tr>
-                        <th class="table-dark" style="vertical-align: middle;">LMTD</th>
+                        <th class="table-dark" style="vertical-align: middle;">LMTD ({{intercambiador.condicion_tubo.temperaturas_unidad}})</th>
                         <td>{{diseno.lmtd}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">Área Transf. (m²)</th>
+                        <th class="table-dark" style="vertical-align: middle;">Área Transf. ({{intercambiador.area_unidad}})</th>
                         <td>{{intercambiador.area}}</td>
                       </tr>
                       <tr>
@@ -151,7 +153,7 @@
                         <td>{{diseno.efectividad}}</td>
                       </tr>
                       <tr>
-                        <th class="table-dark" style="vertical-align: middle;">U (W/m²K)</th>
+                        <th class="table-dark" style="vertical-align: middle;">U ({{intercambiador.u_unidad}})</th>
                         <td>{{diseno.u}}</td>
                         <th class="table-dark" style="vertical-align: middle;">UA (W/K)</th>
                         <td>{{diseno.ua}}</td>
@@ -163,15 +165,15 @@
                         <td>{{diseno.factor_ensuciamiento}}</td>
                       </tr>
                       <tr>
-                        <th class="table-dark" style="vertical-align: middle;">Q (W)</th>
+                        <th class="table-dark" style="vertical-align: middle;">Q ({{intercambiador.q_unidad}})</th>
                         <td>{{diseno.q}}</td>
                         <th class="table-dark" style="vertical-align: middle;">C. Presión Máx. ({{intercambiador.condicion_tubo.unidad_presion}})</th>
                         <td>{{intercambiador.condicion_tubo.caida_presion_max}}</td>
                       </tr>
                       <tr>
-                        <th class="table-dark" style="vertical-align: middle;">Cp Tubo (J/KgK)</th>
+                        <th class="table-dark" style="vertical-align: middle;">Cp Tubo ({{intercambiador.condicion_tubo.unidad_cp}})</th>
                         <td>{{intercambiador.condicion_tubo.fluido_cp}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">Cp Carcasa (J/KgK)</th>
+                        <th class="table-dark" style="vertical-align: middle;">Cp Carcasa ({{intercambiador.condicion_carcasa.unidad_cp}})</th>
                         <td>{{intercambiador.condicion_carcasa.fluido_cp}}</td>
                       </tr>
                     </tbody>
@@ -182,11 +184,16 @@
                 </div>
             </div>
         </div>
-        {% endwith %}
 
         <div class="modal-footer">
           <button class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</button>
           <button class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</button>
+          {% if request.user.is_superuser %}
+          <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger" name="evaluacion" value="{{evaluacion.pk}}" onclick="return confirm('¿De verdad desea eliminar esta evaluación?');">Eliminar Evaluación</button>
+          </form>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -196,22 +203,7 @@
   canvas = document.getElementById('grafica_{{evaluacion.pk}}').getContext('2d');
   datosGrafica = undefined;
 
-  // $.ajax({
-  //     url: `datos_grafica.php?id=<?php echo $_GET['id_pozo']; ?>&fecha_max=${$('#fecha_max').val()}&fecha_min=${$('#fecha_min').val()}`,
-  //     method: "GET",
-  //     async: false,
-  //     success: function(data){
-  //         console.log(data);
-  //         datosGrafica = JSON.parse(data);
-  //     },
-  //     error: function(error){
-  //         console.log(error);
-  //     }
-  // });
-
   $('#grafica_{{evaluacion.pk}}').removeAttr('hidden');
-  // if(chart)
-  //   chart.destroy();
 
   chart = new Chart(canvas, {
           type: 'line',

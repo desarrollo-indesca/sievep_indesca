@@ -19,29 +19,19 @@
         <hr>
     
         <div class="row">
-            <div class="col-3 d-flex flex-column">
+            <div class="col-4 d-flex flex-column">
                 <label class="form-label" for="metodo">Nombre de la Evaluación:</label>
                 <input type="text" class="form-control" name="nombre" required>
             </div>
 
             <div class="col-3 d-flex flex-column">
-                <label class="form-label" for="metodo">Método:</label>
-                <select required class="form-select" name="metodo" id="metodo">
-                    <option value="E">Eficiencia-NTU</option>
-                    <option value="L">LMTD</option>
-                </select>
-            </div>
-    
-            <div class="col-3 d-flex flex-column">
-                <label class="form-label" for="condiciones">Condiciones:</label>
-                <select required class="form-select" name="condiciones" id="condiciones">
-                    <option value="D">De Diseño</option>
-                </select>
+                <label class="form-label" for="no_tubos">Número de Tubos:</label>
+                <input type="number" min="1" class="form-control campo" id="no_tubos" name="no_tubos" max="{{intercambiador.numero_tubos}}" value="{{intercambiador.numero_tubos}}">
             </div>
 
-            <div class="col-3 d-flex flex-column">
-                <label class="form-label" for="no_tubos">Número de Tubos:</label>
-                <input type="number" min="1" class="form-control campo" id="no_tubos" name="no_tubos" value="{{intercambiador.numero_tubos}}">
+            <div class="col-4 d-flex justify-content-center align-items-center">
+                <label for="cp_ficha" class="form-check-label">Utilizar Cp de Ficha:&nbsp;</label>
+                <input type="checkbox" class="form-check-input" name="cp_ficha" id="cp_ficha">                
             </div>
         </div>
     
@@ -55,7 +45,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="temp_in_carcasa">Temperatura Entrada:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control temperatura" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control temperatura campo" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 40% !important;" class="form-select campo" name="unidad_temperaturas" id="unidad_temperaturas">
                                 {% for unidad in unidades_temperaturas %}
                                 <option value="{{unidad.pk}}">{{unidad.simbolo}}</option>
@@ -66,7 +56,7 @@
                     <div class="col-6">
                         <label class="form-label" for="temp_out_carcasa">Temperatura Salida:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control temperatura" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control temperatura campo" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -79,13 +69,29 @@
                         </select>
                     </div>
                     <div class="col-6 d-flex flex-column">
-                        <label class="form-label" for="cp_carcasa">Capacidad Calorífica:</label>
+                        <label class="form-label" for="tipo_cp_carcasa">Cálculo del Cp:</label>
+                        <select class="form-select" name="tipo_cp_carcasa" id="tipo_cp_carcasa">
+                            <option value="A">Automático</option>
+                            <option value="M">Manual</option>
+                        </select>
+                    </div>
+                    <div class="col-6 d-flex flex-column">
+                        <label class="form-label" for="cp_carcasa_liquido">Cp Líquido Prom.:</label>
                         <div class="input-group mb-3">
-                            <input value="{% if not intercambiador.fluido_carcasa %}{{intercambiador.condicion_carcasa.fluido_cp|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" type="number" name="cp_carcasa" min="0.0001" id="cp_carcasa" class="form-control campo">
+                            <input value="{% if not intercambiador.fluido_carcasa %}{{intercambiador.condicion_carcasa.fluido_cp|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" type="number" name="cp_liquido_carcasa" min="0.0001" id="cp_liquido_carcasa" class="form-control campo">
                             <select style="width: 40% !important;" class="form-select campo" name="unidad_cp" id="unidad_cp">
                                 {% for unidad in unidades_cp %}
                                 <option value="{{unidad.pk}}">{{unidad}}</option>
                                 {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-6 d-flex flex-column">
+                        <label class="form-label" for="cp_carcasa_gas">Cp Gas Prom.:</label>
+                        <div class="input-group mb-3">
+                            <input value="{% if not intercambiador.fluido_carcasa %}{{intercambiador.condicion_carcasa.fluido_cp|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" type="number" name="cp_gas_carcasa" min="0.0001" id="cp_gas_carcasa" class="form-control campo">
+                            <select style="width: 40% !important;" class="form-select campo" name="unidad_cp" id="unidad_cp" disabled>
+                                <option>J/KgK</option>
                             </select>
                         </div>
                     </div>
@@ -119,7 +125,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="temp_in_tubo">Temperatura Entrada:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control temperatura" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control temperatura campo" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -128,7 +134,7 @@
                     <div class="col-6">
                         <label class="form-label" for="temp_out_tubo">Temperatura Salida:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control temperatura" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control temperatura campo" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" min="-273.15" max="99999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -141,9 +147,25 @@
                         </select>
                     </div>
                     <div class="col-6 d-flex flex-column">
-                        <label class="form-label" for="cp_tubo">Capacidad Calorífica:</label>
+                        <label class="form-label" for="tipo_cp_tubo">Cálculo del Cp:</label>
+                        <select class="form-select" name="tipo_cp_tubo" id="tipo_cp_tubo">
+                            <option value="A" {% if condicion_tubo.tipo_cp == 'A' %} selected {% endif %}>Automático</option>
+                            <option value="M" {% if condicion_tubo.tipo_cp == 'M' %} selected {% endif %}>Manual</option>
+                        </select>
+                    </div>
+                    <div class="col-6 d-flex flex-column">
+                        <label class="form-label" for="cp_tubo_liquido">Cp Líquido Prom.:</label>
                         <div class="input-group mb-3">
-                            <input value="{% if not intercambiador.fluido_tubo %}{{intercambiador.condicion_tubo.fluido_cp|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" type="number" name="cp_tubo" min="0.0001" id="cp_tubo" class="form-control campo">
+                            <input value="{% if not intercambiador.fluido_tubo %}{{intercambiador.condicion_tubo.fluido_cp_liquido|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" type="number" name="cp_liquido_tubo" min="0.0001" id="cp_liquido_tubo" class="form-control campo">
+                            <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
+                                <option value="1">J/KgK</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-6 d-flex flex-column">
+                        <label class="form-label" for="cp_tubo_gas">Cp Gas Prom.:</label>
+                        <div class="input-group mb-3">
+                            <input value="{% if not intercambiador.fluido_tubo %}{{intercambiador.condicion_tubo.fluido_cp_gas|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" type="number" name="cp_gas_tubo" min="0.0001" id="cp_gas_tubo" class="form-control campo">
                             <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
                                 <option value="1">J/KgK</option>
                             </select>
@@ -245,7 +267,7 @@
         <hr>
         
         <div class="d-flex justify-content-center mb-3">
-            <button id="registrar_resultado" class="btn btn-danger" disabled>Registrar Resultados De La Evaluación</button>
+            <button onclick="this.form.submit(); this.disabled = true;" id="registrar_resultado" class="btn btn-danger" disabled>Registrar Resultados De La Evaluación</button>
         </div>
     </form>
 {% endblock %}
@@ -319,6 +341,11 @@
         await delay(1000);
         en_uso = false;
 
+        if (e.keyCode == 46) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+
         const in_carcasa = Number($('#temp_in_carcasa').val());
         const out_carcasa = Number($('#temp_out_carcasa').val());
         const in_tubo = Number($('#temp_in_tubo').val());
@@ -331,11 +358,11 @@
                 return;
             }
 
-            if(out_carcasa && in_carcasa === out_carcasa){
-                alert("Las temperaturas de entrada y salida de la carcasa no pueden ser iguales.");
-                document.getElementById('registrar_resultado').setAttribute('disabled', true);
-                return;
-            }
+            // if(out_carcasa && in_carcasa === out_carcasa){
+            //     alert("Las temperaturas de entrada y salida de la carcasa no pueden ser iguales.");
+            //     document.getElementById('registrar_resultado').setAttribute('disabled', true);
+            //     return;
+            // }
         }
 
         // if(out_carcasa){
@@ -346,14 +373,14 @@
         //     }
         // }
 
-        if(in_tubo){
+        // if(in_tubo){
             
-            if(out_tubo && out_tubo === in_tubo){
-                alert("Las temperaturas de entrada y salida del tubo no pueden ser iguales.");
-                document.getElementById('registrar_resultado').setAttribute('disabled', true);
-                return;
-            }
-        }
+        //     if(out_tubo && out_tubo === in_tubo){
+        //         alert("Las temperaturas de entrada y salida del tubo no pueden ser iguales.");
+        //         document.getElementById('registrar_resultado').setAttribute('disabled', true);
+        //         return;
+        //     }
+        // }
 
         if(out_carcasa && out_tubo && in_carcasa && in_tubo){
             
@@ -409,66 +436,121 @@
 
 <script>
     function ajaxCP(t1,t2,fluido, lado = 'T'){
-        console.log("AAA");
-        if(lado === 'T' && $('#fluido_tubo').val()){
-            $('#cp_tubo').val('');
-            document.getElementById('cp_tubo').setAttribute('disabled', true);
-        }
-        else if(lado === 'C' && $('#fluido_carcasa').val()){
-            $('#cp_carcasa').val('');
-            document.getElementById('cp_carcasa').setAttribute('disabled', true);
-        }
-
-        $.ajax({
-            url: '/intercambiadores/calcular_cp/',
-            data: {
-                t1,
-                t2,
-                fluido,
-                unidad: $('#unidad_temperaturas').val(),
-                unidad_salida: $('#unidad_cp').val()
-            },
-            success: (res) => {
-                if(res.cp !== '')
-                    if(lado === 'T'){
-                        $('#cp_tubo').val(res.cp);
-                        $('#cp_tubo').removeAttr('disabled');
-                        $('#cp_tubo').change();
-                    }
-                    else{
-                        $('#cp_carcasa').val(res.cp);
-                        $('#cp_carcasa').removeAttr('disabled');
-                        $('#cp_carcasa').change();
-                    }
-                    ajaxEvaluacion();                    
-            }, 
-            error: (res) => {
-                console.log(res);
-                $('#cp_tubo').removeAttr('disabled');
-                $('#cp_carcasa').removeAttr('disabled');
+        const tipo_cp = lado === 'C' ? $('#tipo_cp_carcasa').val() : $('#tipo_cp_tubo').val();
+        const unidad_presion_valor = $('#unidad_presion > option').toArray().filter(x => x.innerHTML === $('#unidad_presion_ficha').html().trim())[0].value;
+        
+        if(!$('#cp_ficha').is(':checked') && tipo_cp === 'A'){
+            if(lado === 'T' && $('#fluido_tubo').val()){
+                $('#cp_liquido_tubo').val('');
+                document.getElementById('cp_liquido_tubo').setAttribute('disabled', true);
+                $('#cp_gas_tubo').val('');
+                document.getElementById('cp_gas_tubo').setAttribute('disabled', true);
             }
-        });
+            else if(lado === 'C' && $('#fluido_carcasa').val()){
+                $('#cp_liquido_carcasa').val('');
+                document.getElementById('cp_liquido_carcasa').setAttribute('disabled', true);
+                $('#cp_gas_carcasa').val('');
+                document.getElementById('cp_gas_carcasa').setAttribute('disabled', true);
+            }
+
+            $.ajax({
+                url: '/intercambiadores/calcular_cp/',
+                data: {
+                    t1,
+                    t2,
+                    fluido,
+                    unidad: $('#unidad_temperaturas').val(),
+                    unidad_salida: $('#unidad_cp').val(),
+                    cambio_fase: lado === 'C' ? $('#cambio_fase_ficha_carcasa').html() : $('#cambio_fase_ficha_tubo').html(),
+                    presion: lado === 'C' ? transformarNumero($('#presion_entrada_carcasa_ficha').html()) : transformarNumero($('#presion_entrada_tubo_ficha').html()),
+                    unidad_presion: unidad_presion_valor,
+                    intercambiador: $('#tag_ficha').val(),
+                    lado: lado
+                },
+                success: (res) => {
+                    if(lado === 'T'){
+                            if(res.cp_liquido){
+                                $('#cp_liquido_tubo').val(res.cp_liquido)
+                                $('#cp_liquido_tubo').change();
+                            }
+
+                            if(res.cp_gas){
+                                $('#cp_gas_tubo').val(res.cp_gas)
+                                $('#cp_gas_tubo').change();
+                            }
+
+                            if(res.cp){
+                                if(res.fase === 'l'){                                    
+                                    $('#cp_liquido_tubo').val(res.cp);
+                                    $('#cp_liquido_tubo').change();
+                                }
+                                else{
+                                    $('#cp_liquido_tubo').val(res.cp);
+                                    $('#cp_liquido_tubo').change();
+                                }
+                            }
+                        }
+                    else{
+                            if(res.cp_liquido){
+                                $('#cp_liquido_carcasa').val(res.cp_liquido);
+                                $('#cp_liquido_carcasa').change();
+                            }
+
+                            if(res.cp_gas){
+                                $('#cp_gas_carcasa').val(res.cp_gas);
+                                $('#cp_gas_carcasa').change();
+                            }
+
+                            if(res.cp){
+                                if(res.fase === 'l'){                                    
+                                    $('#cp_liquido_carcasa').val(res.cp);
+                                    $('#cp_liquido_carcasa').change();
+                                }
+                                else{
+                                    $('#cp_liquido_carcasa').val(res.cp);
+                                    $('#cp_liquido_carcasa').change();
+                                }
+                            }
+                        }
+                    ajaxEvaluacion();                    
+                }, 
+                error: (res) => {
+                    console.log(res);
+                    if(lado === 'T'){
+                        $('#cp_gas_tubo').removeAttr('disabled');
+                        $('#cp_liquido_tubo').removeAttr('disabled');
+                    } else{
+                        $('#cp_gas_carcasa').removeAttr('disabled');
+                        $('#cp_liquido_carcasa').removeAttr('disabled');                        
+                    }
+                }
+            });
+        }        
     }
 
     $('#temp_out_carcasa').keyup((e) => {
-        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
+        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''
+            && !$('#cp_ficha').is(':checked')){
             ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
         }
     });
 
     $('#temp_in_carcasa').keyup((e) => {
-        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== '')
+        if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''
+            && !$('#cp_ficha').is(':checked'))
             ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
     });
 
     $('#temp_out_tubo').keyup((e) => {
-        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
+        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''
+            && !$('#cp_ficha').is(':checked')){
             ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
         }
     });
 
     $('#temp_in_tubo').keyup((e) => {
-        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
+        if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''
+            && !$('#cp_ficha').is(':checked')){
             ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
         }
     });
@@ -531,6 +613,74 @@
         });
     });
 
+    $('#cp_ficha').click((e) => {
+        if($('#cp_ficha').is(':checked')){
+            console.log("Colocando CP de Ficha");
+            $('#cp_gas_tubo').val($('#cp_vapor_ficha_tubo').html().replace(',','.').replace(/[\n|\s]+/g,''));
+            $('#cp_gas_tubo').attr('disabled',true);
+            $('#cp_liquido_tubo').val($('#cp_liquido_ficha_tubo').html().replace(',','.').replace(/[\n|\s]+/g,''));
+            $('#cp_liquido_tubo').attr('disabled',true);
+            $('#cp_gas_carcasa').val($('#cp_vapor_ficha_carcasa').html().replace(',','.').replace(/[\n|\s]+/g,''));
+            $('#cp_gas_carcasa').attr('disabled',true);
+            $('#cp_liquido_carcasa').val($('#cp_liquido_ficha_carcasa').html().replace(',','.').replace(/[\n|\s]+/g,''));
+            $('#cp_liquido_carcasa').attr('disabled',true);
+            const unidad_cp_valor = $('#unidad_cp > option').toArray().filter(x => x.innerHTML === $('#unidad_cp_ficha').html())[0].value;
+            $('#unidad_cp').val(unidad_cp_valor).change();
+            $('#unidad_cp').attr('disabled',true);
+            $('#tipo_cp_carcasa').attr("disabled", true);
+            $('#tipo_cp_tubo').attr("disabled", true);
+        } 
+        else{
+            console.log("Descheckeaste, poniendo Cp automatico.");
+            $('#unidad_cp').removeAttr('disabled');
+            if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== '' && $('#tipo_cp_carcasa').val() === 'A')
+                ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
+            else{
+                $('#cp_gas_carcasa').removeAttr('disabled');
+                $('#cp_liquido_carcasa').removeAttr('disabled');                
+            }
+
+            if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== '' && $('#tipo_cp_tubo').val() === 'A')
+                ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
+            else{
+                $('#cp_gas_tubo').removeAttr('disabled');
+                $('#cp_liquido_tubo').removeAttr('disabled');                
+            }
+
+            $('#tipo_cp_carcasa').removeAttr("disabled");
+            $('#tipo_cp_tubo').removeAttr("disabled");
+        }
+        
+        ajaxEvaluacion();        
+    });
+
+    $('#tipo_cp_tubo').change(e => {
+        if($('#tipo_cp_tubo').val() === 'A'){
+            $('#cp_liquido_tubo').attr('disabled',true);
+            $('#cp_gas_tubo').attr('disabled',true);
+        }
+        else{
+            $('#cp_liquido_tubo').removeAttr('disabled');
+            $('#cp_gas_tubo').removeAttr('disabled'); 
+        }
+    });
+
+    $('#tipo_cp_carcasa').change(e => {
+        if($('#tipo_cp_carcasa').val() === 'A'){
+            $('#cp_liquido_carcasa').attr('disabled',true);
+            $('#cp_gas_carcasa').attr('disabled',true);
+        }
+        else{
+            $('#cp_liquido_carcasa').removeAttr('disabled');
+            $('#cp_gas_carcasa').removeAttr('disabled'); 
+        }
+    });
+
+    const transformarNumero = (str) => {
+        console.log(str);
+        return Number(str.replace(',','.').replace(/[\n|\s]+/g,''))
+    }
+    
     const vaciarCampos = () => {
         document.getElementById('lmtd').value = '';
         document.getElementById('area').value = '';
@@ -543,7 +693,10 @@
         document.getElementById('registrar_resultado').setAttribute('disabled', true);
     }
 
-    const ajaxEvaluacion = () => {
+    const ajaxEvaluacion = async () => {
+        if(en_uso)
+            await delay(500)
+
         const array = $('.campo').toArray();
 
         console.log(array);
@@ -559,8 +712,10 @@
                     flujo_tubo: document.getElementById('flujo_tubo').value,
                     flujo_carcasa: document.getElementById('flujo_carcasa').value,
                     no_tubos: document.getElementById('no_tubos').value,
-                    cp_tubo: document.getElementById('cp_tubo').value,
-                    cp_carcasa: document.getElementById('cp_carcasa').value,
+                    cp_gas_tubo: document.getElementById('cp_gas_tubo').value,
+                    cp_liquido_tubo: document.getElementById('cp_liquido_tubo').value,
+                    cp_gas_carcasa: document.getElementById('cp_gas_carcasa').value,
+                    cp_liquido_carcasa: document.getElementById('cp_liquido_carcasa').value,
                     unidad_cp: $('#unidad_cp').val(),
                     unidad: document.getElementById('unidad_temperaturas').value,
                     unidad_flujo: document.getElementById('unidad_flujo').value

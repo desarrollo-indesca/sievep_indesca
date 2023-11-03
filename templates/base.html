@@ -31,5 +31,12 @@
     {% block extra_javascript %}
     {% endblock %}
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script>
+        $('.alert').delay(2000, async () => {
+            await new Promise(resolve => setTimeout(resolve, 4500));
+            $('.alert-hr').remove();
+            $('.alert').remove();            
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block contenido %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consultar_usuarios' %}">↶ Regresar</a></div>
+            <div class="col-md-6 col-lg-8">
+                {% if edicion %}
+                <h3 class="text-center" style="color: #e31e24;">Edición del Usuario {{previo.nombre}}</h3>
+                {% else %}
+                <h3 class="text-center" style="color: #e31e24;">Registro de Nuevo Usuario</h3>                
+                {% endif %}
+            </div>
+            <div class="col-3"></div>
+        </div>
+    
+        <hr>
+
+        {% if errores %}
+        <div>
+            <ul>
+                {% for error in errores %}
+                <li class="text-danger">{{error}}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <hr>
+        {% endif %}
+    
+        <div class="row">
+            <div class="col-6">
+                <label class="form-label" for="nombre">Nombre del Usuario:</label>
+                <input value="{{previo.nombre}}" type="text" name="nombre" class="form-control" id="nombre" maxlength="150" required>
+            </div>
+            <div class="col-6">
+                <label class="form-label" for="correo">Correo Electrónico:</label>
+                <input value="{{previo.correo}}" type="email" name="correo" class="form-control" id="correo" maxlength="254" required>
+            </div>
+            {% if not edicion %}
+            <div class="col-6">
+                <label class="form-label" for="password">Contraseña:</label>
+                <input type="password" name="password" class="form-control" id="password" maxlength="100" minlength="8" required>
+            </div>
+            {% else %}
+            <div class="col-6 d-flex justify-content-center align-items-end">
+                <div class="d-flex">
+                    <input type="checkbox" name="activo" class="form-check-input" id="activo" height="200px" width="200px"
+                    {% if previo.activo %}checked{%endif%}>
+                    &nbsp;
+                    <div><label class="form-label" for="activo">Activo</label></div>
+                </div>
+            </div>
+            {%endif%}
+            <div class="col-6 d-flex justify-content-center align-items-end">
+                <div class="d-flex">
+                    <input type="checkbox" name="superusuario" class="form-check-input" id="superusuario" height="200px" width="200px"
+                    {% if previo.superusuario %}checked{%endif%}>
+                    &nbsp;
+                    <div><label class="form-label" for="superusuario">Superusuario</label></div>
+                </div>
+            </div>
+        </div>
+    
+        <hr>
+        
+        <div class="d-flex justify-content-center mb-3">
+            {% if edicion %}
+            <button class="btn btn-danger">Editar Usuario</button>
+            {% else %}
+            <button class="btn btn-danger">Registrar Usuario</button>
+            {% endif %}
+        </div>
+    </form>
+{% endblock %}
