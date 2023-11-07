@@ -365,7 +365,6 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
                 tipo_cp_tubo = request.POST.get('tipo_cp_tubo'),
                 cp_unidad = Unidades.objects.get(pk=request.POST['unidad_cp'])
             )
-
         
         messages.success(request, "La nueva evaluación ha sido registrada exitosamente.")
 
