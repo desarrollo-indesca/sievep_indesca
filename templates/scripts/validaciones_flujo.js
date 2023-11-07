@@ -68,6 +68,9 @@ const determinar_cambio_de_fase_tubo = () => {
                 $('#cp_gas_tubo').removeAttr('disabled');
             }
         }
+
+        if(cambio_fase === 'P')
+            $('#sat_tubo').attr("hidden", true);        
         
         actualizar_tipos('T');
     }
@@ -96,9 +99,12 @@ const determinar_cambio_de_fase_carcasa = () => {
                 cambiar_accesibilidad_por_fase('T');
             else{
                 $('#cp_liquido_carcasa').removeAttr('disabled');
-                $('#cp_gas_carcasa').removeAttr('disabled');  
+                $('#cp_gas_carcasa').removeAttr('disabled');
             }   
         }
+
+        if(cambio_fase === 'P')
+            $('#sat_carcasa').attr("hidden", true);
 
         // {% if intercambiador %}
         actualizar_tipos('C');

@@ -11,7 +11,7 @@ function cambiar_accesibilidad_por_fase(lado = 'T'){
         if(Number($('#flujo_liquido_in_carcasa').val()) !== 0 && Number($('#flujo_liquido_in_carcasa').val()) === Number($('#flujo_liquido_out_carcasa').val())){
             $('#cp_liquido_carcasa').removeAttr('disabled');
             $('#cp_gas_carcasa').val('');
-            $('#cp_gas_carcasa').attr('disabled', true);             
+            $('#cp_gas_carcasa').attr('disabled', true);
         }
         else if(Number($('#flujo_vapor_in_carcasa').val()) !== 0 && Number($('#flujo_vapor_in_carcasa').val()) === Number($('#flujo_vapor_out_carcasa').val())){
             $('#cp_gas_carcasa').removeAttr('disabled');
@@ -41,6 +41,8 @@ function cambiar_segun_tipo_y_cambio(lado = 'C') {
                 ajaxCPCarcasa();
                 $('#cp_liquido_carcasa').attr('disabled',true);
                 $('#cp_gas_carcasa').attr('disabled',true);
+                $('#sat_carcasa').attr("hidden", true);
+                $('#sat_carcasa').val("");
             }
             else{
                 if(cambio_fase === 'S')
@@ -48,7 +50,10 @@ function cambiar_segun_tipo_y_cambio(lado = 'C') {
                 else{ 
                     $('#cp_liquido_carcasa').removeAttr('disabled');
                     $('#cp_gas_carcasa').removeAttr('disabled'); 
-                }            
+                }
+
+                if(cambio_fase === 'T')                
+                    $('#sat_carcasa').removeAttr("hidden");
             }
         }
         else{
@@ -62,6 +67,8 @@ function cambiar_segun_tipo_y_cambio(lado = 'C') {
                 ajaxCPTubo();
                 $('#cp_liquido_tubo').attr('disabled',true);
                 $('#cp_gas_tubo').attr('disabled',true);
+                $('#sat_tubo').attr("hidden", true);
+                $('#sat_tubo').val("");
             }
             else{
                 if(cambio_fase === 'S')
@@ -69,7 +76,10 @@ function cambiar_segun_tipo_y_cambio(lado = 'C') {
                 else{
                     $('#cp_liquido_tubo').removeAttr('disabled');
                     $('#cp_gas_tubo').removeAttr('disabled');  
-                }            
+                }
+                
+                if(cambio_fase === 'T')                
+                    $('#sat_carcasa').removeAttr("hidden");
             }
         }
         else{

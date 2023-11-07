@@ -342,6 +342,46 @@
                         </div>
                     </div>
 
+                    <div id="sat_carcasa" class="col-12" hidden>
+                        <div class="row">
+                            <div class="col-6 d-flex flex-column">
+                                <label for="tsat_carcasa">Temp. Saturación:</label>
+                                
+                                <div class="input-group mb-3">
+                                    <input value="{{previo.tsat_carcasa}}" type="number" name="tsat_carcasa" id="tsat_carcasa" class="form-control">
+                                    <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                        {% if previo.unidad_temperaturas %}
+                                        {% for unidad in unidades_temperaturas %}
+                                        {% if unidad.pk|slugify == previo.unidad_temperaturas %}
+                                        <option>{{unidad}}</option>
+                                        {%endif%}
+                                        {% endfor %}
+                                        {% else %}
+                                        <option value="1">°C</option>
+                                        {%endif%}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-6 d-flex flex-column">
+                                <label for="hvap_carcasa">Entalpía de Vaporización:</label>
+                                <div class="input-group mb-3">
+                                    <input value="{{previo.hvap_carcasa}}" type="number" name="hvap_carcasa" id="hvap_carcasa" class="form-control">
+                                    <select style="width: 40% !important;" class="form-select" name="unidad_hvap" id="unidad_hvap" disabled>
+                                        {% if previo.unidad_hvap %}
+                                        {% for unidad in unidades_hvap %}
+                                        {% if unidad.pk|slugify == previo.unidad_hvap %}
+                                        <option>{{unidad}}</option>
+                                        {%endif%}
+                                        {% endfor %}
+                                        {% else %}
+                                        <option value="1">J/Kg</option>
+                                        {%endif%}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="col-6">
                         <label class="form-label" for="caida_presion_max_carcasa">Caída de Presión Máxima:</label>
                         <div class="input-group mb-3">
@@ -670,6 +710,47 @@
                                             </select>
                                         </div>  
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="sat_tubo" class="col-12" hidden>
+                        <div class="row">
+                            <div class="col-6 d-flex flex-column">
+                                <label for="tsat_tubo">Temp. Saturación:</label>
+                                
+                                <div class="input-group mb-3">
+                                    <input value="{{previo.tsat_tubo}}" type="number" name="tsat_tubo" id="tsat_tubo" class="form-control">
+                                    <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                        {% if previo.unidad_temperaturas %}
+                                        {% for unidad in unidades_temperaturas %}
+                                        {% if unidad.pk|slugify == previo.unidad_temperaturas %}
+                                        <option>{{unidad}}</option>
+                                        {%endif%}
+                                        {% endfor %}
+                                        {% else %}
+                                        <option value="1">°C</option>
+                                        {%endif%}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-6 d-flex flex-column">
+                                <label for="hvap_tubo">Entalpía de Vaporización:</label>
+                                <div class="input-group mb-3">
+                                    <input value="{{previo.hvap_tubo}}" type="number" name="hvap_tubo" id="hvap_tubo" class="form-control">
+                                    <select style="width: 40% !important;" class="form-select" name="unidad_hvap" id="unidad_hvap" disabled>
+                                        {% if previo.unidad_hvap %}
+                                        {% for unidad in unidades_hvap %}
+                                        {% if unidad.pk|slugify == previo.unidad_hvap %}
+                                        <option>{{unidad}}</option>
+                                        {%endif%}
+                                        {% endfor %}
+                                        {% else %}
+                                        <option value="1">J/Kg</option>
+                                        {%endif%}
+                                    </select>
                                 </div>
                             </div>
                         </div>
