@@ -412,7 +412,7 @@ function anadir_listeners() {
     anadir_listeners_unidades();
 }
 
-function actualizar_tipos(lado = "T") {
+function actualizar_tipos(lado = "T") { // Actualización de Tipos de Cálculo de Cp
     const id = lado === 'T' ? '#tipo_cp_tubo' : '#tipo_cp_carcasa';
     const id_fluido = lado === 'T' ? '#fluido_tubo' : '#fluido_carcasa';
     const id_cdf = lado === 'T' ? '#cambio_fase_tubo' : '#cambio_fase_carcasa';

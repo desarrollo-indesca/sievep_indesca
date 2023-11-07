@@ -148,7 +148,8 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             if(tipo_cp == 'A'):
                 cp_liquido,cp_gas = obtener_cps(t1,t2,presion,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in,flujo_vapor_out,Fluido.objects.get(pk=request.POST.get('fluido_tubo')).cas,cambio_fase,unidad_cp)
             else:
-                cp_liquido,cp_gas = float(request.POST.get('cp_liquido_tubo')),float(request.POST.get('cp_gas_tubo'))
+                cp_liquido = float(request.POST.get('cp_liquido_tubo')) if request.POST.get('cp_liquido_tubo') else None
+                cp_gas = float(request.POST.get('cp_gas_tubo')) if request.POST.get('cp_gas_tubo') else None
             
             tsat = float(request.POST.get('tsat_tubo')) if request.POST.get('tsat_tubo') != '' else None
             hvap = float(request.POST.get('hvap_tubo')) if request.POST.get('hvap_tubo') != '' else None
@@ -198,7 +199,8 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             if(tipo_cp == 'A'):
                 cp_liquido,cp_gas = obtener_cps(t1,t2,presion,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in,flujo_vapor_out,Fluido.objects.get(pk=request.POST.get('fluido_carcasa')).cas,cambio_fase,unidad_cp)
             else:
-                cp_liquido,cp_gas = float(request.POST.get('cp_liquido_carcasa')),float(request.POST.get('cp_gas_carcasa'))
+                cp_liquido = float(request.POST.get('cp_liquido_carcasa')) if request.POST.get('cp_liquido_carcasa') else None
+                cp_gas = float(request.POST.get('cp_gas_carcasa')) if request.POST.get('cp_gas_carcasa') else None
            
             tsat = float(request.POST.get('tsat_carcasa')) if request.POST.get('tsat_carcasa') != '' else None
             hvap = float(request.POST.get('hvap_carcasa')) if request.POST.get('hvap_carcasa') != '' else None
@@ -490,7 +492,8 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             if(tipo_cp == 'A'):
                 cp_liquido,cp_gas = obtener_cps(t1,t2,presion,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in,flujo_vapor_out,Fluido.objects.get(pk=request.POST.get('fluido_tubo')).cas,cambio_fase,unidad_cp)
             else:
-                cp_liquido,cp_gas = float(request.POST.get('cp_liquido_tubo')),float(request.POST.get('cp_gas_tubo'))
+                cp_liquido = float(request.POST.get('cp_liquido_tubo')) if request.POST.get('cp_liquido_tubo') else None
+                cp_gas = float(request.POST.get('cp_gas_tubo')) if request.POST.get('cp_gas_tubo') else None
 
             tsat = float(request.POST.get('tsat_tubo')) if request.POST.get('tsat_tubo') != '' else None
             hvap = float(request.POST.get('hvap_tubo')) if request.POST.get('hvap_tubo') != '' else None
@@ -539,7 +542,8 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             if(tipo_cp == 'A'):
                 cp_liquido,cp_gas = obtener_cps(t1,t2,presion,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in,flujo_vapor_out,Fluido.objects.get(pk=request.POST.get('fluido_carcasa')).cas,cambio_fase,unidad_cp)
             else:
-                cp_liquido,cp_gas = float(request.POST.get('cp_liquido_carcasa')),float(request.POST.get('cp_gas_carcasa'))
+                cp_liquido = float(request.POST.get('cp_liquido_carcasa')) if request.POST.get('cp_liquido_carcasa') else None
+                cp_gas = float(request.POST.get('cp_gas_carcasa')) if request.POST.get('cp_gas_carcasa') else None
 
             tsat = float(request.POST.get('tsat_carcasa')) if request.POST.get('tsat_carcasa') != '' else None
             hvap = float(request.POST.get('hvap_carcasa')) if request.POST.get('hvap_carcasa') != '' else None

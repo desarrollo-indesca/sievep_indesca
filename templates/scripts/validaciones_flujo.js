@@ -1,4 +1,4 @@
-const determinar_cambio_de_fase = (fve, fvs, fle, fls, lado="T") => {
+const determinar_cambio_de_fase = (fve, fvs, fle, fls, lado="T") => { // Cambio de Fase según Flujos
     fve = Number(fve);
     fvs = Number(fvs);
     fle = Number(fle);
@@ -45,7 +45,7 @@ const determinar_cambio_de_fase = (fve, fvs, fle, fls, lado="T") => {
     return "-";
 };
 
-const determinar_cambio_de_fase_tubo = () => {
+const determinar_cambio_de_fase_tubo = () => { // Cambio de Fase para tubos
     const cambio_fase = determinar_cambio_de_fase(
         $('#flujo_vapor_in_tubo').val(),
         $('#flujo_vapor_out_tubo').val(),
@@ -78,7 +78,7 @@ const determinar_cambio_de_fase_tubo = () => {
     anadir_listeners();
 }
 
-const determinar_cambio_de_fase_carcasa = () => {
+const determinar_cambio_de_fase_carcasa = () => { // Cambio de Fase para carcasa 
     const cambio_fase = determinar_cambio_de_fase(
         $('#flujo_vapor_in_carcasa').val(),
         $('#flujo_vapor_out_carcasa').val(),
@@ -112,7 +112,7 @@ const determinar_cambio_de_fase_carcasa = () => {
     }
 }
 
-const flujos_validos = (fve, fvs, fle, fls) => {
+const flujos_validos = (fve, fvs, fle, fls) => { // Verificación de flujos válidos
     return fve + fle === fvs + fls;
 }
 
