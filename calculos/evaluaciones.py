@@ -116,23 +116,21 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp_gas: float, cp_liquido
         calidad = flujo_vapor_out/(flujo_liquido_out+flujo_vapor_out)
 
         if(type(fluido) != str):
-                tsat,hvap = calcular_tsat_hvap(fluido.cas, presion)
+                _,hvap = calcular_tsat_hvap(fluido.cas, presion)
         else:
-            tsat = transformar_unidades_temperatura([float(datos.tsat)], datos.temperaturas_unidad)[0]
             hvap = float(datos.hvap) if datos.hvap else 5000
 
         if(cdf == 'DD'):
             return hvap*calidad*flujo
         elif(cdf == 'DL'):
-            return abs(flujo*(-hvap*calidad + (t2-tsat)*cp_liquido))
+            return abs(flujo*(-hvap*calidad + (t2-t1)*cp_liquido))
         elif(cdf == 'DV'):
-            return flujo*(hvap*calidad + (t2-tsat)*cp_gas)
+            return flujo*(hvap*calidad + (t2-t1)*cp_gas)
         elif(cdf == 'LD'):
-            return flujo*((tsat-t1)*cp_liquido + hvap*calidad)
+            return flujo*((t2-t1)*cp_liquido + hvap*calidad)
         elif(cdf == 'VD'):
-            return flujo*((tsat-t1)*cp_gas - hvap*calidad)
+            return abs(flujo*((t2-t1)*cp_gas - hvap*calidad))
     else: # Caso 2: Cambio de Fase Total
-        print(lado)
         if(datos.tipo_cp == 'A'):
             return flujo*calcular_entalpia_entre_puntos(fluido.cas, t1, t2, presion)
         else:
