@@ -267,7 +267,7 @@
         <hr>
         
         <div class="d-flex justify-content-center mb-3">
-            <button onclick="this.form.submit(); this.disabled = true;" id="registrar_resultado" class="btn btn-danger" disabled>Registrar Resultados De La Evaluación</button>
+            <button id="registrar_resultado" class="btn btn-danger" disabled>Registrar Resultados De La Evaluación</button>
         </div>
     </form>
 {% endblock %}
@@ -754,5 +754,11 @@
         else
             document.getElementById('registrar_resultado').setAttribute('disabled', true)
     }
+</script>
+
+<script>
+    $('form').one('submit', function() {
+        $(this).find('input[type="submit"]').attr('disabled','disabled');
+    }); 
 </script>
 {% endblock %}

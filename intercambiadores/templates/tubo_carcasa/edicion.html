@@ -194,7 +194,7 @@
                         <div style="width: 50%;">
                             <label for="tipo_cp_carcasa">Cálculo del Cp:</label>
                             <select class="form-select" name="tipo_cp_carcasa" id="tipo_cp_carcasa">
-                                {% if condicion_tubo.fluido_etiqueta != '' %}
+                                {% if condicion_carcasa.fluido_etiqueta and condicion_tubo.fluido_etiqueta != '' %}
                                 <option value="M" {% if condicion_carcasa.tipo_cp == 'M' %} selected {% endif %}>Manual</option>
                                 {% else %}
                                 <option value="A" {% if condicion_carcasa.tipo_cp == 'A' %} selected {% endif %}>Automático</option>
@@ -292,7 +292,7 @@
                             </div>
                     </div>
 
-                    <div id="sat_carcasa" class="col-12" {% if condicion_carcasa.tipo_cp != 'M' and condicion_carcasa.cambio_de_fase != 'T' %}hidden{%endif%}>
+                    <div id="sat_carcasa" class="col-12" {% if condicion_carcasa.tipo_cp == 'A' or condicion_carcasa.cambio_de_fase != 'T' and condicion_carcasa.tipo_cp == 'M' %}hidden{%endif%}>
                         <div class="row">
                             <div class="col-6 d-flex flex-column">
                                 <label for="tsat_carcasa">Temp. Saturación:</label>
@@ -470,7 +470,7 @@
                         <div style="width: 50%;">
                             <label for="tipo_cp_tubo">Cálculo del Cp:</label>
                             <select class="form-select" name="tipo_cp_tubo" id="tipo_cp_tubo">
-                                {% if condicion_tubo.fluido_etiqueta != '' %}
+                                {% if condicion_tubo.fluido_etiqueta and condicion_tubo.fluido_etiqueta != '' %}
                                 <option value="M" {% if condicion_tubo.tipo_cp == 'M' %} selected {% endif %}>Manual</option>
                                 {% else %}
                                 <option value="A" {% if condicion_tubo.tipo_cp == 'A' %} selected {% endif %}>Automático</option>
@@ -566,7 +566,7 @@
                             </div>
                     </div>
                     
-                    <div id="sat_tubo" class="col-12" {% if condicion_tubo.tipo_cp != 'M' and condicion_tubo.cambio_de_fase != 'T' %}hidden{%endif%}>
+                    <div id="sat_tubo" class="col-12" {% if condicion_tubo.tipo_cp == 'A' or condicion_tubo.cambio_de_fase != 'T' and condicion_tubo.tipo_cp == 'M' %}hidden{%endif%}>
                         <div class="row">
                             <div class="col-6 d-flex flex-column">
                                 <label for="tsat_tubo">Temp. Saturación:</label>
@@ -574,7 +574,7 @@
                                 <div class="input-group mb-3">
                                     <input value="{{condicion_tubo.tsat|unlocalize}}" type="number" name="tsat_tubo" id="tsat_tubo" class="form-control">
                                     <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
-                                        <option>{{condicion_tubo.unidad_temperaturas}}</option>
+                                        <option>{{condicion_tubo.temperaturas_unidad}}</option>
                                     </select>
                                 </div>
                             </div>
@@ -793,7 +793,7 @@
         <hr>
         
         <div class="d-flex justify-content-center mb-3">
-            <button onclick="this.form.submit(); this.disabled = true;" type="submit" class="btn btn-danger">Registrar Cambios</button>
+            <button type="submit" class="btn btn-danger">Registrar Cambios</button>
         </div>
     </form>
     {% endwith %}
@@ -806,5 +806,9 @@
     {% include 'scripts/cambio_fase.js' %}
 
     {% include 'scripts/validaciones_flujo.js' %}
+
+    $('form').one('submit', function() {
+        $('button[type="submit"]').attr('disabled','disabled');
+    }); 
 </script>
 {% endblock %}

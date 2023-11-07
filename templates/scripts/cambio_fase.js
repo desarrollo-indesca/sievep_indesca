@@ -79,7 +79,7 @@ function cambiar_segun_tipo_y_cambio(lado = 'C') {
                 }
                 
                 if(cambio_fase === 'T')                
-                    $('#sat_carcasa').removeAttr("hidden");
+                    $('#sat_tubo').removeAttr("hidden");
             }
         }
         else{

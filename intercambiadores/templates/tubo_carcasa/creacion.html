@@ -1002,7 +1002,7 @@
         <hr>
         
         <div class="d-flex justify-content-center mb-3">
-            <button type="submit" onclick="this.form.submit(); this.disabled = true;" class="btn btn-danger" disabled>Registrar Intercambiador</button>
+            <button type="submit" class="btn btn-danger" disabled>Registrar Intercambiador</button>
         </div>
     </form>
 {% endblock %}
@@ -1014,5 +1014,11 @@
     {% include 'scripts/validaciones_flujo.js' %}
 
     {% include 'scripts/cambio_fase.js' %}
+</script>
+
+<script>
+    $('form').one('submit', function() {
+        $('button[type="submit"]').attr('disabled','disabled');
+    }); 
 </script>
 {% endblock %}
