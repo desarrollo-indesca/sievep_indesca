@@ -292,6 +292,31 @@
                             </div>
                     </div>
 
+                    <div id="sat_carcasa" class="col-12" {% if condicion_carcasa.tipo_cp != 'M' and condicion_carcasa.cambio_de_fase != 'T' %}hidden{%endif%}>
+                        <div class="row">
+                            <div class="col-6 d-flex flex-column">
+                                <label for="tsat_carcasa">Temp. Saturación:</label>
+                                
+                                <div class="input-group mb-3">
+                                    <input value="{{condicion_carcasa.tsat|unlocalize}}" type="number" name="tsat_carcasa" id="tsat_carcasa" class="form-control">
+                                    <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                        <option>{{condicion_carcasa.unidad_temperaturas}}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-6 d-flex flex-column">
+                                <label for="hvap_carcasa">Entalpía de Vaporización:</label>
+                                <div class="input-group mb-3">
+                                    <input value="{{condicion_carcasa.hvap|unlocalize}}" type="number" name="hvap_carcasa" id="hvap_carcasa" class="form-control">
+                                    <select style="width: 40% !important;" class="form-select" name="unidad_hvap" id="unidad_hvap" disabled>
+                                        <option value="1">J/Kg</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="col-6">
                         <label class="form-label" for="caida_presion_permitida_carcasa">Caída de Presión Máxima:</label>
                         <div class="input-group mb-3">
@@ -539,7 +564,32 @@
                                     </div>
                                 </div>
                             </div>
-                    </div>               
+                    </div>
+                    
+                    <div id="sat_tubo" class="col-12" {% if condicion_tubo.tipo_cp != 'M' and condicion_tubo.cambio_de_fase != 'T' %}hidden{%endif%}>
+                        <div class="row">
+                            <div class="col-6 d-flex flex-column">
+                                <label for="tsat_tubo">Temp. Saturación:</label>
+                                
+                                <div class="input-group mb-3">
+                                    <input value="{{condicion_tubo.tsat|unlocalize}}" type="number" name="tsat_tubo" id="tsat_tubo" class="form-control">
+                                    <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                        <option>{{condicion_tubo.unidad_temperaturas}}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-6 d-flex flex-column">
+                                <label for="hvap_tubo">Entalpía de Vaporización:</label>
+                                <div class="input-group mb-3">
+                                    <input value="{{condicion_tubo.hvap|unlocalize}}" type="number" name="hvap_tubo" id="hvap_tubo" class="form-control">
+                                    <select style="width: 40% !important;" class="form-select" name="unidad_hvap" id="unidad_hvap" disabled>
+                                        <option value="1">J/Kg</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="col-6">
                         <label class="form-label" for="caida_presion_max_tubo">Caída de Presión Máxima:</label>

@@ -443,6 +443,8 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             elif fluido_carcasa != '': # Fluido existe
                 fluido_carcasa = Fluido.objects.get(pk=fluido_carcasa)
 
+            calor = float(request.POST['calor'])
+
             # Actualización propiedades de tubo y carcasa
             propiedades = PropiedadesTuboCarcasa.objects.get(pk=pk)
             propiedades.area = request.POST['area']
@@ -489,6 +491,13 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
                 cp_liquido,cp_gas = obtener_cps(t1,t2,presion,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in,flujo_vapor_out,Fluido.objects.get(pk=request.POST.get('fluido_tubo')).cas,cambio_fase,unidad_cp)
             else:
                 cp_liquido,cp_gas = request.POST.get('cp_liquido_tubo'),request.POST.get('cp_gas_tubo')
+
+            tsat = float(request.POST.get('tsat_tubo')) if request.POST.get('tsat_tubo') != '' else None
+            hvap = float(request.POST.get('hvap_tubo')) if request.POST.get('hvap_tubo') != '' else None
+
+            if((cambio_fase == 'T' or cambio_fase == 'P') and tipo_cp == 'M'):
+                hvap,tsat = obtener_hvap_tsat(t1, t2, cambio_fase, tsat, hvap, calor, cp_gas, cp_liquido,
+                                          flujo_vapor_in, flujo_liquido_in, flujo_vapor_out, flujo_liquido_out)
             
             condiciones_tubo = propiedades.condicion_tubo()
             condiciones_tubo.temp_entrada = request.POST['temp_in_tubo']
@@ -527,7 +536,14 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             if(tipo_cp == 'A'):
                 cp_liquido,cp_gas = obtener_cps(t1,t2,presion,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in,flujo_vapor_out,Fluido.objects.get(pk=request.POST.get('fluido_carcasa')).cas,cambio_fase,unidad_cp)
             else:
-                cp_liquido,cp_gas = request.POST.get('cp_liquido_carcasa'),request.POST.get('cp_gas_carcasa')
+                cp_liquido,cp_gas = float(request.POST.get('cp_liquido_carcasa')),float(request.POST.get('cp_gas_carcasa'))
+
+            tsat = float(request.POST.get('tsat_carcasa')) if request.POST.get('tsat_carcasa') != '' else None
+            hvap = float(request.POST.get('hvap_carcasa')) if request.POST.get('hvap_carcasa') != '' else None
+
+            if((cambio_fase == 'T' or cambio_fase == 'P') and tipo_cp == 'M'):
+                hvap,tsat = obtener_hvap_tsat(t1, t2, cambio_fase, tsat, hvap, calor, cp_gas, cp_liquido,
+                                        flujo_vapor_in, flujo_liquido_in, flujo_vapor_out, flujo_liquido_out)
 
             condiciones_carcasa = propiedades.condicion_carcasa()
             condiciones_carcasa.temp_entrada = request.POST['temp_in_carcasa']
