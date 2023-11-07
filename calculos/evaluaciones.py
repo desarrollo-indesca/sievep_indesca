@@ -30,10 +30,13 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
     print(f"FACTOR: {factor}")
     q_prom = np.mean([q_tubo,q_carcasa]) # W
     ucalc = q_prom/(area_calculada*dtml*factor) # Wm2/K
-    RF = 1/ucalc - 1/float(intercambiador.u) 
-    
-    ct = ft*cp_gas_tubo if cp_gas_tubo else ft*cp_liquido_tubo 
-    cc = Fc*cp_gas_carcasa if cp_gas_carcasa else Fc*cp_liquido_carcasa 
+    RF = 1/ucalc - 1/float(intercambiador.u)
+
+    condicion_tubo = intercambiador.condicion_tubo()
+    condicion_carcasa = intercambiador.condicion_carcasa()
+
+    ct = obtener_c_eficiencia(condicion_tubo, ft, cp_gas_tubo, cp_liquido_tubo)
+    cc = obtener_c_eficiencia(condicion_carcasa, Fc, cp_gas_carcasa, cp_liquido_carcasa)
 
     if(ct < cc):
         cmin = ct
@@ -107,7 +110,7 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp_gas: float, cp_liquido
 
     if(datos.cambio_de_fase == 'S'): # Caso 1: Sin Cambio de Fase
         return flujo * cp_liquido * abs(t2-t1) if cp_liquido else flujo * cp_gas * abs(t2-t1)
-    elif(datos.cambio_de_fase == 'P'):
+    elif(datos.cambio_de_fase == 'P'): # Caso 2: Cambio de Fase Parcial
         flujo_vapor_in = float(datos.flujo_vapor_entrada)
         flujo_vapor_out = float(datos.flujo_vapor_salida)
         flujo_liquido_in = float(datos.flujo_liquido_entrada)
@@ -130,7 +133,7 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp_gas: float, cp_liquido
             return flujo*((t2-t1)*cp_liquido + hvap*calidad)
         elif(cdf == 'VD'):
             return abs(flujo*((t2-t1)*cp_gas - hvap*calidad))
-    else: # Caso 2: Cambio de Fase Total
+    else: # Caso 3: Cambio de Fase Total
         if(datos.tipo_cp == 'A'):
             return flujo*calcular_entalpia_entre_puntos(fluido.cas, t1, t2, presion)
         else:
@@ -146,9 +149,19 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp_gas: float, cp_liquido
                 return flujo*(fluido_cp_gas*(t2-tsat)+hvap+fluido_cp_liquido*(tsat-t1))
             else: # Condensación
                 return abs(flujo*(fluido_cp_gas*(tsat-t1)-hvap+fluido_cp_liquido*(t2-tsat)))
-                       
-    # elif(datos.cambio_de_fase == 'P'): # Caso 3: Cambio de Fase Parcial
-        # pass  
+
+def obtener_c_eficiencia(condicion, flujo: float, cp_gas: float, cp_liquido: float) -> float:
+    if(condicion.cambio_de_fase == 'S'): # Caso 1: Sin Cambio de Fase
+        c = flujo*cp_gas if cp_gas else flujo*cp_liquido 
+    elif(condicion.cambio_de_fase == 'T'): # Caso 2: Cambio de Fase Total
+        if(condicion.flujo_vapor_salida != 0):
+            c = flujo*cp_gas
+        else:
+            c = flujo*cp_liquido
+    else: # Caso 3: Cambio de Fase Parcial
+        c = 0
+    
+    return c
 
 def obtener_cambio_fase(flujo_vapor_in: float, flujo_vapor_out: float, flujo_liquido_in: float, flujo_liquido_out: float) -> str:
     """
