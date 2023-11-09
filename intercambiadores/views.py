@@ -1119,6 +1119,29 @@ class ArreglarCpsSegunTipo(LoginRequiredMixin, View):
                         print("************")
                         break
 
+class EvaluarCambioDeFaseExistente(LoginRequiredMixin, View):
+    def get(self, request):
+        flujo_vapor_in = float(request.GET['flujo_vapor_in'])
+        flujo_vapor_out = float(request.GET['flujo_vapor_out'])
+        flujo_liquido_in = float(request.GET['flujo_liquido_in'])
+        flujo_liquido_out = float(request.GET['flujo_liquido_out'])
+        t1 = float(request.GET.get('t1'))
+        t2 = float(request.GET.get('t2'))
+        presion = float(request.GET['presion'])
+
+        fluido = request.GET['fluido']
+        
+        if(fluido.find('*') != -1): # Fluido no existe
+            fluido = fluido.split('*')
+            if(fluido[1].find('-') != -1):
+                fluido = Fluido.objects.get_or_create(nombre = fluido[0].upper(), cas = fluido[1])
+        elif fluido != '': # Fluido Existente
+            fluido = Fluido.objects.get(pk=fluido)
+
+        quimico = Chemical(fluido.cas, T= t1, P=presion)
+
+
+
 def obtener_cps(t1, t2, presion, flujo_liquido_in, flujo_liquido_out, flujo_vapor_in, flujo_vapor_out, fluido, cambio_fase, unidad_cp):                                   
     cp_gas = None
     cp_liquido = None
