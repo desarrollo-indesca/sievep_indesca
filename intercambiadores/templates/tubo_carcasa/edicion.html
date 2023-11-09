@@ -4,7 +4,7 @@
 
 {% block contenido %}
     {% with generales=intercambiador.intercambiador %}
-    <form method="post">
+    <form method="post" onsubmit="return validarForm(this);">
         {% csrf_token %}
         <div class="row">
             <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_tubo_carcasa' %}">↶ Regresar</a></div>
@@ -292,7 +292,7 @@
                             </div>
                     </div>
 
-                    <div id="sat_carcasa" class="col-12" {% if condicion_carcasa.tipo_cp == 'A' or condicion_carcasa.cambio_de_fase != 'T' and condicion_carcasa.tipo_cp == 'M' %}hidden{%endif%}>
+                    <div id="sat_carcasa" class="col-12" {% if condicion_carcasa.tipo_cp == 'A' or condicion_carcasa.cambio_de_fase != 'T' or condicion_carcasa.tipo_cp == 'M' and not condicion_carcasa.fluido_etiqueta %}hidden{%endif%}>
                         <div class="row">
                             <div class="col-6 d-flex flex-column">
                                 <label for="tsat_carcasa">Temp. Saturación:</label>
@@ -566,7 +566,7 @@
                             </div>
                     </div>
                     
-                    <div id="sat_tubo" class="col-12" {% if condicion_tubo.tipo_cp == 'A' or condicion_tubo.cambio_de_fase != 'T' and condicion_tubo.tipo_cp == 'M' %}hidden{%endif%}>
+                    <div id="sat_tubo" class="col-12" {% if condicion_tubo.tipo_cp == 'A' or condicion_tubo.cambio_de_fase != 'T' or condicion_tubo.tipo_cp == 'M' and not condicion_tubo.fluido_etiqueta %}hidden{%endif%}>
                         <div class="row">
                             <div class="col-6 d-flex flex-column">
                                 <label for="tsat_tubo">Temp. Saturación:</label>
@@ -810,5 +810,37 @@
     $('form').one('submit', function() {
         $('button[type="submit"]').attr('disabled','disabled');
     }); 
+</script>
+
+<script>
+    const validarForm = (e) => {
+        if($('#presion_entrada_carcasa').val() === 0){
+            alert("La presión de entrada de la carcasa no puede ser 0.");
+            return false;
+        }
+
+        if($('#presion_entrada_tubo').val() === 0){
+            alert("La presión de entrada del tubo no puede ser 0.");
+            return false;
+        }
+
+        if($('#cambio_fase_carcasa').val() === 'T' && $('#tipo_cp_carcasa').val() === 'M'){
+            if($('#hvap_carcasa').val() === '' && $('#tsat_carcasa').val() === ''){
+                alert("Debe ingresar la temperatura de saturación del fluido de la carcasa y/o la entalpía de vaporización del mismo.")
+                return false;
+            }
+        }
+
+        if($('#cambio_fase_tubo').val() === 'T' && $('#tipo_cp_tubo').val() === 'M'){
+            if($('#hvap_tubo').val() === '' && $('#tsat_tubo').val() === ''){
+                alert("Debe ingresar la temperatura de saturación del fluido del tubo y/o la entalpía de vaporización del mismo.")
+                return false;
+            }
+        }
+
+        $('button[type="submit"]').attr('disabled','disabled');
+
+        return true;
+    };
 </script>
 {% endblock %}

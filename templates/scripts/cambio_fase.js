@@ -52,7 +52,7 @@ function cambiar_segun_tipo_y_cambio(lado = 'C') { // Cambiar tipos de Cp de acu
                     $('#cp_gas_carcasa').removeAttr('disabled'); 
                 }
 
-                if(cambio_fase === 'T')                
+                if(cambio_fase === 'T' && ($('#fluido_carcasa').val() === '' || $('#fluido_carcasa').val().includes('*')&& !$('#fluido_carcasa').val().split('*')[1].includes('-')))                
                     $('#sat_carcasa').removeAttr("hidden");
             }
         }
@@ -78,7 +78,7 @@ function cambiar_segun_tipo_y_cambio(lado = 'C') { // Cambiar tipos de Cp de acu
                     $('#cp_gas_tubo').removeAttr('disabled');  
                 }
                 
-                if(cambio_fase === 'T')                
+                if(cambio_fase === 'T' && ($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().includes('*')&& !$('#fluido_tubo').val().split('*')[1].includes('-')))                
                     $('#sat_tubo').removeAttr("hidden");
             }
         }

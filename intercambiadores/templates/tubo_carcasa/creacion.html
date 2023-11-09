@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block contenido %}
-    <form method="post">
+    <form method="post" onsubmit="return validarForm(this);">
         {% csrf_token %}
         <div class="row">
             <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_tubo_carcasa' %}">↶ Regresar</a></div>
@@ -1014,11 +1014,5 @@
     {% include 'scripts/validaciones_flujo.js' %}
 
     {% include 'scripts/cambio_fase.js' %}
-</script>
-
-<script>
-    $('form').one('submit', function() {
-        $('button[type="submit"]').attr('disabled','disabled');
-    }); 
 </script>
 {% endblock %}
