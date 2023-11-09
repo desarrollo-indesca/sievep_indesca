@@ -70,13 +70,6 @@ function anadir_listeners_registro() {
             
             if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '')
                 ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
-
-            fluidos_carcasa.forEach(x => {
-                x.selecto = false;
-            });
-    
-            fluidos_carcasa.push({'nombre': document.getElementById('nombre_compuesto_carcasa_cas').value.toUpperCase(), 
-                'valor': valor, 'selecto': true});
             
             $('#condiciones_diseno_fluido_carcasaClose').click();
         } else
@@ -90,13 +83,6 @@ function anadir_listeners_registro() {
             
             if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '')
                 ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
-
-            fluidos_tubo.forEach(x => {
-                x.selecto = false;
-            });
-        
-            fluidos_tubo.push({'nombre': document.getElementById('nombre_compuesto_tubo_cas').value.toUpperCase(), 
-                'valor': valor, 'selecto': true});
             
             $('#condiciones_diseno_fluido_tuboClose').click();
         } else
@@ -298,6 +284,11 @@ function anadir_listeners_cp() {
         }
 
         actualizar_tipos('C');
+
+        if($('#cambio_fase_carcasa').val() === 'T' && $('#tipo_cp_carcasa').val() === 'M')
+            $('#sat_carcasa').removeAttr('hidden');
+        else
+            $('#sat_carcasa').attr('hidden', true);
     });
     
     $('#temp_in_tubo').keyup((e) => {
@@ -323,6 +314,10 @@ function anadir_listeners_cp() {
         }
 
         actualizar_tipos('T');
+        if($('#cambio_fase_tubo').val() === 'T' && $('#tipo_cp_tubo').val() === 'M')
+            $('#sat_tubo').removeAttr('hidden');
+        else
+            $('#sat_tubo').attr('hidden', true);
     });
     
     $('#presion_entrada_carcasa').keyup((e) => {
@@ -430,7 +425,13 @@ function actualizar_tipos(lado = "T") { // Actualización de Tipos de Cálculo d
             const id_cp_liq = lado === 'T' ? '#cp_liquido_tubo' : '#cp_liquido_carcasa';
             const id_cp_gas = lado === 'T' ? '#cp_gas_tubo' : '#cp_gas_carcasa';
             $(id_cp_liq).removeAttr('disabled');  
-            $(id_cp_gas).removeAttr('disabled');            
+            $(id_cp_gas).removeAttr('disabled');   
+            
+            if($(id_cdf).val() === 'T'){
+                const id_tsat_hvap = lado === 'T' ? '#sat_tubo' : '#sat_carcasa';
+                $(id_tsat_hvap).removeAttr('hidden'); 
+            }
+
         }
         
     } else{

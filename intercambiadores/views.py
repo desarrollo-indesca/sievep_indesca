@@ -172,6 +172,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
                 flujo_vapor_salida = request.POST['flujo_vapor_out_tubo'],
                 flujo_liquido_entrada = request.POST['flujo_liquido_in_tubo'],
                 flujo_liquido_salida = request.POST['flujo_liquido_out_tubo'],
+                flujos_unidad = Unidades.objects.get(pk=request.POST['unidad_flujos']),
                 caida_presion_max = request.POST['caida_presion_max_tubo'],
                 caida_presion_min = request.POST['caida_presion_min_tubo'],
                 presion_entrada = request.POST['presion_entrada_tubo'],
@@ -1122,29 +1123,29 @@ def obtener_cps(t1, t2, presion, flujo_liquido_in, flujo_liquido_out, flujo_vapo
 
 def obtener_hvap_tsat(t1, t2, cambio_fase, tsat, hvap, q, cp_gas, cp_liquido, flujo_vapor_in, flujo_liquido_in,
                       flujo_vapor_out, flujo_liquido_out):
-    if(cambio_fase == 'T'):
-        m = flujo_liquido_in + flujo_vapor_in
+    if(cambio_fase == 'T'): # Cambio de Fase Total
+        m = flujo_liquido_in + flujo_vapor_in # Flujo Total
         if(tsat == None): # Falta Tsat
-            if(flujo_liquido_in): # Vaporización
+            if(flujo_liquido_in): # "Si hay un flujo de líquido de entrada", Vaporización
                 tsat = (q/m+cp_liquido*t1-hvap-cp_gas*t2)/(cp_liquido-cp_gas)
-            else: # Condensación
+            else: # "Si no lo hay", Condensación
                 tsat = (q/m+cp_gas*t1+hvap-cp_liquido*t2)/(cp_gas-cp_liquido)
         elif(hvap == None): # Falta Hvap
-            if(flujo_liquido_in): # Vaporización
+            if(flujo_liquido_in): # "Si hay un flujo de líquido de entrada", Vaporización
                 hvap = q/m-cp_liquido*(tsat-t1)-cp_gas*(t2-tsat)
-            else: # Condensación
+            else: # "Si no lo hay", Condensación
                 hvap = abs(q/m-cp_gas*(tsat-t1)-cp_liquido*(t2-tsat))           
     elif(cambio_fase == 'P' and hvap == None): # Cambio de Fase Parcial y no se tiene Hv
         caso = determinar_cambio_parcial(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in, flujo_liquido_out)
         calidad = flujo_vapor_out/(flujo_vapor_out + flujo_liquido_out)
 
-        if(caso == 'DD'):
+        if(caso == 'DD'): # Domo a Domo
             hvap = q/calidad
-        elif(caso == 'DL' or caso == 'LD'):
+        elif(caso == 'DL' or caso == 'LD'): # Domo a Líquido o Líquido a Domo
             hvap = (q-cp_liquido*(t2-t1))/calidad
-        elif(caso == 'DV' or caso == 'VD'):
+        elif(caso == 'DV' or caso == 'VD'): # Domo a Vapor, Vapor a Domo
             hvap = (q-cp_gas*(t2-t1))/calidad
 
-        hvap = abs(hvap)
+        hvap = abs(hvap) # Se le saca el valor
 
     return (hvap,tsat)

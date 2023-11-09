@@ -27,6 +27,7 @@ def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida: int = 29, pres
         quimico = Mixture('air',T=t,P=presion)
     else: # Demás casos
         quimico = Chemical(fluido,T=t,P=presion)
+        print(quimico.P)
  
     if(fase == 'l'): # Líquido
         cp = quimico.Cpl
