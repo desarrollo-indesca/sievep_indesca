@@ -470,7 +470,7 @@ const validarForm = (e) => {
         }
     }
 
-    if($('#cambio_fase_carcasa').val() == 'P' && $('#flujo_vapor_in_carcasa').val() && $('#flujo_vapor_out_carcasa').val()
+    if($('#cambio_fase_carcasa').val() == 'P' && Number($('#flujo_vapor_in_carcasa').val()) && Number($('#flujo_vapor_out_carcasa').val())
         && Number($('#temp_in_carcasa').val()) !== Number($('#temp_out_carcasa').val())){
         alert("Las temperaturas no pueden ser distintas en un cambio de fase parcial dentro del domo.")
         return false;
@@ -484,9 +484,33 @@ const validarForm = (e) => {
         }
     }
 
-    if($('#cambio_fase_tubo').val() == 'P' && $('#flujo_vapor_in_tubo').val() && $('#flujo_vapor_out_tubo').val()
+    if($('#cambio_fase_tubo').val() == 'P' && Number($('#flujo_vapor_in_tubo').val()) && Number($('#flujo_vapor_out_tubo').val())
         && Number($('#temp_in_tubo').val()) !== Number($('#temp_out_tubo').val())){
         alert("Las temperaturas no pueden ser distintas en un cambio de fase parcial dentro del domo.")
+        return false;
+    }
+
+    if(Number($('#flujo_vapor_in_tubo').val()) > Number($('#flujo_vapor_out_tubo').val())
+        && Number($('#temp_in_tubo').val()) < Number($('#temp_out_tubo').val())){
+        alert("Lado Tubo: Al presentarse una condensación las temperaturas no deberían aumentar.")
+        return false;
+    }
+
+    if(Number($('#flujo_vapor_in_carcasa').val()) > Number($('#flujo_vapor_out_carcasa').val())
+        && Number($('#temp_in_carcasa').val()) < Number($('#temp_out_carcasa').val())){
+        alert("Lado Carcasa: Al presentarse una condensación las temperaturas no deberían aumentar.")
+        return false;
+    }
+
+    if(Number($('#flujo_liquido_in_tubo').val()) > Number($('#flujo_liquido_out_tubo').val())
+        && Number($('#temp_in_tubo').val()) > Number($('#temp_out_tubo').val())){
+        alert("Lado Tubo: Al presentarse una evaporación las temperaturas no deberían disminuir.")
+        return false;
+    }
+
+    if(Number($('#flujo_liquido_in_carcasa').val()) > Number($('#flujo_liquido_out_carcasa').val())
+        && Number($('#temp_in_carcasa').val()) > Number($('#temp_out_carcasa').val())){
+        alert("Lado Carcasa: Al presentarse una evaporación las temperaturas no deberían disminuir.")
         return false;
     }
 

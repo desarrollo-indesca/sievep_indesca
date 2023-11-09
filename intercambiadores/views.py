@@ -499,10 +499,9 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             tsat = float(request.POST.get('tsat_tubo')) if request.POST.get('tsat_tubo') != '' else None
             hvap = float(request.POST.get('hvap_tubo')) if request.POST.get('hvap_tubo') != '' else None
 
-            if((cambio_fase == 'T' or cambio_fase == 'P') and tipo_cp == 'M'):
+            if((cambio_fase == 'T' or cambio_fase == 'P') and tipo_cp == 'M' and type(fluido_carcasa) != Fluido):
                 hvap,tsat = obtener_hvap_tsat(t1, t2, cambio_fase, tsat, hvap, calor, cp_gas, cp_liquido,
                                         flujo_vapor_in, flujo_liquido_in, flujo_vapor_out, flujo_liquido_out)
-                print(hvap, tsat)
             
             condiciones_tubo = propiedades.condicion_tubo()
             condiciones_tubo.temp_entrada = request.POST['temp_in_tubo']
@@ -549,11 +548,9 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
             tsat = float(request.POST.get('tsat_carcasa')) if request.POST.get('tsat_carcasa') != '' else None
             hvap = float(request.POST.get('hvap_carcasa')) if request.POST.get('hvap_carcasa') != '' else None
 
-            if((cambio_fase == 'T' or cambio_fase == 'P') and tipo_cp == 'M'):
+            if((cambio_fase == 'T' or cambio_fase == 'P') and tipo_cp == 'M' and type(fluido_carcasa) != Fluido):
                 hvap,tsat = obtener_hvap_tsat(t1, t2, cambio_fase, tsat, hvap, calor, cp_gas, cp_liquido,
                                         flujo_vapor_in, flujo_liquido_in, flujo_vapor_out, flujo_liquido_out)
-                
-                print(hvap, tsat)
 
             condiciones_carcasa = propiedades.condicion_carcasa()
             condiciones_carcasa.temp_entrada = request.POST['temp_in_carcasa']
