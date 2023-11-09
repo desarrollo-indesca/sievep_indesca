@@ -159,7 +159,7 @@ def obtener_c_eficiencia(condicion, flujo: float, cp_gas: float, cp_liquido: flo
         else:
             c = flujo*cp_liquido
     else: # Caso 3: Cambio de Fase Parcial
-        c = 0.01
+        c = flujo*cp_liquido
     
     return c
 

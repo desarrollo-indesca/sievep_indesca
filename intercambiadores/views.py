@@ -312,31 +312,37 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
             unidad = int(request.POST['unidad_temperaturas'])
             unidad_flujo = int(request.POST['unidad_flujo'])
 
-            if(request.POST['tipo_cp_tubo'] == 'A'):
+            if(request.POST.get('tipo_cp_tubo') == 'A'):
                 # Calcular todo de la misma forma que en el almacenamiento
                 t1,t2 = transformar_unidades_temperatura([ti,ts], int(request.POST.get('unidad_temperaturas')))
                 presion = transformar_unidades_presion([float(cond_tubo.presion_entrada)], cond_tubo.unidad_presion)[0]
                 cp_liquido_tubo,cp_gas_tubo = obtener_cps(t1,t2,presion,float(cond_tubo.flujo_liquido_entrada),float(cond_tubo.flujo_liquido_salida),
                                                         float(cond_tubo.flujo_vapor_entrada),float(cond_tubo.flujo_vapor_salida),
                                                         intercambiador.fluido_tubo.cas,cond_tubo.cambio_de_fase,unidad_cp)
-            else:
+            elif(request.POST.get('tipo_cp_tubo') == 'M'):
                 # Manual. Tomar en cuenta CDF.
                 cp_gas_tubo = float(request.POST['cp_gas_tubo']) if request.POST.get('cp_gas_tubo') else None
                 cp_liquido_tubo = float(request.POST['cp_liquido_tubo']) if request.POST.get('cp_liquido_tubo') else None
+            else:
+                cp_gas_tubo = float(cond_tubo.fluido_cp_gas)
+                cp_liquido_tubo = float(cond_tubo.fluido_cp_liquido)
 
-            if(request.POST['tipo_cp_carcasa'] == 'A'):
+            if(request.POST.get('tipo_cp_carcasa') == 'A'):
                 # Calcular todo de la misma forma que en el almacenamiento
                 t1,t2 = transformar_unidades_temperatura([Ti,Ts], int(request.POST.get('unidad_temperaturas')))
                 presion = transformar_unidades_presion([float(cond_carcasa.presion_entrada)], cond_carcasa.unidad_presion)[0]
                 cp_liquido_carcasa,cp_gas_carcasa = obtener_cps(t1,t2,presion,float(cond_carcasa.flujo_liquido_entrada),float(cond_carcasa.flujo_liquido_salida),
                                                         float(cond_carcasa.flujo_vapor_entrada),float(cond_carcasa.flujo_vapor_salida),
                                                         intercambiador.fluido_carcasa.cas,cond_carcasa.cambio_de_fase,unidad_cp)
-            else:
+            elif(request.POST.get('tipo_cp_carcasa') == 'M'):
                 # Manual. Tomar en cuenta CDF.
                 cp_gas_carcasa = float(request.POST['cp_gas_carcasa']) if request.POST.get('cp_gas_carcasa') else None
                 cp_liquido_carcasa = float(request.POST['cp_liquido_carcasa']) if request.POST.get('cp_liquido_carcasa') else None
+            else:
+                cp_gas_carcasa = float(cond_carcasa.fluido_cp_gas)
+                cp_liquido_carcasa = float(cond_carcasa.fluido_cp_liquido)
 
-            cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa =  transformar_unidades_cp([cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa], unidad=unidad_cp)
+            cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa =  transformar_unidades_cp([cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa], unidad=unidad_cp, unidad_salida=29)
 
             resultados = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
 
@@ -383,9 +389,9 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
                 cp_tubo_liquido = cp_liquido_tubo,
                 cp_carcasa_gas = cp_gas_carcasa,
                 cp_carcasa_liquido = cp_liquido_carcasa,
-                tipo_cp_carcasa = request.POST.get('tipo_cp_carcasa'),
-                tipo_cp_tubo = request.POST.get('tipo_cp_tubo'),
-                cp_unidad = Unidades.objects.get(pk=request.POST['unidad_cp'])
+                tipo_cp_carcasa = request.POST.get('tipo_cp_carcasa') if request.POST.get('tipo_cp_carcasa') else 'A',
+                tipo_cp_tubo = request.POST.get('tipo_cp_tubo') if request.POST.get('tipo_cp_tubo') else 'A',
+                cp_unidad = Unidades.objects.get(pk=unidad_cp)
             )
         
         messages.success(request, "La nueva evaluación ha sido registrada exitosamente.")
