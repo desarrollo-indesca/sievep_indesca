@@ -1119,16 +1119,18 @@ class ArreglarCpsSegunTipo(LoginRequiredMixin, View):
                         print("************")
                         break
 
-class EvaluarCambioDeFaseExistente(LoginRequiredMixin, View):
+class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
     def get(self, request):
         flujo_vapor_in = float(request.GET['flujo_vapor_in'])
         flujo_vapor_out = float(request.GET['flujo_vapor_out'])
         flujo_liquido_in = float(request.GET['flujo_liquido_in'])
         flujo_liquido_out = float(request.GET['flujo_liquido_out'])
-        t1 = float(request.GET.get('t1'))
-        t2 = float(request.GET.get('t2'))
-        presion = float(request.GET['presion'])
-
+        cambio_fase = request.GET.get('cambio_fase')
+        lado = 'Carcasa' if request.GET['lado'] == 'C' else 'Tubo'
+        unidad_temperaturas = int(request.GET['unidad_temperaturas'])
+        t1,t2 = transformar_unidades_temperatura([float(request.GET.get('t1')),float(request.GET.get('t2'))], unidad_temperaturas)
+        unidad_presiones = int(request.GET['unidad_presiones'])
+        presion = transformar_unidades_presion([float(request.GET['presion'])], unidad_presiones)[0]
         fluido = request.GET['fluido']
         
         if(fluido.find('*') != -1): # Fluido no existe
@@ -1139,9 +1141,61 @@ class EvaluarCambioDeFaseExistente(LoginRequiredMixin, View):
             fluido = Fluido.objects.get(pk=fluido)
 
         quimico = Chemical(fluido.cas, T= t1, P=presion)
+        tsat = quimico.Tsat(presion)
+        codigo = 200
+        mensaje = "Lado {lado}:\n"
 
+        if(cambio_fase == 'T'):
+            if(flujo_vapor_in and quimico.phase != 'g'):
+                return JsonResponse({'codigo': 400, 'mensaje': f"Lado {lado}: La temperatura de entrada con la presión dada no corresponde la fase de vapor de acuerdo a la base de datos.\n ¿Desea continuar igualmente?"})
+            elif(flujo_liquido_in and quimico.phase == 'l'):
+                return JsonResponse({'codigo': 400, 'mensaje': f"Lado {lado}: La temperatura de entrada con la presión dada no corresponde la fase de líquido de acuerdo a la base de datos.\n ¿Desea continuar igualmente?"})
+            
+            quimico.calculate(T=t2, P=presion)
 
+            if(flujo_vapor_out and quimico.phase != 'g'):
+                return JsonResponse({'codigo': 400, 'mensaje': f"Lado {lado}: La temperatura de salida con la presión dada no corresponde la fase de vapor de acuerdo a la base de datos.\n ¿Desea continuar igualmente?"})
+            elif(flujo_liquido_out and quimico.phase == 'l'):
+                return JsonResponse({'codigo': 400, 'mensaje': f"Lado {lado}: La temperatura de salida con la presión dada no corresponde la fase de líquido de acuerdo a la base de datos.\n ¿Desea continuar igualmente?"})
+            
+            if(flujo_vapor_in and flujo_liquido_out and (tsat > t1 or tsat < t2)):
+                return JsonResponse({'codigo': 400, 'mensaje': f"De acuerdo a los flujos, usted colocó una condensación. Sin embargo, la temperatura de saturación de la base de datos para este fluido a esa presión ({tsat}K) es MAYOR a la temperatura inicial.\n ¿Desea continuar igualmente?"})
+            elif(flujo_vapor_out and flujo_liquido_in and (tsat < t1 or tsat > t2)):
+                return JsonResponse({'codigo': 400, 'mensaje': f"De acuerdo a los flujos, usted colocó una vaporización. Sin embargo, la temperatura de saturación de la base de datos para este fluido a esa presión ({tsat}K) es MENOR a la temperatura inicial.\n ¿Desea continuar igualmente?"})
+        elif(cambio_fase == 'P'):
+            caso = determinar_cambio_parcial(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in, flujo_liquido_out)
 
+            if(caso == 'DD' and t1 != t2):
+                codigo = 400
+                mensaje += f"- Las temperaturas t1 y t2 son distintas aunque entre y salga una mezcla líquido-vapor según los flujos.\n"
+            elif(caso == 'DL' and t1 < t2):
+                codigo = 400
+                mensaje += f"- La temperatura de entrada es menor a la de salida aunque el fluido salga líquido según los flujos.\n"
+            elif(caso == 'DV' and t1 > t2):
+                codigo = 400
+                mensaje += f"- La temperatura de entrada es mayor a la de salida aunque el fluido salga en vapor según los flujos.\n"
+            elif(caso == 'VD' and t1 < t2):
+                codigo = 400
+                mensaje += f"- La temperatura de entrada es menor a la de salida aunque entre vapor y el fluido se convierta en una mezcla líquido-vapor según los flujos.\n"
+            elif(caso == 'LD' and t1 > t2):
+                codigo = 400
+                mensaje += f"- La temperatura de salida es menor a la de entrada aunque entre líquido y el fluido se convierta en una mezcla líquido-vapor según los flujos.\n"
+            
+            if(caso == 'DD' and tsat*1.05 < t1 and tsat*0.95 > t1):
+                codigo = 400
+                mensaje += f"- La temperatura de saturación del cambio de fase parcial presentado tiene un error mayor al 5% del calculado en la base de datos ({tsat}K).vapor.\n"
+            elif((caso == 'LD' or caso == 'VD') and tsat*1.05 < t2 and tsat*0.95 > t2):
+                codigo = 400
+                mensaje += f"- La temperatura de saturación del cambio de fase parcial presentado tiene un error mayor al 5% del calculado en la base de datos ({tsat}K).vapor.\n"
+            elif((caso == 'DL' or caso == 'DV') and tsat*1.05 < t1 and tsat*0.95 > t1):
+                codigo = 400
+                mensaje += f"- La temperatura de saturación del cambio de fase parcial presentado tiene un error mayor al 5% del calculado en la base de datos ({tsat}K).vapor.\n"
+        
+        if(codigo == 200):
+            return JsonResponse({'codigo': codigo})
+        else:
+            return JsonResponse({'codigo': codigo, 'mensaje': mensaje})
+    
 def obtener_cps(t1, t2, presion, flujo_liquido_in, flujo_liquido_out, flujo_vapor_in, flujo_vapor_out, fluido, cambio_fase, unidad_cp):                                   
     cp_gas = None
     cp_liquido = None
