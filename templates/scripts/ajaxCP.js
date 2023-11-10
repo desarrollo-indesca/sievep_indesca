@@ -471,6 +471,7 @@ const validarForm = (e) => {
     }
 
     if($('#cambio_fase_carcasa').val() == 'P' && Number($('#flujo_vapor_in_carcasa').val()) && Number($('#flujo_vapor_out_carcasa').val())
+        && Number($('#flujo_liquido_in_carcasa').val()) && Number($('#flujo_liquido_out_carcasa').val())
         && Number($('#temp_in_carcasa').val()) !== Number($('#temp_out_carcasa').val())){
         alert("Las temperaturas no pueden ser distintas en un cambio de fase parcial dentro del domo.")
         return false;
@@ -485,6 +486,7 @@ const validarForm = (e) => {
     }
 
     if($('#cambio_fase_tubo').val() == 'P' && Number($('#flujo_vapor_in_tubo').val()) && Number($('#flujo_vapor_out_tubo').val())
+        && Number($('#flujo_liquido_in_tubo').val()) && Number($('#flujo_liquido_out_tubo').val())
         && Number($('#temp_in_tubo').val()) !== Number($('#temp_out_tubo').val())){
         alert("Las temperaturas no pueden ser distintas en un cambio de fase parcial dentro del domo.")
         return false;
@@ -512,6 +514,61 @@ const validarForm = (e) => {
         && Number($('#temp_in_carcasa').val()) > Number($('#temp_out_carcasa').val())){
         alert("Lado Carcasa: Al presentarse una evaporación las temperaturas no deberían disminuir.")
         return false;
+    }
+
+    let mensaje = "";
+
+    $.ajax({
+        url: '/intercambiadores/validar_cdf_existente/',
+        async: false,
+        data: {
+                flujo_vapor_in: $('#flujo_vapor_in_tubo').val(),
+                flujo_vapor_out: $('#flujo_vapor_out_tubo').val(),
+                flujo_liquido_in: $('#flujo_liquido_in_tubo').val(),
+                flujo_liquido_out: $('#flujo_liquido_out_tubo').val(),
+                cambio_fase: $('#cambio_fase_tubo').val(),
+                lado: 'T',
+                unidad_temperaturas: $('#unidad_temperaturas').val(),
+                unidad_presiones: $('#unidad_presiones').val(),
+                t1: $('#temp_in_tubo').val(),
+                t2: $('#temp_out_tubo').val(),
+                presion: $('#presion_entrada_tubo').val(),
+                fluido: $('#fluido_tubo').val(),
+        },
+        success: (res) => {
+            if(res.codigo == 400){
+                mensaje += res.mensaje;                    
+            }
+        }
+    });
+
+    $.ajax({
+        url: '/intercambiadores/validar_cdf_existente/',
+        async: false,
+        data: {
+                flujo_vapor_in: $('#flujo_vapor_in_carcasa').val(),
+                flujo_vapor_out: $('#flujo_vapor_out_carcasa').val(),
+                flujo_liquido_in: $('#flujo_liquido_in_carcasa').val(),
+                flujo_liquido_out: $('#flujo_liquido_out_carcasa').val(),
+                cambio_fase: $('#cambio_fase_carcasa').val(),
+                lado: 'C',
+                unidad_temperaturas: $('#unidad_temperaturas').val(),
+                unidad_presiones: $('#unidad_presiones').val(),
+                t1: $('#temp_in_carcasa').val(),
+                t2: $('#temp_out_carcasa').val(),
+                presion: $('#presion_entrada_carcasa').val(),
+                fluido: $('#fluido_carcasa').val(),
+        },
+        success: (res) => {
+            if(res.codigo == 400){
+                mensaje += res.mensaje;                    
+            }
+        }
+    });
+
+    if(mensaje !== ''){
+        mensaje = "ADVERTENCIA\n" + mensaje + "\n¿Desea continuar igualmente?"
+        return confirm(mensaje);
     }
 
     $('button[type="submit"]').attr('disabled','disabled');
