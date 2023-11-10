@@ -152,7 +152,9 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp_gas: float, cp_liquido
 
 def obtener_c_eficiencia(condicion, flujo: float, cp_gas: float, cp_liquido: float) -> float:
     if(condicion.cambio_de_fase == 'S'): # Caso 1: Sin Cambio de Fase
+        print(cp_gas)
         c = flujo*cp_gas if cp_gas else flujo*cp_liquido 
+        print(c)
     elif(condicion.cambio_de_fase == 'T'): # Caso 2: Cambio de Fase Total
         if(condicion.flujo_vapor_salida != 0):
             c = flujo*cp_gas

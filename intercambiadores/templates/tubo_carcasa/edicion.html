@@ -298,7 +298,7 @@
                                 <label for="tsat_carcasa">Temp. Saturación:</label>
                                 
                                 <div class="input-group mb-3">
-                                    <input style="width: 60% !important;" value="{{condicion_carcasa.tsat|unlocalize}}" type="number" name="tsat_carcasa" id="tsat_carcasa" class="form-control">
+                                    <input style="width: 60% !important;" step="0.01" value="{{condicion_carcasa.tsat|unlocalize}}" type="number" name="tsat_carcasa" id="tsat_carcasa" class="form-control">
                                     <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
                                         <option>{{condicion_carcasa.temperaturas_unidad}}</option>
                                     </select>
@@ -308,7 +308,7 @@
                             <div class="col-6 d-flex flex-column">
                                 <label for="hvap_carcasa">Entalpía de Vaporización:</label>
                                 <div class="input-group mb-3">
-                                    <input style="width: 60% !important;" value="{{condicion_carcasa.hvap|unlocalize}}" type="number" name="hvap_carcasa" id="hvap_carcasa" class="form-control">
+                                    <input style="width: 60% !important;" value="{{condicion_carcasa.hvap|unlocalize}}" min="0.01" step="0.01" type="number" name="hvap_carcasa" id="hvap_carcasa" class="form-control">
                                     <select style="width: 40% !important;" class="form-select" name="unidad_hvap" id="unidad_hvap" disabled>
                                         <option value="1">J/Kg</option>
                                     </select>
@@ -572,7 +572,7 @@
                                 <label for="tsat_tubo">Temp. Saturación:</label>
                                 
                                 <div class="input-group mb-3">
-                                    <input style="width: 60% !important;" value="{{condicion_tubo.tsat|unlocalize}}" type="number" name="tsat_tubo" id="tsat_tubo" class="form-control">
+                                    <input style="width: 60% !important;" step="0.01" value="{{condicion_tubo.tsat|unlocalize}}" type="number" name="tsat_tubo" id="tsat_tubo" class="form-control">
                                     <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
                                         <option>{{condicion_tubo.temperaturas_unidad}}</option>
                                     </select>
@@ -582,7 +582,7 @@
                             <div class="col-6 d-flex flex-column">
                                 <label for="hvap_tubo">Entalpía de Vaporización:</label>
                                 <div class="input-group mb-3">
-                                    <input style="width: 60% !important;" value="{{condicion_tubo.hvap|unlocalize}}" type="number" name="hvap_tubo" id="hvap_tubo" class="form-control">
+                                    <input style="width: 60% !important;" min="0.01" step="0.01" value="{{condicion_tubo.hvap|unlocalize}}" type="number" name="hvap_tubo" id="hvap_tubo" class="form-control">
                                     <select style="width: 40% !important;" class="form-select" name="unidad_hvap" id="unidad_hvap" disabled>
                                         <option value="1">J/Kg</option>
                                     </select>
