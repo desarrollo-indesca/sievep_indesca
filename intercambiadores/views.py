@@ -358,6 +358,7 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
                 cp_gas_carcasa = float(cond_carcasa.fluido_cp_gas)
                 cp_liquido_carcasa = float(cond_carcasa.fluido_cp_liquido)
 
+            print(unidad_cp)
             cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa =  transformar_unidades_cp([cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa], unidad=unidad_cp, unidad_salida=29)
 
             resultados = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
