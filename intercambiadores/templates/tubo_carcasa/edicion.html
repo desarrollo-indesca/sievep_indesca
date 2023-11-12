@@ -20,6 +20,11 @@
                 <li class="text-center" style="color: #e31e24;">{{error}}</li>
             </ul>
             {%endfor%}
+            {% for error in messages %}
+            <ul>
+                <li class="text-center" style="color: #e31e24;">{{error}}</li>
+            </ul>
+            {%endfor%}
         </div>
     
         <hr>
