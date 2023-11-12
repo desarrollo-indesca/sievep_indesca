@@ -38,9 +38,187 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
         'titulo': "Creación de Intercambiador Tubo Carcasa"
     }
 
+    def validar(self, request): # Validación de Formulario de Creación
+        errores = []
+        if(Intercambiador.objects.filter(tag = request.POST.get('tag')).exists()):
+            errores.append(f'El tag ya está registrado en el sistema.')
+
+        if(not request.POST.get('fabricante') and request.POST.get('tag')):
+            errores.append('El campo Fabricante es obligatorio.')
+
+        if(not request.POST.get('planta') and request.POST.get('tag')):
+            errores.append('El campo Planta es obligatorio.')
+
+        if(not request.POST.get('tema') and request.POST.get('tag')):
+            errores.append('El campo Tema es obligatorio.')
+
+        if(not request.POST.get('servicio')):
+            errores.append('El campo Servicio es obligatorio.')
+
+        if(not request.POST.get('flujo')):
+            errores.append('El campo Flujo es obligatorio.')
+
+        if(not request.POST.get('area')):
+            errores.append('El campo Área es obligatorio.')
+
+        if(not request.POST.get('unidad_area')):
+            errores.append('El campo Unidad de Área es obligatorio.')
+
+        if(not request.POST.get('no_tubos')):
+            errores.append('El campo Número de Tubos es obligatorio.')
+
+        if(not request.POST.get('longitud_tubos')):
+            errores.append('El campo Longitud de Tubos es obligatorio.')
+
+        if(not request.POST.get('longitud_tubos_unidad')):
+            errores.append('El campo Unidad de Longitud de Tubos es obligatorio.')
+
+        if(not request.POST.get('od_tubos')):
+            errores.append('El campo Diámetro Externo de Tubos es obligatorio.')
+
+        if(not request.POST.get('id_carcasa')):
+            errores.append('El campo Diámetro Interno de Carcasa es obligatorio.')
+
+        if(not request.POST.get('unidad_diametros')):
+            errores.append('El campo Unidad de Diámetros es obligatorio.')
+
+        if(not request.POST.get('fluido_carcasa')):
+            errores.append('El campo Fluido de Carcasa es obligatorio.')
+
+        if(not request.POST.get('material_carcasa')):
+            errores.append('El campo Material de Carcasa es obligatorio.')
+
+        if(not request.POST.get('conexiones_entrada_carcasa')):
+            errores.append('El campo Conexiones de Entrada de Carcasa es obligatorio.')
+
+        if(not request.POST.get('conexiones_salida_carcasa')):
+            errores.append('El campo Conexiones de Salida de Carcasa es obligatorio.')
+
+        if(not request.POST.get('fluido_tubo')):
+            errores.append('El campo Fluido de Tubo es obligatorio.')
+
+        if(not request.POST.get('material_tubo')):
+            errores.append('El campo Material de Tubo es obligatorio.')
+
+        if(not request.POST.get('conexiones_entrada_tubo')):
+            errores.append('El campo Conexiones de Entrada de Tubo es obligatorio.')
+
+        if(not request.POST.get('conexiones_salida_tubo')):
+            errores.append('El campo Conexiones de Salida de Tubo es obligatorio.')
+
+        if(not request.POST.get('tipo_tubo')):
+            errores.append('El campo Tipo de Tubo es obligatorio.')
+
+        if(not request.POST.get('pitch')):
+            errores.append('El campo Pitch es obligatorio.')
+
+        if(not request.POST.get('unidades_pitch')):
+            errores.append('El campo Unidad de Pitch es obligatorio.')
+
+        if(not request.POST.get('criticidad')):
+            errores.append('El campo Criticidad es obligatorio.')
+
+        if(not request.POST.get('arreglo_serie')):
+            errores.append('El campo Arreglo en Serie es obligatorio.')
+
+        if(not request.POST.get('arreglo_paralelo')):
+            errores.append('El campo Arreglo en Paralelo es obligatorio.')
+
+        if(not request.POST.get('numero_pasos_tubo')):
+            errores.append('El campo Número de Pasos en Tubo es obligatorio.')
+
+        if(not request.POST.get('numero_pasos_carcasa')):
+            errores.append('El campo Número de Pasos en Carcasa es obligatorio.')
+
+        if(not request.POST.get('calor')):
+            errores.append('El campo Calor es obligatorio.')
+
+        if(not request.POST.get('unidad_q')):
+            errores.append('El campo Unidad de Calor es obligatorio.')
+
+        if(not request.POST.get('u')):
+            errores.append('El campo Coeficiente U es obligatorio.')
+
+        if(not request.POST.get('unidad_u')):
+            errores.append('El campo Unidad de Coeficiente U es obligatorio.')
+
+        if(not request.POST.get('ensuciamiento')):
+            errores.append('El campo Ensuciamiento es obligatorio.')
+
+        if(not request.POST.get('unidad_fouling')):
+            errores.append('El campo Unidad de Ensuciamiento es obligatorio.')
+
+        if(not request.POST.get('temp_in_tubo')):
+            errores.append('El campo Temperatura de Entrada de Tubo es obligatorio.')
+
+        if(not request.POST.get('temp_out_tubo')):
+            errores.append('El campo Temperatura de Salida de Tubo es obligatorio.')
+
+        if(not request.POST.get('unidad_temperaturas')):
+            errores.append('El campo Unidad de Temperaturas es obligatorio.')
+
+        if(not request.POST.get('presion_entrada_tubo')):
+            errores.append('El campo Presión de Entrada de Tubo es obligatorio.')
+
+        if(not request.POST.get('unidad_presiones')):
+            errores.append('El campo Unidad de Presiones es obligatorio.')
+
+        if(not request.POST.get('tipo_cp_tubo')):
+            errores.append('El campo Tipo de Cp de Tubo es obligatorio.')
+
+        if(not request.POST.get('unidad_cp')):
+            errores.append('El campo Unidad de Cp de Tubo es obligatorio.')
+
+        if(not request.POST.get('flujo_liquido_in_tubo')):
+            errores.append('El campo Flujo de Líquido de Entrada de Tubo es obligatorio.')
+        
+        if(not request.POST.get('flujo_liquido_out_tubo')):
+            errores.append('El campo Flujo de Líquido de Salida de Tubo es obligatorio.')
+
+        if(not request.POST.get('flujo_vapor_in_tubo')):
+            errores.append('El campo Flujo de Vapor de Entrada de Tubo es obligatorio.')
+
+        if(not request.POST.get('flujo_vapor_out_tubo')):
+            errores.append('El campo Flujo de Vapor de Salida de Tubo es obligatorio.')
+
+        if(not request.POST.get('unidad_flujos')):
+            errores.append('El campo Unidad de Flujos es obligatorio.')
+
+        if(not request.POST.get('caida_presion_max_tubo')):
+            errores.append('El campo Caida de Presión Máxima de Tubo es obligatorio.')
+
+        if(not request.POST.get('caida_presion_min_tubo')):
+            errores.append('El campo Caida de Presión Mínima de Tubo es obligatorio.')
+
+        if(not request.POST.get('presion_entrada_carcasa')):
+            errores.append('El campo Presión de Entrada de Carcasa es obligatorio.')
+
+        if(not request.POST.get('tipo_cp_carcasa')):
+            errores.append('El campo Tipo de Cp de Carcasa es obligatorio.')
+
+        if(not request.POST.get('flujo_liquido_in_carcasa')):
+            errores.append('El campo Flujo de Líquido de Entrada de Carcasa es obligatorio.')
+        
+        if(not request.POST.get('flujo_liquido_out_carcasa')):
+            errores.append('El campo Flujo de Líquido de Salida de Carcasa es obligatorio.')
+
+        if(not request.POST.get('flujo_vapor_in_carcasa')):
+            errores.append('El campo Flujo de Vapor de Entrada de Carcasa es obligatorio.')
+
+        if(not request.POST.get('flujo_vapor_out_carcasa')):
+            errores.append('El campo Flujo de Vapor de Salida de Carcasa es obligatorio.')
+
+        if(not request.POST.get('caida_presion_max_carcasa')):
+            errores.append('El campo Caida de Presión Máxima de Carcasa es obligatorio.')
+
+        if(not request.POST.get('caida_presion_min_carcasa')):
+            errores.append('El campo Caida de Presión Mínima de Carcasa es obligatorio.')
+
+        return errores
+
     def post(self, request): # Envío de Formulario de Creación
-        print(request.POST)
-        if(Intercambiador.objects.filter(tag = request.POST['tag']).exists()):
+        errores = self.validar(request)
+        if(len(errores)):
             copia_context = self.context
             copia_context['previo'] = request.POST
             copia_context['error'] = f'El tag {request.POST["tag"]} ya está registrado en el sistema.' 
@@ -308,6 +486,49 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
         'titulo': "Evaluación Tubo Carcasa"
     }
 
+    def validar(self, request): # Validación de Formulario de Creación de Evaluación
+        errores = []
+        if(not request.POST.get('nombre')):
+            errores.append('El campo Nombre es obligatorio.')
+
+        if(not request.POST.get('temp_in_carcasa')):
+            errores.append('El campo Temperatura de Entrada de Carcasa es obligatorio.')
+        
+        if(not request.POST.get('temp_out_carcasa')):
+            errores.append('El campo Temperatura de Salida de Carcasa es obligatorio.')
+
+        if(not request.POST.get('temp_in_tubo')):
+            errores.append('El campo Temperatura de Entrada de Tubo es obligatorio.')
+        
+        if(not request.POST.get('temp_out_tubo')):
+            errores.append('El campo Temperatura de Salida de Tubo es obligatorio.')
+        
+        if(not request.POST.get('flujo_tubo')):
+            errores.append('El campo Flujo de Tubo es obligatorio.')
+
+        if(not request.POST.get('flujo_carcasa')):
+            errores.append('El campo Flujo de Carcasa es obligatorio.')
+
+        if(not request.POST.get('no_tubos')):
+            errores.append('El campo Número de Tubos es obligatorio.')
+
+        if(not request.POST.get('unidad_temperaturas')):
+            errores.append('El campo Unidad de Temperaturas es obligatorio.')
+
+        if(not request.POST.get('unidad_flujo')):
+            errores.append('El campo Unidad de Flujo es obligatorio.')
+
+        if(not request.POST.get('unidad_cp')):
+            errores.append('El campo Unidad de Cp es obligatorio.')
+
+        if(not request.POST.get('caida_tubo')):
+            errores.append('El campo Caída de Presión de Tubo es obligatorio.')
+
+        if(not request.POST.get('caida_carcasa')):
+            errores.append('El campo Caída de Presión de Carcasa es obligatorio.')
+
+        return errores
+
     def post(self, request, pk):
         intercambiador = PropiedadesTuboCarcasa.objects.get(pk=pk)
 
@@ -425,7 +646,7 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
 
         return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
 
-class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
+class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa):
     """
     Resumen:
         Vista de Edición (Formulario) de un intercambiador tubo/carcasa. 
@@ -449,6 +670,30 @@ class EditarIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
     }
 
     def post(self, request, pk):
+        errores = self.validar(request)
+        if(len(errores)):
+            if(not (len(errores) == 1 and 'El tag ya está registrado en el sistema.' in errores)):
+                copia_context = self.context
+                copia_context['previo'] = request.POST
+                copia_context['errores'] = errores
+
+                copia_context['complejos'] = Complejo.objects.all()
+                copia_context['plantas'] = Planta.objects.filter(complejo__pk=1)
+                copia_context['tipos'] = TiposDeTubo.objects.all()
+                copia_context['temas'] = Tema.objects.all()
+                copia_context['fluidos'] = Fluido.objects.all()
+                copia_context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
+                copia_context['unidades_longitud'] = Unidades.objects.filter(tipo = 'L')
+                copia_context['unidades_area'] = Unidades.objects.filter(tipo = 'A')
+                copia_context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
+                copia_context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
+                copia_context['unidades_ensuciamiento'] = Unidades.objects.filter(tipo = 'E')
+                copia_context['unidades_q'] = Unidades.objects.filter(tipo = 'Q').order_by('-simbolo')
+                copia_context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
+                copia_context['unidades_u'] = Unidades.objects.filter(tipo = 'u').order_by('-simbolo')
+
+                return render(request, 'tubo_carcasa/edicion.html', context=copia_context)
+
         with transaction.atomic():
             fluido_tubo = request.POST['fluido_tubo']
             fluido_carcasa = request.POST['fluido_carcasa']

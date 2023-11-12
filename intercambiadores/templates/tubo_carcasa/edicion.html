@@ -12,6 +12,18 @@
             <div class="col-3"></div>
         </div>
         <hr>
+
+        {% if errores %}
+        <div>
+            {% for error in errores %}
+            <ul>
+                <li class="text-center" style="color: #e31e24;">{{error}}</li>
+            </ul>
+            {%endfor%}
+        </div>
+    
+        <hr>
+        {% endif %}
     
         <div class="row">
             <div class="col-12">

@@ -12,9 +12,13 @@
     
         <hr>
 
-        {% if error %}
+        {% if errores %}
         <div>
-            <b class="text-center" style="color: #e31e24;">{{error}}</b>
+            {% for error in errores %}
+            <ul>
+                <li class="text-center" style="color: #e31e24;">{{error}}</li>
+            </ul>
+            {%endfor%}
         </div>
 
         <hr>
