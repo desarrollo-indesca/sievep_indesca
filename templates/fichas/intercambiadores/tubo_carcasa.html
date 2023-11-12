@@ -109,9 +109,9 @@
                     </tr>
                     <tr>
                       <th class="table-dark" colspan="2">Flujo Vapor ({{condiciones_carcasa.flujos_unidad}})</th>
-                      <td>{% if condiciones_carcasa.flujo_vapor_entrada %}{{condiciones_carcasa.flujo_vapor_entrada}}{% else %}-{% endif %}</td>
+                      <td id="flujo_vapor_entrada_carcasa">{% if condiciones_carcasa.flujo_vapor_entrada %}{{condiciones_carcasa.flujo_vapor_entrada}}{% else %}-{% endif %}</td>
                       <td>{% if condiciones_carcasa.flujo_vapor_salida %}{{condiciones_carcasa.flujo_vapor_salida}}{% else %}-{% endif %}</td>
-                      <td>{% if condiciones_tubo.flujo_vapor_entrada %}{{condiciones_tubo.flujo_vapor_entrada}}{% else %}-{% endif %}</td>
+                      <td id="flujo_vapor_entrada_tubo">{% if condiciones_tubo.flujo_vapor_entrada %}{{condiciones_tubo.flujo_vapor_entrada}}{% else %}-{% endif %}</td>
                       <td>{% if condiciones_tubo.flujo_vapor_salida %}{{condiciones_tubo.flujo_vapor_salida}}{% else %}-{% endif %}</td>
                     </tr>
                     <tr>
