@@ -11,7 +11,7 @@ from thermo.chemical import search_chemical, Chemical
 from calculos.termodinamicos import calcular_cp
 from calculos.evaluaciones import evaluacion_tubo_carcasa, obtener_cambio_fase, determinar_cambio_parcial
 from reportes.pdfs import generar_pdf
-from calculos.unidades import transformar_unidades_temperatura, transformar_unidades_cp, transformar_unidades_presion, transformar_unidades_flujo, transformar_unidades_calor
+from calculos.unidades import *
 
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
 
@@ -590,7 +590,11 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
                 cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa =  transformar_unidades_cp([cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa], unidad=unidad_cp, unidad_salida=29)
 
                 resultados = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
-
+                resultados['q'] = round(*transformar_unidades_calor([resultados['q']], 28, intercambiador.q_unidad.pk), 4)
+                resultados['area'] = round(*transformar_unidades_area([resultados['area']], 3, intercambiador.area_unidad.pk), 2)
+                resultados['lmtd'] = round(*transformar_unidades_temperatura([resultados['lmtd']], 2, intercambiador.condicion_carcasa().temperaturas_unidad.pk), 2)
+                resultados['factor_ensuciamiento'] = round(*transformar_unidades_ensuciamiento([resultados['factor_ensuciamiento']], 31, intercambiador.ensuciamiento_unidad.pk), 6)
+                resultados['u'] = round(*transformar_unidades_u([resultados['u']], 27, intercambiador.u_unidad.pk), 4)
                 print(resultados)
 
                 EvaluacionesIntercambiador.objects.create(
@@ -1153,6 +1157,13 @@ class EvaluarTuboCarcasa(LoginRequiredMixin, View):
         print(ti, ts, Ti, Ts, ft, fc, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa)
         res = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
         
+        # Transformar a Unidades de Salida
+        res['q'] = round(*transformar_unidades_calor([res['q']], 28, intercambiador.q_unidad.pk), 4)
+        res['area'] = round(*transformar_unidades_area([res['area']], 3, intercambiador.area_unidad.pk), 2)
+        res['lmtd'] = round(*transformar_unidades_temperatura([res['lmtd']], 2, intercambiador.condicion_carcasa().temperaturas_unidad.pk), 2)
+        res['factor_ensuciamiento'] = round(*transformar_unidades_ensuciamiento([res['factor_ensuciamiento']], 31, intercambiador.ensuciamiento_unidad.pk), 6)
+        res['u'] = round(*transformar_unidades_u([res['u']], 27, intercambiador.u_unidad.pk), 4)
+
         return JsonResponse(res)
 
 class ConsultaCAS(LoginRequiredMixin, View):

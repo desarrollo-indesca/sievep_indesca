@@ -36,6 +36,7 @@ def transformar_unidades_longitud(args: list, unidad: int, unidad_salida: int = 
 def transformar_unidades_area(args: list, unidad: int, unidad_salida: int = 3) -> list:
     actualizadas = []
     unidad_salida = ur.meter ** 2 if unidad_salida == 3 else ur.feet**2 if unidad_salida == 20 else ur.inch**2
+    unidad = ur.meter ** 2 if unidad == 3 else ur.feet**2 if unidad == 20 else ur.inch**2
 
     for x in args:
         actualizadas.append(Q_(x, unidad).to(unidad_salida).magnitude)
