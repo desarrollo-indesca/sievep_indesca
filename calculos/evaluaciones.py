@@ -5,7 +5,6 @@ from .termodinamicos import calcular_entalpia_entre_puntos, calcular_tsat_hvap
 
 def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_tubo = None, cp_liquido_tubo = None, cp_gas_carcasa = None, cp_liquido_carcasa = None, unidad_temp = 1, unidad_flujo = 6) -> dict:
     ti,ts,Ti,Ts = transformar_unidades_temperatura([ti,ts,Ti,Ts], unidad=unidad_temp)
-    
     if(unidad_flujo != 10):
         ft,Fc = transformar_unidades_flujo([ft,Fc], unidad_flujo)
 
@@ -21,9 +20,9 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
     longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad.pk)[0]
 
     area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
-    dtml = abs(((Ts - ti) - (Ti - ts))/np.log(abs((Ts - ti)/(Ti - ts)))) #K
     num_pasos_carcasa = float(intercambiador.numero_pasos_carcasa)
     num_pasos_tubo = float(intercambiador.numero_pasos_tubo)
+    dtml = abs(((Ti - ts) - (Ts - ti))/np.log(abs((Ti - ts)/(Ts - ti))))
 
     factor = round(F_LMTD_Fakheri(Ti, Ts, ti, ts, num_pasos_carcasa),3) 
     

@@ -215,8 +215,8 @@
                     <label class="form-label">LMTD:</label>
                     <div class="input-group">
                         <input id="lmtd" disabled type="text" class="form-control" style="width: 60% !important;">
-                        <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
-                            <option value="">°C</option>                                
+                        <select style="width: 40% !important;" class="form-select" name="" id="unidad_temperaturas" disabled>
+                            <option value="">{{intercambiador.condicion_carcasa.temperaturas_unidad}}</option>                                
                         </select>
                     </div>
                 </div>
@@ -398,13 +398,13 @@
             
             if(in_tubo > out_tubo){
                 if(in_carcasa < in_tubo && out_carcasa > out_tubo){
-                    alert("Las temperaturas son inconsistentes.");
+                    alert("ADVERTENCIA\n Verifique las temperaturas.");
                     document.getElementById('registrar_resultado').setAttribute('disabled', true);
                     return;
                 }
             } else if(in_tubo < out_tubo){
                 if(in_carcasa > in_tubo && out_carcasa < out_tubo){
-                    alert("Las temperaturas son inconsistentes.");
+                    alert("ADVERTENCIA\n Verifique las temperaturas.");
                     document.getElementById('registrar_resultado').setAttribute('disabled', true);
                     return;
                 }

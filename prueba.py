@@ -1,3 +1,3 @@
-from thermo.chemical import Chemical
+from ht import LMTD
 
-print(Chemical('water').Tsat(3e5)-273.15)
+print(LMTD(49.6, 37.7, 33, 37.8))

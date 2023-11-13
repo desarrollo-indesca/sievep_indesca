@@ -50,9 +50,7 @@
 </thead>
 <tbody class="text-center">
   {% if object_list.count %}
-  {% with diseno=intercambiador.calcular_diseno %}  
   {% include 'tablas/intercambiadores/evaluaciones.html' %}
-  {% endwith %}  
   {% else %}
   <td colspan="7">No se encontraron evaluaciones con los datos de filtrado proporcionados.</td>
   {% endif %}
@@ -103,4 +101,10 @@
     $('#filtrado').submit();
   });
 </script>
+
+{% if not diseno %}
+<script>
+  alert("No se han podido obtener los datos de diseño para comparación. Comprobar datos de diseño en ficha.");
+</script>
+{% endif %}
 {% endblock %}
