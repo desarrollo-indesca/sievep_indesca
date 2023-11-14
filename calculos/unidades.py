@@ -69,7 +69,10 @@ def transformar_unidades_calor(args: list, unidad: int, unidad_salida: int = 28)
     unidad = ur.watt if unidad == 28 else ur.Btu_it/ur.hour if unidad == 24 else ur.Btu_it/ur.second
 
     for x in args:
-        actualizadas.append(Q_(x, unidad).to(unidad_salida).magnitude)
+        if(x == None):
+            actualizadas.append(x)
+        else:
+            actualizadas.append(Q_(x, unidad).to(unidad_salida).magnitude)
 
     return actualizadas
 

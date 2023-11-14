@@ -102,7 +102,7 @@
   });
 </script>
 
-{% if not diseno %}
+{% if object_list.count and not diseno %}
 <script>
   alert("No se han podido obtener los datos de diseño para comparación. Comprobar datos de diseño en ficha.");
 </script>

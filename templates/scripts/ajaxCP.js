@@ -518,53 +518,68 @@ const validarForm = (e) => {
 
     let mensaje = "";
 
-    $.ajax({
-        url: '/intercambiadores/validar_cdf_existente/',
-        async: false,
-        data: {
-                flujo_vapor_in: $('#flujo_vapor_in_tubo').val(),
-                flujo_vapor_out: $('#flujo_vapor_out_tubo').val(),
-                flujo_liquido_in: $('#flujo_liquido_in_tubo').val(),
-                flujo_liquido_out: $('#flujo_liquido_out_tubo').val(),
-                cambio_fase: $('#cambio_fase_tubo').val(),
-                lado: 'T',
-                unidad_temperaturas: $('#unidad_temperaturas').val(),
-                unidad_presiones: $('#unidad_presiones').val(),
-                t1: $('#temp_in_tubo').val(),
-                t2: $('#temp_out_tubo').val(),
-                presion: $('#presion_entrada_tubo').val(),
-                fluido: $('#fluido_tubo').val(),
-        },
-        success: (res) => {
-            if(res.codigo == 400){
-                mensaje += res.mensaje;                    
-            }
-        }
-    });
 
-    $.ajax({
-        url: '/intercambiadores/validar_cdf_existente/',
-        async: false,
-        data: {
-                flujo_vapor_in: $('#flujo_vapor_in_carcasa').val(),
-                flujo_vapor_out: $('#flujo_vapor_out_carcasa').val(),
-                flujo_liquido_in: $('#flujo_liquido_in_carcasa').val(),
-                flujo_liquido_out: $('#flujo_liquido_out_carcasa').val(),
-                cambio_fase: $('#cambio_fase_carcasa').val(),
-                lado: 'C',
-                unidad_temperaturas: $('#unidad_temperaturas').val(),
-                unidad_presiones: $('#unidad_presiones').val(),
-                t1: $('#temp_in_carcasa').val(),
-                t2: $('#temp_out_carcasa').val(),
-                presion: $('#presion_entrada_carcasa').val(),
-                fluido: $('#fluido_carcasa').val(),
-        },
-        success: (res) => {
-            if(res.codigo == 400){
-                mensaje += res.mensaje;                    
+    if(!($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().includes('*')&& !$('#fluido_tubo').val().split('*')[1].includes('-')))
+        $.ajax({
+            url: '/intercambiadores/validar_cdf_existente/',
+            async: false,
+            data: {
+                    flujo_vapor_in: $('#flujo_vapor_in_tubo').val(),
+                    flujo_vapor_out: $('#flujo_vapor_out_tubo').val(),
+                    flujo_liquido_in: $('#flujo_liquido_in_tubo').val(),
+                    flujo_liquido_out: $('#flujo_liquido_out_tubo').val(),
+                    cambio_fase: $('#cambio_fase_tubo').val(),
+                    lado: 'T',
+                    unidad_temperaturas: $('#unidad_temperaturas').val(),
+                    unidad_presiones: $('#unidad_presiones').val(),
+                    t1: $('#temp_in_tubo').val(),
+                    t2: $('#temp_out_tubo').val(),
+                    presion: $('#presion_entrada_tubo').val(),
+                    fluido: $('#fluido_tubo').val(),
+                    calor: $('#calor').val(),
+                    unidad_calor: $('#unidad_calor').val(),
+                    unidad_cp: $('#unidad_cp').val(),
+                    cp_liquido: $('#cp_liquido_tubo').val(),
+                    cp_gas: $('#cp_gas_tubo').val(),
+                    hvap: $('#hvap_tubo').val()
+            },
+            success: (res) => {
+                if(res.codigo == 400){
+                    mensaje += res.mensaje;                    
+                }
             }
-        }
-    });
+        });
+
+    if(!($('#fluido_carcasa').val() === '' || $('#fluido_carcasa').val().includes('*')&& !$('#fluido_carcasa').val().split('*')[1].includes('-')))
+        $.ajax({
+            url: '/intercambiadores/validar_cdf_existente/',
+            async: false,
+            data: {
+                    flujo_vapor_in: $('#flujo_vapor_in_carcasa').val(),
+                    flujo_vapor_out: $('#flujo_vapor_out_carcasa').val(),
+                    flujo_liquido_in: $('#flujo_liquido_in_carcasa').val(),
+                    flujo_liquido_out: $('#flujo_liquido_out_carcasa').val(),
+                    cambio_fase: $('#cambio_fase_carcasa').val(),
+                    lado: 'C',
+                    unidad_temperaturas: $('#unidad_temperaturas').val(),
+                    unidad_presiones: $('#unidad_presiones').val(),
+                    t1: $('#temp_in_carcasa').val(),
+                    t2: $('#temp_out_carcasa').val(),
+                    presion: $('#presion_entrada_carcasa').val(),
+                    fluido: $('#fluido_carcasa').val(),
+                    calor: $('#calor').val(),
+                    unidad_calor: $('#unidad_calor').val(),
+                    unidad_cp: $('#unidad_cp').val(),
+                    cp_liquido: $('#cp_liquido_carcasa').val(),
+                    cp_gas: $('#cp_gas_carcasa').val(),
+                    hvap: $('#hvap_carcasa').val()
+            },
+            success: (res) => {
+                if(res.codigo == 400){
+                    mensaje += res.mensaje;                    
+                }
+            }
+        });
 
     if(mensaje !== ''){
         mensaje = "ADVERTENCIA\n" + mensaje + "\n¿Desea continuar igualmente?"
