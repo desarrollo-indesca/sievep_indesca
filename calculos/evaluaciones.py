@@ -114,22 +114,24 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp_gas: float, cp_liquido
         flujo_vapor_out = float(datos.flujo_vapor_salida)
         flujo_liquido_in = float(datos.flujo_liquido_entrada)
         flujo_liquido_out = float(datos.flujo_liquido_salida)
-        
+        print(flujo_vapor_out)
+        [flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out] = transformar_unidades_flujo([flujo_vapor_in, flujo_vapor_out, flujo_liquido_in, flujo_liquido_out], datos.flujos_unidad.pk)
+        print(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out)
+
         if(type(fluido) != str):
                 _,hvap = calcular_tsat_hvap(fluido.cas, presion)
         else:
             hvap = float(datos.hvap) if datos.hvap else 5000
 
-        return calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out,t1,t2,fluido,presion,hvap,cp_gas,cp_liquido)
+        return calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out,flujo,t1,t2,hvap,cp_gas,cp_liquido)
     else: # Caso 3: Cambio de Fase Total
         return calcular_calor_cdft(flujo,t1,t2,fluido,presion,datos,cp_gas,cp_liquido)
 
 def calcular_calor_scdf(flujo, cp, t1, t2) -> float:
     return flujo * cp * abs(t2-t1)
 
-def calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out,t1,t2,fluido,presion,hvap,cp_gas,cp_liquido) -> float:
+def calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out,flujo,t1,t2,hvap,cp_gas,cp_liquido) -> float:
         cdf = determinar_cambio_parcial(flujo_vapor_in, flujo_vapor_out, flujo_liquido_in, flujo_liquido_out)
-        flujo = flujo_vapor_out + flujo_liquido_out
         calidad = flujo_vapor_out/flujo
 
         if(cdf == 'DD'):
@@ -162,9 +164,7 @@ def  calcular_calor_cdft(flujo,t1,t2,fluido,presion,datos,cp_gas,cp_liquido) -> 
 
 def obtener_c_eficiencia(condicion, flujo: float, cp_gas: float, cp_liquido: float) -> float:
     if(condicion.cambio_de_fase == 'S'): # Caso 1: Sin Cambio de Fase
-        print(cp_gas)
         c = flujo*cp_gas if cp_gas else flujo*cp_liquido 
-        print(c)
     elif(condicion.cambio_de_fase == 'T'): # Caso 2: Cambio de Fase Total
         if(condicion.flujo_vapor_salida != 0):
             c = flujo*cp_gas

@@ -265,6 +265,9 @@
                                             {% for fluido in fluidos %}
                                             <option value="{{fluido.pk}}" {% if previo.fluido_carcasa == fluido.pk|slugify %}selected{% endif %}>{{fluido}}</option>
                                             {% endfor %}
+                                            {% if previo.fluido_tubo_etiqueta %}
+                                            <option value="{{previo.fluido_carcasa}}" selected>{{previo.fluido_carcasa_etiqueta}}</option>
+                                            {%endif%}
                                         </select>
                                     </div>
                             
@@ -640,6 +643,9 @@
                                             {% for fluido in fluidos %}
                                             <option value="{{fluido.pk}}" {% if previo.fluido_tubo == fluido.pk|slugify %}selected{% endif %}>{{fluido}}</option>
                                             {% endfor %}
+                                            {% if previo.fluido_tubo_etiqueta %}
+                                            <option value="{{previo.fluido_tubo}}" selected>{{previo.fluido_tubo_etiqueta}}</option>
+                                            {%endif%}
                                         </select>
                                     </div>
                             
