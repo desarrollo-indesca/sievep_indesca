@@ -517,7 +517,6 @@ const validarForm = (e) => {
     }
 
     let mensaje = "";
-    let funciono = true;
 
     if(!($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().includes('*')&& !$('#fluido_tubo').val().split('*')[1].includes('-')))
         mensaje += ajaxValidacion('T');
@@ -532,7 +531,7 @@ const validarForm = (e) => {
 
     $('button[type="submit"]').attr('disabled','disabled');
 
-    return true && funciono;
+    return true;
 };
 
 function ajaxValidacion(lado = 'C'){
