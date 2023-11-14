@@ -23,4 +23,5 @@ urlpatterns = [
 
     # RUTAS AJAX PARA VALIDACIÓN DE DATOS
     path('validar_cdf_existente/',ValidarCambioDeFaseExistente.as_view(), name="validar_cdf_existente"),
+    path('validar_cdf_existente_ev/<int:pk>/',ValidarCambioDeFaseExistenteEvaluacion.as_view(), name="validar_cdf_existente_ev"),
 ]
