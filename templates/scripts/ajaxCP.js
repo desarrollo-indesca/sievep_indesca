@@ -520,77 +520,10 @@ const validarForm = (e) => {
     let funciono = true;
 
     if(!($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().includes('*')&& !$('#fluido_tubo').val().split('*')[1].includes('-')))
-        $.ajax({
-            url: '/intercambiadores/validar_cdf_existente/',
-            async: false,
-            data: {
-                    flujo_vapor_in: $('#flujo_vapor_in_tubo').val(),
-                    flujo_vapor_out: $('#flujo_vapor_out_tubo').val(),
-                    flujo_liquido_in: $('#flujo_liquido_in_tubo').val(),
-                    flujo_liquido_out: $('#flujo_liquido_out_tubo').val(),
-                    cambio_fase: $('#cambio_fase_tubo').val(),
-                    lado: 'T',
-                    unidad_temperaturas: $('#unidad_temperaturas').val(),
-                    unidad_presiones: $('#unidad_presiones').val(),
-                    t1: $('#temp_in_tubo').val(),
-                    t2: $('#temp_out_tubo').val(),
-                    presion: $('#presion_entrada_tubo').val(),
-                    fluido: $('#fluido_tubo').val(),
-                    calor: $('#calor').val(),
-                    unidad_flujos: $('#unidad_flujos').val(),
-                    unidad_calor: $('#unidad_calor').val() ? $('#unidad_calor').val(): $('#unidad_q').val(),
-                    unidad_cp: $('#unidad_cp').val(),
-                    cp_liquido: $('#cp_liquido_tubo').val(),
-                    cp_gas: $('#cp_gas_tubo').val(),
-                    hvap: $('#hvap_tubo').val()
-            },
-            success: (res) => {
-                if(res.codigo == 400){
-                    mensaje += res.mensaje;                    
-                }
-            },
-            error: (res) => {
-                console.log(res);
-                funciono = false;
-                mensaje += "Ocurrió un error al validar los datos ingresados del lado del tubo.\n";
-            }
-        });
+        mensaje += ajaxValidacion('T');
 
     if(!($('#fluido_carcasa').val() === '' || $('#fluido_carcasa').val().includes('*')&& !$('#fluido_carcasa').val().split('*')[1].includes('-')))
-        $.ajax({
-            url: '/intercambiadores/validar_cdf_existente/',
-            async: false,
-            data: {
-                    flujo_vapor_in: $('#flujo_vapor_in_carcasa').val(),
-                    flujo_vapor_out: $('#flujo_vapor_out_carcasa').val(),
-                    flujo_liquido_in: $('#flujo_liquido_in_carcasa').val(),
-                    flujo_liquido_out: $('#flujo_liquido_out_carcasa').val(),
-                    cambio_fase: $('#cambio_fase_carcasa').val(),
-                    lado: 'C',
-                    unidad_temperaturas: $('#unidad_temperaturas').val(),
-                    unidad_presiones: $('#unidad_presiones').val(),
-                    unidad_flujos: $('#unidad_flujos').val(),
-                    t1: $('#temp_in_carcasa').val(),
-                    t2: $('#temp_out_carcasa').val(),
-                    presion: $('#presion_entrada_carcasa').val(),
-                    fluido: $('#fluido_carcasa').val(),
-                    calor: $('#calor').val(),
-                    unidad_calor: $('#unidad_calor').val() ? $('#unidad_calor').val(): $('#unidad_q').val(),
-                    unidad_cp: $('#unidad_cp').val(),
-                    cp_liquido: $('#cp_liquido_carcasa').val(),
-                    cp_gas: $('#cp_gas_carcasa').val(),
-                    hvap: $('#hvap_carcasa').val()
-            },
-            success: (res) => {
-                if(res.codigo == 400){
-                    mensaje += res.mensaje;                    
-                }
-            },
-            error: (res) => {
-                console.log(res);
-                mensaje += "Ocurrió un error al validar los datos ingresados del lado de la carcasa.\n";
-            }
-        });
+       mensaje += ajaxValidacion('C');
 
     if(mensaje !== ''){
         mensaje = "ADVERTENCIA\n" + mensaje + "\n¿Desea continuar igualmente?"
@@ -601,3 +534,44 @@ const validarForm = (e) => {
 
     return true && funciono;
 };
+
+function ajaxValidacion(lado = 'C'){
+    let mensaje = "";
+    $.ajax({
+        url: '/intercambiadores/validar_cdf_existente/',
+        async: false,
+        data: {
+            flujo_vapor_in: lado === 'T' ? $('#flujo_vapor_in_tubo').val() : $('#flujo_vapor_in_carcasa').val(),
+            flujo_vapor_out: lado === 'T' ? $('#flujo_vapor_out_tubo').val() : $('#flujo_vapor_out_carcasa').val(),
+            flujo_liquido_in: lado === 'T' ? $('#flujo_liquido_in_tubo').val() : $('#flujo_liquido_in_carcasa').val(),
+            flujo_liquido_out: lado === 'T' ? $('#flujo_liquido_out_tubo').val() : $('#flujo_liquido_out_carcasa').val(),
+            cambio_fase: lado === 'T' ? $('#cambio_fase_tubo').val() : $('#cambio_fase_carcasa').val(),
+            lado: lado,
+            unidad_temperaturas: $('#unidad_temperaturas').val(),
+            unidad_presiones: $('#unidad_presiones').val(),
+            t1: lado === 'T' ? $('#temp_in_tubo').val() : $('#temp_in_carcasa').val(),
+            t2: lado === 'T' ? $('#temp_out_tubo').val() : $('#temp_out_carcasa').val(),
+            presion: lado === 'T' ? $('#presion_entrada_tubo').val() : $('#presion_entrada_carcasa').val(),
+            fluido: lado === 'T' ? $('#fluido_tubo').val() : $('#fluido_carcasa').val(),
+            calor: $('#calor').val(),
+            unidad_flujos: $('#unidad_flujos').val(),
+            unidad_calor: $('#unidad_calor').val() ? $('#unidad_calor').val(): $('#unidad_q').val(),
+            unidad_cp: $('#unidad_cp').val(),
+            cp_liquido: lado === 'T' ? $('#cp_liquido_tubo').val() : $('#cp_liquido_carcasa').val(),
+            cp_gas: lado === 'T' ? $('#cp_gas_tubo').val() : $('#cp_gas_carcasa').val(),
+            hvap: lado === 'T' ? $('#hvap_tubo').val() : $('#hvap_carcasa').val()
+        },
+        success: (res) => {
+            if(res.codigo == 400){
+                mensaje += res.mensaje;                    
+            }
+        },
+        error: (res) => {
+            console.log(res);
+            funciono = false;
+            mensaje += `Ocurrió un error al validar los datos ingresados del lado de${lado === 'T' ? 'l tubo' : ' la carcasa'}.\n`;
+        }
+    });
+
+    return mensaje;
+}
