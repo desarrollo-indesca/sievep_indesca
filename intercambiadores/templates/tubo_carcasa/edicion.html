@@ -315,7 +315,7 @@
                                 <label for="tsat_carcasa">Temp. Saturación:</label>
                                 
                                 <div class="input-group mb-3">
-                                    <input style="width: 60% !important;" step="0.01" value="{{condicion_carcasa.tsat|unlocalize}}" type="number" name="tsat_carcasa" id="tsat_carcasa" class="form-control">
+                                    <input style="width: 60% !important;" step="0.01" value="{% if condicion_carcasa.tsat %}{{condicion_carcasa.tsat|unlocalize}}{%endif%}" type="number" name="tsat_carcasa" id="tsat_carcasa" class="form-control">
                                     <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
                                         <option>{{condicion_carcasa.temperaturas_unidad}}</option>
                                     </select>
@@ -325,7 +325,7 @@
                             <div class="col-6 d-flex flex-column">
                                 <label for="hvap_carcasa">Entalpía de Vaporización:</label>
                                 <div class="input-group mb-3">
-                                    <input style="width: 60% !important;" value="{{condicion_carcasa.hvap|unlocalize}}" min="0.01" step="0.01" type="number" name="hvap_carcasa" id="hvap_carcasa" class="form-control">
+                                    <input style="width: 60% !important;" value="{% if condicion_carcasa.hvap %}{{condicion_carcasa.hvap|unlocalize}}{%endif%}" min="0.0001" step="0.0001" type="number" name="hvap_carcasa" id="hvap_carcasa" class="form-control">
                                     <select style="width: 40% !important;" class="form-select" name="unidad_hvap" id="unidad_hvap" disabled>
                                         <option value="1">J/Kg</option>
                                     </select>
@@ -589,7 +589,7 @@
                                 <label for="tsat_tubo">Temp. Saturación:</label>
                                 
                                 <div class="input-group mb-3">
-                                    <input style="width: 60% !important;" step="0.01" value="{{condicion_tubo.tsat|unlocalize}}" type="number" name="tsat_tubo" id="tsat_tubo" class="form-control">
+                                    <input style="width: 60% !important;" step="0.01" value="{% if condicion_tubo.tsat %}{{condicion_tubo.tsat|unlocalize}}{%endif%}" type="number" name="tsat_tubo" id="tsat_tubo" class="form-control">
                                     <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
                                         <option>{{condicion_tubo.temperaturas_unidad}}</option>
                                     </select>
@@ -599,7 +599,7 @@
                             <div class="col-6 d-flex flex-column">
                                 <label for="hvap_tubo">Entalpía de Vaporización:</label>
                                 <div class="input-group mb-3">
-                                    <input style="width: 60% !important;" min="0.01" step="0.01" value="{{condicion_tubo.hvap|unlocalize}}" type="number" name="hvap_tubo" id="hvap_tubo" class="form-control">
+                                    <input style="width: 60% !important;" min="0.00001" step="0.00001" value="{% if condicion_tubo.hvap %}{{condicion_tubo.hvap|unlocalize}}{%endif%}" type="number" name="hvap_tubo" id="hvap_tubo" class="form-control">
                                     <select style="width: 40% !important;" class="form-select" name="unidad_hvap" id="unidad_hvap" disabled>
                                         <option value="1">J/Kg</option>
                                     </select>
@@ -824,37 +824,5 @@
 
     {% include 'scripts/validaciones_flujo.js' %}
 
-</script>
-
-<script>
-    const validarForm = (e) => {
-        if($('#presion_entrada_carcasa').val() === 0){
-            alert("La presión de entrada de la carcasa no puede ser 0.");
-            return false;
-        }
-
-        if($('#presion_entrada_tubo').val() === 0){
-            alert("La presión de entrada del tubo no puede ser 0.");
-            return false;
-        }
-
-        if($('#cambio_fase_carcasa').val() === 'T' && $('#tipo_cp_carcasa').val() === 'M'){
-            if($('#hvap_carcasa').val() === '' && $('#tsat_carcasa').val() === ''){
-                alert("Debe ingresar la temperatura de saturación del fluido de la carcasa y/o la entalpía de vaporización del mismo.")
-                return false;
-            }
-        }
-
-        if($('#cambio_fase_tubo').val() === 'T' && $('#tipo_cp_tubo').val() === 'M'){
-            if($('#hvap_tubo').val() === '' && $('#tsat_tubo').val() === ''){
-                alert("Debe ingresar la temperatura de saturación del fluido del tubo y/o la entalpía de vaporización del mismo.")
-                return false;
-            }
-        }
-
-        $('button[type="submit"]').attr('disabled','disabled');
-
-        return true;
-    };
 </script>
 {% endblock %}

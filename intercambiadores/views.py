@@ -134,7 +134,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
         if(not request.POST.get('calor')):
             errores.append('El campo Calor es obligatorio.')
 
-        if(not request.POST.get('unidad_calor')):
+        if(not request.POST.get('unidad_calor') and not request.POST.get('unidad_q')):
             errores.append('El campo Unidad de Calor es obligatorio.')
 
         if(not request.POST.get('u')):
@@ -1402,6 +1402,7 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
         flujo_vapor_out = float(request.GET['flujo_vapor_out'])
         flujo_liquido_in = float(request.GET['flujo_liquido_in'])
         flujo_liquido_out = float(request.GET['flujo_liquido_out'])
+        flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out], int(request.GET['unidad_flujos']))
         cambio_fase = request.GET.get('cambio_fase')
         lado = 'Carcasa' if request.GET['lado'] == 'C' else 'Tubo'
         unidad_temperaturas = int(request.GET['unidad_temperaturas'])

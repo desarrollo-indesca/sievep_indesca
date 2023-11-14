@@ -517,7 +517,7 @@ const validarForm = (e) => {
     }
 
     let mensaje = "";
-
+    let funciono = true;
 
     if(!($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().includes('*')&& !$('#fluido_tubo').val().split('*')[1].includes('-')))
         $.ajax({
@@ -537,7 +537,8 @@ const validarForm = (e) => {
                     presion: $('#presion_entrada_tubo').val(),
                     fluido: $('#fluido_tubo').val(),
                     calor: $('#calor').val(),
-                    unidad_calor: $('#unidad_calor').val(),
+                    unidad_flujos: $('#unidad_flujos').val(),
+                    unidad_calor: $('#unidad_calor').val() ? $('#unidad_calor').val(): $('#unidad_q').val(),
                     unidad_cp: $('#unidad_cp').val(),
                     cp_liquido: $('#cp_liquido_tubo').val(),
                     cp_gas: $('#cp_gas_tubo').val(),
@@ -547,6 +548,11 @@ const validarForm = (e) => {
                 if(res.codigo == 400){
                     mensaje += res.mensaje;                    
                 }
+            },
+            error: (res) => {
+                console.log(res);
+                funciono = false;
+                mensaje += "Ocurrió un error al validar los datos ingresados del lado del tubo.\n";
             }
         });
 
@@ -563,12 +569,13 @@ const validarForm = (e) => {
                     lado: 'C',
                     unidad_temperaturas: $('#unidad_temperaturas').val(),
                     unidad_presiones: $('#unidad_presiones').val(),
+                    unidad_flujos: $('#unidad_flujos').val(),
                     t1: $('#temp_in_carcasa').val(),
                     t2: $('#temp_out_carcasa').val(),
                     presion: $('#presion_entrada_carcasa').val(),
                     fluido: $('#fluido_carcasa').val(),
                     calor: $('#calor').val(),
-                    unidad_calor: $('#unidad_calor').val(),
+                    unidad_calor: $('#unidad_calor').val() ? $('#unidad_calor').val(): $('#unidad_q').val(),
                     unidad_cp: $('#unidad_cp').val(),
                     cp_liquido: $('#cp_liquido_carcasa').val(),
                     cp_gas: $('#cp_gas_carcasa').val(),
@@ -578,6 +585,10 @@ const validarForm = (e) => {
                 if(res.codigo == 400){
                     mensaje += res.mensaje;                    
                 }
+            },
+            error: (res) => {
+                console.log(res);
+                mensaje += "Ocurrió un error al validar los datos ingresados del lado de la carcasa.\n";
             }
         });
 
@@ -588,5 +599,5 @@ const validarForm = (e) => {
 
     $('button[type="submit"]').attr('disabled','disabled');
 
-    return true;
+    return true && funciono;
 };
