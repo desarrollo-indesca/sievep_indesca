@@ -1484,7 +1484,7 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
                 codigo = 400
                 mensaje += f"- La temperatura de saturación del cambio de fase parcial presentado tiene un error mayor al 5% del calculado en la base de datos ({tsat}K).\n"
         
-            calorcalc = calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_vapor_out, t1, t2, hvap, cp_gas, cp_liquido)    
+            calorcalc = calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in+flujo_liquido_in, t1, t2, hvap, cp_gas, cp_liquido)    
         elif(cambio_fase == 'S'):
             if(flujo_vapor_in and (t1 < tsat*0.95 or t2 < tsat*0.95)):
                 mensaje += "- Aunque entra y sale vapor, las temperaturas son menores a la temperatura de saturación de la base de datos por más del 5%.\n"
@@ -1493,12 +1493,11 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
 
             calorcalc = calcular_calor_scdf(flujo_vapor_in+flujo_liquido_in, t1, t2, cp_gas if cp_gas else cp_liquido)
 
+        calorcalc = round(calorcalc, 2)
+
         if(abs((calor-calorcalc)/calor) > 0.05):
             codigo = 400
             mensaje += f"- El calor calculado ({calorcalc}) difiere por más del 5% respecto al calor ingresado ({calor}W).\n"
-
-        print(calor)
-        print(calorcalc)
 
         if(codigo == 200):
             return JsonResponse({'codigo': codigo})
