@@ -83,8 +83,12 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="tipo_cp_carcasa">Cálculo del Cp:</label>
                         <select class="form-select" name="tipo_cp_carcasa" id="tipo_cp_carcasa">
+                            {% if not intercambiador.fluido_carcasa %}
+                            <option value="M">Manual</option>
+                            {% else %}
                             <option value="A">Automático</option>
                             <option value="M">Manual</option>
+                            {%endif%}
                         </select>
                     </div>
                     <div class="col-6 d-flex flex-column">
@@ -161,8 +165,12 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="tipo_cp_tubo">Cálculo del Cp:</label>
                         <select class="form-select" name="tipo_cp_tubo" id="tipo_cp_tubo">
-                            <option value="A" {% if condicion_tubo.tipo_cp == 'A' %} selected {% endif %}>Automático</option>
-                            <option value="M" {% if condicion_tubo.tipo_cp == 'M' %} selected {% endif %}>Manual</option>
+                            {% if not intercambiador.fluido_tubo %}
+                            <option value="M">Manual</option>
+                            {% else %}
+                            <option value="A">Automático</option>
+                            <option value="M">Manual</option>
+                            {%endif%}
                         </select>
                     </div>
                     <div class="col-6 d-flex flex-column">
@@ -847,5 +855,8 @@
 
         return mensaje;
     }
+
+    $('#tipo_cp_carcasa').change();
+    $('#tipo_cp_tubo').change();
 </script>
 {% endblock %}

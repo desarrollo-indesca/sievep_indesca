@@ -211,7 +211,7 @@
                         <div style="width: 50%;">
                             <label for="tipo_cp_carcasa">Cálculo del Cp:</label>
                             <select class="form-select" name="tipo_cp_carcasa" id="tipo_cp_carcasa">
-                                {% if condicion_carcasa.fluido_etiqueta and condicion_tubo.fluido_etiqueta != '' %}
+                                {% if condicion_carcasa.fluido_etiqueta and condicion_carcasa.fluido_etiqueta != '' %}
                                 <option value="M" {% if condicion_carcasa.tipo_cp == 'M' %} selected {% endif %}>Manual</option>
                                 {% else %}
                                 <option value="A" {% if condicion_carcasa.tipo_cp == 'A' %} selected {% endif %}>Automático</option>
