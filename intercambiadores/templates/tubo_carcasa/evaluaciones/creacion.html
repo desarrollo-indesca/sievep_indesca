@@ -223,8 +223,8 @@
                     <label class="form-label">LMTD:</label>
                     <div class="input-group">
                         <input id="lmtd" disabled type="text" class="form-control" style="width: 60% !important;">
-                        <select style="width: 40% !important;" class="form-select" name="" id="unidad_temperaturas" disabled>
-                            <option value="">{{intercambiador.condicion_carcasa.temperaturas_unidad}}</option>                                
+                        <select itemid="unidad_lmtd" style="width: 40% !important;" class="form-select" name="" id="unidad_lmtd" disabled>
+                            <option value="{{intercambiador.condicion_carcasa.temperaturas_unidad.pk}}">{{intercambiador.condicion_carcasa.temperaturas_unidad}}</option>                                
                         </select>
                     </div>
                 </div>
@@ -233,8 +233,8 @@
 
                     <div class="input-group">
                         <input id="area" disabled type="text" class="form-control" style="width: 60% !important;">
-                        <select style="width: 40% !important;" class="form-select" disabled>
-                            <option value="">{{intercambiador.area_unidad}}</option>                                
+                        <select id="unidad_area" style="width: 40% !important;" class="form-select" disabled>
+                            <option value="{{intercambiador.area_unidad.pk}}">{{intercambiador.area_unidad}}</option>                                
                         </select>
                     </div>
                 </div>
@@ -254,8 +254,8 @@
                     <label class="form-label">Q:</label>
                     <div class="input-group">
                         <input id="q" disabled type="text" class="form-control" style="width: 60% !important;">
-                        <select style="width: 40% !important;" class="form-select" disabled>
-                            <option value="">{{intercambiador.q_unidad}}</option>                                
+                        <select id="unidad_calor" style="width: 40% !important;" class="form-select" disabled>
+                            <option value="{{intercambiador.q_unidad.pk}}">{{intercambiador.q_unidad}}</option>                                
                         </select>
                     </div>
                 </div>
@@ -264,8 +264,8 @@
                     <label class="form-label">Ensuciamiento:</label>
                     <div class="input-group">
                         <input id="ensuciamiento" disabled type="text" class="form-control" style="width: 55%;">
-                        <select style="width: 45% !important;" class="form-select" disabled>
-                            <option value="">{{intercambiador.ensuciamiento_unidad}}</option>                                
+                        <select id="unidades_ensuciamiento" style="width: 45% !important;" class="form-select" disabled>
+                            <option value="{{intercambiador.ensuciamiento_unidad.pk}}">{{intercambiador.ensuciamiento_unidad}}</option>                                
                         </select>
                     </div>
                 </div>
@@ -273,8 +273,8 @@
                     <label class="form-label">U:</label>
                     <div class="input-group">
                         <input id="u" disabled type="text" class="form-control" style="width: 55% !important;">
-                        <select style="width: 45% !important;" class="form-select" disabled>
-                            <option value="">{{intercambiador.u_unidad}}</option>                                
+                        <select id="unidad_u" style="width: 45% !important;" class="form-select" disabled>
+                            <option value="{{intercambiador.u_unidad.pk}}">{{intercambiador.u_unidad}}</option>                                
                         </select>
                     </div>
                 </div>
@@ -821,25 +821,25 @@
             url: `/intercambiadores/validar_cdf_existente_ev/{{intercambiador.pk}}/`,
             async: false,
             data: {
-                flujo_vapor_in: lado === 'T' ? $('#flujo_vapor_in_tubo').val() : $('#flujo_vapor_in_carcasa').val(),
-                flujo_vapor_out: lado === 'T' ? $('#flujo_vapor_out_tubo').val() : $('#flujo_vapor_out_carcasa').val(),
-                flujo_liquido_in: lado === 'T' ? $('#flujo_liquido_in_tubo').val() : $('#flujo_liquido_in_carcasa').val(),
-                flujo_liquido_out: lado === 'T' ? $('#flujo_liquido_out_tubo').val() : $('#flujo_liquido_out_carcasa').val(),
-                cambio_fase: lado === 'T' ? $('#cambio_fase_tubo').val() : $('#cambio_fase_carcasa').val(),
                 lado: lado,
                 unidad_temperaturas: $('#unidad_temperaturas').val(),
+                lmtd: $('#lmtd').val(),
+                unidad_lmtd: $('#unidad_lmtd').val(),
                 unidad_presiones: $('#unidad_presiones').val(),
                 t1: lado === 'T' ? $('#temp_in_tubo').val() : $('#temp_in_carcasa').val(),
                 t2: lado === 'T' ? $('#temp_out_tubo').val() : $('#temp_out_carcasa').val(),
                 presion: lado === 'T' ? $('#presion_entrada_tubo').val() : $('#presion_entrada_carcasa').val(),
                 fluido: lado === 'T' ? $('#fluido_tubo').val() : $('#fluido_carcasa').val(),
-                calor: $('#calor').val(),
+                calor: $('#q').val(),
                 unidad_flujos: $('#unidad_flujos').val(),
                 unidad_calor: $('#unidad_calor').val() ? $('#unidad_calor').val(): $('#unidad_q').val(),
                 unidad_cp: $('#unidad_cp').val(),
                 cp_liquido: lado === 'T' ? $('#cp_liquido_tubo').val() : $('#cp_liquido_carcasa').val(),
                 cp_gas: lado === 'T' ? $('#cp_gas_tubo').val() : $('#cp_gas_carcasa').val(),
-                hvap: lado === 'T' ? $('#hvap_tubo').val() : $('#hvap_carcasa').val()
+                area: $('#area').val(),
+                unidad_area: $('#unidad_area').val(),
+                u: $('#u').val(),
+                unidad_u: $('#unidad_u').val(),
             },
             success: (res) => {
                 if(res.codigo == 400){

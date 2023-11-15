@@ -1496,13 +1496,20 @@ class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, View):
         unidad_cp = condicion.unidad_cp.pk
         cp_gas, cp_liquido = float(request.GET['cp_gas']) if request.GET['cp_gas'] != '' else None, float(request.GET['cp_liquido']) if request.GET['cp_liquido'] != '' else None
         cp_gas, cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], unidad=unidad_cp)
+
+        unidad_calor = float(request.GET['unidad_calor'])
+        calor = transformar_unidades_calor([float(request.GET['calor'])], unidad_calor)[0]
+        unidad_u = float(request.GET['unidad_u'])
+        u = transformar_unidades_u([float(request.GET['u'])], unidad_u)[0]
+        unidad_area = float(request.GET['unidad_area'])
+        area = transformar_unidades_area([float(request.GET['area'])], unidad_area)[0]
+        lmtd = float(request.GET['lmtd'])
+        calor_c = u*area*lmtd
         
         quimico = Chemical(fluido.cas, T= t1, P=presion)
         tsat = round(quimico.Tsat(presion), 2)
         codigo = 200
         mensaje = f"\n Lado {lado}:\n"
-
-        print(cambio_fase)
 
         if(cambio_fase == 'T'):
             if(flujo_vapor_in and quimico.phase != 'g'):
@@ -1543,7 +1550,7 @@ class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, View):
             elif((caso == 'LD' or caso == 'VD') and (tsat*1.05 < t2 or tsat*0.95 > t2)):
                 codigo = 400
                 mensaje += f"- La temperatura de saturación del cambio de fase parcial presentado tiene un error mayor al 5% del calculado en la base de datos ({tsat}K).\n"
-            elif((caso == 'DL' or caso == 'DV') and (tsat*1.05 < t1 and tsat*0.95 > t1)):
+            elif((caso == 'DL' or caso == 'DV') and (tsat*1.05 < t1 or tsat*0.95 > t1)):
                 codigo = 400
                 mensaje += f"- La temperatura de saturación del cambio de fase parcial presentado tiene un error mayor al 5% del calculado en la base de datos ({tsat}K).\n"    
         elif(cambio_fase == 'S'):
@@ -1553,6 +1560,10 @@ class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, View):
             elif(flujo_liquido_in and (t1 > tsat*1.05 or t2 > tsat*1.05)):
                 codigo = 400
                 mensaje += "- Aunque entra y sale vapor, las temperaturas son mayores a la temperatura de saturación de la base de datos por más del 5%.\n"
+
+        if(calor < 0.95*calor_c or calor > 1.05*calor_c):
+            codigo = 400
+            mensaje = f"- El calor podría no ser correcto debido a que el calor obtenido por U y Área difiere por más del 5% respecto al calculado.\n"
 
         if(codigo == 200):
             return JsonResponse({'codigo': codigo})
