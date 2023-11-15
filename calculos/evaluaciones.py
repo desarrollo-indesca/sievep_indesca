@@ -1,6 +1,6 @@
 import numpy as np
 from .unidades import transformar_unidades_temperatura, transformar_unidades_flujo, transformar_unidades_longitud, transformar_unidades_presion, transformar_unidades_cp
-from ht import F_LMTD_Fakheri
+from ht import F_LMTD_Fakheri, effectiveness_NTU_method
 from .termodinamicos import calcular_entalpia_entre_puntos, calcular_tsat_hvap
 
 def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_tubo = None, cp_liquido_tubo = None, cp_gas_carcasa = None, cp_liquido_carcasa = None, unidad_temp = 1, unidad_flujo = 6) -> dict:
@@ -47,27 +47,30 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
         minimo = 2
 
     c = cmin/cmax
-    ntu = ucalc*area_calculada/cmin
+
+    if(c != 0):
+        ntu = ucalc*area_calculada/cmin
 
     if(c == 0):
-        eficiencia = 1 - np.exp(-1*ntu)
+        efectividad = 1 - np.exp(-1*ntu)
+        ntu = -1*np.log(1-efectividad)
     else:
         if(num_pasos_tubo > 2):
-            eficiencia1 = 2/(1+c+pow(1+pow(c,2),0.5)*(1+np.exp(-1*ntu*pow((1-pow(c,2)),0.5)))/(1-np.exp(-1*ntu*pow((1-pow(c,2)),0.5))))
-            eficiencia = eficiencia1
+            efectividad1 = 2/(1+c+pow(1+pow(c,2),0.5)*(1+np.exp(-1*ntu*pow((1-pow(c,2)),0.5)))/(1-np.exp(-1*ntu*pow((1-pow(c,2)),0.5))))
+            efectividad = efectividad1
         else:
             if(minimo == 1):
-                eficiencia=1/c*(1-np.exp(-1*c*(1-1*np.exp(-1*ntu))))
+                efectividad=1/c*(1-np.exp(-1*c*(1-1*np.exp(-1*ntu))))
             else:
-                eficiencia=1-np.exp(-1/c*np.exp(1-np.exp(-1*ntu*c)))
+                efectividad=1-np.exp(-1/c*np.exp(1-np.exp(-1*ntu*c)))
 
         if(num_pasos_carcasa > 1):
             if(c == 1):
-                eficiencia=num_pasos_carcasa*eficiencia1/(1+(num_pasos_carcasa-1)*eficiencia1)
+                efectividad=num_pasos_carcasa*efectividad1/(1+(num_pasos_carcasa-1)*efectividad1)
             else:
-                eficiencia=(pow((1-eficiencia1*c)/(1-eficiencia1),num_pasos_carcasa)-1)/(pow((1-eficiencia1*c)/(1-eficiencia1),num_pasos_carcasa)-c)
+                efectividad=(pow((1-efectividad1*c)/(1-efectividad1),num_pasos_carcasa)-1)/(pow((1-efectividad1*c)/(1-efectividad1),num_pasos_carcasa)-c)
 
-    efectividad = eficiencia*ntu
+    eficiencia = efectividad/ntu
 
     resultados = {
         'q': round(q_prom,4),
@@ -146,24 +149,21 @@ def calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_li
             return abs(flujo*((t2-t1)*cp_gas - hvap*calidad))
 
 def  calcular_calor_cdft(flujo,t1,t2,fluido,presion,datos,cp_gas,cp_liquido) -> float:
-    if(type(datos) != float and datos.tipo_cp == 'A'):
-        return flujo*calcular_entalpia_entre_puntos(fluido.cas, t1, t2, presion)
+    if(type(fluido) != str):
+        tsat,hvap = calcular_tsat_hvap(fluido.cas, presion)
     else:
-        if(type(fluido) != str):
-            tsat,hvap = calcular_tsat_hvap(fluido.cas, presion)
-        else:
-            tsat = transformar_unidades_temperatura([float(datos.tsat)], datos.temperaturas_unidad)[0]
-            hvap = float(hvap) if hvap else 5000
+        tsat = transformar_unidades_temperatura([float(datos.tsat)], datos.temperaturas_unidad)[0]
+        hvap = float(hvap) if hvap else 5000
         
-        try:
-            fluido_cp_gas, fluido_cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], datos.unidad_cp)
-        except:
-            fluido_cp_gas, fluido_cp_liquido = cp_gas, cp_liquido
+    try:
+        fluido_cp_gas, fluido_cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], datos.unidad_cp)
+    except:
+        fluido_cp_gas, fluido_cp_liquido = cp_gas, cp_liquido
 
-        if(t1 <= t2): # Vaporización
-            return flujo*(fluido_cp_gas*(t2-tsat)+hvap+fluido_cp_liquido*(tsat-t1))
-        else: # Condensación
-            return abs(flujo*(fluido_cp_gas*(tsat-t1)-hvap+fluido_cp_liquido*(t2-tsat)))
+    if(t1 <= t2): # Vaporización
+        return flujo*(fluido_cp_gas*(t2-tsat)+hvap+fluido_cp_liquido*(tsat-t1))
+    else: # Condensación
+        return abs(flujo*(fluido_cp_gas*(tsat-t1)-hvap+fluido_cp_liquido*(t2-tsat)))
 
 def obtener_c_eficiencia(condicion, flujo: float, cp_gas: float, cp_liquido: float) -> float:
     if(condicion.cambio_de_fase == 'S'): # Caso 1: Sin Cambio de Fase

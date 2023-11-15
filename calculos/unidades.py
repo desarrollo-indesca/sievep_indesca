@@ -81,8 +81,6 @@ def transformar_unidades_cp(args: list, unidad: int, unidad_salida: int = 30) ->
     unidad_salida = ur.joule/ur.kgram/ur.kelvin if unidad_salida == 29 else ur.Btu_it/ur.pound/ur.delta_degF
     unidad = ur.joule/ur.kgram/ur.kelvin if unidad == 29 else ur.Btu_it/ur.pound/ur.delta_degF
 
-    print(unidad_salida,unidad)
-
     for x in args:
         if(x == None):
             actualizadas.append(x)
