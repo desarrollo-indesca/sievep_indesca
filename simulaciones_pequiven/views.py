@@ -22,7 +22,6 @@ class Bienvenida(View):
     }
     
     def get(self, request):
-        print(request.user)
         if(request.user.is_authenticated):
             return render(request, 'bienvenida.html', context=self.context)
         else:
@@ -62,7 +61,6 @@ class ComponerFluidos(View):
         with open('./fluidos.csv','r') as file:
             csvreader = csv.reader(file, delimiter=";")
             for row in csvreader:
-                print(row)
                 Fluido.objects.create(
                     nombre = row[0],
                     formula = row[1],

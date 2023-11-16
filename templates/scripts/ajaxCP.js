@@ -209,12 +209,12 @@ function ajaxCP(t1,t2,fluido, lado = 'T'){
                         $('button[type="submit"]').removeAttr('disabled');
 
                     if(cambio_fase === 'S')
-                        if(res.fase === 'g'){
-                            $('#cp_gas_tubo').val(res.cp);
+                        if(Number($('#flujo_vapor_in_tubo').val()) !== 0){
+                            $('#cp_gas_tubo').val(res.cp_gas);
                             $('#cp_liquido_tubo').val('');
                         }
                         else{
-                            $('#cp_liquido_tubo').val(res.cp);
+                            $('#cp_liquido_tubo').val(res.cp_liquido);
                             $('#cp_gas_tubo').val('');
                         }
                     else{                        
@@ -227,12 +227,12 @@ function ajaxCP(t1,t2,fluido, lado = 'T'){
                         $('button[type="submit"]').removeAttr('disabled');
 
                     if(cambio_fase === 'S')
-                        if(res.fase === 'g'){
-                            $('#cp_gas_carcasa').val(res.cp);
+                        if(Number($('#flujo_vapor_in_carcasa').val()) !== 0){
+                            $('#cp_gas_carcasa').val(res.cp_gas);
                             $('#cp_liquido_carcasa').val('');
                         }
                         else{
-                            $('#cp_liquido_carcasa').val(res.cp);
+                            $('#cp_liquido_carcasa').val(res.cp_liquido);
                             $('#cp_gas_carcasa').val('');
                         }
                     else{                        
@@ -316,8 +316,9 @@ function anadir_listeners_cp() {
 
         actualizar_tipos('T');
         if($('#cambio_fase_tubo').val() === 'T' && $('#tipo_cp_tubo').val() === 'M'
-            && ($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().includes('*') && $('#fluido_tubo').val().split('*')[1].includes('-')))
-            $('#sat_tubo').removeAttr('hidden');
+            && ($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().includes('*') && $('#fluido_tubo').val().split('*')[1].includes('-'))){
+                $('#sat_tubo').removeAttr('hidden');
+            }
         else
             $('#sat_tubo').attr('hidden', true);
     });
@@ -471,6 +472,7 @@ const validarForm = (e) => {
     }
 
     if($('#cambio_fase_carcasa').val() == 'P' && Number($('#flujo_vapor_in_carcasa').val()) && Number($('#flujo_vapor_out_carcasa').val())
+        && Number($('#flujo_liquido_in_carcasa').val()) && Number($('#flujo_liquido_out_carcasa').val())
         && Number($('#temp_in_carcasa').val()) !== Number($('#temp_out_carcasa').val())){
         alert("Las temperaturas no pueden ser distintas en un cambio de fase parcial dentro del domo.")
         return false;
@@ -485,6 +487,7 @@ const validarForm = (e) => {
     }
 
     if($('#cambio_fase_tubo').val() == 'P' && Number($('#flujo_vapor_in_tubo').val()) && Number($('#flujo_vapor_out_tubo').val())
+        && Number($('#flujo_liquido_in_tubo').val()) && Number($('#flujo_liquido_out_tubo').val())
         && Number($('#temp_in_tubo').val()) !== Number($('#temp_out_tubo').val())){
         alert("Las temperaturas no pueden ser distintas en un cambio de fase parcial dentro del domo.")
         return false;
@@ -514,7 +517,61 @@ const validarForm = (e) => {
         return false;
     }
 
+    let mensaje = "";
+
+    if(!($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().includes('*')&& !$('#fluido_tubo').val().split('*')[1].includes('-')))
+        mensaje += ajaxValidacion('T');
+
+    if(!($('#fluido_carcasa').val() === '' || $('#fluido_carcasa').val().includes('*')&& !$('#fluido_carcasa').val().split('*')[1].includes('-')))
+       mensaje += ajaxValidacion('C');
+
+    if(mensaje !== ''){
+        mensaje = "ADVERTENCIA\n" + mensaje + "\n¿Desea continuar igualmente?"
+        return confirm(mensaje);
+    }
+
     $('button[type="submit"]').attr('disabled','disabled');
 
     return true;
 };
+
+function ajaxValidacion(lado = 'C'){
+    let mensaje = "";
+    $.ajax({
+        url: '/intercambiadores/validar_cdf_existente/',
+        async: false,
+        data: {
+            flujo_vapor_in: lado === 'T' ? $('#flujo_vapor_in_tubo').val() : $('#flujo_vapor_in_carcasa').val(),
+            flujo_vapor_out: lado === 'T' ? $('#flujo_vapor_out_tubo').val() : $('#flujo_vapor_out_carcasa').val(),
+            flujo_liquido_in: lado === 'T' ? $('#flujo_liquido_in_tubo').val() : $('#flujo_liquido_in_carcasa').val(),
+            flujo_liquido_out: lado === 'T' ? $('#flujo_liquido_out_tubo').val() : $('#flujo_liquido_out_carcasa').val(),
+            cambio_fase: lado === 'T' ? $('#cambio_fase_tubo').val() : $('#cambio_fase_carcasa').val(),
+            lado: lado,
+            unidad_temperaturas: $('#unidad_temperaturas').val(),
+            unidad_presiones: $('#unidad_presiones').val(),
+            t1: lado === 'T' ? $('#temp_in_tubo').val() : $('#temp_in_carcasa').val(),
+            t2: lado === 'T' ? $('#temp_out_tubo').val() : $('#temp_out_carcasa').val(),
+            presion: lado === 'T' ? $('#presion_entrada_tubo').val() : $('#presion_entrada_carcasa').val(),
+            fluido: lado === 'T' ? $('#fluido_tubo').val() : $('#fluido_carcasa').val(),
+            calor: $('#calor').val(),
+            unidad_flujos: $('#unidad_flujos').val(),
+            unidad_calor: $('#unidad_calor').val() ? $('#unidad_calor').val(): $('#unidad_q').val(),
+            unidad_cp: $('#unidad_cp').val(),
+            cp_liquido: lado === 'T' ? $('#cp_liquido_tubo').val() : $('#cp_liquido_carcasa').val(),
+            cp_gas: lado === 'T' ? $('#cp_gas_tubo').val() : $('#cp_gas_carcasa').val(),
+            hvap: lado === 'T' ? $('#hvap_tubo').val() : $('#hvap_carcasa').val()
+        },
+        success: (res) => {
+            if(res.codigo == 400){
+                mensaje += res.mensaje;                    
+            }
+        },
+        error: (res) => {
+            console.log(res);
+            funciono = false;
+            mensaje += `Ocurrió un error al validar los datos ingresados del lado de${lado === 'T' ? 'l tubo' : ' la carcasa'}.\n`;
+        }
+    });
+
+    return mensaje;
+}

@@ -7,9 +7,9 @@ const determinar_cambio_de_fase = (fve, fvs, fle, fls, lado="T") => { // Cambio 
     
     if(validos && (fve || fle) && (fvs || fls)){
         if(lado === 'T')
-            $('#flujo_tubo').val(fls+fvs);
+            $('#flujo_tubo').val((fls+fvs).toFixed(2));
         else
-            $('#flujo_carcasa').val(fls+fvs);
+            $('#flujo_carcasa').val((fls+fvs).toFixed(2));
 
         $('button[type="submit"]').removeAttr('disabled');
 
@@ -113,7 +113,7 @@ const determinar_cambio_de_fase_carcasa = () => { // Cambio de Fase para carcasa
 }
 
 const flujos_validos = (fve, fvs, fle, fls) => { // Verificación de flujos válidos
-    return fve + fle === fvs + fls;
+    return (fve + fle).toFixed(2) === (fvs + fls).toFixed(2);
 }
 
 $('#flujo_vapor_out_tubo').keyup(determinar_cambio_de_fase_tubo);

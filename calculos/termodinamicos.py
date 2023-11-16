@@ -27,7 +27,6 @@ def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida: int = 29, pres
         quimico = Mixture('air',T=t,P=presion)
     else: # Demás casos
         quimico = Chemical(fluido,T=t,P=presion)
-        print(quimico.P)
  
     if(fase == 'l'): # Líquido
         cp = quimico.Cpl
@@ -56,10 +55,8 @@ def calcular_entalpia_entre_puntos(fluido: str, t1: float, t2: float, presion: f
     tsat = quimico.Tsat(P=presion)
 
     if(t1 <= tsat): # Caso Líquido > Gas
-        print(1)
         return entalpia_l_a_g(quimico, t1, t2, presion, tsat)
     else: # Caso Gas > Líquido
-        print(2)
         return entalpia_g_a_l(quimico, t1, t2, presion, tsat)
 
 def entalpia_l_a_g(quimico: Chemical, t1: float, t2: float, presion: float, tsat: float) -> float:
@@ -122,8 +119,8 @@ def entalpia_g_a_l(quimico: Chemical, t1: float, t2: float, presion: float, tsat
     return abs(numpy.ceil(h_liquido+h_vapor-h_liquido_saturado)*1000) # J/Kg
 
 def calcular_tsat_hvap(cas: str, presion: float):
-    quimico = Chemical(cas)
-    return (quimico.Tsat(presion),quimico.Hvap)
+    quimico = Chemical(cas,P=presion)
+    return (quimico.Tsat(presion),quimico.Hvap if quimico.Hvap else quimico.Hvap_Tb)
 
 def calcular_fase(cas: str, t1: float, t2: float, presion) -> str:
     """

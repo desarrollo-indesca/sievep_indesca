@@ -36,6 +36,7 @@ def transformar_unidades_longitud(args: list, unidad: int, unidad_salida: int = 
 def transformar_unidades_area(args: list, unidad: int, unidad_salida: int = 3) -> list:
     actualizadas = []
     unidad_salida = ur.meter ** 2 if unidad_salida == 3 else ur.feet**2 if unidad_salida == 20 else ur.inch**2
+    unidad = ur.meter ** 2 if unidad == 3 else ur.feet**2 if unidad == 20 else ur.inch**2
 
     for x in args:
         actualizadas.append(Q_(x, unidad).to(unidad_salida).magnitude)
@@ -68,7 +69,10 @@ def transformar_unidades_calor(args: list, unidad: int, unidad_salida: int = 28)
     unidad = ur.watt if unidad == 28 else ur.Btu_it/ur.hour if unidad == 24 else ur.Btu_it/ur.second
 
     for x in args:
-        actualizadas.append(Q_(x, unidad).to(unidad_salida).magnitude)
+        if(x == None):
+            actualizadas.append(x)
+        else:
+            actualizadas.append(Q_(x, unidad).to(unidad_salida).magnitude)
 
     return actualizadas
 
@@ -78,7 +82,10 @@ def transformar_unidades_cp(args: list, unidad: int, unidad_salida: int = 30) ->
     unidad = ur.joule/ur.kgram/ur.kelvin if unidad == 29 else ur.Btu_it/ur.pound/ur.delta_degF
 
     for x in args:
-        actualizadas.append(Q_(x, unidad).to(unidad_salida).magnitude)
+        if(x == None):
+            actualizadas.append(x)
+        else:
+            actualizadas.append(Q_(x, unidad).to(unidad_salida).magnitude)
 
     return actualizadas
 
