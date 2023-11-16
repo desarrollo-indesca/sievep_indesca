@@ -1465,14 +1465,10 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
 
         calorcalc = round(calorcalc, 2)
 
-        if(abs((calor-calorcalc)/calor) > 0.05):
-            codigo = 400
-            mensaje += f"- El calor calculado ({calorcalc}) difiere por más del 5% respecto al calor ingresado ({calor}W).\n"
-
         if(codigo == 200):
             return JsonResponse({'codigo': codigo})
         else:
-            return JsonResponse({'codigo': codigo, 'mensaje': mensaje})
+            return JsonResponse({'codigo': codigo, 'mensaje': mensaje, 'calorcalc': calorcalc})
 
 class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, View):
     def get(self, request, pk):
