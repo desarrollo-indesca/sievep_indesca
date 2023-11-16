@@ -655,16 +655,30 @@
             $('#unidad_cp').removeAttr('disabled');
             if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== '' && $('#tipo_cp_carcasa').val() === 'A')
                 ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
-            else{
-                $('#cp_gas_carcasa').removeAttr('disabled');
-                $('#cp_liquido_carcasa').removeAttr('disabled');                
+            else if($('#tipo_cp_carcasa').val() === 'M'){
+                if($('#cambio_fase_ficha_carcasa').html() === 'S')
+                    if($('#flujo_vapor_entrada_carcasa').html() !== '-')
+                        $('#cp_gas_carcasa').removeAttr('disabled');
+                    else
+                        $('#cp_liquido_carcasa').removeAttr('disabled'); 
+                else{
+                    $('#cp_gas_carcasa').removeAttr('disabled');
+                    $('#cp_liquido_carcasa').removeAttr('disabled');
+                }            
             }
 
             if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== '' && $('#tipo_cp_tubo').val() === 'A')
                 ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
-            else{
-                $('#cp_gas_tubo').removeAttr('disabled');
-                $('#cp_liquido_tubo').removeAttr('disabled');                
+            else if($('#tipo_cp_tubo').val() === 'M'){
+                if($('#cambio_fase_ficha_tubo').html() === 'S')
+                    if($('#flujo_vapor_entrada_tubo').html() !== '-')
+                        $('#cp_gas_tubo').removeAttr('disabled');
+                    else
+                        $('#cp_liquido_tubo').removeAttr('disabled'); 
+                else{
+                    $('#cp_gas_tubo').removeAttr('disabled');
+                    $('#cp_liquido_tubo').removeAttr('disabled');
+                }
             }
 
             $('#tipo_cp_carcasa').removeAttr("disabled");

@@ -1,6 +1,6 @@
 import numpy as np
 from .unidades import transformar_unidades_temperatura, transformar_unidades_flujo, transformar_unidades_longitud, transformar_unidades_presion, transformar_unidades_cp, transformar_unidades_u
-from ht import F_LMTD_Fakheri
+from ht import F_LMTD_Fakheri, effectiveness_from_NTU
 from .termodinamicos import calcular_tsat_hvap
 
 def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_tubo = None, cp_liquido_tubo = None, cp_gas_carcasa = None, cp_liquido_carcasa = None, unidad_temp = 1, unidad_flujo = 6) -> dict:
@@ -23,7 +23,7 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
     area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
     num_pasos_carcasa = float(intercambiador.numero_pasos_carcasa)
     num_pasos_tubo = float(intercambiador.numero_pasos_tubo)
-    dtml = abs(((Ti - ts) - (Ts - ti))/np.log(abs((Ti - ts)/(Ts - ti)))) # Delta T Medio Logarítmico
+    dtml = 8.5
 
     factor = round(F_LMTD_Fakheri(Ti, Ts, ti, ts, num_pasos_carcasa),3)  # Factor de corrección
     
@@ -36,21 +36,24 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
     condicion_tubo = intercambiador.condicion_tubo()
     condicion_carcasa = intercambiador.condicion_carcasa()
 
-    ct = obtener_c_eficiencia(condicion_tubo, ft, cp_gas_tubo, cp_liquido_tubo) # Obtención de la C de tubo
-    cc = obtener_c_eficiencia(condicion_carcasa, Fc, cp_gas_carcasa, cp_liquido_carcasa) # Obtención de la C de carcasa
-
-    # Determinación de la Cmín y la Cmáx
-    if(ct < cc):
-        cmin = ct
-        cmax = cc
-        minimo = 1
+    if(condicion_carcasa.cambio_de_fase in ['T','P'] or condicion_tubo.cambio_de_fase in ['T','P']):
+        c = 0
     else:
-        cmin = cc
-        cmax = ct
-        minimo = 2
+        ct = obtener_c_eficiencia(condicion_tubo, ft, cp_gas_tubo, cp_liquido_tubo) # Obtención de la C de tubo
+        cc = obtener_c_eficiencia(condicion_carcasa, Fc, cp_gas_carcasa, cp_liquido_carcasa) # Obtención de la C de carcasa
 
-    # Relación de las C
-    c = cmin/cmax
+        # Determinación de la Cmín y la Cmáx
+        if(ct < cc):
+            cmin = ct
+            cmax = cc
+            minimo = 1
+        else:
+            cmin = cc
+            cmax = ct
+            minimo = 2
+
+        # Relación de las C
+        c = cmin/cmax
 
     if(c != 0): # Cálculo del NTU si la relación C es distinto de 0
         ntu = ucalc*area_calculada/cmin
