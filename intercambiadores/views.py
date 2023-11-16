@@ -766,7 +766,7 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa):
                 tsat = float(request.POST.get('tsat_tubo')) if request.POST.get('tsat_tubo') != '' else None
                 hvap = float(request.POST.get('hvap_tubo')) if request.POST.get('hvap_tubo') != '' else None
 
-                if((cambio_fase == 'T' or cambio_fase == 'P') and tipo_cp == 'M' and type(fluido_carcasa) != Fluido):
+                if((cambio_fase == 'T' or cambio_fase == 'P') and tipo_cp == 'M' and type(fluido_tubo) != Fluido):
                     tsatt = transformar_unidades_temperatura([tsat], int(request.POST.get('unidad_temperaturas')))[0]
                     flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out],
                                                                                                                 int(request.POST.get('unidad_flujos')))
@@ -1621,6 +1621,8 @@ def obtener_hvap_tsat(t1, t2, cambio_fase, tsat, hvap, q, cp_gas, cp_liquido, fl
     elif(cambio_fase == 'P' and hvap == None): # Cambio de Fase Parcial y no se tiene Hv
         caso = determinar_cambio_parcial(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in, flujo_liquido_out)
         calidad = flujo_vapor_out/(flujo_vapor_out + flujo_liquido_out)
+
+        print(":V")
 
         if(caso == 'DD'): # Domo a Domo
             hvap = q/calidad

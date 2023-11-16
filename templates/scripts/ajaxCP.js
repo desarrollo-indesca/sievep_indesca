@@ -204,13 +204,12 @@ function ajaxCP(t1,t2,fluido, lado = 'T'){
                 flujo_liquido_out: lado === 'C' ? $('#flujo_liquido_out_carcasa').val() : $('#flujo_liquido_out_tubo').val()
             },
             success: (res) => {
-                console.log(res);
                 if(lado === 'T'){
                     if(cambio_fase !== '-' && res.cp !== '' && $('#cambio_fase_carcasa').val() !== '-')
                         $('button[type="submit"]').removeAttr('disabled');
 
                     if(cambio_fase === 'S')
-                        if($('#flujo_vapor_in_tubo').val() !== 0){
+                        if(Number($('#flujo_vapor_in_tubo').val()) !== 0){
                             $('#cp_gas_tubo').val(res.cp_gas);
                             $('#cp_liquido_tubo').val('');
                         }
@@ -227,14 +226,12 @@ function ajaxCP(t1,t2,fluido, lado = 'T'){
                     if(cambio_fase !== '-' && res.cp !== '' && $('#cambio_fase_tubo').val() !== '-')
                         $('button[type="submit"]').removeAttr('disabled');
 
-                    if($('#flujo_vapor_in_carcasa').val() !== 0)
-                        if($('#flujo_vapor_in_carcasa').val() !== 0){
-                            console.log("a");
+                    if(cambio_fase === 'S')
+                        if(Number($('#flujo_vapor_in_carcasa').val()) !== 0){
                             $('#cp_gas_carcasa').val(res.cp_gas);
                             $('#cp_liquido_carcasa').val('');
                         }
                         else{
-                            console.log('b');
                             $('#cp_liquido_carcasa').val(res.cp_liquido);
                             $('#cp_gas_carcasa').val('');
                         }
@@ -319,8 +316,9 @@ function anadir_listeners_cp() {
 
         actualizar_tipos('T');
         if($('#cambio_fase_tubo').val() === 'T' && $('#tipo_cp_tubo').val() === 'M'
-            && ($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().includes('*') && $('#fluido_tubo').val().split('*')[1].includes('-')))
-            $('#sat_tubo').removeAttr('hidden');
+            && ($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().includes('*') && $('#fluido_tubo').val().split('*')[1].includes('-'))){
+                $('#sat_tubo').removeAttr('hidden');
+            }
         else
             $('#sat_tubo').attr('hidden', true);
     });
