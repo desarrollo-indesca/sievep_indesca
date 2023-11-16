@@ -4,7 +4,7 @@
 
 {% block contenido %}
     {% with generales=intercambiador.intercambiador %}
-    <form method="post">
+    <form method="post" onsubmit="return validarForm(this);">
         {% csrf_token %}
         <div class="row">
             <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_tubo_carcasa' %}">↶ Regresar</a></div>
@@ -12,6 +12,23 @@
             <div class="col-3"></div>
         </div>
         <hr>
+
+        {% if errores %}
+        <div>
+            {% for error in errores %}
+            <ul>
+                <li class="text-center" style="color: #e31e24;">{{error}}</li>
+            </ul>
+            {%endfor%}
+            {% for error in messages %}
+            <ul>
+                <li class="text-center" style="color: #e31e24;">{{error}}</li>
+            </ul>
+            {%endfor%}
+        </div>
+    
+        <hr>
+        {% endif %}
     
         <div class="row">
             <div class="col-12">
@@ -194,7 +211,7 @@
                         <div style="width: 50%;">
                             <label for="tipo_cp_carcasa">Cálculo del Cp:</label>
                             <select class="form-select" name="tipo_cp_carcasa" id="tipo_cp_carcasa">
-                                {% if condicion_tubo.fluido_etiqueta != '' %}
+                                {% if condicion_carcasa.fluido_etiqueta and condicion_carcasa.fluido_etiqueta != '' %}
                                 <option value="M" {% if condicion_carcasa.tipo_cp == 'M' %} selected {% endif %}>Manual</option>
                                 {% else %}
                                 <option value="A" {% if condicion_carcasa.tipo_cp == 'A' %} selected {% endif %}>Automático</option>
@@ -290,6 +307,31 @@
                                     </div>
                                 </div>
                             </div>
+                    </div>
+
+                    <div id="sat_carcasa" class="col-12" {% if condicion_carcasa.tipo_cp == 'A' or condicion_carcasa.cambio_de_fase != 'T' or condicion_carcasa.tipo_cp == 'M' and not condicion_carcasa.fluido_etiqueta %}hidden{%endif%}>
+                        <div class="row">
+                            <div class="col-6 d-flex flex-column">
+                                <label for="tsat_carcasa">Temp. Saturación:</label>
+                                
+                                <div class="input-group mb-3">
+                                    <input style="width: 60% !important;" step="0.01" value="{% if condicion_carcasa.tsat %}{{condicion_carcasa.tsat|unlocalize}}{%endif%}" type="number" name="tsat_carcasa" id="tsat_carcasa" class="form-control">
+                                    <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                        <option>{{condicion_carcasa.temperaturas_unidad}}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-6 d-flex flex-column">
+                                <label for="hvap_carcasa">Entalpía de Vaporización:</label>
+                                <div class="input-group mb-3">
+                                    <input style="width: 60% !important;" value="{% if condicion_carcasa.hvap %}{{condicion_carcasa.hvap|unlocalize}}{%endif%}" min="0.0001" step="0.0001" type="number" name="hvap_carcasa" id="hvap_carcasa" class="form-control">
+                                    <select style="width: 40% !important;" class="form-select" name="unidad_hvap" id="unidad_hvap" disabled>
+                                        <option value="1">J/Kg</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="col-6">
@@ -445,7 +487,7 @@
                         <div style="width: 50%;">
                             <label for="tipo_cp_tubo">Cálculo del Cp:</label>
                             <select class="form-select" name="tipo_cp_tubo" id="tipo_cp_tubo">
-                                {% if condicion_tubo.fluido_etiqueta != '' %}
+                                {% if condicion_tubo.fluido_etiqueta and condicion_tubo.fluido_etiqueta != '' %}
                                 <option value="M" {% if condicion_tubo.tipo_cp == 'M' %} selected {% endif %}>Manual</option>
                                 {% else %}
                                 <option value="A" {% if condicion_tubo.tipo_cp == 'A' %} selected {% endif %}>Automático</option>
@@ -539,7 +581,32 @@
                                     </div>
                                 </div>
                             </div>
-                    </div>               
+                    </div>
+                    
+                    <div id="sat_tubo" class="col-12" {% if condicion_tubo.tipo_cp == 'A' or condicion_tubo.cambio_de_fase != 'T' or condicion_tubo.tipo_cp == 'M' and not condicion_tubo.fluido_etiqueta %}hidden{%endif%}>
+                        <div class="row">
+                            <div class="col-6 d-flex flex-column">
+                                <label for="tsat_tubo">Temp. Saturación:</label>
+                                
+                                <div class="input-group mb-3">
+                                    <input style="width: 60% !important;" step="0.01" value="{% if condicion_tubo.tsat %}{{condicion_tubo.tsat|unlocalize}}{%endif%}" type="number" name="tsat_tubo" id="tsat_tubo" class="form-control">
+                                    <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                        <option>{{condicion_tubo.temperaturas_unidad}}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-6 d-flex flex-column">
+                                <label for="hvap_tubo">Entalpía de Vaporización:</label>
+                                <div class="input-group mb-3">
+                                    <input style="width: 60% !important;" min="0.00001" step="0.00001" value="{% if condicion_tubo.hvap %}{{condicion_tubo.hvap|unlocalize}}{%endif%}" type="number" name="hvap_tubo" id="hvap_tubo" class="form-control">
+                                    <select style="width: 40% !important;" class="form-select" name="unidad_hvap" id="unidad_hvap" disabled>
+                                        <option value="1">J/Kg</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="col-6">
                         <label class="form-label" for="caida_presion_max_tubo">Caída de Presión Máxima:</label>
@@ -743,7 +810,7 @@
         <hr>
         
         <div class="d-flex justify-content-center mb-3">
-            <button onclick="this.form.submit(); this.disabled = true;" type="submit" class="btn btn-danger">Registrar Cambios</button>
+            <button type="submit" class="btn btn-danger">Registrar Cambios</button>
         </div>
     </form>
     {% endwith %}
@@ -756,5 +823,6 @@
     {% include 'scripts/cambio_fase.js' %}
 
     {% include 'scripts/validaciones_flujo.js' %}
+
 </script>
 {% endblock %}

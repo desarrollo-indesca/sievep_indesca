@@ -19,5 +19,9 @@ urlpatterns = [
     path('calcular_cp/', ConsultaCP.as_view(), name="consultar_cp"),
     path('evaluar/tubo_carcasa/<int:pk>/', EvaluarTuboCarcasa.as_view(), name="evaluar_tubo_carcasa"),
     path('evaluar/tubo_carcasa/grafica/<int:pk>/', ConsultaGraficasEvaluacion.as_view(), name="evaluar_tubo_carcasa"),
-    path('arreglar_cps/', ArreglarCpsSegunTipo.as_view(), name="arreglar_cps")
+    path('arreglar_cps/', ArreglarCpsSegunTipo.as_view(), name="arreglar_cps"),
+
+    # RUTAS AJAX PARA VALIDACIÓN DE DATOS
+    path('validar_cdf_existente/',ValidarCambioDeFaseExistente.as_view(), name="validar_cdf_existente"),
+    path('validar_cdf_existente_ev/<int:pk>/',ValidarCambioDeFaseExistenteEvaluacion.as_view(), name="validar_cdf_existente_ev"),
 ]

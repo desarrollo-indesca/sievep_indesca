@@ -248,7 +248,7 @@ class CondicionesTuboCarcasa(models.Model):
     tipo_cp = models.CharField(null=False, choices=[['M','Manual'],['A','Automático']], max_length=1)
     fluido_cp_liquido = models.DecimalField(null=True, max_digits=8, decimal_places=4)
     fluido_cp_gas = models.DecimalField(null=True, max_digits=8, decimal_places=4)
-    hvap = models.DecimalField(max_digits=10, decimal_places=4, null=True)
+    hvap = models.DecimalField(max_digits=15, decimal_places=4, null=True)
     tsat = models.DecimalField(max_digits=6, decimal_places=2, null=True)
     unidad_cp = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_cp", default=29)
     

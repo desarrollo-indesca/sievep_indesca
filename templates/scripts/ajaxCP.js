@@ -70,13 +70,6 @@ function anadir_listeners_registro() {
             
             if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '')
                 ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
-
-            fluidos_carcasa.forEach(x => {
-                x.selecto = false;
-            });
-    
-            fluidos_carcasa.push({'nombre': document.getElementById('nombre_compuesto_carcasa_cas').value.toUpperCase(), 
-                'valor': valor, 'selecto': true});
             
             $('#condiciones_diseno_fluido_carcasaClose').click();
         } else
@@ -90,13 +83,6 @@ function anadir_listeners_registro() {
             
             if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '')
                 ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
-
-            fluidos_tubo.forEach(x => {
-                x.selecto = false;
-            });
-        
-            fluidos_tubo.push({'nombre': document.getElementById('nombre_compuesto_tubo_cas').value.toUpperCase(), 
-                'valor': valor, 'selecto': true});
             
             $('#condiciones_diseno_fluido_tuboClose').click();
         } else
@@ -223,12 +209,12 @@ function ajaxCP(t1,t2,fluido, lado = 'T'){
                         $('button[type="submit"]').removeAttr('disabled');
 
                     if(cambio_fase === 'S')
-                        if(res.fase === 'g'){
-                            $('#cp_gas_tubo').val(res.cp);
+                        if(Number($('#flujo_vapor_in_tubo').val()) !== 0){
+                            $('#cp_gas_tubo').val(res.cp_gas);
                             $('#cp_liquido_tubo').val('');
                         }
                         else{
-                            $('#cp_liquido_tubo').val(res.cp);
+                            $('#cp_liquido_tubo').val(res.cp_liquido);
                             $('#cp_gas_tubo').val('');
                         }
                     else{                        
@@ -241,12 +227,12 @@ function ajaxCP(t1,t2,fluido, lado = 'T'){
                         $('button[type="submit"]').removeAttr('disabled');
 
                     if(cambio_fase === 'S')
-                        if(res.fase === 'g'){
-                            $('#cp_gas_carcasa').val(res.cp);
+                        if(Number($('#flujo_vapor_in_carcasa').val()) !== 0){
+                            $('#cp_gas_carcasa').val(res.cp_gas);
                             $('#cp_liquido_carcasa').val('');
                         }
                         else{
-                            $('#cp_liquido_carcasa').val(res.cp);
+                            $('#cp_liquido_carcasa').val(res.cp_liquido);
                             $('#cp_gas_carcasa').val('');
                         }
                     else{                        
@@ -298,6 +284,12 @@ function anadir_listeners_cp() {
         }
 
         actualizar_tipos('C');
+
+        if($('#cambio_fase_carcasa').val() === 'T' && $('#tipo_cp_carcasa').val() === 'M'
+            && ($('#fluido_carcasa').val() === '' || $('#fluido_carcasa').val().includes('*')&& !$('#fluido_carcasa').val().split('*')[1].includes('-')))
+            $('#sat_carcasa').removeAttr('hidden');
+        else
+            $('#sat_carcasa').attr('hidden', true);
     });
     
     $('#temp_in_tubo').keyup((e) => {
@@ -323,6 +315,12 @@ function anadir_listeners_cp() {
         }
 
         actualizar_tipos('T');
+        if($('#cambio_fase_tubo').val() === 'T' && $('#tipo_cp_tubo').val() === 'M'
+            && ($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().includes('*') && $('#fluido_tubo').val().split('*')[1].includes('-'))){
+                $('#sat_tubo').removeAttr('hidden');
+            }
+        else
+            $('#sat_tubo').attr('hidden', true);
     });
     
     $('#presion_entrada_carcasa').keyup((e) => {
@@ -412,10 +410,11 @@ function anadir_listeners() {
     anadir_listeners_unidades();
 }
 
-function actualizar_tipos(lado = "T") {
+function actualizar_tipos(lado = "T") { // Actualización de Tipos de Cálculo de Cp
     const id = lado === 'T' ? '#tipo_cp_tubo' : '#tipo_cp_carcasa';
     const id_fluido = lado === 'T' ? '#fluido_tubo' : '#fluido_carcasa';
     const id_cdf = lado === 'T' ? '#cambio_fase_tubo' : '#cambio_fase_carcasa';
+    const id_tsat_hvap = lado === 'T' ? '#sat_tubo' : '#sat_carcasa';
     $(id).empty();
 
     if($(id_fluido).val() === '' || $(id_fluido).val().includes("*") && !$(id_fluido).val().split('*')[1].includes('-')){
@@ -430,7 +429,11 @@ function actualizar_tipos(lado = "T") {
             const id_cp_liq = lado === 'T' ? '#cp_liquido_tubo' : '#cp_liquido_carcasa';
             const id_cp_gas = lado === 'T' ? '#cp_gas_tubo' : '#cp_gas_carcasa';
             $(id_cp_liq).removeAttr('disabled');  
-            $(id_cp_gas).removeAttr('disabled');            
+            $(id_cp_gas).removeAttr('disabled');   
+            
+            if($(id_cdf).val() === 'T')
+                $(id_tsat_hvap).removeAttr('hidden');
+
         }
         
     } else{
@@ -441,9 +444,134 @@ function actualizar_tipos(lado = "T") {
 
         const id_cp_liq = lado === 'T' ? '#cp_liquido_tubo' : '#cp_liquido_carcasa';
         const id_cp_gas = lado === 'T' ? '#cp_gas_tubo' : '#cp_gas_carcasa';
+        $(id_tsat_hvap).attr('hidden', true);
         $(id_cp_liq).attr('disabled', true);  
         $(id_cp_gas).attr('disabled', true);            
     }
 }
 
 anadir_listeners();
+
+const validarForm = (e) => {
+    if($('#presion_entrada_carcasa').val() === 0){
+        alert("La presión de entrada de la carcasa no puede ser 0.");
+        return false;
+    }
+
+    if($('#presion_entrada_tubo').val() === 0){
+        alert("La presión de entrada del tubo no puede ser 0.");
+        return false;
+    }
+
+    if($('#cambio_fase_carcasa').val() == 'T' && $('#tipo_cp_carcasa').val() === 'M'
+        && ($('#fluido_carcasa').val() === '' || $('#fluido_carcasa').val().indexOf('*') !== -1 && $('#fluido_carcasa').val().split('*')[1].indexOf('-') === -1)){
+        if($('#hvap_carcasa').val() === '' && $('#tsat_carcasa').val() === ''){
+            alert("Debe ingresar la temperatura de saturación del fluido de la carcasa y/o la entalpía de vaporización del mismo.")
+            return false;
+        }
+    }
+
+    if($('#cambio_fase_carcasa').val() == 'P' && Number($('#flujo_vapor_in_carcasa').val()) && Number($('#flujo_vapor_out_carcasa').val())
+        && Number($('#flujo_liquido_in_carcasa').val()) && Number($('#flujo_liquido_out_carcasa').val())
+        && Number($('#temp_in_carcasa').val()) !== Number($('#temp_out_carcasa').val())){
+        alert("Las temperaturas no pueden ser distintas en un cambio de fase parcial dentro del domo.")
+        return false;
+    }
+
+    if($('#cambio_fase_tubo').val() == 'T' && $('#tipo_cp_tubo').val() === 'M'
+        && ($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().indexOf('*') !== -1 && $('#fluido_tubo').val().split('*')[1].indexOf('-') === -1)){
+        if($('#hvap_tubo').val() === '' && $('#tsat_tubo').val() === ''){
+            alert("Debe ingresar la temperatura de saturación del fluido del tubo y/o la entalpía de vaporización del mismo.")
+            return false;
+        }
+    }
+
+    if($('#cambio_fase_tubo').val() == 'P' && Number($('#flujo_vapor_in_tubo').val()) && Number($('#flujo_vapor_out_tubo').val())
+        && Number($('#flujo_liquido_in_tubo').val()) && Number($('#flujo_liquido_out_tubo').val())
+        && Number($('#temp_in_tubo').val()) !== Number($('#temp_out_tubo').val())){
+        alert("Las temperaturas no pueden ser distintas en un cambio de fase parcial dentro del domo.")
+        return false;
+    }
+
+    if(Number($('#flujo_vapor_in_tubo').val()) > Number($('#flujo_vapor_out_tubo').val())
+        && Number($('#temp_in_tubo').val()) < Number($('#temp_out_tubo').val())){
+        alert("Lado Tubo: Al presentarse una condensación las temperaturas no deberían aumentar.")
+        return false;
+    }
+
+    if(Number($('#flujo_vapor_in_carcasa').val()) > Number($('#flujo_vapor_out_carcasa').val())
+        && Number($('#temp_in_carcasa').val()) < Number($('#temp_out_carcasa').val())){
+        alert("Lado Carcasa: Al presentarse una condensación las temperaturas no deberían aumentar.")
+        return false;
+    }
+
+    if(Number($('#flujo_liquido_in_tubo').val()) > Number($('#flujo_liquido_out_tubo').val())
+        && Number($('#temp_in_tubo').val()) > Number($('#temp_out_tubo').val())){
+        alert("Lado Tubo: Al presentarse una evaporación las temperaturas no deberían disminuir.")
+        return false;
+    }
+
+    if(Number($('#flujo_liquido_in_carcasa').val()) > Number($('#flujo_liquido_out_carcasa').val())
+        && Number($('#temp_in_carcasa').val()) > Number($('#temp_out_carcasa').val())){
+        alert("Lado Carcasa: Al presentarse una evaporación las temperaturas no deberían disminuir.")
+        return false;
+    }
+
+    let mensaje = "";
+
+    if(!($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().includes('*')&& !$('#fluido_tubo').val().split('*')[1].includes('-')))
+        mensaje += ajaxValidacion('T');
+
+    if(!($('#fluido_carcasa').val() === '' || $('#fluido_carcasa').val().includes('*')&& !$('#fluido_carcasa').val().split('*')[1].includes('-')))
+       mensaje += ajaxValidacion('C');
+
+    if(mensaje !== ''){
+        mensaje = "ADVERTENCIA\n" + mensaje + "\n¿Desea continuar igualmente?"
+        return confirm(mensaje);
+    }
+
+    $('button[type="submit"]').attr('disabled','disabled');
+
+    return true;
+};
+
+function ajaxValidacion(lado = 'C'){
+    let mensaje = "";
+    $.ajax({
+        url: '/intercambiadores/validar_cdf_existente/',
+        async: false,
+        data: {
+            flujo_vapor_in: lado === 'T' ? $('#flujo_vapor_in_tubo').val() : $('#flujo_vapor_in_carcasa').val(),
+            flujo_vapor_out: lado === 'T' ? $('#flujo_vapor_out_tubo').val() : $('#flujo_vapor_out_carcasa').val(),
+            flujo_liquido_in: lado === 'T' ? $('#flujo_liquido_in_tubo').val() : $('#flujo_liquido_in_carcasa').val(),
+            flujo_liquido_out: lado === 'T' ? $('#flujo_liquido_out_tubo').val() : $('#flujo_liquido_out_carcasa').val(),
+            cambio_fase: lado === 'T' ? $('#cambio_fase_tubo').val() : $('#cambio_fase_carcasa').val(),
+            lado: lado,
+            unidad_temperaturas: $('#unidad_temperaturas').val(),
+            unidad_presiones: $('#unidad_presiones').val(),
+            t1: lado === 'T' ? $('#temp_in_tubo').val() : $('#temp_in_carcasa').val(),
+            t2: lado === 'T' ? $('#temp_out_tubo').val() : $('#temp_out_carcasa').val(),
+            presion: lado === 'T' ? $('#presion_entrada_tubo').val() : $('#presion_entrada_carcasa').val(),
+            fluido: lado === 'T' ? $('#fluido_tubo').val() : $('#fluido_carcasa').val(),
+            calor: $('#calor').val(),
+            unidad_flujos: $('#unidad_flujos').val(),
+            unidad_calor: $('#unidad_calor').val() ? $('#unidad_calor').val(): $('#unidad_q').val(),
+            unidad_cp: $('#unidad_cp').val(),
+            cp_liquido: lado === 'T' ? $('#cp_liquido_tubo').val() : $('#cp_liquido_carcasa').val(),
+            cp_gas: lado === 'T' ? $('#cp_gas_tubo').val() : $('#cp_gas_carcasa').val(),
+            hvap: lado === 'T' ? $('#hvap_tubo').val() : $('#hvap_carcasa').val()
+        },
+        success: (res) => {
+            if(res.codigo == 400){
+                mensaje += res.mensaje;                    
+            }
+        },
+        error: (res) => {
+            console.log(res);
+            funciono = false;
+            mensaje += `Ocurrió un error al validar los datos ingresados del lado de${lado === 'T' ? 'l tubo' : ' la carcasa'}.\n`;
+        }
+    });
+
+    return mensaje;
+}

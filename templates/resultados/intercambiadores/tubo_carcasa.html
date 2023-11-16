@@ -23,33 +23,33 @@
                           </tr>
                           <tr>
                             <th class="table-dark" colspan="2"></th>
-                            <th class="table-dark small"colspan="2">Carcasa</th>
-                            <th class="table-dark small"colspan="2">Tubo</th>
-                          </tr>
-                          <tr>
-                            <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="2">Fluido</th>
-                            <th class="table-dark small">Nombre</th>
-                            <th class="table-dark small">Cp ({{evaluacion.cp_unidad}})</th>
-                            <th class="table-dark small">Nombre</th>
-                            <th class="table-dark small">Cp ({{evaluacion.cp_unidad}})</th>
-                          </tr>
-                          <tr>
-                            <td>
+                            <th class="table-dark small"colspan="2">Carcasa
                               {% if intercambiador.fluido_carcasa %}
                               {{intercambiador.fluido_carcasa}}
                               {%else%}
                               {{intercambiador.condicion_carcasa.fluido_etiqueta}}
                               {%endif%}
-                            </td>
-                            <td>{{evaluacion.cp_carcasa}}</td>
-                            <td>
+                            </th>
+                            <th class="table-dark small"colspan="2">Tubo
                               {% if intercambiador.fluido_tubo %}
                               {{intercambiador.fluido_tubo}}
                               {%else%}
                               {{intercambiador.condicion_tubo.fluido_etiqueta}}
                               {%endif%}
-                            </td>
-                            <td>{{evaluacion.cp_tubo}}</td>
+                            </th>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="2">Fluido</th>
+                            <th class="table-dark small">Cp Vapor ({{evaluacion.cp_unidad}})</th>
+                            <th class="table-dark small">Cp Líq. ({{evaluacion.cp_unidad}})</th>
+                            <th class="table-dark small">Cp Vapor ({{evaluacion.cp_unidad}})</th>
+                            <th class="table-dark small">Cp Líq. ({{evaluacion.cp_unidad}})</th>
+                          </tr>
+                          <tr>
+                            <td>{{evaluacion.cp_carcasa_gas}}</td>
+                            <td>{{evaluacion.cp_carcasa_liquido}}</td>
+                            <td>{{evaluacion.cp_tubo_gas}}</td>
+                            <td>{{evaluacion.cp_tubo_liquido}}</td>
                           </tr>
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="4">Temperatura ({{evaluacion.temperaturas_unidad.simbolo}})</th>
@@ -89,95 +89,105 @@
                 <div class="col-lg-6 col-xs-12 d-flex justify-content-center align-items-center">
                   <canvas hidden id="grafica_{{evaluacion.pk}}" class="border border-dark" style="min-width: 100%;" class="bg-white m-3"></canvas>
                 </div>
-                <div class="col-lg-6 col-xs-12 small">
-                  <table class="table table-light text-center table-bordered">
-                    <tbody id="body">
-                      <tr>
-                        <th class="table-info" colspan="4">Resultados de la Evaluación</th>
-                      </tr>
-                      <tr>
-                        <th class="table-dark" style="vertical-align: middle;">LMTD ({{evaluacion.temperaturas_unidad}})</th>
-                        <td>{{evaluacion.lmtd}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">Área Transf. ({{intercambiador.area_unidad}})</th>
-                        <td>{{evaluacion.area_transferencia}}</td>
-                      </tr>
-                      <tr>
-                        <th class="table-dark" style="vertical-align: middle;">NTU</th>
-                        <td>{{evaluacion.ntu}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">% Efectividad</th>
-                        <td>{{evaluacion.efectividad}}</td>
-                      </tr>
-                      <tr>
-                        <th class="table-dark" style="vertical-align: middle;">U ({{intercambiador.u_unidad}})</th>
-                        <td>{{evaluacion.u}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">UA (W/K)</th>
-                        <td>{{evaluacion.ua}}</td>
-                      </tr>
-                      <tr>
-                        <th class="table-dark" style="vertical-align: middle;">% Eficiencia</th>
-                        <td>{{evaluacion.eficiencia}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">Ensuciamiento</th>
-                        <td>{{evaluacion.ensuciamiento}}</td>
-                      </tr>
-                      <tr>
-                        <th class="table-dark" style="vertical-align: middle;">Q ({{intercambiador.q_unidad}})</th>
-                        <td>{{evaluacion.q}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">Núm. Tubos</th>
-                        <td>{{evaluacion.numero_tubos}}</td>
-                      </tr>
-                      <tr>
-                        <th class="table-dark" style="vertical-align: middle;">C. Presión Tubo ({{evaluacion.unidad_presion}})</th>
-                        <td>{{evaluacion.caida_presion_in}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">C. Presión Carcasa ({{evaluacion.unidad_presion}})</th>
-                        <td>{{evaluacion.caida_presion_ex}}</td>
-                      </tr>
-                    </tbody>
-                  </table>                    
-                </div>
-                <div class="col-lg-6 col-xs-12 small">
-                  <table class="table table-light text-center table-bordered">
-                    <tbody id="body">
-                      <tr>
-                        <th class="table-warning" colspan="4">Datos de Diseño</th>
-                      </tr>
-                      <tr>
-                        <th class="table-dark" style="vertical-align: middle;">LMTD ({{intercambiador.condicion_tubo.temperaturas_unidad}})</th>
-                        <td>{{diseno.lmtd}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">Área Transf. ({{intercambiador.area_unidad}})</th>
-                        <td>{{intercambiador.area}}</td>
-                      </tr>
-                      <tr>
-                        <th class="table-dark" style="vertical-align: middle;">NTU</th>
-                        <td>{{diseno.ntu}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">% Efectividad</th>
-                        <td>{{diseno.efectividad}}</td>
-                      </tr>
-                      <tr>
-                        <th class="table-dark" style="vertical-align: middle;">U ({{intercambiador.u_unidad}})</th>
-                        <td>{{diseno.u}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">UA (W/K)</th>
-                        <td>{{diseno.ua}}</td>
-                      </tr>
-                      <tr>
-                        <th class="table-dark" style="vertical-align: middle;">% Eficiencia</th>
-                        <td>{{diseno.eficiencia}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">Ensuciamiento</th>
-                        <td>{{diseno.factor_ensuciamiento}}</td>
-                      </tr>
-                      <tr>
-                        <th class="table-dark" style="vertical-align: middle;">Q ({{intercambiador.q_unidad}})</th>
-                        <td>{{diseno.q}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">C. Presión Máx. ({{intercambiador.condicion_tubo.unidad_presion}})</th>
-                        <td>{{intercambiador.condicion_tubo.caida_presion_max}}</td>
-                      </tr>
-                      <tr>
-                        <th class="table-dark" style="vertical-align: middle;">Cp Tubo ({{intercambiador.condicion_tubo.unidad_cp}})</th>
-                        <td>{{intercambiador.condicion_tubo.fluido_cp}}</td>
-                        <th class="table-dark" style="vertical-align: middle;">Cp Carcasa ({{intercambiador.condicion_carcasa.unidad_cp}})</th>
-                        <td>{{intercambiador.condicion_carcasa.fluido_cp}}</td>
-                      </tr>
-                    </tbody>
-                  </table>                    
+                <div class="col-12">
+                  <div class="row">
+                    <div class="col-lg-6 col-xs-12 small d-flex justify-content-center">
+                      <table class="table table-light text-center table-bordered">
+                        <tbody id="body">
+                          <tr>
+                            <th class="table-info" colspan="4">Resultados de la Evaluación</th>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">LMTD ({{evaluacion.temperaturas_unidad}})</th>
+                            <td>{{evaluacion.lmtd}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">Área Transf. ({{intercambiador.area_unidad}})</th>
+                            <td>{{evaluacion.area_transferencia}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">NTU</th>
+                            <td>{{evaluacion.ntu}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">% Efectividad</th>
+                            <td>{{evaluacion.efectividad}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">U ({{intercambiador.u_unidad}})</th>
+                            <td>{{evaluacion.u}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">UA (W/K)</th>
+                            <td>{{evaluacion.ua}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">% Eficiencia</th>
+                            <td>{{evaluacion.eficiencia}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">Ensuciamiento</th>
+                            <td>{{evaluacion.ensuciamiento}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">Q ({{intercambiador.q_unidad}})</th>
+                            <td>{{evaluacion.q}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">Núm. Tubos</th>
+                            <td>{{evaluacion.numero_tubos}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">C. Presión Tubo ({{evaluacion.unidad_presion}})</th>
+                            <td>{{evaluacion.caida_presion_in}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">C. Presión Carcasa ({{evaluacion.unidad_presion}})</th>
+                            <td>{{evaluacion.caida_presion_ex}}</td>
+                          </tr>
+                        </tbody>
+                      </table>                    
+                    </div>
+                    <div class="col-lg-6 col-xs-12 small d-flex justify-content-center">
+                      <table class="table table-light text-center table-bordered">
+                        <tbody id="body">
+                          <tr>
+                            <th class="table-warning" colspan="4">Datos de Diseño</th>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">LMTD ({{intercambiador.condicion_tubo.temperaturas_unidad}})</th>
+                            <td>{{diseno.lmtd}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">Área Transf. ({{intercambiador.area_unidad}})</th>
+                            <td>{{intercambiador.area}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">NTU</th>
+                            <td>{{diseno.ntu}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">% Efectividad</th>
+                            <td>{{diseno.efectividad}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">U ({{intercambiador.u_unidad}})</th>
+                            <td>{{diseno.u}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">UA (W/K)</th>
+                            <td>{{diseno.ua}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">% Eficiencia</th>
+                            <td>{{diseno.eficiencia}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">Ensuciamiento</th>
+                            <td>{{diseno.factor_ensuciamiento}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">Q ({{intercambiador.q_unidad}})</th>
+                            <td>{{diseno.q}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">C. Presión Máx. ({{intercambiador.condicion_tubo.unidad_presion}})</th>
+                            <td>{{intercambiador.condicion_tubo.caida_presion_max}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">Cp Líq. Tubo ({{intercambiador.condicion_tubo.unidad_cp}})</th>
+                            <td>{{intercambiador.condicion_tubo.fluido_cp_liquido}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">Cp Gas Carcasa ({{intercambiador.condicion_carcasa.unidad_cp}})</th>
+                            <td>{{intercambiador.condicion_tubo.fluido_cp_gas}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">Cp Líq. Tubo ({{intercambiador.condicion_tubo.unidad_cp}})</th>
+                            <td>{{intercambiador.condicion_carcasa.fluido_cp_liquido}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">Cp Gas Carcasa ({{intercambiador.condicion_carcasa.unidad_cp}})</th>
+                            <td>{{intercambiador.condicion_carcasa.fluido_cp_gas}}</td>
+                          </tr>
+                        </tbody>
+                      </table>                    
+                    </div>
+                  </div>
                 </div>
                 <div class="w-100 text-end">
                   <b>Evaluación Realizada el {{evaluacion.fecha}} por el usuario '{{evaluacion.creado_por.get_full_name}}'.</b>

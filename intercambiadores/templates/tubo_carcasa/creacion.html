@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block contenido %}
-    <form method="post">
+    <form method="post" onsubmit="return validarForm(this);">
         {% csrf_token %}
         <div class="row">
             <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_tubo_carcasa' %}">↶ Regresar</a></div>
@@ -12,9 +12,13 @@
     
         <hr>
 
-        {% if error %}
+        {% if errores %}
         <div>
-            <b class="text-center" style="color: #e31e24;">{{error}}</b>
+            {% for error in errores %}
+            <ul>
+                <li class="text-center" style="color: #e31e24;">{{error}}</li>
+            </ul>
+            {%endfor%}
         </div>
 
         <hr>
@@ -261,6 +265,9 @@
                                             {% for fluido in fluidos %}
                                             <option value="{{fluido.pk}}" {% if previo.fluido_carcasa == fluido.pk|slugify %}selected{% endif %}>{{fluido}}</option>
                                             {% endfor %}
+                                            {% if previo.fluido_carcasa_etiqueta %}
+                                            <option value="{{previo.fluido_carcasa}}" selected>{{previo.fluido_carcasa_etiqueta}}</option>
+                                            {%endif%}
                                         </select>
                                     </div>
                             
@@ -337,6 +344,46 @@
                                             </select>
                                         </div>  
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="sat_carcasa" class="col-12" hidden>
+                        <div class="row">
+                            <div class="col-6 d-flex flex-column">
+                                <label for="tsat_carcasa">Temp. Saturación:</label>
+                                
+                                <div class="input-group mb-3">
+                                    <input style="width: 60% !important;" step="0.01" value="{{previo.tsat_carcasa}}" type="number" name="tsat_carcasa" id="tsat_carcasa" class="form-control">
+                                    <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                        {% if previo.unidad_temperaturas %}
+                                        {% for unidad in unidades_temperaturas %}
+                                        {% if unidad.pk|slugify == previo.unidad_temperaturas %}
+                                        <option>{{unidad}}</option>
+                                        {%endif%}
+                                        {% endfor %}
+                                        {% else %}
+                                        <option value="1">°C</option>
+                                        {%endif%}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-6 d-flex flex-column">
+                                <label for="hvap_carcasa">Entalpía de Vaporización:</label>
+                                <div class="input-group mb-3">
+                                    <input style="width: 60% !important;" value="{{previo.hvap_carcasa}}" type="number" name="hvap_carcasa" id="hvap_carcasa" class="form-control">
+                                    <select style="width: 40% !important;" class="form-select" name="unidad_hvap" id="unidad_hvap" min="0.01" step="0.01" disabled>
+                                        {% if previo.unidad_hvap %}
+                                        {% for unidad in unidades_hvap %}
+                                        {% if unidad.pk|slugify == previo.unidad_hvap %}
+                                        <option>{{unidad}}</option>
+                                        {%endif%}
+                                        {% endfor %}
+                                        {% else %}
+                                        <option value="1">J/Kg</option>
+                                        {%endif%}
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -596,6 +643,9 @@
                                             {% for fluido in fluidos %}
                                             <option value="{{fluido.pk}}" {% if previo.fluido_tubo == fluido.pk|slugify %}selected{% endif %}>{{fluido}}</option>
                                             {% endfor %}
+                                            {% if previo.fluido_tubo_etiqueta %}
+                                            <option value="{{previo.fluido_tubo}}" selected>{{previo.fluido_tubo_etiqueta}}</option>
+                                            {%endif%}
                                         </select>
                                     </div>
                             
@@ -670,6 +720,47 @@
                                             </select>
                                         </div>  
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="sat_tubo" class="col-12" hidden>
+                        <div class="row">
+                            <div class="col-6 d-flex flex-column">
+                                <label for="tsat_tubo">Temp. Saturación:</label>
+                                
+                                <div class="input-group mb-3">
+                                    <input style="width: 60% !important;" step="0.01" value="{{previo.tsat_tubo}}" type="number" name="tsat_tubo" id="tsat_tubo" class="form-control">
+                                    <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
+                                        {% if previo.unidad_temperaturas %}
+                                        {% for unidad in unidades_temperaturas %}
+                                        {% if unidad.pk|slugify == previo.unidad_temperaturas %}
+                                        <option>{{unidad}}</option>
+                                        {%endif%}
+                                        {% endfor %}
+                                        {% else %}
+                                        <option value="1">°C</option>
+                                        {%endif%}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-6 d-flex flex-column">
+                                <label for="hvap_tubo">Entalpía de Vaporización:</label>
+                                <div class="input-group mb-3">
+                                    <input style="width: 60% !important;" value="{{previo.hvap_tubo}}" type="number" name="hvap_tubo" id="hvap_tubo" min="0.01" step="0.01" class="form-control">
+                                    <select style="width: 40% !important;" class="form-select" name="unidad_hvap" id="unidad_hvap" disabled>
+                                        {% if previo.unidad_hvap %}
+                                        {% for unidad in unidades_hvap %}
+                                        {% if unidad.pk|slugify == previo.unidad_hvap %}
+                                        <option>{{unidad}}</option>
+                                        {%endif%}
+                                        {% endfor %}
+                                        {% else %}
+                                        <option value="1">J/Kg</option>
+                                        {%endif%}
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -921,7 +1012,7 @@
         <hr>
         
         <div class="d-flex justify-content-center mb-3">
-            <button type="submit" onclick="this.form.submit(); this.disabled = true;" class="btn btn-danger" disabled>Registrar Intercambiador</button>
+            <button type="submit" class="btn btn-danger" disabled>Registrar Intercambiador</button>
         </div>
     </form>
 {% endblock %}
