@@ -1249,9 +1249,11 @@ class ConsultaCP(LoginRequiredMixin, View):
                     'flujo_liquido_out': float(condiciones.flujo_liquido_out)                    
                 }
 
-            cp_gas, cp_liq = obtener_cps(t1, t2, presion, flujos['flujo_liquido_in'], flujos['flujo_liquido_out'], flujos['flujo_vapor_in'], flujos['flujo_vapor_out'], cas, cambio_fase, unidad_salida)
+            cp_liq, cp_gas = obtener_cps(t1, t2, presion, flujos['flujo_liquido_in'], flujos['flujo_liquido_out'], flujos['flujo_vapor_in'], flujos['flujo_vapor_out'], cas, cambio_fase, unidad_salida)       
         else:
             return JsonResponse({'cp': ''})
+        
+        print({'cp_liquido': cp_liq, 'cp_gas': cp_gas})
         
         return JsonResponse({'cp_liquido': cp_liq, 'cp_gas': cp_gas})
         

@@ -204,17 +204,18 @@ function ajaxCP(t1,t2,fluido, lado = 'T'){
                 flujo_liquido_out: lado === 'C' ? $('#flujo_liquido_out_carcasa').val() : $('#flujo_liquido_out_tubo').val()
             },
             success: (res) => {
+                console.log(res);
                 if(lado === 'T'){
                     if(cambio_fase !== '-' && res.cp !== '' && $('#cambio_fase_carcasa').val() !== '-')
                         $('button[type="submit"]').removeAttr('disabled');
 
                     if(cambio_fase === 'S')
-                        if(res.fase === 'g'){
-                            $('#cp_gas_tubo').val(res.cp);
+                        if($('#flujo_vapor_in_tubo').val() !== 0){
+                            $('#cp_gas_tubo').val(res.cp_gas);
                             $('#cp_liquido_tubo').val('');
                         }
                         else{
-                            $('#cp_liquido_tubo').val(res.cp);
+                            $('#cp_liquido_tubo').val(res.cp_liquido);
                             $('#cp_gas_tubo').val('');
                         }
                     else{                        
@@ -226,13 +227,15 @@ function ajaxCP(t1,t2,fluido, lado = 'T'){
                     if(cambio_fase !== '-' && res.cp !== '' && $('#cambio_fase_tubo').val() !== '-')
                         $('button[type="submit"]').removeAttr('disabled');
 
-                    if(cambio_fase === 'S')
-                        if(res.fase === 'g'){
-                            $('#cp_gas_carcasa').val(res.cp);
+                    if($('#flujo_vapor_in_carcasa').val() !== 0)
+                        if($('#flujo_vapor_in_carcasa').val() !== 0){
+                            console.log("a");
+                            $('#cp_gas_carcasa').val(res.cp_gas);
                             $('#cp_liquido_carcasa').val('');
                         }
                         else{
-                            $('#cp_liquido_carcasa').val(res.cp);
+                            console.log('b');
+                            $('#cp_liquido_carcasa').val(res.cp_liquido);
                             $('#cp_gas_carcasa').val('');
                         }
                     else{                        
