@@ -160,6 +160,10 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
 
         if(not request.POST.get('tipo_cp_tubo')):
             errores.append('El campo Tipo de Cp de Tubo es obligatorio.')
+        else:
+            if(request.POST.get('tipo_cp_carcasa') == 'A'):
+                if(not request.POST.get('fluido_carcasa')):
+                    errores.append('El campo Fluido de Carcasa es obligatorio.')
 
         if(not request.POST.get('unidad_cp')):
             errores.append('El campo Unidad de Cp de Tubo es obligatorio.')
@@ -176,6 +180,9 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
         if(not request.POST.get('flujo_vapor_out_tubo')):
             errores.append('El campo Flujo de Vapor de Salida de Tubo es obligatorio.')
 
+        if(float(request.POST.get('flujo_vapor_in_tubo')) + float(request.POST.get('flujo_liquido_in_tubo')) != float(request.POST.get('flujo_vapor_out_tubo')) + float(request.POST.get('flujo_liquido_out_tubo'))):
+            errores.append('Los flujos de entrada y salida del tubo no coinciden.')
+
         if(not request.POST.get('unidad_flujos')):
             errores.append('El campo Unidad de Flujos es obligatorio.')
 
@@ -190,6 +197,10 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
 
         if(not request.POST.get('tipo_cp_carcasa')):
             errores.append('El campo Tipo de Cp de Carcasa es obligatorio.')
+        else:
+            if(request.POST.get('tipo_cp_carcasa') == 'A'):
+                if(not request.POST.get('fluido_carcasa')):
+                    errores.append('El campo Fluido de Carcasa es obligatorio.')
 
         if(not request.POST.get('flujo_liquido_in_carcasa')):
             errores.append('El campo Flujo de Líquido de Entrada de Carcasa es obligatorio.')
@@ -202,6 +213,9 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
 
         if(not request.POST.get('flujo_vapor_out_carcasa')):
             errores.append('El campo Flujo de Vapor de Salida de Carcasa es obligatorio.')
+
+        if(float(request.POST.get('flujo_vapor_in_carcasa')) + float(request.POST.get('flujo_liquido_in_carcasa')) != float(request.POST.get('flujo_vapor_out_carcasa')) + float(request.POST.get('flujo_liquido_out_carcasa'))):
+            errores.append('Los flujos de entrada y salida de la carcasa no coinciden.')
 
         if(not request.POST.get('caida_presion_max_carcasa')):
             errores.append('El campo Caida de Presión Máxima de Carcasa es obligatorio.')
