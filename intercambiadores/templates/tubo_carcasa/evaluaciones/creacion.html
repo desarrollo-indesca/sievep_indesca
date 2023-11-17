@@ -324,15 +324,15 @@
             data[1].data.Final = Number($('#temp_out_tubo').val());
         }
 
-        data[0].label = "Tubo Externo";
-        data[0].backgroundColor = ['#E31E24'];
-        data[0].borderColor = ['#E31E24'];
+        const fluido_caliente = $('#temp_in_carcasa').val() > $('#temp_in_tubo').val() ? 'C' : 'T';
 
-        data[1].label = "Tubo Interno";
-        data[1].backgroundColor = ['#555'];
-        data[1].borderColor = ['#555'];
+        data[0].label = "Tubo Externo (" + (fluido_caliente == 'C' ? "C" : "F") + ")";
+        data[0].backgroundColor = fluido_caliente === 'C' ? ['#E31E24'] : ['#555'];
+        data[0].borderColor = fluido_caliente === 'C' ? ['#E31E24'] : ['#555'];
 
-        console.log(data);
+        data[1].label = "Tubo Interno (" + (fluido_caliente == 'T' ? "C" : "F") + ")";;
+        data[1].backgroundColor = fluido_caliente === 'T' ? ['#E31E24'] : ['#555'];
+        data[1].borderColor = fluido_caliente === 'T' ? ['#E31E24'] : ['#555'];
 
         chart = new Chart(canvas, {
             type: 'line',
