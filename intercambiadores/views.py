@@ -595,7 +595,10 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
                 resultados = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
                 resultados['q'] = round(*transformar_unidades_calor([resultados['q']], 28, intercambiador.q_unidad.pk), 4)
                 resultados['area'] = round(*transformar_unidades_area([resultados['area']], 3, intercambiador.area_unidad.pk), 2)
-                resultados['lmtd'] = round(*transformar_unidades_temperatura([resultados['lmtd']], 2, intercambiador.condicion_carcasa().temperaturas_unidad.pk), 2)
+
+                if(intercambiador.condicion_carcasa().temperaturas_unidad.pk not in [1,2]):
+                    resultados['lmtd'] = round(*transformar_unidades_temperatura([resultados['lmtd']], 2, intercambiador.condicion_carcasa().temperaturas_unidad.pk), 2)
+
                 resultados['factor_ensuciamiento'] = round(*transformar_unidades_ensuciamiento([resultados['factor_ensuciamiento']], 31, intercambiador.ensuciamiento_unidad.pk), 6)
                 resultados['u'] = round(*transformar_unidades_u([resultados['u']], 27, intercambiador.u_unidad.pk), 4)
                 print(resultados)

@@ -405,15 +405,27 @@
         if(out_carcasa && out_tubo && in_carcasa && in_tubo){
             
             if(in_tubo > out_tubo){
-                if(in_carcasa < in_tubo && out_carcasa > out_tubo){
-                    alert("ADVERTENCIA\n Verifique las temperaturas.");
-                    document.getElementById('registrar_resultado').setAttribute('disabled', true);
-                    return;
+                    if(in_carcasa < in_tubo && out_carcasa > out_tubo){
+                        if(mostrarAdvertencia){
+                            alert("ADVERTENCIA\n Verifique las temperaturas.");
+                            setTimeout(() => {
+                                mostrarAdvertencia = true;
+                            }, 2000);
+                        }
+                        document.getElementById('registrar_resultado').setAttribute('disabled', true);
+                        await delay(2000);
+                        return;
                 }
             } else if(in_tubo < out_tubo){
                 if(in_carcasa > in_tubo && out_carcasa < out_tubo){
-                    alert("ADVERTENCIA\n Verifique las temperaturas.");
+                    if(mostrarAdvertencia){
+                        alert("ADVERTENCIA\n Verifique las temperaturas.");
+                        setTimeout(() => {
+                            mostrarAdvertencia = true;
+                        }, 2000);
+                    }
                     document.getElementById('registrar_resultado').setAttribute('disabled', true);
+                    await delay(2000);
                     return;
                 }
             }
