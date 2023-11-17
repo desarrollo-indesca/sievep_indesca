@@ -952,7 +952,8 @@ class ConsultaEvaluacionesTuboCarcasa(LoginRequiredMixin, ListView):
 
         try:
             context['diseno'] = context['intercambiador'].calcular_diseno()
-        except:
+        except Exception as e:
+            print(str(e))
             print("No se pudo evaluar el diseño del intercambiador.")
 
         return context
@@ -1163,9 +1164,12 @@ class EvaluarTuboCarcasa(LoginRequiredMixin, View):
         res = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
         
         # Transformar a Unidades de Salida
-        # res['q'] = round(*transformar_unidades_calor([res['q']], 28, intercambiador.q_unidad.pk), 4)
+        res['q'] = round(*transformar_unidades_calor([res['q']], 28, intercambiador.q_unidad.pk), 4)
         res['area'] = round(*transformar_unidades_area([res['area']], 3, intercambiador.area_unidad.pk), 2)
-        # res['lmtd'] = round(*transformar_unidades_temperatura([res['lmtd']], 2, intercambiador.condicion_carcasa().temperaturas_unidad.pk), 2)
+        
+        if(intercambiador.condicion_carcasa().temperaturas_unidad.pk not in [1,2]):
+            res['lmtd'] = round(*transformar_unidades_temperatura([res['lmtd']], 2, intercambiador.condicion_carcasa().temperaturas_unidad.pk), 2)
+
         res['factor_ensuciamiento'] = round(*transformar_unidades_ensuciamiento([res['factor_ensuciamiento']], 31, intercambiador.ensuciamiento_unidad.pk), 6)
         res['u'] = round(*transformar_unidades_u([res['u']], 27, intercambiador.u_unidad.pk), 4)
 
@@ -1466,7 +1470,7 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
         calorcalc = round(calorcalc, 2)
 
         if(codigo == 200):
-            return JsonResponse({'codigo': codigo})
+            return JsonResponse({'codigo': codigo, 'calorcalc': calorcalc})
         else:
             return JsonResponse({'codigo': codigo, 'mensaje': mensaje, 'calorcalc': calorcalc})
 

@@ -36,31 +36,28 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
     condicion_tubo = intercambiador.condicion_tubo()
     condicion_carcasa = intercambiador.condicion_carcasa()
 
-    if(condicion_carcasa.cambio_de_fase in ['T','P'] or condicion_tubo.cambio_de_fase in ['T','P']):
-        c = 0
+    ct = obtener_c_eficiencia(condicion_tubo, ft, cp_gas_tubo, cp_liquido_tubo) # Obtención de la C de tubo
+    cc = obtener_c_eficiencia(condicion_carcasa, Fc, cp_gas_carcasa, cp_liquido_carcasa) # Obtención de la C de carcasa
+
+    # Determinación de la Cmín y la Cmáx
+    if(ct < cc):
+        cmin = ct
+        cmax = cc
+        minimo = 1
     else:
-        ct = obtener_c_eficiencia(condicion_tubo, ft, cp_gas_tubo, cp_liquido_tubo) # Obtención de la C de tubo
-        cc = obtener_c_eficiencia(condicion_carcasa, Fc, cp_gas_carcasa, cp_liquido_carcasa) # Obtención de la C de carcasa
+        cmin = cc
+        cmax = ct
+        minimo = 2
 
-        # Determinación de la Cmín y la Cmáx
-        if(ct < cc):
-            cmin = ct
-            cmax = cc
-            minimo = 1
-        else:
-            cmin = cc
-            cmax = ct
-            minimo = 2
+    if(condicion_carcasa.cambio_de_fase in ['T','P'] or condicion_tubo.cambio_de_fase in ['T','P']):
+        cmax = np.Infinity
 
-        # Relación de las C
-        c = cmin/cmax
-
-    if(c != 0): # Cálculo del NTU si la relación C es distinto de 0
-        ntu = ucalc*area_calculada/cmin
+    # Relación de las C
+    c = cmin/cmax
+    ntu = ucalc*area_calculada/cmin
 
     if(c == 0): # Cálculo de la Efectividad y la NTU si C = 0
         efectividad = 1 - np.exp(-1*ntu)
-        ntu = -1*np.log(1-efectividad)
     else: # Cálculo si C es distinto de  0
         if(num_pasos_tubo > 2): # Fórmulas cuando el número de pasos de tubo es mayor a 2
             efectividad1 = 2/(1+c+pow(1+pow(c,2),0.5)*(1+np.exp(-1*ntu*pow((1-pow(c,2)),0.5)))/(1-np.exp(-1*ntu*pow((1-pow(c,2)),0.5))))

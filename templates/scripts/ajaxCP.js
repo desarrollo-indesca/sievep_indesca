@@ -521,14 +521,14 @@ const validarForm = (e) => {
     let q = 0;
     let n = 0;
 
-    if(!($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().includes('*')&& !$('#fluido_tubo').val().split('*')[1].includes('-'))){
+    if(Number($('#fluido_tubo').val()) || $('#fluido_tubo').val().includes('*') && $('#fluido_tubo').val().split('*')[1].includes('-')){
         const res = ajaxValidacion('T');
         mensaje = res[0];
         q += Number(res[1]);
         n++;
     }
 
-    if(!($('#fluido_carcasa').val() === '' || $('#fluido_carcasa').val().includes('*')&& !$('#fluido_carcasa').val().split('*')[1].includes('-'))){
+    if(Number($('#fluido_tubo').val()) || $('#fluido_carcasa').val().includes('*') && $('#fluido_carcasa').val().split('*')[1].includes('-')){
         const res = ajaxValidacion('C');
         mensaje = res[0];
         q += Number(res[1]);
@@ -538,7 +538,7 @@ const validarForm = (e) => {
     if(n > 0)
         q /= n;
 
-    if(abs(q - Number($('#calor').val()))/Number($('#calor').val()) > 0.05)
+    if(Math.abs(q - Number($('#calor').val()))/Number($('#calor').val()) > 0.05)
         mensaje += `El calor ingresado difiere por más de un 5% del valor calculado.\n`;
 
     if(mensaje !== ''){
@@ -579,9 +579,9 @@ function ajaxValidacion(lado = 'C'){
             hvap: lado === 'T' ? $('#hvap_tubo').val() : $('#hvap_carcasa').val()
         },
         success: (res) => {
+            q = res.calorcalc;
             if(res.codigo == 400){
-                mensaje += res.mensaje;  
-                q = res.calorcalc;                  
+                mensaje += res.mensaje;
             }
         },
         error: (res) => {
@@ -591,5 +591,5 @@ function ajaxValidacion(lado = 'C'){
         }
     });
 
-    return [mensaje, calorcalc];
+    return [mensaje, q];
 }

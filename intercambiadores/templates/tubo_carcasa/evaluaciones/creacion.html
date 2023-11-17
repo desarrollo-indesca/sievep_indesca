@@ -787,10 +787,11 @@
                     console.log(res);
 
                     if(mostrarAdvertencia){
-                        alert("Los datos son inválidos para los cálculos de evaluación. Verifique.");
                         mostrarAdvertencia = false;
-                        await delay(2000)
-                        mostrarAdvertencia = true;
+                        alert("Los datos ingresados no son válidos para los cálculos de evaluación del intercambiador.");
+                        setTimeout(() => {
+                            mostrarAdvertencia = true;
+                        }, 2000);
                     }
                     
                     document.getElementById('registrar_resultado').setAttribute('disabled', true);
