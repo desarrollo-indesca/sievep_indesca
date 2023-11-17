@@ -402,8 +402,7 @@
         //     }
         // }
 
-        if(out_carcasa && out_tubo && in_carcasa && in_tubo){
-            
+        if(out_carcasa && out_tubo && in_carcasa && in_tubo){            
             if(in_tubo > out_tubo){
                     if(in_carcasa < in_tubo && out_carcasa > out_tubo){
                         if(mostrarAdvertencia){
@@ -491,12 +490,12 @@
                     t1,
                     t2,
                     fluido,
+                    intercambiador: '{{intercambiador.pk}}',
                     unidad: $('#unidad_temperaturas').val(),
                     unidad_salida: $('#unidad_cp').val(),
                     cambio_fase: lado === 'C' ? $('#cambio_fase_ficha_carcasa').html() : $('#cambio_fase_ficha_tubo').html(),
                     presion: lado === 'C' ? transformarNumero($('#presion_entrada_carcasa_ficha').html()) : transformarNumero($('#presion_entrada_tubo_ficha').html()),
-                    unidad_presion: unidad_presion_valor,
-                    intercambiador: $('#tag_ficha').val(),
+                    unidad_presiones: unidad_presion_valor,
                     lado: lado
                 },
                 success: (res) => {

@@ -1227,6 +1227,10 @@ class ConsultaCP(LoginRequiredMixin, View):
         presion = transformar_unidades_presion([float(request.GET.get('presion'))], unidad_presiones)[0] if request.GET.get('presion') else 1e5
         t1,t2 = transformar_unidades_temperatura([t1,t2], unidad=unidad)
 
+        print("*"*10)
+        print(request.GET)
+       
+
         if(fluido != ''):
             if(fluido.find('*') != -1):
                 cas = fluido.split('*')[1]
@@ -1245,22 +1249,26 @@ class ConsultaCP(LoginRequiredMixin, View):
                 }
             else:
                 if(request.GET['lado'] == 'C'):
-                    condiciones = Intercambiador.objects.get(tag = request['intercambiador']).intercambiador().condicion_carcasa()
+                    condiciones = PropiedadesTuboCarcasa.objects.get(pk = request.GET['intercambiador'])
+                    condiciones = condiciones.condicion_carcasa()
                 else:
-                    condiciones = Intercambiador.objects.get(tag = request['intercambiador']).intercambiador().condicion_tubo()
+                    condiciones = PropiedadesTuboCarcasa.objects.get(pk = request.GET['intercambiador'])
+                    condiciones = condiciones.condicion_tubo()
 
                 flujos = {
-                    'flujo_vapor_in': float(condiciones.flujo_vapor_in),
-                    'flujo_vapor_out': float(condiciones.flujo_vapor_out),
-                    'flujo_liquido_in': float(condiciones.flujo_liquido_in),
-                    'flujo_liquido_out': float(condiciones.flujo_liquido_out)                    
+                    'flujo_vapor_in': float(condiciones.flujo_vapor_entrada),
+                    'flujo_vapor_out': float(condiciones.flujo_vapor_salida),
+                    'flujo_liquido_in': float(condiciones.flujo_liquido_entrada),
+                    'flujo_liquido_out': float(condiciones.flujo_liquido_salida)                    
                 }
 
             cp_liq, cp_gas = obtener_cps(t1, t2, presion, flujos['flujo_liquido_in'], flujos['flujo_liquido_out'], flujos['flujo_vapor_in'], flujos['flujo_vapor_out'], cas, cambio_fase, unidad_salida)       
         else:
             return JsonResponse({'cp': ''})
-        
+
+        print(request.GET['presion'])        
         print({'cp_liquido': cp_liq, 'cp_gas': cp_gas})
+        print("*"*10)
         
         return JsonResponse({'cp_liquido': cp_liq, 'cp_gas': cp_gas})
         
@@ -1385,7 +1393,6 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
         presion = transformar_unidades_presion([float(request.GET['presion'])], unidad_presiones)[0]
         fluido = request.GET['fluido']
         unidad_calor = int(request.GET['unidad_calor'])
-        calor = transformar_unidades_calor([float(request.GET['calor'])], unidad_calor)[0]
         unidad_cp = int(request.GET['unidad_cp'])
         cp_gas, cp_liquido = float(request.GET['cp_gas']) if request.GET['cp_gas'] != '' else None, float(request.GET['cp_liquido']) if request.GET['cp_liquido'] != '' else None
         cp_gas, cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], unidad=unidad_cp)
@@ -1598,6 +1605,8 @@ def obtener_cps(t1, t2, presion, flujo_liquido_in, flujo_liquido_out, flujo_vapo
             cp_liquido = calcular_cp(fluido, t1, t1, unidad_cp, presion, 'l')
     else: # Cambio de Fase Total
         tsat = Chemical(fluido).Tsat(presion)
+        print(tsat)
+        print(presion)
         if(t1 <= t2):
             cp_liquido = calcular_cp(fluido, t1, tsat, unidad_cp, presion, 'l')
             cp_gas = calcular_cp(fluido, tsat, t2, unidad_cp, presion, 'g')
