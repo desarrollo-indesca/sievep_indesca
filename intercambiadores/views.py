@@ -1042,7 +1042,7 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ListView):
             Filtra los datos de acuerdo a los parámetros de filtrado.
     """
     model = PropiedadesTuboCarcasa
-    template_name = 'tubo_carcasa/consulta.html'
+    template_name = 'consulta.html'
     paginate_by = 10
 
     def post(self, request, **kwargs):
@@ -1072,6 +1072,10 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ListView):
         
         if(context['plantax']):
             context['plantax'] = int(context['plantax'])
+
+        context['tipo'] = 1
+        context['tipo_texto'] = 'Tubo/Carcasa'
+        context['link_creacion'] = 'crear_tubo_carcasa'
 
         return context
     
@@ -1107,8 +1111,105 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ListView):
 
         return new_context
 
-# VISTAS GENERALES PARA LOS INTERCAMBIADORES DE CALOR
+# VISTAS PARA LOS INTERCAMBIADORES DE DOBLE TUBO
+class ConsultaDobleTubo(LoginRequiredMixin, ListView):
+    """
+    Resumen:
+        Vista de consulta de evaluaciones. Contiene la lógica de filtrado y paginación.
+        Requiere de inicio de sesión.
 
+    Atributos:
+        model: Model
+            Modelo a mostrar en la consulta. PropiedadesDobleTubo en este caso.
+
+        template_name: str
+            Nombre de la plantilla a renderizar.
+        
+        paginate_by: int
+            Número de registros por pantalla. 
+    
+    Métodos:
+        post(self, request, **kwargs)
+            Función que contiene la lógica de obtención de reportes PDF o XLSX.
+        
+        get_context_data(self, **kwargs)
+            Lleva al contexto los datos de filtrado.
+
+        get_queryset(self)
+            Filtra los datos de acuerdo a los parámetros de filtrado.
+    """
+    model = PropiedadesTuboCarcasa
+    template_name = 'consulta.html'
+    paginate_by = 10
+
+    def post(self, request, **kwargs):
+        if(request.POST['tipo'] == 'pdf'):
+            return generar_pdf(request, self.get_queryset(),"Reporte de Intercambiadores Doble Tubo", "intercambiadores_tubo_carcasa")
+        else:
+            from reportes.xlsx import reporte_tubo_carcasa
+            response = reporte_tubo_carcasa(self.get_queryset(), request)
+            response['Content-Disposition'] = 'attachment; filename="reporte_tubo_carcasa.xlsx"'
+            return response
+            
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["titulo"] = "SIEVEP - Consulta de Intercambiadores de Doble Tubo"
+        context['complejos'] = Complejo.objects.all()
+
+        if(self.request.GET.get('complejo')):
+            context['plantas'] = Planta.objects.filter(complejo= self.request.GET.get('complejo'))
+
+        context['tag'] = self.request.GET.get('tag', '')
+        context['servicio'] = self.request.GET.get('servicio', '')
+        context['complejox'] = self.request.GET.get('complejo')
+        context['plantax'] = self.request.GET.get('planta')
+
+        if(context['complejox']):
+            context['complejox'] = int(context['complejox'])
+        
+        if(context['plantax']):
+            context['plantax'] = int(context['plantax'])
+
+        context['tipo'] = 2
+        context['tipo_texto'] = 'Doble Tubo'
+
+        return context
+    
+    def get_queryset(self):
+        tag = self.request.GET.get('tag', '')
+        servicio = self.request.GET.get('servicio', '')
+        complejo = self.request.GET.get('complejo', '')
+        planta = self.request.GET.get('planta', '')
+
+        new_context = None
+
+        if(planta != '' and complejo != ''):
+            new_context = self.model.objects.filter(
+                intercambiador__planta__pk=planta
+            )
+        elif(complejo != ''):
+            new_context = new_context.filter(
+                intercambiador__planta__complejo__pk=complejo
+            ) if new_context else self.model.objects.filter(
+                intercambiador__planta__complejo__pk=complejo
+            )
+
+        if(not(new_context is None)):
+            new_context = new_context.filter(
+                intercambiador__servicio__icontains = servicio,
+                intercambiador__tag__icontains = tag
+            )
+        else:
+            new_context = self.model.objects.filter(
+                intercambiador__servicio__icontains = servicio,
+                intercambiador__tag__icontains = tag
+            )
+
+        new_context = new_context.filter(intercambiador__tipo = 2)
+
+        return new_context
+
+# VISTAS GENERALES PARA LOS INTERCAMBIADORES DE CALOR
 class ConsultaVacia(LoginRequiredMixin, View):
     """
     Resumen:
