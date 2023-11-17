@@ -1,6 +1,6 @@
 import numpy as np
 from .unidades import transformar_unidades_temperatura, transformar_unidades_flujo, transformar_unidades_longitud, transformar_unidades_presion, transformar_unidades_cp, transformar_unidades_u
-from ht import F_LMTD_Fakheri, effectiveness_from_NTU
+from ht import F_LMTD_Fakheri
 from .termodinamicos import calcular_tsat_hvap
 
 def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_tubo = None, cp_liquido_tubo = None, cp_gas_carcasa = None, cp_liquido_carcasa = None, unidad_temp = 1, unidad_flujo = 6) -> dict:
@@ -11,9 +11,6 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
 
     q_tubo = calcular_calor(ft, ti, ts, cp_gas_tubo, cp_liquido_tubo, intercambiador, 'T') # Calor del tubo (W)
     q_carcasa = calcular_calor(Fc, Ti, Ts, cp_gas_carcasa, cp_liquido_carcasa, intercambiador, 'C') # Calor de la carcasa (W)
-
-    print(q_tubo)
-    print(q_carcasa)
     
     nt = nt if nt else float(intercambiador.numero_tubos) # Número de los tubos
 
@@ -23,7 +20,7 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
     area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
     num_pasos_carcasa = float(intercambiador.numero_pasos_carcasa)
     num_pasos_tubo = float(intercambiador.numero_pasos_tubo)
-    dtml = 8.5
+    dtml = abs(((Ti - ts) - (Ts - ti))/np.log(abs((Ti - ts)/(Ts - ti)))) # Delta T Medio Logarítmico
 
     factor = round(F_LMTD_Fakheri(Ti, Ts, ti, ts, num_pasos_carcasa),3)  # Factor de corrección
     
@@ -73,6 +70,87 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
                 efectividad=num_pasos_carcasa*efectividad1/(1+(num_pasos_carcasa-1)*efectividad1)
             else:
                 efectividad=(pow((1-efectividad1*c)/(1-efectividad1),num_pasos_carcasa)-1)/(pow((1-efectividad1*c)/(1-efectividad1),num_pasos_carcasa)-c)
+
+    eficiencia = efectividad/ntu # Cálculo de la Eficiencia
+
+    resultados = {
+        'q': round(q_prom,4),
+        'area': round(area_calculada,4),
+        'lmtd': round(dtml,4),
+        'eficiencia': round(eficiencia*100,2),
+        'efectividad': round(efectividad*100, 2),
+        'ntu': round(ntu,4),
+        'u': round(ucalc,8),
+        'ua': round(ucalc*area_calculada,4),
+        'factor_ensuciamiento': round(RF,4),
+    }
+
+    return resultados
+
+def evaluacion_doble_tubo(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_in = None, cp_liquido_in = None, cp_gas_ex = None, cp_liquido_ex = None, unidad_temp = 1, unidad_flujo = 6) -> dict:
+    ti,ts,Ti,Ts = transformar_unidades_temperatura([ti,ts,Ti,Ts], unidad=unidad_temp) # ti,ts = temperatura de los tubos, Ti,Ts = temperaturas de la carcasa
+    
+    if(unidad_flujo != 10): # Transformación de los flujos ft (flujo tubo) y Fc (flujo carcasa) a Kg/s para calcular
+        ft,Fc = transformar_unidades_flujo([ft,Fc], unidad_flujo)
+
+    q_ex = calcular_calor(ft, ti, ts, cp_gas_ex, cp_liquido_ex, intercambiador, 'T') # Calor del tubo (W)
+    q_in = calcular_calor(Fc, Ti, Ts, cp_gas_in, cp_liquido_in, intercambiador, 'C') # Calor de la carcasa (W)
+    
+    nt = nt if nt else float(intercambiador.numero_tubos) # Número de los tubos
+
+    diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_tubos)], intercambiador.diametro_tubos_unidad.pk)[0] # Diametro (OD), transformacion a m
+    longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad.pk)[0] # Longitud, transformacion a m
+
+    area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
+
+    arreglo_flujo = intercambiador.arreglo_flujo
+
+    if(arreglo_flujo == 'c'): # Si el arreglo de flujo es en contracorriente
+        dtml = abs(((Ti - ts) - (Ts - ti))/np.log(abs((Ti - ts)/(Ts - ti)))) # Delta T Medio Logarítmico
+    if(arreglo_flujo == 'C'): # Si el arreglo de flujo es en cocorriente
+        dtml = ((Ti - ti) - (Ts - ts))/np.log(abs((Ti - ti)/(Ts - ts))) # Delta T Medio Logarítmico
+   
+    q_prom = np.mean([q_in,q_ex]) # Promedio del calor (W)
+    ucalc = q_prom/(area_calculada*dtml) # U calculada (Wm2/K)
+    udiseno = transformar_unidades_u([float(intercambiador.u)], intercambiador.u_unidad.pk)[0] # transformación de la U de diseño
+    RF = 1/ucalc - 1/udiseno # Factor de Ensuciamiento respecto a la U de diseño (K/Wm2)
+
+    condicion_tubo = intercambiador.condicion_tubo()
+    condicion_carcasa = intercambiador.condicion_carcasa()
+
+    ct = obtener_c_eficiencia(condicion_tubo, ft, cp_gas_in, cp_liquido_in) # Obtención de la C de tubo
+    cc = obtener_c_eficiencia(condicion_carcasa, Fc, cp_gas_ex, cp_liquido_ex) # Obtención de la C de carcasa
+
+    # Determinación de la Cmín y la Cmáx
+    if(ct < cc):
+        cmin = ct
+        cmax = cc
+        minimo = 1
+    else:
+        cmin = cc
+        cmax = ct
+        minimo = 2
+
+    if(condicion_carcasa.cambio_de_fase in ['T','P'] or condicion_tubo.cambio_de_fase in ['T','P']):
+        cmax = np.Infinity
+
+    # Relación de las C
+    c = cmin/cmax
+    ntu = ucalc*area_calculada/cmin
+
+    if(c == 0): # Cálculo de la Efectividad y la NTU si C = 0
+        efectividad = 1 - np.exp(-1*ntu)
+    else: # Cálculo si C es distinto de  0
+        if(c == 1):
+            eficiencia=ntu/(ntu+1)
+        else:
+            if(arreglo_flujo == 'C'): # Si el arreglo de flujo es en cocorriente
+                eficiencia=(1-np.exp(-1*ntu*(1+c)))/(1+c)
+            elif(arreglo_flujo == 'c'): # Si el arreglo de flujo es en contracorriente
+                if(c != 1):
+                    eficiencia=(1-np.exp(-1*ntu*(1-c)))/(1-c*np.exp(-1*ntu*(1-c)))
+                else:
+                    eficiencia=ntu/(ntu+1)
 
     eficiencia = efectividad/ntu # Cálculo de la Eficiencia
 
