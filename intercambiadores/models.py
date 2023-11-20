@@ -280,18 +280,18 @@ class EvaluacionesIntercambiador(models.Model):
     nombre = models.CharField(max_length=50)
 
     # Datos de Entrada
-    temp_ex_entrada = models.DecimalField(max_digits=12, decimal_places=5)
-    temp_ex_salida = models.DecimalField(max_digits=12, decimal_places=5)
-    temp_in_entrada = models.DecimalField(max_digits=12, decimal_places=5)
-    temp_in_salida = models.DecimalField(max_digits=12, decimal_places=5)
+    temp_ex_entrada = models.DecimalField(max_digits=12, decimal_places=2)
+    temp_ex_salida = models.DecimalField(max_digits=12, decimal_places=2)
+    temp_in_entrada = models.DecimalField(max_digits=12, decimal_places=2)
+    temp_in_salida = models.DecimalField(max_digits=12, decimal_places=2)
     temperaturas_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="temperatura_unidad_evaluacionintercambiador")
 
-    flujo_masico_ex = models.DecimalField(max_digits=12, decimal_places=5) 
-    flujo_masico_in = models.DecimalField(max_digits=12, decimal_places=5)
+    flujo_masico_ex = models.DecimalField(max_digits=12, decimal_places=2) 
+    flujo_masico_in = models.DecimalField(max_digits=12, decimal_places=2)
     unidad_flujo = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="flujo_unidad_evaluacionintercambiador")
 
-    caida_presion_in = models.DecimalField(max_digits=10, decimal_places=3)
-    caida_presion_ex = models.DecimalField(max_digits=10, decimal_places=3)
+    caida_presion_in = models.DecimalField(max_digits=10, decimal_places=2)
+    caida_presion_ex = models.DecimalField(max_digits=10, decimal_places=2)
     unidad_presion = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="presion_unidad_evaluacionintercambiador")
 
     cp_tubo_gas = models.DecimalField(max_digits=10, decimal_places=4, null=True)
@@ -304,12 +304,12 @@ class EvaluacionesIntercambiador(models.Model):
 
     # Datos de Salida
     lmtd = models.DecimalField(max_digits=12, decimal_places=5)
-    area_transferencia = models.DecimalField(max_digits=12, decimal_places=4)
-    u = models.DecimalField(max_digits=15, decimal_places=8)    
-    ua = models.DecimalField(max_digits=15, decimal_places=5) 
-    ntu = models.DecimalField(max_digits=12, decimal_places=5)
-    efectividad = models.DecimalField(max_digits=12, decimal_places=5)
-    eficiencia = models.DecimalField(max_digits=12, decimal_places=5)
+    area_transferencia = models.DecimalField(max_digits=12, decimal_places=2)
+    u = models.DecimalField(max_digits=15, decimal_places=4)    
+    ua = models.DecimalField(max_digits=15, decimal_places=4) 
+    ntu = models.DecimalField(max_digits=12, decimal_places=4)
+    efectividad = models.DecimalField(max_digits=12, decimal_places=2)
+    eficiencia = models.DecimalField(max_digits=12, decimal_places=2)
     ensuciamiento = models.DecimalField(max_digits=15, decimal_places=5)
     q = models.DecimalField(max_digits=12, decimal_places=5)
     numero_tubos = models.IntegerField()

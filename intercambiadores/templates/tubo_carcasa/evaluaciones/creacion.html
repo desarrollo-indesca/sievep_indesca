@@ -821,11 +821,15 @@
     const validarForm = (e) => {
         let mensaje = "";
 
-        if($('#fluido_tubo').val() !== '')
+        if($('#fluido_tubo').val() !== ''){
+            mensaje += "Lado Tubo:\n";
             mensaje += ajaxValidacion('T');
+        }
 
-        if($('#fluido_carcasa').val() !== '')
+        if($('#fluido_carcasa').val() !== ''){
+            mensaje += "\nLado Carcasa:\n";
             mensaje += ajaxValidacion('C');
+        }
 
         if(mensaje !== ''){
             mensaje = "ADVERTENCIA\n" + mensaje + "\n¿Desea continuar igualmente?"
