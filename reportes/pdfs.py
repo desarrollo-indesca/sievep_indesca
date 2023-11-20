@@ -11,8 +11,6 @@ from intercambiadores.models import Planta, Complejo
 
 # Aquí irán los reportes en formato PDF
 
-prefijo = '' #Cambiar al hacer deployment en PythonAnywhere
-
 basicTableStyle = TableStyle(
         [
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
@@ -161,6 +159,29 @@ def intercambiadores_tubo_carcasa(request, object_list):
         ])
         
     table = Table(table, colWidths=[0.5*inch, 2*inch, 3.2*inch, 1.5*inch])
+    table.setStyle(basicTableStyle)
+    story.append(table)
+    return story
+
+def ficha_tecnica_tubo_carcasa(request, object_list):
+    story = []
+    story.append(Spacer(0,60))
+
+    basicTableStyle = TableStyle([
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.Color(0.85, 0.85, 0.85))
+    ])
+
+    table = [[Paragraph("#", centrar_parrafo), Paragraph("Tag", centrar_parrafo), Paragraph("Servicio", centrar_parrafo), Paragraph("Planta", centrar_parrafo)]]
+    for n,x in enumerate(object_list):
+        table.append([
+            Paragraph(str(n+1), numero_tabla),
+            Paragraph(x.intercambiador.tag, parrafo_tabla),
+            Paragraph(x.intercambiador.servicio, parrafo_tabla),
+            Paragraph(x.intercambiador.planta.nombre, parrafo_tabla)
+        ])
+        
+    table = Table(table, colWidths=[0.5*inch, 2*inch, 3*inch, 1.5*inch])
     table.setStyle(basicTableStyle)
     story.append(table)
     return story
