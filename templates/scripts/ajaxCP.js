@@ -518,12 +518,28 @@ const validarForm = (e) => {
     }
 
     let mensaje = "";
+    let q = 0;
+    let n = 0;
 
-    if(!($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().includes('*')&& !$('#fluido_tubo').val().split('*')[1].includes('-')))
-        mensaje += ajaxValidacion('T');
+    if(Number($('#fluido_tubo').val()) || $('#fluido_tubo').val().includes('*') && $('#fluido_tubo').val().split('*')[1].includes('-')){
+        const res = ajaxValidacion('T');
+        mensaje = res[0];
+        q += Number(res[1]);
+        n++;
+    }
 
-    if(!($('#fluido_carcasa').val() === '' || $('#fluido_carcasa').val().includes('*')&& !$('#fluido_carcasa').val().split('*')[1].includes('-')))
-       mensaje += ajaxValidacion('C');
+    if(Number($('#fluido_tubo').val()) || $('#fluido_carcasa').val().includes('*') && $('#fluido_carcasa').val().split('*')[1].includes('-')){
+        const res = ajaxValidacion('C');
+        mensaje = res[0];
+        q += Number(res[1]);
+        n++;
+    }
+
+    if(n > 0)
+        q /= n;
+
+    if(Math.abs(q - Number($('#calor').val()))/Number($('#calor').val()) > 0.05)
+        mensaje += `El calor ingresado difiere por más de un 5% del valor calculado.\n`;
 
     if(mensaje !== ''){
         mensaje = "ADVERTENCIA\n" + mensaje + "\n¿Desea continuar igualmente?"
@@ -537,6 +553,7 @@ const validarForm = (e) => {
 
 function ajaxValidacion(lado = 'C'){
     let mensaje = "";
+    let q = 0;
     $.ajax({
         url: '/intercambiadores/validar_cdf_existente/',
         async: false,
@@ -562,8 +579,9 @@ function ajaxValidacion(lado = 'C'){
             hvap: lado === 'T' ? $('#hvap_tubo').val() : $('#hvap_carcasa').val()
         },
         success: (res) => {
+            q = res.calorcalc;
             if(res.codigo == 400){
-                mensaje += res.mensaje;                    
+                mensaje += res.mensaje;
             }
         },
         error: (res) => {
@@ -573,5 +591,5 @@ function ajaxValidacion(lado = 'C'){
         }
     });
 
-    return mensaje;
+    return [mensaje, q];
 }

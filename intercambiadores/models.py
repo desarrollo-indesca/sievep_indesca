@@ -79,18 +79,6 @@ class Unidades(models.Model):
     class Meta:
         db_table = "unidades"
 
-# Modelo de Tema de Equipo
-class Tema(models.Model):
-    id = models.AutoField(primary_key=True)
-    codigo = models.CharField(max_length=50, unique=True)
-    descripcion = models.TextField(null=True)
-
-    def __str__(self) -> str:
-        return self.codigo.upper()
-
-    class Meta:
-        db_table = "tema"
-
 # Modelo de Fluido para Equipos
 class Fluido(models.Model):
     id = models.AutoField(primary_key=True)
@@ -104,7 +92,6 @@ class Fluido(models.Model):
         ordering = ('nombre',)
         db_table = "fluido"
 
-# Específicos de Intercambiadores Tubo y Carcasa
 class TipoIntercambiador(models.Model):
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=50)
@@ -112,6 +99,20 @@ class TipoIntercambiador(models.Model):
     class Meta:
         db_table = "tipo_intercambiador"
 
+# Modelo de Tema de Equipo
+class Tema(models.Model):
+    id = models.AutoField(primary_key=True)
+    codigo = models.CharField(max_length=50, unique=True)
+    descripcion = models.TextField(null=True)
+    tipo_intercambiador = models.ForeignKey(TipoIntercambiador, on_delete=models.DO_NOTHING, default=1)
+
+    def __str__(self) -> str:
+        return self.codigo.upper()
+
+    class Meta:
+        db_table = "tema"
+
+# Específicos de Intercambiadores Tubo y Carcasa
 class Intercambiador(models.Model):
     id = models.AutoField(primary_key=True)
     tag = models.CharField(max_length=50, unique=True)
