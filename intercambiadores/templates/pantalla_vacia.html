@@ -5,11 +5,6 @@
 {% block encabezado %}
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'seleccion_tipo_intercambiador' %}">↶ Regresar</a></div>
   <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Intercambiadores de Calor {{tipo}}</h3></div>
-  <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
-    {% if request.user.is_superuser %}
-    <a class="btn d-block btn-success" href="{% url 'crear_tubo_carcasa' %}">+ Nuevo</a>
-    {% endif %}
-  </div>
 {% endblock %}
 
 {% block formulario_filtrado %}

@@ -156,7 +156,7 @@
                           </tr>
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;">U ({{intercambiador.u_unidad}})</th>
-                            <td>{{diseno.u}}</td>
+                            <td>{{intercambiador.u|floatformat:4}}</td>
                             <th class="table-dark" style="vertical-align: middle;">UA (W/K)</th>
                             <td>{{diseno.ua}}</td>
                           </tr>
@@ -168,7 +168,7 @@
                           </tr>
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;">Q ({{intercambiador.q_unidad}})</th>
-                            <td>{{diseno.q}}</td>
+                            <td>{{intercambiador.q}}</td>
                             <th class="table-dark" style="vertical-align: middle;">C. Presión Máx. ({{intercambiador.condicion_tubo.unidad_presion}})</th>
                             <td>{{intercambiador.condicion_tubo.caida_presion_max}}</td>
                           </tr>

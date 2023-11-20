@@ -324,15 +324,15 @@
             data[1].data.Final = Number($('#temp_out_tubo').val());
         }
 
-        data[0].label = "Tubo Externo";
-        data[0].backgroundColor = ['#E31E24'];
-        data[0].borderColor = ['#E31E24'];
+        const fluido_caliente = $('#temp_in_carcasa').val() > $('#temp_in_tubo').val() ? 'C' : 'T';
 
-        data[1].label = "Tubo Interno";
-        data[1].backgroundColor = ['#555'];
-        data[1].borderColor = ['#555'];
+        data[0].label = "Tubo Externo (" + (fluido_caliente == 'C' ? "C" : "F") + ")";
+        data[0].backgroundColor = fluido_caliente === 'C' ? ['#E31E24'] : ['#555'];
+        data[0].borderColor = fluido_caliente === 'C' ? ['#E31E24'] : ['#555'];
 
-        console.log(data);
+        data[1].label = "Tubo Interno (" + (fluido_caliente == 'T' ? "C" : "F") + ")";;
+        data[1].backgroundColor = fluido_caliente === 'T' ? ['#E31E24'] : ['#555'];
+        data[1].borderColor = fluido_caliente === 'T' ? ['#E31E24'] : ['#555'];
 
         chart = new Chart(canvas, {
             type: 'line',
@@ -402,18 +402,29 @@
         //     }
         // }
 
-        if(out_carcasa && out_tubo && in_carcasa && in_tubo){
-            
+        if(out_carcasa && out_tubo && in_carcasa && in_tubo){            
             if(in_tubo > out_tubo){
-                if(in_carcasa < in_tubo && out_carcasa > out_tubo){
-                    alert("ADVERTENCIA\n Verifique las temperaturas.");
-                    document.getElementById('registrar_resultado').setAttribute('disabled', true);
-                    return;
+                    if(in_carcasa < in_tubo && out_carcasa > out_tubo){
+                        if(mostrarAdvertencia){
+                            alert("ADVERTENCIA\n Verifique las temperaturas.");
+                            setTimeout(() => {
+                                mostrarAdvertencia = true;
+                            }, 2000);
+                        }
+                        document.getElementById('registrar_resultado').setAttribute('disabled', true);
+                        await delay(2000);
+                        return;
                 }
             } else if(in_tubo < out_tubo){
                 if(in_carcasa > in_tubo && out_carcasa < out_tubo){
-                    alert("ADVERTENCIA\n Verifique las temperaturas.");
+                    if(mostrarAdvertencia){
+                        alert("ADVERTENCIA\n Verifique las temperaturas.");
+                        setTimeout(() => {
+                            mostrarAdvertencia = true;
+                        }, 2000);
+                    }
                     document.getElementById('registrar_resultado').setAttribute('disabled', true);
+                    await delay(2000);
                     return;
                 }
             }
@@ -479,12 +490,12 @@
                     t1,
                     t2,
                     fluido,
+                    intercambiador: '{{intercambiador.pk}}',
                     unidad: $('#unidad_temperaturas').val(),
                     unidad_salida: $('#unidad_cp').val(),
                     cambio_fase: lado === 'C' ? $('#cambio_fase_ficha_carcasa').html() : $('#cambio_fase_ficha_tubo').html(),
                     presion: lado === 'C' ? transformarNumero($('#presion_entrada_carcasa_ficha').html()) : transformarNumero($('#presion_entrada_tubo_ficha').html()),
-                    unidad_presion: unidad_presion_valor,
-                    intercambiador: $('#tag_ficha').val(),
+                    unidad_presiones: unidad_presion_valor,
                     lado: lado
                 },
                 success: (res) => {
@@ -655,16 +666,30 @@
             $('#unidad_cp').removeAttr('disabled');
             if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== '' && $('#tipo_cp_carcasa').val() === 'A')
                 ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
-            else{
-                $('#cp_gas_carcasa').removeAttr('disabled');
-                $('#cp_liquido_carcasa').removeAttr('disabled');                
+            else if($('#tipo_cp_carcasa').val() === 'M'){
+                if($('#cambio_fase_ficha_carcasa').html() === 'S')
+                    if($('#flujo_vapor_entrada_carcasa').html() !== '-')
+                        $('#cp_gas_carcasa').removeAttr('disabled');
+                    else
+                        $('#cp_liquido_carcasa').removeAttr('disabled'); 
+                else{
+                    $('#cp_gas_carcasa').removeAttr('disabled');
+                    $('#cp_liquido_carcasa').removeAttr('disabled');
+                }            
             }
 
             if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== '' && $('#tipo_cp_tubo').val() === 'A')
                 ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
-            else{
-                $('#cp_gas_tubo').removeAttr('disabled');
-                $('#cp_liquido_tubo').removeAttr('disabled');                
+            else if($('#tipo_cp_tubo').val() === 'M'){
+                if($('#cambio_fase_ficha_tubo').html() === 'S')
+                    if($('#flujo_vapor_entrada_tubo').html() !== '-')
+                        $('#cp_gas_tubo').removeAttr('disabled');
+                    else
+                        $('#cp_liquido_tubo').removeAttr('disabled'); 
+                else{
+                    $('#cp_gas_tubo').removeAttr('disabled');
+                    $('#cp_liquido_tubo').removeAttr('disabled');
+                }
             }
 
             $('#tipo_cp_carcasa').removeAttr("disabled");
@@ -773,10 +798,11 @@
                     console.log(res);
 
                     if(mostrarAdvertencia){
-                        alert("Los datos son inválidos para los cálculos de evaluación. Verifique.");
                         mostrarAdvertencia = false;
-                        await delay(2000)
-                        mostrarAdvertencia = true;
+                        alert("Los datos ingresados no son válidos para los cálculos de evaluación del intercambiador.");
+                        setTimeout(() => {
+                            mostrarAdvertencia = true;
+                        }, 2000);
                     }
                     
                     document.getElementById('registrar_resultado').setAttribute('disabled', true);

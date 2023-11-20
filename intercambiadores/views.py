@@ -160,6 +160,10 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
 
         if(not request.POST.get('tipo_cp_tubo')):
             errores.append('El campo Tipo de Cp de Tubo es obligatorio.')
+        else:
+            if(request.POST.get('tipo_cp_carcasa') == 'A'):
+                if(not request.POST.get('fluido_carcasa')):
+                    errores.append('El campo Fluido de Carcasa es obligatorio.')
 
         if(not request.POST.get('unidad_cp')):
             errores.append('El campo Unidad de Cp de Tubo es obligatorio.')
@@ -176,6 +180,9 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
         if(not request.POST.get('flujo_vapor_out_tubo')):
             errores.append('El campo Flujo de Vapor de Salida de Tubo es obligatorio.')
 
+        if(float(request.POST.get('flujo_vapor_in_tubo')) + float(request.POST.get('flujo_liquido_in_tubo')) != float(request.POST.get('flujo_vapor_out_tubo')) + float(request.POST.get('flujo_liquido_out_tubo'))):
+            errores.append('Los flujos de entrada y salida del tubo no coinciden.')
+
         if(not request.POST.get('unidad_flujos')):
             errores.append('El campo Unidad de Flujos es obligatorio.')
 
@@ -190,6 +197,10 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
 
         if(not request.POST.get('tipo_cp_carcasa')):
             errores.append('El campo Tipo de Cp de Carcasa es obligatorio.')
+        else:
+            if(request.POST.get('tipo_cp_carcasa') == 'A'):
+                if(not request.POST.get('fluido_carcasa')):
+                    errores.append('El campo Fluido de Carcasa es obligatorio.')
 
         if(not request.POST.get('flujo_liquido_in_carcasa')):
             errores.append('El campo Flujo de Líquido de Entrada de Carcasa es obligatorio.')
@@ -202,6 +213,9 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
 
         if(not request.POST.get('flujo_vapor_out_carcasa')):
             errores.append('El campo Flujo de Vapor de Salida de Carcasa es obligatorio.')
+
+        if(float(request.POST.get('flujo_vapor_in_carcasa')) + float(request.POST.get('flujo_liquido_in_carcasa')) != float(request.POST.get('flujo_vapor_out_carcasa')) + float(request.POST.get('flujo_liquido_out_carcasa'))):
+            errores.append('Los flujos de entrada y salida de la carcasa no coinciden.')
 
         if(not request.POST.get('caida_presion_max_carcasa')):
             errores.append('El campo Caida de Presión Máxima de Carcasa es obligatorio.')
@@ -229,7 +243,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
         copia_context['complejos'] = Complejo.objects.all()
         copia_context['plantas'] = Planta.objects.filter(complejo__pk=1)
         copia_context['tipos'] = TiposDeTubo.objects.all()
-        copia_context['temas'] = Tema.objects.all()
+        copia_context['temas'] = Tema.objects.filter(tipo_intercambiador__pk=1)
         copia_context['fluidos'] = Fluido.objects.all()
         copia_context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
         copia_context['unidades_longitud'] = Unidades.objects.filter(tipo = 'L')
@@ -454,7 +468,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
         self.context['complejos'] = Complejo.objects.all()
         self.context['plantas'] = Planta.objects.filter(complejo__pk=1)
         self.context['tipos'] = TiposDeTubo.objects.all()
-        self.context['temas'] = Tema.objects.all()
+        self.context['temas'] = Tema.objects.filter(tipo_intercambiador__pk=1)
         self.context['fluidos'] = Fluido.objects.all()
         self.context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
         self.context['unidades_longitud'] = Unidades.objects.filter(tipo = 'L')
@@ -595,7 +609,10 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
                 resultados = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
                 resultados['q'] = round(*transformar_unidades_calor([resultados['q']], 28, intercambiador.q_unidad.pk), 4)
                 resultados['area'] = round(*transformar_unidades_area([resultados['area']], 3, intercambiador.area_unidad.pk), 2)
-                resultados['lmtd'] = round(*transformar_unidades_temperatura([resultados['lmtd']], 2, intercambiador.condicion_carcasa().temperaturas_unidad.pk), 2)
+
+                if(intercambiador.condicion_carcasa().temperaturas_unidad.pk not in [1,2]):
+                    resultados['lmtd'] = round(*transformar_unidades_temperatura([resultados['lmtd']], 2, intercambiador.condicion_carcasa().temperaturas_unidad.pk), 2)
+
                 resultados['factor_ensuciamiento'] = round(*transformar_unidades_ensuciamiento([resultados['factor_ensuciamiento']], 31, intercambiador.ensuciamiento_unidad.pk), 6)
                 resultados['u'] = round(*transformar_unidades_u([resultados['u']], 27, intercambiador.u_unidad.pk), 4)
                 print(resultados)
@@ -883,7 +900,7 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa):
         self.context['tipos'] = TiposDeTubo.objects.all()
         self.context['plantas'] = Planta.objects.filter(complejo__pk=1)
         self.context['tipos'] = TiposDeTubo.objects.all()
-        self.context['temas'] = Tema.objects.all()
+        self.context['temas'] = Tema.objects.filter(tipo_intercambiador__pk=1)
         self.context['fluidos'] = Fluido.objects.all()
         self.context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
         self.context['unidades_longitud'] = Unidades.objects.filter(tipo = 'L')
@@ -952,7 +969,8 @@ class ConsultaEvaluacionesTuboCarcasa(LoginRequiredMixin, ListView):
 
         try:
             context['diseno'] = context['intercambiador'].calcular_diseno()
-        except:
+        except Exception as e:
+            print(str(e))
             print("No se pudo evaluar el diseño del intercambiador.")
 
         return context
@@ -1024,7 +1042,7 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ListView):
             Filtra los datos de acuerdo a los parámetros de filtrado.
     """
     model = PropiedadesTuboCarcasa
-    template_name = 'tubo_carcasa/consulta.html'
+    template_name = 'consulta.html'
     paginate_by = 10
 
     def post(self, request, **kwargs):
@@ -1054,6 +1072,10 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ListView):
         
         if(context['plantax']):
             context['plantax'] = int(context['plantax'])
+
+        context['tipo'] = 1
+        context['tipo_texto'] = 'Tubo/Carcasa'
+        context['link_creacion'] = 'crear_tubo_carcasa'
 
         return context
     
@@ -1089,8 +1111,105 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ListView):
 
         return new_context
 
-# VISTAS GENERALES PARA LOS INTERCAMBIADORES DE CALOR
+# VISTAS PARA LOS INTERCAMBIADORES DE DOBLE TUBO
+class ConsultaDobleTubo(LoginRequiredMixin, ListView):
+    """
+    Resumen:
+        Vista de consulta de evaluaciones. Contiene la lógica de filtrado y paginación.
+        Requiere de inicio de sesión.
 
+    Atributos:
+        model: Model
+            Modelo a mostrar en la consulta. PropiedadesDobleTubo en este caso.
+
+        template_name: str
+            Nombre de la plantilla a renderizar.
+        
+        paginate_by: int
+            Número de registros por pantalla. 
+    
+    Métodos:
+        post(self, request, **kwargs)
+            Función que contiene la lógica de obtención de reportes PDF o XLSX.
+        
+        get_context_data(self, **kwargs)
+            Lleva al contexto los datos de filtrado.
+
+        get_queryset(self)
+            Filtra los datos de acuerdo a los parámetros de filtrado.
+    """
+    model = PropiedadesTuboCarcasa
+    template_name = 'consulta.html'
+    paginate_by = 10
+
+    def post(self, request, **kwargs):
+        if(request.POST['tipo'] == 'pdf'):
+            return generar_pdf(request, self.get_queryset(),"Reporte de Intercambiadores Doble Tubo", "intercambiadores_tubo_carcasa")
+        else:
+            from reportes.xlsx import reporte_tubo_carcasa
+            response = reporte_tubo_carcasa(self.get_queryset(), request)
+            response['Content-Disposition'] = 'attachment; filename="reporte_tubo_carcasa.xlsx"'
+            return response
+            
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["titulo"] = "SIEVEP - Consulta de Intercambiadores de Doble Tubo"
+        context['complejos'] = Complejo.objects.all()
+
+        if(self.request.GET.get('complejo')):
+            context['plantas'] = Planta.objects.filter(complejo= self.request.GET.get('complejo'))
+
+        context['tag'] = self.request.GET.get('tag', '')
+        context['servicio'] = self.request.GET.get('servicio', '')
+        context['complejox'] = self.request.GET.get('complejo')
+        context['plantax'] = self.request.GET.get('planta')
+
+        if(context['complejox']):
+            context['complejox'] = int(context['complejox'])
+        
+        if(context['plantax']):
+            context['plantax'] = int(context['plantax'])
+
+        context['tipo'] = 2
+        context['tipo_texto'] = 'Doble Tubo'
+
+        return context
+    
+    def get_queryset(self):
+        tag = self.request.GET.get('tag', '')
+        servicio = self.request.GET.get('servicio', '')
+        complejo = self.request.GET.get('complejo', '')
+        planta = self.request.GET.get('planta', '')
+
+        new_context = None
+
+        if(planta != '' and complejo != ''):
+            new_context = self.model.objects.filter(
+                intercambiador__planta__pk=planta
+            )
+        elif(complejo != ''):
+            new_context = new_context.filter(
+                intercambiador__planta__complejo__pk=complejo
+            ) if new_context else self.model.objects.filter(
+                intercambiador__planta__complejo__pk=complejo
+            )
+
+        if(not(new_context is None)):
+            new_context = new_context.filter(
+                intercambiador__servicio__icontains = servicio,
+                intercambiador__tag__icontains = tag
+            )
+        else:
+            new_context = self.model.objects.filter(
+                intercambiador__servicio__icontains = servicio,
+                intercambiador__tag__icontains = tag
+            )
+
+        new_context = new_context.filter(intercambiador__tipo = 2)
+
+        return new_context
+
+# VISTAS GENERALES PARA LOS INTERCAMBIADORES DE CALOR
 class ConsultaVacia(LoginRequiredMixin, View):
     """
     Resumen:
@@ -1163,9 +1282,12 @@ class EvaluarTuboCarcasa(LoginRequiredMixin, View):
         res = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
         
         # Transformar a Unidades de Salida
-        # res['q'] = round(*transformar_unidades_calor([res['q']], 28, intercambiador.q_unidad.pk), 4)
+        res['q'] = round(*transformar_unidades_calor([res['q']], 28, intercambiador.q_unidad.pk), 4)
         res['area'] = round(*transformar_unidades_area([res['area']], 3, intercambiador.area_unidad.pk), 2)
-        # res['lmtd'] = round(*transformar_unidades_temperatura([res['lmtd']], 2, intercambiador.condicion_carcasa().temperaturas_unidad.pk), 2)
+        
+        if(intercambiador.condicion_carcasa().temperaturas_unidad.pk not in [1,2]):
+            res['lmtd'] = round(*transformar_unidades_temperatura([res['lmtd']], 2, intercambiador.condicion_carcasa().temperaturas_unidad.pk), 2)
+
         res['factor_ensuciamiento'] = round(*transformar_unidades_ensuciamiento([res['factor_ensuciamiento']], 31, intercambiador.ensuciamiento_unidad.pk), 6)
         res['u'] = round(*transformar_unidades_u([res['u']], 27, intercambiador.u_unidad.pk), 4)
 
@@ -1220,6 +1342,10 @@ class ConsultaCP(LoginRequiredMixin, View):
         presion = transformar_unidades_presion([float(request.GET.get('presion'))], unidad_presiones)[0] if request.GET.get('presion') else 1e5
         t1,t2 = transformar_unidades_temperatura([t1,t2], unidad=unidad)
 
+        print("*"*10)
+        print(request.GET)
+       
+
         if(fluido != ''):
             if(fluido.find('*') != -1):
                 cas = fluido.split('*')[1]
@@ -1238,22 +1364,26 @@ class ConsultaCP(LoginRequiredMixin, View):
                 }
             else:
                 if(request.GET['lado'] == 'C'):
-                    condiciones = Intercambiador.objects.get(tag = request['intercambiador']).intercambiador().condicion_carcasa()
+                    condiciones = PropiedadesTuboCarcasa.objects.get(pk = request.GET['intercambiador'])
+                    condiciones = condiciones.condicion_carcasa()
                 else:
-                    condiciones = Intercambiador.objects.get(tag = request['intercambiador']).intercambiador().condicion_tubo()
+                    condiciones = PropiedadesTuboCarcasa.objects.get(pk = request.GET['intercambiador'])
+                    condiciones = condiciones.condicion_tubo()
 
                 flujos = {
-                    'flujo_vapor_in': float(condiciones.flujo_vapor_in),
-                    'flujo_vapor_out': float(condiciones.flujo_vapor_out),
-                    'flujo_liquido_in': float(condiciones.flujo_liquido_in),
-                    'flujo_liquido_out': float(condiciones.flujo_liquido_out)                    
+                    'flujo_vapor_in': float(condiciones.flujo_vapor_entrada),
+                    'flujo_vapor_out': float(condiciones.flujo_vapor_salida),
+                    'flujo_liquido_in': float(condiciones.flujo_liquido_entrada),
+                    'flujo_liquido_out': float(condiciones.flujo_liquido_salida)                    
                 }
 
             cp_liq, cp_gas = obtener_cps(t1, t2, presion, flujos['flujo_liquido_in'], flujos['flujo_liquido_out'], flujos['flujo_vapor_in'], flujos['flujo_vapor_out'], cas, cambio_fase, unidad_salida)       
         else:
             return JsonResponse({'cp': ''})
-        
+
+        print(request.GET['presion'])        
         print({'cp_liquido': cp_liq, 'cp_gas': cp_gas})
+        print("*"*10)
         
         return JsonResponse({'cp_liquido': cp_liq, 'cp_gas': cp_gas})
         
@@ -1378,7 +1508,6 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
         presion = transformar_unidades_presion([float(request.GET['presion'])], unidad_presiones)[0]
         fluido = request.GET['fluido']
         unidad_calor = int(request.GET['unidad_calor'])
-        calor = transformar_unidades_calor([float(request.GET['calor'])], unidad_calor)[0]
         unidad_cp = int(request.GET['unidad_cp'])
         cp_gas, cp_liquido = float(request.GET['cp_gas']) if request.GET['cp_gas'] != '' else None, float(request.GET['cp_liquido']) if request.GET['cp_liquido'] != '' else None
         cp_gas, cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], unidad=unidad_cp)
@@ -1465,14 +1594,10 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
 
         calorcalc = round(calorcalc, 2)
 
-        if(abs((calor-calorcalc)/calor) > 0.05):
-            codigo = 400
-            mensaje += f"- El calor calculado ({calorcalc}) difiere por más del 5% respecto al calor ingresado ({calor}W).\n"
-
         if(codigo == 200):
-            return JsonResponse({'codigo': codigo})
+            return JsonResponse({'codigo': codigo, 'calorcalc': calorcalc})
         else:
-            return JsonResponse({'codigo': codigo, 'mensaje': mensaje})
+            return JsonResponse({'codigo': codigo, 'mensaje': mensaje, 'calorcalc': calorcalc})
 
 class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, View):
     def get(self, request, pk):
@@ -1595,6 +1720,8 @@ def obtener_cps(t1, t2, presion, flujo_liquido_in, flujo_liquido_out, flujo_vapo
             cp_liquido = calcular_cp(fluido, t1, t1, unidad_cp, presion, 'l')
     else: # Cambio de Fase Total
         tsat = Chemical(fluido).Tsat(presion)
+        print(tsat)
+        print(presion)
         if(t1 <= t2):
             cp_liquido = calcular_cp(fluido, t1, tsat, unidad_cp, presion, 'l')
             cp_gas = calcular_cp(fluido, tsat, t2, unidad_cp, presion, 'g')
