@@ -133,6 +133,7 @@ def calcular_tsat_hvap(cas: str, presion: float):
         tuple -> (Temperatura de saturación (K), Calor latente de vaporización (J/Kg))
     '''
     quimico = Chemical(cas,P=presion)
+    quimico.calculate(T=quimico.Tsat(P=presion))
     return (quimico.Tsat(presion),quimico.Hvap if quimico.Hvap else quimico.Hvap_Tb)
 
 def calcular_fase(cas: str, t1: float, t2: float, presion) -> str:

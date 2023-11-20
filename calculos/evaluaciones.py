@@ -345,8 +345,20 @@ def obtener_c_eficiencia(condicion, flujo: float, cp_gas: float, cp_liquido: flo
         elif(float(condicion.flujo_liquido_salida) == flujo):
             c = flujo * cp_liquido
         else:
-            c = flujo * cp_liquido
-    
+            if(condicion.hvap):
+                c = condicion.flujo_vapor_salida/(condicion.flujo_vapor_salida+condicion.flujo_vapor_entrada)*condicion.hvap
+            else:
+                presion = transformar_unidades_presion([float(condicion.presion_entrada)], condicion.unidad_presion.pk)[0]
+
+                if(condicion.lado == 'C' and condicion.intercambiador.fluido_carcasa or 
+                        condicion.lado == 'T' and condicion.intercambiador.fluido_tubo):
+                    cas = condicion.intercambiador.fluido_carcasa.cas if condicion.lado == 'C' else condicion.intercambiador.fluido_tubo.cas
+                    _,hvap = calcular_tsat_hvap(cas, presion)
+                else:
+                    hvap = float(condicion.hvap) if condicion.hvap else 5000
+
+                calidad = float(condicion.flujo_vapor_salida/(condicion.flujo_vapor_salida+condicion.flujo_liquido_salida))
+                c = calidad*hvap
     return c
 
 def obtener_cambio_fase(flujo_vapor_in: float, flujo_vapor_out: float, flujo_liquido_in: float, flujo_liquido_out: float) -> str:
