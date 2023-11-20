@@ -129,6 +129,12 @@ def generar_historia(request, reporte, object_list):
     if reporte == 'intercambiadores_tubo_carcasa':
         return intercambiadores_tubo_carcasa(request, object_list)
 
+    if reporte == 'ficha_tecnica_tubo_carcasa':
+        return ficha_tecnica_tubo_carcasa(request, object_list)
+
+def reporte_evaluacion(request, object_list):
+    pass
+
 def intercambiadores_tubo_carcasa(request, object_list):
     story = []
     story.append(Spacer(0,60))
@@ -166,22 +172,73 @@ def intercambiadores_tubo_carcasa(request, object_list):
 def ficha_tecnica_tubo_carcasa(request, object_list):
     story = []
     story.append(Spacer(0,60))
+    intercambiador = object_list
 
     basicTableStyle = TableStyle([
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ('BACKGROUND', (0, 0), (-1, 0), colors.Color(0.85, 0.85, 0.85))
     ])
 
-    table = [[Paragraph("#", centrar_parrafo), Paragraph("Tag", centrar_parrafo), Paragraph("Servicio", centrar_parrafo), Paragraph("Planta", centrar_parrafo)]]
-    for n,x in enumerate(object_list):
-        table.append([
-            Paragraph(str(n+1), numero_tabla),
-            Paragraph(x.intercambiador.tag, parrafo_tabla),
-            Paragraph(x.intercambiador.servicio, parrafo_tabla),
-            Paragraph(x.intercambiador.planta.nombre, parrafo_tabla)
-        ])
-        
-    table = Table(table, colWidths=[0.5*inch, 2*inch, 3*inch, 1.5*inch])
-    table.setStyle(basicTableStyle)
+    # Primera Tabla: Datos Generales
+    table = [
+        [
+            Paragraph("Tag", centrar_parrafo), 
+            Paragraph(f"{intercambiador.tag}", centrar_parrafo), 
+            Paragraph("Planta", centrar_parrafo),
+            Paragraph(f"{intercambiador.planta.nombre}", centrar_parrafo)
+        ],
+        [
+            Paragraph("Fabricante", centrar_parrafo), 
+            Paragraph(f"{intercambiador.fabricante}", centrar_parrafo), 
+            Paragraph("Tema", centrar_parrafo),
+            Paragraph(f"{intercambiador.tema.codigo.upper()}", centrar_parrafo)
+        ],
+        [
+            Paragraph("Flujo", centrar_parrafo), 
+            Paragraph(f"{intercambiador.flujo_largo()}", centrar_parrafo), 
+            Paragraph("Tipo", centrar_parrafo), 
+            Paragraph(f"Tubo/Carcasa", centrar_parrafo), 
+        ],
+        [
+            Paragraph("Servicio", centrar_parrafo), 
+            Paragraph(f"{intercambiador.servicio}", centrar_parrafo)
+        ],
+        [
+            Paragraph("Condiciones de Diseño", centrar_parrafo)
+        ]
+    ]
+    estilo = TableStyle(
+        [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('BACKGROUND', (0, 0), (0, 3), colors.Color(0.85, 0.85, 0.85)),
+            ('BACKGROUND', (2, 0), (2, 2), colors.Color(0.85, 0.85, 0.85)),
+            ('SPAN', (1, 3), (3, 3)),
+            ('SPAN', (0, 4), (-1, 4)),
+            ('BACKGROUND', (0, 4), (-1, 4), colors.Color(0.85, 0.85, 0.85)),
+        ]
+    )
+
+    table = Table(table)
+    table.setStyle(estilo)
+    story.append(table)
+      
+    # Segunda Tabla: Condiciones de Diseño
+    table = [
+        [
+            '',
+            Paragraph("Lado Carcasa", centrar_parrafo), 
+            Paragraph(f"Lado Tubo", centrar_parrafo), 
+        ]
+    ]
+
+    estilo = TableStyle(
+        [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('SPAN', (0, 0), (2, 0)),
+        ]
+    )
+    
+    table = Table(table)
+    table.setStyle(estilo)
     story.append(table)
     return story

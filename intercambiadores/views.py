@@ -1046,13 +1046,16 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def post(self, request, **kwargs):
-        if(request.POST['tipo'] == 'pdf'):
+        if(request.POST.get('tipo') == 'pdf'):
             return generar_pdf(request, self.get_queryset(),"Reporte de Intercambiadores Tubo/Carcasa", "intercambiadores_tubo_carcasa")
-        else:
+        elif(request.POST.get('tipo') == 'xlsx'):
             from reportes.xlsx import reporte_tubo_carcasa
             response = reporte_tubo_carcasa(self.get_queryset(), request)
             response['Content-Disposition'] = 'attachment; filename="reporte_tubo_carcasa.xlsx"'
             return response
+        elif(request.POST.get('pdf')):
+            intercambiador = PropiedadesTuboCarcasa.objects.get(pk=request.POST['pdf']).intercambiador
+            return generar_pdf(request, intercambiador, f"Ficha Técnica del Intercambiador {intercambiador.tag}", "ficha_tecnica_tubo_carcasa")
             
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
