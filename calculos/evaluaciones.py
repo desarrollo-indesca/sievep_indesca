@@ -35,6 +35,8 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
 
     q_tubo = calcular_calor(ft, ti, ts, cp_gas_tubo, cp_liquido_tubo, intercambiador, 'T') # Calor del tubo (W)
     q_carcasa = calcular_calor(Fc, Ti, Ts, cp_gas_carcasa, cp_liquido_carcasa, intercambiador, 'C') # Calor de la carcasa (W)
+
+    print(q_carcasa, q_tubo)
     
     nt = nt if nt else float(intercambiador.numero_tubos) # Número de los tubos
 
@@ -223,14 +225,21 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp_gas: float, cp_liquido
         flujo_vapor_out = float(datos.flujo_vapor_salida)
         flujo_liquido_in = float(datos.flujo_liquido_entrada)
         flujo_liquido_out = float(datos.flujo_liquido_salida)
-        print(flujo_vapor_out)
         [flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out] = transformar_unidades_flujo([flujo_vapor_in, flujo_vapor_out, flujo_liquido_in, flujo_liquido_out], datos.flujos_unidad.pk)
-        print(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out)
+
+        caso = determinar_cambio_parcial(flujo_vapor_in, flujo_vapor_out, flujo_liquido_in, flujo_liquido_out)
 
         if(type(fluido) != str):
-                _,hvap = calcular_tsat_hvap(fluido.cas, presion)
+                if(caso[1] == 'D'):
+                    print(t2)
+                    _,hvap = calcular_tsat_hvap(fluido.cas, presion, t2)
+                else:
+                    print(t1)
+                    _,hvap = calcular_tsat_hvap(fluido.cas, presion, t1)
         else:
             hvap = float(datos.hvap) if datos.hvap else 5000
+
+        print(hvap)
 
         return calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out,flujo,t1,t2,hvap,cp_gas,cp_liquido)
     else: # Caso 3: Cambio de Fase Total
@@ -271,7 +280,8 @@ def calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_li
             float -> Q (W) del lado del intercambiador
         '''
         cdf = determinar_cambio_parcial(flujo_vapor_in, flujo_vapor_out, flujo_liquido_in, flujo_liquido_out)
-        calidad = flujo_vapor_out/flujo
+        calidad = abs(flujo_vapor_out-flujo_vapor_in)/(flujo_liquido_in+flujo_vapor_in)
+        print(calidad)
 
         if(cdf == 'DD'):
             return hvap*calidad*flujo

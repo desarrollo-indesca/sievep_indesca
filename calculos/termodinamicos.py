@@ -120,7 +120,7 @@ def entalpia_g_a_l(quimico: Chemical, t1: float, t2: float, presion: float, tsat
 
     return abs(numpy.ceil(h_liquido+h_vapor-h_liquido_saturado)*1000) # J/Kg
 
-def calcular_tsat_hvap(cas: str, presion: float):
+def calcular_tsat_hvap(cas: str, presion: float, tsat: float = None) -> tuple:
     '''
     Resumen:
         Calcula la temperatura de saturación y el calor latente de vaporización de un fluido a una presión dada mediante su CAS.
@@ -133,8 +133,13 @@ def calcular_tsat_hvap(cas: str, presion: float):
         tuple -> (Temperatura de saturación (K), Calor latente de vaporización (J/Kg))
     '''
     quimico = Chemical(cas,P=presion)
-    quimico.calculate(T=quimico.Tsat(P=presion))
-    return (quimico.Tsat(presion),quimico.Hvap if quimico.Hvap else quimico.Hvap_Tb)
+
+    if(not tsat):
+        tsat = quimico.Tsat(presion)
+    
+    quimico.calculate(tsat)
+
+    return (tsat,quimico.Hvap if quimico.Hvap else quimico.Hvap_Tb)
 
 def calcular_fase(cas: str, t1: float, t2: float, presion) -> str:
     """
