@@ -699,6 +699,7 @@
         if($('#tipo_cp_tubo').val() === 'A'){
             $('#cp_liquido_tubo').attr('disabled',true);
             $('#cp_gas_tubo').attr('disabled',true);
+            ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
         }
         else{
             if($('#cambio_fase_ficha_tubo').html() === 'S')
@@ -717,6 +718,7 @@
         if($('#tipo_cp_carcasa').val() === 'A'){
             $('#cp_liquido_carcasa').attr('disabled',true);
             $('#cp_gas_carcasa').attr('disabled',true);
+            ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
         }
         else{
             if($('#cambio_fase_ficha_carcasa').html() === 'S')
