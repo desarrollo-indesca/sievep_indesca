@@ -213,7 +213,7 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp_gas: float, cp_liquido
 
     fluido = intercambiador.fluido_tubo if lado == 'T' else intercambiador.fluido_carcasa
     datos = intercambiador.condicion_tubo() if lado == 'T' else intercambiador.condicion_carcasa()
-    presion = transformar_unidades_presion([float(datos.presion_entrada)], datos.unidad_presion)[0]
+    presion = transformar_unidades_presion([float(datos.presion_entrada)], datos.unidad_presion.pk)[0]
 
     if(fluido == None):
         fluido = datos.fluido_etiqueta if lado == 'T' else datos.fluido_etiqueta
@@ -281,7 +281,6 @@ def calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_li
         '''
         cdf = determinar_cambio_parcial(flujo_vapor_in, flujo_vapor_out, flujo_liquido_in, flujo_liquido_out)
         calidad = abs(flujo_vapor_out-flujo_vapor_in)/(flujo_liquido_in+flujo_vapor_in)
-        print(calidad)
 
         if(cdf == 'DD'):
             return hvap*calidad*flujo
@@ -316,10 +315,10 @@ def  calcular_calor_cdft(flujo,t1,t2,fluido,presion,datos,cp_gas,cp_liquido) -> 
         tsat,hvap = calcular_tsat_hvap(fluido.cas, presion)
     else:
         tsat = transformar_unidades_temperatura([float(datos.tsat)], datos.temperaturas_unidad)[0]
-        hvap = float(hvap) if hvap else 5000
-        
+        hvap = float(datos.hvap) if datos.hvap else datos
+
     try:
-        fluido_cp_gas, fluido_cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], datos.unidad_cp)
+        fluido_cp_gas, fluido_cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], datos.unidad_cp.pk, 29)
     except:
         fluido_cp_gas, fluido_cp_liquido = cp_gas, cp_liquido
 

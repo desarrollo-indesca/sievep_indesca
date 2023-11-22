@@ -359,7 +359,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
                     tsatt = transformar_unidades_temperatura([tsat], int(request.POST.get('unidad_temperaturas')))[0]
                     flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out],
                                                                                                                 int(request.POST.get('unidad_flujos')))
-                    cp_gast,cp_liquidot = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp)
+                    cp_gast,cp_liquidot = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp, 29)
                     calor = transformar_unidades_calor([calor],propiedades.q_unidad.pk)[0]
 
                     hvap,tsat = obtener_hvap_tsat(t1, t2, cambio_fase, tsatt, hvap, calor, cp_gast, cp_liquidot,
@@ -1416,6 +1416,7 @@ class ConsultaGraficasEvaluacion(LoginRequiredMixin, View):
 
 class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
     def get(self, request):
+        print(request.GET)
         flujo_vapor_in = float(request.GET['flujo_vapor_in'])
         flujo_vapor_out = float(request.GET['flujo_vapor_out'])
         flujo_liquido_in = float(request.GET['flujo_liquido_in'])
@@ -1428,10 +1429,9 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
         unidad_presiones = int(request.GET['unidad_presiones'])
         presion = transformar_unidades_presion([float(request.GET['presion'])], unidad_presiones)[0]
         fluido = request.GET['fluido']
-        unidad_calor = int(request.GET['unidad_calor'])
         unidad_cp = int(request.GET['unidad_cp'])
         cp_gas, cp_liquido = float(request.GET['cp_gas']) if request.GET['cp_gas'] != '' else None, float(request.GET['cp_liquido']) if request.GET['cp_liquido'] != '' else None
-        cp_gas, cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], unidad=unidad_cp)
+        cp_gas, cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], unidad_cp, 29)
         
         if(fluido.find('*') != -1): # Fluido no existe
             fluido = fluido.split('*')
@@ -1444,7 +1444,7 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
         tsat = round(quimico.Tsat(presion), 2)
         codigo = 200
         mensaje = f"\n Lado {lado}:\n"
-
+        
         if(cambio_fase == 'T'):
             if(flujo_vapor_in and quimico.phase != 'g'):
                 codigo = 400
@@ -1461,18 +1461,13 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
             elif(flujo_vapor_out and flujo_liquido_in and t1 > tsat*1.05):
                 codigo = 400
                 mensaje += f"- De acuerdo a los flujos, usted colocó una vaporización. Sin embargo, la temperatura de saturación de la base de datos para este fluido a esa presión ({tsat}K) es MENOR por más de un 5% a la temperatura inicial.\n"
-        
-            if(type(fluido) == Fluido):
-                _,hvap = calcular_tsat_hvap(fluido.cas, presion)
-            else:
-                hvap = float(request.GET['hvap']) if request.GET['hvap'] else 5000
-
-            calorcalc = calcular_calor_cdft(flujo_vapor_in+flujo_liquido_in, t1, t2, fluido, presion, hvap, cp_gas, cp_liquido)
+            
+            calorcalc = calcular_calor_cdft(flujo_vapor_in+flujo_liquido_in, t1, t2, fluido, presion, None, cp_gas, cp_liquido)
         elif(cambio_fase == 'P'):
             caso = determinar_cambio_parcial(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in, flujo_liquido_out)
 
             if(type(fluido) == Fluido):
-                _,hvap = calcular_tsat_hvap(fluido.cas, presion)
+                _,hvap = calcular_tsat_hvap(fluido.cas, presion, t2) if caso[1] == 'D' else calcular_tsat_hvap(fluido.cas, presion, t1)
             else:
                 hvap = float(request.GET['hvap']) if request.GET['hvap'] else 5000
 
@@ -1514,6 +1509,8 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
             calorcalc = calcular_calor_scdf(flujo_vapor_in+flujo_liquido_in, t1, t2, cp_gas if cp_gas else cp_liquido)
 
         calorcalc = round(calorcalc, 2)
+
+        print(calorcalc)
 
         if(codigo == 200):
             return JsonResponse({'codigo': codigo, 'calorcalc': calorcalc})
