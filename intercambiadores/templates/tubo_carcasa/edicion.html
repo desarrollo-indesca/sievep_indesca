@@ -783,7 +783,7 @@
                     <div class="col-3">
                         <label class="form-label" for="u">U:</label>
                         <div class="input-group">
-                            <input style="width: 60% !important;" value="{% if intercambiador.u %}{{intercambiador.u|unlocalize}}{% endif %}" class="form-control" type="number" name="u" id="u">
+                            <input style="width: 60% !important;" max="99999999.999" step="0.001" min="0.001" value="{% if intercambiador.u %}{{intercambiador.u|unlocalize}}{% endif %}" class="form-control" type="number" name="u" id="u">
                             <select style="width: 40% !important;" class="form-select" name="unidad_u" id="unidad_u">
                                 {% for unidad in unidades_u %}
                                 <option value="{{unidad.pk}}" {% if intercambiador.u_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>                                

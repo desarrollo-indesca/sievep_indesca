@@ -1,5 +1,5 @@
 import numpy as np
-from .unidades import transformar_unidades_temperatura, transformar_unidades_flujo, transformar_unidades_longitud, transformar_unidades_presion, transformar_unidades_cp, transformar_unidades_u
+from .unidades import transformar_unidades_temperatura, transformar_unidades_area, transformar_unidades_flujo, transformar_unidades_longitud, transformar_unidades_presion, transformar_unidades_cp, transformar_unidades_u
 from ht import F_LMTD_Fakheri
 from .termodinamicos import calcular_tsat_hvap
 
@@ -40,10 +40,13 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
     
     nt = nt if nt else float(intercambiador.numero_tubos) # Número de los tubos
 
-    diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_tubos)], intercambiador.diametro_tubos_unidad.pk)[0] # Diametro (OD), transformacion a m
-    longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad.pk)[0] # Longitud, transformacion a m
+    # diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_tubos)], intercambiador.diametro_tubos_unidad.pk)[0] # Diametro (OD), transformacion a m
+    # longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad.pk)[0] # Longitud, transformacion a m
 
-    area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
+    # area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
+
+    area_calculada = transformar_unidades_area([float(intercambiador.area/intercambiador.numero_tubos)*nt], intercambiador.area_unidad.pk)[0] #m2
+
     num_pasos_carcasa = float(intercambiador.numero_pasos_carcasa)
     num_pasos_tubo = float(intercambiador.numero_pasos_tubo)
     dtml = abs(((Ti - ts) - (Ts - ti))/np.log(abs((Ti - ts)/(Ts - ti)))) # Delta T Medio Logarítmico
@@ -74,7 +77,7 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
 
     if(condicion_carcasa.cambio_de_fase in ['T','P'] or condicion_tubo.cambio_de_fase in ['T','P']):
         cmax = np.Infinity
-
+    
     # Relación de las C
     c = cmin/cmax
     ntu = ucalc*area_calculada/cmin
@@ -230,16 +233,14 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp_gas: float, cp_liquido
         caso = determinar_cambio_parcial(flujo_vapor_in, flujo_vapor_out, flujo_liquido_in, flujo_liquido_out)
 
         if(type(fluido) != str):
-                if(caso[1] == 'D'):
-                    print(t2)
-                    _,hvap = calcular_tsat_hvap(fluido.cas, presion, t2)
-                else:
-                    print(t1)
-                    _,hvap = calcular_tsat_hvap(fluido.cas, presion, t1)
+            if(caso[1] == 'D'):
+                print(t2)
+                _,hvap = calcular_tsat_hvap(fluido.cas, presion, t2)
+            else:
+                print(t1)
+                _,hvap = calcular_tsat_hvap(fluido.cas, presion, t1)
         else:
             hvap = float(datos.hvap) if datos.hvap else 5000
-
-        print(hvap)
 
         return calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out,flujo,t1,t2,hvap,cp_gas,cp_liquido)
     else: # Caso 3: Cambio de Fase Total
@@ -291,6 +292,7 @@ def calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_li
         elif(cdf == 'LD'):
             return flujo*((t2-t1)*cp_liquido + hvap*calidad)
         elif(cdf == 'VD'):
+            print(flujo, t2, t1, cp_gas, calidad, hvap, calidad)
             return abs(flujo*((t2-t1)*cp_gas - hvap*calidad))
 
 def  calcular_calor_cdft(flujo,t1,t2,fluido,presion,datos,cp_gas,cp_liquido) -> float:
@@ -314,7 +316,7 @@ def  calcular_calor_cdft(flujo,t1,t2,fluido,presion,datos,cp_gas,cp_liquido) -> 
     if(type(fluido) != str):
         tsat,hvap = calcular_tsat_hvap(fluido.cas, presion)
     else:
-        tsat = transformar_unidades_temperatura([float(datos.tsat)], datos.temperaturas_unidad)[0]
+        tsat = transformar_unidades_temperatura([float(datos.tsat)], datos.temperaturas_unidad.pk)[0]
         hvap = float(datos.hvap) if datos.hvap else datos
 
     try:
@@ -368,7 +370,7 @@ def obtener_c_eficiencia(condicion, flujo: float, cp_gas: float, cp_liquido: flo
 
                 calidad = float(condicion.flujo_vapor_salida/(condicion.flujo_vapor_salida+condicion.flujo_liquido_salida))
                 c = calidad*hvap
-    return c
+    return float(c)
 
 def obtener_cambio_fase(flujo_vapor_in: float, flujo_vapor_out: float, flujo_liquido_in: float, flujo_liquido_out: float) -> str:
     """

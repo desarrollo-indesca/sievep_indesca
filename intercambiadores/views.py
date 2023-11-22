@@ -772,7 +772,7 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa):
                 unidad_cp = int(request.POST['unidad_cp'])
                 flujo_liquido_in,flujo_liquido_out = float(request.POST.get('flujo_liquido_in_tubo')),float(request.POST.get('flujo_liquido_out_tubo'))
                 flujo_vapor_in,flujo_vapor_out = float(request.POST.get('flujo_vapor_in_tubo')), float(request.POST.get('flujo_vapor_out_tubo'))
-                cambio_fase = obtener_cambio_fase(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in,flujo_liquido_out)
+                cambio_fase = obtener_cambio_fase(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out)
 
                 if(tipo_cp == 'A'):
                     cp_liquido,cp_gas = obtener_cps(t1,t2,presion,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in,flujo_vapor_out,propiedades.fluido_tubo.cas,cambio_fase,unidad_cp)
@@ -1416,7 +1416,6 @@ class ConsultaGraficasEvaluacion(LoginRequiredMixin, View):
 
 class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
     def get(self, request):
-        print(request.GET)
         flujo_vapor_in = float(request.GET['flujo_vapor_in'])
         flujo_vapor_out = float(request.GET['flujo_vapor_out'])
         flujo_liquido_in = float(request.GET['flujo_liquido_in'])
@@ -1432,7 +1431,7 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
         unidad_cp = int(request.GET['unidad_cp'])
         cp_gas, cp_liquido = float(request.GET['cp_gas']) if request.GET['cp_gas'] != '' else None, float(request.GET['cp_liquido']) if request.GET['cp_liquido'] != '' else None
         cp_gas, cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], unidad_cp, 29)
-        
+       
         if(fluido.find('*') != -1): # Fluido no existe
             fluido = fluido.split('*')
             if(fluido[1].find('-') != -1):
@@ -1440,7 +1439,7 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
         elif fluido != '': # Fluido Existente
             fluido = Fluido.objects.get(pk=fluido)
 
-        quimico = Chemical(fluido.cas, T= t1, P=presion)
+        quimico = Chemical(fluido.cas, T=t1, P=presion)
         tsat = round(quimico.Tsat(presion), 2)
         codigo = 200
         mensaje = f"\n Lado {lado}:\n"
@@ -1506,11 +1505,9 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
                 codigo = 400
                 mensaje += "- Aunque entra y sale vapor, las temperaturas son mayores a la temperatura de saturación de la base de datos por más del 5%.\n"
 
-            calorcalc = calcular_calor_scdf(flujo_vapor_in+flujo_liquido_in, t1, t2, cp_gas if cp_gas else cp_liquido)
+            calorcalc = calcular_calor_scdf(flujo_vapor_in+flujo_liquido_in, cp_gas if cp_gas else cp_liquido, t1, t2)
 
         calorcalc = round(calorcalc, 2)
-
-        print(calorcalc)
 
         if(codigo == 200):
             return JsonResponse({'codigo': codigo, 'calorcalc': calorcalc})
@@ -1525,7 +1522,7 @@ class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, View):
         flujo_liquido_out = float(condicion.flujo_liquido_salida)
         flujo_vapor_in = float(condicion.flujo_vapor_entrada)
         flujo_vapor_out = float(condicion.flujo_vapor_salida)
-        flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out], condicion.flujos_unidad)
+        flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out], condicion.flujos_unidad.pk)
         cambio_fase = condicion.cambio_de_fase
         lado = 'Carcasa' if request.GET['lado'] == 'C' else 'Tubo'
         unidad_temperaturas = condicion.temperaturas_unidad.pk
@@ -1638,8 +1635,6 @@ def obtener_cps(t1, t2, presion, flujo_liquido_in, flujo_liquido_out, flujo_vapo
             cp_liquido = calcular_cp(fluido, t1, t1, unidad_cp, presion, 'l')
     else: # Cambio de Fase Total
         tsat = Chemical(fluido).Tsat(presion)
-        print(tsat)
-        print(presion)
         if(t1 <= t2):
             cp_liquido = calcular_cp(fluido, t1, tsat, unidad_cp, presion, 'l')
             cp_gas = calcular_cp(fluido, tsat, t2, unidad_cp, presion, 'g')
@@ -1663,20 +1658,17 @@ def obtener_hvap_tsat(t1, t2, cambio_fase, tsat, hvap, q, cp_gas, cp_liquido, fl
                 hvap = q/m-cp_liquido*(tsat-t1)-cp_gas*(t2-tsat)
             else: # "Si no lo hay", Condensación
                 hvap = (q/m-cp_gas*(tsat-t1)-cp_liquido*(t2-tsat))           
-    elif(cambio_fase == 'P' and hvap == None): # Cambio de Fase Parcial y no se tiene Hv
+    elif(cambio_fase == 'P'): # Cambio de Fase Parcial y no se tiene Hv
         caso = determinar_cambio_parcial(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in, flujo_liquido_out)
-        calidad = flujo_vapor_out/(flujo_vapor_out + flujo_liquido_out)
-
-        print(":V")
+        calidad = abs(flujo_vapor_out-flujo_vapor_in)/(flujo_vapor_out + flujo_liquido_out)
+        flujo = (flujo_vapor_out + flujo_liquido_out)
 
         if(caso == 'DD'): # Domo a Domo
-            hvap = q/calidad
+            hvap = q/(calidad*flujo)
         elif(caso == 'LD'): # Domo a Líquido o Líquido a Domo
-            hvap = (q-cp_liquido*(t2-t1))/calidad
-        elif(caso == 'DL'):
-            hvap = (q/flujo_vapor_in-cp_liquido*(t2-t1)) 
+            hvap = (q/flujo-cp_liquido*abs(t2-t1))/calidad
         elif(caso == 'DV' or caso == 'VD'): # Domo a Vapor, Vapor a Domo
-            hvap = (q-cp_gas*(t2-t1))/calidad
+            hvap = (q/flujo-cp_gas*abs(t2-t1))/calidad
 
     hvap = abs(hvap)
     tsat = abs(tsat)

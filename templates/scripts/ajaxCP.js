@@ -538,7 +538,9 @@ const validarForm = (e) => {
     if(n > 0)
         q /= n;
 
-    if(Math.abs(q - Number($('#calor').val()))/Number($('#calor').val()) > 0.05)
+    if((Number($('#fluido_tubo').val()) || $('#fluido_tubo').val().includes('*') && $('#fluido_tubo').val().split('*')[1].includes('-') 
+        || Number($('#fluido_tubo').val()) || $('#fluido_carcasa').val().includes('*') && $('#fluido_carcasa').val().split('*')[1].includes('-'))
+        && Math.abs(q - Number($('#calor').val()))/Number($('#calor').val()) > 0.05)
         mensaje += `El calor ingresado difiere por más de un 5% del valor calculado.\n`;
 
     if(mensaje !== ''){
