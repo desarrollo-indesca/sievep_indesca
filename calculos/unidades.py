@@ -21,7 +21,10 @@ def transformar_unidades_temperatura(args: list, unidad: int, unidad_salida: int
     unidad = ur.degC if unidad == 1 else ur.degR if unidad == 8 else ur.degF if unidad != 2 else ur.kelvin
 
     for x in args:
-        actualizadas.append(Q_(x, unidad).to(unidad_salida).magnitude)
+        if(x == None):
+            actualizadas.append(None)
+        else:
+            actualizadas.append(Q_(x, unidad).to(unidad_salida).magnitude)
 
     return actualizadas
 

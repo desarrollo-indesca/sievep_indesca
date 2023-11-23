@@ -275,6 +275,10 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
                     arreglo_flujo = request.POST['flujo']
                 )
 
+                print(request.POST)
+
+                print("A")
+
                 fluido_tubo = request.POST['fluido_tubo']
                 fluido_carcasa = request.POST['fluido_carcasa']
 
@@ -337,6 +341,8 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
                     ensuciamiento_unidad = Unidades.objects.get(pk=request.POST['unidad_fouling'])
                 )
 
+                print("B")
+
                 # Condiciones de Diseño del Tubo
                 t1,t2 = transformar_unidades_temperatura([float(request.POST['temp_in_tubo']), float(request.POST['temp_out_tubo'])], int(request.POST['unidad_temperaturas']))
                 presion = transformar_unidades_presion([float(request.POST['presion_entrada_tubo'])], int(request.POST['unidad_presiones']))[0]
@@ -345,6 +351,8 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
                 flujo_liquido_in,flujo_liquido_out = float(request.POST.get('flujo_liquido_in_tubo')),float(request.POST.get('flujo_liquido_out_tubo'))
                 flujo_vapor_in,flujo_vapor_out = float(request.POST.get('flujo_vapor_in_tubo')), float(request.POST.get('flujo_vapor_out_tubo'))
                 cambio_fase = obtener_cambio_fase(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in,flujo_liquido_out)
+
+                print("C")
 
                 if(tipo_cp == 'A'):
                     cp_liquido,cp_gas = obtener_cps(t1,t2,presion,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in,flujo_vapor_out,Fluido.objects.get(pk=request.POST.get('fluido_tubo')).cas,cambio_fase,unidad_cp)
@@ -364,7 +372,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
 
                     hvap,tsat = obtener_hvap_tsat(t1, t2, cambio_fase, tsatt, hvap, calor, cp_gast, cp_liquidot,
                                             flujo_vapor_in, flujo_liquido_in, flujo_vapor_out, flujo_liquido_out)
-                    
+                                       
                     tsat = transformar_unidades_temperatura([tsat], 2, int(request.POST.get('unidad_temperaturas')))[0]
 
                 condiciones_diseno_tubo = CondicionesTuboCarcasa.objects.create(
@@ -419,7 +427,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
                     tsatt = transformar_unidades_temperatura([tsat], int(request.POST.get('unidad_temperaturas')))[0]
                     flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out],
                                                                                                                 int(request.POST.get('unidad_flujos')))
-                    cp_gast,cp_liquidot = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp)
+                    cp_gast,cp_liquidot = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp, 29)
                     calor = transformar_unidades_calor([calor],propiedades.q_unidad.pk)[0]
 
                     hvap,tsat = obtener_hvap_tsat(t1, t2, cambio_fase, tsatt, hvap, calor, cp_gast, cp_liquidot,
@@ -787,7 +795,7 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa):
                     tsatt = transformar_unidades_temperatura([tsat], int(request.POST.get('unidad_temperaturas')))[0]
                     flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out],
                                                                                                                 int(request.POST.get('unidad_flujos')))
-                    cp_gast,cp_liquidot = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp)
+                    cp_gast,cp_liquidot = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp, 29)
                     calor = transformar_unidades_calor([calor],propiedades.q_unidad.pk)[0]
 
                     hvap,tsat = obtener_hvap_tsat(t1, t2, cambio_fase, tsatt, hvap, calor, cp_gast, cp_liquidot,
@@ -844,7 +852,7 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa):
                     tsatt = transformar_unidades_temperatura([tsat], int(request.POST.get('unidad_temperaturas')))[0]
                     flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out],
                                                                                                                 int(request.POST.get('unidad_flujos')))
-                    cp_gast,cp_liquidot = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp)
+                    cp_gast,cp_liquidot = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp, 29)
                     calor = transformar_unidades_calor([calor],propiedades.q_unidad.pk)[0]
 
                     hvap,tsat = obtener_hvap_tsat(t1, t2, cambio_fase, tsatt, hvap, calor, cp_gast, cp_liquidot,
@@ -1532,7 +1540,7 @@ class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, View):
         fluido = intercambiador.fluido_carcasa if request.GET['lado'] == 'C' else intercambiador.fluido_tubo
         unidad_cp = condicion.unidad_cp.pk
         cp_gas, cp_liquido = float(request.GET['cp_gas']) if request.GET['cp_gas'] != '' else None, float(request.GET['cp_liquido']) if request.GET['cp_liquido'] != '' else None
-        cp_gas, cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], unidad=unidad_cp)
+        cp_gas, cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], unidad=unidad_cp, unidad_salida=29)
 
         unidad_calor = float(request.GET['unidad_calor'])
         calor = transformar_unidades_calor([float(request.GET['calor'])], unidad_calor)[0]
@@ -1546,8 +1554,8 @@ class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, View):
         quimico = Chemical(fluido.cas, T= t1, P=presion)
         tsat = round(quimico.Tsat(presion), 2)
         codigo = 200
-        mensaje = f"\n Lado {lado}:\n"
-
+        mensaje = ""
+        
         if(cambio_fase == 'T'):
             if(flujo_vapor_in and quimico.phase != 'g'):
                 codigo = 400
@@ -1665,12 +1673,16 @@ def obtener_hvap_tsat(t1, t2, cambio_fase, tsat, hvap, q, cp_gas, cp_liquido, fl
 
         if(caso == 'DD'): # Domo a Domo
             hvap = q/(calidad*flujo)
-        elif(caso == 'LD'): # Domo a Líquido o Líquido a Domo
+        elif(caso == 'LD' or caso == 'DL'): # Domo a Líquido o Líquido a Domo
             hvap = (q/flujo-cp_liquido*abs(t2-t1))/calidad
         elif(caso == 'DV' or caso == 'VD'): # Domo a Vapor, Vapor a Domo
+            print(calidad)
+            print(q)
+            print(flujo)
+            print(cp_gas)
             hvap = (q/flujo-cp_gas*abs(t2-t1))/calidad
 
-    hvap = abs(hvap)
-    tsat = abs(tsat)
+    hvap = abs(hvap) if hvap else None
+    tsat = abs(tsat) if tsat else None
 
     return (hvap,tsat)

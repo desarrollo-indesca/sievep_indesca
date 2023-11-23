@@ -473,9 +473,10 @@ const validarForm = (e) => {
 
     if($('#cambio_fase_carcasa').val() == 'P' && Number($('#flujo_vapor_in_carcasa').val()) && Number($('#flujo_vapor_out_carcasa').val())
         && Number($('#flujo_liquido_in_carcasa').val()) && Number($('#flujo_liquido_out_carcasa').val())
-        && Number($('#temp_in_carcasa').val()) !== Number($('#temp_out_carcasa').val())){
-        alert("Las temperaturas no pueden ser distintas en un cambio de fase parcial dentro del domo.")
-        return false;
+        && Number($('#temp_in_carcasa').val()) !== Number($('#temp_out_carcasa').val())
+        && !($('#fluido_carcasa').val() === '' || $('#fluido_carcasa').val().indexOf('*') !== -1 && $('#fluido_carcasa').val().split('*')[1].indexOf('-') === -1)){
+        if(!confirm("Lado Carcasa:\n Las temperaturas no deberían ser distintas en un cambio de fase parcial dentro del domo. ¿Desea continuar igualmente?"))
+            return false;
     }
 
     if($('#cambio_fase_tubo').val() == 'T' && $('#tipo_cp_tubo').val() === 'M'
@@ -488,33 +489,35 @@ const validarForm = (e) => {
 
     if($('#cambio_fase_tubo').val() == 'P' && Number($('#flujo_vapor_in_tubo').val()) && Number($('#flujo_vapor_out_tubo').val())
         && Number($('#flujo_liquido_in_tubo').val()) && Number($('#flujo_liquido_out_tubo').val())
-        && Number($('#temp_in_tubo').val()) !== Number($('#temp_out_tubo').val())){
-        alert("Las temperaturas no pueden ser distintas en un cambio de fase parcial dentro del domo.")
-        return false;
+        && Number($('#temp_in_tubo').val()) !== Number($('#temp_out_tubo').val()) 
+        && !($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().indexOf('*') !== -1 && $('#fluido_tubo').val().split('*')[1].indexOf('-') === -1)){
+        
+        if(!confirm("Lado Tubo:\n Las temperaturas no deberían ser distintas en un cambio de fase parcial dentro del domo. ¿Desea continuar igualmente?"))
+            return false;
     }
 
     if(Number($('#flujo_vapor_in_tubo').val()) > Number($('#flujo_vapor_out_tubo').val())
         && Number($('#temp_in_tubo').val()) < Number($('#temp_out_tubo').val())){
-        alert("Lado Tubo: Al presentarse una condensación las temperaturas no deberían aumentar.")
-        return false;
+        if(!confirm("Lado Tubo:\n Al presentarse una condensación las temperaturas no deberían aumentar. ¿Desea continuar igualmente?"))
+            return false;
     }
 
     if(Number($('#flujo_vapor_in_carcasa').val()) > Number($('#flujo_vapor_out_carcasa').val())
         && Number($('#temp_in_carcasa').val()) < Number($('#temp_out_carcasa').val())){
-        alert("Lado Carcasa: Al presentarse una condensación las temperaturas no deberían aumentar.")
-        return false;
+        if(!confirm("Lado Carcasa:\n Al presentarse una condensación las temperaturas no deberían aumentar. ¿Desea continuar igualmente?"))
+            return false;
     }
 
     if(Number($('#flujo_liquido_in_tubo').val()) > Number($('#flujo_liquido_out_tubo').val())
         && Number($('#temp_in_tubo').val()) > Number($('#temp_out_tubo').val())){
-        alert("Lado Tubo: Al presentarse una evaporación las temperaturas no deberían disminuir.")
-        return false;
+        if(!confirm("Lado Tubo:\n Al presentarse una evaporación las temperaturas no deberían disminuir. ¿Desea continuar igualmente?"))
+            return false;
     }
 
     if(Number($('#flujo_liquido_in_carcasa').val()) > Number($('#flujo_liquido_out_carcasa').val())
         && Number($('#temp_in_carcasa').val()) > Number($('#temp_out_carcasa').val())){
-        alert("Lado Carcasa: Al presentarse una evaporación las temperaturas no deberían disminuir.")
-        return false;
+        if(!confirm("Lado Carcasa:\n Al presentarse una evaporación las temperaturas no deberían disminuir. ¿Desea continuar igualmente?"))
+            return false;
     }
 
     let mensaje = "";
