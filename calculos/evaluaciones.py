@@ -40,18 +40,19 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
     
     nt = nt if nt else float(intercambiador.numero_tubos) # Número de los tubos
 
-    # diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_tubos)], intercambiador.diametro_tubos_unidad.pk)[0] # Diametro (OD), transformacion a m
-    # longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad.pk)[0] # Longitud, transformacion a m
+    diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_tubos)], intercambiador.diametro_tubos_unidad.pk)[0] # Diametro (OD), transformacion a m
+    longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad.pk)[0] # Longitud, transformacion a m
 
-    # area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
-
-    area_calculada = transformar_unidades_area([float(intercambiador.area/intercambiador.numero_tubos)*nt], intercambiador.area_unidad.pk)[0] #m2
+    area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
 
     num_pasos_carcasa = float(intercambiador.numero_pasos_carcasa)
     num_pasos_tubo = float(intercambiador.numero_pasos_tubo)
     dtml = abs(((Ti - ts) - (Ts - ti))/np.log(abs((Ti - ts)/(Ts - ti)))) # Delta T Medio Logarítmico
-
-    factor = round(F_LMTD_Fakheri(Ti, Ts, ti, ts, num_pasos_carcasa),3)  # Factor de corrección
+    
+    try:
+        factor = round(F_LMTD_Fakheri(Ti, Ts, ti, ts, num_pasos_carcasa),3)  # Factor de corrección
+    except:
+        factor = 1  # Factor de corrección
     
     print(f"FACTOR: {factor}")
     q_prom = np.mean([q_tubo,q_carcasa]) # Promedio del calor (W)
@@ -290,9 +291,10 @@ def calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_li
         elif(cdf == 'DV'):
             return flujo*(hvap*calidad + (t2-t1)*cp_gas)
         elif(cdf == 'LD'):
-            return flujo*((t2-t1)*cp_liquido + hvap*calidad)
+            return flujo*((t2-t1)*cp_liquido + hvap*(calidad))
         elif(cdf == 'VD'):
-            print(flujo, t2, t1, cp_gas, calidad, hvap, calidad)
+            print(hvap)
+            print(calidad)
             return abs(flujo*((t2-t1)*cp_gas - hvap*calidad))
 
 def  calcular_calor_cdft(flujo,t1,t2,fluido,presion,datos,cp_gas,cp_liquido) -> float:

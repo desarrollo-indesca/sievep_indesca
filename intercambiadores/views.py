@@ -364,7 +364,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
 
                     hvap,tsat = obtener_hvap_tsat(t1, t2, cambio_fase, tsatt, hvap, calor, cp_gast, cp_liquidot,
                                             flujo_vapor_in, flujo_liquido_in, flujo_vapor_out, flujo_liquido_out)
-                    
+                                       
                     tsat = transformar_unidades_temperatura([tsat], 2, int(request.POST.get('unidad_temperaturas')))[0]
 
                 condiciones_diseno_tubo = CondicionesTuboCarcasa.objects.create(
@@ -419,7 +419,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
                     tsatt = transformar_unidades_temperatura([tsat], int(request.POST.get('unidad_temperaturas')))[0]
                     flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out],
                                                                                                                 int(request.POST.get('unidad_flujos')))
-                    cp_gast,cp_liquidot = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp)
+                    cp_gast,cp_liquidot = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp, 29)
                     calor = transformar_unidades_calor([calor],propiedades.q_unidad.pk)[0]
 
                     hvap,tsat = obtener_hvap_tsat(t1, t2, cambio_fase, tsatt, hvap, calor, cp_gast, cp_liquidot,
@@ -787,7 +787,7 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa):
                     tsatt = transformar_unidades_temperatura([tsat], int(request.POST.get('unidad_temperaturas')))[0]
                     flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out],
                                                                                                                 int(request.POST.get('unidad_flujos')))
-                    cp_gast,cp_liquidot = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp)
+                    cp_gast,cp_liquidot = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp, 29)
                     calor = transformar_unidades_calor([calor],propiedades.q_unidad.pk)[0]
 
                     hvap,tsat = obtener_hvap_tsat(t1, t2, cambio_fase, tsatt, hvap, calor, cp_gast, cp_liquidot,
@@ -844,7 +844,7 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa):
                     tsatt = transformar_unidades_temperatura([tsat], int(request.POST.get('unidad_temperaturas')))[0]
                     flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out],
                                                                                                                 int(request.POST.get('unidad_flujos')))
-                    cp_gast,cp_liquidot = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp)
+                    cp_gast,cp_liquidot = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp, 29)
                     calor = transformar_unidades_calor([calor],propiedades.q_unidad.pk)[0]
 
                     hvap,tsat = obtener_hvap_tsat(t1, t2, cambio_fase, tsatt, hvap, calor, cp_gast, cp_liquidot,
@@ -1383,10 +1383,6 @@ class ConsultaCP(LoginRequiredMixin, View):
             cp_liq, cp_gas = obtener_cps(t1, t2, presion, flujos['flujo_liquido_in'], flujos['flujo_liquido_out'], flujos['flujo_vapor_in'], flujos['flujo_vapor_out'], cas, cambio_fase, unidad_salida)       
         else:
             return JsonResponse({'cp': ''})
-
-        print(request.GET['presion'])        
-        print({'cp_liquido': cp_liq, 'cp_gas': cp_gas})
-        print("*"*10)
         
         return JsonResponse({'cp_liquido': cp_liq, 'cp_gas': cp_gas})
         
@@ -1524,7 +1520,6 @@ class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, View):
         flujo_vapor_out = float(condicion.flujo_vapor_salida)
         flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out], condicion.flujos_unidad.pk)
         cambio_fase = condicion.cambio_de_fase
-        lado = 'Carcasa' if request.GET['lado'] == 'C' else 'Tubo'
         unidad_temperaturas = condicion.temperaturas_unidad.pk
         t1,t2 = transformar_unidades_temperatura([float(request.GET.get('t1')),float(request.GET.get('t2'))], unidad_temperaturas)
         unidad_presiones = condicion.unidad_presion.pk
@@ -1532,7 +1527,7 @@ class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, View):
         fluido = intercambiador.fluido_carcasa if request.GET['lado'] == 'C' else intercambiador.fluido_tubo
         unidad_cp = condicion.unidad_cp.pk
         cp_gas, cp_liquido = float(request.GET['cp_gas']) if request.GET['cp_gas'] != '' else None, float(request.GET['cp_liquido']) if request.GET['cp_liquido'] != '' else None
-        cp_gas, cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], unidad=unidad_cp)
+        cp_gas, cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], unidad=unidad_cp, unidad_salida=29)
 
         unidad_calor = float(request.GET['unidad_calor'])
         calor = transformar_unidades_calor([float(request.GET['calor'])], unidad_calor)[0]
@@ -1546,8 +1541,8 @@ class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, View):
         quimico = Chemical(fluido.cas, T= t1, P=presion)
         tsat = round(quimico.Tsat(presion), 2)
         codigo = 200
-        mensaje = f"\n Lado {lado}:\n"
-
+        mensaje = ""
+        
         if(cambio_fase == 'T'):
             if(flujo_vapor_in and quimico.phase != 'g'):
                 codigo = 400
@@ -1665,12 +1660,12 @@ def obtener_hvap_tsat(t1, t2, cambio_fase, tsat, hvap, q, cp_gas, cp_liquido, fl
 
         if(caso == 'DD'): # Domo a Domo
             hvap = q/(calidad*flujo)
-        elif(caso == 'LD'): # Domo a Líquido o Líquido a Domo
+        elif(caso == 'LD' or caso == 'DL'): # Domo a Líquido o Líquido a Domo
             hvap = (q/flujo-cp_liquido*abs(t2-t1))/calidad
         elif(caso == 'DV' or caso == 'VD'): # Domo a Vapor, Vapor a Domo
             hvap = (q/flujo-cp_gas*abs(t2-t1))/calidad
 
-    hvap = abs(hvap)
-    tsat = abs(tsat)
+    hvap = abs(hvap) if hvap else None
+    tsat = abs(tsat) if tsat else None
 
     return (hvap,tsat)
