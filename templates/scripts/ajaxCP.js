@@ -531,7 +531,7 @@ const validarForm = (e) => {
         n++;
     }
 
-    if(Number($('#fluido_tubo').val()) || $('#fluido_carcasa').val().includes('*') && $('#fluido_carcasa').val().split('*')[1].includes('-')){
+    if(Number($('#fluido_carcasa').val()) || $('#fluido_carcasa').val().includes('*') && $('#fluido_carcasa').val().split('*')[1].includes('-')){
         const res = ajaxValidacion('C');
         mensaje = res[0];
         q += Number(res[1]);

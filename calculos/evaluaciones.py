@@ -81,9 +81,12 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
     
     # Relación de las C
     c = cmin/cmax
+    print(minimo)
+    print(cmin, cmax)
     ntu = ucalc*area_calculada/cmin
 
     if(c == 0): # Cálculo de la Efectividad y la NTU si C = 0
+        print(ntu)
         efectividad = 1 - np.exp(-1*ntu)
     else: # Cálculo si C es distinto de  0
         if(num_pasos_tubo > 2): # Fórmulas cuando el número de pasos de tubo es mayor a 2
@@ -293,8 +296,6 @@ def calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_li
         elif(cdf == 'LD'):
             return flujo*((t2-t1)*cp_liquido + hvap*(calidad))
         elif(cdf == 'VD'):
-            print(hvap)
-            print(calidad)
             return abs(flujo*((t2-t1)*cp_gas - hvap*calidad))
 
 def  calcular_calor_cdft(flujo,t1,t2,fluido,presion,datos,cp_gas,cp_liquido) -> float:
@@ -318,7 +319,7 @@ def  calcular_calor_cdft(flujo,t1,t2,fluido,presion,datos,cp_gas,cp_liquido) -> 
     if(type(fluido) != str):
         tsat,hvap = calcular_tsat_hvap(fluido.cas, presion)
     else:
-        tsat = transformar_unidades_temperatura([float(datos.tsat)], datos.temperaturas_unidad.pk)[0]
+        tsat = transformar_unidades_temperatura([float(datos.tsat)], datos.temperaturas_unidad.pk)[0] if t1 != t2 else t1
         hvap = float(datos.hvap) if datos.hvap else datos
 
     try:
@@ -359,7 +360,7 @@ def obtener_c_eficiencia(condicion, flujo: float, cp_gas: float, cp_liquido: flo
             c = flujo * cp_liquido
         else:
             if(condicion.hvap):
-                c = condicion.flujo_vapor_salida/(condicion.flujo_vapor_salida+condicion.flujo_vapor_entrada)*condicion.hvap
+                c = abs(condicion.flujo_vapor_salida - condicion.flujo_vapor_entrada)/(condicion.flujo_liquido_entrada+condicion.flujo_vapor_entrada)*condicion.hvap
             else:
                 presion = transformar_unidades_presion([float(condicion.presion_entrada)], condicion.unidad_presion.pk)[0]
 
@@ -370,7 +371,7 @@ def obtener_c_eficiencia(condicion, flujo: float, cp_gas: float, cp_liquido: flo
                 else:
                     hvap = float(condicion.hvap) if condicion.hvap else 5000
 
-                calidad = float(condicion.flujo_vapor_salida/(condicion.flujo_vapor_salida+condicion.flujo_liquido_salida))
+                calidad = float(abs(condicion.flujo_vapor_salida - condicion.flujo_vapor_entrada)/(condicion.flujo_vapor_salida+condicion.flujo_liquido_salida))
                 c = calidad*hvap
     return float(c)
 
