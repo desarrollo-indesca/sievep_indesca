@@ -276,10 +276,6 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
                     arreglo_flujo = request.POST['flujo']
                 )
 
-                print(request.POST)
-
-                print("A")
-
                 fluido_tubo = request.POST['fluido_tubo']
                 fluido_carcasa = request.POST['fluido_carcasa']
 
@@ -342,8 +338,6 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
                     ensuciamiento_unidad = Unidades.objects.get(pk=request.POST['unidad_fouling'])
                 )
 
-                print("B")
-
                 # Condiciones de Diseño del Tubo
                 t1,t2 = transformar_unidades_temperatura([float(request.POST['temp_in_tubo']), float(request.POST['temp_out_tubo'])], int(request.POST['unidad_temperaturas']))
                 presion = transformar_unidades_presion([float(request.POST['presion_entrada_tubo'])], int(request.POST['unidad_presiones']))[0]
@@ -352,8 +346,6 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
                 flujo_liquido_in,flujo_liquido_out = float(request.POST.get('flujo_liquido_in_tubo')),float(request.POST.get('flujo_liquido_out_tubo'))
                 flujo_vapor_in,flujo_vapor_out = float(request.POST.get('flujo_vapor_in_tubo')), float(request.POST.get('flujo_vapor_out_tubo'))
                 cambio_fase = obtener_cambio_fase(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in,flujo_liquido_out)
-
-                print("C")
 
                 if(tipo_cp == 'A'):
                     cp_liquido,cp_gas = obtener_cps(t1,t2,presion,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in,flujo_vapor_out,Fluido.objects.get(pk=request.POST.get('fluido_tubo')).cas,cambio_fase,unidad_cp)
@@ -1677,10 +1669,6 @@ def obtener_hvap_tsat(t1, t2, cambio_fase, tsat, hvap, q, cp_gas, cp_liquido, fl
         elif(caso == 'LD' or caso == 'DL'): # Domo a Líquido o Líquido a Domo
             hvap = (q/flujo-cp_liquido*abs(t2-t1))/calidad
         elif(caso == 'DV' or caso == 'VD'): # Domo a Vapor, Vapor a Domo
-            print(calidad)
-            print(q)
-            print(flujo)
-            print(cp_gas)
             hvap = (q/flujo-cp_gas*abs(t2-t1))/calidad
 
     hvap = abs(hvap) if hvap else None
