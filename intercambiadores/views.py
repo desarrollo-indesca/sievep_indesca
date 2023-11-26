@@ -1661,8 +1661,8 @@ def obtener_hvap_tsat(t1, t2, cambio_fase, tsat, hvap, q, cp_gas, cp_liquido, fl
                 hvap = (q/m-cp_gas*(tsat-t1)-cp_liquido*(t2-tsat))           
     elif(cambio_fase == 'P'): # Cambio de Fase Parcial y no se tiene Hv
         caso = determinar_cambio_parcial(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in, flujo_liquido_out)
-        calidad = abs(flujo_vapor_out-flujo_vapor_in)/(flujo_vapor_out + flujo_liquido_out)
         flujo = (flujo_vapor_out + flujo_liquido_out)
+        calidad = abs(flujo_vapor_out-flujo_vapor_in)/flujo
 
         if(caso == 'DD'): # Domo a Domo
             hvap = q/(calidad*flujo)
