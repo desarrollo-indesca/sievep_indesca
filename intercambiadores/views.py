@@ -615,8 +615,8 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View):
 
                 resultados['factor_ensuciamiento'] = round(*transformar_unidades_ensuciamiento([resultados['factor_ensuciamiento']], 31, intercambiador.ensuciamiento_unidad.pk), 6)
                 resultados['u'] = round(*transformar_unidades_u([resultados['u']], 27, intercambiador.u_unidad.pk), 4)
-                print(resultados)
 
+                print(resultados, resultados['q'])
                 EvaluacionesIntercambiador.objects.create(
                     creado_por = request.user,
                     intercambiador = intercambiador.intercambiador,

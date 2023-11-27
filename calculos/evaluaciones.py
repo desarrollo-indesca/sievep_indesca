@@ -110,15 +110,15 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
     eficiencia = efectividad/ntu # Cálculo de la Eficiencia
 
     resultados = {
-        'q': round(q_prom,4),
-        'area': round(area_calculada,4),
-        'lmtd': round(dtml,4),
+        'q': round(q_prom,3),
+        'area': round(area_calculada,2),
+        'lmtd': round(dtml,2),
         'eficiencia': round(eficiencia*100,2),
         'efectividad': round(efectividad*100, 2),
         'ntu': round(ntu,4),
         'u': round(ucalc,8),
         'ua': round(ucalc*area_calculada,4),
-        'factor_ensuciamiento': round(RF,4),
+        'factor_ensuciamiento': round(RF,8),
     }
 
     return resultados
@@ -191,7 +191,7 @@ def evaluacion_doble_tubo(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_in 
     eficiencia = efectividad/ntu # Cálculo de la Eficiencia
 
     resultados = {
-        'q': round(q_prom,4),
+        'q': round(q_prom,3),
         'area': round(area_calculada,4),
         'lmtd': round(dtml,4),
         'eficiencia': round(eficiencia*100,2),

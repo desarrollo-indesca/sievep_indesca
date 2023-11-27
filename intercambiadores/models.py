@@ -188,7 +188,7 @@ class PropiedadesTuboCarcasa(models.Model):
     numero_pasos_carcasa = models.IntegerField(default=1)
 
     # Datos calculados
-    q = models.DecimalField(max_digits=12, decimal_places=3)
+    q = models.DecimalField(max_digits=15, decimal_places=3)
     u = models.DecimalField(max_digits=10, decimal_places=3, null=True)
     ensuciamiento = models.DecimalField(max_digits=12, decimal_places=9, null=True)
 
@@ -303,15 +303,15 @@ class EvaluacionesIntercambiador(models.Model):
     cp_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="cp_unidad_evaluacionintercambiador", default=29)
 
     # Datos de Salida
-    lmtd = models.DecimalField(max_digits=12, decimal_places=5)
+    lmtd = models.DecimalField(max_digits=12, decimal_places=2)
     area_transferencia = models.DecimalField(max_digits=12, decimal_places=2)
     u = models.DecimalField(max_digits=15, decimal_places=4)    
     ua = models.DecimalField(max_digits=15, decimal_places=4) 
     ntu = models.DecimalField(max_digits=12, decimal_places=4)
     efectividad = models.DecimalField(max_digits=12, decimal_places=2)
     eficiencia = models.DecimalField(max_digits=12, decimal_places=2)
-    ensuciamiento = models.DecimalField(max_digits=15, decimal_places=5)
-    q = models.DecimalField(max_digits=12, decimal_places=5)
+    ensuciamiento = models.DecimalField(max_digits=10, decimal_places=8)
+    q = models.DecimalField(max_digits=12, decimal_places=3)
     numero_tubos = models.IntegerField()
 
     visible = models.BooleanField(default=True)
