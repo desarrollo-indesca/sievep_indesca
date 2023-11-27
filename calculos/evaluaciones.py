@@ -241,10 +241,8 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp_gas: float, cp_liquido
 
         if(type(fluido) != str):
             if(caso[1] == 'D'):
-                print(t2)
                 _,hvap = calcular_tsat_hvap(fluido.cas, presion, t2)
             else:
-                print(t1)
                 _,hvap = calcular_tsat_hvap(fluido.cas, presion, t1)
         else:
             hvap = float(datos.hvap) if datos.hvap else 5000
