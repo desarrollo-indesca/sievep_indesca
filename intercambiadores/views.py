@@ -273,7 +273,8 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
                     planta = Planta.objects.get(pk=request.POST['planta']),
                     tema = Tema.objects.get(pk=request.POST['tema']),
                     servicio = request.POST['servicio'],
-                    arreglo_flujo = request.POST['flujo']
+                    arreglo_flujo = request.POST['flujo'],
+                    criticidad = request.POST['criticidad']
                 )
 
                 fluido_tubo = request.POST['fluido_tubo']
@@ -323,8 +324,6 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
 
                     pitch_tubos = float(request.POST['pitch']),
                     unidades_pitch = Unidades.objects.get(pk=request.POST['unidades_pitch']),
-
-                    criticidad = request.POST['criticidad'],
 
                     arreglo_serie = request.POST['arreglo_serie'],
                     arreglo_paralelo = request.POST['arreglo_paralelo'],
@@ -884,6 +883,7 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa):
                 intercambiador.fabricante = request.POST['fabricante']
                 intercambiador.servicio = request.POST['servicio']
                 intercambiador.arreglo_flujo = request.POST['flujo']
+                intercambiador.criticidad = request.POST['criticidad']
                 intercambiador.save()
         except Exception as e:
             print(str(e))
@@ -980,7 +980,7 @@ class ConsultaEvaluacionesTuboCarcasa(LoginRequiredMixin, ListView):
             return super().get(request, *args, **kwargs)
         except:
             intercambiador = PropiedadesTuboCarcasa.objects.get(pk=self.kwargs['pk'])
-            messages.error(request, f"No se pudo cargar la consulta de evaluaciones del intercambiador {intercambiador.intercambiador.tag}. Verificar correctitud de los datos de diseño.")
+            messages.warning(request, f"No se pudo cargar la consulta de evaluaciones del intercambiador {intercambiador.intercambiador.tag}. Verificar correctitud de los datos de diseño.")
             if(request.user.is_superuser):
                 return redirect(f'/intercambiadores/tubo_carcasa/editar/{intercambiador.pk}/')
             else:
@@ -1264,7 +1264,6 @@ class EvaluarTuboCarcasa(LoginRequiredMixin, View):
             datos pasados por el body del request.
     """
     def get(self, request, pk):
-        print(request.GET)
         intercambiador = PropiedadesTuboCarcasa.objects.get(id = pk)
 
         ti = (float(request.GET['temp_in_carcasa'].replace(',','.')))

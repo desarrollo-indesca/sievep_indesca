@@ -122,6 +122,7 @@ class Intercambiador(models.Model):
     tema = models.ForeignKey(Tema, on_delete=models.DO_NOTHING)
     servicio = models.CharField(max_length=100)
     arreglo_flujo = models.CharField(max_length=1, choices=arreglos_flujo)
+    criticidad = models.CharField(max_length=1, choices=criticidades)
 
     def intercambiador(self):
         return PropiedadesTuboCarcasa.objects.get(intercambiador = self)
@@ -181,7 +182,6 @@ class PropiedadesTuboCarcasa(models.Model):
     unidades_pitch = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="pitch_unidad_tubocarcasa")
 
     # Generales
-    criticidad = models.CharField(choices=criticidades, max_length=1)
     arreglo_serie = models.IntegerField()
     arreglo_paralelo = models.IntegerField()
     numero_pasos_tubo = models.IntegerField(default=1)
@@ -224,7 +224,7 @@ class PropiedadesTuboCarcasa(models.Model):
     
     def criticidad_larga(self):
         for x in criticidades:
-            if(x[0] == self.criticidad):
+            if(x[0] == self.intercambiador.criticidad):
                 return x[1]
 
     class Meta:
