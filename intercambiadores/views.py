@@ -368,7 +368,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
                     tsat = transformar_unidades_temperatura([tsat], 2, int(request.POST.get('unidad_temperaturas')))[0]
 
                 condiciones_diseno_tubo = CondicionesTuboCarcasa.objects.create(
-                    intercambiador = propiedades,
+                    intercambiador = intercambiador,
                     lado = 'T',
                     temp_entrada = float(request.POST['temp_in_tubo']),
                     temp_salida = float(request.POST['temp_out_tubo']),
@@ -428,7 +428,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, View):
                     tsat = transformar_unidades_temperatura([tsat], 2, int(request.POST.get('unidad_temperaturas')))[0]
 
                 condiciones_diseno_carcasa = CondicionesTuboCarcasa.objects.create(
-                    intercambiador = propiedades,
+                    intercambiador = intercambiador,
                     lado = 'C',
                     temp_entrada = request.POST['temp_in_carcasa'],
                     temp_salida = request.POST['temp_out_carcasa'],
@@ -1141,7 +1141,7 @@ class ConsultaDobleTubo(LoginRequiredMixin, ListView):
         get_queryset(self)
             Filtra los datos de acuerdo a los parámetros de filtrado.
     """
-    model = PropiedadesTuboCarcasa
+    model = PropiedadesDobleTubo
     template_name = 'consulta.html'
     paginate_by = 10
 
@@ -1175,6 +1175,7 @@ class ConsultaDobleTubo(LoginRequiredMixin, ListView):
 
         context['tipo'] = 2
         context['tipo_texto'] = 'Doble Tubo'
+        context['link_creacion'] = 'crear_doble_tubo'
 
         return context
     
@@ -1208,9 +1209,473 @@ class ConsultaDobleTubo(LoginRequiredMixin, ListView):
                 intercambiador__tag__icontains = tag
             )
 
-        new_context = new_context.filter(intercambiador__tipo = 2)
-
         return new_context
+
+class CrearIntercambiadorDobleTubo(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Vista de Creación (Formulario) de un nuevo intercambiador de Doble Tubo. 
+        Requiere de un usuario autenticado para poder ser accedida.
+
+    Atributos:
+        context: dict
+            Contexto inicial de la vista. Incluye el título.
+    
+    Métodos:
+        post(self, request)
+            Función que contiene la lógica de almacenamiento en la BDD al realizar 
+            una solicitud POST en la vista. Contiene además el manejo de errores
+            de validación en el formulario de creación.
+        
+        get(self, request)
+            Contiene la lógica de renderizado del formulario y de carga de unidades (GET).
+    """
+
+    template_name = 'doble_tubo/creacion.html'
+    context = {
+        'titulo': "Creación de Intercambiador Doble Tubo"
+    }
+
+    def validar(self, request): # Validación de Formulario de Creación
+        errores = []
+        if(Intercambiador.objects.filter(tag = request.POST.get('tag')).exists()):
+            errores.append(f'El Tag ya está registrado en el sistema.')
+
+        if(not request.POST.get('fabricante') and request.POST.get('tag')):
+            errores.append('El campo Fabricante es obligatorio.')
+
+        if(not request.POST.get('planta') and request.POST.get('tag')):
+            errores.append('El campo Planta es obligatorio.')
+
+        if(not request.POST.get('tema') and request.POST.get('tag')):
+            errores.append('El campo Tema es obligatorio.')
+
+        if(not request.POST.get('servicio')):
+            errores.append('El campo Servicio es obligatorio.')
+
+        if(not request.POST.get('flujo')):
+            errores.append('El campo Flujo es obligatorio.')
+
+        if(not request.POST.get('area')):
+            errores.append('El campo Área es obligatorio.')
+
+        if(not request.POST.get('unidad_area')):
+            errores.append('El campo Unidad de Área es obligatorio.')
+
+        if(not request.POST.get('no_tubos')):
+            errores.append('El campo Número de Tubos es obligatorio.')
+
+        if(not request.POST.get('longitud_tubos')):
+            errores.append('El campo Longitud de Tubos es obligatorio.')
+
+        if(not request.POST.get('longitud_tubos_unidad')):
+            errores.append('El campo Unidad de Longitud de Tubos es obligatorio.')
+
+        if(not request.POST.get('od_ex')):
+            errores.append('El campo Diámetro Externo de Tubo Externo es obligatorio.')
+
+        if(not request.POST.get('od_in')):
+            errores.append('El campo Diámetro Interno de Tubo Interno es obligatorio.')
+
+        if(not request.POST.get('unidad_diametros')):
+            errores.append('El campo Unidad de Diámetros es obligatorio.')
+
+        if(not request.POST.get('material_carcasa')):
+            errores.append('El campo Material de Carcasa es obligatorio.')
+
+        if(not request.POST.get('conexiones_entrada_carcasa')):
+            errores.append('El campo Conexiones de Entrada de Carcasa es obligatorio.')
+
+        if(not request.POST.get('conexiones_salida_carcasa')):
+            errores.append('El campo Conexiones de Salida de Carcasa es obligatorio.')
+
+        if(not request.POST.get('material_tubo')):
+            errores.append('El campo Material de Tubo es obligatorio.')
+
+        if(not request.POST.get('conexiones_entrada_tubo')):
+            errores.append('El campo Conexiones de Entrada de Tubo es obligatorio.')
+
+        if(not request.POST.get('conexiones_salida_tubo')):
+            errores.append('El campo Conexiones de Salida de Tubo es obligatorio.')
+
+        if(not request.POST.get('tipo_tubo')):
+            errores.append('El campo Tipo de Tubo es obligatorio.')
+
+        if(not request.POST.get('criticidad')):
+            errores.append('El campo Criticidad es obligatorio.')
+
+        if(not request.POST.get('arreglo_serie_ex')):
+            errores.append('El campo Arreglo en Serie de Tubo Externo es obligatorio.')
+
+        if(not request.POST.get('arreglo_paralelo_ex')):
+            errores.append('El campo Arreglo en Paralelo de Tubo Externo es obligatorio.')
+
+        if(not request.POST.get('arreglo_serie_in')):
+            errores.append('El campo Arreglo en Serie de Tubo Interno es obligatorio.')
+
+        if(not request.POST.get('arreglo_paralelo_in')):
+            errores.append('El campo Arreglo en Paralelo de Tubo Interno es obligatorio.')
+
+        if(not request.POST.get('calor')):
+            errores.append('El campo Calor es obligatorio.')
+
+        if(not request.POST.get('unidad_calor') and not request.POST.get('unidad_q')):
+            errores.append('El campo Unidad de Calor es obligatorio.')
+
+        if(not request.POST.get('u')):
+            errores.append('El campo Coeficiente U es obligatorio.')
+
+        if(not request.POST.get('unidad_u')):
+            errores.append('El campo Unidad de Coeficiente U es obligatorio.')
+
+        if(not request.POST.get('ensuciamiento')):
+            errores.append('El campo Ensuciamiento es obligatorio.')
+
+        if(not request.POST.get('unidad_fouling')):
+            errores.append('El campo Unidad de Ensuciamiento es obligatorio.')
+
+        if(not request.POST.get('temp_in_tubo')):
+            errores.append('El campo Temperatura de Entrada de Tubo Interno es obligatorio.')
+
+        if(not request.POST.get('temp_out_tubo')):
+            errores.append('El campo Temperatura de Salida de Tubo Interno es obligatorio.')
+
+        if(not request.POST.get('unidad_temperaturas')):
+            errores.append('El campo Unidad de Temperaturas es obligatorio.')
+
+        if(not request.POST.get('presion_entrada_tubo')):
+            errores.append('El campo Presión de Entrada de Tubo Interno es obligatorio.')
+
+        if(not request.POST.get('unidad_presiones')):
+            errores.append('El campo Unidad de Presiones es obligatorio.')
+
+        if(not request.POST.get('tipo_cp_tubo')):
+            errores.append('El campo Tipo de Cp de Tubo Interno es obligatorio.')
+        else:
+            if(request.POST.get('tipo_cp_ex') == 'A'):
+                if(not request.POST.get('fluido_ex')):
+                    errores.append('El campo Fluido de Tubo Externo es obligatorio.')
+
+        if(not request.POST.get('unidad_cp')):
+            errores.append('El campo Unidad de Cp de Tubo Interno es obligatorio.')
+
+        if(not request.POST.get('flujo_liquido_in_tubo')):
+            errores.append('El campo Flujo de Líquido de Entrada de Tubo Interno es obligatorio.')
+        
+        if(not request.POST.get('flujo_liquido_out_tubo')):
+            errores.append('El campo Flujo de Líquido de Salida de Tubo Interno es obligatorio.')
+
+        if(not request.POST.get('flujo_vapor_in_tubo')):
+            errores.append('El campo Flujo de Vapor de Entrada de Tubo Interno es obligatorio.')
+
+        if(not request.POST.get('flujo_vapor_out_tubo')):
+            errores.append('El campo Flujo de Vapor de Salida de Tubo Interno es obligatorio.')
+
+        if(round(float(request.POST.get('flujo_vapor_in_tubo')) + float(request.POST.get('flujo_liquido_in_tubo')), 2) != round(float(request.POST.get('flujo_vapor_out_tubo')) + float(request.POST.get('flujo_liquido_out_tubo')),2)):
+            errores.append('Los flujos de entrada y salida del tubo no coinciden.')
+
+        if(not request.POST.get('unidad_flujos')):
+            errores.append('El campo Unidad de Flujos es obligatorio.')
+
+        if(not request.POST.get('caida_presion_max_tubo')):
+            errores.append('El campo Caida de Presión Máxima de Tubo Interno es obligatorio.')
+
+        if(not request.POST.get('caida_presion_min_tubo')):
+            errores.append('El campo Caida de Presión Mínima de Tubo Interno es obligatorio.')
+
+        if(not request.POST.get('presion_entrada_carcasa')):
+            errores.append('El campo Presión de Entrada de Tubo Externo es obligatorio.')
+
+        if(not request.POST.get('tipo_cp_carcasa')):
+            errores.append('El campo Tipo de Cp de Tubo Externo es obligatorio.')
+        else:
+            if(request.POST.get('tipo_cp_carcasa') == 'A'):
+                if(not request.POST.get('fluido_carcasa')):
+                    errores.append('El campo Fluido de Tubo Externo es obligatorio.')
+
+        if(not request.POST.get('flujo_liquido_in_carcasa')):
+            errores.append('El campo Flujo de Líquido de Entrada de Tubo Externo es obligatorio.')
+        
+        if(not request.POST.get('flujo_liquido_out_carcasa')):
+            errores.append('El campo Flujo de Líquido de Salida de Tubo Externo es obligatorio.')
+
+        if(not request.POST.get('flujo_vapor_in_carcasa')):
+            errores.append('El campo Flujo de Vapor de Entrada de Tubo Externo es obligatorio.')
+
+        if(not request.POST.get('flujo_vapor_out_carcasa')):
+            errores.append('El campo Flujo de Vapor de Salida de Tubo Externo es obligatorio.')
+
+        if(round(float(request.POST.get('flujo_vapor_in_carcasa')) + float(request.POST.get('flujo_liquido_in_carcasa')), 2) != round(float(request.POST.get('flujo_vapor_out_carcasa')) + float(request.POST.get('flujo_liquido_out_carcasa')), 2)):
+            errores.append('Los flujos de entrada y salida de la carcasa no coinciden.')
+
+        if(not request.POST.get('caida_presion_max_carcasa')):
+            errores.append('El campo Caida de Presión Máxima de Tubo Externo es obligatorio.')
+
+        if(not request.POST.get('caida_presion_min_carcasa')):
+            errores.append('El campo Caida de Presión Mínima de Tubo Externo es obligatorio.')
+
+        return errores
+
+    def redirigir_por_errores(self, request, errores):
+        copia_context = self.context.copy()
+        copia_context['previo'] = request.POST
+        copia_context['previo']._mutable = True
+
+        if(copia_context['previo'].get('fluido_tubo') and copia_context['previo'].get('fluido_tubo').find('*') != -1):
+            copia_context['previo']['fluido_tubo_etiqueta'] = copia_context['previo']['fluido_tubo'].split('*')[0]
+            copia_context['previo']['fluido_tubo_dato'] = copia_context['previo']['fluido_tubo'].split('*')[1]
+
+        if(copia_context['previo'].get('fluido_tubo') and copia_context['previo'].get('fluido_tubo').find('*') != -1):
+            copia_context['previo']['fluido_tubo_etiqueta'] = copia_context['previo']['fluido_tubo'].split('*')[0]
+            copia_context['previo']['fluido_tubo_dato'] = copia_context['previo']['fluido_tubo'].split('*')[1]
+
+        copia_context['errores'] = errores
+
+        copia_context['complejos'] = Complejo.objects.all()
+        copia_context['plantas'] = Planta.objects.filter(complejo__pk=1)
+        copia_context['tipos'] = TiposDeTubo.objects.all()
+        copia_context['temas'] = Tema.objects.filter(tipo_intercambiador__pk=2)
+        copia_context['fluidos'] = Fluido.objects.all()
+        copia_context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
+        copia_context['unidades_longitud'] = Unidades.objects.filter(tipo = 'L')
+        copia_context['unidades_area'] = Unidades.objects.filter(tipo = 'A')
+        copia_context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
+        copia_context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
+        copia_context['unidades_ensuciamiento'] = Unidades.objects.filter(tipo = 'E')
+        copia_context['unidades_q'] = Unidades.objects.filter(tipo = 'Q').order_by('-simbolo')
+        copia_context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
+        copia_context['unidades_u'] = Unidades.objects.filter(tipo = 'u').order_by('-simbolo')
+
+        return render(request, self.template_name, context=copia_context)
+
+    def post(self, request): # Envío de Formulario de Creación
+        errores = self.validar(request)
+        if(len(errores)):
+            return self.redirigir_por_errores(request, errores)            
+        
+        try:
+            with transaction.atomic(): # Transacción de Creación del Intercambiador
+                # Creación de Modelo General de Intercambiador
+                intercambiador = Intercambiador.objects.create(
+                    tag = request.POST['tag'],
+                    tipo = TipoIntercambiador.objects.get(pk=1),
+                    fabricante = request.POST['fabricante'],
+                    planta = Planta.objects.get(pk=request.POST['planta']),
+                    tema = Tema.objects.get(pk=request.POST['tema']),
+                    servicio = request.POST['servicio'],
+                    arreglo_flujo = request.POST['flujo'],
+                    criticidad = request.POST['criticidad']
+                )
+
+                fluido_in = request.POST['fluido_tubo']
+                fluido_ex = request.POST['fluido_carcasa']
+
+                # Casos Especiales para Búsqueda de Fluido del Tubo
+                if(fluido_in.find('*') != -1): # Fluido Nuevo
+                    fluido_in = fluido_in.split('*')
+                    if(fluido_in[1].find('-') != -1):
+                        fluido_in = Fluido.objects.get_or_create(nombre = fluido_in[0].upper(), cas = fluido_in[1])
+                else: # Fluido Existente
+                    fluido_in = Fluido.objects.get(pk=fluido_in)
+
+                # Casos Especiales para Búsqueda de Fluido de la Carcasa
+                if(fluido_ex.find('*') != -1): # Fluido Nuevo
+                    fluido_ex = fluido_ex.split('*')
+                    if(fluido_ex[1].find('-') != -1):
+                        fluido_ex = Fluido.objects.get_or_create(nombre = fluido_ex[0].upper(), cas = fluido_ex[1])
+                else: # Fluido Existente
+                    fluido_ex = Fluido.objects.get(pk=fluido_ex)
+
+                u = request.POST['u']
+                calor = float(request.POST.get('calor'))
+
+                # Creación de Intercambiador Tubo/Carcasa
+                propiedades = PropiedadesDobleTubo.objects.create(
+                    intercambiador = intercambiador,
+                    area = float(request.POST['area']),
+                    area_unidad = Unidades.objects.get(pk=request.POST['unidad_area']),
+                    numero_tubos = float(request.POST['no_tubos']),
+                    longitud_tubos = float(request.POST['longitud_tubos']),
+                    longitud_tubos_unidad = Unidades.objects.get(pk=request.POST['longitud_tubos_unidad']),
+                    diametro_externo_in = float(request.POST['od_in']),
+                    diametro_externo_ex = float(request.POST['od_ex']),
+                    diametro_tubos_unidad = Unidades.objects.get(pk=request.POST['unidad_diametros']),
+
+                    fluido_ex = Fluido.objects.get(pk=request.POST['fluido_carcasa']) if type(fluido_ex) == str else fluido_ex if type(fluido_ex) == Fluido else None,
+                    material_ex = request.POST['material_carcasa'],
+                    conexiones_entrada_ex = request.POST['conexiones_entrada_carcasa'],
+                    conexiones_salida_ex = request.POST['conexiones_salida_carcasa'],
+                    
+                    fluido_in = Fluido.objects.get(pk=request.POST['fluido_tubo']) if type(fluido_in) == str else fluido_in if type(fluido_in) == Fluido else None,
+                    material_in = request.POST['material_tubo'],
+                    conexiones_entrada_in = request.POST['conexiones_entrada_tubo'],
+                    conexiones_salida_in = request.POST['conexiones_salida_tubo'],
+                    tipo_tubo = TiposDeTubo.objects.get(pk=request.POST['tipo_tubo']),
+
+                    arreglo_serie_in = request.POST['arreglo_serie_in'],
+                    arreglo_paralelo_in = request.POST['arreglo_paralelo_in'],
+                    arreglo_serie_ex = request.POST['arreglo_serie_ex'],
+                    arreglo_paralelo_ex = request.POST['arreglo_paralelo_ex'],
+
+                    q =  float(request.POST['calor']),
+                    q_unidad = Unidades.objects.get(pk=request.POST['unidad_calor']),
+                    u = u,
+                    u_unidad = Unidades.objects.get(pk=request.POST['unidad_u']),
+                    ensuciamiento = float(request.POST['ensuciamiento']),
+                    ensuciamiento_unidad = Unidades.objects.get(pk=request.POST['unidad_fouling'])
+                )
+
+                # Condiciones de Diseño del Tubo
+                t1,t2 = transformar_unidades_temperatura([float(request.POST['temp_in_tubo']), float(request.POST['temp_out_tubo'])], int(request.POST['unidad_temperaturas']))
+                presion = transformar_unidades_presion([float(request.POST['presion_entrada_tubo'])], int(request.POST['unidad_presiones']))[0]
+                tipo_cp = request.POST.get('tipo_cp_tubo')
+                unidad_cp = int(request.POST['unidad_cp'])
+                flujo_liquido_in,flujo_liquido_out = float(request.POST.get('flujo_liquido_in_tubo')),float(request.POST.get('flujo_liquido_out_tubo'))
+                flujo_vapor_in,flujo_vapor_out = float(request.POST.get('flujo_vapor_in_tubo')), float(request.POST.get('flujo_vapor_out_tubo'))
+                cambio_fase = obtener_cambio_fase(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in,flujo_liquido_out)
+
+                if(tipo_cp == 'A'):
+                    cp_liquido,cp_gas = obtener_cps(t1,t2,presion,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in,flujo_vapor_out,Fluido.objects.get(pk=request.POST.get('fluido_tubo')).cas,cambio_fase,unidad_cp)
+                else:
+                    cp_liquido = float(request.POST.get('cp_liquido_tubo')) if request.POST.get('cp_liquido_tubo') else None
+                    cp_gas = float(request.POST.get('cp_gas_tubo')) if request.POST.get('cp_gas_tubo') else None
+                
+                tsat = float(request.POST.get('tsat_tubo')) if request.POST.get('tsat_tubo') != '' else None
+                hvap = float(request.POST.get('hvap_tubo')) if request.POST.get('hvap_tubo') != '' else None
+
+                if((cambio_fase == 'T' or cambio_fase == 'P') and tipo_cp == 'M' and type(fluido_in) != Fluido):
+                    tsatt = transformar_unidades_temperatura([tsat], int(request.POST.get('unidad_temperaturas')))[0]
+                    flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out],
+                                                                                                                int(request.POST.get('unidad_flujos')))
+                    cp_gast,cp_liquidot = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp, 29)
+                    calor = transformar_unidades_calor([calor],propiedades.q_unidad.pk)[0]
+
+                    hvap,tsat = obtener_hvap_tsat(t1, t2, cambio_fase, tsatt, hvap, calor, cp_gast, cp_liquidot,
+                                            flujo_vapor_in, flujo_liquido_in, flujo_vapor_out, flujo_liquido_out)
+                                       
+                    tsat = transformar_unidades_temperatura([tsat], 2, int(request.POST.get('unidad_temperaturas')))[0]
+
+                condiciones_diseno_in = CondicionesTuboCarcasa.objects.create(
+                    intercambiador = intercambiador,
+                    lado = 'I',
+                    temp_entrada = float(request.POST['temp_in_tubo']),
+                    temp_salida = float(request.POST['temp_out_tubo']),
+                    temperaturas_unidad = Unidades.objects.get(pk=request.POST['unidad_temperaturas']),
+
+                    cambio_de_fase = cambio_fase,
+                    
+                    flujo_masico = float(request.POST['flujo_vapor_in_tubo']) + float(request.POST['flujo_liquido_in_tubo']),
+                    flujo_vapor_entrada = request.POST['flujo_vapor_in_tubo'],
+                    flujo_vapor_salida = request.POST['flujo_vapor_out_tubo'],
+                    flujo_liquido_entrada = request.POST['flujo_liquido_in_tubo'],
+                    flujo_liquido_salida = request.POST['flujo_liquido_out_tubo'],
+                    flujos_unidad = Unidades.objects.get(pk=request.POST['unidad_flujos']),
+                    caida_presion_max = request.POST['caida_presion_max_tubo'],
+                    caida_presion_min = request.POST['caida_presion_min_tubo'],
+                    presion_entrada = request.POST['presion_entrada_tubo'],
+                    unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presiones']),
+
+                    fouling = request.POST['fouling_tubo'],
+                    fluido_etiqueta = fluido_in[0] if type(fluido_in) != Fluido else None,
+                    fluido_cp_gas = cp_gas,
+                    fluido_cp_liquido = cp_liquido,
+                    unidad_cp = Unidades.objects.get(pk=unidad_cp),
+                    tipo_cp = tipo_cp,
+                    hvap = hvap,
+                    tsat = tsat
+                )
+
+                # Condiciones de Diseño de la Carcasa
+                t1,t2 = transformar_unidades_temperatura([float(request.POST['temp_in_carcasa']), float(request.POST['temp_out_carcasa'])], int(request.POST['unidad_temperaturas']))
+                presion = transformar_unidades_presion([float(request.POST['presion_entrada_carcasa'])], int(request.POST['unidad_presiones']))[0]
+                tipo_cp = request.POST.get('tipo_cp_carcasa')
+                unidad_cp = int(request.POST['unidad_cp'])
+                flujo_liquido_in,flujo_liquido_out = float(request.POST.get('flujo_liquido_in_carcasa')),float(request.POST.get('flujo_liquido_out_carcasa'))
+                flujo_vapor_in,flujo_vapor_out = float(request.POST.get('flujo_vapor_in_carcasa')), float(request.POST.get('flujo_vapor_out_carcasa'))
+                cambio_fase = obtener_cambio_fase(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in,flujo_liquido_out)
+
+                if(tipo_cp == 'A'):
+                    cp_liquido,cp_gas = obtener_cps(t1,t2,presion,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in,flujo_vapor_out,Fluido.objects.get(pk=request.POST.get('fluido_carcasa')).cas,cambio_fase,unidad_cp)
+                else:
+                    cp_liquido = float(request.POST.get('cp_liquido_carcasa')) if request.POST.get('cp_liquido_carcasa') else None
+                    cp_gas = float(request.POST.get('cp_gas_carcasa')) if request.POST.get('cp_gas_carcasa') else None
+            
+                tsat = float(request.POST.get('tsat_carcasa')) if request.POST.get('tsat_carcasa') != '' else None
+                hvap = float(request.POST.get('hvap_carcasa')) if request.POST.get('hvap_carcasa') != '' else None
+
+                if((cambio_fase == 'T' or cambio_fase == 'P') and tipo_cp == 'M' and type(fluido_ex) != Fluido):
+                    tsatt = transformar_unidades_temperatura([tsat], int(request.POST.get('unidad_temperaturas')))[0]
+                    flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out],
+                                                                                                                int(request.POST.get('unidad_flujos')))
+                    cp_gast,cp_liquidot = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp, 29)
+                    calor = transformar_unidades_calor([calor],propiedades.q_unidad.pk)[0]
+
+                    hvap,tsat = obtener_hvap_tsat(t1, t2, cambio_fase, tsatt, hvap, calor, cp_gast, cp_liquidot,
+                                            flujo_vapor_in, flujo_liquido_in, flujo_vapor_out, flujo_liquido_out)
+                    
+                    tsat = transformar_unidades_temperatura([tsat], 2, int(request.POST.get('unidad_temperaturas')))[0]
+
+                condiciones_diseno_ex = CondicionesTuboCarcasa.objects.create(
+                    intercambiador = intercambiador,
+                    lado = 'E',
+                    temp_entrada = request.POST['temp_in_carcasa'],
+                    temp_salida = request.POST['temp_out_carcasa'],
+                    temperaturas_unidad =Unidades.objects.get(pk=request.POST['unidad_temperaturas']),
+
+                    cambio_de_fase = cambio_fase,
+                    
+                    flujo_masico = float(request.POST['flujo_vapor_in_carcasa']) + float(request.POST['flujo_liquido_in_carcasa']),
+                    flujo_vapor_entrada = request.POST['flujo_vapor_in_carcasa'],
+                    flujo_vapor_salida = request.POST['flujo_vapor_out_carcasa'],
+                    flujo_liquido_entrada = request.POST['flujo_liquido_in_carcasa'],
+                    flujo_liquido_salida = request.POST['flujo_liquido_out_carcasa'],
+                    flujos_unidad = Unidades.objects.get(pk=request.POST['unidad_flujos']),
+                    
+                    presion_entrada = request.POST['presion_entrada_carcasa'],
+                    caida_presion_max = request.POST['caida_presion_max_carcasa'],
+                    caida_presion_min = request.POST['caida_presion_min_carcasa'],
+                    unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presiones']),
+
+                    fouling = request.POST['fouling_carcasa'],
+                    fluido_etiqueta = fluido_ex[0] if type(fluido_ex) != Fluido else None,
+                    fluido_cp_gas = cp_gas,
+                    fluido_cp_liquido = cp_liquido,
+                    tipo_cp = tipo_cp,
+                    unidad_cp = Unidades.objects.get(pk=unidad_cp),
+                    hvap = hvap,
+                    tsat = tsat
+                )
+
+                messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
+                return redirect(f"/intercambiadores/doble_tubo/{propiedades.pk}/")
+        except Exception as e:
+            print(str(e))
+            errores.append('Ha ocurrido un error desconocido al registrar el intercambiador. Verifique los datos ingresados.')
+            return self.redirigir_por_errores(request, errores)
+        
+    def get(self, request):
+        self.context['complejos'] = Complejo.objects.all()
+        self.context['plantas'] = Planta.objects.filter(complejo__pk=1)
+        self.context['tipos'] = TiposDeTubo.objects.all()
+        self.context['temas'] = Tema.objects.filter(tipo_intercambiador__pk=2).order_by('codigo')
+        self.context['fluidos'] = Fluido.objects.all()
+        self.context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
+        self.context['unidades_longitud'] = Unidades.objects.filter(tipo = 'L')
+        self.context['unidades_area'] = Unidades.objects.filter(tipo = 'A')
+        self.context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
+        self.context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
+        self.context['unidades_ensuciamiento'] = Unidades.objects.filter(tipo = 'E')
+        self.context['unidades_q'] = Unidades.objects.filter(tipo = 'Q').order_by('-simbolo')
+        self.context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
+        self.context['unidades_u'] = Unidades.objects.filter(tipo = 'u').order_by('-simbolo')
+
+        if(self.context.get('errores')):
+            del(self.context['errores'])
+            
+        if(self.context.get('previo')):
+            del(self.context['previo'])            
+
+        return render(request, self.template_name, context=self.context)
 
 # VISTAS GENERALES PARA LOS INTERCAMBIADORES DE CALOR
 class ConsultaVacia(LoginRequiredMixin, View):

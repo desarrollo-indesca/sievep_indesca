@@ -16,6 +16,7 @@ urlpatterns = [
 
     # RUTAS PARA DOBLE TUBO
     path('doble_tubo/', ConsultaDobleTubo.as_view(), name="consulta_doble_tubo"),
+    path('doble_tubo/crear/', CrearIntercambiadorDobleTubo.as_view(),name="crear_doble_tubo"),
 
     # RUTAS DE CONSULTAS DE FLUIDOS
     path('consultar_cas/', ConsultaCAS.as_view(), name="consultar_cas"),

@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from calculos.evaluaciones import evaluacion_tubo_carcasa
+from calculos.evaluaciones import evaluacion_tubo_carcasa, evaluacion_doble_tubo
 
 # Tipos Estáticos
 
@@ -229,6 +229,86 @@ class PropiedadesTuboCarcasa(models.Model):
 
     class Meta:
         db_table = "intercambiador_tubo_carcasa"
+        ordering = ('intercambiador__tag',)
+
+class PropiedadesDobleTubo(models.Model):
+    id = models.AutoField(primary_key=True)
+    intercambiador = models.OneToOneField(Intercambiador, related_name="datos_dobletubo", on_delete=models.DO_NOTHING)
+
+    # Datos del área
+    area = models.DecimalField(max_digits=12, decimal_places=2)
+    area_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="area_unidad_dobletubo")
+
+    numero_tubos = models.IntegerField(null=True)
+
+    longitud_tubos = models.DecimalField(decimal_places=2, max_digits=8, null=True)
+    longitud_tubos_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="longitud_tubos_dobletubo")
+
+    diametro_externo_ex = models.DecimalField(max_digits=8, decimal_places=2, null=True)
+    diametro_externo_in = models.DecimalField(max_digits=8, decimal_places=2, null=True)
+    diametro_tubos_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="diametros_unidad_dobletubo")
+
+    # Datos Tubo Externo
+    fluido_ex = models.ForeignKey(Fluido, related_name="fluido_ex", on_delete=models.DO_NOTHING, null=True)
+    material_ex = models.CharField(null=True, max_length=50)
+    conexiones_entrada_ex = models.CharField(null=True, max_length=50)
+    conexiones_salida_ex = models.CharField(null=True, max_length=50)
+
+    # Datos Tubo Interno
+    material_in = models.CharField(null=True, max_length=50)
+    fluido_in = models.ForeignKey(Fluido, related_name="fluido_in", on_delete=models.DO_NOTHING, null=True)
+    tipo_tubo = models.ForeignKey(TiposDeTubo, on_delete=models.DO_NOTHING, related_name="tipo_tubo_dobletubo")
+    conexiones_entrada_in = models.CharField(null=True, max_length=50)
+    conexiones_salida_in = models.CharField(null=True, max_length=50)
+
+    # Arreglos para Tubos Internos y Externos
+    arreglo_serie_ex = models.IntegerField()
+    arreglo_paralelo_ex = models.IntegerField()
+    arreglo_serie_in = models.IntegerField()
+    arreglo_paralelo_in = models.IntegerField()
+
+    # Datos calculados
+    q = models.DecimalField(max_digits=15, decimal_places=3)
+    u = models.DecimalField(max_digits=10, decimal_places=3, null=True)
+    ensuciamiento = models.DecimalField(max_digits=12, decimal_places=9, null=True)
+
+    q_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_q_dobletubo", default=28)
+    u_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_u_dobletubo", default=27)
+    ensuciamiento_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_ensuciamiento_dobletubo",default=31)
+
+    def calcular_diseno(self):
+        condicion_in = self.condicion_interno()
+        condicion_ex = self.condicion_externo()
+        ti = float(condicion_in.temp_entrada)
+        ts = float(condicion_in.temp_salida)
+        Ti = float(condicion_ex.temp_entrada)
+        Ts = float(condicion_ex.temp_salida)
+        ft = float(condicion_in.flujo_masico)
+        fc = float(condicion_ex.flujo_masico)
+
+        fluido_cp_gas_tubo = float(condicion_in.fluido_cp_gas) if condicion_in.fluido_cp_gas else None
+        fluido_cp_liquido_tubo = float(condicion_in.fluido_cp_liquido) if condicion_in.fluido_cp_liquido else None
+        fluido_cp_gas_carcasa = float(condicion_ex.fluido_cp_gas) if condicion_ex.fluido_cp_gas else None
+        fluido_cp_liquido_carcasa = float(condicion_ex.fluido_cp_liquido) if condicion_ex.fluido_cp_liquido else None
+
+        return evaluacion_doble_tubo(self, ti, ts, Ti, Ts, ft, fc, 
+            self.numero_tubos,  fluido_cp_gas_tubo, fluido_cp_liquido_tubo,
+            fluido_cp_gas_carcasa, fluido_cp_liquido_carcasa,
+            unidad_temp=condicion_ex.temperaturas_unidad.pk, unidad_flujo=condicion_ex.flujos_unidad.pk)
+
+    def condicion_interno(self):
+        return self.intercambiador.condiciones.get(lado='I')
+    
+    def condicion_externo(self):
+        return self.intercambiador.condiciones.get(lado='E')
+    
+    def criticidad_larga(self):
+        for x in criticidades:
+            if(x[0] == self.intercambiador.criticidad):
+                return x[1]
+
+    class Meta:
+        db_table = "intercambiador_doble_tubo"
         ordering = ('intercambiador__tag',)
 
 class CondicionesTuboCarcasa(models.Model):
