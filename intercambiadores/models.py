@@ -217,10 +217,10 @@ class PropiedadesTuboCarcasa(models.Model):
             unidad_temp=cond_carcasa.temperaturas_unidad.pk, unidad_flujo=cond_carcasa.flujos_unidad.pk)
 
     def condicion_tubo(self):
-        return self.condiciones.get(lado='T')
+        return self.intercambiador.condiciones.get(lado='T')
     
     def condicion_carcasa(self):
-        return self.condiciones.get(lado='C')
+        return self.intercambiador.condiciones.get(lado='C')
     
     def criticidad_larga(self):
         for x in criticidades:
@@ -232,7 +232,7 @@ class PropiedadesTuboCarcasa(models.Model):
         ordering = ('intercambiador__tag',)
 
 class CondicionesTuboCarcasa(models.Model):
-    intercambiador = models.ForeignKey(PropiedadesTuboCarcasa, on_delete=models.DO_NOTHING, related_name="condiciones")
+    intercambiador = models.ForeignKey(Intercambiador, on_delete=models.CASCADE, related_name="condiciones")
     lado = models.TextField(max_length=1, choices=(('T', 'Tubo'), ('C', 'Carcasa')))
     
     temp_entrada = models.DecimalField(max_digits=7, decimal_places=2)
@@ -247,8 +247,8 @@ class CondicionesTuboCarcasa(models.Model):
     flujos_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="flujos_unidad_tubocarcasa", null=True)
     fluido_etiqueta = models.CharField(null=True, max_length=50)
     tipo_cp = models.CharField(null=False, choices=[['M','Manual'],['A','Automático']], max_length=1)
-    fluido_cp_liquido = models.DecimalField(null=True, max_digits=8, decimal_places=4)
-    fluido_cp_gas = models.DecimalField(null=True, max_digits=8, decimal_places=4)
+    fluido_cp_liquido = models.DecimalField(null=True, max_digits=9, decimal_places=4)
+    fluido_cp_gas = models.DecimalField(null=True, max_digits=9, decimal_places=4)
     hvap = models.DecimalField(max_digits=15, decimal_places=4, null=True)
     tsat = models.DecimalField(max_digits=6, decimal_places=2, null=True)
     unidad_cp = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_cp", default=29)
@@ -275,7 +275,6 @@ class EvaluacionesIntercambiador(models.Model):
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING)
     fecha = models.DateTimeField(auto_now=True)
     intercambiador = models.ForeignKey(Intercambiador, on_delete=models.CASCADE)
-    condiciones = models.ForeignKey(CondicionesTuboCarcasa, on_delete=models.DO_NOTHING)
     metodo = models.CharField(max_length=1, choices=(('E', 'Método Efectividad-NTU'), ('L', 'Método LMTD')))
     nombre = models.CharField(max_length=50)
 
