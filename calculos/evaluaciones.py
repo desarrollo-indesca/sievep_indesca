@@ -84,12 +84,9 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
     
     # Relación de las C
     c = cmin/cmax
-    print(minimo)
-    print(cmin, cmax)
     ntu = ucalc*area_calculada/cmin
 
     if(c == 0): # Cálculo de la Efectividad y la NTU si C = 0
-        print(ntu)
         efectividad = 1 - np.exp(-1*ntu)
     else: # Cálculo si C es distinto de  0
         if(num_pasos_tubo > 2): # Fórmulas cuando el número de pasos de tubo es mayor a 2
