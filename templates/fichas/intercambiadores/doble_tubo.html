@@ -259,7 +259,7 @@
         </div>
         <div class="modal-footer">
           {% if request.user.is_superuser %}
-          <a href="" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+          <a href="{% url 'editar_doble_tubo' pk=intercambiador.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
           {% endif %}
 
             <button name="pdf" value="{{intercambiador.pk}}" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</button>
