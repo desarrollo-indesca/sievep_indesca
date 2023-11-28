@@ -365,9 +365,9 @@ def obtener_c_eficiencia(condicion, flujo: float, cp_gas: float, cp_liquido: flo
             else:
                 presion = transformar_unidades_presion([float(condicion.presion_entrada)], condicion.unidad_presion.pk)[0]
 
-                if(condicion.lado == 'C' and condicion.intercambiador.fluido_carcasa or 
-                        condicion.lado == 'T' and condicion.intercambiador.fluido_tubo):
-                    cas = condicion.intercambiador.fluido_carcasa.cas if condicion.lado == 'C' else condicion.intercambiador.fluido_tubo.cas
+                if(condicion.lado == 'C' and condicion.intercambiador.datos_tubo_carcasa.fluido_carcasa or 
+                        condicion.lado == 'T' and condicion.intercambiador.datos_tubo_carcasa.fluido_tubo):
+                    cas = condicion.intercambiador.datos_tubo_carcasa.fluido_carcasa.cas if condicion.lado == 'C' else condicion.intercambiador.datos_tubo_carcasa.fluido_tubo.cas
                     _,hvap = calcular_tsat_hvap(cas, presion)
                 else:
                     hvap = float(condicion.hvap) if condicion.hvap else 5000

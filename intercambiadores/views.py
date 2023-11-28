@@ -1892,11 +1892,15 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
             fluido = fluido.split('*')
             if(fluido[1].find('-') != -1):
                 fluido = Fluido.objects.get_or_create(nombre = fluido[0].upper(), cas = fluido[1])
+            else:
+                fluido = None
         elif fluido != '': # Fluido Existente
             fluido = Fluido.objects.get(pk=fluido)
 
-        quimico = Chemical(fluido.cas, T=t1, P=presion)
-        tsat = round(quimico.Tsat(presion), 2)
+        if(fluido):
+            quimico = Chemical(fluido.cas, T=t1, P=presion)
+            tsat = round(quimico.Tsat(presion), 2)
+
         codigo = 200
         mensaje = f"\n Lado {lado}:\n"
         
@@ -1954,12 +1958,13 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
         
             calorcalc = calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in+flujo_liquido_in, t1, t2, hvap, cp_gas, cp_liquido)    
         elif(cambio_fase == 'S'):
-            if(flujo_vapor_in and (t1 < tsat*0.95 or t2 < tsat*0.95)):
-                codigo = 400
-                mensaje += "- Aunque entra y sale vapor, las temperaturas son menores a la temperatura de saturación de la base de datos por más del 5%.\n"
-            elif(flujo_liquido_in and (t1 > tsat*1.05 or t2 > tsat*1.05)):
-                codigo = 400
-                mensaje += "- Aunque entra y sale vapor, las temperaturas son mayores a la temperatura de saturación de la base de datos por más del 5%.\n"
+            if(fluido):
+                if(flujo_vapor_in and (t1 < tsat*0.95 or t2 < tsat*0.95)):
+                    codigo = 400
+                    mensaje += "- Aunque entra y sale vapor, las temperaturas son menores a la temperatura de saturación de la base de datos por más del 5%.\n"
+                elif(flujo_liquido_in and (t1 > tsat*1.05 or t2 > tsat*1.05)):
+                    codigo = 400
+                    mensaje += "- Aunque entra y sale vapor, las temperaturas son mayores a la temperatura de saturación de la base de datos por más del 5%.\n"
 
             calorcalc = calcular_calor_scdf(flujo_vapor_in+flujo_liquido_in, cp_gas if cp_gas else cp_liquido, t1, t2)
         

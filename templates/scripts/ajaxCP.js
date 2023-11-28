@@ -524,14 +524,14 @@ const validarForm = (e) => {
     let q = 0;
     let n = 0;
 
-    if(Number($('#fluido_tubo').val()) || $('#fluido_tubo').val().includes('*') && $('#fluido_tubo').val().split('*')[1].includes('-')){
+    if(Number($('#fluido_tubo').val()) || $('#fluido_tubo').val().includes('*') && $('#fluido_tubo').val().split('*')[1].includes('-') || $('#cambio_fase_tubo').val() === 'S'){
         const res = ajaxValidacion('T');
         mensaje = res[0];
         q += Number(res[1]);
         n++;
     }
 
-    if(Number($('#fluido_carcasa').val()) || $('#fluido_carcasa').val().includes('*') && $('#fluido_carcasa').val().split('*')[1].includes('-')){
+    if(Number($('#fluido_carcasa').val()) || $('#fluido_carcasa').val().includes('*') && $('#fluido_carcasa').val().split('*')[1].includes('-') || $('#cambio_fase_carcasa').val() === 'S'){
         const res = ajaxValidacion('C');
         mensaje = res[0];
         q += Number(res[1]);
@@ -541,9 +541,7 @@ const validarForm = (e) => {
     if(n > 0)
         q /= n;
 
-    if((Number($('#fluido_tubo').val()) || $('#fluido_tubo').val().includes('*') && $('#fluido_tubo').val().split('*')[1].includes('-') 
-        || Number($('#fluido_tubo').val()) || $('#fluido_carcasa').val().includes('*') && $('#fluido_carcasa').val().split('*')[1].includes('-'))
-        && Math.abs(q - Number($('#calor').val()))/Number($('#calor').val()) > 0.05)
+    if(n !== 0 && Math.abs(q - Number($('#calor').val()))/Number($('#calor').val()) > 0.05)
         mensaje += `El calor ingresado difiere por más de un 5% del valor calculado.\n`;
 
     if(mensaje !== ''){
