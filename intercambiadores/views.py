@@ -202,7 +202,7 @@ class CreacionIntercambiadorMixin(ObtencionParametrosMixin):
         cambio_fase = obtener_cambio_fase(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out)
 
         cp_gas, cp_liquido, tsat, hvap = self.obtencion_parametros(calor, t1, t2, cambio_fase, tipo_cp, flujo_vapor_in, flujo_liquido_in, flujo_vapor_out, flujo_liquido_out, presion, fluido, unidad_calor, unidad_cp, request, lado)
-        condicion = CondicionesTuboCarcasa.objects.create(
+        condicion = CondicionesIntercambiador.objects.create(
             intercambiador = intercambiador,
             lado = lado[0].upper(),
             temp_entrada = float(request.POST['temp_in_tubo']),

@@ -2,7 +2,7 @@ from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout, login, get_user_model
 from django.http import HttpResponse
-from intercambiadores.models import Fluido, Unidades, TiposDeTubo, Tema, Intercambiador, PropiedadesTuboCarcasa, CondicionesTuboCarcasa
+from intercambiadores.models import Fluido, Unidades, TiposDeTubo, Tema, Intercambiador, PropiedadesTuboCarcasa, CondicionesIntercambiador
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django import template
@@ -235,7 +235,7 @@ class ComponerIntercambiadores(View):
                             q = row[32]
                         )
 
-                        condiciones_tubo = CondicionesTuboCarcasa.objects.create(
+                        condiciones_tubo = CondicionesIntercambiador.objects.create(
                             intercambiador = propiedades,
                             lado = 'T',
                             temp_entrada = row[19],
@@ -261,7 +261,7 @@ class ComponerIntercambiadores(View):
                             fouling = row[30],
                         )
 
-                        condiciones_carcasa = CondicionesTuboCarcasa.objects.create(
+                        condiciones_carcasa = CondicionesIntercambiador.objects.create(
                             intercambiador = propiedades,
                             lado = 'C',
                             temp_entrada = row[6],

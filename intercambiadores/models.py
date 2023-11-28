@@ -311,7 +311,7 @@ class PropiedadesDobleTubo(models.Model):
         db_table = "intercambiador_doble_tubo"
         ordering = ('intercambiador__tag',)
 
-class CondicionesTuboCarcasa(models.Model):
+class CondicionesIntercambiador(models.Model):
     intercambiador = models.ForeignKey(Intercambiador, on_delete=models.CASCADE, related_name="condiciones")
     lado = models.TextField(max_length=1, choices=(('T', 'Tubo'), ('C', 'Carcasa')))
     
@@ -348,7 +348,7 @@ class CondicionesTuboCarcasa(models.Model):
                 return x[1]
 
     class Meta:
-        db_table = "condiciones_tubo_carcasa"
+        db_table = "condiciones_intercambiador"
 
 # Modelo de Evaluaciones
 class EvaluacionesIntercambiador(models.Model):
