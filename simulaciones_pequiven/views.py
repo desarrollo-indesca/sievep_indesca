@@ -213,7 +213,7 @@ class ComponerIntercambiadores(View):
                             longitud_tubos = row[-16],
                             longitud_tubos_unidad = Unidades.objects.get(pk=4),
                             diametro_externo_tubos = float(row[-15]),
-                            diametro_interno_tubos = float(row[-14]),
+                            diametro_interno_carcasa = float(row[-14]),
                             diametro_tubos_unidad = Unidades.objects.get(pk=5),
                             fluido_carcasa = row[5] if type(row[5]) == Fluido else None,
                             material_carcasa = row[-13],

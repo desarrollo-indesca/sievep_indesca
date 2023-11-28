@@ -511,7 +511,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorM
                     longitud_tubos = float(request.POST['longitud_tubos']),
                     longitud_tubos_unidad = Unidades.objects.get(pk=request.POST['longitud_tubos_unidad']),
                     diametro_externo_tubos = float(request.POST['od_tubos']),
-                    diametro_interno_tubos = float(request.POST['id_carcasa']),
+                    diametro_interno_carcasa = float(request.POST['id_carcasa']),
                     diametro_tubos_unidad = Unidades.objects.get(pk=request.POST['unidad_diametros']),
 
                     fluido_carcasa = Fluido.objects.get(pk=request.POST['fluido_carcasa']) if type(fluido_carcasa) == str else fluido_carcasa if type(fluido_carcasa) == Fluido else None,
@@ -808,7 +808,7 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
                 propiedades.numero_tubos = request.POST['no_tubos']
                 propiedades.longitud_tubos = float(request.POST['longitud_tubos'])
                 propiedades.diametro_externo_tubos = request.POST['od_tubos']
-                propiedades.diametro_interno_tubos = request.POST['id_carcasa']
+                propiedades.diametro_interno_carcasa = request.POST['id_carcasa']
                 propiedades.tipo_tubo = TiposDeTubo.objects.get(pk=request.POST['tipo_tubo'])
                 propiedades.pitch_tubos = request.POST['pitch']
                 propiedades.unidades_pitch = Unidades.objects.get(pk=request.POST['unidades_pitch'])

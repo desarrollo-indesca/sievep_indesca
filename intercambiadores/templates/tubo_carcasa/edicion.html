@@ -77,8 +77,6 @@
                 <select class="form-select" name="flujo" id="flujo">
                     <option value="C" {% if 'C' == intercambiador.intercambiador.arreglo_flujo %}selected{% endif %}>Cocorriente</option>
                     <option value="c" {% if 'c' == intercambiador.intercambiador.arreglo_flujo %}selected{% endif %}>Contracorriente</option>
-                    <option value="M" {% if 'M' == intercambiador.intercambiador.arreglo_flujo %}selected{% endif %}>Flujo Cruzado Mezclado</option>
-                    <option value="m" {% if 'm' == intercambiador.intercambiador.arreglo_flujo %}selected{% endif %}>Flujo Cruzado sin Mezclar</option>
                 </select>
             </div>
 
@@ -315,7 +313,7 @@
                                 <label for="tsat_carcasa">Temp. Saturación:</label>
                                 
                                 <div class="input-group mb-3">
-                                    <input style="width: 60% !important;" step="0.01" value="{% if condicion_carcasa.tsat %}{{condicion_carcasa.tsat|unlocalize}}{%endif%}" type="number" name="tsat_carcasa" id="tsat_carcasa" class="form-control">
+                                    <input style="width: 60% !important;" max="99999.99" step="0.01" value="{% if condicion_carcasa.tsat %}{{condicion_carcasa.tsat|unlocalize}}{%endif%}" type="number" name="tsat_carcasa" id="tsat_carcasa" class="form-control">
                                     <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
                                         <option>{{condicion_carcasa.temperaturas_unidad}}</option>
                                     </select>
@@ -325,7 +323,7 @@
                             <div class="col-6 d-flex flex-column">
                                 <label for="hvap_carcasa">Entalpía de Vaporización:</label>
                                 <div class="input-group mb-3">
-                                    <input style="width: 60% !important;" value="{% if condicion_carcasa.hvap %}{{condicion_carcasa.hvap|unlocalize}}{%endif%}" min="0.0001" step="0.0001" type="number" name="hvap_carcasa" id="hvap_carcasa" class="form-control">
+                                    <input style="width: 60% !important;" value="{% if condicion_carcasa.hvap %}{{condicion_carcasa.hvap|unlocalize}}{%endif%}" max="99999999999.9999" min="0.0001" step="0.0001" type="number" name="hvap_carcasa" id="hvap_carcasa" class="form-control">
                                     <select style="width: 40% !important;" class="form-select" name="unidad_hvap" id="unidad_hvap" disabled>
                                         <option value="1">J/Kg</option>
                                     </select>
@@ -337,7 +335,7 @@
                     <div class="col-6">
                         <label class="form-label" for="caida_presion_permitida_carcasa">Caída de Presión Máxima:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_carcasa.caida_presion_max|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_max_carcasa" id="caida_presion_max_carcasa" step="0.01" max="99999999.99" required>
+                            <input value="{{condicion_carcasa.caida_presion_max|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_max_carcasa" id="caida_presion_max_carcasa" step="0.0001" max="999.9999" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
                                 <option>{{condicion_carcasa.unidad_presion}}</option>
                             </select>
@@ -347,7 +345,7 @@
                     <div class="col-6">
                         <label class="form-label" for="caida_presion_diseno_carcasa">Caída de Presión Mínima:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_carcasa.caida_presion_min|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_min_carcasa" id="caida_presion_min_carcasa" step="0.01" max="99999999.99" required>
+                            <input value="{{condicion_carcasa.caida_presion_min|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_min_carcasa" id="caida_presion_min_carcasa" step="0.0001" max="999.9999" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
                                 <option>{{condicion_carcasa.unidad_presion}}</option>
                             </select>
@@ -586,7 +584,7 @@
                                 <label for="tsat_tubo">Temp. Saturación:</label>
                                 
                                 <div class="input-group mb-3">
-                                    <input style="width: 60% !important;" step="0.01" value="{% if condicion_tubo.tsat %}{{condicion_tubo.tsat|unlocalize}}{%endif%}" type="number" name="tsat_tubo" id="tsat_tubo" class="form-control">
+                                    <input style="width: 60% !important;" max="99999.99" step="0.01" value="{% if condicion_tubo.tsat %}{{condicion_tubo.tsat|unlocalize}}{%endif%}" type="number" name="tsat_tubo" id="tsat_tubo" class="form-control">
                                     <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" id="unidad_temperaturas" disabled>
                                         <option>{{condicion_tubo.temperaturas_unidad}}</option>
                                     </select>
@@ -596,7 +594,7 @@
                             <div class="col-6 d-flex flex-column">
                                 <label for="hvap_tubo">Entalpía de Vaporización:</label>
                                 <div class="input-group mb-3">
-                                    <input style="width: 60% !important;" min="0.00001" step="0.00001" value="{% if condicion_tubo.hvap %}{{condicion_tubo.hvap|unlocalize}}{%endif%}" type="number" name="hvap_tubo" id="hvap_tubo" class="form-control">
+                                    <input style="width: 60% !important;" min="0.00001" step="0.00001" value="{% if condicion_tubo.hvap %}{{condicion_tubo.hvap|unlocalize}}{%endif%}" max="99999999999.9999" min="0.0001" step="0.0001" type="number" name="hvap_tubo" id="hvap_tubo" class="form-control">
                                     <select style="width: 40% !important;" class="form-select" name="unidad_hvap" id="unidad_hvap" disabled>
                                         <option value="1">J/Kg</option>
                                     </select>
@@ -608,7 +606,7 @@
                     <div class="col-6">
                         <label class="form-label" for="caida_presion_max_tubo">Caída de Presión Máxima:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_tubo.caida_presion_max|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_max_tubo" id="caida_presion_max_tubo" step="0.01" max="99999999.99" required>
+                            <input value="{{condicion_tubo.caida_presion_max|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_max_tubo" id="caida_presion_max_tubo" step="0.0001" max="999.9999" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
                                 <option>{{condicion_tubo.unidad_presion}}</option>
                             </select>
@@ -618,7 +616,7 @@
                     <div class="col-6">
                         <label class="form-label" for="caida_presion_min_tubo">Caída de Presión Mínima:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_tubo.caida_presion_min|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_min_tubo" id="caida_presion_min_tubo" step="0.01" max="99999999.99" required>
+                            <input value="{{condicion_tubo.caida_presion_min|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_min_tubo" id="caida_presion_min_tubo" step="0.0001" max="999.9999" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
                                 <option>{{condicion_tubo.unidad_presion}}</option>
                             </select>
@@ -677,7 +675,7 @@
                     <div class="col-3">
                         <label class="form-label" for="calor">Calor:</label>
                         <div class="input-group mb-3">
-                            <input value="{{intercambiador.q|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="calor" id="calor" max="999999999.999" step="0.001" required>
+                            <input value="{{intercambiador.q|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="calor" id="calor" max="999999999999.999" step="0.001" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_q" id="unidad_q">
                                 {% for unidad in unidades_q %}
                                 <option value="{{unidad.pk}}" {% if intercambiador.q_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>                                
@@ -689,7 +687,7 @@
                     <div class="col-3">
                         <label class="form-label" for="area">Área:</label>
                         <div class="input-group mb-3">
-                            <input value="{{intercambiador.area|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="area" id="area" step="0.01" min="0.01" required>
+                            <input value="{{intercambiador.area|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="area" id="area"max="9999999999.99" id="area" step="0.01" min="0.01" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_area" id="unidad_area">
                                 {% for unidad in unidades_area %}
                                 <option value="{{unidad.pk}}" {% if intercambiador.area_unidad == unidad %}selected{%endif%}>{{unidad}}</option>
@@ -740,7 +738,7 @@
                     <div class="col-3">
                         <label class="form-label" for="id_carcasa">ID Carcasa:</label>
                         <div class="input-group mb-3">
-                            <input value="{{intercambiador.diametro_interno_tubos|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="id_carcasa" id="id_carcasa" step="0.01" min="0.01" max="999999.99" required>
+                            <input value="{{intercambiador.diametro_interno_carcasa|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="id_carcasa" id="id_carcasa" step="0.01" min="0.01" max="999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_diametros" id="unidad_diametros" disabled>
                                 <option>{{intercambiador.diametro_tubos_unidad}}</option>
                             </select>
