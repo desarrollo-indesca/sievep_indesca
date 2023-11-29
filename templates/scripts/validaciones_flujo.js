@@ -68,11 +68,15 @@ const determinar_cambio_de_fase_tubo = () => { // Cambio de Fase para tubos
                 $('#cp_gas_tubo').removeAttr('disabled');
             }
         }
-
-        if(cambio_fase === 'P')
-            $('#sat_tubo').attr("hidden", true);        
         
+        if(cambio_fase !== 'T')             
+            $('#sat_tubo').attr("hidden", true);
+        else if(($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().indexOf('*') !== -1 && $('#fluido_tubo').val().split('*')[1].indexOf('-') === -1))
+            $('#sat_tubo').removeAttr("hidden");
+        
+        // {% if intercambiador %}
         actualizar_tipos('T');
+        // {% endif %}
     }
 
     anadir_listeners();
@@ -96,15 +100,17 @@ const determinar_cambio_de_fase_carcasa = () => { // Cambio de Fase para carcasa
         else{
             // Si tiene un tipo de cambio de fase y es un fluido no registrado, se trata todo manual
             if(cambio_fase === 'S')
-                cambiar_accesibilidad_por_fase('T');
+                cambiar_accesibilidad_por_fase('C');
             else{
                 $('#cp_liquido_carcasa').removeAttr('disabled');
                 $('#cp_gas_carcasa').removeAttr('disabled');
             }   
         }
 
-        if(cambio_fase === 'P')
+        if(cambio_fase !== 'T')             
             $('#sat_carcasa').attr("hidden", true);
+        else if(($('#fluido_carcasa').val() === '' || $('#fluido_carcasa').val().indexOf('*') !== -1 && $('#fluido_carcasa').val().split('*')[1].indexOf('-') === -1))
+            $('#sat_carcasa').removeAttr("hidden");
 
         // {% if intercambiador %}
         actualizar_tipos('C');

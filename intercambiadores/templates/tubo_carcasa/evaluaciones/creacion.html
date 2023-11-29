@@ -230,7 +230,15 @@
                     <div class="input-group">
                         <input id="lmtd" disabled type="text" class="form-control" style="width: 60% !important;">
                         <select itemid="unidad_lmtd" style="width: 40% !important;" class="form-select" name="" id="unidad_lmtd" disabled>
-                            <option value="{{intercambiador.condicion_carcasa.temperaturas_unidad.pk}}">{{intercambiador.condicion_carcasa.temperaturas_unidad}}</option>                                
+                            {% if intercambiador.condicion_carcasa %}
+                            <option value="{{intercambiador.condicion_carcasa.temperaturas_unidad.pk}}">
+                                {{intercambiador.condicion_carcasa.temperaturas_unidad}}                                
+                            </option>
+                            {% else %}
+                            <option value="{{intercambiador.condicion_externo.temperaturas_unidad.pk}}">
+                                {{intercambiador.condicion_externo.temperaturas_unidad}}                                
+                            </option>
+                            {%endif%}
                         </select>
                     </div>
                 </div>
