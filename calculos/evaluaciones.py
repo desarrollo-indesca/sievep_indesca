@@ -158,11 +158,9 @@ def evaluacion_doble_tubo(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_in 
     if(ct < cc):
         cmin = ct
         cmax = cc
-        minimo = 1
     else:
         cmin = cc
         cmax = ct
-        minimo = 2
 
     if(condicion_carcasa.cambio_de_fase in ['T','P'] or condicion_tubo.cambio_de_fase in ['T','P']):
         cmax = np.Infinity

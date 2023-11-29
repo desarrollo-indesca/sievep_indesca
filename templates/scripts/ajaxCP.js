@@ -526,14 +526,14 @@ const validarForm = (e) => {
 
     if(Number($('#fluido_tubo').val()) || $('#fluido_tubo').val().includes('*') && $('#fluido_tubo').val().split('*')[1].includes('-') || $('#cambio_fase_tubo').val() === 'S'){
         const res = ajaxValidacion('T');
-        mensaje = res[0];
+        mensaje += res[0];
         q += Number(res[1]);
         n++;
     }
 
     if(Number($('#fluido_carcasa').val()) || $('#fluido_carcasa').val().includes('*') && $('#fluido_carcasa').val().split('*')[1].includes('-') || $('#cambio_fase_carcasa').val() === 'S'){
         const res = ajaxValidacion('C');
-        mensaje = res[0];
+        mensaje += res[0]  + '\n';
         q += Number(res[1]);
         n++;
     }

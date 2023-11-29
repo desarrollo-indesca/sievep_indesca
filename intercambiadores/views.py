@@ -192,7 +192,7 @@ class CreacionIntercambiadorMixin(ObtencionParametrosMixin):
     Resumen:
         Mixin para el almacenamiento de las condiciones. Contiene una función para el almacenamiento de las condiciones de un intercambiador.
     '''
-    def almacenar_condicion(self, calor, intercambiador, request, unidad_calor, fluido, lado):
+    def almacenar_condicion(self, calor, intercambiador, request, unidad_calor, fluido, lado, codigo_lado):
         t1,t2 = transformar_unidades_temperatura([float(request.POST['temp_in_' + lado]), float(request.POST['temp_out_' + lado])], int(request.POST['unidad_temperaturas']))
         presion = transformar_unidades_presion([float(request.POST['presion_entrada_' + lado])], int(request.POST['unidad_presiones']))[0]
         tipo_cp = request.POST.get('tipo_cp_' + lado)
@@ -204,25 +204,25 @@ class CreacionIntercambiadorMixin(ObtencionParametrosMixin):
         cp_gas, cp_liquido, tsat, hvap = self.obtencion_parametros(calor, t1, t2, cambio_fase, tipo_cp, flujo_vapor_in, flujo_liquido_in, flujo_vapor_out, flujo_liquido_out, presion, fluido, unidad_calor, unidad_cp, request, lado)
         condicion = CondicionesIntercambiador.objects.create(
             intercambiador = intercambiador,
-            lado = lado[0].upper(),
-            temp_entrada = float(request.POST['temp_in_tubo']),
-            temp_salida = float(request.POST['temp_out_tubo']),
+            lado = codigo_lado.upper(),
+            temp_entrada = float(request.POST['temp_in_' + lado]),
+            temp_salida = float(request.POST['temp_out_' + lado]),
             temperaturas_unidad = Unidades.objects.get(pk=request.POST['unidad_temperaturas']),
 
             cambio_de_fase = cambio_fase,
                         
-            flujo_masico = float(request.POST['flujo_vapor_in_tubo']) + float(request.POST['flujo_liquido_in_tubo']),
-            flujo_vapor_entrada = request.POST['flujo_vapor_in_tubo'],
-            flujo_vapor_salida = request.POST['flujo_vapor_out_tubo'],
-            flujo_liquido_entrada = request.POST['flujo_liquido_in_tubo'],
-            flujo_liquido_salida = request.POST['flujo_liquido_out_tubo'],
+            flujo_masico = float(request.POST['flujo_vapor_in_' + lado]) + float(request.POST['flujo_liquido_in_' + lado]),
+            flujo_vapor_entrada = request.POST['flujo_vapor_in_' + lado],
+            flujo_vapor_salida = request.POST['flujo_vapor_out_' + lado],
+            flujo_liquido_entrada = request.POST['flujo_liquido_in_' + lado],
+            flujo_liquido_salida = request.POST['flujo_liquido_out_' + lado],
             flujos_unidad = Unidades.objects.get(pk=request.POST['unidad_flujos']),
-            caida_presion_max = request.POST['caida_presion_max_tubo'],
-            caida_presion_min = request.POST['caida_presion_min_tubo'],
-            presion_entrada = request.POST['presion_entrada_tubo'],
+            caida_presion_max = request.POST['caida_presion_max_' + lado],
+            caida_presion_min = request.POST['caida_presion_min_' + lado],
+            presion_entrada = request.POST['presion_entrada_' + lado],
             unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presiones']),
 
-            fouling = request.POST['fouling_tubo'],
+            fouling = request.POST['fouling_' + lado],
             fluido_etiqueta = fluido[0] if type(fluido) != Fluido else None,
             fluido_cp_gas = cp_gas,
             fluido_cp_liquido = cp_liquido,
@@ -541,10 +541,10 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorM
                 )
 
                 # Condiciones de Diseño del Tubo Interno
-                condiciones_diseno_tubo = self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad, fluido_tubo, 'tubo')
+                condiciones_diseno_tubo = self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad, fluido_tubo, 'tubo', 'T')
 
                 # Condiciones de Diseño de la Tubo Externo
-                condiciones_diseno_ex =  self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad, fluido_carcasa, 'carcasa')
+                condiciones_diseno_ex =  self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad, fluido_carcasa, 'carcasa', 'C')
 
                 messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
                 return redirect(f"/intercambiadores/tubo_carcasa/{propiedades.pk}/")
@@ -1466,10 +1466,10 @@ class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMix
                 )
 
                 # Condiciones de Diseño del Tubo Interno
-                condiciones_diseno_in = self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad, fluido_in, 'tubo')
+                condiciones_diseno_in = self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad, fluido_in, 'tubo', 'I')
 
                 # Condiciones de Diseño de la Tubo Externo
-                condiciones_diseno_ex =  self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad, fluido_in, 'carcasa')
+                condiciones_diseno_ex =  self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad, fluido_in, 'carcasa', 'E')
 
                 messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
                 return redirect(f"/intercambiadores/doble_tubo/{propiedades.pk}/")
@@ -1716,7 +1716,7 @@ class ConsultaCAS(LoginRequiredMixin, View):
 
         return JsonResponse({'nombre': fluido, 'estado': estado})
 
-class ConsultaCP(LoginRequiredMixin, View):
+class ConsultaCP(LoginRequiredMixin, ObtencionParametrosMixin, View):
     """
     Resumen:
         Vista AJAX de evaluación de tubo/carcasa, es llamada varias veces en CrearEvaluacionTuboCarcasa,
@@ -1767,7 +1767,7 @@ class ConsultaCP(LoginRequiredMixin, View):
                     'flujo_liquido_out': float(condiciones.flujo_liquido_salida)                    
                 }
 
-            cp_liq, cp_gas = obtener_cps(t1, t2, presion, flujos['flujo_liquido_in'], flujos['flujo_liquido_out'], flujos['flujo_vapor_in'], flujos['flujo_vapor_out'], cas, cambio_fase, unidad_salida)       
+            cp_liq, cp_gas = self.obtener_cps(t1, t2, presion, flujos['flujo_liquido_in'], flujos['flujo_liquido_out'], flujos['flujo_vapor_in'], flujos['flujo_vapor_out'], cas, cambio_fase, unidad_salida)       
         else:
             return JsonResponse({'cp': ''})
         
@@ -1896,6 +1896,8 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
             calorcalc = calcular_calor_scdf(flujo_vapor_in+flujo_liquido_in, cp_gas if cp_gas else cp_liquido, t1, t2)
         
         calorcalc = round(calorcalc, 2)
+
+        print(codigo)
 
         if(codigo == 200):
             return JsonResponse({'codigo': codigo, 'calorcalc': calorcalc})
