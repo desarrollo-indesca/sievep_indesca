@@ -1544,7 +1544,7 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
             print(str(e))
             messages.warning(request, "No se pudo registrar la evaluación. Por favor, verifique los datos ingresados y de diseño.")
 
-        return redirect(f'/intercambiadores/evaluaciones/{intercambiador.pk}/')        
+        return redirect(f'/intercambiadores/evaluaciones/{intercambiador.intercambiador.pk}/')        
 
     def get(self, request, pk):
         context = self.context
@@ -1609,9 +1609,6 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["titulo"] = "SIEVEP - Consulta de Evaluaciones"
         intercambiador = Intercambiador.objects.get(pk=self.kwargs['pk'])
-
-        print(intercambiador.tipo.nombre)
-        print(intercambiador.tipo.pk)
         
         if(intercambiador.tipo.pk == 1):
             context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(intercambiador=intercambiador)
@@ -1636,12 +1633,18 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
         try:
             return super().get(request, *args, **kwargs)
         except:
-            intercambiador = PropiedadesTuboCarcasa.objects.get(pk=self.kwargs['pk'])
-            messages.warning(request, f"No se pudo cargar la consulta de evaluaciones del intercambiador {intercambiador.intercambiador.tag}. Verificar correctitud de los datos de diseño.")
+            intercambiador = Intercambiador.objects.get(pk=self.kwargs['pk'])
+            messages.warning(request, f"No se pudo cargar la consulta de evaluaciones del intercambiador {intercambiador.tag}. Verificar correctitud de los datos de diseño.")
             if(request.user.is_superuser):
-                return redirect(f'/intercambiadores/tubo_carcasa/editar/{intercambiador.pk}/')
+                if(intercambiador.tipo.pk == 1):
+                    return redirect(f'/intercambiadores/tubo_carcasa/editar/{intercambiador.pk}/')
+                elif(intercambiador.tipo.pk == 2):
+                    return redirect(f'/intercambiadores/tubo_carcasa/editar/{intercambiador.pk}/')
             else:
-                return redirect(f'intercambiadores/tubo_carcasa/')
+                if(intercambiador.tipo.pk == 1):
+                    return redirect(f'/intercambiadores/tubo_carcasa/')
+                elif(intercambiador.tipo.pk == 2):
+                    return redirect(f'/intercambiadores/doble_tubo/')
     
     def get_queryset(self):
         new_context = EvaluacionesIntercambiador.objects.filter(intercambiador__pk=self.kwargs['pk'], visible=True)

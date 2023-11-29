@@ -544,7 +544,7 @@ const validarForm = (e) => {
     if(n !== 0 && Math.abs(q - Number($('#calor').val()))/Number($('#calor').val()) > 0.05)
         mensaje += `El calor ingresado difiere por más de un 5% del valor calculado.\n`;
 
-    if(mensaje !== ''){
+    if(mensaje.trim() !== ''){
         mensaje = "ADVERTENCIA\n" + mensaje + "\n¿Desea continuar igualmente?"
         return confirm(mensaje);
     }
