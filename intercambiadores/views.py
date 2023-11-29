@@ -576,216 +576,6 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorM
 
         return render(request, self.template_name, context=self.context)
 
-class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View, ObtencionParametrosMixin):
-    """
-    Resumen:
-        Vista de Creación (Formulario) de una nueva evaluación de un intercambiador tubo/carcasa. 
-        Requiere de un usuario autenticado para poder ser accedida.
-
-    Atributos:
-        context: dict
-            Contexto inicial de la vista. Incluye el título.
-    
-    Métodos:
-        post(self, request)
-            Función que contiene la lógica de almacenamiento en la BDD al realizar 
-            una solicitud POST en la vista.
-        
-        get(self, request)
-            Contiene la lógica de renderizado del formulario y de carga de unidades (GET).
-    """
-
-    context = {
-        'titulo': "Evaluación "
-    }
-
-    def validar(self, request): # Validación de Formulario de Creación de Evaluación
-        errores = []
-        if(not request.POST.get('nombre')):
-            errores.append('El campo Nombre es obligatorio.')
-
-        if(not request.POST.get('temp_in_carcasa')):
-            errores.append('El campo Temperatura de Entrada de Carcasa es obligatorio.')
-        
-        if(not request.POST.get('temp_out_carcasa')):
-            errores.append('El campo Temperatura de Salida de Carcasa es obligatorio.')
-
-        if(not request.POST.get('temp_in_tubo')):
-            errores.append('El campo Temperatura de Entrada de Tubo es obligatorio.')
-        
-        if(not request.POST.get('temp_out_tubo')):
-            errores.append('El campo Temperatura de Salida de Tubo es obligatorio.')
-        
-        if(not request.POST.get('flujo_tubo')):
-            errores.append('El campo Flujo de Tubo es obligatorio.')
-
-        if(not request.POST.get('flujo_carcasa')):
-            errores.append('El campo Flujo de Carcasa es obligatorio.')
-
-        if(not request.POST.get('no_tubos')):
-            errores.append('El campo Número de Tubos es obligatorio.')
-
-        if(not request.POST.get('unidad_temperaturas')):
-            errores.append('El campo Unidad de Temperaturas es obligatorio.')
-
-        if(not request.POST.get('unidad_flujo')):
-            errores.append('El campo Unidad de Flujo es obligatorio.')
-
-        if(not request.POST.get('unidad_cp')):
-            errores.append('El campo Unidad de Cp es obligatorio.')
-
-        if(not request.POST.get('caida_tubo')):
-            errores.append('El campo Caída de Presión de Tubo es obligatorio.')
-
-        if(not request.POST.get('caida_carcasa')):
-            errores.append('El campo Caída de Presión de Carcasa es obligatorio.')
-
-        return errores
-
-    def post(self, request, pk):
-        intercambiador = Intercambiador.objects.get(pk=pk)
-        print(intercambiador)
-        if(intercambiador.tipo.pk == 1):
-            intercambiador = PropiedadesTuboCarcasa.objects.get(intercambiador=intercambiador)
-        else:
-            intercambiador = PropiedadesDobleTubo.objects.get(intercambiador=intercambiador)
-        
-        try:
-            with transaction.atomic():
-                ti = (float(request.POST['temp_in_carcasa']))
-                ts = (float(request.POST['temp_out_carcasa']))
-                Ti = (float(request.POST['temp_in_tubo']))
-                Ts = (float(request.POST['temp_out_tubo']))
-                ft = (float(request.POST['flujo_tubo']))
-                fc = (float(request.POST['flujo_carcasa']))
-                nt = (float(request.POST['no_tubos']))
-
-                if(type(intercambiador) == PropiedadesTuboCarcasa):
-                    cond_tubo = intercambiador.condicion_tubo()
-                    cond_carcasa = intercambiador.condicion_carcasa()
-                elif(type(intercambiador) == PropiedadesDobleTubo):
-                    cond_tubo = intercambiador.condicion_interno()
-                    cond_carcasa = intercambiador.condicion_externo()
-
-                unidad_cp = int(request.POST['unidad_cp']) if request.POST.get('unidad_cp') else cond_tubo.unidad_cp.pk
-                unidad = int(request.POST['unidad_temperaturas'])
-                unidad_flujo = int(request.POST['unidad_flujo'])
-
-                if(request.POST.get('tipo_cp_tubo') == 'A'):
-                    # Calcular todo de la misma forma que en el almacenamiento
-                    t1,t2 = transformar_unidades_temperatura([Ti,Ts], int(request.POST.get('unidad_temperaturas')))
-                    presion = transformar_unidades_presion([float(cond_tubo.presion_entrada)], cond_tubo.unidad_presion.pk)[0]
-                    cp_liquido_tubo,cp_gas_tubo = self.obtener_cps(t1,t2,presion,float(cond_tubo.flujo_liquido_entrada),float(cond_tubo.flujo_liquido_salida),
-                                                            float(cond_tubo.flujo_vapor_entrada),float(cond_tubo.flujo_vapor_salida),
-                                                            intercambiador.fluido_tubo.cas,cond_tubo.cambio_de_fase,unidad_cp)
-                elif(request.POST.get('tipo_cp_tubo') == 'M'):
-                    # Manual. Tomar en cuenta CDF.
-                    cp_gas_tubo = float(request.POST['cp_gas_tubo']) if request.POST.get('cp_gas_tubo') else None
-                    cp_liquido_tubo = float(request.POST['cp_liquido_tubo']) if request.POST.get('cp_liquido_tubo') else None
-                else:
-                    cp_gas_tubo = float(cond_tubo.fluido_cp_gas) if cond_tubo.fluido_cp_gas else None
-                    cp_liquido_tubo = float(cond_tubo.fluido_cp_liquido) if cond_tubo.fluido_cp_liquido else None
-
-                if(request.POST.get('tipo_cp_carcasa') == 'A'):
-                    # Calcular todo de la misma forma que en el almacenamiento
-                    t1,t2 = transformar_unidades_temperatura([ti,ts], int(request.POST.get('unidad_temperaturas')))
-                    presion = transformar_unidades_presion([float(cond_carcasa.presion_entrada)], cond_carcasa.unidad_presion.pk)[0]
-                    cp_liquido_carcasa,cp_gas_carcasa = self.obtener_cps(t1,t2,presion,float(cond_carcasa.flujo_liquido_entrada),float(cond_carcasa.flujo_liquido_salida),
-                                                            float(cond_carcasa.flujo_vapor_entrada),float(cond_carcasa.flujo_vapor_salida),
-                                                            intercambiador.fluido_carcasa.cas,cond_carcasa.cambio_de_fase,unidad_cp)
-                elif(request.POST.get('tipo_cp_carcasa') == 'M'):
-                    # Manual. Tomar en cuenta CDF.
-                    cp_gas_carcasa = float(request.POST['cp_gas_carcasa']) if request.POST.get('cp_gas_carcasa') else None
-                    cp_liquido_carcasa = float(request.POST['cp_liquido_carcasa']) if request.POST.get('cp_liquido_carcasa') else None
-                else:
-                    cp_gas_carcasa = float(cond_carcasa.fluido_cp_gas) if cond_carcasa.fluido_cp_gas else None
-                    cp_liquido_carcasa = float(cond_carcasa.fluido_cp_liquido) if cond_carcasa.fluido_cp_liquido else None
-                
-                cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa =  transformar_unidades_cp([cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa], unidad=unidad_cp, unidad_salida=29)
-
-                if(type(intercambiador) == PropiedadesTuboCarcasa):
-                    resultados = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
-                elif(type(intercambiador) == PropiedadesDobleTubo):
-                    resultados = evaluacion_doble_tubo(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
-                
-                resultados['q'] = round(*transformar_unidades_calor([resultados['q']], 28, intercambiador.q_unidad.pk), 4)
-                resultados['area'] = round(*transformar_unidades_area([resultados['area']], 3, intercambiador.area_unidad.pk), 2)
-
-                if(cond_carcasa.temperaturas_unidad.pk not in [1,2]):
-                    resultados['lmtd'] = round(*transformar_unidades_temperatura([resultados['lmtd']], 2, cond_carcasa.temperaturas_unidad.pk), 2)
-
-                resultados['factor_ensuciamiento'] = round(*transformar_unidades_ensuciamiento([resultados['factor_ensuciamiento']], 31, intercambiador.ensuciamiento_unidad.pk), 6)
-                resultados['u'] = round(*transformar_unidades_u([resultados['u']], 27, intercambiador.u_unidad.pk), 4)
-
-                print(resultados, resultados['q'])
-                EvaluacionesIntercambiador.objects.create(
-                    creado_por = request.user,
-                    intercambiador = intercambiador.intercambiador,
-                    metodo = 'E',
-                    nombre = request.POST['nombre'],
-
-                    # DATOS TEMPERATURAS
-                    temp_ex_entrada = request.POST['temp_in_carcasa'],
-                    temp_ex_salida = request.POST['temp_out_carcasa'],
-                    temp_in_entrada = request.POST['temp_in_tubo'],
-                    temp_in_salida = request.POST['temp_out_tubo'],
-                    temperaturas_unidad = Unidades.objects.get(pk=unidad),
-
-                    # DATOS FLUJOS
-                    flujo_masico_ex = request.POST['flujo_carcasa'],
-                    flujo_masico_in = request.POST['flujo_tubo'],
-                    unidad_flujo = Unidades.objects.get(pk=request.POST['unidad_flujo']),
-
-                    # DATOS PRESIONES
-                    caida_presion_in = request.POST['caida_tubo'],
-                    caida_presion_ex = request.POST['caida_carcasa'],
-                    unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presion']),
-
-                    # DATOS DE SALIDA
-                    lmtd = resultados['lmtd'],
-                    area_transferencia = resultados['area'],
-                    u = round(resultados['u'], 4),
-                    ua = resultados['ua'],
-                    ntu = resultados['ntu'],
-                    efectividad = resultados['efectividad'],
-                    eficiencia = resultados['eficiencia'],
-                    ensuciamiento = resultados['factor_ensuciamiento'],
-                    q = resultados['q'],
-                    numero_tubos = request.POST['no_tubos'],
-
-                    # CP
-                    cp_tubo_gas = cp_gas_tubo,
-                    cp_tubo_liquido = cp_liquido_tubo,
-                    cp_carcasa_gas = cp_gas_carcasa,
-                    cp_carcasa_liquido = cp_liquido_carcasa,
-                    tipo_cp_carcasa = request.POST.get('tipo_cp_carcasa') if request.POST.get('tipo_cp_carcasa') else 'A',
-                    tipo_cp_tubo = request.POST.get('tipo_cp_tubo') if request.POST.get('tipo_cp_tubo') else 'A',
-                    cp_unidad = Unidades.objects.get(pk=unidad_cp)
-                )
-                messages.success(request, "La nueva evaluación ha sido registrada exitosamente.")
-        except Exception as e:
-            print(str(e))
-            messages.warning(request, "No se pudo registrar la evaluación. Por favor, verifique los datos ingresados y de diseño.")
-
-        return redirect(f'/intercambiadores/evaluaciones/{intercambiador.pk}/')        
-
-    def get(self, request, pk):
-        context = self.context
-        intercambiador = Intercambiador.objects.get(pk=pk)
-
-        if(intercambiador.tipo.pk == 1):
-            context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(intercambiador=intercambiador)
-        else:
-            context['intercambiador'] = PropiedadesDobleTubo.objects.get(intercambiador=intercambiador)
-
-        context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
-        context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
-        context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
-        context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
-        context['titulo'] += intercambiador.tipo.nombre.title()
-
-        return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
-
 class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionIntercambiadorMixin):
     """
     Resumen:
@@ -889,115 +679,6 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
         self.context['unidades_u'] = Unidades.objects.filter(tipo = 'u')
 
         return render(request, self.template_name, context=self.context)
-
-class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
-    """
-    Resumen:
-        Vista de consulta de evaluaciones. Contiene la lógica de eliminación (ocultación) de evaluaciones,
-        filtrado y paginación. Requiere de inicio de sesión.
-
-    Atributos:
-        model: Model
-            Modelo a mostrar en la consulta. EvaluacionesIntercambiador en este caso.
-
-        template_name: str
-            Nombre de la plantilla a renderizar.
-        
-        paginate_by: int
-            Número de registros por pantalla. 
-    
-    Métodos:
-        post(self, request, **kwargs)
-            Función que contiene la lógica de "eliminación" de evaluaciones.
-        
-        get_context_data(self, **kwargs)
-            Lleva al contexto los datos de filtrado.
-
-        get_queryset(self)
-            Filtra los datos de acuerdo a los parámetros de filtrado.
-    """
-
-    model = EvaluacionesIntercambiador
-    template_name = 'tubo_carcasa/evaluaciones/consulta.html'
-    paginate_by = 10
-
-    def post(self, request, **kwargs):
-        if(request.user.is_superuser): # Lógica de "Eliminación"
-            evaluacion = EvaluacionesIntercambiador.objects.get(pk=request.POST['evaluacion'])
-            evaluacion.visible = False
-            evaluacion.save()
-            messages.success(request, "Evaluación eliminada exitosamente.")
-        else:
-            messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
-
-        return self.get(request, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["titulo"] = "SIEVEP - Consulta de Evaluaciones"
-        intercambiador = Intercambiador.objects.get(pk=self.kwargs['pk'])
-
-        print(intercambiador.tipo.nombre)
-        print(intercambiador.tipo.pk)
-        
-        if(intercambiador.tipo.pk == 1):
-            context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(intercambiador=intercambiador)
-        elif(intercambiador.tipo.pk == 2):
-            context['intercambiador'] = PropiedadesDobleTubo.objects.get(intercambiador=intercambiador)
-
-        context['nombre'] = self.request.GET.get('nombre', '')
-        context['desde'] = self.request.GET.get('desde', '')
-        context['hasta'] = self.request.GET.get('hasta')
-        context['usuario'] = self.request.GET.get('usuario','')
-        context['condiciones'] = self.request.GET.get('condiciones', '')
-
-        try:
-            context['diseno'] = context['intercambiador'].calcular_diseno()
-        except Exception as e:
-            print(str(e))
-            print("No se pudo evaluar el diseño del intercambiador.")
-
-        return context
-    
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        try:
-            return super().get(request, *args, **kwargs)
-        except:
-            intercambiador = PropiedadesTuboCarcasa.objects.get(pk=self.kwargs['pk'])
-            messages.warning(request, f"No se pudo cargar la consulta de evaluaciones del intercambiador {intercambiador.intercambiador.tag}. Verificar correctitud de los datos de diseño.")
-            if(request.user.is_superuser):
-                return redirect(f'/intercambiadores/tubo_carcasa/editar/{intercambiador.pk}/')
-            else:
-                return redirect(f'intercambiadores/tubo_carcasa/')
-    
-    def get_queryset(self):
-        new_context = EvaluacionesIntercambiador.objects.filter(intercambiador__pk=self.kwargs['pk'], visible=True)
-        desde = self.request.GET.get('desde', '')
-        hasta = self.request.GET.get('hasta', '')
-        usuario = self.request.GET.get('usuario', '')
-        nombre = self.request.GET.get('nombre', '')
-
-        if(desde != ''):
-            new_context = new_context.filter(
-                fecha__gte = desde
-            )
-
-        if(hasta != ''):
-            new_context = new_context.filter(
-                fecha__lte=hasta
-            )
-
-        if(usuario != ''):
-            new_context = new_context.filter(
-                creado_por__first_name__icontains = usuario
-            )
-
-        if(nombre != ''):
-            new_context = new_context.filter(
-                nombre__icontains = nombre
-            )
-
-        return new_context
 
 class ConsultaTuboCarcasa(LoginRequiredMixin, ListView):
     """
@@ -1671,11 +1352,331 @@ class SeleccionTipo(LoginRequiredMixin, View):
     def get(self, request):
         return render(request, 'seleccion_tipo.html', context=self.context)
 
-# VISTAS AJAX
-class EvaluarTuboCarcasa(LoginRequiredMixin, View):
+# VISTAS PARA EVALUACIONES
+class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
     """
     Resumen:
-        Vista AJAX de evaluación de tubo/carcasa, es llamada varias veces en CrearEvaluacionTuboCarcasa.
+        Vista de Creación (Formulario) de una nueva evaluación de un intercambiador tubo/carcasa. 
+        Requiere de un usuario autenticado para poder ser accedida.
+
+    Atributos:
+        context: dict
+            Contexto inicial de la vista. Incluye el título.
+    
+    Métodos:
+        post(self, request)
+            Función que contiene la lógica de almacenamiento en la BDD al realizar 
+            una solicitud POST en la vista.
+        
+        get(self, request)
+            Contiene la lógica de renderizado del formulario y de carga de unidades (GET).
+    """
+
+    context = {
+        'titulo': "Evaluación "
+    }
+
+    def validar(self, request): # Validación de Formulario de Creación de Evaluación
+        errores = []
+        if(not request.POST.get('nombre')):
+            errores.append('El campo Nombre es obligatorio.')
+
+        if(not request.POST.get('temp_in_carcasa')):
+            errores.append('El campo Temperatura de Entrada de Carcasa es obligatorio.')
+        
+        if(not request.POST.get('temp_out_carcasa')):
+            errores.append('El campo Temperatura de Salida de Carcasa es obligatorio.')
+
+        if(not request.POST.get('temp_in_tubo')):
+            errores.append('El campo Temperatura de Entrada de Tubo es obligatorio.')
+        
+        if(not request.POST.get('temp_out_tubo')):
+            errores.append('El campo Temperatura de Salida de Tubo es obligatorio.')
+        
+        if(not request.POST.get('flujo_tubo')):
+            errores.append('El campo Flujo de Tubo es obligatorio.')
+
+        if(not request.POST.get('flujo_carcasa')):
+            errores.append('El campo Flujo de Carcasa es obligatorio.')
+
+        if(not request.POST.get('no_tubos')):
+            errores.append('El campo Número de Tubos es obligatorio.')
+
+        if(not request.POST.get('unidad_temperaturas')):
+            errores.append('El campo Unidad de Temperaturas es obligatorio.')
+
+        if(not request.POST.get('unidad_flujo')):
+            errores.append('El campo Unidad de Flujo es obligatorio.')
+
+        if(not request.POST.get('unidad_cp')):
+            errores.append('El campo Unidad de Cp es obligatorio.')
+
+        if(not request.POST.get('caida_tubo')):
+            errores.append('El campo Caída de Presión de Tubo es obligatorio.')
+
+        if(not request.POST.get('caida_carcasa')):
+            errores.append('El campo Caída de Presión de Carcasa es obligatorio.')
+
+        return errores
+
+    def post(self, request, pk):
+        intercambiador = Intercambiador.objects.get(pk=pk)
+        print(intercambiador)
+        if(intercambiador.tipo.pk == 1):
+            intercambiador = PropiedadesTuboCarcasa.objects.get(intercambiador=intercambiador)
+        else:
+            intercambiador = PropiedadesDobleTubo.objects.get(intercambiador=intercambiador)
+        
+        try:
+            with transaction.atomic():
+                ti = (float(request.POST['temp_in_carcasa']))
+                ts = (float(request.POST['temp_out_carcasa']))
+                Ti = (float(request.POST['temp_in_tubo']))
+                Ts = (float(request.POST['temp_out_tubo']))
+                ft = (float(request.POST['flujo_tubo']))
+                fc = (float(request.POST['flujo_carcasa']))
+                nt = (float(request.POST['no_tubos']))
+
+                if(type(intercambiador) == PropiedadesTuboCarcasa):
+                    cond_tubo = intercambiador.condicion_tubo()
+                    cond_carcasa = intercambiador.condicion_carcasa()
+                elif(type(intercambiador) == PropiedadesDobleTubo):
+                    cond_tubo = intercambiador.condicion_interno()
+                    cond_carcasa = intercambiador.condicion_externo()
+
+                unidad_cp = int(request.POST['unidad_cp']) if request.POST.get('unidad_cp') else cond_tubo.unidad_cp.pk
+                unidad = int(request.POST['unidad_temperaturas'])
+                unidad_flujo = int(request.POST['unidad_flujo'])
+
+                if(request.POST.get('tipo_cp_tubo') == 'A'):
+                    # Calcular todo de la misma forma que en el almacenamiento
+                    t1,t2 = transformar_unidades_temperatura([Ti,Ts], int(request.POST.get('unidad_temperaturas')))
+                    presion = transformar_unidades_presion([float(cond_tubo.presion_entrada)], cond_tubo.unidad_presion.pk)[0]
+                    cp_liquido_tubo,cp_gas_tubo = self.obtener_cps(t1,t2,presion,float(cond_tubo.flujo_liquido_entrada),float(cond_tubo.flujo_liquido_salida),
+                                                            float(cond_tubo.flujo_vapor_entrada),float(cond_tubo.flujo_vapor_salida),
+                                                            intercambiador.fluido_tubo.cas,cond_tubo.cambio_de_fase,unidad_cp)
+                elif(request.POST.get('tipo_cp_tubo') == 'M'):
+                    # Manual. Tomar en cuenta CDF.
+                    cp_gas_tubo = float(request.POST['cp_gas_tubo']) if request.POST.get('cp_gas_tubo') else None
+                    cp_liquido_tubo = float(request.POST['cp_liquido_tubo']) if request.POST.get('cp_liquido_tubo') else None
+                else:
+                    cp_gas_tubo = float(cond_tubo.fluido_cp_gas) if cond_tubo.fluido_cp_gas else None
+                    cp_liquido_tubo = float(cond_tubo.fluido_cp_liquido) if cond_tubo.fluido_cp_liquido else None
+
+                if(request.POST.get('tipo_cp_carcasa') == 'A'):
+                    # Calcular todo de la misma forma que en el almacenamiento
+                    t1,t2 = transformar_unidades_temperatura([ti,ts], int(request.POST.get('unidad_temperaturas')))
+                    presion = transformar_unidades_presion([float(cond_carcasa.presion_entrada)], cond_carcasa.unidad_presion.pk)[0]
+                    cp_liquido_carcasa,cp_gas_carcasa = self.obtener_cps(t1,t2,presion,float(cond_carcasa.flujo_liquido_entrada),float(cond_carcasa.flujo_liquido_salida),
+                                                            float(cond_carcasa.flujo_vapor_entrada),float(cond_carcasa.flujo_vapor_salida),
+                                                            intercambiador.fluido_carcasa.cas,cond_carcasa.cambio_de_fase,unidad_cp)
+                elif(request.POST.get('tipo_cp_carcasa') == 'M'):
+                    # Manual. Tomar en cuenta CDF.
+                    cp_gas_carcasa = float(request.POST['cp_gas_carcasa']) if request.POST.get('cp_gas_carcasa') else None
+                    cp_liquido_carcasa = float(request.POST['cp_liquido_carcasa']) if request.POST.get('cp_liquido_carcasa') else None
+                else:
+                    cp_gas_carcasa = float(cond_carcasa.fluido_cp_gas) if cond_carcasa.fluido_cp_gas else None
+                    cp_liquido_carcasa = float(cond_carcasa.fluido_cp_liquido) if cond_carcasa.fluido_cp_liquido else None
+                
+                cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa =  transformar_unidades_cp([cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa], unidad=unidad_cp, unidad_salida=29)
+
+                if(type(intercambiador) == PropiedadesTuboCarcasa):
+                    resultados = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+                elif(type(intercambiador) == PropiedadesDobleTubo):
+                    resultados = evaluacion_doble_tubo(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+                
+                resultados['q'] = round(*transformar_unidades_calor([resultados['q']], 28, intercambiador.q_unidad.pk), 4)
+                resultados['area'] = round(*transformar_unidades_area([resultados['area']], 3, intercambiador.area_unidad.pk), 2)
+
+                if(cond_carcasa.temperaturas_unidad.pk not in [1,2]):
+                    resultados['lmtd'] = round(*transformar_unidades_temperatura([resultados['lmtd']], 2, cond_carcasa.temperaturas_unidad.pk), 2)
+
+                resultados['factor_ensuciamiento'] = round(*transformar_unidades_ensuciamiento([resultados['factor_ensuciamiento']], 31, intercambiador.ensuciamiento_unidad.pk), 6)
+                resultados['u'] = round(*transformar_unidades_u([resultados['u']], 27, intercambiador.u_unidad.pk), 4)
+
+                print(resultados, resultados['q'])
+                EvaluacionesIntercambiador.objects.create(
+                    creado_por = request.user,
+                    intercambiador = intercambiador.intercambiador,
+                    metodo = 'E',
+                    nombre = request.POST['nombre'],
+
+                    # DATOS TEMPERATURAS
+                    temp_ex_entrada = request.POST['temp_in_carcasa'],
+                    temp_ex_salida = request.POST['temp_out_carcasa'],
+                    temp_in_entrada = request.POST['temp_in_tubo'],
+                    temp_in_salida = request.POST['temp_out_tubo'],
+                    temperaturas_unidad = Unidades.objects.get(pk=unidad),
+
+                    # DATOS FLUJOS
+                    flujo_masico_ex = request.POST['flujo_carcasa'],
+                    flujo_masico_in = request.POST['flujo_tubo'],
+                    unidad_flujo = Unidades.objects.get(pk=request.POST['unidad_flujo']),
+
+                    # DATOS PRESIONES
+                    caida_presion_in = request.POST['caida_tubo'],
+                    caida_presion_ex = request.POST['caida_carcasa'],
+                    unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presion']),
+
+                    # DATOS DE SALIDA
+                    lmtd = resultados['lmtd'],
+                    area_transferencia = resultados['area'],
+                    u = round(resultados['u'], 4),
+                    ua = resultados['ua'],
+                    ntu = resultados['ntu'],
+                    efectividad = resultados['efectividad'],
+                    eficiencia = resultados['eficiencia'],
+                    ensuciamiento = resultados['factor_ensuciamiento'],
+                    q = resultados['q'],
+                    numero_tubos = request.POST['no_tubos'],
+
+                    # CP
+                    cp_tubo_gas = cp_gas_tubo,
+                    cp_tubo_liquido = cp_liquido_tubo,
+                    cp_carcasa_gas = cp_gas_carcasa,
+                    cp_carcasa_liquido = cp_liquido_carcasa,
+                    tipo_cp_carcasa = request.POST.get('tipo_cp_carcasa') if request.POST.get('tipo_cp_carcasa') else 'A',
+                    tipo_cp_tubo = request.POST.get('tipo_cp_tubo') if request.POST.get('tipo_cp_tubo') else 'A',
+                    cp_unidad = Unidades.objects.get(pk=unidad_cp)
+                )
+                messages.success(request, "La nueva evaluación ha sido registrada exitosamente.")
+        except Exception as e:
+            print(str(e))
+            messages.warning(request, "No se pudo registrar la evaluación. Por favor, verifique los datos ingresados y de diseño.")
+
+        return redirect(f'/intercambiadores/evaluaciones/{intercambiador.pk}/')        
+
+    def get(self, request, pk):
+        context = self.context
+        intercambiador = Intercambiador.objects.get(pk=pk)
+
+        if(intercambiador.tipo.pk == 1):
+            context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(intercambiador=intercambiador)
+        else:
+            context['intercambiador'] = PropiedadesDobleTubo.objects.get(intercambiador=intercambiador)
+
+        context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
+        context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
+        context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
+        context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
+        context['titulo'] += intercambiador.tipo.nombre.title()
+
+        return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
+
+class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
+    """
+    Resumen:
+        Vista de consulta de evaluaciones. Contiene la lógica de eliminación (ocultación) de evaluaciones,
+        filtrado y paginación. Requiere de inicio de sesión.
+
+    Atributos:
+        model: Model
+            Modelo a mostrar en la consulta. EvaluacionesIntercambiador en este caso.
+
+        template_name: str
+            Nombre de la plantilla a renderizar.
+        
+        paginate_by: int
+            Número de registros por pantalla. 
+    
+    Métodos:
+        post(self, request, **kwargs)
+            Función que contiene la lógica de "eliminación" de evaluaciones.
+        
+        get_context_data(self, **kwargs)
+            Lleva al contexto los datos de filtrado.
+
+        get_queryset(self)
+            Filtra los datos de acuerdo a los parámetros de filtrado.
+    """
+
+    model = EvaluacionesIntercambiador
+    template_name = 'tubo_carcasa/evaluaciones/consulta.html'
+    paginate_by = 10
+
+    def post(self, request, **kwargs):
+        if(request.user.is_superuser): # Lógica de "Eliminación"
+            evaluacion = EvaluacionesIntercambiador.objects.get(pk=request.POST['evaluacion'])
+            evaluacion.visible = False
+            evaluacion.save()
+            messages.success(request, "Evaluación eliminada exitosamente.")
+        else:
+            messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
+
+        return self.get(request, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["titulo"] = "SIEVEP - Consulta de Evaluaciones"
+        intercambiador = Intercambiador.objects.get(pk=self.kwargs['pk'])
+
+        print(intercambiador.tipo.nombre)
+        print(intercambiador.tipo.pk)
+        
+        if(intercambiador.tipo.pk == 1):
+            context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(intercambiador=intercambiador)
+        elif(intercambiador.tipo.pk == 2):
+            context['intercambiador'] = PropiedadesDobleTubo.objects.get(intercambiador=intercambiador)
+
+        context['nombre'] = self.request.GET.get('nombre', '')
+        context['desde'] = self.request.GET.get('desde', '')
+        context['hasta'] = self.request.GET.get('hasta')
+        context['usuario'] = self.request.GET.get('usuario','')
+        context['condiciones'] = self.request.GET.get('condiciones', '')
+
+        try:
+            context['diseno'] = context['intercambiador'].calcular_diseno()
+        except Exception as e:
+            print(str(e))
+            print("No se pudo evaluar el diseño del intercambiador.")
+
+        return context
+    
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        try:
+            return super().get(request, *args, **kwargs)
+        except:
+            intercambiador = PropiedadesTuboCarcasa.objects.get(pk=self.kwargs['pk'])
+            messages.warning(request, f"No se pudo cargar la consulta de evaluaciones del intercambiador {intercambiador.intercambiador.tag}. Verificar correctitud de los datos de diseño.")
+            if(request.user.is_superuser):
+                return redirect(f'/intercambiadores/tubo_carcasa/editar/{intercambiador.pk}/')
+            else:
+                return redirect(f'intercambiadores/tubo_carcasa/')
+    
+    def get_queryset(self):
+        new_context = EvaluacionesIntercambiador.objects.filter(intercambiador__pk=self.kwargs['pk'], visible=True)
+        desde = self.request.GET.get('desde', '')
+        hasta = self.request.GET.get('hasta', '')
+        usuario = self.request.GET.get('usuario', '')
+        nombre = self.request.GET.get('nombre', '')
+
+        if(desde != ''):
+            new_context = new_context.filter(
+                fecha__gte = desde
+            )
+
+        if(hasta != ''):
+            new_context = new_context.filter(
+                fecha__lte=hasta
+            )
+
+        if(usuario != ''):
+            new_context = new_context.filter(
+                creado_por__first_name__icontains = usuario
+            )
+
+        if(nombre != ''):
+            new_context = new_context.filter(
+                nombre__icontains = nombre
+            )
+
+        return new_context
+
+# VISTAS AJAX
+class EvaluarIntercambiador(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Vista AJAX de evaluación de tubo/carcasa, es llamada varias veces en CrearEvaluacion.
     
     Métodos:
         get(self, request, pk)
@@ -1758,8 +1759,8 @@ class ConsultaCAS(LoginRequiredMixin, View):
 class ConsultaCP(LoginRequiredMixin, ObtencionParametrosMixin, View):
     """
     Resumen:
-        Vista AJAX de evaluación de tubo/carcasa, es llamada varias veces en CrearEvaluacionTuboCarcasa,
-        EdicionTuboCarcasa y CrearEvaluacionTuboCarcasa. Calcula el Cp de un fluido en las temperaturas enviadas.
+        Vista AJAX de evaluación de tubo/carcasa, es llamada varias veces en CrearEvaluacion,
+        EdicionTuboCarcasa y CrearEvaluacion. Calcula el Cp de un fluido en las temperaturas enviadas.
     
     Métodos:
         get(self, request)

@@ -9,9 +9,9 @@ urlpatterns = [
 
     # RUTAS PARA EVALUACIÓN
     path('evaluaciones/<int:pk>/', ConsultaEvaluaciones.as_view(), name="consulta_evaluaciones"),
-    path('evaluar/tubo_carcasa/<int:pk>/', EvaluarTuboCarcasa.as_view(), name="evaluar_tubo_carcasa"),
+    path('evaluar/tubo_carcasa/<int:pk>/', EvaluarIntercambiador.as_view(), name="evaluar_tubo_carcasa"),
     path('evaluar/tubo_carcasa/grafica/<int:pk>/', ConsultaGraficasEvaluacion.as_view(), name="evaluar_tubo_carcasa"),
-    path('tubo_carcasa/<int:pk>/evaluar/', CrearEvaluacionTuboCarcasa.as_view(),name="crear_evaluacion_tubo_carcasa"),
+    path('tubo_carcasa/<int:pk>/evaluar/', CrearEvaluacion.as_view(),name="crear_evaluacion_tubo_carcasa"),
 
     # RUTAS PARA TUBO CARCASA
     path('tubo_carcasa/', ConsultaTuboCarcasa.as_view(), name="consulta_tubo_carcasa"),
