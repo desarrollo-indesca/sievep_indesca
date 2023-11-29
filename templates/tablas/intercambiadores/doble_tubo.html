@@ -15,7 +15,7 @@
     <td>{{generales.planta.complejo}}</td>
     <td>{{generales.servicio}}</td>
     <td>
-      <a class="btn btn-danger" href="#"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
+      <a class="btn btn-danger" href="{% url 'consulta_evaluaciones' pk=intercambiador.intercambiador.pk %}"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
     </td>
     <td>
       {% include 'fichas/intercambiadores/doble_tubo.html' %}

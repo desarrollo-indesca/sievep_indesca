@@ -547,7 +547,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorM
                 condiciones_diseno_ex =  self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad, fluido_carcasa, 'carcasa', 'C')
 
                 messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
-                return redirect(f"/intercambiadores/tubo_carcasa/{propiedades.pk}/")
+                return redirect(f"/intercambiadores/evaluaciones/{propiedades.pk}/")
         except:
             errores.append('Ha ocurrido un error desconocido al registrar el intercambiador. Verifique los datos ingresados.')
             return self.redirigir_por_errores(request, errores)
@@ -596,7 +596,7 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View, ObtencionParametrosMi
     """
 
     context = {
-        'titulo': "Evaluación Tubo Carcasa"
+        'titulo': "Evaluación "
     }
 
     def validar(self, request): # Validación de Formulario de Creación de Evaluación
@@ -643,7 +643,13 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View, ObtencionParametrosMi
         return errores
 
     def post(self, request, pk):
-        intercambiador = PropiedadesTuboCarcasa.objects.get(pk=pk)
+        intercambiador = Intercambiador.objects.get(pk=pk)
+        print(intercambiador)
+        if(intercambiador.tipo.pk == 1):
+            intercambiador = PropiedadesTuboCarcasa.objects.get(intercambiador=intercambiador)
+        else:
+            intercambiador = PropiedadesDobleTubo.objects.get(intercambiador=intercambiador)
+        
         try:
             with transaction.atomic():
                 ti = (float(request.POST['temp_in_carcasa']))
@@ -654,10 +660,14 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View, ObtencionParametrosMi
                 fc = (float(request.POST['flujo_carcasa']))
                 nt = (float(request.POST['no_tubos']))
 
-                cond_tubo = intercambiador.condicion_tubo()
-                cond_carcasa = intercambiador.condicion_carcasa()
+                if(type(intercambiador) == PropiedadesTuboCarcasa):
+                    cond_tubo = intercambiador.condicion_tubo()
+                    cond_carcasa = intercambiador.condicion_carcasa()
+                elif(type(intercambiador) == PropiedadesDobleTubo):
+                    cond_tubo = intercambiador.condicion_interno()
+                    cond_carcasa = intercambiador.condicion_externo()
 
-                unidad_cp = int(request.POST['unidad_cp']) if request.POST.get('unidad_cp') else  intercambiador.condicion_tubo().unidad_cp.pk
+                unidad_cp = int(request.POST['unidad_cp']) if request.POST.get('unidad_cp') else cond_tubo.unidad_cp.pk
                 unidad = int(request.POST['unidad_temperaturas'])
                 unidad_flujo = int(request.POST['unidad_flujo'])
 
@@ -693,12 +703,16 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View, ObtencionParametrosMi
                 
                 cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa =  transformar_unidades_cp([cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa], unidad=unidad_cp, unidad_salida=29)
 
-                resultados = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+                if(type(intercambiador) == PropiedadesTuboCarcasa):
+                    resultados = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+                elif(type(intercambiador) == PropiedadesDobleTubo):
+                    resultados = evaluacion_doble_tubo(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+                
                 resultados['q'] = round(*transformar_unidades_calor([resultados['q']], 28, intercambiador.q_unidad.pk), 4)
                 resultados['area'] = round(*transformar_unidades_area([resultados['area']], 3, intercambiador.area_unidad.pk), 2)
 
-                if(intercambiador.condicion_carcasa().temperaturas_unidad.pk not in [1,2]):
-                    resultados['lmtd'] = round(*transformar_unidades_temperatura([resultados['lmtd']], 2, intercambiador.condicion_carcasa().temperaturas_unidad.pk), 2)
+                if(cond_carcasa.temperaturas_unidad.pk not in [1,2]):
+                    resultados['lmtd'] = round(*transformar_unidades_temperatura([resultados['lmtd']], 2, cond_carcasa.temperaturas_unidad.pk), 2)
 
                 resultados['factor_ensuciamiento'] = round(*transformar_unidades_ensuciamiento([resultados['factor_ensuciamiento']], 31, intercambiador.ensuciamiento_unidad.pk), 6)
                 resultados['u'] = round(*transformar_unidades_u([resultados['u']], 27, intercambiador.u_unidad.pk), 4)
@@ -707,7 +721,6 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View, ObtencionParametrosMi
                 EvaluacionesIntercambiador.objects.create(
                     creado_por = request.user,
                     intercambiador = intercambiador.intercambiador,
-                    condiciones = intercambiador.condicion_tubo(),
                     metodo = 'E',
                     nombre = request.POST['nombre'],
 
@@ -754,15 +767,22 @@ class CrearEvaluacionTuboCarcasa(LoginRequiredMixin, View, ObtencionParametrosMi
             print(str(e))
             messages.warning(request, "No se pudo registrar la evaluación. Por favor, verifique los datos ingresados y de diseño.")
 
-        return redirect(f'/intercambiadores/tubo_carcasa/{intercambiador.pk}/')        
+        return redirect(f'/intercambiadores/evaluaciones/{intercambiador.pk}/')        
 
     def get(self, request, pk):
         context = self.context
-        context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
+        intercambiador = Intercambiador.objects.get(pk=pk)
+
+        if(intercambiador.tipo.pk == 1):
+            context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(intercambiador=intercambiador)
+        else:
+            context['intercambiador'] = PropiedadesDobleTubo.objects.get(intercambiador=intercambiador)
+
         context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
         context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
         context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
         context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
+        context['titulo'] += intercambiador.tipo.nombre.title()
 
         return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
 
@@ -848,7 +868,7 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
         
         messages.success(request, "Se han editado las características del intercambiador exitosamente.")
 
-        return redirect(f"/intercambiadores/tubo_carcasa/{propiedades.pk}/")
+        return redirect(f"/intercambiadores/evaluaciones/{propiedades.pk}/")
     
     def get(self, request, pk):
         self.context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
@@ -870,7 +890,7 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
 
         return render(request, self.template_name, context=self.context)
 
-class ConsultaEvaluacionesTuboCarcasa(LoginRequiredMixin, ListView):
+class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
     """
     Resumen:
         Vista de consulta de evaluaciones. Contiene la lógica de eliminación (ocultación) de evaluaciones,
@@ -915,7 +935,15 @@ class ConsultaEvaluacionesTuboCarcasa(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["titulo"] = "SIEVEP - Consulta de Evaluaciones"
-        context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=self.kwargs['pk'])
+        intercambiador = Intercambiador.objects.get(pk=self.kwargs['pk'])
+
+        print(intercambiador.tipo.nombre)
+        print(intercambiador.tipo.pk)
+        
+        if(intercambiador.tipo.pk == 1):
+            context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(intercambiador=intercambiador)
+        elif(intercambiador.tipo.pk == 2):
+            context['intercambiador'] = PropiedadesDobleTubo.objects.get(intercambiador=intercambiador)
 
         context['nombre'] = self.request.GET.get('nombre', '')
         context['desde'] = self.request.GET.get('desde', '')
@@ -943,7 +971,7 @@ class ConsultaEvaluacionesTuboCarcasa(LoginRequiredMixin, ListView):
                 return redirect(f'intercambiadores/tubo_carcasa/')
     
     def get_queryset(self):
-        new_context = EvaluacionesIntercambiador.objects.filter(intercambiador=PropiedadesTuboCarcasa.objects.get(pk=self.kwargs['pk']).intercambiador, visible=True)
+        new_context = EvaluacionesIntercambiador.objects.filter(intercambiador__pk=self.kwargs['pk'], visible=True)
         desde = self.request.GET.get('desde', '')
         hasta = self.request.GET.get('hasta', '')
         usuario = self.request.GET.get('usuario', '')
@@ -1414,7 +1442,7 @@ class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMix
                 # Creación de Modelo General de Intercambiador
                 intercambiador = Intercambiador.objects.create(
                     tag = request.POST['tag'],
-                    tipo = TipoIntercambiador.objects.get(pk=1),
+                    tipo = TipoIntercambiador.objects.get(pk=2),
                     fabricante = request.POST['fabricante'],
                     planta = Planta.objects.get(pk=request.POST['planta']),
                     tema = Tema.objects.get(pk=request.POST['tema']),
@@ -1655,7 +1683,12 @@ class EvaluarTuboCarcasa(LoginRequiredMixin, View):
             datos pasados por el body del request.
     """
     def get(self, request, pk):
-        intercambiador = PropiedadesTuboCarcasa.objects.get(id = pk)
+        intercambiador = Intercambiador.objects.get(pk = pk)
+
+        if(intercambiador.tipo.pk == 1):
+            intercambiador = PropiedadesTuboCarcasa.objects.get(intercambiador = intercambiador)
+        elif(intercambiador.tipo.pk == 2):
+            intercambiador = PropiedadesDobleTubo.objects.get(intercambiador = intercambiador)
 
         ti = (float(request.GET['temp_in_carcasa'].replace(',','.')))
         ts = (float(request.GET['temp_out_carcasa'].replace(',','.')))
@@ -1671,15 +1704,21 @@ class EvaluarTuboCarcasa(LoginRequiredMixin, View):
         unidad = int(request.GET['unidad'])
         unidad_flujo = int(request.GET['unidad_flujo'])
 
-        print(ti, ts, Ti, Ts, ft, fc, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa)
-        res = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+        if(type(intercambiador) == PropiedadesTuboCarcasa):
+            res = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+        elif(type(intercambiador) == PropiedadesDobleTubo):
+            res = evaluacion_doble_tubo(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
         
         # Transformar a Unidades de Salida
         res['q'] = round(*transformar_unidades_calor([res['q']], 28, intercambiador.q_unidad.pk), 4)
         res['area'] = round(*transformar_unidades_area([res['area']], 3, intercambiador.area_unidad.pk), 2)
         
-        if(intercambiador.condicion_carcasa().temperaturas_unidad.pk not in [1,2]):
-            res['lmtd'] = round(*transformar_unidades_temperatura([res['lmtd']], 2, intercambiador.condicion_carcasa().temperaturas_unidad.pk), 2)
+        if(type(intercambiador) == PropiedadesTuboCarcasa):
+            if(intercambiador.condicion_carcasa().temperaturas_unidad.pk not in [1,2]):
+                res['lmtd'] = round(*transformar_unidades_temperatura([res['lmtd']], 2, intercambiador.condicion_carcasa().temperaturas_unidad.pk), 2)
+        elif(type(intercambiador) == PropiedadesDobleTubo):
+            if(intercambiador.condicion_externo().temperaturas_unidad.pk not in [1,2]):
+                res['lmtd'] = round(*transformar_unidades_temperatura([res['lmtd']], 2, intercambiador.condicion_externo().temperaturas_unidad.pk), 2)
 
         res['factor_ensuciamiento'] = round(*transformar_unidades_ensuciamiento([res['factor_ensuciamiento']], 31, intercambiador.ensuciamiento_unidad.pk), 6)
         res['u'] = round(*transformar_unidades_u([res['u']], 27, intercambiador.u_unidad.pk), 4)
@@ -1776,7 +1815,7 @@ class ConsultaCP(LoginRequiredMixin, ObtencionParametrosMixin, View):
 class ConsultaGraficasEvaluacion(LoginRequiredMixin, View):
     """
     Resumen:
-        Vista AJAX para la generación de las gráficas históricas en ConsultaEvaluacionesTuboCarcasa.
+        Vista AJAX para la generación de las gráficas históricas en ConsultaEvaluaciones.
     
     Métodos:
         get(self, request)

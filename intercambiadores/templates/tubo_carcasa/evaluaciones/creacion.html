@@ -7,10 +7,14 @@
         {% csrf_token %}
         {% with generales=intercambiador.intercambiador %}
         <div class="row">
-            <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'consulta_evaluaciones_tubo_carcasa' pk=intercambiador.pk %}">↶ Regresar</a></div>
+            <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'consulta_evaluaciones' pk=generales.pk %}">↶ Regresar</a></div>
             <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Nueva Evaluación para el Intercambiador {{generales.tag}}</h3></div>
             <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
+                {% if generales.tipo.pk == 1 %}
                 {% include 'fichas/intercambiadores/tubo_carcasa.html' %}
+                {% elif generales.tipo.pk == 2 %}
+                {% include 'fichas/intercambiadores/doble_tubo.html' %}
+                {% endif %}
                 <button type="button" class="btn btn-danger text-dark" data-bs-toggle="modal" data-bs-target="#ficha_{{intercambiador.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica"> Ficha Técnica</button>
             </div>
         </div>
@@ -780,7 +784,7 @@
             (($('#cp_gas_tubo').val() !== '' || $('#cp_liquido_tubo').val() !== '') && $('#cambio_fase_ficha_tubo').html() === 'S' || ($('#cp_gas_tubo').val() !== '' && $('#cp_liquido_tubo').val() !== ''))
             && (($('#cp_gas_carcasa').val() !== '' || $('#cp_liquido_carcasa').val() !== '') && $('#cambio_fase_ficha_carcasa').html() === 'S' || ($('#cp_gas_carcasa').val() !== ''&& $('#cp_liquido_carcasa').val() !== ''))){
             $.ajax({
-                url: '/intercambiadores/evaluar/tubo_carcasa/{{intercambiador.pk}}/',
+                url: '/intercambiadores/evaluar/tubo_carcasa/{{intercambiador.intercambiador.pk}}/',
                 data: {
                     temp_in_carcasa: document.getElementById('temp_in_carcasa').value,
                     temp_out_carcasa: document.getElementById('temp_out_carcasa').value,
