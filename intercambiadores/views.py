@@ -1550,15 +1550,24 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
         context = self.context
         intercambiador = Intercambiador.objects.get(pk=pk)
 
-        if(intercambiador.tipo.pk == 1):
-            context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(intercambiador=intercambiador)
-        else:
-            context['intercambiador'] = PropiedadesDobleTubo.objects.get(intercambiador=intercambiador)
+        context['intercambiador'] = intercambiador.intercambiador()
 
         context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
         context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
         context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
         context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
+
+        if(intercambiador.tipo.pk == 1):
+            context['condicion_carcasa'] = context['intercambiador'].condicion_carcasa()
+            context['condicion_tubo'] = context['intercambiador'].condicion_tubo()
+            context['fluido_carcasa'] =  context['intercambiador'].fluido_carcasa if context['intercambiador'].fluido_carcasa else context['condicion_carcasa'].fluido_etiqueta
+            context['fluido_tubo'] =  context['intercambiador'].fluido_tubo if context['intercambiador'].fluido_tubo else context['condicion_tubo'].fluido_etiqueta
+        elif(intercambiador.tipo.pk == 2):
+            context['condicion_carcasa'] = context['intercambiador'].condicion_externo()
+            context['condicion_tubo'] = context['intercambiador'].condicion_interno()
+            context['fluido_carcasa'] =  context['intercambiador'].fluido_ex if context['intercambiador'].fluido_ex else context['condicion_carcasa'].fluido_etiqueta
+            context['fluido_tubo'] =  context['intercambiador'].fluido_in if context['intercambiador'].fluido_in else context['condicion_tubo'].fluido_etiqueta
+        
         context['titulo'] += intercambiador.tipo.nombre.title()
 
         return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
@@ -1940,8 +1949,6 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
         
         calorcalc = round(calorcalc, 2)
 
-        print(codigo)
-
         if(codigo == 200):
             return JsonResponse({'codigo': codigo, 'calorcalc': calorcalc})
         else:
@@ -1949,8 +1956,13 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
 
 class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, View):
     def get(self, request, pk):
-        intercambiador = PropiedadesTuboCarcasa.objects.get(pk=pk)
-        condicion = intercambiador.condicion_carcasa() if request.GET['lado'] == 'C' else intercambiador.condicion_tubo()
+        intercambiador = Intercambiador.objects.get(pk=pk).intercambiador()
+
+        if(type(intercambiador) == PropiedadesTuboCarcasa):
+            condicion = intercambiador.condicion_carcasa() if request.GET['lado'] == 'C' else intercambiador.condicion_tubo()
+        elif(type(intercambiador) == PropiedadesDobleTubo):
+            condicion = intercambiador.condicion_externo() if request.GET['lado'] == 'C' else intercambiador.condicion_interno()
+        
         flujo_liquido_in = float(condicion.flujo_liquido_entrada)
         flujo_liquido_out = float(condicion.flujo_liquido_salida)
         flujo_vapor_in = float(condicion.flujo_vapor_entrada)
