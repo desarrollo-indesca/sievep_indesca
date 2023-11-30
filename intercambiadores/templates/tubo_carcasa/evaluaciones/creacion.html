@@ -881,7 +881,7 @@
     function ajaxValidacion(lado = 'C'){
         let mensaje = "";
         $.ajax({
-            url: `/intercambiadores/validar_cdf_existente_ev/{{intercambiador.pk}}/`,
+            url: `/intercambiadores/validar_cdf_existente_ev/{{intercambiador.intercambiador.pk}}/`,
             async: false,
             data: {
                 lado: lado,
