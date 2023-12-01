@@ -44,7 +44,7 @@ class ObtencionParametrosMixin():
             hvap = float(request.POST.get('hvap_' + lado)) if request.POST.get('hvap_' + lado) != '' else None
 
         if((cambio_fase == 'T' or cambio_fase == 'P') and tipo_cp == 'M' and type(fluido) != Fluido):
-            tsatt = transformar_unidades_temperatura([tsat], int(request.POST.get('unidad_temperaturas')))[0]
+            tsatt = transformar_unidades_temperatura([tsat], int(request.POST.get('unidad_temperaturas')))[0] if t1 != t2 else tsat
             flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out],
                 int(request.POST.get('unidad_flujos')))
             cp_gas,cp_liquido = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp, 29)
@@ -52,8 +52,10 @@ class ObtencionParametrosMixin():
 
             hvap,tsat = self.obtener_hvap_tsat(t1, t2, cambio_fase, tsatt, hvap, calor, cp_gas, cp_liquido,
                                             flujo_vapor_in, flujo_liquido_in, flujo_vapor_out, flujo_liquido_out)
-                        
-        tsat = transformar_unidades_temperatura([tsat], 2, int(request.POST.get('unidad_temperaturas')))[0]
+
+            tsat = transformar_unidades_temperatura([tsat], 2, int(request.POST.get('unidad_temperaturas')))[0]
+        else:
+            tsat,hvap = None,None
 
         return cp_gas, cp_liquido, tsat, hvap
 
@@ -558,6 +560,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorM
                 condiciones_diseno_ex =  self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad.pk, fluido_carcasa, 'carcasa', 'C')
 
                 messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
+                print(intercambiador)
                 return redirect(f"/intercambiadores/evaluaciones/{intercambiador.pk}/")
         except:
             errores.append('Ha ocurrido un error desconocido al registrar el intercambiador. Verifique los datos ingresados.')
@@ -1201,7 +1204,7 @@ class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMix
                 condiciones_diseno_ex =  self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad.pk, fluido_in, 'carcasa', 'E')
 
                 messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
-                return redirect(f"/intercambiadores/evaluaciones/{propiedades.pk}/")
+                return redirect(f"/intercambiadores/evaluaciones/{intercambiador.pk}/")
         except Exception as e:
             print(str(e))
             errores.append('Ha ocurrido un error desconocido al registrar el intercambiador. Verifique los datos ingresados.')
