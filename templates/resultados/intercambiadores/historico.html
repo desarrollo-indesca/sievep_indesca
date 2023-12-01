@@ -44,7 +44,7 @@
     let datosGraficaU = {}, datosGraficaEfectividad = {}, datosGraficaEnsuciamiento = {}, datosGraficaEficiencia = {};   
     let datosGraficaCaidaPresionInterna = {}, datosGraficaCaidaPresionExterna = {};
     $.ajax({
-        url: '/intercambiadores/evaluar/tubo_carcasa/grafica/{{intercambiador.pk}}/',
+        url: '/intercambiadores/evaluar/tubo_carcasa/grafica/{{intercambiador.intercambiador.pk}}/',
         data: {
             desde: $('#desde').val(),
             hasta: $('#hasta').val()

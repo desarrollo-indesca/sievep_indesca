@@ -36,8 +36,11 @@ class ObtencionParametrosMixin():
         else:
             cp_liquido = float(request.POST.get('cp_liquido_' + lado)) if request.POST.get('cp_liquido_' + lado) else None
             cp_gas = float(request.POST.get('cp_gas_' + lado)) if request.POST.get('cp_gas_' + lado) else None
-            
-            tsat = float(request.POST.get('tsat_' + lado)) if request.POST.get('tsat_' + lado) != '' else None
+
+            if(t1 != t2):            
+                tsat = float(request.POST.get('tsat_' + lado)) if request.POST.get('tsat_' + lado) != '' else None
+            else:
+                tsat = t1
             hvap = float(request.POST.get('hvap_' + lado)) if request.POST.get('hvap_' + lado) != '' else None
 
         if((cambio_fase == 'T' or cambio_fase == 'P') and tipo_cp == 'M' and type(fluido) != Fluido):
@@ -612,8 +615,9 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
         errores = self.validar(request)
         if(len(errores)):
             return self.redirigir_por_errores(request, errores)
-        
-        with transaction.atomic():
+
+        try:        
+            with transaction.atomic():
                 # Fluidos
                 fluido_tubo = self.obtencion_fluido(request, 'tubo')
                 fluido_carcasa = self.obtencion_fluido(request, 'carcasa')
@@ -663,9 +667,11 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
                 intercambiador.arreglo_flujo = request.POST['flujo']
                 intercambiador.criticidad = request.POST['criticidad']
                 intercambiador.save()
-        
-        messages.success(request, "Se han editado las características del intercambiador exitosamente.")
+        except:
+            errores.append('Ha ocurrido un error desconocido al editar el intercambiador. Verifique los datos ingresados.')
+            return self.redirigir_por_errores(request, errores)
 
+        messages.success(request, "Se han editado las características del intercambiador exitosamente.")
         return redirect(f"/intercambiadores/evaluaciones/{intercambiador.pk}/")
     
     def get(self, request, pk):
@@ -1104,9 +1110,9 @@ class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMix
             copia_context['previo']['fluido_tubo_etiqueta'] = copia_context['previo']['fluido_tubo'].split('*')[0]
             copia_context['previo']['fluido_tubo_dato'] = copia_context['previo']['fluido_tubo'].split('*')[1]
 
-        if(copia_context['previo'].get('fluido_tubo') and copia_context['previo'].get('fluido_tubo').find('*') != -1):
-            copia_context['previo']['fluido_tubo_etiqueta'] = copia_context['previo']['fluido_tubo'].split('*')[0]
-            copia_context['previo']['fluido_tubo_dato'] = copia_context['previo']['fluido_tubo'].split('*')[1]
+        if(copia_context['previo'].get('fluido_carcasa') and copia_context['previo'].get('fluido_carcasa').find('*') != -1):
+            copia_context['previo']['fluido_carcasa_etiqueta'] = copia_context['previo']['fluido_carcasa'].split('*')[0]
+            copia_context['previo']['fluido_carcasa_dato'] = copia_context['previo']['fluido_carcasa'].split('*')[1]
 
         copia_context['errores'] = errores
 
@@ -1195,7 +1201,7 @@ class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMix
                 condiciones_diseno_ex =  self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad.pk, fluido_in, 'carcasa', 'E')
 
                 messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
-                return redirect(f"/intercambiadores/doble_tubo/{propiedades.pk}/")
+                return redirect(f"/intercambiadores/evaluaciones/{propiedades.pk}/")
         except Exception as e:
             print(str(e))
             errores.append('Ha ocurrido un error desconocido al registrar el intercambiador. Verifique los datos ingresados.')
@@ -1253,57 +1259,60 @@ class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, EdicionInterca
             errores = self.validar(request)
             if(len(errores)):
                 return self.redirigir_por_errores(request, errores)
+
+            try:            
+                with transaction.atomic():
+                    # Obtención de Fluidos
+                    fluido_tubo = self.obtencion_fluido(request, 'tubo')
+                    fluido_carcasa = self.obtencion_fluido(request, 'carcasa')
+
+                    calor = float(request.POST['calor'])
+
+                    # Actualización propiedades de tubo y carcasa
+                    propiedades = PropiedadesDobleTubo.objects.get(pk=pk)
+                    propiedades.area = request.POST['area']
+                    propiedades.numero_tubos = request.POST['no_tubos']
+                    propiedades.longitud_tubos = float(request.POST['longitud_tubos'])
+                    propiedades.diametro_externo_in = request.POST['od_in']
+                    propiedades.diametro_externo_ex = request.POST['od_ex']
+                    propiedades.tipo_tubo = TiposDeTubo.objects.get(pk=request.POST['tipo_tubo'])
+                    propiedades.material_ex = request.POST['material_carcasa']
+                    propiedades.material_in = request.POST['material_tubo']
+                    propiedades.q = request.POST['calor']
+                    propiedades.ensuciamiento = request.POST['ensuciamiento'] if request.POST['ensuciamiento'] != '' else None
+                    propiedades.u = request.POST['u'] if request.POST['u'] != '' else None
+                    propiedades.conexiones_entrada_ex = request.POST['conexiones_entrada_carcasa']
+                    propiedades.conexiones_salida_ex = request.POST['conexiones_salida_carcasa']
+                    propiedades.conexiones_entrada_tubos = request.POST['conexiones_entrada_tubo']
+                    propiedades.conexiones_salida_tubos = request.POST['conexiones_salida_tubo']
+                    propiedades.fluido_in =  Fluido.objects.get(pk=request.POST['fluido_tubo']) if type(fluido_tubo) == str and fluido_tubo else fluido_tubo if type(fluido_tubo) == Fluido else None
+                    propiedades.fluido_ex = Fluido.objects.get(pk=request.POST['fluido_carcasa']) if type(fluido_carcasa) == str and fluido_carcasa else fluido_carcasa if type(fluido_carcasa) == Fluido else None
+                    propiedades.area_unidad = Unidades.objects.get(pk=request.POST['unidad_area'])
+                    propiedades.longitud_tubos_unidad = Unidades.objects.get(pk=request.POST['longitud_tubos_unidad'])
+                    propiedades.diametro_tubos_unidad = Unidades.objects.get(pk=request.POST['unidad_diametros'])
+                    propiedades.q_unidad = Unidades.objects.get(pk=request.POST['unidad_q'])
+                    propiedades.u_unidad = Unidades.objects.get(pk=request.POST['unidad_u'])
+                    propiedades.ensuciamiento_unidad = Unidades.objects.get(pk=request.POST['unidad_fouling'])
+
+                    propiedades.save()
+
+                    # Actualización condiciones de diseño del tubo interno
+                    self.editar_condicion(calor, propiedades.condicion_interno(), request, propiedades.q_unidad.pk, fluido_tubo, 'tubo')
+
+                    # Condiciones de diseño del Tubo Externo
+                    self.editar_condicion(calor, propiedades.condicion_externo(), request, propiedades.q_unidad.pk, fluido_carcasa, 'carcasa')
+
+                    intercambiador = Intercambiador.objects.get(pk=propiedades.intercambiador.pk)
+                    intercambiador.fabricante = request.POST['fabricante']
+                    intercambiador.servicio = request.POST['servicio']
+                    intercambiador.arreglo_flujo = request.POST['flujo']
+                    intercambiador.criticidad = request.POST['criticidad']
+                    intercambiador.save()
+            except:
+                errores.append('Ha ocurrido un error desconocido al editar el intercambiador. Verifique los datos ingresados.')
+                return self.redirigir_por_errores(request, errores)
             
-            with transaction.atomic():
-                # Obtención de Fluidos
-                fluido_tubo = self.obtencion_fluido(request, 'tubo')
-                fluido_carcasa = self.obtencion_fluido(request, 'carcasa')
-
-                calor = float(request.POST['calor'])
-
-                # Actualización propiedades de tubo y carcasa
-                propiedades = PropiedadesDobleTubo.objects.get(pk=pk)
-                propiedades.area = request.POST['area']
-                propiedades.numero_tubos = request.POST['no_tubos']
-                propiedades.longitud_tubos = float(request.POST['longitud_tubos'])
-                propiedades.diametro_externo_in = request.POST['od_in']
-                propiedades.diametro_externo_ex = request.POST['od_ex']
-                propiedades.tipo_tubo = TiposDeTubo.objects.get(pk=request.POST['tipo_tubo'])
-                propiedades.material_ex = request.POST['material_carcasa']
-                propiedades.material_in = request.POST['material_tubo']
-                propiedades.q = request.POST['calor']
-                propiedades.ensuciamiento = request.POST['ensuciamiento'] if request.POST['ensuciamiento'] != '' else None
-                propiedades.u = request.POST['u'] if request.POST['u'] != '' else None
-                propiedades.conexiones_entrada_ex = request.POST['conexiones_entrada_carcasa']
-                propiedades.conexiones_salida_ex = request.POST['conexiones_salida_carcasa']
-                propiedades.conexiones_entrada_tubos = request.POST['conexiones_entrada_tubo']
-                propiedades.conexiones_salida_tubos = request.POST['conexiones_salida_tubo']
-                propiedades.fluido_in =  Fluido.objects.get(pk=request.POST['fluido_tubo']) if type(fluido_tubo) == str and fluido_tubo else fluido_tubo if type(fluido_tubo) == Fluido else None
-                propiedades.fluido_ex = Fluido.objects.get(pk=request.POST['fluido_carcasa']) if type(fluido_carcasa) == str and fluido_carcasa else fluido_carcasa if type(fluido_carcasa) == Fluido else None
-                propiedades.area_unidad = Unidades.objects.get(pk=request.POST['unidad_area'])
-                propiedades.longitud_tubos_unidad = Unidades.objects.get(pk=request.POST['longitud_tubos_unidad'])
-                propiedades.diametro_tubos_unidad = Unidades.objects.get(pk=request.POST['unidad_diametros'])
-                propiedades.q_unidad = Unidades.objects.get(pk=request.POST['unidad_q'])
-                propiedades.u_unidad = Unidades.objects.get(pk=request.POST['unidad_u'])
-                propiedades.ensuciamiento_unidad = Unidades.objects.get(pk=request.POST['unidad_fouling'])
-
-                propiedades.save()
-
-                # Actualización condiciones de diseño del tubo interno
-                self.editar_condicion(calor, propiedades.condicion_interno(), request, propiedades.q_unidad.pk, fluido_tubo, 'tubo')
-
-                # Condiciones de diseño del Tubo Externo
-                self.editar_condicion(calor, propiedades.condicion_externo(), request, propiedades.q_unidad.pk, fluido_carcasa, 'carcasa')
-
-                intercambiador = Intercambiador.objects.get(pk=propiedades.intercambiador.pk)
-                intercambiador.fabricante = request.POST['fabricante']
-                intercambiador.servicio = request.POST['servicio']
-                intercambiador.arreglo_flujo = request.POST['flujo']
-                intercambiador.criticidad = request.POST['criticidad']
-                intercambiador.save()
-        
             messages.success(request, "Se han editado las características del intercambiador exitosamente.")
-
             return redirect(f"/intercambiadores/doble_tubo/")
     
     def get(self, request, pk):
@@ -1843,7 +1852,7 @@ class ConsultaGraficasEvaluacion(LoginRequiredMixin, View):
     """
 
     def get(self, request, pk):
-        evaluaciones = EvaluacionesIntercambiador.objects.filter(intercambiador = PropiedadesTuboCarcasa.objects.get(pk=pk).intercambiador, visible=True).order_by('fecha')
+        evaluaciones = EvaluacionesIntercambiador.objects.filter(intercambiador__pk = pk, visible=True).order_by('fecha')
         
         if(request.GET.get('desde')):
             evaluaciones = evaluaciones.filter(fecha__gte = request.GET.get('desde'))
