@@ -116,6 +116,8 @@ class ObtencionParametrosMixin():
             tuple -> Tupla con el calor latente de vaporización y la temperatura de saturación.
         '''
 
+        print(t1, t2, cambio_fase, tsat, hvap, q, cp_gas, cp_liquido, flujo_vapor_in, flujo_liquido_in, flujo_vapor_out, flujo_liquido_out)
+
         if(cambio_fase == 'T'): # Cambio de Fase Total
             m = flujo_liquido_in + flujo_vapor_in # Flujo Total
             if(tsat == None): # Falta Tsat
@@ -443,6 +445,12 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorM
         if(not request.POST.get('caida_presion_min_carcasa')):
             errores.append('El campo Caida de Presión Mínima de Carcasa es obligatorio.')
 
+        if(request.POST.get('tipo_cp_tubo') == 'M' and request.POST.get('cp_liquido_tubo') == request.POST.get('cp_gas_tubo')):
+            errores.append('Cuando el Cp es Manual, el Cp de Líquido y el Cp de Gas del Tubo no pueden ser iguales.')
+
+        if(request.POST.get('tipo_cp_carcasa') == 'M' and request.POST.get('cp_liquido_carcasa') == request.POST.get('cp_gas_carcasa')):
+            errores.append('Cuando el Cp es Manual, el Cp de Líquido y el Cp de Gas de la carcasa no pueden ser iguales.')
+
         return errores
 
     def redirigir_por_errores(self, request, errores):
@@ -541,13 +549,13 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorM
                 )
 
                 # Condiciones de Diseño del Tubo Interno
-                condiciones_diseno_tubo = self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad, fluido_tubo, 'tubo', 'T')
+                condiciones_diseno_tubo = self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad.pk, fluido_tubo, 'tubo', 'T')
 
                 # Condiciones de Diseño de la Tubo Externo
-                condiciones_diseno_ex =  self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad, fluido_carcasa, 'carcasa', 'C')
+                condiciones_diseno_ex =  self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad.pk, fluido_carcasa, 'carcasa', 'C')
 
                 messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
-                return redirect(f"/intercambiadores/evaluaciones/{propiedades.pk}/")
+                return redirect(f"/intercambiadores/evaluaciones/{intercambiador.pk}/")
         except:
             errores.append('Ha ocurrido un error desconocido al registrar el intercambiador. Verifique los datos ingresados.')
             return self.redirigir_por_errores(request, errores)
@@ -658,7 +666,7 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
         
         messages.success(request, "Se han editado las características del intercambiador exitosamente.")
 
-        return redirect(f"/intercambiadores/evaluaciones/{propiedades.pk}/")
+        return redirect(f"/intercambiadores/evaluaciones/{intercambiador.pk}/")
     
     def get(self, request, pk):
         self.context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
@@ -1175,10 +1183,10 @@ class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMix
                 )
 
                 # Condiciones de Diseño del Tubo Interno
-                condiciones_diseno_in = self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad, fluido_in, 'tubo', 'I')
+                condiciones_diseno_in = self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad.pk, fluido_in, 'tubo', 'I')
 
                 # Condiciones de Diseño de la Tubo Externo
-                condiciones_diseno_ex =  self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad, fluido_in, 'carcasa', 'E')
+                condiciones_diseno_ex =  self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad.pk, fluido_in, 'carcasa', 'E')
 
                 messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
                 return redirect(f"/intercambiadores/doble_tubo/{propiedades.pk}/")
@@ -1632,7 +1640,8 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         try:
             return super().get(request, *args, **kwargs)
-        except:
+        except Exception as e:
+            print(str(e))
             intercambiador = Intercambiador.objects.get(pk=self.kwargs['pk'])
             messages.warning(request, f"No se pudo cargar la consulta de evaluaciones del intercambiador {intercambiador.tag}. Verificar correctitud de los datos de diseño.")
             if(request.user.is_superuser):

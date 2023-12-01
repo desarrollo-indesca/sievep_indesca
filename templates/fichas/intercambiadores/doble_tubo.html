@@ -170,6 +170,13 @@
                       <td style="vertical-align: middle;" colspan="2">{% if condiciones_tubo.hvap %}{{condiciones_tubo.hvap}}{%else%}-{%endif%}</td>                 
                     </tr>
                     {%endif%}
+                    {% if condiciones_carcasa.tsat or condiciones_tubo.tsat %}
+                    <tr>
+                      <th style="vertical-align: middle;" class="table-dark" colspan="2">Temp. Saturación ({{condiciones_carcasa.temperaturas_unidad}})</th>
+                      <td style="vertical-align: middle;" colspan="2">{% if condiciones_carcasa.tsat %}{{condiciones_carcasa.tsat}}{%else%}-{%endif%}</td>
+                      <td style="vertical-align: middle;" colspan="2">{% if condiciones_tubo.tsat %}{{condiciones_tubo.tsat}}{%else%}-{%endif%}</td>                 
+                    </tr>
+                    {%endif%}
                     <tr>
                       <th class="table-dark" colspan="2">Presión Entrada (<span id="unidad_presion_ficha">{{condiciones_carcasa.unidad_presion}}</span>)</th>
                       <td colspan="2"><span id="presion_entrada_carcasa_ficha">{{condiciones_carcasa.presion_entrada}}</span></td>
