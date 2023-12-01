@@ -16,7 +16,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
       <div class="modal-content text-dark">
         <div class="modal-header">
-          <h5 class="modal-title" id="ficha_{{intercambiador.pk}}Label">Ficha Técnica Tubo/Carcasa {{generales.tag}} ({{generales.planta}})</h5>
+          <h5 class="modal-title" id="ficha_{{intercambiador.pk}}Label">Ficha Técnica Doble Tubo {{generales.tag}} ({{generales.planta}})</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body text-start small">
@@ -170,6 +170,13 @@
                       <td style="vertical-align: middle;" colspan="2">{% if condiciones_tubo.hvap %}{{condiciones_tubo.hvap}}{%else%}-{%endif%}</td>                 
                     </tr>
                     {%endif%}
+                    {% if condiciones_carcasa.tsat or condiciones_tubo.tsat %}
+                    <tr>
+                      <th style="vertical-align: middle;" class="table-dark" colspan="2">Temp. Saturación ({{condiciones_carcasa.temperaturas_unidad}})</th>
+                      <td style="vertical-align: middle;" colspan="2">{% if condiciones_carcasa.tsat %}{{condiciones_carcasa.tsat}}{%else%}-{%endif%}</td>
+                      <td style="vertical-align: middle;" colspan="2">{% if condiciones_tubo.tsat %}{{condiciones_tubo.tsat}}{%else%}-{%endif%}</td>                 
+                    </tr>
+                    {%endif%}
                     <tr>
                       <th class="table-dark" colspan="2">Presión Entrada (<span id="unidad_presion_ficha">{{condiciones_carcasa.unidad_presion}}</span>)</th>
                       <td colspan="2"><span id="presion_entrada_carcasa_ficha">{{condiciones_carcasa.presion_entrada}}</span></td>
@@ -262,8 +269,8 @@
           <a href="{% url 'editar_doble_tubo' pk=intercambiador.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
           {% endif %}
 
-            <button name="pdf" value="{{intercambiador.pk}}" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</button>
-            <button name="xlsx" value="{{intercambiador.pk}}" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</button>
+          <a name="pdf" target="_blank" href="{% url 'reporte_ficha_tecnica_doble_tubo' pk=generales.pk %}?tipo=pdf" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>
+          <a name="xlsx" target="_blank" href="{% url 'reporte_ficha_tecnica_doble_tubo' pk=generales.pk %}?tipo=xlsx" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</a>
         </div>
       </div>
     </div>

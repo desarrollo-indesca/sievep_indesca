@@ -526,14 +526,14 @@ const validarForm = (e) => {
 
     if(Number($('#fluido_tubo').val()) || $('#fluido_tubo').val().includes('*') && $('#fluido_tubo').val().split('*')[1].includes('-') || $('#cambio_fase_tubo').val() === 'S'){
         const res = ajaxValidacion('T');
-        mensaje = res[0];
+        mensaje += res[0];
         q += Number(res[1]);
         n++;
     }
 
     if(Number($('#fluido_carcasa').val()) || $('#fluido_carcasa').val().includes('*') && $('#fluido_carcasa').val().split('*')[1].includes('-') || $('#cambio_fase_carcasa').val() === 'S'){
         const res = ajaxValidacion('C');
-        mensaje = res[0];
+        mensaje += res[0]  + '\n';
         q += Number(res[1]);
         n++;
     }
@@ -544,7 +544,13 @@ const validarForm = (e) => {
     if(n !== 0 && Math.abs(q - Number($('#calor').val()))/Number($('#calor').val()) > 0.05)
         mensaje += `El calor ingresado difiere por más de un 5% del valor calculado.\n`;
 
-    if(mensaje !== ''){
+    if($('#cambio_fase_carcasa').val() === 'T' && $('#tipo_cp_carcasa').val() === 'M' && $('#tsat_carcasa').val() && Number($('#temp_in_carcasa').val()) === Number($('#temp_out_carcasa').val()))
+        mensaje += `\nUsted colocó un cambio de fase total del lado de la carcasa donde las temperaturas son iguales, sin embargo especificó una temperatura de saturación. Se utilizará la temperatura de entrada/salida.\n`;
+
+    if($('#cambio_fase_tubo').val() === 'T' && $('#tipo_cp_tubo').val() === 'M' && $('#tsat_tubo').val() && Number($('#temp_in_tubo').val()) === Number($('#temp_out_tubo').val()))
+        mensaje += `\nUsted colocó un cambio de fase total del lado del tubo donde las temperaturas son iguales, sin embargo especificó una temperatura de saturación. Se utilizará la temperatura de entrada/salida.\n`;
+
+    if(mensaje.trim() !== ''){
         mensaje = "ADVERTENCIA\n" + mensaje + "\n¿Desea continuar igualmente?"
         return confirm(mensaje);
     }
