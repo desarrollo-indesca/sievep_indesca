@@ -125,7 +125,10 @@ class Intercambiador(models.Model):
     criticidad = models.CharField(max_length=1, choices=criticidades)
 
     def intercambiador(self):
-        return PropiedadesTuboCarcasa.objects.get(intercambiador = self)
+        if(self.tipo.pk == 1):
+            return PropiedadesTuboCarcasa.objects.get(intercambiador = self)
+        elif(self.tipo.pk == 2):
+            return PropiedadesDobleTubo.objects.get(intercambiador = self)
     
     def tema_final(self):
         return self.tema.codigo[2] if self.tema.codigo[2] != 'N' else 'N_2'

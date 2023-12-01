@@ -709,7 +709,7 @@
                             <input value="{{intercambiador.diametro_externo_in|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="od_in" id="od_in" step="0.01" min="0.01" max="999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_diametros" id="unidad_diametros">
                                 {% for unidad in unidades_longitud %}
-                                <option value="{{unidad.pk|slugify}}" {% if intercambiador.unidad_diametros == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
+                                <option value="{{unidad.pk|slugify}}" {% if intercambiador.diametro_tubos_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -720,9 +720,9 @@
                         <div class="input-group mb-3">
                             <input value="{{intercambiador.diametro_externo_ex|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="od_ex" id="od_ex" step="0.01" min="0.01" max="999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_diametros" id="unidad_diametros" disabled>
-                                {% if intercambiador.unidad_diametros %}
+                                {% if intercambiador.diametro_tubos_unidad %}
                                 {% for unidad in unidades_longitud %}
-                                {% if unidad == intercambiador.unidad_diametros %}
+                                {% if unidad == intercambiador.diametro_tubos_unidad %}
                                 <option>{{unidad}}</option>
                                 {%endif%}
                                 {% endfor %}
