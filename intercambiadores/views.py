@@ -2085,3 +2085,9 @@ class FichaTecnicaTuboCarcasa(LoginRequiredMixin, View):
         intercambiador = Intercambiador.objects.get(pk=pk)
         if(request.GET['tipo'] == 'pdf'):
             return generar_pdf(request, intercambiador, f'Ficha Técnica del Intercambiador {intercambiador.tag}', 'ficha_tecnica_tubo_carcasa')
+        
+class FichaTecnicaDobleTubo(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        intercambiador = Intercambiador.objects.get(pk=pk)
+        if(request.GET['tipo'] == 'pdf'):
+            return generar_pdf(request, intercambiador, f'Ficha Técnica del Intercambiador {intercambiador.tag}', 'ficha_tecnica_doble_tubo')
