@@ -914,6 +914,12 @@ class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMix
         if(Intercambiador.objects.filter(tag = request.POST.get('tag')).exists()):
             errores.append(f'El Tag ya está registrado en el sistema.')
 
+        if(request.POST.get('tipo_cp_tubo') == 'M' and request.POST.get('cp_liquido_tubo') == request.POST.get('cp_gas_tubo')):
+            errores.append('Cuando el Cp es Manual, el Cp de Líquido y el Cp de Gas del Tubo no pueden ser iguales.')
+
+        if(request.POST.get('tipo_cp_carcasa') == 'M' and request.POST.get('cp_liquido_carcasa') == request.POST.get('cp_gas_carcasa')):
+            errores.append('Cuando el Cp es Manual, el Cp de Líquido y el Cp de Gas de la carcasa no pueden ser iguales.')
+
         if(not request.POST.get('fabricante') and request.POST.get('tag')):
             errores.append('El campo Fabricante es obligatorio.')
 

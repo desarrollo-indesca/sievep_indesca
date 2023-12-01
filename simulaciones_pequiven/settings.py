@@ -16,7 +16,6 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -28,6 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1']
 LOGIN_URL = '/'
+
+SESSION_COOKIE_AGE = 25 * 60
+SESSION_EXPIRE_AT_BROWSER_CLOSE= True
+SESSION_SAVE_EVERY_REQUEST = True
 
 # Application definition
 
