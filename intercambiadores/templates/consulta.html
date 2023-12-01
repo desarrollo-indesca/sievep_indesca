@@ -62,7 +62,8 @@
   {% if object_list.count %}
   {% if tipo == 1 %}
   {% include 'tablas/intercambiadores/tubo_carcasa.html' %}
-  {% else %}
+  {% elif tipo == 2 %}
+  {% include 'tablas/intercambiadores/doble_tubo.html' %}
   {% endif %}
   {% else %}
   <td colspan="7">No se encontraron intercambiadores con los datos de filtrado proporcionados.</td>

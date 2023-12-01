@@ -1,9 +1,33 @@
 import numpy as np
-from .unidades import transformar_unidades_temperatura, transformar_unidades_flujo, transformar_unidades_longitud, transformar_unidades_presion, transformar_unidades_cp, transformar_unidades_u
+from .unidades import transformar_unidades_temperatura, transformar_unidades_area, transformar_unidades_flujo, transformar_unidades_longitud, transformar_unidades_presion, transformar_unidades_cp, transformar_unidades_u
 from ht import F_LMTD_Fakheri
 from .termodinamicos import calcular_tsat_hvap
 
 def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_tubo = None, cp_liquido_tubo = None, cp_gas_carcasa = None, cp_liquido_carcasa = None, unidad_temp = 1, unidad_flujo = 6) -> dict:
+    '''
+    Resumen:
+        Función para evaluar un intercambiador de calor de tubo y carcasa.
+
+    Parámetros:
+        intercambiador: Intercambiador -> Intercambiador a evaluar.
+        ti: float -> Temperatura de entrada del fluido en los tubos.
+        ts: float -> Temperatura de salida del fluido en los tubos.
+        Ti: float -> Temperatura de entrada del fluido en la carcasa.
+        Ts: float -> Temperatura de salida del fluido en la carcasa.
+        ft: float -> Flujo másico del fluido en los tubos.
+        Fc: float -> Flujo másico del fluido en la carcasa.
+        nt: float -> Número de tubos.
+        cp_gas_tubo: float -> Cp del gas en los tubos (J/KgK).
+        cp_liquido_tubo: float -> Cp del líquido en los tubos (J/KgK).
+        cp_gas_carcasa: float -> Cp del gas en la carcasa (J/KgK).
+        cp_liquido_carcasa: float -> Cp del líquido en la carcasa (J/KgK).
+        unidad_temp: int -> Unidad de temperatura de entrada. De no dar ninguna, se asume en K.
+        unidad_flujo: int -> Unidad de flujo másico. De no dar ninguna, se asume en Kg/s.
+
+    Devuelve:
+        dict -> Diccionario con los resultados de la evaluación (calor intercambiado, área de transferencia, lmtd, eficiencia, efectividad, ntu, u, ua, factor_ensuciamiento).
+    '''
+
     ti,ts,Ti,Ts = transformar_unidades_temperatura([ti,ts,Ti,Ts], unidad=unidad_temp) # ti,ts = temperatura de los tubos, Ti,Ts = temperaturas de la carcasa
     
     if(unidad_flujo != 10): # Transformación de los flujos ft (flujo tubo) y Fc (flujo carcasa) a Kg/s para calcular
@@ -11,18 +35,27 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
 
     q_tubo = calcular_calor(ft, ti, ts, cp_gas_tubo, cp_liquido_tubo, intercambiador, 'T') # Calor del tubo (W)
     q_carcasa = calcular_calor(Fc, Ti, Ts, cp_gas_carcasa, cp_liquido_carcasa, intercambiador, 'C') # Calor de la carcasa (W)
+
+    print(q_carcasa, q_tubo)
     
     nt = nt if nt else float(intercambiador.numero_tubos) # Número de los tubos
 
     diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_tubos)], intercambiador.diametro_tubos_unidad.pk)[0] # Diametro (OD), transformacion a m
     longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad.pk)[0] # Longitud, transformacion a m
+    diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_tubos)], intercambiador.diametro_tubos_unidad.pk)[0] # Diametro (OD), transformacion a m
+    longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad.pk)[0] # Longitud, transformacion a m
 
     area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
+    area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
+
     num_pasos_carcasa = float(intercambiador.numero_pasos_carcasa)
     num_pasos_tubo = float(intercambiador.numero_pasos_tubo)
     dtml = abs(((Ti - ts) - (Ts - ti))/np.log(abs((Ti - ts)/(Ts - ti)))) # Delta T Medio Logarítmico
-
-    factor = round(F_LMTD_Fakheri(Ti, Ts, ti, ts, num_pasos_carcasa),3)  # Factor de corrección
+    
+    try:
+        factor = round(F_LMTD_Fakheri(Ti, Ts, ti, ts, num_pasos_carcasa),3)  # Factor de corrección
+    except:
+        factor = 1  # Factor de corrección
     
     print(f"FACTOR: {factor}")
     q_prom = np.mean([q_tubo,q_carcasa]) # Promedio del calor (W)
@@ -48,7 +81,7 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
 
     if(condicion_carcasa.cambio_de_fase in ['T','P'] or condicion_tubo.cambio_de_fase in ['T','P']):
         cmax = np.Infinity
-
+    
     # Relación de las C
     c = cmin/cmax
     ntu = ucalc*area_calculada/cmin
@@ -74,36 +107,36 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
     eficiencia = efectividad/ntu # Cálculo de la Eficiencia
 
     resultados = {
-        'q': round(q_prom,4),
-        'area': round(area_calculada,4),
-        'lmtd': round(dtml,4),
+        'q': round(q_prom,3),
+        'area': round(area_calculada,2),
+        'lmtd': round(dtml,2),
         'eficiencia': round(eficiencia*100,2),
         'efectividad': round(efectividad*100, 2),
         'ntu': round(ntu,4),
         'u': round(ucalc,8),
         'ua': round(ucalc*area_calculada,4),
-        'factor_ensuciamiento': round(RF,4),
+        'factor_ensuciamiento': round(RF,8),
     }
 
     return resultados
 
-def evaluacion_doble_tubo(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_in = None, cp_liquido_in = None, cp_gas_ex = None, cp_liquido_ex = None, unidad_temp = 1, unidad_flujo = 6) -> dict:
+def evaluacion_doble_tubo(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_in = None, cp_liquido_in = None, cp_gas_ex = None, cp_liquido_ex = None, unidad_temp = 1, unidad_flujo = 6) -> dict:   
     ti,ts,Ti,Ts = transformar_unidades_temperatura([ti,ts,Ti,Ts], unidad=unidad_temp) # ti,ts = temperatura de los tubos, Ti,Ts = temperaturas de la carcasa
     
     if(unidad_flujo != 10): # Transformación de los flujos ft (flujo tubo) y Fc (flujo carcasa) a Kg/s para calcular
         ft,Fc = transformar_unidades_flujo([ft,Fc], unidad_flujo)
 
-    q_ex = calcular_calor(ft, ti, ts, cp_gas_ex, cp_liquido_ex, intercambiador, 'T') # Calor del tubo (W)
-    q_in = calcular_calor(Fc, Ti, Ts, cp_gas_in, cp_liquido_in, intercambiador, 'C') # Calor de la carcasa (W)
+    q_ex = calcular_calor(ft, ti, ts, cp_gas_in, cp_liquido_in, intercambiador, 'T') # Calor del tubo interno (W)
+    q_in = calcular_calor(Fc, Ti, Ts, cp_gas_ex, cp_liquido_ex, intercambiador, 'C') # Calor de la tubo externo (W)
     
     nt = nt if nt else float(intercambiador.numero_tubos) # Número de los tubos
 
-    diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_tubos)], intercambiador.diametro_tubos_unidad.pk)[0] # Diametro (OD), transformacion a m
+    diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_in)], intercambiador.diametro_tubos_unidad.pk)[0] # Diametro (OD), transformacion a m
     longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad.pk)[0] # Longitud, transformacion a m
 
     area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
 
-    arreglo_flujo = intercambiador.arreglo_flujo
+    arreglo_flujo = intercambiador.intercambiador.arreglo_flujo
 
     if(arreglo_flujo == 'c'): # Si el arreglo de flujo es en contracorriente
         dtml = abs(((Ti - ts) - (Ts - ti))/np.log(abs((Ti - ts)/(Ts - ti)))) # Delta T Medio Logarítmico
@@ -115,23 +148,21 @@ def evaluacion_doble_tubo(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_in 
     udiseno = transformar_unidades_u([float(intercambiador.u)], intercambiador.u_unidad.pk)[0] # transformación de la U de diseño
     RF = 1/ucalc - 1/udiseno # Factor de Ensuciamiento respecto a la U de diseño (K/Wm2)
 
-    condicion_tubo = intercambiador.condicion_tubo()
-    condicion_carcasa = intercambiador.condicion_carcasa()
+    condicion_interno = intercambiador.condicion_interno()
+    condicion_externo = intercambiador.condicion_externo()
 
-    ct = obtener_c_eficiencia(condicion_tubo, ft, cp_gas_in, cp_liquido_in) # Obtención de la C de tubo
-    cc = obtener_c_eficiencia(condicion_carcasa, Fc, cp_gas_ex, cp_liquido_ex) # Obtención de la C de carcasa
+    ct = obtener_c_eficiencia(condicion_interno, ft, cp_gas_in, cp_liquido_in) # Obtención de la C de tubo
+    cc = obtener_c_eficiencia(condicion_externo, Fc, cp_gas_ex, cp_liquido_ex) # Obtención de la C de carcasa
 
     # Determinación de la Cmín y la Cmáx
     if(ct < cc):
         cmin = ct
         cmax = cc
-        minimo = 1
     else:
         cmin = cc
         cmax = ct
-        minimo = 2
 
-    if(condicion_carcasa.cambio_de_fase in ['T','P'] or condicion_tubo.cambio_de_fase in ['T','P']):
+    if(condicion_externo.cambio_de_fase in ['T','P'] or condicion_interno.cambio_de_fase in ['T','P']):
         cmax = np.Infinity
 
     # Relación de las C
@@ -142,20 +173,20 @@ def evaluacion_doble_tubo(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_in 
         efectividad = 1 - np.exp(-1*ntu)
     else: # Cálculo si C es distinto de  0
         if(c == 1):
-            eficiencia=ntu/(ntu+1)
+            efectividad=ntu/(ntu+1)
         else:
             if(arreglo_flujo == 'C'): # Si el arreglo de flujo es en cocorriente
-                eficiencia=(1-np.exp(-1*ntu*(1+c)))/(1+c)
+                efectividad=(1-np.exp(-1*ntu*(1+c)))/(1+c)
             elif(arreglo_flujo == 'c'): # Si el arreglo de flujo es en contracorriente
                 if(c != 1):
-                    eficiencia=(1-np.exp(-1*ntu*(1-c)))/(1-c*np.exp(-1*ntu*(1-c)))
+                    efectividad=(1-np.exp(-1*ntu*(1-c)))/(1-c*np.exp(-1*ntu*(1-c)))
                 else:
-                    eficiencia=ntu/(ntu+1)
+                    efectividad=ntu/(ntu+1)
 
     eficiencia = efectividad/ntu # Cálculo de la Eficiencia
 
     resultados = {
-        'q': round(q_prom,4),
+        'q': round(q_prom,3),
         'area': round(area_calculada,4),
         'lmtd': round(dtml,4),
         'eficiencia': round(eficiencia*100,2),
@@ -178,16 +209,23 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp_gas: float, cp_liquido
         t1: float -> Temperatura de Entrada (K)
         t2: float -> Temperatura de Salida (K)
         intercambiador: Intercambiador -> Intercambiador al cual se le calculará el calor.
-        cp: float -> Cp en J/KgK del fluido
+        cp: float -> Cp del fluido (J/KgK)
         lado: str -> T si es el calor del lado del tubo, C si es el calor de la carcasa.
 
     Devuelve:
         float -> Q (W) del lado del intercambiador
     """
 
-    fluido = intercambiador.fluido_tubo if lado == 'T' else intercambiador.fluido_carcasa
-    datos = intercambiador.condicion_tubo() if lado == 'T' else intercambiador.condicion_carcasa()
-    presion = transformar_unidades_presion([float(datos.presion_entrada)], datos.unidad_presion)[0]
+    tipo = intercambiador.intercambiador.tipo.pk
+
+    if(tipo == 1): # Si el intercambiador es de tubo y carcasa
+        fluido = intercambiador.fluido_tubo if lado == 'T' else intercambiador.fluido_carcasa
+        datos = intercambiador.condicion_tubo() if lado == 'T' else intercambiador.condicion_carcasa()
+    elif(tipo == 2): # Si el intercambiador es de doble tubo
+        fluido = intercambiador.fluido_in if lado == 'I' else intercambiador.fluido_ex
+        datos = intercambiador.condicion_interno() if lado == 'I' else intercambiador.condicion_externo()
+
+    presion = transformar_unidades_presion([float(datos.presion_entrada)], datos.unidad_presion.pk)[0]
 
     if(fluido == None):
         fluido = datos.fluido_etiqueta if lado == 'T' else datos.fluido_etiqueta
@@ -199,12 +237,15 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp_gas: float, cp_liquido
         flujo_vapor_out = float(datos.flujo_vapor_salida)
         flujo_liquido_in = float(datos.flujo_liquido_entrada)
         flujo_liquido_out = float(datos.flujo_liquido_salida)
-        print(flujo_vapor_out)
         [flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out] = transformar_unidades_flujo([flujo_vapor_in, flujo_vapor_out, flujo_liquido_in, flujo_liquido_out], datos.flujos_unidad.pk)
-        print(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out)
+
+        caso = determinar_cambio_parcial(flujo_vapor_in, flujo_vapor_out, flujo_liquido_in, flujo_liquido_out)
 
         if(type(fluido) != str):
-                _,hvap = calcular_tsat_hvap(fluido.cas, presion)
+            if(caso[1] == 'D'):
+                _,hvap = calcular_tsat_hvap(fluido.cas, presion, t2)
+            else:
+                _,hvap = calcular_tsat_hvap(fluido.cas, presion, t1)
         else:
             hvap = float(datos.hvap) if datos.hvap else 5000
 
@@ -213,11 +254,43 @@ def calcular_calor(flujo: float, t1: float, t2: float, cp_gas: float, cp_liquido
         return calcular_calor_cdft(flujo,t1,t2,fluido,presion,datos,cp_gas,cp_liquido)
 
 def calcular_calor_scdf(flujo, cp, t1, t2) -> float:
+    '''
+    Resumen:
+        Función para calcular el calor de un fluido sin cambio de fase.
+
+    Parámetros:
+        flujo: float -> Flujo másico (Kg/s)
+        cp: float -> Cp del fluido (J/KgK)
+
+    Devuelve:
+        float -> Q (W) del lado del intercambiador
+    '''
+    print(flujo, cp, t1, t2)
+    print(flujo * cp * abs(t2-t1))
     return flujo * cp * abs(t2-t1)
 
 def calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out,flujo,t1,t2,hvap,cp_gas,cp_liquido) -> float:
+        '''
+        Resumen:
+            Función para calcular el calor de un fluido con cambio de fase parcial.
+
+        Parámetros:
+            flujo_vapor_in: float -> Flujo de vapor de entrada (Kg/s)
+            flujo_vapor_out: float -> Flujo de vapor de salida (Kg/s)
+            flujo_liquido_in: float -> Flujo de líquido de entrada (Kg/s)
+            flujo_liquido_out: float -> Flujo de líquido de salida (Kg/s)
+            flujo: float -> Flujo másico (Kg/s)
+            t1: float -> Temperatura de Entrada (K)
+            t2: float -> Temperatura de Salida (K)
+            hvap: float -> Calor latente de vaporización (J/Kg)
+            cp_gas: float -> Cp del gas (J/KgK)
+            cp_liquido: float -> Cp del líquido (J/KgK)
+
+        Devuelve:
+            float -> Q (W) del lado del intercambiador
+        '''
         cdf = determinar_cambio_parcial(flujo_vapor_in, flujo_vapor_out, flujo_liquido_in, flujo_liquido_out)
-        calidad = flujo_vapor_out/flujo
+        calidad = abs(flujo_vapor_out-flujo_vapor_in)/(flujo_liquido_in+flujo_vapor_in)
 
         if(cdf == 'DD'):
             return hvap*calidad*flujo
@@ -226,19 +299,36 @@ def calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_li
         elif(cdf == 'DV'):
             return flujo*(hvap*calidad + (t2-t1)*cp_gas)
         elif(cdf == 'LD'):
-            return flujo*((t2-t1)*cp_liquido + hvap*calidad)
+            return flujo*((t2-t1)*cp_liquido + hvap*(calidad))
         elif(cdf == 'VD'):
             return abs(flujo*((t2-t1)*cp_gas - hvap*calidad))
 
 def  calcular_calor_cdft(flujo,t1,t2,fluido,presion,datos,cp_gas,cp_liquido) -> float:
+    '''
+    Resumen:
+        Función para calcular el calor de un fluido con cambio de fase total.
+
+    Parámetros:
+        flujo: float -> Flujo másico (Kg/s)
+        t1: float -> Temperatura de Entrada (K)
+        t2: float -> Temperatura de Salida (K)
+        fluido: str -> Etiqueta del fluido
+        presion: float -> Presión de entrada (Pa)
+        datos: Condicion -> Condición del fluido
+        cp_gas: float -> Cp del gas (J/KgK)
+        cp_liquido: float -> Cp del líquido (J/KgK)
+
+    Devuelve:
+        float -> Q (W) del lado del intercambiador
+    '''
     if(type(fluido) != str):
         tsat,hvap = calcular_tsat_hvap(fluido.cas, presion)
     else:
-        tsat = transformar_unidades_temperatura([float(datos.tsat)], datos.temperaturas_unidad)[0]
-        hvap = float(hvap) if hvap else 5000
-        
+        tsat = transformar_unidades_temperatura([float(datos.tsat)], datos.temperaturas_unidad.pk)[0] if t1 != t2 else t1
+        hvap = float(datos.hvap) if datos.hvap else datos
+
     try:
-        fluido_cp_gas, fluido_cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], datos.unidad_cp)
+        fluido_cp_gas, fluido_cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], datos.unidad_cp.pk, 29)
     except:
         fluido_cp_gas, fluido_cp_liquido = cp_gas, cp_liquido
 
@@ -248,6 +338,19 @@ def  calcular_calor_cdft(flujo,t1,t2,fluido,presion,datos,cp_gas,cp_liquido) -> 
         return abs(flujo*(fluido_cp_gas*(tsat-t1)-hvap+fluido_cp_liquido*(t2-tsat)))
 
 def obtener_c_eficiencia(condicion, flujo: float, cp_gas: float, cp_liquido: float) -> float:
+    '''
+    Resumen:
+        Función para obtener la C de un lado de un intercambiador para el posterior cálculo de la eficiencia.
+
+    Parámetros:
+        condicion: Condicion -> Condición del fluido
+        flujo: float -> Flujo másico (Kg/s)
+        cp_gas: float -> Cp del gas (J/KgK)
+        cp_liquido: float -> Cp del líquido (J/KgK)
+
+    Devuelve:
+        float -> C de eficiencia del fluido.
+    '''
     if(condicion.cambio_de_fase == 'S'): # Caso 1: Sin Cambio de Fase
         c = flujo*cp_gas if cp_gas else flujo*cp_liquido # Se usa el Cp correspondiente
     elif(condicion.cambio_de_fase == 'T'): # Caso 2: Cambio de Fase Total
@@ -261,9 +364,21 @@ def obtener_c_eficiencia(condicion, flujo: float, cp_gas: float, cp_liquido: flo
         elif(float(condicion.flujo_liquido_salida) == flujo):
             c = flujo * cp_liquido
         else:
-            c = flujo * cp_liquido
-    
-    return c
+            if(condicion.hvap):
+                c = abs(condicion.flujo_vapor_salida - condicion.flujo_vapor_entrada)/(condicion.flujo_liquido_entrada+condicion.flujo_vapor_entrada)*condicion.hvap
+            else:
+                presion = transformar_unidades_presion([float(condicion.presion_entrada)], condicion.unidad_presion.pk)[0]
+
+                if(condicion.lado == 'C' and condicion.intercambiador.datos_tubo_carcasa.fluido_carcasa or 
+                        condicion.lado == 'T' and condicion.intercambiador.datos_tubo_carcasa.fluido_tubo):
+                    cas = condicion.intercambiador.datos_tubo_carcasa.fluido_carcasa.cas if condicion.lado == 'C' else condicion.intercambiador.datos_tubo_carcasa.fluido_tubo.cas
+                    _,hvap = calcular_tsat_hvap(cas, presion)
+                else:
+                    hvap = float(condicion.hvap) if condicion.hvap else 5000
+
+                calidad = float(abs(condicion.flujo_vapor_salida - condicion.flujo_vapor_entrada)/(condicion.flujo_vapor_salida+condicion.flujo_liquido_salida))
+                c = calidad*hvap
+    return float(c)
 
 def obtener_cambio_fase(flujo_vapor_in: float, flujo_vapor_out: float, flujo_liquido_in: float, flujo_liquido_out: float) -> str:
     """
@@ -301,7 +416,20 @@ def obtener_cambio_fase(flujo_vapor_in: float, flujo_vapor_out: float, flujo_liq
         else:
             return "P"
 
-def determinar_cambio_parcial(flujo_vapor_in: float, flujo_vapor_out: float, flujo_liquido_in: float, flujo_liquido_out: float):
+def determinar_cambio_parcial(flujo_vapor_in: float, flujo_vapor_out: float, flujo_liquido_in: float, flujo_liquido_out: float) -> str:
+    '''
+    Resumen:
+        Función que determina el tipo de cambio de fase parcial.
+
+    Parámetros:
+        flujo_vapor_in: float -> Flujo de vapor de entrada.
+        flujo_vapor_out float -> Flujo de vapor de salida.
+        flujo_liquido_in: float -> Flujo de líquido de entrada.
+        flujo_liquido_out: float -> Flujo de líquido de salida.
+
+    Devuelve:
+        str -> Letra indicando el cambio de fase parcial. DD si es domo a domo. DL si es domo a líquido. DV si es domo a vapor. LD si es líquido a domo. VD si es vapor a domo.
+    '''
     if(flujo_vapor_in == 0): # Líquido a Domo
         return "LD"
     elif(flujo_liquido_in == 0): # Vapor a Domo
@@ -367,26 +495,3 @@ def factor_correccion_tubo_carcasa(ti, ts, Ti, Ts, num_pasos_tubo, num_pasos_car
         factor = 1
 
     return factor
-
-def determinar_flujo(flujos: dict):
-    return 1 if float(flujos['flujo_liquido_in']) != 0 else 2
-
-def determinar_hvap_cdf_total(calor: float, flujo: float, cp_gas: float, cp_liquido: float, t1: float, t2: float, tsat: float):
-    """
-    Resumen:
-        
-    Parámetros:
-        calor: float -> Calor de diseño (W)
-        flujo: float -> Flujo Másico total (Kg/s)
-        cp_gas: float -> Cp de gas (Kg/s)
-        cp_liquido: float -> Cp de líquido (Kg/s)
-        t1: float -> Temperatura 1 (K)
-        t2: float -> Temperatura 2 (K)
-        tsat: float -> Temperatura de Saturación (K)
-    """
-    # Determinar dirección del flujo gas -> liquido o liquido -> gas
-
-    # Calcular segun el caso
-
-    # Devolver Hvap calculado
-    return calor/flujo - cp_gas*(tsat-t1) - cp_liquido*(t2-tsat)

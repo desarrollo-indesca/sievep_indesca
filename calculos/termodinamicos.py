@@ -1,5 +1,6 @@
 from thermo.chemical import Chemical
 from thermo.mixture import Mixture
+import CoolProp.CoolProp as CP
 from .unidades import transformar_unidades_cp
 import numpy
 
@@ -28,12 +29,40 @@ def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida: int = 29, pres
     else: # Demás casos
         quimico = Chemical(fluido,T=t,P=presion)
  
-    if(fase == 'l'): # Líquido
-        cp = quimico.Cpl
-    elif(fase == 'g'): # Gase
-        cp = quimico.Cpg
-    else: # Automático
-        cp = quimico.Cp
+    if(fluido == '132259-10-0'): # Caso especial del Aire
+        try: # Cálculo de Cp con CoolProp (Preferido)
+            cp = CP.PropsSI('C','T',t,'P',presion,'air')
+        except: # Cálculo de Cp con Thermo (En caso de falla)
+            quimico = Mixture('air',T=t,P=presion)
+            cp = quimico.Cp
+
+    quimico = Chemical(fluido,T=t,P=presion)
+    try: # Cálculo de Cp con CoolProp (Preferido)
+        cp = None
+
+        # Conseguir nombre válido en CoolProp
+        for i in range(5):
+            try:
+                name = quimico.synonyms[i].title().replace(' ','').replace('O-','o-').replace('N-','n-').replace('P-','p-')
+                if(fase == 'g'):
+                    cp = CP.PropsSI('C','T',t,'P|gas',presion,name)
+                elif(fase == 'l'):
+                    cp = CP.PropsSI('C','T',t,'P|liquid',presion,name)
+                else:
+                    cp = CP.PropsSI('C','T',t,'P',presion,name)
+                break
+            except:
+                continue
+
+        if(cp == None):
+            raise Exception     
+    except: # Cálculo de Cp con Thermo (En caso de falla)
+        if(fase == 'l'): # Líquido
+            cp = quimico.Cpl
+        elif(fase == 'g'): # Gase
+            cp = quimico.Cpg
+        else: # Automático
+            cp = quimico.Cp
 
     return round(transformar_unidades_cp([cp], 29, unidad_salida)[0], 4)
 
@@ -49,7 +78,7 @@ def calcular_entalpia_entre_puntos(fluido: str, t1: float, t2: float, presion: f
         presion: float -> Presión de entrada (Pa)
 
     Devuelve:
-        float -> Entalpía calculada
+        float -> Entalpía calculada (J/Kg)
     """
     quimico = Chemical(fluido,T=t1,P=presion)
     tsat = quimico.Tsat(P=presion)
@@ -62,6 +91,7 @@ def calcular_entalpia_entre_puntos(fluido: str, t1: float, t2: float, presion: f
 def entalpia_l_a_g(quimico: Chemical, t1: float, t2: float, presion: float, tsat: float) -> float:
     """
     Resumen:
+        Función interna.
         Calcula la entalpía de líquido a gas del fluido en la temperatura y presion dadas.
         Utiliza las integrales del Cp y el exceso dado por la librería thermo.
     """
@@ -91,6 +121,7 @@ def entalpia_l_a_g(quimico: Chemical, t1: float, t2: float, presion: float, tsat
 def entalpia_g_a_l(quimico: Chemical, t1: float, t2: float, presion: float, tsat: float) -> float:
     """
     Resumen:
+        Función interna.
         Calcula la entalpía de gas a líquido del fluido en la temperatura y presion dadas.
         Utiliza las integrales del Cp y el exceso dado por la librería thermo.
     """
@@ -118,14 +149,40 @@ def entalpia_g_a_l(quimico: Chemical, t1: float, t2: float, presion: float, tsat
 
     return abs(numpy.ceil(h_liquido+h_vapor-h_liquido_saturado)*1000) # J/Kg
 
-def calcular_tsat_hvap(cas: str, presion: float):
+def calcular_tsat_hvap(cas: str, presion: float, tsat: float = None) -> tuple:
+    '''
+    Resumen:
+        Calcula la temperatura de saturación y el calor latente de vaporización de un fluido a una presión dada mediante su CAS.
+
+    Parámetros:
+        cas: str -> CAS del fluido
+        presion: float -> Presión de entrada (Pa)
+
+    Devuelve:
+        tuple -> (Temperatura de saturación (K), Calor latente de vaporización (J/Kg))
+    '''
     quimico = Chemical(cas,P=presion)
-    return (quimico.Tsat(presion),quimico.Hvap if quimico.Hvap else quimico.Hvap_Tb)
+
+    if(not tsat):
+        tsat = quimico.Tsat(presion)
+    
+    quimico.calculate(tsat)
+
+    return (tsat,quimico.Hvap if quimico.Hvap else quimico.Hvap_Tb)
 
 def calcular_fase(cas: str, t1: float, t2: float, presion) -> str:
     """
     Resumen:
         Esta función calculará la fase del fluido de los datos dados.
+
+    Parámetros:
+        cas: str -> CAS del fluido
+        t1: float -> Temperatura inicial (K)
+        t2: float -> Temperatura final (K)
+        presion: float -> Presión de entrada (Pa)
+
+    Devuelve:
+        str -> Fase del fluido
     """
 
     return Chemical(cas,T=numpy.mean([t1,t2]), P=presion).phase

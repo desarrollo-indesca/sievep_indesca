@@ -473,9 +473,10 @@ const validarForm = (e) => {
 
     if($('#cambio_fase_carcasa').val() == 'P' && Number($('#flujo_vapor_in_carcasa').val()) && Number($('#flujo_vapor_out_carcasa').val())
         && Number($('#flujo_liquido_in_carcasa').val()) && Number($('#flujo_liquido_out_carcasa').val())
-        && Number($('#temp_in_carcasa').val()) !== Number($('#temp_out_carcasa').val())){
-        alert("Las temperaturas no pueden ser distintas en un cambio de fase parcial dentro del domo.")
-        return false;
+        && Number($('#temp_in_carcasa').val()) !== Number($('#temp_out_carcasa').val())
+        && !($('#fluido_carcasa').val() === '' || $('#fluido_carcasa').val().indexOf('*') !== -1 && $('#fluido_carcasa').val().split('*')[1].indexOf('-') === -1)){
+        if(!confirm("Lado Carcasa:\n Las temperaturas no deberían ser distintas en un cambio de fase parcial dentro del domo. ¿Desea continuar igualmente?"))
+            return false;
     }
 
     if($('#cambio_fase_tubo').val() == 'T' && $('#tipo_cp_tubo').val() === 'M'
@@ -488,49 +489,51 @@ const validarForm = (e) => {
 
     if($('#cambio_fase_tubo').val() == 'P' && Number($('#flujo_vapor_in_tubo').val()) && Number($('#flujo_vapor_out_tubo').val())
         && Number($('#flujo_liquido_in_tubo').val()) && Number($('#flujo_liquido_out_tubo').val())
-        && Number($('#temp_in_tubo').val()) !== Number($('#temp_out_tubo').val())){
-        alert("Las temperaturas no pueden ser distintas en un cambio de fase parcial dentro del domo.")
-        return false;
+        && Number($('#temp_in_tubo').val()) !== Number($('#temp_out_tubo').val()) 
+        && !($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().indexOf('*') !== -1 && $('#fluido_tubo').val().split('*')[1].indexOf('-') === -1)){
+        
+        if(!confirm("Lado Tubo:\n Las temperaturas no deberían ser distintas en un cambio de fase parcial dentro del domo. ¿Desea continuar igualmente?"))
+            return false;
     }
 
     if(Number($('#flujo_vapor_in_tubo').val()) > Number($('#flujo_vapor_out_tubo').val())
         && Number($('#temp_in_tubo').val()) < Number($('#temp_out_tubo').val())){
-        alert("Lado Tubo: Al presentarse una condensación las temperaturas no deberían aumentar.")
-        return false;
+        if(!confirm("Lado Tubo:\n Al presentarse una condensación las temperaturas no deberían aumentar. ¿Desea continuar igualmente?"))
+            return false;
     }
 
     if(Number($('#flujo_vapor_in_carcasa').val()) > Number($('#flujo_vapor_out_carcasa').val())
         && Number($('#temp_in_carcasa').val()) < Number($('#temp_out_carcasa').val())){
-        alert("Lado Carcasa: Al presentarse una condensación las temperaturas no deberían aumentar.")
-        return false;
+        if(!confirm("Lado Carcasa:\n Al presentarse una condensación las temperaturas no deberían aumentar. ¿Desea continuar igualmente?"))
+            return false;
     }
 
     if(Number($('#flujo_liquido_in_tubo').val()) > Number($('#flujo_liquido_out_tubo').val())
         && Number($('#temp_in_tubo').val()) > Number($('#temp_out_tubo').val())){
-        alert("Lado Tubo: Al presentarse una evaporación las temperaturas no deberían disminuir.")
-        return false;
+        if(!confirm("Lado Tubo:\n Al presentarse una evaporación las temperaturas no deberían disminuir. ¿Desea continuar igualmente?"))
+            return false;
     }
 
     if(Number($('#flujo_liquido_in_carcasa').val()) > Number($('#flujo_liquido_out_carcasa').val())
         && Number($('#temp_in_carcasa').val()) > Number($('#temp_out_carcasa').val())){
-        alert("Lado Carcasa: Al presentarse una evaporación las temperaturas no deberían disminuir.")
-        return false;
+        if(!confirm("Lado Carcasa:\n Al presentarse una evaporación las temperaturas no deberían disminuir. ¿Desea continuar igualmente?"))
+            return false;
     }
 
     let mensaje = "";
     let q = 0;
     let n = 0;
 
-    if(Number($('#fluido_tubo').val()) || $('#fluido_tubo').val().includes('*') && $('#fluido_tubo').val().split('*')[1].includes('-')){
+    if(Number($('#fluido_tubo').val()) || $('#fluido_tubo').val().includes('*') && $('#fluido_tubo').val().split('*')[1].includes('-') || $('#cambio_fase_tubo').val() === 'S'){
         const res = ajaxValidacion('T');
-        mensaje = res[0];
+        mensaje += res[0];
         q += Number(res[1]);
         n++;
     }
 
-    if(Number($('#fluido_tubo').val()) || $('#fluido_carcasa').val().includes('*') && $('#fluido_carcasa').val().split('*')[1].includes('-')){
+    if(Number($('#fluido_carcasa').val()) || $('#fluido_carcasa').val().includes('*') && $('#fluido_carcasa').val().split('*')[1].includes('-') || $('#cambio_fase_carcasa').val() === 'S'){
         const res = ajaxValidacion('C');
-        mensaje = res[0];
+        mensaje += res[0]  + '\n';
         q += Number(res[1]);
         n++;
     }
@@ -538,10 +541,16 @@ const validarForm = (e) => {
     if(n > 0)
         q /= n;
 
-    if(Math.abs(q - Number($('#calor').val()))/Number($('#calor').val()) > 0.05)
+    if(n !== 0 && Math.abs(q - Number($('#calor').val()))/Number($('#calor').val()) > 0.05)
         mensaje += `El calor ingresado difiere por más de un 5% del valor calculado.\n`;
 
-    if(mensaje !== ''){
+    if($('#cambio_fase_carcasa').val() === 'T' && $('#tipo_cp_carcasa').val() === 'M' && $('#tsat_carcasa').val() && Number($('#temp_in_carcasa').val()) === Number($('#temp_out_carcasa').val()))
+        mensaje += `\nUsted colocó un cambio de fase total del lado de la carcasa donde las temperaturas son iguales, sin embargo especificó una temperatura de saturación. Se utilizará la temperatura de entrada/salida.\n`;
+
+    if($('#cambio_fase_tubo').val() === 'T' && $('#tipo_cp_tubo').val() === 'M' && $('#tsat_tubo').val() && Number($('#temp_in_tubo').val()) === Number($('#temp_out_tubo').val()))
+        mensaje += `\nUsted colocó un cambio de fase total del lado del tubo donde las temperaturas son iguales, sin embargo especificó una temperatura de saturación. Se utilizará la temperatura de entrada/salida.\n`;
+
+    if(mensaje.trim() !== ''){
         mensaje = "ADVERTENCIA\n" + mensaje + "\n¿Desea continuar igualmente?"
         return confirm(mensaje);
     }

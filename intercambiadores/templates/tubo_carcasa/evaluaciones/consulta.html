@@ -4,10 +4,16 @@
 
 {% block encabezado %}
   {% with generales=intercambiador.intercambiador %}
-  <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'consulta_tubo_carcasa' %}">↶ Regresar</a></div>
+  <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="
+    {% if generales.tipo.pk == 1 %}
+    {% url 'consulta_tubo_carcasa' %}
+    {% elif generales.tipo.pk == 2 %}
+    {% url 'consulta_doble_tubo' %}
+    {% endif %}
+  ">↶ Regresar</a></div>
   <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Evaluaciones del Intercambiador {{generales.tag}}</h3></div>
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
-    <a class="btn d-block btn-success" href="{% url 'crear_evaluacion_tubo_carcasa' pk=intercambiador.pk %}">+ Nueva</a> &nbsp;
+    <a class="btn d-block btn-success" href="{% url 'crear_evaluacion_tubo_carcasa' pk=generales.pk %}">+ Nueva</a> &nbsp;
   </div>
 
   <script>
@@ -66,8 +72,12 @@
     <button type="button" class="btn btn-secondary" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{intercambiador.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button>
     <button type="button" class="btn btn-warning" style="color: black;" data-bs-toggle="modal" data-bs-target="#grafica_historica"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Mostrar gráfica histórico">&nbsp;Gráfica Histórica</button>
   </form>
-  {% include 'fichas/intercambiadores/tubo_carcasa.html' %}
   {% include 'resultados/intercambiadores/historico.html' %}
+  {% if generales.tipo.pk == 1 %}
+  {% include 'fichas/intercambiadores/tubo_carcasa.html' %}
+  {% elif generales.tipo.pk == 2 %}
+  {% include 'fichas/intercambiadores/doble_tubo.html' %}
+  {% endif %}
 </div>
 {% endwith %}
 <footer aria-label="Page navigation example">

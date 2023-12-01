@@ -7,14 +7,18 @@
         {% csrf_token %}
         {% with generales=intercambiador.intercambiador %}
         <div class="row">
-            <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'consulta_evaluaciones_tubo_carcasa' pk=intercambiador.pk %}">↶ Regresar</a></div>
+            <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'consulta_evaluaciones' pk=generales.pk %}">↶ Regresar</a></div>
             <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Nueva Evaluación para el Intercambiador {{generales.tag}}</h3></div>
             <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
+                {% if generales.tipo.pk == 1 %}
                 {% include 'fichas/intercambiadores/tubo_carcasa.html' %}
+                {% elif generales.tipo.pk == 2 %}
+                {% include 'fichas/intercambiadores/doble_tubo.html' %}
+                {% endif %}
                 <button type="button" class="btn btn-danger text-dark" data-bs-toggle="modal" data-bs-target="#ficha_{{intercambiador.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica"> Ficha Técnica</button>
             </div>
         </div>
-        {% endwith %}
+        
     
         <hr>
 
@@ -47,8 +51,7 @@
             </div>
         </div>
     
-        <hr>
-    
+        <hr>    
         <div class="row">
             <div class="col-6 border-end ">
                 <h4 class="text-center mb-3">Carcasa</h4>
@@ -77,13 +80,13 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="fluido_carcasa">Fluido:</label>
                         <select disabled class="form-select" name="fluido_carcasa" id="fluido_carcasa" disabled>
-                            <option value="{{intercambiador.fluido_carcasa.pk}}">{% if intercambiador.fluido_carcasa %}{{intercambiador.fluido_carcasa}}{%else%}{{intercambiador.condicion_carcasa.fluido_etiqueta}}{%endif%}</option>
+                            <option value="{{fluido_carcasa.pk}}">{{fluido_carcasa}}</option>
                         </select>
                     </div>
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="tipo_cp_carcasa">Cálculo del Cp:</label>
                         <select class="form-select" name="tipo_cp_carcasa" id="tipo_cp_carcasa">
-                            {% if not intercambiador.fluido_carcasa %}
+                            {% if not fluido_carcasa.pk %}
                             <option value="M">Manual</option>
                             {% else %}
                             <option value="A">Automático</option>
@@ -94,7 +97,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="cp_carcasa_liquido">Cp Líquido Prom.:</label>
                         <div class="input-group mb-3">
-                            <input value="{% if not intercambiador.fluido_carcasa %}{{intercambiador.condicion_carcasa.fluido_cp|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" type="number" name="cp_liquido_carcasa" min="0.0001" id="cp_liquido_carcasa" class="form-control campo" required disabled>
+                            <input value="{% if not fluido_carcasa.pk %}{{condicion_carcasa.fluido_cp|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.01" max="99999999.99" type="number" name="cp_liquido_carcasa" min="0.01" id="cp_liquido_carcasa" class="form-control campo" required disabled>
                             <select style="width: 40% !important;" class="form-select campo" name="unidad_cp" id="unidad_cp">
                                 {% for unidad in unidades_cp %}
                                 <option value="{{unidad.pk}}">{{unidad}}</option>
@@ -105,7 +108,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="cp_carcasa_gas">Cp Gas Prom.:</label>
                         <div class="input-group mb-3">
-                            <input value="{% if not intercambiador.fluido_carcasa %}{{intercambiador.condicion_carcasa.fluido_cp|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" type="number" name="cp_gas_carcasa" min="0.0001" id="cp_gas_carcasa" class="form-control campo" disabled required>
+                            <input value="{% if not fluido_carcasa.pk %}{{condicion_carcasa.fluido_cp|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.01" max="99999999.99" type="number" name="cp_gas_carcasa" min="0.01" id="cp_gas_carcasa" class="form-control campo" disabled required>
                             <select style="width: 40% !important;" class="form-select campo" name="unidad_cp" id="unidad_cp" disabled>
                                 <option>J/KgK</option>
                             </select>
@@ -114,7 +117,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_carcasa">Flujo Másico:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control campo" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" min="0.01" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control campo" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" min="0.01" max="9999999999.99" required>
                             <select style="width: 40% !important;" class="form-select campo" name="unidad_flujo" id="unidad_flujo">
                                 {% for unidad in unidades_flujo %}
                                 <option value="{{unidad.pk}}">{{unidad.simbolo}}</option>
@@ -125,7 +128,7 @@
                     <div class="col-6">
                         <label class="form-label" for="caida_carcasa">Caída de Presión:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control campo" type="number" name="caida_carcasa" id="caida_carcasa" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control campo" type="number" name="caida_carcasa" id="caida_carcasa" step="0.01" min="-99999.99" max="99999.99" required>
                             <select style="width: 40% !important;" class="form-select campo" name="unidad_presion" id="unidad_presion">
                                 {% for unidad in unidades_presion %}
                                 <option value="{{unidad.pk}}">{{unidad}}</option>
@@ -159,13 +162,13 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="fluido_tubo">Fluido:</label>
                         <select disabled class="form-select" name="fluido_tubo" id="fluido_tubo" disabled>
-                            <option value="{{intercambiador.fluido_tubo.pk}}">{% if intercambiador.fluido_tubo %}{{intercambiador.fluido_tubo}}{%else%}{{intercambiador.condicion_tubo.fluido_etiqueta}}{%endif%}</option>
+                            <option value="{{fluido_tubo.pk}}">{{fluido_tubo}}</option>
                         </select>
                     </div>
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="tipo_cp_tubo">Cálculo del Cp:</label>
                         <select class="form-select" name="tipo_cp_tubo" id="tipo_cp_tubo">
-                            {% if not intercambiador.fluido_tubo %}
+                            {% if not fluido_tubo.pk %}
                             <option value="M">Manual</option>
                             {% else %}
                             <option value="A">Automático</option>
@@ -176,7 +179,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="cp_tubo_liquido">Cp Líquido Prom.:</label>
                         <div class="input-group mb-3">
-                            <input value="{% if not intercambiador.fluido_tubo %}{{intercambiador.condicion_tubo.fluido_cp_liquido|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" type="number" name="cp_liquido_tubo" min="0.0001" id="cp_liquido_tubo" class="form-control campo" required disabled>
+                            <input value="{% if not fluido_tubo.pk %}{{condicion_tubo.fluido_cp_liquido|unlocalize}}{%endif%}" style="width: 60% !important;" max="99999999.99" step="0.01" type="number" name="cp_liquido_tubo" min="0.01" id="cp_liquido_tubo" class="form-control campo" required disabled>
                             <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
                                 <option value="1">J/KgK</option>
                             </select>
@@ -185,7 +188,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="cp_tubo_gas">Cp Gas Prom.:</label>
                         <div class="input-group mb-3">
-                            <input value="{% if not intercambiador.fluido_tubo %}{{intercambiador.condicion_tubo.fluido_cp_gas|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" type="number" name="cp_gas_tubo" min="0.0001" id="cp_gas_tubo" class="form-control campo" required disabled>
+                            <input value="{% if not fluido_tubo.pk %}{{condicion_tubo.fluido_cp_gas|unlocalize}}{%endif%}" style="width: 60% !important;" max="99999999.99" step="0.01" type="number" name="cp_gas_tubo" min="0.01" id="cp_gas_tubo" class="form-control campo" required disabled>
                             <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
                                 <option value="1">J/KgK</option>
                             </select>
@@ -194,7 +197,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_tubo">Flujo Másico:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control campo" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" min="0.01" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control campo" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" min="0.01" max="9999999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujo" disabled>
                                 <option value="1">Kg/h</option>
                             </select>
@@ -203,7 +206,7 @@
                     <div class="col-6">
                         <label class="form-label" for="caida_tubo">Caída de Presión:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control campo" type="number" name="caida_tubo" id="caida_tubo" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control campo" type="number" name="caida_tubo" id="caida_tubo" step="0.01" min="-99999.99" max="99999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_presion" disabled>
                                 <option value="1">bar</option>
                             </select>
@@ -224,7 +227,15 @@
                     <div class="input-group">
                         <input id="lmtd" disabled type="text" class="form-control" style="width: 60% !important;">
                         <select itemid="unidad_lmtd" style="width: 40% !important;" class="form-select" name="" id="unidad_lmtd" disabled>
-                            <option value="{{intercambiador.condicion_carcasa.temperaturas_unidad.pk}}">{{intercambiador.condicion_carcasa.temperaturas_unidad}}</option>                                
+                            {% if intercambiador.condicion_carcasa %}
+                            <option value="{{intercambiador.condicion_carcasa.temperaturas_unidad.pk}}">
+                                {{intercambiador.condicion_carcasa.temperaturas_unidad}}                                
+                            </option>
+                            {% else %}
+                            <option value="{{intercambiador.condicion_externo.temperaturas_unidad.pk}}">
+                                {{intercambiador.condicion_externo.temperaturas_unidad}}                                
+                            </option>
+                            {%endif%}
                         </select>
                     </div>
                 </div>
@@ -290,6 +301,7 @@
             <button id="registrar_resultado" class="btn btn-danger" disabled>Registrar Resultados De La Evaluación</button>
         </div>
     </form>
+    {% endwith %}
 {% endblock %}
 
 {% block extra_javascript %}
@@ -404,27 +416,23 @@
 
         if(out_carcasa && out_tubo && in_carcasa && in_tubo){            
             if(in_tubo > out_tubo){
-                    if(in_carcasa < in_tubo && out_carcasa > out_tubo){
-                        if(mostrarAdvertencia){
-                            alert("ADVERTENCIA\n Verifique las temperaturas.");
-                            setTimeout(() => {
-                                mostrarAdvertencia = true;
-                            }, 2000);
-                        }
-                        document.getElementById('registrar_resultado').setAttribute('disabled', true);
-                        await delay(2000);
-                        return;
+                if(in_carcasa < in_tubo && out_carcasa > out_tubo){
+                    if(mostrarAdvertencia){
+                        alert("ADVERTENCIA\n Verifique las temperaturas.");
+                    }
+                    setTimeout(() => {
+                        mostrarAdvertencia = true;
+                    }, 2000);
+                    return;
                 }
             } else if(in_tubo < out_tubo){
                 if(in_carcasa > in_tubo && out_carcasa < out_tubo){
                     if(mostrarAdvertencia){
                         alert("ADVERTENCIA\n Verifique las temperaturas.");
-                        setTimeout(() => {
-                            mostrarAdvertencia = true;
-                        }, 2000);
                     }
-                    document.getElementById('registrar_resultado').setAttribute('disabled', true);
-                    await delay(2000);
+                    setTimeout(() => {
+                        mostrarAdvertencia = true;
+                    }, 2000);
                     return;
                 }
             }
@@ -470,7 +478,7 @@
         const tipo_cp = lado === 'C' ? $('#tipo_cp_carcasa').val() : $('#tipo_cp_tubo').val();
         const unidad_presion_valor = $('#unidad_presion > option').toArray().filter(x => x.innerHTML === $('#unidad_presion_ficha').html().trim())[0].value;
         
-        if(!$('#cp_ficha').is(':checked') && tipo_cp === 'A'){
+        if(!$('#cp_ficha').is(':checked') && tipo_cp === 'A' && t1 && t2){
             if(lado === 'T' && $('#fluido_tubo').val()){
                 $('#cp_liquido_tubo').val('');
                 document.getElementById('cp_liquido_tubo').setAttribute('disabled', true);
@@ -703,13 +711,18 @@
         if($('#tipo_cp_tubo').val() === 'A'){
             $('#cp_liquido_tubo').attr('disabled',true);
             $('#cp_gas_tubo').attr('disabled',true);
+            ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
         }
         else{
             if($('#cambio_fase_ficha_tubo').html() === 'S')
-                if($('#flujo_vapor_entrada_tubo').val() !== '-')
-                    $('#cp_liquido_tubo').removeAttr('disabled');
-                else
+                if($('#flujo_vapor_entrada_tubo').html() !== '-'){
                     $('#cp_gas_tubo').removeAttr('disabled');
+                    $('#cp_liquido_tubo').attr('disabled', true);
+                }
+                else{
+                    $('#cp_gas_tubo').attr('disabled', true);
+                    $('#cp_liquido_tubo').removeAttr('disabled');
+                }
             else{
                 $('#cp_liquido_tubo').removeAttr('disabled');
                 $('#cp_gas_tubo').removeAttr('disabled'); 
@@ -719,15 +732,31 @@
 
     $('#tipo_cp_carcasa').change(e => {
         if($('#tipo_cp_carcasa').val() === 'A'){
-            $('#cp_liquido_carcasa').attr('disabled',true);
-            $('#cp_gas_carcasa').attr('disabled',true);
+            if($('#cambio_fase_ficha_carcasa').html() === 'S')
+                if($('#flujo_vapor_entrada_carcasa').html() !== '-'){
+                    $('#cp_gas_carcasa').removeAttr('disabled');
+                    $('#cp_liquido_carcasa').attr('disabled', true);
+                }
+                else{
+                    $('#cp_gas_carcasa').attr('disabled', true);
+                    $('#cp_liquido_carcasa').removeAttr('disabled');
+                }
+            else if($('#temp_in_carcasa').val() && $('#temp_out_carcasa').val()){
+                $('#cp_liquido_carcasa').removeAttr('disabled');
+                $('#cp_gas_carcasa').removeAttr('disabled'); 
+            }
+            ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
         }
         else{
             if($('#cambio_fase_ficha_carcasa').html() === 'S')
-                if($('#flujo_vapor_entrada_carcasa').val() !== '-')
-                    $('#cp_liquido_carcasa').removeAttr('disabled');
-                else
+                if($('#flujo_vapor_entrada_carcasa').html() !== '-'){
                     $('#cp_gas_carcasa').removeAttr('disabled');
+                    $('#cp_liquido_carcasa').attr('disabled', true);
+                }
+                else{
+                    $('#cp_gas_carcasa').attr('disabled', true);
+                    $('#cp_liquido_carcasa').removeAttr('disabled');
+                }
             else{
                 $('#cp_liquido_carcasa').removeAttr('disabled');
                 $('#cp_gas_carcasa').removeAttr('disabled'); 
@@ -761,7 +790,7 @@
             (($('#cp_gas_tubo').val() !== '' || $('#cp_liquido_tubo').val() !== '') && $('#cambio_fase_ficha_tubo').html() === 'S' || ($('#cp_gas_tubo').val() !== '' && $('#cp_liquido_tubo').val() !== ''))
             && (($('#cp_gas_carcasa').val() !== '' || $('#cp_liquido_carcasa').val() !== '') && $('#cambio_fase_ficha_carcasa').html() === 'S' || ($('#cp_gas_carcasa').val() !== ''&& $('#cp_liquido_carcasa').val() !== ''))){
             $.ajax({
-                url: '/intercambiadores/evaluar/tubo_carcasa/{{intercambiador.pk}}/',
+                url: '/intercambiadores/evaluar/tubo_carcasa/{{intercambiador.intercambiador.pk}}/',
                 data: {
                     temp_in_carcasa: document.getElementById('temp_in_carcasa').value,
                     temp_out_carcasa: document.getElementById('temp_out_carcasa').value,
@@ -802,7 +831,7 @@
                         alert("Los datos ingresados no son válidos para los cálculos de evaluación del intercambiador.");
                         setTimeout(() => {
                             mostrarAdvertencia = true;
-                        }, 2000);
+                        }, 3000);
                     }
                     
                     document.getElementById('registrar_resultado').setAttribute('disabled', true);
@@ -825,11 +854,19 @@
     const validarForm = (e) => {
         let mensaje = "";
 
-        if($('#fluido_tubo').val() !== '')
-            mensaje += ajaxValidacion('T');
+        if($('#fluido_tubo').val() !== ''){           
+            const res = ajaxValidacion('T');
 
-        if($('#fluido_carcasa').val() !== '')
-            mensaje += ajaxValidacion('C');
+            if(res != '')
+                mensaje += "Lado Tubo:\n" + res;
+        }
+
+        if($('#fluido_carcasa').val() !== ''){
+            const res = ajaxValidacion('C');
+
+            if(res != '')
+                mensaje += "\nLado Carcasa:\n" + res;
+        }
 
         if(mensaje !== ''){
             mensaje = "ADVERTENCIA\n" + mensaje + "\n¿Desea continuar igualmente?"
@@ -844,7 +881,7 @@
     function ajaxValidacion(lado = 'C'){
         let mensaje = "";
         $.ajax({
-            url: `/intercambiadores/validar_cdf_existente_ev/{{intercambiador.pk}}/`,
+            url: `/intercambiadores/validar_cdf_existente_ev/{{intercambiador.intercambiador.pk}}/`,
             async: false,
             data: {
                 lado: lado,

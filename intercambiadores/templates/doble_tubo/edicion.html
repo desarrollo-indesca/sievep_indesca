@@ -3,14 +3,14 @@
 {% load l10n %}
 
 {% block contenido %}
-    {% with generales=intercambiador.intercambiador %}
     <form method="post" onsubmit="return validarForm(this);">
         {% csrf_token %}
         <div class="row">
-            <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_tubo_carcasa' %}">↶ Regresar</a></div>
-            <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Edición del Intercambiador {{generales.tag}}</h3></div>
+            <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_doble_tubo' %}">↶ Regresar</a></div>
+            <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Edición de Intercambiador Doble Tubo</h3></div>
             <div class="col-3"></div>
         </div>
+    
         <hr>
 
         {% if errores %}
@@ -20,13 +20,8 @@
                 <li class="text-center" style="color: #e31e24;">{{error}}</li>
             </ul>
             {%endfor%}
-            {% for error in messages %}
-            <ul>
-                <li class="text-center" style="color: #e31e24;">{{error}}</li>
-            </ul>
-            {%endfor%}
         </div>
-    
+
         <hr>
         {% endif %}
     
@@ -35,6 +30,7 @@
                 <h5 class="text-center" style="color: #e31e24;">Datos de Identificación</h5>
             </div>
 
+            {% with generales=intercambiador.intercambiador %}
             <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="complejo">Complejo:</label>
                 <select required class="form-select" name="complejo" id="complejo" disabled>
@@ -94,6 +90,7 @@
                 </select>
             </div>
         </div>
+        {% endwith %}
     
         <hr>
     
@@ -103,10 +100,10 @@
             </div>
 
             <div class="col-6 border-end">
-                <h4 class="text-center mb-3">Carcasa</h4>
+                <h4 class="text-center mb-3">Tubo Externo</h4>
     
                 <div class="row">
-                    {% with condicion_carcasa=intercambiador.condicion_carcasa %}
+                    {% with condicion_carcasa=intercambiador.condicion_externo %}
                     <div class="col-6">
                         <label class="form-label" for="cambio_fase_carcasa">Cambio de Fase:</label>
                         <div class="input-group mb-3">
@@ -225,9 +222,9 @@
                                 <div class="col-8 d-flex flex-column">    
                                     <select class="form-select" name="fluido_carcasa" id="fluido_carcasa">
                                         {% for fluido in fluidos %}
-                                        <option value="{{fluido.pk}}" {% if intercambiador.fluido_carcasa == fluido %}selected{% endif %}>{{fluido}}</option>
+                                        <option value="{{fluido.pk}}" {% if intercambiador.fluido_ex == fluido %}selected{% endif %}>{{fluido}}</option>
                                         {% endfor %}
-                                        {% if not intercambiador.fluido_carcasa %}
+                                        {% if not intercambiador.fluido_ex %}
                                         <option value="" selected>{{condicion_carcasa.fluido_etiqueta}}</option>
                                         {%endif%}
                                     </select>
@@ -323,7 +320,7 @@
                             <div class="col-6 d-flex flex-column">
                                 <label for="hvap_carcasa">Entalpía de Vaporización:</label>
                                 <div class="input-group mb-3">
-                                    <input style="width: 60% !important;" value="{% if condicion_carcasa.hvap %}{{condicion_carcasa.hvap|unlocalize}}{%endif%}" max="99999999999.9999" min="0.0001" step="0.0001" type="number" name="hvap_carcasa" id="hvap_carcasa" class="form-control">
+                                    <input style="width: 60% !important;" max="99999999999.9999" min="0.0001" step="0.0001" value="{% if condicion_carcasa.hvap %}{{condicion_carcasa.hvap|unlocalize}}{%endif%}" type="number" name="hvap_carcasa" id="hvap_carcasa" class="form-control">
                                     <select style="width: 40% !important;" class="form-select" name="unidad_hvap" id="unidad_hvap" disabled>
                                         <option value="1">J/Kg</option>
                                     </select>
@@ -335,7 +332,7 @@
                     <div class="col-6">
                         <label class="form-label" for="caida_presion_permitida_carcasa">Caída de Presión Máxima:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_carcasa.caida_presion_max|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_max_carcasa" id="caida_presion_max_carcasa" step="0.0001" max="999.9999" required>
+                            <input value="{{condicion_carcasa.caida_presion_max|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_max_carcasa" id="caida_presion_max_carcasa" step="0.0001" max="999.9999" min="-999.9999" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
                                 <option>{{condicion_carcasa.unidad_presion}}</option>
                             </select>
@@ -345,7 +342,7 @@
                     <div class="col-6">
                         <label class="form-label" for="caida_presion_diseno_carcasa">Caída de Presión Mínima:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_carcasa.caida_presion_min|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_min_carcasa" id="caida_presion_min_carcasa" step="0.0001" max="999.9999" required>
+                            <input value="{{condicion_carcasa.caida_presion_min|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_min_carcasa" id="caida_presion_min_carcasa" step="0.0001" max="999.9999" min="-999.9999" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
                                 <option>{{condicion_carcasa.unidad_presion}}</option>
                             </select>
@@ -365,27 +362,28 @@
                     </div>
                     {% endwith %}
                     <div class="col-6">
-                        <label class="form-label" for="conexiones_entrada_carcasa">Conexiones de Entrada Carcasa:</label>
-                        <input maxlength="50" value="{{intercambiador.conexiones_entrada_carcasa}}" class="form-control" type="text" maxlength="50" name="conexiones_entrada_carcasa" id="conexiones_entrada_carcasa">
+                        <label class="form-label" for="conexiones_entrada_carcasa">Conexiones de Entrada Tubo Ext.:</label>
+                        <input maxlength="50" value="{{intercambiador.conexiones_entrada_ex}}" class="form-control" type="text" maxlength="50" name="conexiones_entrada_carcasa" id="conexiones_entrada_carcasa">
                     </div>
                     <div class="col-6">
-                        <label class="form-label" for="conexiones_salida_carcasa">Conexiones de Salida Carcasa:</label>
-                        <input maxlength="50" value="{{intercambiador.conexiones_salida_carcasa}}" class="form-control" type="text" maxlength="50" name="conexiones_salida_carcasa" id="conexiones_salida_carcasa">
+                        <label class="form-label" for="conexiones_salida_carcasa">Conexiones de Salida Tubo Ext.:</label>
+                        <input maxlength="50" value="{{intercambiador.conexiones_salida_ex}}" class="form-control" type="text" maxlength="50" name="conexiones_salida_carcasa" id="conexiones_salida_carcasa">
                     </div>
 
-                    <div class="col-2"></div>
-
-                    <div class="col-8">
-                        <label class="form-label" for="numero_pasos_carcasa">Número de Pasos Carcasa:</label>
-                        <input value="{{intercambiador.numero_pasos_carcasa}}" class="form-control" type="number" min="1" step="1" name="numero_pasos_carcasa" id="numero_pasos_carcasa">
+                    <div class="col-6">Arreglos en Serie Externo:</label>
+                        <input value="{{intercambiador.arreglo_serie_ex}}" step="1" min="1" class="form-control" type="number" maxlength="50" name="arreglo_serie_ex" id="arreglo_serie_ex">
+                    </div>
+                    
+                    <div class="col-6">Arreglos en Paralelo Externo:</label>
+                        <input value="{{intercambiador.arreglo_paralelo_ex}}" step="1" min="1" class="form-control" type="number" maxlength="50" name="arreglo_paralelo_ex" id="arreglo_paralelo_ex">
                     </div>
                 </div>
             </div>
 
             <div class="col-6">
-                <h4 class="text-center mb-3">Tubo</h4>
+                <h4 class="text-center mb-3">Tubo Interno</h4>
                 <div class="row">
-                    {% with condicion_tubo=intercambiador.condicion_tubo %}   
+                    {% with condicion_tubo=intercambiador.condicion_interno %}   
                     <div class="col-6">
                         <label class="form-label" for="cambio_fase_tubo">Cambio de Fase:</label>
                         <div class="input-group mb-3">
@@ -498,9 +496,9 @@
                                 <div class="col-8 d-flex flex-column">    
                                     <select class="form-select" name="fluido_tubo" id="fluido_tubo">
                                         {% for fluido in fluidos %}
-                                        <option value="{{fluido.pk}}" {% if intercambiador.fluido_tubo == fluido %}selected{% endif %}>{{fluido}}</option>
+                                        <option value="{{fluido.pk}}" {% if intercambiador.fluido_in == fluido %}selected{% endif %}>{{fluido}}</option>
                                         {% endfor %}
-                                        {% if not intercambiador.fluido_tubo %}
+                                        {% if not intercambiador.fluido_in %}
                                         <option value="" selected>{{condicion_tubo.fluido_etiqueta}}</option>
                                         {%endif%}
                                     </select>
@@ -594,7 +592,7 @@
                             <div class="col-6 d-flex flex-column">
                                 <label for="hvap_tubo">Entalpía de Vaporización:</label>
                                 <div class="input-group mb-3">
-                                    <input style="width: 60% !important;" min="0.00001" step="0.00001" value="{% if condicion_tubo.hvap %}{{condicion_tubo.hvap|unlocalize}}{%endif%}" max="99999999999.9999" min="0.0001" step="0.0001" type="number" name="hvap_tubo" id="hvap_tubo" class="form-control">
+                                    <input style="width: 60% !important;" max="99999999999.9999" min="0.0001" step="0.0001" value="{% if condicion_tubo.hvap %}{{condicion_tubo.hvap|unlocalize}}{%endif%}" type="number" name="hvap_tubo" id="hvap_tubo" class="form-control">
                                     <select style="width: 40% !important;" class="form-select" name="unidad_hvap" id="unidad_hvap" disabled>
                                         <option value="1">J/Kg</option>
                                     </select>
@@ -606,7 +604,7 @@
                     <div class="col-6">
                         <label class="form-label" for="caida_presion_max_tubo">Caída de Presión Máxima:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_tubo.caida_presion_max|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_max_tubo" id="caida_presion_max_tubo" step="0.0001" max="999.9999" required>
+                            <input value="{{condicion_tubo.caida_presion_max|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_max_tubo" id="caida_presion_max_tubo" step="0.0001" max="999.9999" min="-999.9999" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
                                 <option>{{condicion_tubo.unidad_presion}}</option>
                             </select>
@@ -616,7 +614,7 @@
                     <div class="col-6">
                         <label class="form-label" for="caida_presion_min_tubo">Caída de Presión Mínima:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_tubo.caida_presion_min|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_min_tubo" id="caida_presion_min_tubo" step="0.0001" max="999.9999" required>
+                            <input value="{{condicion_tubo.caida_presion_min|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="caida_presion_min_tubo" id="caida_presion_min_tubo" step="0.0001" max="999.9999" min="-999.9999" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_presiones" id="unidad_presiones" disabled>
                                 <option>{{condicion_tubo.unidad_presion}}</option>
                             </select>
@@ -633,34 +631,26 @@
                         </div>
                     </div>
                     {% endwith %}
-                    <div class="col-6">
-                        <label class="form-label" for="conexiones_entrada_tubo">Conexiones de Entrada Tubo:</label>
-                        <input maxlength="50" value="{{intercambiador.conexiones_entrada_tubos}}" class="form-control" type="text" name="conexiones_entrada_tubo" id="conexiones_entrada_tubo">
-                    </div>
 
                     <div class="col-6">
-                        <label class="form-label" for="conexiones_salida_tubo">Conexiones de Salida Tubo:</label>
-                        <input maxlength="50" value="{{intercambiador.conexiones_salida_tubos}}" class="form-control" type="text" name="conexiones_salida_tubo" id="conexiones_salida_tubo">
+                        <label class="form-label" for="conexiones_entrada_tubo">Conexiones de Entrada Tubo In.:</label>
+                        <input value="{{intercambiador.conexiones_entrada_in}}" class="form-control" type="text" maxlength="50" name="conexiones_entrada_tubo" id="conexiones_entrada_tubo">
                     </div>
 
-                    <div class="col-2"></div>
-
-                    <div class="col-8">
-                        <label class="form-label" for="numero_pasos_tubo">Número de Pasos Tubo:</label>
-                        <input value="{{intercambiador.numero_pasos_tubo}}" class="form-control" type="number" min="1" step="1" name="numero_pasos_tubo" id="numero_pasos_tubo">
+                    <div class="col-6">
+                        <label class="form-label" for="conexiones_salida_tubo">Conexiones de Salida Tubo In.:</label>
+                        <input value="{{intercambiador.conexiones_salida_in}}" class="form-control" type="text" maxlength="50" name="conexiones_salida_tubo" id="conexiones_salida_tubo">
                     </div>
 
-                    <div class="col-2"></div>
+                    <div class="col-6">Arreglos en Serie Interno:</label>
+                        <input value="{{intercambiador.arreglo_serie_in}}" step="1" min="1" class="form-control" type="number" maxlength="50" name="arreglo_serie_in" id="arreglo_serie_in">
+                    </div>
+                    
+                    <div class="col-6">Arreglos en Paralelo Interno:</label>
+                        <input value="{{intercambiador.arreglo_paralelo_in}}" step="1" min="1" class="form-control" type="number" maxlength="50" name="arreglo_paralelo_in" id="arreglo_paralelo_in">
+                    </div>
                 </div>
             </div>
-
-            <!-- <div class="col-12">
-                <hr style="width: 100%;">
-            </div>
-
-            <div class="col-12 d-flex justify-content-center">
-                <button class="btn btn-secondary">+ Añadir Condición</button>
-            </div> -->
         </div>
     
         <hr>
@@ -678,7 +668,7 @@
                             <input value="{{intercambiador.q|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="calor" id="calor" max="999999999999.999" step="0.001" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_q" id="unidad_q">
                                 {% for unidad in unidades_q %}
-                                <option value="{{unidad.pk}}" {% if intercambiador.q_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>                                
+                                <option value="{{unidad.pk|slugify}}" {% if intercambiador.q_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>                                
                                 {% endfor %}
                             </select>
                         </div>
@@ -687,28 +677,18 @@
                     <div class="col-3">
                         <label class="form-label" for="area">Área:</label>
                         <div class="input-group mb-3">
-                            <input value="{{intercambiador.area|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="area" id="area"max="9999999999.99" id="area" step="0.01" min="0.01" required>
+                            <input value="{{intercambiador.area|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="area" id="area" max="9999999999.99" step="0.01" min="0.01" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_area" id="unidad_area">
                                 {% for unidad in unidades_area %}
-                                <option value="{{unidad.pk}}" {% if intercambiador.area_unidad == unidad %}selected{%endif%}>{{unidad}}</option>
+                                <option value="{{unidad.pk|slugify}}" {% if intercambiador.area_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
                                 {% endfor %}
                             </select>
                         </div>
                     </div>
 
                     <div class="col-3">
-                        <label class="form-label" for="arreglo_serie">Arreglo Serie:</label>
-                        <input value="{{intercambiador.arreglo_serie}}" class="form-control" type="number" name="arreglo_serie" id="arreglo_serie" step="1" required>
-                    </div>
-
-                    <div class="col-3">
-                        <label class="form-label" for="arreglo_paralelo">Arreglo Paralelo:</label>
-                        <input value="{{intercambiador.arreglo_paralelo}}" class="form-control" type="number" name="arreglo_paralelo" id="arreglo_paralelo" step="1" required>
-                    </div>
-
-                    <div class="col-3">
                         <label class="form-label" for="no_tubos">No. Tubos:</label>
-                        <input value="{{intercambiador.numero_tubos}}" class="form-control" type="number" name="no_tubos" id="no_tubos" step="1" required>
+                        <input value="{{intercambiador.numero_tubos|slugify}}" class="form-control" type="number" name="no_tubos" id="no_tubos" step="1" required>
                     </div>
 
                     <div class="col-3">
@@ -717,74 +697,49 @@
                             <input value="{{intercambiador.longitud_tubos|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="longitud_tubos" id="longitud_tubos" min="0.01" max="999999.99" step="0.01" required>
                             <select style="width: 40% !important;" class="form-select" name="longitud_tubos_unidad" id="longitud_tubos_unidad">
                                 {% for unidad in unidades_longitud %}
-                                <option value="{{unidad.pk}}" {% if intercambiador.longitud_tubos_unidad == unidad %}selected{%endif%}>{{unidad}}</option>
+                                <option value="{{unidad.pk|slugify}}" {% if intercambiador.longitud_tubos_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
                                 {% endfor %}
                             </select>
                         </div>
                     </div>
 
                     <div class="col-3">
-                        <label class="form-label" for="od_tubos">OD Tubos:</label>
+                        <label class="form-label" for="od_in">OD Tubo Interno:</label>
                         <div class="input-group mb-3">
-                            <input value="{{intercambiador.diametro_externo_tubos|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="od_tubos" id="od_tubos" step="0.01" min="0.01" max="999999.99" required>
+                            <input value="{{intercambiador.diametro_externo_in|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="od_in" id="od_in" step="0.01" min="0.01" max="999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_diametros" id="unidad_diametros">
                                 {% for unidad in unidades_longitud %}
-                                <option value="{{unidad.pk}}" {% if intercambiador.diametro_tubos_unidad == unidad %}selected{%endif%}>{{unidad}}</option>
+                                <option value="{{unidad.pk|slugify}}" {% if intercambiador.diametro_tubos_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>
                                 {% endfor %}
                             </select>
                         </div>
                     </div>
 
                     <div class="col-3">
-                        <label class="form-label" for="id_carcasa">ID Carcasa:</label>
+                        <label class="form-label" for="od_ex">OD Tubo Externo:</label>
                         <div class="input-group mb-3">
-                            <input value="{{intercambiador.diametro_interno_carcasa|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="id_carcasa" id="id_carcasa" step="0.01" min="0.01" max="999999.99" required>
+                            <input value="{{intercambiador.diametro_externo_ex|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="od_ex" id="od_ex" step="0.01" min="0.01" max="999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_diametros" id="unidad_diametros" disabled>
-                                <option>{{intercambiador.diametro_tubos_unidad}}</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="col-3">
-                        <label class="form-label" for="tipo_tubo">Tipo de Tubo:</label>
-                        <select name="tipo_tubo" id="tipo_tubo" class="form-select">
-                            {% for tipo in tipos %}
-                            <option value="{{tipo.pk}}"  {% if tipo.pk == intercambiador.tipo.pk %}selected{% endif %}>{{tipo}}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="col-3">
-                        <label class="form-label" for="pitch">Pitch:</label>
-                        <div class="input-group mb-3">
-                            <input value="{{intercambiador.pitch_tubos|unlocalize}}" style="width: 60% !important;" class="form-control" type="number" name="pitch" id="pitch" min="0.0001" max="9999.9999" step="0.0001" required>
-                            <select style="width: 40% !important;" class="form-select" name="unidades_pitch" id="unidades_pitch">
+                                {% if intercambiador.diametro_tubos_unidad %}
                                 {% for unidad in unidades_longitud %}
-                                <option value="{{unidad.pk}}" {% if intercambiador.unidades_pitch == unidad %}selected{%endif%}>{{unidad}}</option>
+                                {% if unidad == intercambiador.diametro_tubos_unidad %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
                                 {% endfor %}
+                                {% else %}
+                                <option value="1">m</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
-
-                    <div class="col-3">
-                        <label class="form-label" for="material_carcasa">Material Carcasa:</label>
-                        <input value="{{intercambiador.material_carcasa}}" class="form-control" type="text" maxlength="50" name="material_carcasa" id="material_carcasa">
-                    </div>
-
-                    <div class="col-3">
-                        <label class="form-label" for="material_tubo">Material Tubo:</label>
-                        <input value="{{intercambiador.material_tubo}}" class="form-control" type="text" maxlength="50" name="material_tubo" id="material_tubo">
-                    </div>
-
-                    <div class="col-3"></div>
 
                     <div class="col-3">
                         <label class="form-label" for="u">U:</label>
                         <div class="input-group">
-                            <input style="width: 60% !important;" max="99999999.999" step="0.001" min="0.001" value="{% if intercambiador.u %}{{intercambiador.u|unlocalize}}{% endif %}" class="form-control" type="number" name="u" id="u">
+                            <input style="width: 60% !important;" value="{{intercambiador.u|unlocalize}}" max="99999999.999" step="0.001" min="0.001" class="form-control" type="number" name="u" id="u">
                             <select style="width: 40% !important;" class="form-select" name="unidad_u" id="unidad_u">
                                 {% for unidad in unidades_u %}
-                                <option value="{{unidad.pk}}" {% if intercambiador.u_unidad == unidad %}selected{%endif%}>{{unidad.simbolo}}</option>                                
+                                <option value="{{unidad.pk|slugify}}" {% if intercambiador.u_unidad == unidad %}selected{%endif%}>{{unidad}}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -793,14 +748,40 @@
                     <div class="col-3">
                         <label class="form-label" for="ensuciamiento">Ensuciamiento:</label>
                         <div class="input-group">
-                            <input value="{{intercambiador.ensuciamiento|unlocalize}}" class="form-control" type="number" name="ensuciamiento" id="ensuciamiento" step="0.0001" style="width: 60% !important;">
+                            <input style="width: 60% !important;" value="{{intercambiador.ensuciamiento|unlocalize}}" max="999.999999999" step="0.000000001" min="0" class="form-control" type="number" name="ensuciamiento" id="ensuciamiento">
                             <select style="width: 40% !important;" class="form-select" name="unidad_fouling" id="unidad_fouling" disabled>
-                                <option value="">{{intercambiador.ensuciamiento_unidad}}</option>                                
+                                {% if intercambiador.unidad_fouling %}
+                                {% for unidad in unidades_ensuciamiento %}
+                                {% if unidad == intercambiador.unidad_fouling %}
+                                <option>{{unidad}}</option>
+                                {%endif%}
+                                {% empty %}
+                                {% endfor %}
+                                {% else %}
+                                <option value="1">m²K/W</option>
+                                {%endif%}
                             </select>
                         </div>
                     </div>
 
-                    <div class="col-3"></div>
+                    <div class="col-4">
+                        <label class="form-label" for="tipo_tubo">Tipo de Tubo:</label>
+                        <select name="tipo_tubo" class="form-select" id="tipo_tubo">
+                            {% for tipo in tipos %}
+                            <option value="{{tipo.pk}}" {% if intercambiador.tipo_tubo == tipo %}selected{% endif %}>{{tipo}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-4">
+                        <label class="form-label" for="material_carcasa">Material Tubo Externo:</label>
+                        <input maxlength="50" value="{{intercambiador.material_ex}}" class="form-control" type="text" name="material_carcasa" id="material_carcasa">
+                    </div>
+
+                    <div class="col-4">
+                        <label class="form-label" for="material_tubo">Material Tubo Interno:</label>
+                        <input maxlength="50" value="{{intercambiador.material_in}}" class="form-control" type="text" name="material_tubo" id="material_tubo">
+                    </div>
                 </div>
             </div>
         </div>
@@ -811,16 +792,14 @@
             <button type="submit" class="btn btn-danger">Registrar Cambios</button>
         </div>
     </form>
-    {% endwith %}
 {% endblock %}
 
 {% block extra_javascript %}
 <script>
     {% include 'scripts/ajaxCP.js' %}
 
-    {% include 'scripts/cambio_fase.js' %}
-
     {% include 'scripts/validaciones_flujo.js' %}
 
+    {% include 'scripts/cambio_fase.js' %}
 </script>
 {% endblock %}

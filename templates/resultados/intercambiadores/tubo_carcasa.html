@@ -23,19 +23,11 @@
                           </tr>
                           <tr>
                             <th class="table-dark" colspan="2"></th>
-                            <th class="table-dark small"colspan="2">Carcasa
-                              {% if intercambiador.fluido_carcasa %}
-                              {{intercambiador.fluido_carcasa}}
-                              {%else%}
-                              {{intercambiador.condicion_carcasa.fluido_etiqueta}}
-                              {%endif%}
+                            <th class="table-dark small"colspan="2">Carcasa <br>
+                              {{fluido_carcasa}}
                             </th>
-                            <th class="table-dark small"colspan="2">Tubo
-                              {% if intercambiador.fluido_tubo %}
-                              {{intercambiador.fluido_tubo}}
-                              {%else%}
-                              {{intercambiador.condicion_tubo.fluido_etiqueta}}
-                              {%endif%}
+                            <th class="table-dark small"colspan="2">Tubo <br>
+                              {{fluido_tubo}}
                             </th>
                           </tr>
                           <tr>
@@ -46,10 +38,10 @@
                             <th class="table-dark small">Cp Líq. ({{evaluacion.cp_unidad}})</th>
                           </tr>
                           <tr>
-                            <td>{{evaluacion.cp_carcasa_gas}}</td>
-                            <td>{{evaluacion.cp_carcasa_liquido}}</td>
-                            <td>{{evaluacion.cp_tubo_gas}}</td>
-                            <td>{{evaluacion.cp_tubo_liquido}}</td>
+                            <td>{% if evaluacion.cp_carcasa_gas %}{{evaluacion.cp_carcasa_gas}}{%else%}-{%endif%}</td>
+                            <td>{% if evaluacion.cp_carcasa_liquido %}{{evaluacion.cp_carcasa_liquido}}{%else%}-{%endif%}</td>
+                            <td>{% if evaluacion.cp_tubo_gas %}{{evaluacion.cp_tubo_gas}}{%else%}-{%endif%}</td>
+                            <td>{% if evaluacion.cp_tubo_liquido %}{{evaluacion.cp_tubo_liquido}}{%else%}-{%endif%}</td>
                           </tr>
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;" colspan="2" rowspan="4">Temperatura ({{evaluacion.temperaturas_unidad.simbolo}})</th>
@@ -104,8 +96,8 @@
                             <td>{{evaluacion.area_transferencia}}</td>
                           </tr>
                           <tr>
-                            <th class="table-dark" style="vertical-align: middle;">NTU</th>
-                            <td>{{evaluacion.ntu}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">% Eficiencia</th>
+                            <td>{{evaluacion.eficiencia}}</td>
                             <th class="table-dark" style="vertical-align: middle;">% Efectividad</th>
                             <td>{{evaluacion.efectividad}}</td>
                           </tr>
@@ -116,8 +108,8 @@
                             <td>{{evaluacion.ua}}</td>
                           </tr>
                           <tr>
-                            <th class="table-dark" style="vertical-align: middle;">% Eficiencia</th>
-                            <td>{{evaluacion.eficiencia}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">NTU</th>
+                            <td>{{evaluacion.ntu}}</td>
                             <th class="table-dark" style="vertical-align: middle;">Ensuciamiento</th>
                             <td>{{evaluacion.ensuciamiento}}</td>
                           </tr>
@@ -149,8 +141,8 @@
                             <td>{{intercambiador.area}}</td>
                           </tr>
                           <tr>
-                            <th class="table-dark" style="vertical-align: middle;">NTU</th>
-                            <td>{{diseno.ntu}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">% Eficiencia</th>
+                            <td>{{diseno.eficiencia}}</td>
                             <th class="table-dark" style="vertical-align: middle;">% Efectividad</th>
                             <td>{{diseno.efectividad}}</td>
                           </tr>
@@ -161,28 +153,28 @@
                             <td>{{diseno.ua}}</td>
                           </tr>
                           <tr>
-                            <th class="table-dark" style="vertical-align: middle;">% Eficiencia</th>
-                            <td>{{diseno.eficiencia}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">NTU</th>
+                            <td>{{diseno.ntu}}</td>                            
                             <th class="table-dark" style="vertical-align: middle;">Ensuciamiento</th>
                             <td>{{diseno.factor_ensuciamiento}}</td>
                           </tr>
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;">Q ({{intercambiador.q_unidad}})</th>
                             <td>{{intercambiador.q}}</td>
-                            <th class="table-dark" style="vertical-align: middle;">C. Presión Máx. ({{intercambiador.condicion_tubo.unidad_presion}})</th>
-                            <td>{{intercambiador.condicion_tubo.caida_presion_max}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">C. Presión Máx. ({{condicion_tubo.unidad_presion}})</th>
+                            <td>{{condicion_tubo.caida_presion_max}}</td>
                           </tr>
                           <tr>
-                            <th class="table-dark" style="vertical-align: middle;">Cp Líq. Tubo ({{intercambiador.condicion_tubo.unidad_cp}})</th>
-                            <td>{{intercambiador.condicion_tubo.fluido_cp_liquido}}</td>
-                            <th class="table-dark" style="vertical-align: middle;">Cp Gas Carcasa ({{intercambiador.condicion_carcasa.unidad_cp}})</th>
-                            <td>{{intercambiador.condicion_tubo.fluido_cp_gas}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">Cp Líq. Tubo ({{condicion_tubo.unidad_cp}})</th>
+                            <td>{% if condicion_tubo.fluido_cp_liquido %}{{condicion_tubo.fluido_cp_liquido}}{%else%}-{%endif%}</td>
+                            <th class="table-dark" style="vertical-align: middle;">Cp Gas Tubo ({{condicion_carcasa.unidad_cp}})</th>
+                            <td>{% if condicion_tubo.fluido_cp_gas %}{{condicion_tubo.fluido_cp_gas}}{%else%}-{%endif%}</td>
                           </tr>
                           <tr>
-                            <th class="table-dark" style="vertical-align: middle;">Cp Líq. Tubo ({{intercambiador.condicion_tubo.unidad_cp}})</th>
-                            <td>{{intercambiador.condicion_carcasa.fluido_cp_liquido}}</td>
-                            <th class="table-dark" style="vertical-align: middle;">Cp Gas Carcasa ({{intercambiador.condicion_carcasa.unidad_cp}})</th>
-                            <td>{{intercambiador.condicion_carcasa.fluido_cp_gas}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">Cp Líq. Carcasa ({{condicion_tubo.unidad_cp}})</th>
+                            <td>{% if condicion_carcasa.fluido_cp_liquido %}{{condicion_carcasa.fluido_cp_liquido}}{%else%}-{%endif%}</td>
+                            <th class="table-dark" style="vertical-align: middle;">Cp Gas Carcasa ({{condicion_carcasa.unidad_cp}})</th>
+                            <td>{% if condicion_carcasa.fluido_cp_gas %}{{condicion_carcasa.fluido_cp_gas}}{%else%}-{%endif%}</td>
                           </tr>
                         </tbody>
                       </table>                    
