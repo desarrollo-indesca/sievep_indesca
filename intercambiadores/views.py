@@ -620,7 +620,8 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorM
                 messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
                 print(intercambiador)
                 return redirect(f"/intercambiadores/evaluaciones/{intercambiador.pk}/")
-        except:
+        except Exception as e:
+            print(str(e))
             errores.append('Ha ocurrido un error desconocido al registrar el intercambiador. Verifique los datos ingresados.')
             return self.redirigir_por_errores(request, errores)
         
@@ -1790,12 +1791,7 @@ class EvaluarIntercambiador(LoginRequiredMixin, View):
             datos pasados por el body del request.
     """
     def get(self, request, pk):
-        intercambiador = Intercambiador.objects.get(pk = pk)
-
-        if(intercambiador.tipo.pk == 1):
-            intercambiador = PropiedadesTuboCarcasa.objects.get(intercambiador = intercambiador)
-        elif(intercambiador.tipo.pk == 2):
-            intercambiador = PropiedadesDobleTubo.objects.get(intercambiador = intercambiador)
+        intercambiador = Intercambiador.objects.get(pk = pk).intercambiador()
 
         ti = (float(request.GET['temp_in_carcasa'].replace(',','.')))
         ts = (float(request.GET['temp_out_carcasa'].replace(',','.')))
