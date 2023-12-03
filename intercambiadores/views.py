@@ -241,6 +241,64 @@ class CreacionIntercambiadorMixin(ObtencionParametrosMixin):
 
         return condicion     
 
+class ValidacionCambioDeFaseMixin():
+    def generar_msj(self, cambio_fase, flujo_vapor_in, flujo_vapor_out, flujo_liquido_in, flujo_liquido_out, t1, t2, tsat, quimico) -> tuple:
+        codigo = 200
+        mensaje = ""
+        caso = ''
+
+        if(cambio_fase == 'T'):
+            if(flujo_vapor_in and quimico.phase != 'g'):
+                codigo = 400
+                mensaje += "- La temperatura de entrada con la presión dada no corresponde la fase de vapor de acuerdo a la base de datos.\n"
+            elif(flujo_liquido_in and quimico.phase == 'l'):
+                codigo = 400
+                mensaje += "- La temperatura de entrada con la presión dada no corresponde la fase de líquido de acuerdo a la base de datos.\n"
+
+            if(flujo_vapor_in and flujo_liquido_out and t1 < tsat*0.95):
+                codigo = 400
+                mensaje += f"- De acuerdo a los flujos, usted colocó una condensación. Sin embargo, la temperatura de saturación de la base de datos para este fluido a esa presión ({tsat}K) es MAYOR por más de un 5% a la temperatura inicial.\n"
+            elif(flujo_vapor_out and flujo_liquido_in and t1 > tsat*1.05):
+                codigo = 400
+                mensaje += f"- De acuerdo a los flujos, usted colocó una vaporización. Sin embargo, la temperatura de saturación de la base de datos para este fluido a esa presión ({tsat}K) es MENOR por más de un 5% a la temperatura inicial.\n"
+        elif(cambio_fase == 'P'):
+            caso = determinar_cambio_parcial(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in, flujo_liquido_out)
+
+            if(caso == 'DD' and t1 != t2):
+                codigo = 400
+                mensaje += f"- Las temperaturas t1 y t2 son distintas aunque entre y salga una mezcla líquido-vapor según los flujos.\n"
+            elif(caso == 'DL' and t1 < t2):
+                codigo = 400
+                mensaje += f"- La temperatura de entrada es menor a la de salida aunque el fluido salga líquido según los flujos.\n"
+            elif(caso == 'DV' and t1 > t2):
+                codigo = 400
+                mensaje += f"- La temperatura de entrada es mayor a la de salida aunque el fluido salga en vapor según los flujos.\n"
+            elif(caso == 'VD' and t1 < t2):
+                codigo = 400
+                mensaje += f"- La temperatura de entrada es menor a la de salida aunque entre vapor y el fluido se convierta en una mezcla líquido-vapor según los flujos.\n"
+            elif(caso == 'LD' and t1 > t2):
+                codigo = 400
+                mensaje += f"- La temperatura de salida es menor a la de entrada aunque entre líquido y el fluido se convierta en una mezcla líquido-vapor según los flujos.\n"
+            
+            if(caso == 'DD' and (tsat*1.05 < t1 or tsat*0.95 > t1)):
+                codigo = 400
+                mensaje += f"- La temperatura de saturación del cambio de fase parcial presentado tiene un error mayor al 5% del calculado en la base de datos ({tsat}K).\n"
+            elif((caso == 'LD' or caso == 'VD') and (tsat*1.05 < t2 or tsat*0.95 > t2)):
+                codigo = 400
+                mensaje += f"- La temperatura de saturación del cambio de fase parcial presentado tiene un error mayor al 5% del calculado en la base de datos ({tsat}K).\n"
+            elif((caso == 'DL' or caso == 'DV') and (tsat*1.05 < t1 or tsat*0.95 > t1)):
+                codigo = 400
+                mensaje += f"- La temperatura de saturación del cambio de fase parcial presentado tiene un error mayor al 5% del calculado en la base de datos ({tsat}K).\n"    
+        elif(cambio_fase == 'S'):
+            if(flujo_vapor_in and (t1 < tsat*0.95 or t2 < tsat*0.95)):
+                codigo = 400
+                mensaje += "- Aunque entra y sale vapor, las temperaturas son menores a la temperatura de saturación de la base de datos por más del 5%.\n"
+            elif(flujo_liquido_in and (t1 > tsat*1.05 or t2 > tsat*1.05)):
+                codigo = 400
+                mensaje += "- Aunque entra y sale vapor, las temperaturas son mayores a la temperatura de saturación de la base de datos por más del 5%.\n"
+
+        return (codigo, mensaje, caso)
+
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
 class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorMixin, View):
     """
@@ -1841,12 +1899,18 @@ class ConsultaCP(LoginRequiredMixin, ObtencionParametrosMixin, View):
                     'flujo_liquido_out': float(request.GET['flujo_liquido_out']) if request.GET.get('flujo_liquido_out') else 0
                 }
             else:
-                if(request.GET['lado'] == 'C'):
-                    condiciones = PropiedadesTuboCarcasa.objects.get(pk = request.GET['intercambiador'])
-                    condiciones = condiciones.condicion_carcasa()
-                else:
-                    condiciones = PropiedadesTuboCarcasa.objects.get(pk = request.GET['intercambiador'])
-                    condiciones = condiciones.condicion_tubo()
+                intercambiador = Intercambiador.objects.get(pk = request.GET['intercambiador']).intercambiador()
+
+                if(type(intercambiador) == PropiedadesTuboCarcasa):
+                    if(request.GET['lado'] == 'C'):
+                        condiciones = condiciones.condicion_carcasa()
+                    else:
+                        condiciones = condiciones.condicion_tubo()
+                elif(type(intercambiador) == PropiedadesDobleTubo):
+                    if(request.GET['lado'] == 'C'):
+                        condiciones = condiciones.condicion_externo()
+                    else:
+                        condiciones = condiciones.condicion_interno()
 
                 flujos = {
                     'flujo_vapor_in': float(condiciones.flujo_vapor_entrada),
@@ -1885,7 +1949,7 @@ class ConsultaGraficasEvaluacion(LoginRequiredMixin, View):
 
         return JsonResponse(list(evaluaciones.values('fecha','efectividad', 'u', 'ensuciamiento','eficiencia', 'caida_presion_in', 'caida_presion_ex'))[:15], safe=False)
 
-class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
+class ValidarCambioDeFaseExistente(LoginRequiredMixin, ValidacionCambioDeFaseMixin, View):
     def get(self, request):
         flujo_vapor_in = float(request.GET['flujo_vapor_in'])
         flujo_vapor_out = float(request.GET['flujo_vapor_out'])
@@ -1916,81 +1980,29 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, View):
             quimico = Chemical(fluido.cas, T=t1, P=presion)
             tsat = round(quimico.Tsat(presion), 2)
 
-        codigo = 200
-        mensaje = f"\n Lado {lado}:\n"
+        codigo, mensaje, caso = self.generar_msj(cambio_fase, flujo_vapor_in, flujo_vapor_out, flujo_liquido_in, flujo_liquido_out, t1, t2, tsat, quimico)
         
         if(cambio_fase == 'T'):
-            if(flujo_vapor_in and quimico.phase != 'g'):
-                codigo = 400
-                mensaje += "- La temperatura de entrada con la presión dada no corresponde la fase de vapor de acuerdo a la base de datos.\n"
-            elif(flujo_liquido_in and quimico.phase == 'l'):
-                codigo = 400
-                mensaje += "- La temperatura de entrada con la presión dada no corresponde la fase de líquido de acuerdo a la base de datos.\n"
-            
-            quimico.calculate(T=t2, P=presion)
-
-            if(flujo_vapor_in and flujo_liquido_out and t1 < tsat*0.95):
-                codigo = 400
-                mensaje += f"- De acuerdo a los flujos, usted colocó una condensación. Sin embargo, la temperatura de saturación de la base de datos para este fluido a esa presión ({tsat}K) es MAYOR por más de un 5% a la temperatura inicial.\n"
-            elif(flujo_vapor_out and flujo_liquido_in and t1 > tsat*1.05):
-                codigo = 400
-                mensaje += f"- De acuerdo a los flujos, usted colocó una vaporización. Sin embargo, la temperatura de saturación de la base de datos para este fluido a esa presión ({tsat}K) es MENOR por más de un 5% a la temperatura inicial.\n"
-            
             calorcalc = calcular_calor_cdft(flujo_vapor_in+flujo_liquido_in, t1, t2, fluido, presion, None, cp_gas, cp_liquido)
         elif(cambio_fase == 'P'):
-            caso = determinar_cambio_parcial(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in, flujo_liquido_out)
-
             if(type(fluido) == Fluido):
                 _,hvap = calcular_tsat_hvap(fluido.cas, presion, t2) if caso[1] == 'D' else calcular_tsat_hvap(fluido.cas, presion, t1)
             else:
                 hvap = float(request.GET['hvap']) if request.GET['hvap'] else 5000
 
-            if(caso == 'DD' and t1 != t2):
-                codigo = 400
-                mensaje += f"- Las temperaturas t1 y t2 son distintas aunque entre y salga una mezcla líquido-vapor según los flujos.\n"
-            elif(caso == 'DL' and t1 < t2):
-                codigo = 400
-                mensaje += f"- La temperatura de entrada es menor a la de salida aunque el fluido salga líquido según los flujos.\n"
-            elif(caso == 'DV' and t1 > t2):
-                codigo = 400
-                mensaje += f"- La temperatura de entrada es mayor a la de salida aunque el fluido salga en vapor según los flujos.\n"
-            elif(caso == 'VD' and t1 < t2):
-                codigo = 400
-                mensaje += f"- La temperatura de entrada es menor a la de salida aunque entre vapor y el fluido se convierta en una mezcla líquido-vapor según los flujos.\n"
-            elif(caso == 'LD' and t1 > t2):
-                codigo = 400
-                mensaje += f"- La temperatura de salida es menor a la de entrada aunque entre líquido y el fluido se convierta en una mezcla líquido-vapor según los flujos.\n"
-            
-            if(caso == 'DD' and (tsat*1.05 < t1 or tsat*0.95 > t1)):
-                codigo = 400
-                mensaje += f"- La temperatura de saturación del cambio de fase parcial presentado tiene un error mayor al 5% del calculado en la base de datos ({tsat}K).\n"
-            elif((caso == 'LD' or caso == 'VD') and (tsat*1.05 < t2 or tsat*0.95 > t2)):
-                codigo = 400
-                mensaje += f"- La temperatura de saturación del cambio de fase parcial presentado tiene un error mayor al 5% del calculado en la base de datos ({tsat}K).\n"
-            elif((caso == 'DL' or caso == 'DV') and (tsat*1.05 < t1 and tsat*0.95 > t1)):
-                codigo = 400
-                mensaje += f"- La temperatura de saturación del cambio de fase parcial presentado tiene un error mayor al 5% del calculado en la base de datos ({tsat}K).\n"
-        
             calorcalc = calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in+flujo_liquido_in, t1, t2, hvap, cp_gas, cp_liquido)    
         elif(cambio_fase == 'S'):
-            if(fluido):
-                if(flujo_vapor_in and (t1 < tsat*0.95 or t2 < tsat*0.95)):
-                    codigo = 400
-                    mensaje += "- Aunque entra y sale vapor, las temperaturas son menores a la temperatura de saturación de la base de datos por más del 5%.\n"
-                elif(flujo_liquido_in and (t1 > tsat*1.05 or t2 > tsat*1.05)):
-                    codigo = 400
-                    mensaje += "- Aunque entra y sale vapor, las temperaturas son mayores a la temperatura de saturación de la base de datos por más del 5%.\n"
-
             calorcalc = calcular_calor_scdf(flujo_vapor_in+flujo_liquido_in, cp_gas if cp_gas else cp_liquido, t1, t2)
         
         calorcalc = round(calorcalc, 2)
 
         if(codigo == 200):
+            mensaje = f'\nLado {lado}:\n' + mensaje
             return JsonResponse({'codigo': codigo, 'calorcalc': calorcalc})
         else:
             return JsonResponse({'codigo': codigo, 'mensaje': mensaje, 'calorcalc': calorcalc})
 
-class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, View):
+class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, ValidacionCambioDeFaseMixin, View):
     def get(self, request, pk):
         intercambiador = Intercambiador.objects.get(pk=pk).intercambiador()
 
@@ -2021,59 +2033,9 @@ class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, View):
 
         quimico = Chemical(fluido.cas, T= t1, P=presion)
         tsat = round(quimico.Tsat(presion), 2)
-        codigo = 200
-        mensaje = ""
         
-        if(cambio_fase == 'T'):
-            if(flujo_vapor_in and quimico.phase != 'g'):
-                codigo = 400
-                mensaje += "- La temperatura de entrada con la presión dada no corresponde la fase de vapor de acuerdo a la base de datos.\n"
-            elif(flujo_liquido_in and quimico.phase == 'l'):
-                codigo = 400
-                mensaje += "- La temperatura de entrada con la presión dada no corresponde la fase de líquido de acuerdo a la base de datos.\n"
-
-            if(flujo_vapor_in and flujo_liquido_out and t1 < tsat*0.95):
-                codigo = 400
-                mensaje += f"- De acuerdo a los flujos, usted colocó una condensación. Sin embargo, la temperatura de saturación de la base de datos para este fluido a esa presión ({tsat}K) es MAYOR por más de un 5% a la temperatura inicial.\n"
-            elif(flujo_vapor_out and flujo_liquido_in and t1 > tsat*1.05):
-                codigo = 400
-                mensaje += f"- De acuerdo a los flujos, usted colocó una vaporización. Sin embargo, la temperatura de saturación de la base de datos para este fluido a esa presión ({tsat}K) es MENOR por más de un 5% a la temperatura inicial.\n"
-        elif(cambio_fase == 'P'):
-            caso = determinar_cambio_parcial(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in, flujo_liquido_out)
-
-            if(caso == 'DD' and t1 != t2):
-                codigo = 400
-                mensaje += f"- Las temperaturas t1 y t2 son distintas aunque entre y salga una mezcla líquido-vapor según los flujos.\n"
-            elif(caso == 'DL' and t1 < t2):
-                codigo = 400
-                mensaje += f"- La temperatura de entrada es menor a la de salida aunque el fluido salga líquido según los flujos.\n"
-            elif(caso == 'DV' and t1 > t2):
-                codigo = 400
-                mensaje += f"- La temperatura de entrada es mayor a la de salida aunque el fluido salga en vapor según los flujos.\n"
-            elif(caso == 'VD' and t1 < t2):
-                codigo = 400
-                mensaje += f"- La temperatura de entrada es menor a la de salida aunque entre vapor y el fluido se convierta en una mezcla líquido-vapor según los flujos.\n"
-            elif(caso == 'LD' and t1 > t2):
-                codigo = 400
-                mensaje += f"- La temperatura de salida es menor a la de entrada aunque entre líquido y el fluido se convierta en una mezcla líquido-vapor según los flujos.\n"
-            
-            if(caso == 'DD' and (tsat*1.05 < t1 or tsat*0.95 > t1)):
-                codigo = 400
-                mensaje += f"- La temperatura de saturación del cambio de fase parcial presentado tiene un error mayor al 5% del calculado en la base de datos ({tsat}K).\n"
-            elif((caso == 'LD' or caso == 'VD') and (tsat*1.05 < t2 or tsat*0.95 > t2)):
-                codigo = 400
-                mensaje += f"- La temperatura de saturación del cambio de fase parcial presentado tiene un error mayor al 5% del calculado en la base de datos ({tsat}K).\n"
-            elif((caso == 'DL' or caso == 'DV') and (tsat*1.05 < t1 or tsat*0.95 > t1)):
-                codigo = 400
-                mensaje += f"- La temperatura de saturación del cambio de fase parcial presentado tiene un error mayor al 5% del calculado en la base de datos ({tsat}K).\n"    
-        elif(cambio_fase == 'S'):
-            if(flujo_vapor_in and (t1 < tsat*0.95 or t2 < tsat*0.95)):
-                codigo = 400
-                mensaje += "- Aunque entra y sale vapor, las temperaturas son menores a la temperatura de saturación de la base de datos por más del 5%.\n"
-            elif(flujo_liquido_in and (t1 > tsat*1.05 or t2 > tsat*1.05)):
-                codigo = 400
-                mensaje += "- Aunque entra y sale vapor, las temperaturas son mayores a la temperatura de saturación de la base de datos por más del 5%.\n"
-
+        codigo, mensaje, caso = self.generar_msj(cambio_fase, flujo_vapor_in, flujo_vapor_out, flujo_liquido_in, flujo_liquido_out, t1, t2, tsat, quimico)
+        
         if(codigo == 200):
             return JsonResponse({'codigo': codigo})
         else:
@@ -2085,7 +2047,13 @@ class FichaTecnicaTuboCarcasa(LoginRequiredMixin, View):
         intercambiador = Intercambiador.objects.get(pk=pk)
         if(request.GET['tipo'] == 'pdf'):
             return generar_pdf(request, intercambiador, f'Ficha Técnica del Intercambiador {intercambiador.tag}', 'ficha_tecnica_tubo_carcasa')
-        
+
+class EvaluacionIntercambiadores(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        intercambiador = Intercambiador.objects.get(pk=pk)
+        if(request.GET['tipo'] == 'pdf'):
+            return generar_pdf(request, intercambiador, f'Reporte de Evaluaciones', 'evaluaciones_intercambiadores')
+
 class FichaTecnicaDobleTubo(LoginRequiredMixin, View):
     def get(self, request, pk):
         intercambiador = Intercambiador.objects.get(pk=pk)
