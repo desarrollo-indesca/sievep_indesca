@@ -67,9 +67,9 @@ function anadir_listeners_registro() {
         if(document.getElementById('nombre_compuesto_carcasa_cas').value !== '' && document.getElementById('nombre_compuesto_carcasa_cas').value.indexOf('*')){
             const valor = `${document.getElementById('nombre_compuesto_carcasa_cas').value}*${document.getElementById('cas_compuesto_carcasa').value}`;
             document.getElementById('fluido_carcasa').innerHTML += `<option value="${valor}" selected>${document.getElementById('nombre_compuesto_carcasa_cas').value.toUpperCase()}</option>`;
-            
+            actualizar_tipos('C');
             if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '')
-                ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
+               ajaxCPCarcasa();
             
             $('#condiciones_diseno_fluido_carcasaClose').click();
         } else
@@ -80,9 +80,9 @@ function anadir_listeners_registro() {
         if(document.getElementById('nombre_compuesto_tubo_cas').value !== '' && document.getElementById('nombre_compuesto_tubo_cas').value.indexOf('*')){
             const valor = `${document.getElementById('nombre_compuesto_tubo_cas').value}*${document.getElementById('cas_compuesto_tubo').value}`;
             document.getElementById('fluido_tubo').innerHTML += `<option value="${valor}" selected>${document.getElementById('nombre_compuesto_tubo_cas').value.toUpperCase()}</option>`;
-            
+            actualizar_tipos('T');
             if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '')
-                ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
+                ajaxCPTubo();
             
             $('#condiciones_diseno_fluido_tuboClose').click();
         } else
@@ -273,7 +273,7 @@ function anadir_listeners_cp() {
         if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
             const val = $('#fluido_carcasa').val();
             if(Number(val))
-                ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
+                ajaxCPCarcasa();
             else{
                 const splitted = val.split('*');
                 if(Number(splitted[1]))
