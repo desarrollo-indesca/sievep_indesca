@@ -318,7 +318,7 @@
                             </div>
 
                             <div class="col-6 d-flex flex-column">
-                                <label for="hvap_carcasa">Entalpía de Vaporización:</label>
+                                <label for="hvap_carcasa">Calor Latente:</label>
                                 <div class="input-group mb-3">
                                     <input style="width: 60% !important;" max="99999999999.9999" min="0.0001" step="0.0001" value="{% if condicion_carcasa.hvap %}{{condicion_carcasa.hvap|unlocalize}}{%endif%}" type="number" name="hvap_carcasa" id="hvap_carcasa" class="form-control">
                                     <select style="width: 40% !important;" class="form-select" name="unidad_hvap" id="unidad_hvap" disabled>
@@ -590,7 +590,7 @@
                             </div>
 
                             <div class="col-6 d-flex flex-column">
-                                <label for="hvap_tubo">Entalpía de Vaporización:</label>
+                                <label for="hvap_tubo">Calor Latente:</label>
                                 <div class="input-group mb-3">
                                     <input style="width: 60% !important;" max="99999999999.9999" min="0.0001" step="0.0001" value="{% if condicion_tubo.hvap %}{{condicion_tubo.hvap|unlocalize}}{%endif%}" type="number" name="hvap_tubo" id="hvap_tubo" class="form-control">
                                     <select style="width: 40% !important;" class="form-select" name="unidad_hvap" id="unidad_hvap" disabled>

@@ -78,8 +78,6 @@ const determinar_cambio_de_fase_tubo = () => { // Cambio de Fase para tubos
         actualizar_tipos('T');
         // {% endif %}
     }
-
-    anadir_listeners();
 }
 
 const determinar_cambio_de_fase_carcasa = () => { // Cambio de Fase para carcasa 
