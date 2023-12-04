@@ -2004,9 +2004,9 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, ValidacionCambioDeFaseMix
         calorcalc = round(calorcalc, 2)
 
         if(codigo == 200):
-            mensaje = f'\nLado {lado}:\n' + mensaje
             return JsonResponse({'codigo': codigo, 'calorcalc': calorcalc})
         else:
+            mensaje = f'\nLado {lado}:\n' + mensaje
             return JsonResponse({'codigo': codigo, 'mensaje': mensaje, 'calorcalc': calorcalc})
 
 class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, ValidacionCambioDeFaseMixin, View):

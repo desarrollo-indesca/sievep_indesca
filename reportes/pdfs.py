@@ -166,8 +166,8 @@ def reporte_evaluacion(request, object_list):
 
     intercambiador = object_list[0].intercambiador
     propiedades = intercambiador.intercambiador()
-    condicion_tubo = propiedades.condicion_tubo()
-    condicion_carcasa = propiedades.condicion_carcasa()
+    condicion_tubo = propiedades.condicion_tubo() if intercambiador.tipo.pk == 1 else propiedades.condicion_interno()
+    condicion_carcasa = propiedades.condicion_carcasa() if intercambiador.tipo.pk == 1 else propiedades.condicion_externo()
 
     if(len(request.GET)):
         story.append(Paragraph("Datos de Filtrado", centrar_parrafo))
