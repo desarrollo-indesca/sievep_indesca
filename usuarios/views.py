@@ -46,7 +46,7 @@ class ConsultaUsuarios(SuperUserRequiredMixin, ListView):
     """
 
     model = get_user_model()
-    template_name = 'consulta.html'
+    template_name = 'usuarios/consulta.html'
     paginate_by = 10
 
     def get_context_data(self, **kwargs):
@@ -149,10 +149,10 @@ class CrearNuevoUsuario(SuperUserRequiredMixin, View):
 
                 return redirect("/usuarios/")
         else:
-            return render(request, 'creacion.html', {'errores': errores, 'previo': request.POST, **self.context})
+            return render(request, 'usuarios/creacion.html', {'errores': errores, 'previo': request.POST, **self.context})
     
     def get(self, request):
-        return render(request, 'creacion.html', self.context)
+        return render(request, 'usuarios/creacion.html', self.context)
 
 class EditarUsuario(SuperUserRequiredMixin, View):
     """
@@ -212,7 +212,7 @@ class EditarUsuario(SuperUserRequiredMixin, View):
 
                 return redirect("/usuarios/")
         else:
-            return render(request, 'creacion.html', {'errores': errores, 'previo': request.POST, 'edicion': True, **self.context})
+            return render(request, 'usuarios/creacion.html', {'errores': errores, 'previo': request.POST, 'edicion': True, **self.context})
     
     def get(self, request, pk):
         usuario = self.modelo.objects.get(pk=pk)
@@ -223,7 +223,7 @@ class EditarUsuario(SuperUserRequiredMixin, View):
             'activo': usuario.is_active
         }
 
-        return render(request, 'creacion.html', context={'previo': previo, 'edicion': True, **self.context})
+        return render(request, 'usuarios/creacion.html', context={'previo': previo, 'edicion': True, **self.context})
 
 class CambiarContrasena(SuperUserRequiredMixin, View):
     """

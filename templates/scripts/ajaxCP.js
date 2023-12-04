@@ -272,6 +272,7 @@ function anadir_listeners_cp() {
     $('#fluido_carcasa').change((e) => {
         if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
             const val = $('#fluido_carcasa').val();
+
             if(Number(val))
                 ajaxCPCarcasa();
             else{
@@ -337,21 +338,21 @@ function anadir_listeners_cp() {
 function anadir_listeners_unidades() {
     $('#unidad_temperaturas').change((e) => {
         if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
-            ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
+            ajaxCPCarcasa();
         }
     
         if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
-            ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
+            ajaxCPTubo();
         }
     });
     
     $('#unidad_cp').change((e) => {
         if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
-            ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
+            ajaxCPCarcasa();
         }
     
         if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
-            ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
+            ajaxCPTubo();
         }
     });
     
