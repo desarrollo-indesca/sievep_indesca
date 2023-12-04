@@ -467,7 +467,7 @@ const validarForm = (e) => {
     if($('#cambio_fase_carcasa').val() == 'T' && $('#tipo_cp_carcasa').val() === 'M'
         && ($('#fluido_carcasa').val() === '' || $('#fluido_carcasa').val().indexOf('*') !== -1 && $('#fluido_carcasa').val().split('*')[1].indexOf('-') === -1)){
         if($('#hvap_carcasa').val() === '' && $('#tsat_carcasa').val() === ''){
-            alert("Debe ingresar la temperatura de saturación del fluido de la carcasa y/o la entalpía de vaporización del mismo.")
+            alert("Debe ingresar la temperatura de saturación del fluido de la carcasa y/o el calor latente del mismo.")
             return false;
         }
     }
@@ -483,7 +483,7 @@ const validarForm = (e) => {
     if($('#cambio_fase_tubo').val() == 'T' && $('#tipo_cp_tubo').val() === 'M'
         && ($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().indexOf('*') !== -1 && $('#fluido_tubo').val().split('*')[1].indexOf('-') === -1)){
         if($('#hvap_tubo').val() === '' && $('#tsat_tubo').val() === ''){
-            alert("Debe ingresar la temperatura de saturación del fluido del tubo y/o la entalpía de vaporización del mismo.")
+            alert("Debe ingresar la temperatura de saturación del fluido del tubo y/o el calor latente del mismo.")
             return false;
         }
     }

@@ -129,12 +129,12 @@ class ObtencionParametrosMixin():
                 if(flujo_liquido_in): # "Si hay un flujo de líquido de entrada", Vaporización
                     tsat = (q/m+cp_liquido*t1-hvap-cp_gas*t2)/(cp_liquido-cp_gas)
                 else: # "Si no lo hay", Condensación
-                    tsat = (q/m+cp_gas*t1+hvap-cp_liquido*t2)/(cp_gas-cp_liquido)
+                    tsat = (q/m+cp_gas*t1-hvap-cp_liquido*t2)/abs(cp_gas-cp_liquido)
             elif(hvap == None): # Falta Hvap
                 if(flujo_liquido_in): # "Si hay un flujo de líquido de entrada", Vaporización
                     hvap = q/m-cp_liquido*(tsat-t1)-cp_gas*(t2-tsat)
                 else: # "Si no lo hay", Condensación
-                    hvap = (q/m-cp_gas*(tsat-t1)-cp_liquido*(t2-tsat))           
+                    hvap = abs(q/m-cp_gas*(tsat-t1)-cp_liquido*(t2-tsat))           
         elif(cambio_fase == 'P'): # Cambio de Fase Parcial y no se tiene Hv
             caso = determinar_cambio_parcial(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in, flujo_liquido_out)
             flujo = (flujo_vapor_out + flujo_liquido_out)
@@ -150,6 +150,7 @@ class ObtencionParametrosMixin():
         hvap = abs(hvap) if hvap else None
         tsat = abs(tsat) if tsat else None
 
+        print((hvap, tsat))
         return (hvap,tsat)
 
 class EdicionIntercambiadorMixin(ObtencionParametrosMixin):
