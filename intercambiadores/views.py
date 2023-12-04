@@ -147,10 +147,11 @@ class ObtencionParametrosMixin():
             elif(caso == 'DV' or caso == 'VD'): # Domo a Vapor, Vapor a Domo
                 hvap = (q/flujo-cp_gas*abs(t2-t1))/calidad
 
+            tsat = t1 if caso[0] == 'D' else t2
+
         hvap = abs(hvap) if hvap else None
         tsat = abs(tsat) if tsat else None
 
-        print((hvap, tsat))
         return (hvap,tsat)
 
 class EdicionIntercambiadorMixin(ObtencionParametrosMixin):
@@ -1690,6 +1691,11 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def post(self, request, **kwargs):
+        if(request.POST.get('tipo')):
+            intercambiador = Intercambiador.objects.get(pk=kwargs['pk'])
+            if(request.POST['tipo'] == 'pdf'):
+                return generar_pdf(request, self.get_queryset(), f'Reporte de Evaluaciones del Intercambiador {intercambiador.tag}', 'evaluaciones_intercambiadores')
+            
         if(request.user.is_superuser): # Lógica de "Eliminación"
             evaluacion = EvaluacionesIntercambiador.objects.get(pk=request.POST['evaluacion'])
             evaluacion.visible = False
@@ -1723,8 +1729,7 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
         context['desde'] = self.request.GET.get('desde', '')
         context['hasta'] = self.request.GET.get('hasta')
         context['usuario'] = self.request.GET.get('usuario','')
-        context['condiciones'] = self.request.GET.get('condiciones', '')
-
+        
         try:
             context['diseno'] = context['intercambiador'].calcular_diseno()
         except Exception as e:
@@ -1734,7 +1739,7 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
         return context
     
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        try:
+        try:    
             return super().get(request, *args, **kwargs)
         except Exception as e:
             print(str(e))
@@ -1976,8 +1981,13 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, ValidacionCambioDeFaseMix
         if(fluido):
             quimico = Chemical(fluido.cas, T=t1, P=presion)
             tsat = round(quimico.Tsat(presion), 2)
+        else:
+            tsat = None
+            codigo = 200
+            mensaje = ""
 
-        codigo, mensaje, caso = self.generar_msj(cambio_fase, flujo_vapor_in, flujo_vapor_out, flujo_liquido_in, flujo_liquido_out, t1, t2, tsat, quimico)
+        if(tsat):
+            codigo, mensaje, caso = self.generar_msj(cambio_fase, flujo_vapor_in, flujo_vapor_out, flujo_liquido_in, flujo_liquido_out, t1, t2, tsat, quimico)
         
         if(cambio_fase == 'T'):
             calorcalc = calcular_calor_cdft(flujo_vapor_in+flujo_liquido_in, t1, t2, fluido, presion, None, cp_gas, cp_liquido)
@@ -2044,12 +2054,6 @@ class FichaTecnicaTuboCarcasa(LoginRequiredMixin, View):
         intercambiador = Intercambiador.objects.get(pk=pk)
         if(request.GET['tipo'] == 'pdf'):
             return generar_pdf(request, intercambiador, f'Ficha Técnica del Intercambiador {intercambiador.tag}', 'ficha_tecnica_tubo_carcasa')
-
-class EvaluacionIntercambiadores(LoginRequiredMixin, View):
-    def get(self, request, pk):
-        intercambiador = Intercambiador.objects.get(pk=pk)
-        if(request.GET['tipo'] == 'pdf'):
-            return generar_pdf(request, intercambiador, f'Reporte de Evaluaciones', 'evaluaciones_intercambiadores')
 
 class FichaTecnicaDobleTubo(LoginRequiredMixin, View):
     def get(self, request, pk):

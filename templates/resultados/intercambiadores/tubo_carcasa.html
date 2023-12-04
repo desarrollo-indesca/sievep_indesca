@@ -104,8 +104,8 @@
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;">U ({{intercambiador.u_unidad}})</th>
                             <td>{{evaluacion.u}}</td>
-                            <th class="table-dark" style="vertical-align: middle;">UA (W/K)</th>
-                            <td>{{evaluacion.ua}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">Q ({{intercambiador.q_unidad}})</th>
+                            <td>{{evaluacion.q}}</td>
                           </tr>
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;">NTU</th>
@@ -114,16 +114,14 @@
                             <td>{{evaluacion.ensuciamiento}}</td>
                           </tr>
                           <tr>
-                            <th class="table-dark" style="vertical-align: middle;">Q ({{intercambiador.q_unidad}})</th>
-                            <td>{{evaluacion.q}}</td>
-                            <th class="table-dark" style="vertical-align: middle;">Núm. Tubos</th>
-                            <td>{{evaluacion.numero_tubos}}</td>
-                          </tr>
-                          <tr>
                             <th class="table-dark" style="vertical-align: middle;">C. Presión Tubo ({{evaluacion.unidad_presion}})</th>
                             <td>{{evaluacion.caida_presion_in}}</td>
                             <th class="table-dark" style="vertical-align: middle;">C. Presión Carcasa ({{evaluacion.unidad_presion}})</th>
                             <td>{{evaluacion.caida_presion_ex}}</td>
+                          </tr>
+                          <tr>
+                            <th class="table-dark" style="vertical-align: middle;">Núm. Tubos</th>
+                            <td colspan="3">{{evaluacion.numero_tubos}}</td>
                           </tr>
                         </tbody>
                       </table>                    
@@ -149,8 +147,8 @@
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;">U ({{intercambiador.u_unidad}})</th>
                             <td>{{intercambiador.u|floatformat:4}}</td>
-                            <th class="table-dark" style="vertical-align: middle;">UA (W/K)</th>
-                            <td>{{diseno.ua}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">Núm. Tubos</th>
+                            <td>{{intercambiador.numero_tubos}}</td>
                           </tr>
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;">NTU</th>
