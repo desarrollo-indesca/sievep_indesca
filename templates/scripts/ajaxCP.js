@@ -67,9 +67,9 @@ function anadir_listeners_registro() {
         if(document.getElementById('nombre_compuesto_carcasa_cas').value !== '' && document.getElementById('nombre_compuesto_carcasa_cas').value.indexOf('*')){
             const valor = `${document.getElementById('nombre_compuesto_carcasa_cas').value}*${document.getElementById('cas_compuesto_carcasa').value}`;
             document.getElementById('fluido_carcasa').innerHTML += `<option value="${valor}" selected>${document.getElementById('nombre_compuesto_carcasa_cas').value.toUpperCase()}</option>`;
-            
+            actualizar_tipos('C');
             if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '')
-                ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
+               ajaxCPCarcasa();
             
             $('#condiciones_diseno_fluido_carcasaClose').click();
         } else
@@ -80,9 +80,9 @@ function anadir_listeners_registro() {
         if(document.getElementById('nombre_compuesto_tubo_cas').value !== '' && document.getElementById('nombre_compuesto_tubo_cas').value.indexOf('*')){
             const valor = `${document.getElementById('nombre_compuesto_tubo_cas').value}*${document.getElementById('cas_compuesto_tubo').value}`;
             document.getElementById('fluido_tubo').innerHTML += `<option value="${valor}" selected>${document.getElementById('nombre_compuesto_tubo_cas').value.toUpperCase()}</option>`;
-            
+            actualizar_tipos('T');
             if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '')
-                ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
+                ajaxCPTubo();
             
             $('#condiciones_diseno_fluido_tuboClose').click();
         } else
@@ -272,8 +272,9 @@ function anadir_listeners_cp() {
     $('#fluido_carcasa').change((e) => {
         if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
             const val = $('#fluido_carcasa').val();
+
             if(Number(val))
-                ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
+                ajaxCPCarcasa();
             else{
                 const splitted = val.split('*');
                 if(Number(splitted[1]))
@@ -337,21 +338,21 @@ function anadir_listeners_cp() {
 function anadir_listeners_unidades() {
     $('#unidad_temperaturas').change((e) => {
         if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
-            ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
+            ajaxCPCarcasa();
         }
     
         if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
-            ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
+            ajaxCPTubo();
         }
     });
     
     $('#unidad_cp').change((e) => {
         if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== ''){
-            ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
+            ajaxCPCarcasa();
         }
     
         if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#fluido_tubo').val() !== ''){
-            ajaxCP($('#temp_in_tubo').val(), $('#temp_out_tubo').val(), $('#fluido_tubo').val(), 'T');
+            ajaxCPTubo();
         }
     });
     
@@ -466,7 +467,7 @@ const validarForm = (e) => {
     if($('#cambio_fase_carcasa').val() == 'T' && $('#tipo_cp_carcasa').val() === 'M'
         && ($('#fluido_carcasa').val() === '' || $('#fluido_carcasa').val().indexOf('*') !== -1 && $('#fluido_carcasa').val().split('*')[1].indexOf('-') === -1)){
         if($('#hvap_carcasa').val() === '' && $('#tsat_carcasa').val() === ''){
-            alert("Debe ingresar la temperatura de saturación del fluido de la carcasa y/o la entalpía de vaporización del mismo.")
+            alert("Debe ingresar la temperatura de saturación del fluido de la carcasa y/o el calor latente del mismo.")
             return false;
         }
     }
@@ -482,7 +483,7 @@ const validarForm = (e) => {
     if($('#cambio_fase_tubo').val() == 'T' && $('#tipo_cp_tubo').val() === 'M'
         && ($('#fluido_tubo').val() === '' || $('#fluido_tubo').val().indexOf('*') !== -1 && $('#fluido_tubo').val().split('*')[1].indexOf('-') === -1)){
         if($('#hvap_tubo').val() === '' && $('#tsat_tubo').val() === ''){
-            alert("Debe ingresar la temperatura de saturación del fluido del tubo y/o la entalpía de vaporización del mismo.")
+            alert("Debe ingresar la temperatura de saturación del fluido del tubo y/o el calor latente del mismo.")
             return false;
         }
     }
