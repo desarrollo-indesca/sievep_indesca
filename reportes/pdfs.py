@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from reportlab.lib.units import inch
 from reportlab.lib import colors
 from intercambiadores.models import Planta, Complejo
+from calculos.unidades import transformar_unidades_presion
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('agg')
@@ -19,7 +20,8 @@ sombreado = colors.Color(0.85, 0.85, 0.85)
 basicTableStyle = TableStyle(
         [
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('BACKGROUND', (0, 0), (-1, 0), sombreado)
+            ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+            ('VALIGN',(0,0),(-1,-1),'MIDDLE')
         ])
 
 headerStyle = ParagraphStyle(
@@ -166,7 +168,6 @@ def reporte_evaluacion(request, object_list):
 
     intercambiador = object_list[0].intercambiador
     propiedades = intercambiador.intercambiador()
-    condicion_tubo = propiedades.condicion_tubo() if intercambiador.tipo.pk == 1 else propiedades.condicion_interno()
     condicion_carcasa = propiedades.condicion_carcasa() if intercambiador.tipo.pk == 1 else propiedades.condicion_externo()
 
     if(len(request.GET) >= 2 and (request.GET['desde'] or request.GET['hasta'] or request.GET['usuario'] or request.GET['nombre'])):
@@ -185,59 +186,19 @@ def reporte_evaluacion(request, object_list):
         story.append(table)
         story.append(Spacer(0,7))
         
-    story.append(Paragraph("Datos de Diseño del Intercambiador", centrar_parrafo))
-
-    diseno = propiedades.calcular_diseno
     table = [
         [
-            Paragraph(f"LMTD ({condicion_carcasa.temperaturas_unidad})", centrar_parrafo), 
-            Paragraph(f"{diseno['lmtd']}", centrar_parrafo), 
-            Paragraph(f"Área Transf. ({propiedades.area_unidad})", centrar_parrafo), 
-            Paragraph(f"{propiedades.area}", centrar_parrafo)
-        ],
-        [
-            Paragraph(f"Eficiencia (%)", centrar_parrafo), 
-            Paragraph(f"{diseno['eficiencia']}", centrar_parrafo), 
-            Paragraph("Efectividad (%)", centrar_parrafo), 
-            Paragraph(f"{diseno['efectividad']}", centrar_parrafo)
-        ],
-        [
-            Paragraph(f"U ({propiedades.u_unidad})", centrar_parrafo), 
-            Paragraph(f"{propiedades.u}", centrar_parrafo), 
-            Paragraph(f"Q ({propiedades.q_unidad})", centrar_parrafo), 
-            Paragraph(f"{propiedades.q}", centrar_parrafo), 
-        ],
-        [
-            Paragraph(f"NTU", centrar_parrafo), 
-            Paragraph(f"{diseno['ntu']}", centrar_parrafo), 
-            Paragraph(f"Ensuciamiento ({propiedades.ensuciamiento_unidad})", centrar_parrafo), 
-            Paragraph(f"{diseno['factor_ensuciamiento']}", centrar_parrafo)
-        ],
-        [
-            Paragraph(f"C.Presión Máx. Tubo ({condicion_carcasa.unidad_presion})", centrar_parrafo), 
-            Paragraph(f"{condicion_tubo.caida_presion_max}", centrar_parrafo)      ,      
-            Paragraph(f"C.Presión Máx. Carcasa ({condicion_carcasa.unidad_presion})", centrar_parrafo), 
-            Paragraph(f"{condicion_carcasa.caida_presion_max}", centrar_parrafo)
-        ],
-        [
-            Paragraph(f"Núm. Tubos", centrar_parrafo), 
-            Paragraph(f"{propiedades.numero_tubos}", centrar_parrafo), 
+            Paragraph(f"Fecha", centrar_parrafo),
+            Paragraph(f"Área ({propiedades.area_unidad})", centrar_parrafo), 
+            Paragraph(f"Efic. (%)", centrar_parrafo),
+            Paragraph("Efect. (%)", centrar_parrafo),
+            Paragraph(f"U ({propiedades.u_unidad})", centrar_parrafo),
+            Paragraph(f"NTU", centrar_parrafo),
+            Paragraph(f"Ens. ({propiedades.ensuciamiento_unidad})", centrar_parrafo), 
+            Paragraph(f"C.P. Tubo ({condicion_carcasa.unidad_presion})", centrar_parrafo), 
+            Paragraph(f"C.P. Carcasa ({condicion_carcasa.unidad_presion})", centrar_parrafo)
         ]
     ]
-    
-    estilo = TableStyle(
-        [
-            ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('BACKGROUND', (0, 0), (0, -1), sombreado),
-            ('BACKGROUND', (2, 0), (2, -2), sombreado),
-            ('SPAN',(1,-1),(-1,-1)),
-        ]
-    )
-            
-    table = Table(table, hAlign=1)
-    table.setStyle(estilo)
-    story.append(table)
 
     eficiencias = []
     efectividades = []
@@ -247,58 +208,32 @@ def reporte_evaluacion(request, object_list):
     ensuciamientos = []
     fechas = []
 
+    object_list = object_list.order_by('fecha')
+
     for x in object_list:
-        story.append(Spacer(0,26))
-        story.append(Paragraph(f"Evaluación '{x.nombre}', {x.fecha.strftime('%d/%m/%Y a las %H:%M:%S')}, usuario {x.creado_por}", centrar_parrafo))
+        area = float(x.area_transferencia)
+        eficiencia = float(x.eficiencia)
+        efectividad = float(x.efectividad)
+        ntu = float(x.ntu)
+        u = float(x.u)
+        caida_tubo, caida_carcasa = transformar_unidades_presion([x.caida_presion_in, x.caida_presion_ex], x.unidad_presion.pk, condicion_carcasa.unidad_presion.pk)
+        ensuciamiento = float(x.ensuciamiento)
+        fecha = x.fecha.strftime('%d/%m/%Y %H:%M')
 
-        eficiencias.append(float(x.eficiencia))
-        efectividades.append(float(x.efectividad))
-        us.append(float(x.u))
-        caidas_tubo.append(float(x.caida_presion_in))
-        caidas_carcasa.append(float(x.caida_presion_ex))
-        ensuciamientos.append(float(x.ensuciamiento))
-        fechas.append(x.fecha.strftime('%d/%m/%Y %H:%M'))
+        eficiencias.append(eficiencia)
+        efectividades.append(efectividad)
+        us.append(u)
+        caidas_tubo.append(caida_tubo)
+        caidas_carcasa.append(caida_carcasa)
+        ensuciamientos.append(ensuciamiento)
+        fechas.append(fecha)
             
-        table = [
-            [
-                Paragraph(f"LMTD ({condicion_carcasa.temperaturas_unidad})", centrar_parrafo), 
-                Paragraph(f"{x.lmtd}", centrar_parrafo), 
-                Paragraph(f"Área Transf. ({propiedades.area_unidad})", centrar_parrafo), 
-                Paragraph(f"{x.area_transferencia}", centrar_parrafo)
-            ],
-            [
-                Paragraph(f"Eficiencia (%)", centrar_parrafo), 
-                Paragraph(f"{x.eficiencia}", centrar_parrafo), 
-                Paragraph("Efectividad (%)", centrar_parrafo), 
-                Paragraph(f"{x.efectividad}", centrar_parrafo)
-            ],
-            [
-                Paragraph(f"U ({propiedades.u_unidad})", centrar_parrafo), 
-                Paragraph(f"{x.u}", centrar_parrafo), 
-                Paragraph(f"Q ({propiedades.q_unidad})", centrar_parrafo), 
-                Paragraph(f"{x.q}", centrar_parrafo), 
-            ],
-            [
-                Paragraph(f"NTU", centrar_parrafo), 
-                Paragraph(f"{x.ntu}", centrar_parrafo), 
-                Paragraph(f"Ensuciamiento ({propiedades.ensuciamiento_unidad})", centrar_parrafo), 
-                Paragraph(f"{x.ensuciamiento}", centrar_parrafo)
-            ],
-            [
-                Paragraph(f"C.Presión Máx. Tubo ({condicion_carcasa.unidad_presion})", centrar_parrafo), 
-                Paragraph(f"{x.caida_presion_in}", centrar_parrafo)      ,      
-                Paragraph(f"C.Presión Máx. Carcasa ({condicion_carcasa.unidad_presion})", centrar_parrafo), 
-                Paragraph(f"{x.caida_presion_ex}", centrar_parrafo)
-            ],
-            [
-                Paragraph(f"Núm. Tubos", centrar_parrafo), 
-                Paragraph(f"{x.numero_tubos}", centrar_parrafo), 
-            ]
-        ]
-
-        table = Table(table, hAlign=1)
-        table.setStyle(estilo)
-        story.append(table)
+        table.append([Paragraph(fecha, centrar_parrafo), Paragraph(str(area), centrar_parrafo), Paragraph(str(eficiencia), centrar_parrafo), Paragraph(str(efectividad), centrar_parrafo), Paragraph(str(u), centrar_parrafo), 
+                      Paragraph(str(ntu), centrar_parrafo), Paragraph(str(ensuciamiento), centrar_parrafo), Paragraph(str(caida_tubo), centrar_parrafo), Paragraph(str(caida_carcasa), centrar_parrafo)])
+        
+    table = Table(table)
+    table.setStyle(basicTableStyle)
+    story.append(table)
 
     grafica1 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)
@@ -310,7 +245,7 @@ def reporte_evaluacion(request, object_list):
     plt.close(fig)
 
     story.append(Spacer(0,7))
-    story.append(Image(grafica1, width=5*inch, height=3*inch))
+    story.append(Image(grafica1, width=5*inch, height=2.5*inch))
 
     grafica2 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)
@@ -322,7 +257,7 @@ def reporte_evaluacion(request, object_list):
     plt.close(fig)
 
     story.append(Spacer(0,7))
-    story.append(Image(grafica2, width=5*inch, height=3*inch))
+    story.append(Image(grafica2, width=5*inch, height=2.5*inch))
 
     grafica3 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)
@@ -334,7 +269,7 @@ def reporte_evaluacion(request, object_list):
     plt.close(fig)
 
     story.append(Spacer(0,7))
-    story.append(Image(grafica3, width=5*inch, height=3*inch))
+    story.append(Image(grafica3, width=5*inch, height=2.5*inch))
 
     grafica4 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)    
@@ -346,7 +281,7 @@ def reporte_evaluacion(request, object_list):
     plt.close(fig)
 
     story.append(Spacer(0,7))
-    story.append(Image(grafica4, width=5*inch, height=3*inch))
+    story.append(Image(grafica4, width=5*inch, height=2.5*inch))
 
     grafica5 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)    
@@ -358,7 +293,7 @@ def reporte_evaluacion(request, object_list):
     plt.close(fig)
 
     story.append(Spacer(0,7))
-    story.append(Image(grafica5, width=5*inch, height=3*inch))
+    story.append(Image(grafica5, width=5*inch, height=2.5*inch))
 
     grafica6 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)    
@@ -370,7 +305,7 @@ def reporte_evaluacion(request, object_list):
     plt.close(fig)
 
     story.append(Spacer(0,7))
-    story.append(Image(grafica6, width=5*inch, height=3*inch))
+    story.append(Image(grafica6, width=5*inch, height=2.5*inch))
 
     return [story, [grafica1, grafica2, grafica3, grafica4, grafica5, grafica6]]
 
