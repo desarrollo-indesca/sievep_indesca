@@ -32,4 +32,5 @@ urlpatterns = [
     # RUTAS PARA ALGUNOS REPORTES
     path('ficha_tecnica/tubo_carcasa/<int:pk>/', FichaTecnicaTuboCarcasa.as_view(), name="reporte_ficha_tecnica_tubo_carcasa"),
     path('ficha_tecnica/doble_tubo/<int:pk>/', FichaTecnicaDobleTubo.as_view(), name="reporte_ficha_tecnica_doble_tubo"),
+    path('evaluaciones/<int:pk>/reporte/detalle/<int:evaluacion>/', ReporteEvaluacionDetalle.as_view(), name="reporte_evaluacion_detalle"),
 ]

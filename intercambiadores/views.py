@@ -2054,6 +2054,12 @@ class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, ValidacionCambi
             return JsonResponse({'codigo': codigo, 'mensaje': mensaje})
         
 # REPORTES DE INTERCAMBIADORES
+class ReporteEvaluacionDetalle(LoginRequiredMixin, View):
+    def get(self, request, pk, evaluacion):
+        evaluacion = EvaluacionesIntercambiador.objects.get(pk=evaluacion)
+        if(request.GET['tipo'] == 'pdf'):
+            return generar_pdf(request, evaluacion, f'Detalle de la Evaluación "{evaluacion.nombre}"', 'evaluacion_detalle')
+
 class FichaTecnicaTuboCarcasa(LoginRequiredMixin, View):
     def get(self, request, pk):
         intercambiador = Intercambiador.objects.get(pk=pk)
