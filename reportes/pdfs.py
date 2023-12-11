@@ -169,11 +169,12 @@ def detalle_evaluacion(request, evaluacion):
     story = [Spacer(0,70)]
     intercambiador = evaluacion.intercambiador
     propiedades = intercambiador.intercambiador()
-    condicion_carcasa = propiedades.condicion_carcasa()
-    condicion_tubo = propiedades.condicion_tubo()
+    condicion_carcasa = propiedades.condicion_carcasa() if intercambiador.tipo.pk == 1 else propiedades.condicion_externo()
+    condicion_tubo = propiedades.condicion_tubo() if intercambiador.tipo.pk == 1 else propiedades.condicion_interno()
 
     # Primera Tabla: Datos de Entrada
-    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}"))
+    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.first_name}"))
+    story.append(Paragraph(f"<b>Tag del Equipo:</b> {intercambiador.tag}"))
     story.append(Paragraph("Datos de Entrada de la Evaluación", ParagraphStyle('', alignment=1)))
 
     table = [
@@ -192,8 +193,8 @@ def detalle_evaluacion(request, evaluacion):
         ],
         [
             'Fluido', '',
-            Paragraph(f"{propiedades.fluido_carcasa if propiedades.fluido_carcasa else condicion_carcasa.fluido_etiqueta}", centrar_parrafo), '',
-            Paragraph(f"{propiedades.fluido_tubo if propiedades.fluido_tubo else condicion_tubo.fluido_etiqueta}", centrar_parrafo),
+            Paragraph(f"{propiedades.fluido_carcasa if propiedades.fluido_carcasa else condicion_carcasa.fluido_etiqueta}" if intercambiador.tipo.pk == 1 else f"{propiedades.fluido_ex if propiedades.fluido_ex else condicion_carcasa.fluido_etiqueta}", centrar_parrafo), '',
+            Paragraph(f"{propiedades.fluido_tubo if propiedades.fluido_tubo else condicion_tubo.fluido_etiqueta}" if intercambiador.tipo.pk == 1 else f"{propiedades.fluido_in if propiedades.fluido_in else condicion_tubo.fluido_etiqueta}", centrar_parrafo),
         ],
         [
             f'Temperatura ({evaluacion.temperaturas_unidad})', '',
@@ -247,6 +248,7 @@ def detalle_evaluacion(request, evaluacion):
             ('SPAN', (4, 2), (5, 2)),
 
             ('BACKGROUND', (2, 0), (-1, 1), sombreado),
+            ('BACKGROUND', (0, 2), (0, -1), sombreado),
         ]
     )
 
@@ -255,7 +257,7 @@ def detalle_evaluacion(request, evaluacion):
     story.append(table)
 
     # Segunda Tabla: Resultados de la Evaluación
-    story.append(Spacer(0,15))
+    story.append(Spacer(0,10))
     story.append(Paragraph("Resultados de la Evaluación", ParagraphStyle('', alignment=1)))
     table = [
             [
@@ -283,9 +285,9 @@ def detalle_evaluacion(request, evaluacion):
                 Paragraph(f"{evaluacion.ensuciamiento}", centrar_parrafo)
             ],
             [
-                Paragraph(f"C.Presión Máx. Tubo ({condicion_carcasa.unidad_presion})", centrar_parrafo), 
+                Paragraph(f"C.Presión Tubo ({evaluacion.unidad_presion})", centrar_parrafo), 
                 Paragraph(f"{evaluacion.caida_presion_in}", centrar_parrafo)      ,      
-                Paragraph(f"C.Presión Máx. Carcasa ({condicion_carcasa.unidad_presion})", centrar_parrafo), 
+                Paragraph(f"C.Presión Carcasa ({evaluacion.unidad_presion})", centrar_parrafo), 
                 Paragraph(f"{evaluacion.caida_presion_ex}", centrar_parrafo)
             ],
             [
@@ -308,7 +310,7 @@ def detalle_evaluacion(request, evaluacion):
     story.append(table)
 
     # Tercera Tabla: Parámetros de Diseño
-    story.append(Spacer(0,15))
+    story.append(Spacer(0,10))
     story.append(Paragraph("Parámetros de Diseño del Intercambiador", ParagraphStyle('', alignment=1)))
     diseno = propiedades.calcular_diseno
     table = [
