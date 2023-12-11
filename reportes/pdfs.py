@@ -169,7 +169,7 @@ def reporte_evaluacion(request, object_list):
     condicion_tubo = propiedades.condicion_tubo() if intercambiador.tipo.pk == 1 else propiedades.condicion_interno()
     condicion_carcasa = propiedades.condicion_carcasa() if intercambiador.tipo.pk == 1 else propiedades.condicion_externo()
 
-    if(len(request.GET)):
+    if(len(request.GET) >= 2 and (request.GET['desde'] or request.GET['hasta'] or request.GET['usuario'] or request.GET['nombre'])):
         story.append(Paragraph("Datos de Filtrado", centrar_parrafo))
         table = [[Paragraph("Desde", centrar_parrafo), Paragraph("Hasta", centrar_parrafo), Paragraph("Usuario", centrar_parrafo), Paragraph("Nombre Ev.", centrar_parrafo)]]
         table.append([
@@ -187,7 +187,7 @@ def reporte_evaluacion(request, object_list):
         
     story.append(Paragraph("Datos de Diseño del Intercambiador", centrar_parrafo))
 
-    diseno = propiedades.calcular_diseno()
+    diseno = propiedades.calcular_diseno
     table = [
         [
             Paragraph(f"LMTD ({condicion_carcasa.temperaturas_unidad})", centrar_parrafo), 
@@ -378,7 +378,7 @@ def intercambiadores_tubo_carcasa(request, object_list):
     story = []
     story.append(Spacer(0,60))
 
-    if(len(request.GET)):
+    if(len(request.GET) >= 2 and (request.GET['tag'] or request.GET['servicio'] or request.GET.get('planta') or request.GET.get('complejo'))):
         story.append(Paragraph("Datos de Filtrado", centrar_parrafo))
         table = [[Paragraph("Tag", centrar_parrafo), Paragraph("Servicio", centrar_parrafo), Paragraph("Planta", centrar_parrafo), Paragraph("Complejo", centrar_parrafo)]]
         table.append([

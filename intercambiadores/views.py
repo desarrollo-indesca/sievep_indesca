@@ -1730,11 +1730,12 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
         context['hasta'] = self.request.GET.get('hasta')
         context['usuario'] = self.request.GET.get('usuario','')
         
-        try:
-            context['diseno'] = context['intercambiador'].calcular_diseno()
-        except Exception as e:
-            print(str(e))
-            print("No se pudo evaluar el diseño del intercambiador.")
+        if(EvaluacionesIntercambiador.objects.filter(intercambiador = intercambiador).exists()):        
+            try:
+                context['diseno'] = context['intercambiador'].calcular_diseno
+            except Exception as e:
+                print(str(e))
+                print("No se pudo evaluar el diseño del intercambiador.")
 
         return context
     

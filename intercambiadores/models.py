@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from calculos.evaluaciones import evaluacion_tubo_carcasa, evaluacion_doble_tubo
+from django.utils.functional import cached_property
 
 # Tipos Estáticos
 
@@ -199,6 +200,7 @@ class PropiedadesTuboCarcasa(models.Model):
     u_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_u", default=27)
     ensuciamiento_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_ensuciamiento",default=31)
 
+    @cached_property
     def calcular_diseno(self):
         cond_tubo= self.condicion_tubo()
         cond_carcasa = self.condicion_carcasa()
@@ -279,6 +281,7 @@ class PropiedadesDobleTubo(models.Model):
     u_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_u_dobletubo", default=27)
     ensuciamiento_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_ensuciamiento_dobletubo",default=31)
 
+    @cached_property
     def calcular_diseno(self):
         condicion_in = self.condicion_interno()
         condicion_ex = self.condicion_externo()
