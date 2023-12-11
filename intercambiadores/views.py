@@ -11,7 +11,7 @@ from thermo.chemical import search_chemical, Chemical
 from calculos.termodinamicos import calcular_cp
 from calculos.evaluaciones import evaluacion_tubo_carcasa, obtener_cambio_fase, determinar_cambio_parcial, calcular_calor_scdf, calcular_calor_cdft, calcular_calor_cdfp, calcular_tsat_hvap
 from reportes.pdfs import generar_pdf
-from reportes. xlsx import historico_evaluaciones, reporte_tubo_carcasa
+from reportes.xlsx import historico_evaluaciones, reporte_tubo_carcasa, ficha_tecnica_tubo_carcasa_xlsx
 from calculos.unidades import *
 
 # Mixin con Funciones para Intercambiadores
@@ -892,7 +892,6 @@ class ConsultaDobleTubo(LoginRequiredMixin, ListView):
         if(request.POST['tipo'] == 'pdf'):
             return generar_pdf(request, self.get_queryset(),"Reporte de Intercambiadores Doble Tubo", "intercambiadores_tubo_carcasa")
         else:
-            from reportes.xlsx import reporte_tubo_carcasa
             response = reporte_tubo_carcasa(self.get_queryset(), request)
             response['Content-Disposition'] = 'attachment; filename="reporte_tubo_carcasa.xlsx"'
             return response
@@ -2065,6 +2064,10 @@ class FichaTecnicaTuboCarcasa(LoginRequiredMixin, View):
         intercambiador = Intercambiador.objects.get(pk=pk)
         if(request.GET['tipo'] == 'pdf'):
             return generar_pdf(request, intercambiador, f'Ficha Técnica del Intercambiador {intercambiador.tag}', 'ficha_tecnica_tubo_carcasa')
+        elif(request.GET['tipo'] == 'xlsx'):
+            response = ficha_tecnica_tubo_carcasa_xlsx(intercambiador, request)
+            response['Content-Disposition'] = f'attachment; filename="datos_ficha_tecnica_{intercambiador.tag}.xlsx"'
+            return response
 
 class FichaTecnicaDobleTubo(LoginRequiredMixin, View):
     def get(self, request, pk):
