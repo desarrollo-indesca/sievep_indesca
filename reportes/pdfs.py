@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from reportlab.lib.units import inch
 from reportlab.lib import colors
 from intercambiadores.models import Planta, Complejo
+from calculos.unidades import transformar_unidades_presion
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('agg')
@@ -19,7 +20,8 @@ sombreado = colors.Color(0.85, 0.85, 0.85)
 basicTableStyle = TableStyle(
         [
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('BACKGROUND', (0, 0), (-1, 0), sombreado)
+            ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+            ('VALIGN',(0,0),(-1,-1),'MIDDLE')
         ])
 
 headerStyle = ParagraphStyle(
@@ -159,35 +161,158 @@ def generar_historia(request, reporte, object_list):
     
     if reporte == 'evaluaciones_intercambiadores':
         return reporte_evaluacion(request, object_list)
+    
+    if reporte == 'evaluacion_detalle':
+        return detalle_evaluacion(request, object_list)
 
-def reporte_evaluacion(request, object_list):
-    story = []
-    story.append(Spacer(0,60))
-
-    intercambiador = object_list[0].intercambiador
+def detalle_evaluacion(request, evaluacion):
+    story = [Spacer(0,70)]
+    intercambiador = evaluacion.intercambiador
     propiedades = intercambiador.intercambiador()
-    condicion_tubo = propiedades.condicion_tubo() if intercambiador.tipo.pk == 1 else propiedades.condicion_interno()
     condicion_carcasa = propiedades.condicion_carcasa() if intercambiador.tipo.pk == 1 else propiedades.condicion_externo()
+    condicion_tubo = propiedades.condicion_tubo() if intercambiador.tipo.pk == 1 else propiedades.condicion_interno()
 
-    if(len(request.GET)):
-        story.append(Paragraph("Datos de Filtrado", centrar_parrafo))
-        table = [[Paragraph("Desde", centrar_parrafo), Paragraph("Hasta", centrar_parrafo), Paragraph("Usuario", centrar_parrafo), Paragraph("Nombre Ev.", centrar_parrafo)]]
-        table.append([
-            Paragraph(request.GET.get('desde'), parrafo_tabla),
-            Paragraph(request.GET.get('hasta'), parrafo_tabla),
-            Paragraph(request.GET.get('usuario'), parrafo_tabla),
-            Paragraph(request.GET.get('nombre'), parrafo_tabla),
-        ])
+    # Primera Tabla: Datos de Entrada
+    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.first_name}"))
+    story.append(Paragraph(f"<b>Tag del Equipo:</b> {intercambiador.tag}"))
+    story.append(Paragraph("Datos de Entrada de la Evaluación", ParagraphStyle('', alignment=1)))
 
-        table = Table(table)
-        table.setStyle(basicTableStyle)
+    table = [
+        [
+            '',
+            '',
+            Paragraph("Lado Carcasa", centrar_parrafo),
+            '',
+            Paragraph(f"Lado Tubo", centrar_parrafo),
+            ''
+        ],
+        [
+            '', '',
+            Paragraph(f"IN", centrar_parrafo),Paragraph(f"OUT", centrar_parrafo),
+            Paragraph(f"IN", centrar_parrafo),Paragraph(f"OUT", centrar_parrafo)
+        ],
+        [
+            'Fluido', '',
+            Paragraph(f"{propiedades.fluido_carcasa if propiedades.fluido_carcasa else condicion_carcasa.fluido_etiqueta}" if intercambiador.tipo.pk == 1 else f"{propiedades.fluido_ex if propiedades.fluido_ex else condicion_carcasa.fluido_etiqueta}", centrar_parrafo), '',
+            Paragraph(f"{propiedades.fluido_tubo if propiedades.fluido_tubo else condicion_tubo.fluido_etiqueta}" if intercambiador.tipo.pk == 1 else f"{propiedades.fluido_in if propiedades.fluido_in else condicion_tubo.fluido_etiqueta}", centrar_parrafo),
+        ],
+        [
+            f'Temperatura ({evaluacion.temperaturas_unidad})', '',
+            Paragraph(f"{evaluacion.temp_ex_entrada}", centrar_parrafo),Paragraph(f"{evaluacion.temp_ex_salida}", centrar_parrafo),
+            Paragraph(f"{evaluacion.temp_in_entrada}", centrar_parrafo),Paragraph(f"{evaluacion.temp_in_salida}", centrar_parrafo),
+        ],
+        [
+            f'Cap. Calorífica Vap. ({evaluacion.cp_unidad})', '',
+            Paragraph(f"{evaluacion.cp_tubo_gas if evaluacion.cp_tubo_gas else ''}", centrar_parrafo), '',
+            Paragraph(f"{evaluacion.cp_carcasa_gas if evaluacion.cp_carcasa_gas else ''}", centrar_parrafo), '',
+        ],
+        [
+            f'Cap. Calorífica Líq. ({evaluacion.cp_unidad})', '',
+            Paragraph(f"{evaluacion.cp_tubo_liquido if evaluacion.cp_tubo_liquido else ''}", centrar_parrafo), '',
+            Paragraph(f"{evaluacion.cp_carcasa_liquido if evaluacion.cp_carcasa_liquido else ''}", centrar_parrafo), '',
+        ],
+        [
+            f'Flujo Másico Total ({evaluacion.unidad_flujo})', '',
+            Paragraph(f"{evaluacion.flujo_masico_ex}", centrar_parrafo), '',
+            Paragraph(f"{evaluacion.flujo_masico_in}", centrar_parrafo), ''
+        ],
+    ]
+    estilo = TableStyle(
+        [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
 
-        story.append(table)
-        story.append(Spacer(0,7))
-        
-    story.append(Paragraph("Datos de Diseño del Intercambiador", centrar_parrafo))
+            ('SPAN', (0, 0), (1, 1)),
+            ('SPAN', (2, 0), (3, 0)),
+            ('SPAN', (4, 0), (5, 0)),
 
-    diseno = propiedades.calcular_diseno()
+            ('SPAN', (0, 1), (1, 1)),
+            ('SPAN', (0, 2), (1, 2)),
+            ('SPAN', (0, 3), (1, 3)),
+            ('SPAN', (0, 4), (1, 4)),
+            ('SPAN', (0, 5), (1, 5)),
+            ('SPAN', (0, 6), (1, 6)),
+
+            ('SPAN', (2, 6), (3, 6)),
+            ('SPAN', (4, 6), (5, 6)),
+
+            ('SPAN', (2, 5), (3, 5)),
+            ('SPAN', (4, 5), (5, 5)),
+
+            ('SPAN', (2, 4), (3, 4)),
+            ('SPAN', (4, 4), (5, 4)),
+
+            ('SPAN', (2, 6), (3, 6)),
+            ('SPAN', (4, 6), (5, 6)),
+
+            ('SPAN', (2, 2), (3, 2)),
+            ('SPAN', (4, 2), (5, 2)),
+
+            ('BACKGROUND', (2, 0), (-1, 1), sombreado),
+            ('BACKGROUND', (0, 2), (0, -1), sombreado),
+        ]
+    )
+
+    table = Table(table, colWidths=(1.97*inch,0.01*inch, 1.03*inch, 1.03*inch, 1.03*inch, 1.03*inch))
+    table.setStyle(estilo)
+    story.append(table)
+
+    # Segunda Tabla: Resultados de la Evaluación
+    story.append(Spacer(0,10))
+    story.append(Paragraph("Resultados de la Evaluación", ParagraphStyle('', alignment=1)))
+    table = [
+            [
+                Paragraph(f"LMTD ({condicion_carcasa.temperaturas_unidad})", centrar_parrafo), 
+                Paragraph(f"{evaluacion.lmtd}", centrar_parrafo), 
+                Paragraph(f"Área Transf. ({propiedades.area_unidad})", centrar_parrafo), 
+                Paragraph(f"{evaluacion.area_transferencia}", centrar_parrafo)
+            ],
+            [
+                Paragraph(f"Eficiencia (%)", centrar_parrafo), 
+                Paragraph(f"{evaluacion.eficiencia}", centrar_parrafo), 
+                Paragraph("Efectividad (%)", centrar_parrafo), 
+                Paragraph(f"{evaluacion.efectividad}", centrar_parrafo)
+            ],
+            [
+                Paragraph(f"U ({propiedades.u_unidad})", centrar_parrafo), 
+                Paragraph(f"{evaluacion.u}", centrar_parrafo), 
+                Paragraph(f"Q ({propiedades.q_unidad})", centrar_parrafo), 
+                Paragraph(f"{evaluacion.q}", centrar_parrafo), 
+            ],
+            [
+                Paragraph(f"NTU", centrar_parrafo), 
+                Paragraph(f"{evaluacion.ntu}", centrar_parrafo), 
+                Paragraph(f"Ensuciamiento ({propiedades.ensuciamiento_unidad})", centrar_parrafo), 
+                Paragraph(f"{evaluacion.ensuciamiento}", centrar_parrafo)
+            ],
+            [
+                Paragraph(f"C.Presión Tubo ({evaluacion.unidad_presion})", centrar_parrafo), 
+                Paragraph(f"{evaluacion.caida_presion_in}", centrar_parrafo)      ,      
+                Paragraph(f"C.Presión Carcasa ({evaluacion.unidad_presion})", centrar_parrafo), 
+                Paragraph(f"{evaluacion.caida_presion_ex}", centrar_parrafo)
+            ],
+            [
+                Paragraph(f"Núm. Tubos", centrar_parrafo), 
+                Paragraph(f"{evaluacion.numero_tubos}", centrar_parrafo), 
+            ]
+        ]
+    estilo = TableStyle(
+        [
+            ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('BACKGROUND', (0, 0), (0, -1), sombreado),
+            ('BACKGROUND', (2, 0), (2, -2), sombreado),
+            ('SPAN',(1,-1),(-1,-1)),
+        ]
+    )
+    
+    table = Table(table, hAlign=1)
+    table.setStyle(estilo)
+    story.append(table)
+
+    # Tercera Tabla: Parámetros de Diseño
+    story.append(Spacer(0,10))
+    story.append(Paragraph("Parámetros de Diseño del Intercambiador", ParagraphStyle('', alignment=1)))
+    diseno = propiedades.calcular_diseno
     table = [
         [
             Paragraph(f"LMTD ({condicion_carcasa.temperaturas_unidad})", centrar_parrafo), 
@@ -225,19 +350,60 @@ def reporte_evaluacion(request, object_list):
         ]
     ]
     
-    estilo = TableStyle(
-        [
-            ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('BACKGROUND', (0, 0), (0, -1), sombreado),
-            ('BACKGROUND', (2, 0), (2, -2), sombreado),
-            ('SPAN',(1,-1),(-1,-1)),
-        ]
-    )
-            
     table = Table(table, hAlign=1)
     table.setStyle(estilo)
     story.append(table)
+
+    grafica1 = BytesIO()
+    fig, ax = plt.subplots(nrows=1, ncols=1)
+    ax.plot(['Entrada', 'Salida'], [[float(evaluacion.temp_ex_entrada), float(evaluacion.temp_in_entrada)], [float(evaluacion.temp_ex_salida), float(evaluacion.temp_in_salida)]])
+    ax.set_ylabel("Temperatura")
+    ax.set_title(f"Temperaturas ({evaluacion.temperaturas_unidad})")   
+    fig.savefig(grafica1, format='jpeg')
+    plt.close(fig)
+
+    story.append(Spacer(0,7))
+    story.append(Image(grafica1, width=5*inch, height=3*inch))
+
+    return [story, [grafica1]]
+
+def reporte_evaluacion(request, object_list):
+    story = []
+    story.append(Spacer(0,60))
+
+    intercambiador = object_list[0].intercambiador
+    propiedades = intercambiador.intercambiador()
+    condicion_carcasa = propiedades.condicion_carcasa() if intercambiador.tipo.pk == 1 else propiedades.condicion_externo()
+
+    if(len(request.GET) >= 2 and (request.GET['desde'] or request.GET['hasta'] or request.GET['usuario'] or request.GET['nombre'])):
+        story.append(Paragraph("Datos de Filtrado", centrar_parrafo))
+        table = [[Paragraph("Desde", centrar_parrafo), Paragraph("Hasta", centrar_parrafo), Paragraph("Usuario", centrar_parrafo), Paragraph("Nombre Ev.", centrar_parrafo)]]
+        table.append([
+            Paragraph(request.GET.get('desde'), parrafo_tabla),
+            Paragraph(request.GET.get('hasta'), parrafo_tabla),
+            Paragraph(request.GET.get('usuario'), parrafo_tabla),
+            Paragraph(request.GET.get('nombre'), parrafo_tabla),
+        ])
+
+        table = Table(table)
+        table.setStyle(basicTableStyle)
+
+        story.append(table)
+        story.append(Spacer(0,7))
+        
+    table = [
+        [
+            Paragraph(f"Fecha", centrar_parrafo),
+            Paragraph(f"Área ({propiedades.area_unidad})", centrar_parrafo), 
+            Paragraph(f"Efic. (%)", centrar_parrafo),
+            Paragraph("Efect. (%)", centrar_parrafo),
+            Paragraph(f"U ({propiedades.u_unidad})", centrar_parrafo),
+            Paragraph(f"NTU", centrar_parrafo),
+            Paragraph(f"Ens. ({propiedades.ensuciamiento_unidad})", centrar_parrafo), 
+            Paragraph(f"C.P. Tubo ({condicion_carcasa.unidad_presion})", centrar_parrafo), 
+            Paragraph(f"C.P. Carcasa ({condicion_carcasa.unidad_presion})", centrar_parrafo)
+        ]
+    ]
 
     eficiencias = []
     efectividades = []
@@ -247,58 +413,32 @@ def reporte_evaluacion(request, object_list):
     ensuciamientos = []
     fechas = []
 
+    object_list = object_list.order_by('fecha')
+
     for x in object_list:
-        story.append(Spacer(0,26))
-        story.append(Paragraph(f"Evaluación '{x.nombre}', {x.fecha.strftime('%d/%m/%Y a las %H:%M:%S')}, usuario {x.creado_por}", centrar_parrafo))
+        area = float(x.area_transferencia)
+        eficiencia = float(x.eficiencia)
+        efectividad = float(x.efectividad)
+        ntu = float(x.ntu)
+        u = float(x.u)
+        caida_tubo, caida_carcasa = transformar_unidades_presion([x.caida_presion_in, x.caida_presion_ex], x.unidad_presion.pk, condicion_carcasa.unidad_presion.pk)
+        ensuciamiento = float(x.ensuciamiento)
+        fecha = x.fecha.strftime('%d/%m/%Y %H:%M')
 
-        eficiencias.append(float(x.eficiencia))
-        efectividades.append(float(x.efectividad))
-        us.append(float(x.u))
-        caidas_tubo.append(float(x.caida_presion_in))
-        caidas_carcasa.append(float(x.caida_presion_ex))
-        ensuciamientos.append(float(x.ensuciamiento))
-        fechas.append(x.fecha.strftime('%d/%m/%Y %H:%M'))
+        eficiencias.append(eficiencia)
+        efectividades.append(efectividad)
+        us.append(u)
+        caidas_tubo.append(caida_tubo)
+        caidas_carcasa.append(caida_carcasa)
+        ensuciamientos.append(ensuciamiento)
+        fechas.append(fecha)
             
-        table = [
-            [
-                Paragraph(f"LMTD ({condicion_carcasa.temperaturas_unidad})", centrar_parrafo), 
-                Paragraph(f"{x.lmtd}", centrar_parrafo), 
-                Paragraph(f"Área Transf. ({propiedades.area_unidad})", centrar_parrafo), 
-                Paragraph(f"{x.area_transferencia}", centrar_parrafo)
-            ],
-            [
-                Paragraph(f"Eficiencia (%)", centrar_parrafo), 
-                Paragraph(f"{x.eficiencia}", centrar_parrafo), 
-                Paragraph("Efectividad (%)", centrar_parrafo), 
-                Paragraph(f"{x.efectividad}", centrar_parrafo)
-            ],
-            [
-                Paragraph(f"U ({propiedades.u_unidad})", centrar_parrafo), 
-                Paragraph(f"{x.u}", centrar_parrafo), 
-                Paragraph(f"Q ({propiedades.q_unidad})", centrar_parrafo), 
-                Paragraph(f"{x.q}", centrar_parrafo), 
-            ],
-            [
-                Paragraph(f"NTU", centrar_parrafo), 
-                Paragraph(f"{x.ntu}", centrar_parrafo), 
-                Paragraph(f"Ensuciamiento ({propiedades.ensuciamiento_unidad})", centrar_parrafo), 
-                Paragraph(f"{x.ensuciamiento}", centrar_parrafo)
-            ],
-            [
-                Paragraph(f"C.Presión Máx. Tubo ({condicion_carcasa.unidad_presion})", centrar_parrafo), 
-                Paragraph(f"{x.caida_presion_in}", centrar_parrafo)      ,      
-                Paragraph(f"C.Presión Máx. Carcasa ({condicion_carcasa.unidad_presion})", centrar_parrafo), 
-                Paragraph(f"{x.caida_presion_ex}", centrar_parrafo)
-            ],
-            [
-                Paragraph(f"Núm. Tubos", centrar_parrafo), 
-                Paragraph(f"{x.numero_tubos}", centrar_parrafo), 
-            ]
-        ]
-
-        table = Table(table, hAlign=1)
-        table.setStyle(estilo)
-        story.append(table)
+        table.append([Paragraph(fecha, centrar_parrafo), Paragraph(str(area), centrar_parrafo), Paragraph(str(eficiencia), centrar_parrafo), Paragraph(str(efectividad), centrar_parrafo), Paragraph(str(u), centrar_parrafo), 
+                      Paragraph(str(ntu), centrar_parrafo), Paragraph(str(ensuciamiento), centrar_parrafo), Paragraph(str(caida_tubo), centrar_parrafo), Paragraph(str(caida_carcasa), centrar_parrafo)])
+        
+    table = Table(table)
+    table.setStyle(basicTableStyle)
+    story.append(table)
 
     grafica1 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)
@@ -310,7 +450,7 @@ def reporte_evaluacion(request, object_list):
     plt.close(fig)
 
     story.append(Spacer(0,7))
-    story.append(Image(grafica1, width=5*inch, height=3*inch))
+    story.append(Image(grafica1, width=5*inch, height=2.5*inch))
 
     grafica2 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)
@@ -322,7 +462,7 @@ def reporte_evaluacion(request, object_list):
     plt.close(fig)
 
     story.append(Spacer(0,7))
-    story.append(Image(grafica2, width=5*inch, height=3*inch))
+    story.append(Image(grafica2, width=5*inch, height=2.5*inch))
 
     grafica3 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)
@@ -334,7 +474,7 @@ def reporte_evaluacion(request, object_list):
     plt.close(fig)
 
     story.append(Spacer(0,7))
-    story.append(Image(grafica3, width=5*inch, height=3*inch))
+    story.append(Image(grafica3, width=5*inch, height=2.5*inch))
 
     grafica4 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)    
@@ -346,7 +486,7 @@ def reporte_evaluacion(request, object_list):
     plt.close(fig)
 
     story.append(Spacer(0,7))
-    story.append(Image(grafica4, width=5*inch, height=3*inch))
+    story.append(Image(grafica4, width=5*inch, height=2.5*inch))
 
     grafica5 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)    
@@ -358,7 +498,7 @@ def reporte_evaluacion(request, object_list):
     plt.close(fig)
 
     story.append(Spacer(0,7))
-    story.append(Image(grafica5, width=5*inch, height=3*inch))
+    story.append(Image(grafica5, width=5*inch, height=2.5*inch))
 
     grafica6 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)    
@@ -370,7 +510,7 @@ def reporte_evaluacion(request, object_list):
     plt.close(fig)
 
     story.append(Spacer(0,7))
-    story.append(Image(grafica6, width=5*inch, height=3*inch))
+    story.append(Image(grafica6, width=5*inch, height=2.5*inch))
 
     return [story, [grafica1, grafica2, grafica3, grafica4, grafica5, grafica6]]
 
@@ -378,7 +518,7 @@ def intercambiadores_tubo_carcasa(request, object_list):
     story = []
     story.append(Spacer(0,60))
 
-    if(len(request.GET)):
+    if(len(request.GET) >= 2 and (request.GET['tag'] or request.GET['servicio'] or request.GET.get('planta') or request.GET.get('complejo'))):
         story.append(Paragraph("Datos de Filtrado", centrar_parrafo))
         table = [[Paragraph("Tag", centrar_parrafo), Paragraph("Servicio", centrar_parrafo), Paragraph("Planta", centrar_parrafo), Paragraph("Complejo", centrar_parrafo)]]
         table.append([
@@ -394,16 +534,17 @@ def intercambiadores_tubo_carcasa(request, object_list):
         story.append(table)
         story.append(Spacer(0,7))
 
-    table = [[Paragraph("#", centrar_parrafo), Paragraph("Tag", centrar_parrafo), Paragraph("Servicio", centrar_parrafo), Paragraph("Planta", centrar_parrafo)]]
+    table = [[Paragraph("#", centrar_parrafo), Paragraph("Tag", centrar_parrafo), Paragraph("Servicio", centrar_parrafo), Paragraph("Criticidad", centrar_parrafo), Paragraph("Planta", centrar_parrafo)]]
     for n,x in enumerate(object_list):
         table.append([
             Paragraph(str(n+1), numero_tabla),
             Paragraph(x.intercambiador.tag, parrafo_tabla),
             Paragraph(x.intercambiador.servicio, parrafo_tabla),
+            Paragraph(x.criticidad_larga(), parrafo_tabla),
             Paragraph(x.intercambiador.planta.nombre, parrafo_tabla)
         ])
         
-    table = Table(table, colWidths=[0.5*inch, 2*inch, 3.2*inch, 1.5*inch])
+    table = Table(table, colWidths=[0.5*inch, 1*inch, 3.2*inch, 1*inch, 1.5*inch])
     table.setStyle(basicTableStyle)
     story.append(table)
     return [story, None]
@@ -502,13 +643,13 @@ def ficha_tecnica_tubo_carcasa(request, object_list):
         ],
         [
             f'Cap. Calorífica Vap. ({condicion_carcasa.unidad_cp})', '',
-            Paragraph(f"{condicion_carcasa.fluido_cp_liquido if condicion_carcasa.fluido_cp_liquido else ''}", centrar_parrafo), '',
-            Paragraph(f"{condicion_tubo.fluido_cp_liquido if condicion_tubo.fluido_cp_liquido else ''}", centrar_parrafo), '',
+            Paragraph(f"{condicion_carcasa.fluido_cp_gas if condicion_carcasa.fluido_cp_gas else ''}", centrar_parrafo), '',
+            Paragraph(f"{condicion_tubo.fluido_cp_gas if condicion_tubo.fluido_cp_gas else ''}", centrar_parrafo), '',
         ],
         [
             f'Cap. Calorífica Líq. ({condicion_carcasa.unidad_cp})', '',
-            Paragraph(f"{condicion_carcasa.fluido_cp_gas if condicion_carcasa.fluido_cp_gas else ''}", centrar_parrafo), '',
-            Paragraph(f"{condicion_tubo.fluido_cp_gas if condicion_tubo.fluido_cp_gas else ''}", centrar_parrafo), '',
+            Paragraph(f"{condicion_carcasa.fluido_cp_liquido if condicion_carcasa.fluido_cp_liquido else ''}", centrar_parrafo), '',
+            Paragraph(f"{condicion_tubo.fluido_cp_liquido if condicion_tubo.fluido_cp_liquido else ''}", centrar_parrafo), '',
         ],
         [
             f'Temp. Saturación ({condicion_carcasa.temperaturas_unidad})', '',
@@ -798,13 +939,13 @@ def ficha_tecnica_doble_tubo(request, object_list):
         ],
         [
             f'Cap. Calorífica Vap. ({condicion_carcasa.unidad_cp})', '',
-            Paragraph(f"{condicion_carcasa.fluido_cp_liquido if condicion_carcasa.fluido_cp_liquido else ''}", centrar_parrafo), '',
-            Paragraph(f"{condicion_tubo.fluido_cp_liquido if condicion_tubo.fluido_cp_liquido else ''}", centrar_parrafo), '',
+            Paragraph(f"{condicion_carcasa.fluido_cp_gas if condicion_carcasa.fluido_cp_gas else ''}", centrar_parrafo), '',
+            Paragraph(f"{condicion_tubo.fluido_cp_gas if condicion_tubo.fluido_cp_gas else ''}", centrar_parrafo), '',
         ],
         [
             f'Cap. Calorífica Líq. ({condicion_carcasa.unidad_cp})', '',
-            Paragraph(f"{condicion_carcasa.fluido_cp_gas if condicion_carcasa.fluido_cp_gas else ''}", centrar_parrafo), '',
-            Paragraph(f"{condicion_tubo.fluido_cp_gas if condicion_tubo.fluido_cp_gas else ''}", centrar_parrafo), '',
+            Paragraph(f"{condicion_carcasa.fluido_cp_liquido if condicion_carcasa.fluido_cp_liquido else ''}", centrar_parrafo), '',
+            Paragraph(f"{condicion_tubo.fluido_cp_liquido if condicion_tubo.fluido_cp_liquido else ''}", centrar_parrafo), '',
         ],
         [
             f'Temp. Saturación ({condicion_carcasa.temperaturas_unidad})', '',

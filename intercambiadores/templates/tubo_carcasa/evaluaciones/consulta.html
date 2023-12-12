@@ -54,6 +54,12 @@
     <th scope="col">Resultados</th>
   </tr>
 </thead>
+{% with diseno=intercambiador.calcular_diseno %}
+{% if object_list.count and not diseno %}
+<script>
+  alert("No se han podido obtener los datos de diseño para comparación. Comprobar datos de diseño en ficha.");
+</script>
+{% endif %}
 <tbody class="text-center">
   {% if object_list.count %}
   {% include 'tablas/intercambiadores/evaluaciones.html' %}
@@ -61,6 +67,7 @@
   <td colspan="7">No se encontraron evaluaciones con los datos de filtrado proporcionados.</td>
   {% endif %}
 </tbody>
+{% endwith %}
 {% endblock %}
 
 {% block opciones %}
@@ -112,10 +119,4 @@
     $('#filtrado').submit();
   });
 </script>
-
-{% if object_list.count and not diseno %}
-<script>
-  alert("No se han podido obtener los datos de diseño para comparación. Comprobar datos de diseño en ficha.");
-</script>
-{% endif %}
 {% endblock %}
