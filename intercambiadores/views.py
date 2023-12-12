@@ -2046,7 +2046,8 @@ class ConsultaGraficasEvaluacion(LoginRequiredMixin, View):
     """
 
     def get(self, request, pk):
-        evaluaciones = EvaluacionesIntercambiador.objects.filter(intercambiador__pk = pk, visible=True).order_by('fecha')
+        intercambiador = Intercambiador.objects.get(pk=pk)
+        evaluaciones = EvaluacionesIntercambiador.objects.filter(intercambiador = intercambiador, visible=True).order_by('fecha')
         
         if(request.GET.get('desde')):
             evaluaciones = evaluaciones.filter(fecha__gte = request.GET.get('desde'))
@@ -2054,9 +2055,14 @@ class ConsultaGraficasEvaluacion(LoginRequiredMixin, View):
         if(request.GET.get('hasta')):
             evaluaciones = evaluaciones.filter(fecha__lte = request.GET.get('hasta'))
         
-        print(evaluaciones)
+        evaluaciones = evaluaciones.values('fecha','efectividad', 'u', 'ensuciamiento','eficiencia', 'caida_presion_in', 'caida_presion_ex', 'unidad_presion')
+        unidad_presion = intercambiador.intercambiador().condicion_carcasa().unidad_presion if intercambiador.tipo.pk == 1 else intercambiador.intercambiador().condicion_externo().unidad_presion
 
-        return JsonResponse(list(evaluaciones.values('fecha','efectividad', 'u', 'ensuciamiento','eficiencia', 'caida_presion_in', 'caida_presion_ex'))[:15], safe=False)
+        for i,x in enumerate(evaluaciones):
+            evaluaciones[i]['caida_presion_in'] = transformar_unidades_presion([x['caida_presion_in']], x['unidad_presion'], unidad_presion.pk)[0]
+            evaluaciones[i]['caida_presion_ex'] = transformar_unidades_presion([x['caida_presion_ex']], x['unidad_presion'], unidad_presion.pk)[0]
+
+        return JsonResponse(list(evaluaciones)[:15], safe=False)
 
 class ValidarCambioDeFaseExistente(LoginRequiredMixin, ValidacionCambioDeFaseMixin, View):
     def get(self, request):
