@@ -227,16 +227,16 @@ def ficha_tecnica_tubo_carcasa_xlsx(intercambiador, request):
     worksheet.write(f'AN{num}', f'{propiedades.numero_pasos_tubo}', bordered)
     worksheet.write(f'AO{num}', f'{propiedades.q}', bordered)
     worksheet.write(f'AP{num}', f'{propiedades.u}', bordered)
-    worksheet.write(f'AQ{num}', f'{propiedades.ensuciamiento})', bordered)
-    worksheet.write(f'AR{num}', f'{propiedades.area})', bordered)
-    worksheet.write(f'AS{num}', f'{propiedades.arreglo_serie})', bordered)
-    worksheet.write(f'AT{num}', f'{propiedades.arreglo_paralelo})', bordered)
-    worksheet.write(f'AU{num}', f'{propiedades.numero_tubos})', bordered)
-    worksheet.write(f'AV{num}', f'{propiedades.longitud_tubos})', bordered)
-    worksheet.write(f'AW{num}', f'{propiedades.diametro_externo_tubos})', bordered)
-    worksheet.write(f'AX{num}', f'{propiedades.diametro_interno_carcasa})', bordered)
-    worksheet.write(f'AY{num}', f'{propiedades.pitch_tubos})', bordered)
-    worksheet.write(f'AZ{num}', f'{propiedades.tipo_tubo})', bordered)
+    worksheet.write(f'AQ{num}', f'{propiedades.ensuciamiento}', bordered)
+    worksheet.write(f'AR{num}', f'{propiedades.area}', bordered)
+    worksheet.write(f'AS{num}', f'{propiedades.arreglo_serie}', bordered)
+    worksheet.write(f'AT{num}', f'{propiedades.arreglo_paralelo}', bordered)
+    worksheet.write(f'AU{num}', f'{propiedades.numero_tubos}', bordered)
+    worksheet.write(f'AV{num}', f'{propiedades.longitud_tubos}', bordered)
+    worksheet.write(f'AW{num}', f'{propiedades.diametro_externo_tubos}', bordered)
+    worksheet.write(f'AX{num}', f'{propiedades.diametro_interno_carcasa}', bordered)
+    worksheet.write(f'AY{num}', f'{propiedades.pitch_tubos}', bordered)
+    worksheet.write(f'AZ{num}', f'{propiedades.tipo_tubo}', bordered)
     worksheet.write(f'BA{num}', f'{propiedades.material_carcasa}', bordered)
     worksheet.write(f'BB{num}', f'{propiedades.material_tubo}', bordered)
     worksheet.write(f'BC{num}', f'{propiedades.criticidad_larga()}', bordered)
@@ -248,7 +248,6 @@ def ficha_tecnica_tubo_carcasa_xlsx(intercambiador, request):
     response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
     
     return response
-
 
 def reporte_tubo_carcasa(object_list, request):
     excel_io = BytesIO()
