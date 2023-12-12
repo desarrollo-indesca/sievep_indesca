@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from calculos.evaluaciones import evaluacion_tubo_carcasa, evaluacion_doble_tubo
 from django.utils.functional import cached_property
+import os.path
+from simulaciones_pequiven.settings import BASE_DIR
 
 # Tipos Estáticos
 
@@ -138,6 +140,9 @@ class Intercambiador(models.Model):
         for flujo in arreglos_flujo:
             if(flujo[0] == self.arreglo_flujo):
                 return flujo[1]
+            
+    def obtener_imagen(self):
+        return os.path.isfile(BASE_DIR.__str__() + f'\\static\\img\\temas\\intercambiadores\\tubo_carcasa\\{self.tema.codigo}.jpg')
 
     class Meta:
         db_table = "intercambiador"
