@@ -448,6 +448,7 @@ def reporte_tubo_carcasa(object_list, request):
     worksheet.write(f'C{num}', 'Planta', bold_bordered)
     worksheet.write(f'D{num}', 'Complejo', bold_bordered)
     worksheet.write(f'E{num}', 'Servicio', bold_bordered)
+    worksheet.write(f'F{num}', 'Criticidad', bold_bordered)
 
     for i,intercambiador in enumerate(object_list):
         num += 1
@@ -456,6 +457,7 @@ def reporte_tubo_carcasa(object_list, request):
         worksheet.write(f'C{num}', intercambiador.intercambiador.planta.nombre, center_bordered)
         worksheet.write(f'D{num}', intercambiador.intercambiador.planta.complejo.nombre, center_bordered)
         worksheet.write(f'E{num}', intercambiador.intercambiador.servicio, bordered)
+        worksheet.write(f'F{num}', intercambiador.criticidad_larga(), bordered)
     
     worksheet.write(f"E{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
     worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)

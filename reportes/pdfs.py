@@ -534,16 +534,17 @@ def intercambiadores_tubo_carcasa(request, object_list):
         story.append(table)
         story.append(Spacer(0,7))
 
-    table = [[Paragraph("#", centrar_parrafo), Paragraph("Tag", centrar_parrafo), Paragraph("Servicio", centrar_parrafo), Paragraph("Planta", centrar_parrafo)]]
+    table = [[Paragraph("#", centrar_parrafo), Paragraph("Tag", centrar_parrafo), Paragraph("Servicio", centrar_parrafo), Paragraph("Criticidad", centrar_parrafo), Paragraph("Planta", centrar_parrafo)]]
     for n,x in enumerate(object_list):
         table.append([
             Paragraph(str(n+1), numero_tabla),
             Paragraph(x.intercambiador.tag, parrafo_tabla),
             Paragraph(x.intercambiador.servicio, parrafo_tabla),
+            Paragraph(x.criticidad_larga(), parrafo_tabla),
             Paragraph(x.intercambiador.planta.nombre, parrafo_tabla)
         ])
         
-    table = Table(table, colWidths=[0.5*inch, 2*inch, 3.2*inch, 1.5*inch])
+    table = Table(table, colWidths=[0.5*inch, 1*inch, 3.2*inch, 1*inch, 1.5*inch])
     table.setStyle(basicTableStyle)
     story.append(table)
     return [story, None]
