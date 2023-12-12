@@ -5,8 +5,7 @@ from django.utils.functional import cached_property
 import os.path
 from simulaciones_pequiven.settings import BASE_DIR
 
-# Tipos Estáticos
-
+# Tipos (Enum) Estáticos
 criticidades = [
     ('C', 'Crítico'),
     ('S', 'Semi Crítico'),
@@ -48,8 +47,22 @@ arreglos_flujo = [
     ('m', 'Sin Mezclar')
 ]
 
+# Para mayor referencia mirar el diagrama ER del informe de Diciembre 2023
+
 # Modelos para Filtrado
 class Complejo(models.Model):
+    '''
+    Resumen:
+        Modelo para almacenar el Complejo donde se encuentra una planta.
+
+    Atributos:
+        (a efectos de documentación se trabaja con tipos primitivos a menos de ser necesario indicar lo contrario)
+        id: int -> PK del modelo
+        nombre: str -> Nombre del Complejo. Máx. 50 caracteres.
+    
+    Meta:
+        En la BDD (en MySQL) se utiliza la tabla complejo para representar este modelo.
+    '''
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=50)
 
@@ -60,6 +73,19 @@ class Complejo(models.Model):
         db_table = "complejo"
 
 class Planta(models.Model):
+    '''
+    Resumen:
+        Modelo para almacenar una planta en donde se encuentra un equipo.
+
+    Atributos:
+        (a efectos de documentación se trabaja con tipos primitivos a menos de ser necesario indicar lo contrario)
+        id: int -> PK del modelo
+        nombre: str -> Nombre de la Planta. Máx. 50 caracteres y debe ser único.
+        complejo: models.ForeignKey -> Llave foránea que referencia al complejo donde se encuentra la planta.
+    
+    Meta:
+        En la BDD (en MySQL) se utiliza la tabla planta para representar este modelo.
+    '''
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=50, unique=True)
     complejo = models.ForeignKey(Complejo, on_delete=models.DO_NOTHING)
@@ -72,6 +98,16 @@ class Planta(models.Model):
 
 # Modelo de Unidades
 class Unidades(models.Model):
+    '''
+        Resumen:
+            Modelo que contiene las unidades de alguna propiedad de un equipo.
+
+        Atributos:
+            (a efectos de documentación se trabaja con tipos primitivos a menos de ser necesario indicar lo contrario)
+            id: int -> PK del modelo
+            simbolo: str -> Nombre de la Planta. Máx. 10 caracteres. Puede repetirse siempre y cuando el tipo sea distinto.
+            tipo: str -> Tipo de magnitud que mide la unidad. Ejemplo: Para metro, 'l' de longitud sería el tipo.
+    '''
     id = models.AutoField(primary_key=True)
     simbolo = models.CharField(max_length=10)
     tipo = models.CharField(max_length=1)
@@ -84,6 +120,16 @@ class Unidades(models.Model):
 
 # Modelo de Fluido para Equipos
 class Fluido(models.Model):
+    '''
+        Resumen:
+            Modelo que contiene los datos de un fluido que pasa por un equipo. Únicamente para fluidos puros.
+
+        Atributos:
+            (a efectos de documentación se trabaja con tipos primitivos a menos de ser necesario indicar lo contraio)
+            id: int -> PK del modelo
+            nombre: str -> Nombre del fluido almacenado.
+            cas: str -> Código CAS (Chemical Abstracts Service) del fluido PURO
+    '''
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=40)
     cas = models.CharField(max_length=20)
@@ -96,6 +142,15 @@ class Fluido(models.Model):
         db_table = "fluido"
 
 class TipoIntercambiador(models.Model):
+    '''
+        Resumen:
+            Modelo que contiene los tipos de intercambiador de calor contemplados en SIEVEP.
+
+        Atributos:
+            (a efectos de documentación se trabaja con tipos primitivos a menos de ser necesario indicar lo contraio)
+            id: int -> PK del modelo
+            nombre: str -> Nombre del tipo de intercambiador almacenado
+    '''
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=50)
 
@@ -104,6 +159,17 @@ class TipoIntercambiador(models.Model):
 
 # Modelo de Tema de Equipo
 class Tema(models.Model):
+    '''
+        Resumen:
+            Modelo que contiene el código de los TEMAs de los intercambiadores así como el tipo para el cual se encuentran disponibles.
+
+        Atributos:
+            (a efectos de documentación se trabaja con tipos primitivos a menos de ser necesario indicar lo contraio)
+            id: int -> PK del modelo
+            codigo: str -> Código del tema
+            descripcion: str -> Descripción del tema
+            tipo_intercambiador: models.ForeignKey -> Tipo de intercambiador para el tema
+    '''
     id = models.AutoField(primary_key=True)
     codigo = models.CharField(max_length=50, unique=True)
     descripcion = models.TextField(null=True)
@@ -117,6 +183,10 @@ class Tema(models.Model):
 
 # Específicos de Intercambiadores Tubo y Carcasa
 class Intercambiador(models.Model):
+    '''
+    Resumen:
+        Modelo para la data general de intercambiadores de calor. 
+    '''
     id = models.AutoField(primary_key=True)
     tag = models.CharField(max_length=50, unique=True)
     tipo = models.ForeignKey(TipoIntercambiador, on_delete=models.DO_NOTHING)
@@ -148,6 +218,10 @@ class Intercambiador(models.Model):
         db_table = "intercambiador"
 
 class TiposDeTubo(models.Model):
+    '''
+        Resumen:
+            Modelo que contiene los posibles tipos de tubo que lleva un equipo.
+    '''
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=25)
 
@@ -158,6 +232,10 @@ class TiposDeTubo(models.Model):
         db_table = "tipos_de_tubo"
 
 class PropiedadesTuboCarcasa(models.Model):
+    '''
+        Resumen:
+            Modelo que contiene las propiedades específicas de un intercambiador tubo/carcasa.
+    '''
     id = models.AutoField(primary_key=True)
     intercambiador = models.OneToOneField(Intercambiador, related_name="datos_tubo_carcasa", on_delete=models.DO_NOTHING)
 
@@ -245,6 +323,10 @@ class PropiedadesTuboCarcasa(models.Model):
         ordering = ('intercambiador__tag',)
 
 class PropiedadesDobleTubo(models.Model):
+    '''
+        Resumen:
+            Modelo que contiene las propiedades específicas de un intercambiador doble tubo.
+    '''
     id = models.AutoField(primary_key=True)
     intercambiador = models.OneToOneField(Intercambiador, related_name="datos_dobletubo", on_delete=models.DO_NOTHING)
 
@@ -329,6 +411,10 @@ class PropiedadesDobleTubo(models.Model):
         ordering = ('intercambiador__tag',)
 
 class CondicionesIntercambiador(models.Model):
+    '''
+        Resumen:
+            Modelo que contiene las condiciones de UN lado del intercambiador.
+    '''
     intercambiador = models.ForeignKey(Intercambiador, on_delete=models.CASCADE, related_name="condiciones")
     lado = models.TextField(max_length=1, choices=(('T', 'Tubo'), ('C', 'Carcasa')))
     
@@ -369,6 +455,10 @@ class CondicionesIntercambiador(models.Model):
 
 # Modelo de Evaluaciones
 class EvaluacionesIntercambiador(models.Model):
+    '''
+        Resumen:
+            Modelo que contiene las evaluaciones realizadas a un intercambiador.
+    '''
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING)
     fecha = models.DateTimeField(auto_now=True)
     intercambiador = models.ForeignKey(Intercambiador, on_delete=models.CASCADE)
