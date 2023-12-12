@@ -20,17 +20,56 @@ class ObtencionParametrosMixin():
     Resumen:
         Mixin con funciones para la obtención de parámetros repetitivos de un intercambiador.
     '''
-    def obtencion_fluido(self, request, lado):
+    def obtencion_fluido(self, request, lado: str):
+        '''
+        Resumen:
+            Función para obtener el fluido de acuerdo a su id o CAS en caso de ser una corriente pura. Devolverá un string con el nombre y Cp base del compuesto si no es puro.
+
+        Parámetros:
+            request: Solicitud HTTP
+            lado: Lado del intercambiador (Tubo o Carcasa, Interno o Externo... Primera letra de la palabra)
+
+        Devuelve:
+            Any -> Devuelve un Fluido si se trata de una corriente pura. Devuelve str si es una corriente no registrada.
+        '''
         fluido = request.POST.get('fluido_' + lado)
         if(fluido.find('*') != -1):
             fluido = fluido.split('*')
             if(fluido[1].find('-') != -1):
-                fluido = Fluido.objects.get_or_create(nombre = fluido[0].upper(), cas = fluido[1])
+                if(Fluido.objects.filter(cas = fluido[1]).exists()):
+                    fluido = Fluido.objects.get(cas = fluido[1])
+                else:
+                    fluido = Fluido.objects.create(nombre = fluido[0].upper(), cas = fluido[1])
         elif fluido != '':
             fluido = Fluido.objects.get(pk=fluido)
         return fluido
 
     def obtencion_parametros(self, calor, t1, t2, cambio_fase, tipo_cp, flujo_vapor_in, flujo_liquido_in, flujo_vapor_out, flujo_liquido_out, presion, fluido, q_unidad, unidad_cp, request, lado = 'tubo'):
+        '''
+        Resumen:
+            Función para obtener los parámetros de Cp de vapor (J/KgK), Cp de líquido (J/KgK), Temperatura de Saturación (K), y Hvap (J/Kg).
+
+        Parámetros:
+            calor: Calor (unidades especificadas luego)
+            t1: Temperatura de entrada (K)
+            t2: Temperatura de salida (K)
+            cambio_fase: Caso de cambio de fase (S,P,T)
+            tipo_cp: Tipo de cálculo de Cp (M manual, A automático)
+            flujo_vapor_in: Flujo de Vapor de entrada (Kg/s)
+            flujo_liquido_in: Flujo de Líquido de entrada (Kg/s)
+            flujo_vapor_out: Flujo de Vapor de salida (Kg/s)
+            flujo_liquido_out: Flujo de Líquido de salida (Kg/s)
+            presion: Presión de entrada (Pa)
+            fluido: Fluido del lado del intercambiador
+            q_unidad: ID de la unidad del calor
+            unidad_cp: ID de la unidad de la capacidad calorífica calculada
+            request: Solicitud HTTP
+            lado: str -> Lado del intercambiador
+
+        Devuelve:
+            Tuple -> Devuelve un Fluido si se trata de una corriente pura. Devuelve str si es una corriente no registrada.
+        '''
+
         if(tipo_cp == 'A'):
             cp_liquido,cp_gas = self.obtener_cps(t1,t2,presion,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in,flujo_vapor_out,fluido.cas,cambio_fase,unidad_cp)
             tsat,hvap = None,None
@@ -46,8 +85,7 @@ class ObtencionParametrosMixin():
 
         if((cambio_fase == 'T' or cambio_fase == 'P') and tipo_cp == 'M' and type(fluido) != Fluido):
             tsatt = transformar_unidades_temperatura([tsat], int(request.POST.get('unidad_temperaturas')))[0] if t1 != t2 else tsat
-            flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out],
-                int(request.POST.get('unidad_flujos')))
+            flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out],int(request.POST.get('unidad_flujos')))
             cp_gas,cp_liquido = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp, 29)
             calor = transformar_unidades_calor([calor],q_unidad)[0]
 
@@ -58,9 +96,28 @@ class ObtencionParametrosMixin():
         else:
             tsat,hvap = None,None
 
-        return cp_gas, cp_liquido, tsat, hvap
+        return (cp_gas, cp_liquido, tsat, hvap)
 
-    def obtener_cps(self, t1, t2, presion, flujo_liquido_in, flujo_liquido_out, flujo_vapor_in, flujo_vapor_out, fluido, cambio_fase, unidad_cp):                                   
+    def obtener_cps(self, t1, t2, presion, flujo_liquido_in, flujo_liquido_out, flujo_vapor_in, flujo_vapor_out, fluido, cambio_fase, unidad_cp):
+        '''
+        Resumen:
+            Función para obtención del Cp según el caso de cambio de fase
+
+        Parámetros:
+            t1: float -> Temperatura inicial (K)
+            t2: float -> Temperatura final (K)
+            presion: float -> Presión para el calculo del cp (Pa)
+            flujo_liquido_in: float -> Flujo Líquido de Entrada (Kg/s)
+            flujo_liquido_out: float -> Flujo Líquido de Salida (Kg/s)
+            flujo_vapor_in: float -> Flujo Vapor de Entrada (Kg/s)
+            flujo_vapor_out: float -> Flujo Vapor de Salida (Kg/s)
+            fluido: str -> CAS del fluido
+            cambio_fase: str -> Caso del cambio de fase para efectos de eficiencia
+            unidad_cp: int -> ID de la unidad de Cp de salida
+
+        Devuelve:
+            tuple -> (cp líquido, cp de vapor)
+        '''
         cp_gas = None
         cp_liquido = None
         if(cambio_fase == 'S'): # Sin Cambio de Fase
@@ -95,7 +152,7 @@ class ObtencionParametrosMixin():
                 cp_liquido = calcular_cp(fluido, tsat, t2, unidad_cp, presion, 'l')
                 cp_gas = calcular_cp(fluido, t1, tsat, unidad_cp, presion, 'g')
         
-        return [cp_liquido,cp_gas]
+        return (cp_liquido,cp_gas)
 
     def obtener_hvap_tsat(self, t1, t2, cambio_fase, tsat, hvap, q, cp_gas, cp_liquido, flujo_vapor_in, flujo_liquido_in,
                         flujo_vapor_out, flujo_liquido_out):
@@ -161,6 +218,21 @@ class EdicionIntercambiadorMixin(ObtencionParametrosMixin):
         Mixin para la edición de las condiciones. Contiene una función para la edición de las condiciones de un intercambiador.
     '''
     def editar_condicion(self, calor, condicion, request, unidad_calor, fluido, lado):
+        '''
+        Resumen:
+            Función para la edición de un objeto CondicionesIntercambiador
+
+        Parámetros:
+            calor: float -> Calor
+            condicion: CondicionesIntercambiador -> Objeto a editar
+            request: Solicitud HTTP
+            unidad_calor: int -> ID de la unidad utilizada de calor
+            fluido: Fluido -> Objeto de tipo Fluido para la obtención de parámetros
+            lado: str -> Lado del intercambiador
+
+        Devuelve:
+            None -> Edita la condición sin devolver nada
+        '''
         t1,t2 = transformar_unidades_temperatura([float(request.POST['temp_in_' + lado]), float(request.POST['temp_out_' + lado])], int(request.POST['unidad_temperaturas']))
         presion = transformar_unidades_presion([float(request.POST['presion_entrada_' + lado])], int(request.POST['unidad_presiones']))[0]
         tipo_cp = request.POST.get('tipo_cp_' + lado)
@@ -204,6 +276,23 @@ class CreacionIntercambiadorMixin(ObtencionParametrosMixin):
     '''
     def almacenar_condicion(self, calor, intercambiador, request, unidad_calor, fluido, lado, codigo_lado):
         t1,t2 = transformar_unidades_temperatura([float(request.POST['temp_in_' + lado]), float(request.POST['temp_out_' + lado])], int(request.POST['unidad_temperaturas']))
+        '''
+        Resumen:
+            Función para la creación de un objeto CondicionesIntercambiador
+
+        Parámetros:
+            calor: float -> Calor
+            intercambiador: Intercambiador -> Intercambiador de la condición establecida
+            request: Solicitud HTTP
+            unidad_calor: int -> ID de la unidad utilizada de calor
+            fluido: Fluido -> Objeto de tipo Fluido para la obtención de parámetros
+            lado: str -> Lado del intercambiador
+            codigo_lado: str -> Forma resumida de referirse al lado del intercambiador
+
+        Devuelve:
+            CondicionesIntercambiador -> Devuelve la condición creada
+        '''
+
         presion = transformar_unidades_presion([float(request.POST['presion_entrada_' + lado])], int(request.POST['unidad_presiones']))[0]
         tipo_cp = request.POST.get('tipo_cp_' + lado)
         unidad_cp = int(request.POST['unidad_cp'])
@@ -245,12 +334,33 @@ class CreacionIntercambiadorMixin(ObtencionParametrosMixin):
         return condicion     
 
 class ValidacionCambioDeFaseMixin():
+    '''
+    Mixin para la generación de mensajes de advertencia
+    '''
     def generar_msj(self, cambio_fase, flujo_vapor_in, flujo_vapor_out, flujo_liquido_in, flujo_liquido_out, t1, t2, tsat, quimico) -> tuple:
+        '''
+        Resumen:
+            Función para la generación de mensajes de advertencia en las creaciones y ediciones de intercambiadores.
+
+        Parámetros:
+            cambio_fase: str -> Caso de cambio de fase del intercambiador
+            flujo_vapor_in: str -> Flujo de vapor de entrada
+            flujo_vapor_out: str -> Flujo de vapor de salida
+            flujo_liquido_in: str -> Flujo de líquido de entrada
+            flujo_liquido_out: str -> Flujo de líquido de salida
+            t1: float -> Temperatura de entrada (K)
+            t2: float -> Temperatura de salida (K)
+            tsat: float -> Temperatura de saturación (K)
+            quimico: Chemical -> Objeto químico con el cual se harán las comparaciones
+
+        Devuelve:
+            tuple -> codigo (200 o 400), mensaje generado, y el caso de cambio de fase parcial de presentarse
+        '''
         codigo = 200
         mensaje = ""
         caso = ''
 
-        if(cambio_fase == 'T'):
+        if(cambio_fase == 'T'): # Lógica de advertencias para el cambio de fase total
             if(flujo_vapor_in and quimico.phase != 'g'):
                 codigo = 400
                 mensaje += "- La temperatura de entrada con la presión dada no corresponde la fase de vapor de acuerdo a la base de datos.\n"
@@ -264,7 +374,7 @@ class ValidacionCambioDeFaseMixin():
             elif(flujo_vapor_out and flujo_liquido_in and t1 > tsat*1.05):
                 codigo = 400
                 mensaje += f"- De acuerdo a los flujos, usted colocó una vaporización. Sin embargo, la temperatura de saturación de la base de datos para este fluido a esa presión ({tsat}K) es MENOR por más de un 5% a la temperatura inicial.\n"
-        elif(cambio_fase == 'P'):
+        elif(cambio_fase == 'P'): # Lógica de advertencias para el cambio de fase parcial
             caso = determinar_cambio_parcial(flujo_vapor_in,flujo_vapor_out, flujo_liquido_in, flujo_liquido_out)
 
             if(caso == 'DD' and t1 != t2):
@@ -292,7 +402,7 @@ class ValidacionCambioDeFaseMixin():
             elif((caso == 'DL' or caso == 'DV') and (tsat*1.05 < t1 or tsat*0.95 > t1)):
                 codigo = 400
                 mensaje += f"- La temperatura de saturación del cambio de fase parcial presentado tiene un error mayor al 5% del calculado en la base de datos ({tsat}K).\n"    
-        elif(cambio_fase == 'S'):
+        elif(cambio_fase == 'S'): # Lógica de advertencias cuando no hay cambio de fase
             if(flujo_vapor_in and (t1 < tsat*0.95 or t2 < tsat*0.95)):
                 codigo = 400
                 mensaje += "- Aunque entra y sale vapor, las temperaturas son menores a la temperatura de saturación de la base de datos por más del 5%.\n"
@@ -1323,7 +1433,7 @@ class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, EdicionInterca
             if(len(errores)):
                 return self.redirigir_por_errores(request, errores)
 
-            try:            
+            try:
                 with transaction.atomic():
                     # Obtención de Fluidos
                     fluido_tubo = self.obtencion_fluido(request, 'tubo')
