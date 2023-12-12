@@ -11,7 +11,7 @@ from thermo.chemical import search_chemical, Chemical
 from calculos.termodinamicos import calcular_cp
 from calculos.evaluaciones import evaluacion_tubo_carcasa, obtener_cambio_fase, determinar_cambio_parcial, calcular_calor_scdf, calcular_calor_cdft, calcular_calor_cdfp, calcular_tsat_hvap
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import historico_evaluaciones, reporte_tubo_carcasa, ficha_tecnica_tubo_carcasa_xlsx
+from reportes.xlsx import historico_evaluaciones, reporte_tubo_carcasa, ficha_tecnica_tubo_carcasa_xlsx, ficha_tecnica_doble_tubo_xlsx
 from calculos.unidades import *
 
 # Mixin con Funciones para Intercambiadores
@@ -2074,3 +2074,7 @@ class FichaTecnicaDobleTubo(LoginRequiredMixin, View):
         intercambiador = Intercambiador.objects.get(pk=pk)
         if(request.GET['tipo'] == 'pdf'):
             return generar_pdf(request, intercambiador, f'Ficha Técnica del Intercambiador {intercambiador.tag}', 'ficha_tecnica_doble_tubo')
+        elif(request.GET['tipo'] == 'xlsx'):
+            response = ficha_tecnica_doble_tubo_xlsx(intercambiador, request)
+            response['Content-Disposition'] = f'attachment; filename="datos_ficha_tecnica_{intercambiador.tag}.xlsx"'
+            return response
