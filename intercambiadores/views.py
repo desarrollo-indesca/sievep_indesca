@@ -1,5 +1,5 @@
 from typing import Any
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib import messages
@@ -418,12 +418,23 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorM
     Resumen:
         Vista de Creación (Formulario) de un nuevo intercambiador de tubo/carcasa. 
         Requiere de un usuario autenticado para poder ser accedida.
+        Hereda del Mixin de Creación, heredando sus métodos y atributos.
 
     Atributos:
         context: dict
             Contexto inicial de la vista. Incluye el título.
+
+        template_name: str
+            Cadena de la plantilla a renderizar en la vista.
+
     
     Métodos:
+        validar(self, request) -> list
+            Método que contiene la lógica de validación de datos cuando se crea un intercambiador de tubo/carcasa.
+
+        redirigir_por_errores(self, request, errores)
+            Método que manipula el contexto para enviar la data a la plantilla correspondiente si el formulario enviado contiene errores.
+
         post(self, request)
             Función que contiene la lógica de almacenamiento en la BDD al realizar 
             una solicitud POST en la vista. Contiene además el manejo de errores
@@ -437,7 +448,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorM
         'titulo': "Creación de Intercambiador Tubo Carcasa"
     }
 
-    def validar(self, request): # Validación de Formulario de Creación
+    def validar(self, request) -> list: # Validación de Formulario de Creación
         errores = []
         if(Intercambiador.objects.filter(tag = request.POST.get('tag')).exists()):
             errores.append(f'El tag ya está registrado en el sistema.')
@@ -767,10 +778,15 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
     Resumen:
         Vista de Edición (Formulario) de un intercambiador tubo/carcasa. 
         Requiere de un usuario autenticado para poder ser accedida.
+        Hereda de la Creación de Tubo Carcasa para obtener su validación.
+        Hereda del Mixin de Edición.
 
     Atributos:
         context: dict
             Contexto inicial de la vista. Incluye el título.
+
+        template_name: str
+            Cadena de texto para la plantilla a renderizar.
     
     Métodos:
         post(self, request)
@@ -1068,12 +1084,23 @@ class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMix
     Resumen:
         Vista de Creación (Formulario) de un nuevo intercambiador de Doble Tubo. 
         Requiere de un usuario autenticado para poder ser accedida.
+        Hereda del Mixin de Creación de Intercambiador, heredando sus métodos y atributos.
 
     Atributos:
         context: dict
             Contexto inicial de la vista. Incluye el título.
+
+        template_name: str
+            Cadena de texto de la plantilla a renderizar en la vista
     
     Métodos:
+        validar(self, request) -> list
+            Método que contiene la lógica de validación de datos cuando se crea un intercambiador de doble tubo.
+            Devuelve una lista con los errores.
+
+        redirigir_por_errores(self, request, errores)
+            Método que manipula el contexto para enviar la data a la plantilla correspondiente si el formulario enviado contiene errores.
+
         post(self, request)
             Función que contiene la lógica de almacenamiento en la BDD al realizar 
             una solicitud POST en la vista. Contiene además el manejo de errores
@@ -1088,7 +1115,7 @@ class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMix
         'titulo': "Creación de Intercambiador Doble Tubo"
     }
 
-    def validar(self, request): # Validación de Formulario de Creación
+    def validar(self, request) -> list: # Validación de Formulario de Creación
         errores = []
         if(Intercambiador.objects.filter(tag = request.POST.get('tag')).exists()):
             errores.append(f'El Tag ya está registrado en el sistema.')
@@ -1409,8 +1436,12 @@ class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, EdicionInterca
     Resumen:
         Vista de Edición (Formulario) de un intercambiador tubo/carcasa. 
         Requiere de un usuario autenticado para poder ser accedida.
+        Hereda del Mixin de Edición y la vista de Creación, teniendo sus mismos atributos y métodos.
 
     Atributos:
+        template_name: str
+            Cadena de texto de la plantilla a renderizar en la vista
+
         context: dict
             Contexto inicial de la vista. Incluye el título.
     
@@ -1560,8 +1591,11 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
             Contexto inicial de la vista. Incluye el título.
     
     Métodos:
+        validar(self, request) -> list
+            Método para validar los input del usuario al enviar el formulario.
+
         post(self, request)
-            Función que contiene la lógica de almacenamiento en la BDD al realizar 
+            Método que contiene la lógica de almacenamiento en la BDD al realizar 
             una solicitud POST en la vista.
         
         get(self, request)
@@ -1572,7 +1606,7 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
         'titulo': "Evaluación "
     }
 
-    def validar(self, request): # Validación de Formulario de Creación de Evaluación
+    def validar(self, request) -> list: # Validación de Formulario de Creación de Evaluación
         errores = []
         if(not request.POST.get('nombre')):
             errores.append('El campo Nombre es obligatorio.')
@@ -1791,6 +1825,9 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
         get_context_data(self, **kwargs)
             Lleva al contexto los datos de filtrado.
 
+        get(self, request, *args, **kwargs)
+            Contiene la lógica de envío de la respuesta HTTP así como las redirecciones necesarias en caso de error.
+
         get_queryset(self)
             Filtra los datos de acuerdo a los parámetros de filtrado.
     """
@@ -1825,7 +1862,6 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
         intercambiador = Intercambiador.objects.get(pk=self.kwargs['pk'])
         
         context['intercambiador'] = intercambiador.intercambiador()
-
 
         if(intercambiador.tipo.pk == 1):
             context['condicion_carcasa'] = context['intercambiador'].condicion_carcasa()
@@ -2044,7 +2080,6 @@ class ConsultaGraficasEvaluacion(LoginRequiredMixin, View):
             Envía los datos entre fechas de las evaluaciones visibles para los datos con los cuales se
             registran las gráficas.
     """
-
     def get(self, request, pk):
         intercambiador = Intercambiador.objects.get(pk=pk)
         evaluaciones = EvaluacionesIntercambiador.objects.filter(intercambiador = intercambiador, visible=True).order_by('fecha')
@@ -2065,7 +2100,17 @@ class ConsultaGraficasEvaluacion(LoginRequiredMixin, View):
         return JsonResponse(list(evaluaciones)[:15], safe=False)
 
 class ValidarCambioDeFaseExistente(LoginRequiredMixin, ValidacionCambioDeFaseMixin, View):
+    '''
+    Resumen:
+        Vista AJAX que valida el cambio de fase existente en la creación o edición de un intercambiador de calor. Es para efectos de validación de datos.
+
+    Métodos:
+        get(self, request)
+            Genera el mensaje de error para efectos de validación en la creación y edición de intercambiadores.
+            Requiere de los flujos, el lado, el cambio de fase, los Cp, la presión de entrada, las temperaturas y sus respectivas unidades para funcionar.
+    '''
     def get(self, request):
+        # Transformación de tipos y unidades
         flujo_vapor_in = float(request.GET['flujo_vapor_in'])
         flujo_vapor_out = float(request.GET['flujo_vapor_out'])
         flujo_liquido_in = float(request.GET['flujo_liquido_in'])
@@ -2082,13 +2127,13 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, ValidacionCambioDeFaseMix
         cp_gas, cp_liquido = float(request.GET['cp_gas']) if request.GET['cp_gas'] != '' else None, float(request.GET['cp_liquido']) if request.GET['cp_liquido'] != '' else None
         cp_gas, cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], unidad_cp, 29)
        
-        if(fluido.find('*') != -1): # Fluido no existe
+        if(fluido.find('*') != -1): # Fluido no registrado
             fluido = fluido.split('*')
             if(fluido[1].find('-') != -1):
                 fluido = Fluido.objects.get_or_create(nombre = fluido[0].upper(), cas = fluido[1])
             else:
                 fluido = None
-        elif fluido != '': # Fluido Existente
+        elif fluido != '': # Fluido registrable
             fluido = Fluido.objects.get(pk=fluido)
 
         if(fluido):
@@ -2123,14 +2168,25 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, ValidacionCambioDeFaseMix
             return JsonResponse({'codigo': codigo, 'mensaje': mensaje, 'calorcalc': calorcalc})
 
 class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, ValidacionCambioDeFaseMixin, View):
+    '''
+    Resumen:
+        Vista AJAX que valida el cambio de fase existente en la evaluación. Es para efectos de validación de datos.
+
+    Métodos:
+        get(self, request, pk)
+            Recibe la PK del intercambiador de la evaluación y genera el mensaje de error si el código es 400. Si el código es 200 solamente se envía el código.
+            Requiere del lado en cuestión y las temperaturas de ese lado en el GET.
+    '''
     def get(self, request, pk):
         intercambiador = Intercambiador.objects.get(pk=pk).intercambiador()
 
-        if(type(intercambiador) == PropiedadesTuboCarcasa):
+        # Obtención de Condiciones
+        if(type(intercambiador) == PropiedadesTuboCarcasa): # Intercambiador Tubo/Carcasa
             condicion = intercambiador.condicion_carcasa() if request.GET['lado'] == 'C' else intercambiador.condicion_tubo()
-        elif(type(intercambiador) == PropiedadesDobleTubo):
+        elif(type(intercambiador) == PropiedadesDobleTubo): # Intercambiador Doble Tubo
             condicion = intercambiador.condicion_externo() if request.GET['lado'] == 'C' else intercambiador.condicion_interno()
         
+        # Transformaciones de tipos y unidades
         flujo_liquido_in = float(condicion.flujo_liquido_entrada)
         flujo_liquido_out = float(condicion.flujo_liquido_salida)
         flujo_vapor_in = float(condicion.flujo_vapor_entrada)
@@ -2142,9 +2198,10 @@ class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, ValidacionCambi
         unidad_presiones = condicion.unidad_presion.pk
         presion = transformar_unidades_presion([float(condicion.presion_entrada)], unidad_presiones)[0]
 
-        if(type(intercambiador) == PropiedadesTuboCarcasa):
+        # Obtención de Fluidos
+        if(type(intercambiador) == PropiedadesTuboCarcasa): # Intercambiador Tubo/Carcasa
             fluido = intercambiador.fluido_carcasa if request.GET['lado'] == 'C' else intercambiador.fluido_tubo
-        elif(type(intercambiador) == PropiedadesDobleTubo):
+        elif(type(intercambiador) == PropiedadesDobleTubo): # Intercambiador Doble Tubo
             fluido = intercambiador.fluido_ex if request.GET['lado'] == 'C' else intercambiador.fluido_in
 
         unidad_cp = condicion.unidad_cp.pk
@@ -2162,28 +2219,67 @@ class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, ValidacionCambi
             return JsonResponse({'codigo': codigo, 'mensaje': mensaje})
         
 # REPORTES DE INTERCAMBIADORES
+MENSAJE_ERROR = "No se encontró el recurso especificado para generar el reporte especificado."
 class ReporteEvaluacionDetalle(LoginRequiredMixin, View):
+    '''
+    Resumen:
+        Vista utilizada para devolver el reporte de Evaluación dentro del modal de donde se encuentra.
+
+    Métodos:
+        get(self, request, pk)
+            Recibe la PK del intercambiador y la EVALUACIÓN para generar y devolver el reporte 
+            de detalle de la evaluación (disponible únicamente en PDF).
+    '''
     def get(self, request, pk, evaluacion):
-        evaluacion = EvaluacionesIntercambiador.objects.get(pk=evaluacion)
-        if(request.GET['tipo'] == 'pdf'):
-            return generar_pdf(request, evaluacion, f'Detalle de la Evaluación "{evaluacion.nombre}"', 'evaluacion_detalle')
+        try:
+            evaluacion = EvaluacionesIntercambiador.objects.get(pk=evaluacion)
+            if(request.GET['tipo'] == 'pdf'):
+                return generar_pdf(request, evaluacion, f'Detalle de la Evaluación "{evaluacion.nombre}"', 'evaluacion_detalle')
+        except:
+            return HttpResponseNotFound(MENSAJE_ERROR)
 
 class FichaTecnicaTuboCarcasa(LoginRequiredMixin, View):
+    '''
+    Resumen:
+        Vista utilizada para devolver el reporte de Ficha Técnica de un intercambiador
+        Tubo/Carcasa en PDF o XLSX en cualquier pantalla.
+
+    Métodos:
+        get(self, request, pk)
+            Recibe la PK del intercambiador cuya ficha técnica se solicita y devuelve el reporte requerido de acuerdo al tipo en el 
+            diccionario GET de la solicitud.
+    '''
     def get(self, request, pk):
-        intercambiador = Intercambiador.objects.get(pk=pk)
-        if(request.GET['tipo'] == 'pdf'):
-            return generar_pdf(request, intercambiador, f'Ficha Técnica del Intercambiador {intercambiador.tag}', 'ficha_tecnica_tubo_carcasa')
-        elif(request.GET['tipo'] == 'xlsx'):
-            response = ficha_tecnica_tubo_carcasa_xlsx(intercambiador, request)
-            response['Content-Disposition'] = f'attachment; filename="datos_ficha_tecnica_{intercambiador.tag}.xlsx"'
-            return response
+        try:
+            intercambiador = Intercambiador.objects.get(pk=pk)
+            if(request.GET['tipo'] == 'pdf'):
+                return generar_pdf(request, intercambiador, f'Ficha Técnica del Intercambiador {intercambiador.tag}', 'ficha_tecnica_tubo_carcasa')
+            elif(request.GET['tipo'] == 'xlsx'):
+                response = ficha_tecnica_tubo_carcasa_xlsx(intercambiador, request)
+                response['Content-Disposition'] = f'attachment; filename="datos_ficha_tecnica_{intercambiador.tag}.xlsx"'
+                return response
+        except:
+            return HttpResponseNotFound(MENSAJE_ERROR)
 
 class FichaTecnicaDobleTubo(LoginRequiredMixin, View):
+    '''
+    Resumen:
+        Vista utilizada para devolver el reporte de Ficha Técnica de un intercambiador
+        de Doble Tubo en PDF o XLSX en cualquier pantalla.
+
+    Métodos:
+        get(self, request, pk)
+            Recibe la PK del intercambiador cuya ficha técnica se solicita y devuelve el reporte requerido de acuerdo al tipo en el 
+            diccionario GET de la solicitud.
+    '''
     def get(self, request, pk):
-        intercambiador = Intercambiador.objects.get(pk=pk)
-        if(request.GET['tipo'] == 'pdf'):
-            return generar_pdf(request, intercambiador, f'Ficha Técnica del Intercambiador {intercambiador.tag}', 'ficha_tecnica_doble_tubo')
-        elif(request.GET['tipo'] == 'xlsx'):
-            response = ficha_tecnica_doble_tubo_xlsx(intercambiador, request)
-            response['Content-Disposition'] = f'attachment; filename="datos_ficha_tecnica_{intercambiador.tag}.xlsx"'
-            return response
+        try:
+            intercambiador = Intercambiador.objects.get(pk=pk)
+            if(request.GET['tipo'] == 'pdf'):
+                return generar_pdf(request, intercambiador, f'Ficha Técnica del Intercambiador {intercambiador.tag}', 'ficha_tecnica_doble_tubo')
+            elif(request.GET['tipo'] == 'xlsx'):
+                response = ficha_tecnica_doble_tubo_xlsx(intercambiador, request)
+                response['Content-Disposition'] = f'attachment; filename="datos_ficha_tecnica_{intercambiador.tag}.xlsx"'
+                return response
+        except:
+            return HttpResponseNotFound(MENSAJE_ERROR)
