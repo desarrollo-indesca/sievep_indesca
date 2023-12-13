@@ -185,6 +185,10 @@ class Intercambiador(models.Model):
         servicio: str -> Descripción de máximo 100 caracteres que indica el servicio que cumple el intercambiador
         arreglo_flujo: str -> Caracter que indica el flujo (cocorriente o contracorriente) que lleva el intercambiador
         criticidad: str -> Caracter que indica el nivel de criticidad del equipo
+        creado_por: Usuario -> Usuario que registró el intercambiador
+        creado_al: datetime.datetime -> Fecha y hora en la que fue creado el intercambiador 
+        editado_por: Usuario -> Usuario que editó por última vez el intercambiador
+        editado_al: datetime.datetime -> Fecha y hora en la que el intercambiador fue editado por última vez 
 
     Métodos:
         intercambiador(self)
@@ -198,6 +202,9 @@ class Intercambiador(models.Model):
 
         obtener_imagen(self)
             Devuelve booleano que indica si la imagen del tema completo existe.
+
+        evaluaciones_visibles(self)
+            Evaluaciones del intercambiador que pueden ser visibles por los usuarios.
 
     Meta:
         La tabla en MySQL es 'intercambiador'.
@@ -216,6 +223,9 @@ class Intercambiador(models.Model):
     creado_al = models.DateTimeField(auto_now_add=True)
     editado_por = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, related_name="intercambiador_editado_por")
     editado_al = models.DateTimeField(null=True)
+
+    def evaluaciones_visibles(self):
+        return self.evaluaciones.filter(visible = True)
 
     def intercambiador(self):
         if(self.tipo.pk == 1):
@@ -667,8 +677,10 @@ class EvaluacionesIntercambiador(models.Model):
             area_diseno_unidad: Unidad -> Unidad para no perder el almacenamiento de información de comparación
             u_diseno_unidad: Unidad -> Unidad para no perder el almacenamiento de información de comparación
             q_diseno_unidad: Unidad -> Unidad para no perder el almacenamiento de información de comparación
+            ensuc_diseno_unidad: Unidad -> Unidad para no perder el almacenamiento de información de comparación
 
-            visible: bool -> Contiene si la evaluación es visible o no (es False cuando es "eliminada") 
+            visible: bool -> Contiene si la evaluación es visible o no (es False cuando es "eliminada")
+            diseno_editado: datetime.datetime -> Si se edita el diseño luego de la creación del intercambiador, se guardará la fecha aquí.  
     '''
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING)
     fecha = models.DateTimeField(auto_now=True)
@@ -714,6 +726,7 @@ class EvaluacionesIntercambiador(models.Model):
     area_diseno_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="area_unidad_evaluacionintercambiador", default=3)
     u_diseno_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="u_unidad_evaluacionintercambiador", default=27)
     q_diseno_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="q_unidad_evaluacionintercambiador", default=29)
+    ensuc_diseno_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="ensuc_unidad_evaluacionintercambiador", default=31)
 
     visible = models.BooleanField(default=True)
     diseno_editado = models.DateTimeField(null=True)

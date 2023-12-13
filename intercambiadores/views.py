@@ -1795,7 +1795,8 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
 
                     area_diseno_unidad = intercambiador.area_unidad,
                     u_diseno_unidad = intercambiador.u_unidad,
-                    q_diseno_unidad = intercambiador.q_unidad
+                    q_diseno_unidad = intercambiador.q_unidad,
+                    ensuc_diseno_unidad = intercambiador.ensuciamiento_unidad
                 )
                 messages.success(request, "La nueva evaluación ha sido registrada exitosamente.")
         except Exception as e:

@@ -822,5 +822,8 @@
 
     {% include 'scripts/validaciones_flujo.js' %}
 
+    // {% if intercambiador.intercambiador.evaluaciones_visibles %}
+    $(document).ready((e) => alert("ADVERTENCIA\nYa este intercambiador tiene evaluaciones registradas en la base de datos. Al realizar cambios en unidades o parámetros de diseño algunas comparaciones podrían no ser consistentes luego de los cambios."));
+    // {% endif %}
 </script>
 {% endblock %}

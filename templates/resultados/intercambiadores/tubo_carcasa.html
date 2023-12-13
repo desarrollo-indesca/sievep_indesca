@@ -117,7 +117,7 @@
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;">NTU</th>
                             <td>{{evaluacion.ntu}}</td>
-                            <th class="table-dark" style="vertical-align: middle;">Ensuciamiento</th>
+                            <th class="table-dark" style="vertical-align: middle;">Ensuciamiento ({{evaluacion.ensuc_diseno_unidad}})</th>
                             <td>{{evaluacion.ensuciamiento}}</td>
                           </tr>
                           <tr>
@@ -186,6 +186,9 @@
                 </div>
                 <div class="w-100 text-end">
                   <b>Evaluación Realizada el {{evaluacion.fecha}} por el usuario '{{evaluacion.creado_por.get_full_name}}'.</b>
+                  {% if evaluacion.diseno_editado %}
+                  <br><b class="text-center">El intercambiador fue editado después de la evaluación ({{evaluacion.diseno_editado}}), lo cual podría generar inconsistencias en la comparación.</b>
+                  {% endif %}
                 </div>
             </div>
         </div>
