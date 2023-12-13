@@ -13,6 +13,7 @@ from calculos.evaluaciones import evaluacion_tubo_carcasa, obtener_cambio_fase, 
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import historico_evaluaciones, reporte_tubo_carcasa, ficha_tecnica_tubo_carcasa_xlsx, ficha_tecnica_doble_tubo_xlsx
 from calculos.unidades import *
+import datetime
 
 # Mixin con Funciones para Intercambiadores
 class ObtencionParametrosMixin():
@@ -217,6 +218,11 @@ class EdicionIntercambiadorMixin(ObtencionParametrosMixin):
     Resumen:
         Mixin para la edición de las condiciones. Contiene una función para la edición de las condiciones de un intercambiador.
     '''
+    def editar_evaluaciones(self, intercambiador):
+        for evaluacion in intercambiador.evaluaciones.filter(diseno_editado__isnull = True):
+            evaluacion.diseno_editado = datetime.datetime.now()
+            evaluacion.save()
+
     def editar_condicion(self, calor, condicion, request, unidad_calor, fluido, lado):
         '''
         Resumen:
@@ -688,7 +694,9 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorM
                     tema = Tema.objects.get(pk=request.POST['tema']),
                     servicio = request.POST['servicio'],
                     arreglo_flujo = request.POST['flujo'],
-                    criticidad = request.POST['criticidad']
+                    criticidad = request.POST['criticidad'],
+                    creado_por = request.user,
+                    creado_al = datetime.datetime.now()
                 )
 
                 fluido_tubo = self.obtencion_fluido(request, 'tubo')
@@ -857,8 +865,16 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
                 intercambiador.servicio = request.POST['servicio']
                 intercambiador.arreglo_flujo = request.POST['flujo']
                 intercambiador.criticidad = request.POST['criticidad']
+                intercambiador.editado_por = request.user
+                intercambiador.editado_al = datetime.datetime.now()
                 intercambiador.save()
-        except:
+
+                # Actualización de Evaluaciones
+                self.editar_evaluaciones(intercambiador)
+
+        except Exception as e:
+            print("AAAAAAAAAAAAAAA")
+            print(str(e))
             errores.append('Ha ocurrido un error desconocido al editar el intercambiador. Verifique los datos ingresados.')
             return self.redirigir_por_errores(request, errores)
 
@@ -1349,7 +1365,9 @@ class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMix
                     tema = Tema.objects.get(pk=request.POST['tema']),
                     servicio = request.POST['servicio'],
                     arreglo_flujo = request.POST['flujo'],
-                    criticidad = request.POST['criticidad']
+                    criticidad = request.POST['criticidad'],
+                    creado_por = request.user,
+                    creado_al = datetime.datetime.now()
                 )
 
                 fluido_in = self.obtencion_fluido(request, 'tubo')
@@ -1511,8 +1529,15 @@ class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, EdicionInterca
                     intercambiador.servicio = request.POST['servicio']
                     intercambiador.arreglo_flujo = request.POST['flujo']
                     intercambiador.criticidad = request.POST['criticidad']
+                    intercambiador.editado_por = request.user
+                    intercambiador.editado_al = datetime.datetime.now()
                     intercambiador.save()
-            except:
+
+                    # Actualización de Evaluaciones
+                    self.editar_evaluaciones(intercambiador)
+            except Exception as e:
+                print("AAAAAAAAAAAAAAA")
+                print(str(e))
                 errores.append('Ha ocurrido un error desconocido al editar el intercambiador. Verifique los datos ingresados.')
                 return self.redirigir_por_errores(request, errores)
             
@@ -1651,7 +1676,6 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
 
     def post(self, request, pk):
         intercambiador = Intercambiador.objects.get(pk=pk)
-        print(intercambiador)
         if(intercambiador.tipo.pk == 1):
             intercambiador = PropiedadesTuboCarcasa.objects.get(intercambiador=intercambiador)
         else:
@@ -1767,7 +1791,11 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
                     cp_carcasa_liquido = cp_liquido_carcasa,
                     tipo_cp_carcasa = request.POST.get('tipo_cp_carcasa') if request.POST.get('tipo_cp_carcasa') else 'A',
                     tipo_cp_tubo = request.POST.get('tipo_cp_tubo') if request.POST.get('tipo_cp_tubo') else 'A',
-                    cp_unidad = Unidades.objects.get(pk=unidad_cp)
+                    cp_unidad = Unidades.objects.get(pk=unidad_cp),
+
+                    area_diseno_unidad = intercambiador.area_unidad,
+                    u_diseno_unidad = intercambiador.u_unidad,
+                    q_diseno_unidad = intercambiador.q_unidad
                 )
                 messages.success(request, "La nueva evaluación ha sido registrada exitosamente.")
         except Exception as e:
@@ -2219,7 +2247,7 @@ class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, ValidacionCambi
             return JsonResponse({'codigo': codigo, 'mensaje': mensaje})
         
 # REPORTES DE INTERCAMBIADORES
-MENSAJE_ERROR = "No se encontró el recurso especificado para generar el reporte especificado."
+MENSAJE_ERROR = "No se encontró el recurso necesario para generar el reporte especificado."
 class ReporteEvaluacionDetalle(LoginRequiredMixin, View):
     '''
     Resumen:

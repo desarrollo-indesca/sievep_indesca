@@ -49,8 +49,6 @@ arreglos_flujo = [
 
 # Para mayor referencia mirar el diagrama ER del informe de Diciembre 2023
 
-# Para mayor referencia mirar el diagrama ER del informe de Diciembre 2023
-
 # Modelos para Filtrado
 class Complejo(models.Model):
     id = models.AutoField(primary_key=True)
@@ -213,6 +211,11 @@ class Intercambiador(models.Model):
     servicio = models.CharField(max_length=100)
     arreglo_flujo = models.CharField(max_length=1, choices=arreglos_flujo)
     criticidad = models.CharField(max_length=1, choices=criticidades)
+
+    creado_por = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, default=1, related_name="intercambiador_creado_por")
+    creado_al = models.DateTimeField(auto_now_add=True)
+    editado_por = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, related_name="intercambiador_editado_por")
+    editado_al = models.DateTimeField(null=True)
 
     def intercambiador(self):
         if(self.tipo.pk == 1):
@@ -660,11 +663,16 @@ class EvaluacionesIntercambiador(models.Model):
             q: float -> Calor calculado
             numero_tubos: float -> Número de tubos con los cuales se realizó la evaluación
 
+            lmtd_diseno_unidad: Unidad -> Unidad para no perder el almacenamiento de información de comparación
+            area_diseno_unidad: Unidad -> Unidad para no perder el almacenamiento de información de comparación
+            u_diseno_unidad: Unidad -> Unidad para no perder el almacenamiento de información de comparación
+            q_diseno_unidad: Unidad -> Unidad para no perder el almacenamiento de información de comparación
+
             visible: bool -> Contiene si la evaluación es visible o no (es False cuando es "eliminada") 
     '''
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING)
     fecha = models.DateTimeField(auto_now=True)
-    intercambiador = models.ForeignKey(Intercambiador, on_delete=models.CASCADE)
+    intercambiador = models.ForeignKey(Intercambiador, on_delete=models.CASCADE, related_name="evaluaciones")
     metodo = models.CharField(max_length=1, choices=(('E', 'Método Efectividad-NTU'), ('L', 'Método LMTD')))
     nombre = models.CharField(max_length=50)
 
@@ -702,8 +710,13 @@ class EvaluacionesIntercambiador(models.Model):
     ensuciamiento = models.DecimalField(max_digits=10, decimal_places=8)
     q = models.DecimalField(max_digits=12, decimal_places=3)
     numero_tubos = models.IntegerField()
+    
+    area_diseno_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="area_unidad_evaluacionintercambiador", default=3)
+    u_diseno_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="u_unidad_evaluacionintercambiador", default=27)
+    q_diseno_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="q_unidad_evaluacionintercambiador", default=29)
 
     visible = models.BooleanField(default=True)
+    diseno_editado = models.DateTimeField(null=True)
 
     def promedio_carcasa(self):
         return (self.temp_ex_entrada + self.temp_ex_salida)/2
