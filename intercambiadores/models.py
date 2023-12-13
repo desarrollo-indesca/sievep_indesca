@@ -76,10 +76,6 @@ class Planta(models.Model):
     Meta:
         En la BDD (en MySQL) se utiliza la tabla planta para representar este modelo.
     '''
-    '''
-    Resumen:
-        Modelo para almacenar una planta en donde se encuentra un equipo. 
-    '''
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=50, unique=True)
     complejo = models.ForeignKey(Complejo, on_delete=models.DO_NOTHING)
@@ -101,10 +97,6 @@ class Unidades(models.Model):
             id: int -> PK del modelo
             simbolo: str -> Nombre de la Planta. Máx. 10 caracteres. Puede repetirse siempre y cuando el tipo sea distinto.
             tipo: str -> Tipo de magnitud que mide la unidad. Ejemplo: Para metro, 'l' de longitud sería el tipo.
-    '''
-    '''
-        Resumen:
-            Modelo que contiene las unidades de alguna propiedad de un equipo.
     '''
     id = models.AutoField(primary_key=True)
     simbolo = models.CharField(max_length=10)
@@ -128,10 +120,6 @@ class Fluido(models.Model):
             nombre: str -> Nombre del fluido almacenado.
             cas: str -> Código CAS (Chemical Abstracts Service) del fluido PURO
     '''
-    '''
-        Resumen:
-            Modelo que contiene los datos de un fluido que pasa por un equipo. Únicamente para fluidos puros.
-    '''
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=40)
     cas = models.CharField(max_length=20)
@@ -153,10 +141,6 @@ class TipoIntercambiador(models.Model):
             id: int -> PK del modelo
             nombre: str -> Nombre del tipo de intercambiador almacenado
     '''
-    '''
-        Resumen:
-            Modelo que contiene los tipos de intercambiador de calor contemplados en SIEVEP.
-    '''
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=50)
 
@@ -176,10 +160,6 @@ class Tema(models.Model):
             descripcion: str -> Descripción del tema
             tipo_intercambiador: models.ForeignKey -> Tipo de intercambiador para el tema
     '''
-    '''
-        Resumen:
-            Modelo que contiene el código de los TEMAs de los intercambiadores así como el tipo para el cual se encuentran disponibles.
-    '''
     id = models.AutoField(primary_key=True)
     codigo = models.CharField(max_length=50, unique=True)
     descripcion = models.TextField(null=True)
@@ -195,11 +175,34 @@ class Tema(models.Model):
 class Intercambiador(models.Model):
     '''
     Resumen:
-        Modelo para la data general de intercambiadores de calor. 
-    '''
-    '''
-    Resumen:
-        Modelo para la data general de intercambiadores de calor. 
+        Modelo para la data general de intercambiadores de calor.
+
+    Atributos:
+        id: int -> PK del modelo
+        tag: str -> Tag único del intercambiador
+        tipo: TipoIntercambiador -> Llave Foránea que referencia el tipo del intercambiador
+        fabricante: str -> Nombre del fabricante del intercambiador
+        planta: Planta -> Llave Foránea que referencia  la planta donde se encuentra el intercambiador
+        tema: Tema -> Llave foránea que referencia el TEMA del intercambiador
+        servicio: str -> Descripción de máximo 100 caracteres que indica el servicio que cumple el intercambiador
+        arreglo_flujo: str -> Caracter que indica el flujo (cocorriente o contracorriente) que lleva el intercambiador
+        criticidad: str -> Caracter que indica el nivel de criticidad del equipo
+
+    Métodos:
+        intercambiador(self)
+            Devuelve las propiedades del intercambiador según su tipo
+
+        tema_final(self)
+            Función que devuelve el último código del tema (se utiliza para la generación de imagen en la ficha técnica de tubo/carcasa)
+
+        flujo_largo(self)
+            Devuelve el nombre del tipo de flujo de forma larga (es decir, 'c' devuelve 'Contracorriente')
+
+        obtener_imagen(self)
+            Devuelve booleano que indica si la imagen del tema completo existe.
+
+    Meta:
+        La tabla en MySQL es 'intercambiador'.
     '''
     id = models.AutoField(primary_key=True)
     tag = models.CharField(max_length=50, unique=True)
@@ -235,10 +238,10 @@ class TiposDeTubo(models.Model):
     '''
         Resumen:
             Modelo que contiene los posibles tipos de tubo que lleva un equipo.
-    '''
-    '''
-        Resumen:
-            Modelo que contiene los posibles tipos de tubo que lleva un equipo.
+
+        Atributos:
+            id: int -> PK del tipo de tubo
+            nombre: str -> Nombre del tipo de tubo
     '''
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=25)
@@ -253,10 +256,62 @@ class PropiedadesTuboCarcasa(models.Model):
     '''
         Resumen:
             Modelo que contiene las propiedades específicas de un intercambiador tubo/carcasa.
-    '''
-    '''
-        Resumen:
-            Modelo que contiene las propiedades específicas de un intercambiador tubo/carcasa.
+
+        Atributos:
+            id: int -> PK de las propiedades
+            intercambiador: Intercambiador -> Intercambiador al que pertenecen las propiedades
+
+            area: float -> Área de Transferencia
+            area_unidad: Unidad -> Unidad del Área
+
+            numero_tubos: int -> Número de tubos en el intercambiador
+
+            longitud_tubos: float -> Longitud de los tubos contenidos en el intercambiador
+            longitud_tubos_unidad: Unidad -> Unidad de la longitud
+
+            diametro_externo_tubos: float -> OD de los tubos
+            diametro_interno_carcasa: float -> ID de la carcasa
+            diametro_tubos_unidad: Unidad -> Unidad de los diámetros de los tubos
+
+            fluido_carcasa: Fluido -> Fluido que corre por la carcasa
+            material_carcasa: str -> Material de la carcasa
+            conexiones_entrada_carcasa: str -> Descripción de las conexiones de entrada de la carcasa
+            conexiones_salida_carcasa: str -> Descripción de las conexiones de salida de la carcasa
+
+            material_tubo: str -> Descripción del material del tubo
+            fluido_tubo: Fluido -> Fluido que corre por el tubo
+            tipo_tubo: TiposDeTubo -> Tipo de Tubo del intercambiador
+            conexiones_entrada_tubos: str -> Descripción de las conexiones de entrada del tubo
+            conexiones_salida_tubos: str -> Descripción de las conexiones de salida del tubo
+
+            pitch_tubos: float -> Pitch (espaciamiento) de los tubos
+            unidades_pitch: Unidad -> Unidades del Pitch
+
+            arreglo_serie: int -> Número de arreglos en serie 
+            arreglo_paralelo: int -> Número de arreglos en paralelo 
+            numero_pasos_tubo: int -> Número de de pasos por los tubos
+            numero_pasos_carcasa: int -> Número de pasos por la carcasa
+
+            q: float -> Calor de diseño del intercambiador
+            u: float -> Coeficiente global de transferencia de calor del intercambiador
+            ensuciamiento: float -> Factor de Ensuciamiento de Diseño
+
+            q_unidad: Unidad -> Unidad del calor de diseño
+            u_unidad: Unidad -> Unidad del calor de diseño
+            ensuciamiento_unidad: Unidad -> Unidad del calor de diseño
+
+        Métodos:
+            calcular_diseno(self)
+                Evalúa el intercambiador con sus parámetros de diseño. El resultado se guarda en caché.
+
+            condicion_tubo(self)
+                Devuelve las condiciones del lado del tubo
+
+            condicion_carcasa(self)
+                Devuelve las condiciones del lado de la carcasa
+
+            criticidad_larga(self)
+                Devuelve el valor de la criticidad en formato largo
     '''
     id = models.AutoField(primary_key=True)
     intercambiador = models.OneToOneField(Intercambiador, related_name="datos_tubo_carcasa", on_delete=models.DO_NOTHING)
@@ -348,10 +403,59 @@ class PropiedadesDobleTubo(models.Model):
     '''
         Resumen:
             Modelo que contiene las propiedades específicas de un intercambiador doble tubo.
-    '''
-    '''
-        Resumen:
-            Modelo que contiene las propiedades específicas de un intercambiador doble tubo.
+
+        Atributos:
+            id: int -> PK de las propiedades
+            intercambiador: Intercambiador -> Intercambiador al que pertenecen las propiedades
+
+            area: float -> Área de Transferencia
+            area_unidad: Unidad -> Unidad del Área
+
+            numero_tubos: int -> Número de tubos en el intercambiador
+
+            longitud_tubos: float -> Longitud de los tubos contenidos en el intercambiador
+            longitud_tubos_unidad: Unidad -> Unidad de la longitud
+
+            diametro_externo_in: float -> OD del tubo interno
+            diametro_interno_ex: float -> OD del tubo externo
+            diametro_tubos_unidad: Unidad -> Unidad de los diámetros
+
+            fluido_ex: Fluido -> Fluido que corre por el tubo externo
+            material_ex: str -> Material de el tubo externo
+            conexiones_entrada_ex: str -> Descripción de las conexiones de entrada de el tubo externo
+            conexiones_salida_ex: str -> Descripción de las conexiones de salida de el tubo externo
+
+            material_in: str 
+            fluido_in: Fluido -> Fluido que corre por el tubo interno
+            tipo_tubo: TiposDeTubo -> Tipo de Tubo del intercambiador
+            conexiones_entrada_in: str -> Descripción de las conexiones de entrada del tubo interno
+            conexiones_salida_in: str -> Descripción de las conexiones de salida del tubo interno
+
+            arreglo_serie_ex: int -> Número de arreglos en serie del tubo externo
+            arreglo_paralelo_ex: int -> Número de arreglos en paralelo del tubo externo
+            arreglo_serie_in: int -> Número de arreglos en serie del tubo interno
+            arreglo_paralelo_in: int -> Número de arreglos en paralelo del tubo interno
+
+            q: float -> Calor de diseño del intercambiador
+            u: float -> Coeficiente global de transferencia de calor del intercambiador
+            ensuciamiento: float -> Factor de Ensuciamiento de Diseño
+
+            q_unidad: Unidad -> Unidad del calor de diseño
+            u_unidad: Unidad -> Unidad del calor de diseño
+            ensuciamiento_unidad: Unidad -> Unidad del calor de diseño
+
+        Métodos:
+            calcular_diseno(self)
+                Evalúa el intercambiador con sus parámetros de diseño. El resultado se guarda en caché.
+
+            condicion_interno(self)
+                Devuelve las condiciones del lado del tubo interno
+
+            condicion_externo(self)
+                Devuelve las condiciones del lado del tubo externo
+
+            criticidad_larga(self)
+                Devuelve el valor de la criticidad en formato largo
     '''
     id = models.AutoField(primary_key=True)
     intercambiador = models.OneToOneField(Intercambiador, related_name="datos_dobletubo", on_delete=models.DO_NOTHING)
@@ -440,10 +544,37 @@ class CondicionesIntercambiador(models.Model):
     '''
         Resumen:
             Modelo que contiene las condiciones de UN lado del intercambiador.
-    '''
-    '''
-        Resumen:
-            Modelo que contiene las condiciones de UN lado del intercambiador.
+
+        Parámetros:
+            intercambiador: Intercambiador -> Intercambiador al cual pertenecen las condiciones
+            lado: str -> Caracter que indica a que lado del tubo pertenece la condición
+            
+            temp_entrada: float -> Temperatura de entrada del intercambiador
+            temp_salida: float -> Temperatura de salida del intercambiador
+            temperaturas_unidad: Unidad -> Unidades de las temperaturas
+
+            flujo_masico: float -> Flujo Másico total que corre que por un lado
+            flujo_vapor_entrada: float -> Flujo de vapor de entrada
+            flujo_vapor_salida: float -> Flujo de vapor de salida
+            flujo_liquido_entrada: float -> Flujo de líquido de entrada
+            flujo_liquido_salida: float -> Flujo de líquido de salida
+            flujos_unidad: Unidad -> Unidad de los flujos
+            fluido_etiqueta: str -> Etiqueta para un fluido no registrado que corre por el lado
+            tipo_cp: str -> Forma de registrar el Cp, si es manual o automático
+            fluido_cp_liquido: float -> Capacidad calorífica del líquido que corre por el  lado
+            fluido_cp_gas: float -> Capacidad calorífica del gas que corre por el  lado
+            hvap: float -> Calor Latente o Entalpía de Vaporización del fluido
+            tsat: float -> Temperatura de Saturación del fluido
+            unidad_cp: Unidad -> Unidad de la capacidad calorífica
+            
+            cambio_de_fase: str -> Caracter que denota el cambio de fase existente, si es Total (T), Parcial (P) o Sin cambio de fase (S)
+
+            presion_entrada: float ->
+            caida_presion_max: float -> Caída de Presión Máxima/Permitida
+            caida_presion_min: float -> Caída de Presión Mínima Calculada
+            unidad_presion: Unidad -> Unidad con la cual fueron registradas las presiones
+
+            fouling: float -> Fouling (Ensuciamiento) del lado del intercambiador
     '''
     intercambiador = models.ForeignKey(Intercambiador, on_delete=models.CASCADE, related_name="condiciones")
     lado = models.TextField(max_length=1, choices=(('T', 'Tubo'), ('C', 'Carcasa')))
@@ -473,7 +604,7 @@ class CondicionesIntercambiador(models.Model):
     caida_presion_min = models.DecimalField(max_digits=7, decimal_places=4, null=True)
     unidad_presion = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="presion_unidad_tubocarcasa")
 
-    fouling = models.DecimalField(max_digits=11, decimal_places=8, null=True) #m^2*C/W
+    fouling = models.DecimalField(max_digits=11, decimal_places=8, null=True)
 
     def cambio_fase_largo(self):
         for x in cambios_de_fase:
@@ -488,10 +619,48 @@ class EvaluacionesIntercambiador(models.Model):
     '''
         Resumen:
             Modelo que contiene las evaluaciones realizadas a un intercambiador.
-    '''
-    '''
-        Resumen:
-            Modelo que contiene las evaluaciones realizadas a un intercambiador.
+
+        Atributos:
+            creado_por: Usuario -> Usuario que creó la evaluación
+            fecha: datetime -> Fecha y hora en la cual fue realizada la evaluación
+            intercambiador: Intercambiador -> Intercambiador al cual le fue realizada la evaluación
+            metodo: str -> Método que fue utilizado para realizar la evaluación. Por los momentos no es utilizado.
+            nombre: str -> 
+
+            temp_ex_entrada: float -> Temperatura del tubo externo de entrada
+            temp_ex_salida: float -> Temperatura del tubo externo de entrada
+            temp_in_entrada: float -> Temperatura del tubo interno de salida
+            temp_in_salida: float -> Temperatura del tubo interno de salida
+            temperaturas_unidad: Unidad -> Unidad de las temperaturas
+
+            flujo_masico_ex: float -> Flujo másico que corre por el tubo externo
+            flujo_masico_in: float -> Flujo másico que corre por el tubo interno
+            unidad_flujo: Unidad -> Unidad de los flujos másicos
+
+            caida_presion_in: float -> Caída de Presión del tubo interno registrada en la evaluación
+            caida_presion_ex: float -> Caída de Presión del tubo externo registrada en la evaluación
+            unidad_presion: Unidad -> Unidad de presión
+
+            cp_tubo_gas: float -> Capacidad Calorífica utilizada para el flujo de gas del lado del tubo interno
+            cp_tubo_liquido: float -> Capacidad Calorífica utilizada para el flujo de líquido del lado del tubo interno
+            cp_carcasa_gas: float -> Capacidad Calorífica utilizada para el flujo de gas del lado del tubo externo
+            cp_carcasa_liquido: float -> Capacidad Calorífica utilizada para el flujo de líquido del lado del tubo externo
+            tipo_cp_carcasa: str -> Tipo de Cp utilizado en el lado de la carcasa del intercambiador
+            tipo_cp_tubo: str -> Tipo de Cp utilizado en el lado del tubo del intercambiador
+            cp_unidad: Unidad -> unidad utilizada para el Cp
+
+            lmtd: float -> LMTD de la evaluación
+            area_transferencia: float -> Área de Transferencia de la evaluación
+            u: float -> U calculada
+            ua: float ->  UA calculada
+            ntu: float -> NTU calculado
+            efectividad: float -> Efectividad calculada
+            eficiencia: float -> Eficiencia calculada
+            ensuciamiento: float -> Ensuciamiento calculado
+            q: float -> Calor calculado
+            numero_tubos: float -> Número de tubos con los cuales se realizó la evaluación
+
+            visible: bool -> Contiene si la evaluación es visible o no (es False cuando es "eliminada") 
     '''
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING)
     fecha = models.DateTimeField(auto_now=True)
