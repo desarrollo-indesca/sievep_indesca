@@ -683,7 +683,7 @@ class EvaluacionesIntercambiador(models.Model):
             diseno_editado: datetime.datetime -> Si se edita el diseño luego de la creación del intercambiador, se guardará la fecha aquí.  
     '''
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING)
-    fecha = models.DateTimeField(auto_now=True)
+    fecha = models.DateTimeField(auto_now_add=True)
     intercambiador = models.ForeignKey(Intercambiador, on_delete=models.CASCADE, related_name="evaluaciones")
     metodo = models.CharField(max_length=1, choices=(('E', 'Método Efectividad-NTU'), ('L', 'Método LMTD')))
     nombre = models.CharField(max_length=50)

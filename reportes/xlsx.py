@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from io import BytesIO
 from intercambiadores.models import Planta, Complejo
 from simulaciones_pequiven.settings import BASE_DIR
-from calculos.unidades import transformar_unidades_presion
+from calculos.unidades import transformar_unidades_presion, transformar_unidades_area, transformar_unidades_u, transformar_unidades_ensuciamiento
 
 # Aquí irán los reportes en formato Excel
 alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -65,13 +65,14 @@ def historico_evaluaciones(object_list, request):
     worksheet.write(f"J{num}", f"C.P. Carcasa ({condicion_carcasa.unidad_presion})", bold_bordered)
 
     for i,evaluacion in enumerate(object_list):
-        area = float(evaluacion.area_transferencia)
+        area = round(transformar_unidades_area([float(evaluacion.area_transferencia)], evaluacion.area_diseno_unidad.pk, propiedades.area_unidad.pk)[0], 2)
         eficiencia = float(evaluacion.eficiencia)
         efectividad = float(evaluacion.efectividad)
         ntu = float(evaluacion.ntu)
-        u = float(evaluacion.u)
+        u = round(transformar_unidades_u([float(evaluacion.u)], evaluacion.u_diseno_unidad.pk, propiedades.u_unidad.pk)[0], 2)
         caida_tubo, caida_carcasa = transformar_unidades_presion([evaluacion.caida_presion_in, evaluacion.caida_presion_ex], evaluacion.unidad_presion.pk, condicion_carcasa.unidad_presion.pk)
-        ensuciamiento = float(evaluacion.ensuciamiento)
+        caida_tubo, caida_carcasa = round(caida_tubo,4), round(caida_carcasa, 4)
+        ensuciamiento = round(transformar_unidades_ensuciamiento([float(evaluacion.ensuciamiento)], evaluacion.ensuc_diseno_unidad.pk, propiedades.ensuciamiento_unidad.pk)[0],6)
         fecha_ev = evaluacion.fecha.strftime('%d/%m/%Y %H:%M')
 
         num += 1

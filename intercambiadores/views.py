@@ -2264,7 +2264,8 @@ class ReporteEvaluacionDetalle(LoginRequiredMixin, View):
             evaluacion = EvaluacionesIntercambiador.objects.get(pk=evaluacion)
             if(request.GET['tipo'] == 'pdf'):
                 return generar_pdf(request, evaluacion, f'Detalle de la Evaluación "{evaluacion.nombre}"', 'evaluacion_detalle')
-        except:
+        except Exception as e:
+            print(str(e))
             return HttpResponseNotFound(MENSAJE_ERROR)
 
 class FichaTecnicaTuboCarcasa(LoginRequiredMixin, View):
@@ -2287,7 +2288,8 @@ class FichaTecnicaTuboCarcasa(LoginRequiredMixin, View):
                 response = ficha_tecnica_tubo_carcasa_xlsx(intercambiador, request)
                 response['Content-Disposition'] = f'attachment; filename="datos_ficha_tecnica_{intercambiador.tag}.xlsx"'
                 return response
-        except:
+        except Exception as e:
+            print(str(e))
             return HttpResponseNotFound(MENSAJE_ERROR)
 
 class FichaTecnicaDobleTubo(LoginRequiredMixin, View):
@@ -2310,5 +2312,6 @@ class FichaTecnicaDobleTubo(LoginRequiredMixin, View):
                 response = ficha_tecnica_doble_tubo_xlsx(intercambiador, request)
                 response['Content-Disposition'] = f'attachment; filename="datos_ficha_tecnica_{intercambiador.tag}.xlsx"'
                 return response
-        except:
+        except Exception as e:
+            print(str(e))
             return HttpResponseNotFound(MENSAJE_ERROR)

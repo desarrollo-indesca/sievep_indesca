@@ -261,7 +261,7 @@ def detalle_evaluacion(request, evaluacion):
     story.append(Paragraph("Resultados de la Evaluación", ParagraphStyle('', alignment=1)))
     table = [
             [
-                Paragraph(f"LMTD ({evaluacion.unidad_temperaturas})", centrar_parrafo), 
+                Paragraph(f"LMTD ({evaluacion.temperaturas_unidad})", centrar_parrafo), 
                 Paragraph(f"{evaluacion.lmtd}", centrar_parrafo), 
                 Paragraph(f"Área Transf. ({evaluacion.area_diseno_unidad})", centrar_parrafo), 
                 Paragraph(f"{evaluacion.area_transferencia}", centrar_parrafo)
@@ -414,7 +414,6 @@ def reporte_evaluacion(request, object_list):
     fechas = []
 
     object_list = object_list.order_by('fecha')
-
     for x in object_list:
         area = round(transformar_unidades_area([float(x.area_transferencia)], x.area_diseno_unidad.pk, propiedades.area_unidad.pk)[0], 2)
         eficiencia = float(x.eficiencia)
@@ -423,8 +422,9 @@ def reporte_evaluacion(request, object_list):
         u = round(transformar_unidades_u([float(x.u)], x.u_diseno_unidad.pk, propiedades.u_unidad.pk)[0], 2)
         caida_tubo, caida_carcasa = transformar_unidades_presion([x.caida_presion_in, x.caida_presion_ex], x.unidad_presion.pk, condicion_carcasa.unidad_presion.pk)
         caida_tubo, caida_carcasa = round(caida_tubo,4), round(caida_carcasa, 4)
-        ensuciamiento = round(transformar_unidades_ensuciamiento([float(x.ensuciamiento)], x.ensuc_diseno_unidad.pk, propiedades.unidad_ensuciamiento.pk)[0],6)
-        fecha = x.fecha.strftime('%d/%m/%Y %H:%M')
+        ensuciamiento = round(transformar_unidades_ensuciamiento([float(x.ensuciamiento)], x.ensuc_diseno_unidad.pk, propiedades.ensuciamiento_unidad.pk)[0],6)
+
+        fecha = x.fecha.strftime('%d/%m/%Y %H:%M')            
 
         eficiencias.append(eficiencia)
         efectividades.append(efectividad)
@@ -441,10 +441,15 @@ def reporte_evaluacion(request, object_list):
     table.setStyle(basicTableStyle)
     story.append(table)
 
+    sub = "Fechas"
+    if(len(fechas) >= 5):
+        fechas = list(range(1,len(fechas)+1))
+        sub = "Evaluaciones"
+
     grafica1 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.plot(fechas, eficiencias)
-    ax.set_xlabel("Fechas")
+    ax.set_xlabel(sub)
     ax.set_ylabel("Eficiencia")
     ax.set_title("Eficiencia (%)")   
     fig.savefig(grafica1, format='jpeg')
@@ -456,7 +461,7 @@ def reporte_evaluacion(request, object_list):
     grafica2 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.plot(fechas, efectividades)
-    ax.set_xlabel("Fechas")
+    ax.set_xlabel(sub)
     ax.set_ylabel("Efectividad")
     ax.set_title("Efectividad (%)")   
     fig.savefig(grafica2, format='jpeg')
@@ -468,7 +473,7 @@ def reporte_evaluacion(request, object_list):
     grafica3 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.plot(fechas, us)
-    ax.set_xlabel("Fechas")
+    ax.set_xlabel(sub)
     ax.set_ylabel("U")
     ax.set_title(f"U ({propiedades.u_unidad})")   
     fig.savefig(grafica3, format='jpeg')
@@ -480,7 +485,7 @@ def reporte_evaluacion(request, object_list):
     grafica4 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)    
     ax.plot(fechas, ensuciamientos)
-    ax.set_xlabel("Fechas")
+    ax.set_xlabel(sub)
     ax.set_ylabel("Ensuciamiento")
     ax.set_title(f"Ensuciamiento ({propiedades.ensuciamiento_unidad})")   
     fig.savefig(grafica4, format='jpeg')
@@ -492,7 +497,7 @@ def reporte_evaluacion(request, object_list):
     grafica5 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)    
     ax.plot(fechas, caidas_carcasa)
-    ax.set_xlabel("Fechas")
+    ax.set_xlabel(sub)
     ax.set_ylabel("Caída Pres. Carcasa")
     ax.set_title(f"Caída Pres. Carcasa ({propiedades.ensuciamiento_unidad})")   
     fig.savefig(grafica5, format='jpeg')
@@ -504,7 +509,7 @@ def reporte_evaluacion(request, object_list):
     grafica6 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)    
     ax.plot(fechas, caidas_tubo)
-    ax.set_xlabel("Fechas")
+    ax.set_xlabel(sub)
     ax.set_ylabel("Caídas Pres. TuboT")
     ax.set_title(f"Caídas Pres. Tubo ({propiedades.ensuciamiento_unidad})")   
     fig.savefig(grafica6, format='jpeg')
