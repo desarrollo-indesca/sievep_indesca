@@ -219,10 +219,17 @@ class Intercambiador(models.Model):
     arreglo_flujo = models.CharField(max_length=1, choices=arreglos_flujo)
     criticidad = models.CharField(max_length=1, choices=criticidades)
 
+    # Datos Usuarios
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, default=1, related_name="intercambiador_creado_por")
     creado_al = models.DateTimeField(auto_now_add=True)
     editado_por = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, related_name="intercambiador_editado_por")
     editado_al = models.DateTimeField(null=True)
+
+    # Resultados de Evaluación de diseño para carga rápida
+    lmtd = models.DecimalField(max_digits = 6, decimal_places = 2, null=True)
+    efectividad = models.DecimalField(max_digits = 5, decimal_places = 2, null=True)
+    eficiencia = models.DecimalField(max_digits = 5, decimal_places = 2, null=True)
+    ntu = models.DecimalField(max_digits = 7, decimal_places = 3, null=True)
 
     def evaluaciones_visibles(self):
         return self.evaluaciones.filter(visible = True)
