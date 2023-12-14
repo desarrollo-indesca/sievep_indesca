@@ -2,7 +2,11 @@ var staticCacheName = "django-pwa-v" + new Date().getTime();
 var filesToCache = [
     '/offline',
     '/static/serviceworker.js',
-    '/static/offline/index.html'
+    '/static/css/bootstrap.min.css',
+    '/static/img/logo.ico',
+    '/static/img/logo.png',
+    '/static/img/icono_indesca.svg',
+    '/static/img/logo_indesca.svg'
 ];
 
 // Cache on install
