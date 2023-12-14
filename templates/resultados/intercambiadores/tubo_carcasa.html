@@ -135,21 +135,22 @@
                     </div>
                     <div class="col-lg-6 col-xs-12 small d-flex justify-content-center">
                       <table class="table table-light text-center table-bordered">
+                        {% with generales=intercambiador.intercambiador %}
                         <tbody id="body">
                           <tr>
                             <th class="table-warning" colspan="4">Datos de Diseño</th>
                           </tr>
                           <tr>
-                            <th class="table-dark" style="vertical-align: middle;">LMTD ({% if intercambiador.intercambiador.tipo.pk == 1 %}{{intercambiador.condicion_tubo.temperaturas_unidad}}{%else%}{{intercambiador.condicion_externo.temperaturas_unidad}}{%endif%})</th>
-                            <td>{{diseno.lmtd}}</td>
+                            <th class="table-dark" style="vertical-align: middle;">LMTD ({% if generales.tipo.pk == 1 %}{{intercambiador.condicion_tubo.temperaturas_unidad}}{%else%}{{intercambiador.condicion_externo.temperaturas_unidad}}{%endif%})</th>
+                            <td>{% if generales.lmtd %}{{generales.lmtd}}{% endif %}</td>
                             <th class="table-dark" style="vertical-align: middle;">Área Transf. ({{intercambiador.area_unidad}})</th>
                             <td>{{intercambiador.area}}</td>
                           </tr>
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;">% Eficiencia</th>
-                            <td>{{diseno.eficiencia}}</td>
+                            <td>{% if generales.eficiencia %}{{generales.eficiencia}}{% endif %}</td>
                             <th class="table-dark" style="vertical-align: middle;">% Efectividad</th>
-                            <td>{{diseno.efectividad}}</td>
+                            <td>{% if generales.efectividad %}{{generales.efectividad}}{% endif %}</td>
                           </tr>
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;">U ({{intercambiador.u_unidad}})</th>
@@ -159,9 +160,9 @@
                           </tr>
                           <tr>
                             <th class="table-dark" style="vertical-align: middle;">NTU</th>
-                            <td>{{diseno.ntu}}</td>                            
+                            <td>{% if generales.ntu %}{{generales.ntu}}{% endif %}</td>                            
                             <th class="table-dark" style="vertical-align: middle;">Ensuciamiento</th>
-                            <td>{{diseno.factor_ensuciamiento}}</td>
+                            <td>{{intercambiador.ensuciamiento}}</td>
                           </tr>
                           <tr>                                                     
                             <th class="table-dark" style="vertical-align: middle;">C. Presión Mín. Tubo ({{condicion_tubo.unidad_presion}})</th>
@@ -180,6 +181,7 @@
                             <td colspan="3">{{intercambiador.numero_tubos}}</td>
                           </tr>                          
                         </tbody>
+                        {% endwith %}
                       </table>                    
                     </div>
                   </div>

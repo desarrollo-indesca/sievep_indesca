@@ -750,7 +750,17 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorM
                 condiciones_diseno_ex =  self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad.pk, fluido_carcasa, 'carcasa', 'C')
 
                 messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
-                print(intercambiador)
+                
+                try:
+                    diseno = propiedades.calcular_diseno
+                    intercambiador.ntu = diseno['ntu']
+                    intercambiador.efectividad = diseno['efectividad']
+                    intercambiador.eficiencia = diseno['eficiencia']
+                    intercambiador.lmtd = diseno['lmtd']
+                    intercambiador.save()
+                except:
+                    print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
+
                 return redirect(f"/intercambiadores/evaluaciones/{intercambiador.pk}/")
         except Exception as e:
             print(str(e))
@@ -867,6 +877,16 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
                 intercambiador.criticidad = request.POST['criticidad']
                 intercambiador.editado_por = request.user
                 intercambiador.editado_al = datetime.datetime.now()
+
+                try:
+                    diseno = propiedades.calcular_diseno
+                    intercambiador.ntu = diseno['ntu']
+                    intercambiador.efectividad = diseno['efectividad']
+                    intercambiador.eficiencia = diseno['eficiencia']
+                    intercambiador.lmtd = diseno['lmtd']
+                except:
+                    print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
+
                 intercambiador.save()
 
                 # Actualización de Evaluaciones
@@ -1418,6 +1438,16 @@ class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMix
                 # Condiciones de Diseño de la Tubo Externo
                 condiciones_diseno_ex =  self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad.pk, fluido_in, 'carcasa', 'E')
 
+                try:
+                    diseno = propiedades.calcular_diseno
+                    intercambiador.ntu = diseno['ntu']
+                    intercambiador.efectividad = diseno['efectividad']
+                    intercambiador.eficiencia = diseno['eficiencia']
+                    intercambiador.lmtd = diseno['lmtd']
+                    intercambiador.save()
+                except:
+                    print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
+
                 messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
                 return redirect(f"/intercambiadores/evaluaciones/{intercambiador.pk}/")
         except Exception as e:
@@ -1531,6 +1561,16 @@ class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, EdicionInterca
                     intercambiador.criticidad = request.POST['criticidad']
                     intercambiador.editado_por = request.user
                     intercambiador.editado_al = datetime.datetime.now()
+
+                    try:
+                        diseno = propiedades.calcular_diseno
+                        intercambiador.ntu = diseno['ntu']
+                        intercambiador.efectividad = diseno['efectividad']
+                        intercambiador.eficiencia = diseno['eficiencia']
+                        intercambiador.lmtd = diseno['lmtd']
+                    except:
+                        print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
+
                     intercambiador.save()
 
                     # Actualización de Evaluaciones
@@ -2246,7 +2286,7 @@ class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, ValidacionCambi
             return JsonResponse({'codigo': codigo})
         else:
             return JsonResponse({'codigo': codigo, 'mensaje': mensaje})
-        
+
 # REPORTES DE INTERCAMBIADORES
 MENSAJE_ERROR = "No se encontró el recurso necesario para generar el reporte especificado."
 class ReporteEvaluacionDetalle(LoginRequiredMixin, View):
