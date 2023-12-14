@@ -269,6 +269,14 @@
                       <th colspan="2" class="table-dark">Criticidad</th>
                       <td colspan="4">{{intercambiador.criticidad_larga}}</td>
                     </tr>
+                    <tr>
+                      <td colspan="6">Creado por el usuario <b>{{generales.creado_por.get_full_name}}</b> el día <b>{{generales.creado_al}}</b>.</td>
+                    </tr>
+                    {% if generales.editado_al %}
+                    <tr>
+                      <td colspan="6">Editado por <b>{{generales.editado_por.get_full_name}}</b> el día <b>{{generales.editado_al}}</b>.</td>
+                    </tr>
+                    {%endif%}
                   </tbody>
                 </table>
               </div>
