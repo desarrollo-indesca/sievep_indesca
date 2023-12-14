@@ -10,6 +10,10 @@ from calculos.unidades import transformar_unidades_presion, transformar_unidades
 alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 def historico_evaluaciones(object_list, request):
+    '''
+    Resumen:
+        Función que genera el histórico XLSX de evaluaciones realizadas a un intercambiador filtradas de acuerdo a lo establecido en el request.
+    '''
     excel_io = BytesIO()
     workbook = xlsxwriter.Workbook(excel_io)    
     worksheet = workbook.add_worksheet()
@@ -96,6 +100,10 @@ def historico_evaluaciones(object_list, request):
     return response
 
 def ficha_tecnica_tubo_carcasa_xlsx(intercambiador, request):
+    '''
+    Resumen:
+        Función que genera los datos de ficha técnica en formato XLSX de un intercambiador tubo/carcasa.
+    '''
     excel_io = BytesIO()
     workbook = xlsxwriter.Workbook(excel_io)
     
@@ -251,6 +259,10 @@ def ficha_tecnica_tubo_carcasa_xlsx(intercambiador, request):
     return response
 
 def ficha_tecnica_doble_tubo_xlsx(intercambiador, request):
+    '''
+    Resumen:
+        Función que genera los datos de ficha técnica en formato XLSX de un intercambiador doble tubo.
+    '''
     excel_io = BytesIO()
     workbook = xlsxwriter.Workbook(excel_io)
     
@@ -403,7 +415,11 @@ def ficha_tecnica_doble_tubo_xlsx(intercambiador, request):
     
     return response
 
-def reporte_tubo_carcasa(object_list, request):
+def reporte_intercambiadores(object_list, request):
+    '''
+    Resumen:
+        Función que genera los datos generales de un intercambiador en formato XLSX.
+    '''
     excel_io = BytesIO()
     workbook = xlsxwriter.Workbook(excel_io)
     
@@ -427,7 +443,7 @@ def reporte_tubo_carcasa(object_list, request):
     center_bordered.set_align('center')
 
     worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
-    worksheet.write('C1', 'Reporte de Intercambiadores Tubo/Carcasa', bold)
+    worksheet.write('C1', f'Reporte de Intercambiadores {"Tubo/Carcasa" if object_list[0].intercambiador.tipo.pk == 1 else "Doble Tubo"}', bold)
     worksheet.insert_image(0, 4, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
 
     num = 6
@@ -452,12 +468,13 @@ def reporte_tubo_carcasa(object_list, request):
     worksheet.write(f'F{num}', 'Criticidad', bold_bordered)
 
     for i,intercambiador in enumerate(object_list):
+        datos =  intercambiador.intercambiador
         num += 1
         worksheet.write_number(f'A{num}', i+1, center_bordered)
-        worksheet.write(f'B{num}', intercambiador.intercambiador.tag, center_bordered)
-        worksheet.write(f'C{num}', intercambiador.intercambiador.planta.nombre, center_bordered)
-        worksheet.write(f'D{num}', intercambiador.intercambiador.planta.complejo.nombre, center_bordered)
-        worksheet.write(f'E{num}', intercambiador.intercambiador.servicio, bordered)
+        worksheet.write(f'B{num}', datos.tag, center_bordered)
+        worksheet.write(f'C{num}', datos.planta.nombre, center_bordered)
+        worksheet.write(f'D{num}', datos.planta.complejo.nombre, center_bordered)
+        worksheet.write(f'E{num}', datos.servicio, bordered)
         worksheet.write(f'F{num}', intercambiador.criticidad_larga(), bordered)
     
     worksheet.write(f"E{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)

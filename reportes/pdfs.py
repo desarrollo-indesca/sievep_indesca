@@ -58,6 +58,10 @@ def generar_pdf(request,object_list,titulo,reporte):
         Un objeto HttpResponse con el reporte en formato PDF. Este simplemente debe ser enviado como respuesta al cliente.
     '''
     def primera_pagina(canvas, doc):
+        '''
+        Resumen:
+            Esta función coloca la disposición del encabezado del PDF a generar.
+        '''
         width, height = A4
         canvas.saveState()
         titleStyle = ParagraphStyle(
@@ -102,7 +106,11 @@ def generar_pdf(request,object_list,titulo,reporte):
         )
         canvas.restoreState()
 
-    def add_footer(canvas, doc):
+    def footer(canvas, doc):
+        '''
+        Resumen:
+            Esta función coloca la disposición del pie de página del PDF a generar.
+        '''
         canvas.saveState()
         canvas.setFont('Times-Roman', 10)
         page_number_text = "Página %d" % (doc.page)
@@ -113,59 +121,67 @@ def generar_pdf(request,object_list,titulo,reporte):
         )
         canvas.restoreState()
 
+    def cerrar_archivos(archivos):
+        '''
+        Resumen:
+            Función para el cierre de archivos generados durante la generación del PDF.
+        '''
+        if(archivos):
+            for x in archivos:
+                x.close()
+
     reportHeader = titulo
     
     date = datetime.datetime.now().strftime('%d/%m/%Y - %H:%M:%S')
     buff = BytesIO()
     doc = SimpleDocTemplate(buff,pagesize=A4, topMargin=30, bottomMargin=30)
     story = []
-    
-    fechaHeadingStyle = ParagraphStyle(
-        'fechaHeading',
-        fontSize=8.6,
-    )
-
-    fechaStyle = ParagraphStyle(
-        'fecha',
-        fontSize=6.5,
-    )
 
     story,archivos = generar_historia(request, reporte, object_list)
 
     doc.build(story, 
         onFirstPage=primera_pagina,
-        onLaterPages=add_footer,
+        onLaterPages=footer,
     )
           
     response = HttpResponse(content_type='application/pdf')
+    fecha = datetime.datetime.now()
+    response['Content-Disposition'] = f'attachment; filename="{reporte}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.hour}.pdf"'
 
     response.write(buff.getvalue())
-    if(archivos):
-        for x in archivos:
-            x.close()
-
     buff.close()
+
+    cerrar_archivos(archivos)
 
     return response
 
 def generar_historia(request, reporte, object_list):
-    # Colocar los tipos de reporte de la siguiente forma:
+    '''
+    Resumen:
+        Esta función genera la historia utilizada por la librería para la generación del reporte PDF
+        a través del código del reporte y la función de generación correspondiente.
+    '''
     if reporte == 'intercambiadores_tubo_carcasa':
         return intercambiadores_tubo_carcasa(request, object_list)
 
     if reporte == 'ficha_tecnica_tubo_carcasa':
-        return ficha_tecnica_tubo_carcasa(request, object_list)
+        return ficha_tecnica_tubo_carcasa(object_list)
     
     if reporte == 'ficha_tecnica_doble_tubo':
-        return ficha_tecnica_doble_tubo(request, object_list)
+        return ficha_tecnica_doble_tubo(object_list)
     
     if reporte == 'evaluaciones_intercambiadores':
         return reporte_evaluacion(request, object_list)
     
     if reporte == 'evaluacion_detalle':
-        return detalle_evaluacion(request, object_list)
+        return detalle_evaluacion(object_list)
 
-def detalle_evaluacion(request, evaluacion):
+def detalle_evaluacion(evaluacion):
+    '''
+    Resumen:
+        Esta función genera la historia de elementos a utilizar en el reporte de detalle de evaluación.
+        Envía un archivo para cerrar.
+    '''
     story = [Spacer(0,70)]
     intercambiador = evaluacion.intercambiador
     propiedades = intercambiador.intercambiador()
@@ -368,6 +384,11 @@ def detalle_evaluacion(request, evaluacion):
     return [story, [grafica1]]
 
 def reporte_evaluacion(request, object_list):
+    '''
+    Resumen:
+        Esta función genera la historia de elementos a utilizar en el reporte de histórico de evaluaciones de un intercambiador.
+        Devuelve además una lista de elementos de archivos que deben ser cerrados una vez se genere el reporte.
+    '''
     story = []
     story.append(Spacer(0,60))
 
@@ -375,6 +396,7 @@ def reporte_evaluacion(request, object_list):
     propiedades = intercambiador.intercambiador()
     condicion_carcasa = propiedades.condicion_carcasa() if intercambiador.tipo.pk == 1 else propiedades.condicion_externo()
 
+    # Condiciones de Filtrado
     if(len(request.GET) >= 2 and (request.GET['desde'] or request.GET['hasta'] or request.GET['usuario'] or request.GET['nombre'])):
         story.append(Paragraph("Datos de Filtrado", centrar_parrafo))
         table = [[Paragraph("Desde", centrar_parrafo), Paragraph("Hasta", centrar_parrafo), Paragraph("Usuario", centrar_parrafo), Paragraph("Nombre Ev.", centrar_parrafo)]]
@@ -390,7 +412,8 @@ def reporte_evaluacion(request, object_list):
 
         story.append(table)
         story.append(Spacer(0,7))
-        
+    
+    # Primera tabla: Evaluaciones
     table = [
         [
             Paragraph(f"Fecha", centrar_parrafo),
@@ -441,11 +464,12 @@ def reporte_evaluacion(request, object_list):
     table.setStyle(basicTableStyle)
     story.append(table)
 
-    sub = "Fechas"
+    sub = "Fechas" # Subtítulo de las evaluaciones
     if(len(fechas) >= 5):
         fechas = list(range(1,len(fechas)+1))
         sub = "Evaluaciones"
 
+    # Generación de Gráficas históricas. Todas las magnitudes deben encontrarse en la misma unidad.
     grafica1 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.plot(fechas, eficiencias)
@@ -521,6 +545,11 @@ def reporte_evaluacion(request, object_list):
     return [story, [grafica1, grafica2, grafica3, grafica4, grafica5, grafica6]]
 
 def intercambiadores_tubo_carcasa(request, object_list):
+    '''
+    Resumen:
+        Esta función genera la historia de elementos a utilizar en el reporte de intercambiadores del tipo tubo/carcasa.
+        No devuelve archivos.
+    '''
     story = []
     story.append(Spacer(0,60))
 
@@ -555,7 +584,12 @@ def intercambiadores_tubo_carcasa(request, object_list):
     story.append(table)
     return [story, None]
 
-def ficha_tecnica_tubo_carcasa(request, object_list):
+def ficha_tecnica_tubo_carcasa(object_list):
+    '''
+    Resumen:
+        Esta función genera la historia de elementos a utilizar en el reporte de ficha técnica de tubo/carcasa.
+        No devuelve archivos.
+    '''
     story = []
     story.append(Spacer(0,90))
     intercambiador = object_list
@@ -856,7 +890,12 @@ def ficha_tecnica_tubo_carcasa(request, object_list):
 
     return [story, None]
 
-def ficha_tecnica_doble_tubo(request, object_list):
+def ficha_tecnica_doble_tubo(object_list):
+    '''
+    Resumen:
+        Esta función genera la historia de elementos a utilizar en el reporte de ficha técnica de doble tubo.
+        No devuelve archivos.
+    '''
     story = []
     story.append(Spacer(0,90))
     intercambiador = object_list

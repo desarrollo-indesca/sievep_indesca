@@ -11,7 +11,7 @@ from thermo.chemical import search_chemical, Chemical
 from calculos.termodinamicos import calcular_cp
 from calculos.evaluaciones import evaluacion_tubo_carcasa, obtener_cambio_fase, determinar_cambio_parcial, calcular_calor_scdf, calcular_calor_cdft, calcular_calor_cdfp, calcular_tsat_hvap
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import historico_evaluaciones, reporte_tubo_carcasa, ficha_tecnica_tubo_carcasa_xlsx, ficha_tecnica_doble_tubo_xlsx
+from reportes.xlsx import historico_evaluaciones, reporte_intercambiadores, ficha_tecnica_tubo_carcasa_xlsx, ficha_tecnica_doble_tubo_xlsx
 from calculos.unidades import *
 import datetime
 
@@ -955,8 +955,9 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ListView):
         if(request.POST.get('tipo') == 'pdf'):
             return generar_pdf(request, self.get_queryset(),"Reporte de Intercambiadores Tubo/Carcasa", "intercambiadores_tubo_carcasa")
         elif(request.POST.get('tipo') == 'xlsx'):
-            response = reporte_tubo_carcasa(self.get_queryset(), request)
-            response['Content-Disposition'] = 'attachment; filename="reporte_tubo_carcasa.xlsx"'
+            response = reporte_intercambiadores(self.get_queryset(), request)
+            fecha = datetime.datetime.now()
+            response['Content-Disposition'] = f'attachment; filename="reporte_tubo_carcasa_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.hour}.xlsx"'
             return response
         elif(request.POST.get('pdf')):
             intercambiador = PropiedadesTuboCarcasa.objects.get(pk=request.POST['pdf']).intercambiador
@@ -1054,8 +1055,9 @@ class ConsultaDobleTubo(LoginRequiredMixin, ListView):
         if(request.POST['tipo'] == 'pdf'):
             return generar_pdf(request, self.get_queryset(),"Reporte de Intercambiadores Doble Tubo", "intercambiadores_tubo_carcasa")
         else:
-            response = reporte_tubo_carcasa(self.get_queryset(), request)
-            response['Content-Disposition'] = 'attachment; filename="reporte_tubo_carcasa.xlsx"'
+            response = reporte_intercambiadores(self.get_queryset(), request)
+            fecha = datetime.datetime.now()
+            response['Content-Disposition'] = f'attachment; filename="reporte_doble_tubo_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.hour}.xlsx"'
             return response
             
     def get_context_data(self, **kwargs):
@@ -1912,7 +1914,8 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
                 return generar_pdf(request, self.get_queryset(), f'Reporte de Evaluaciones del Intercambiador {intercambiador.tag}', 'evaluaciones_intercambiadores')
             elif(request.POST['tipo'] == 'xlsx'):
                 response = historico_evaluaciones(self.get_queryset(), request)
-                response['Content-Disposition'] = 'attachment; filename="reporte_evaluaciones.xlsx"'
+                fecha = datetime.datetime.now()
+                response['Content-Disposition'] = f'attachment; filename="reporte_evaluaciones_{intercambiador.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.hour}.xlsx"'
                 return response
             
         if(request.user.is_superuser): # Lógica de "Eliminación"
@@ -2326,7 +2329,8 @@ class FichaTecnicaTuboCarcasa(LoginRequiredMixin, View):
                 return generar_pdf(request, intercambiador, f'Ficha Técnica del Intercambiador {intercambiador.tag}', 'ficha_tecnica_tubo_carcasa')
             elif(request.GET['tipo'] == 'xlsx'):
                 response = ficha_tecnica_tubo_carcasa_xlsx(intercambiador, request)
-                response['Content-Disposition'] = f'attachment; filename="datos_ficha_tecnica_{intercambiador.tag}.xlsx"'
+                fecha = datetime.datetime.now()
+                response['Content-Disposition'] = f'attachment; filename="datos_ficha_tecnica_{intercambiador.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.hour}.xlsx"'
                 return response
         except Exception as e:
             print(str(e))
@@ -2350,7 +2354,8 @@ class FichaTecnicaDobleTubo(LoginRequiredMixin, View):
                 return generar_pdf(request, intercambiador, f'Ficha Técnica del Intercambiador {intercambiador.tag}', 'ficha_tecnica_doble_tubo')
             elif(request.GET['tipo'] == 'xlsx'):
                 response = ficha_tecnica_doble_tubo_xlsx(intercambiador, request)
-                response['Content-Disposition'] = f'attachment; filename="datos_ficha_tecnica_{intercambiador.tag}.xlsx"'
+                fecha = datetime.datetime.now()
+                response['Content-Disposition'] = f'attachment; filename="datos_ficha_tecnica_{intercambiador.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.hour}.xlsx"'
                 return response
         except Exception as e:
             print(str(e))
