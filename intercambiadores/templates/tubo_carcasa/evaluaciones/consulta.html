@@ -54,10 +54,9 @@
     <th scope="col">Resultados</th>
   </tr>
 </thead>
-{% with diseno=intercambiador.calcular_diseno %}
-{% if object_list.count and not diseno %}
+{% if object_list.count and not generales.lmtd %}
 <script>
-  alert("No se han podido obtener los datos de diseño para comparación. Comprobar datos de diseño en ficha.");
+  $(document).ready((e) => alert("No se han podido obtener los datos de diseño para comparación. Comprobar datos de diseño en ficha."));
 </script>
 {% endif %}
 <tbody class="text-center">
@@ -67,7 +66,6 @@
   <td colspan="7">No se encontraron evaluaciones con los datos de filtrado proporcionados.</td>
   {% endif %}
 </tbody>
-{% endwith %}
 {% endblock %}
 
 {% block opciones %}
@@ -75,8 +73,10 @@
 <div>
   <form method="post">
     {% csrf_token %}
+    {% if object_list %}
     <button name="tipo" value="pdf" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Reporte PDF</button>
     <button name="tipo" value="xlsx" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Reporte XLSX</button>
+    {% endif %}
     <button type="button" class="btn btn-secondary" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{intercambiador.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button>
     <button type="button" class="btn btn-warning" style="color: black;" data-bs-toggle="modal" data-bs-target="#grafica_historica"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Mostrar gráfica histórico">&nbsp;Gráfica Histórica</button>
   </form>
