@@ -6,10 +6,8 @@
   {% with generales=intercambiador.intercambiador %}
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="
     {% if generales.tipo.pk == 1 %}
-    {% url 'consulta_tubo_carcasa' %}
-    {% elif generales.tipo.pk == 2 %}
-    {% url 'consulta_doble_tubo' %}
-    {% endif %}
+    {% url 'consulta_tubo_carcasa' %}{% elif generales.tipo.pk == 2 %}
+    {% url 'consulta_doble_tubo' %}{% endif %}?page={{request.session.pagina_consulta}}&tag={{request.session.tag_consulta}}&servicio={{request.session.servicio_consulta}}&complejo={{request.session.complejo_consulta}}&planta={{request.session.planta_consulta}}
   ">↶ Regresar</a></div>
   <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Evaluaciones del Intercambiador {{generales.tag}}</h3></div>
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">

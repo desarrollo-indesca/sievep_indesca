@@ -418,6 +418,29 @@ class ValidacionCambioDeFaseMixin():
 
         return (codigo, mensaje, caso)
 
+class ConsultaIntercambiador(ListView):
+    '''
+    Resumen:
+        Clase que contiene lógica para el almacenamiento de la data de filtrado utilizada al acceder una vista por el método GET.
+        Hereda de ListView ya que es la vista utilizada para las vistas de consulta.
+
+    Métodos:
+        get(self, request, *args, **kwargs)
+            Método utilizado para el almacenamiento de datos de filtrado utilizados para el botón regresar en la consulta de evaluaciones.
+    '''
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        if(request.GET.get('page')):
+            request.session['pagina_consulta'] = request.GET['page']
+        else:
+            request.session['pagina_consulta'] = 1
+        
+        request.session['tag_consulta'] = request.GET.get('tag') if request.GET.get('tag') else ''
+        request.session['servicio_consulta'] = request.GET.get('servicio') if request.GET.get('servicio') else ''
+        request.session['complejo_consulta'] = request.GET.get('complejo') if request.GET.get('complejo') else ''
+        request.session['planta_consulta'] = request.GET.get('planta') if request.GET.get('planta') else ''
+        
+        return super().get(request, *args, **kwargs)
+
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
 class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorMixin, View):
     """
@@ -921,7 +944,7 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
 
         return render(request, self.template_name, context=self.context)
 
-class ConsultaTuboCarcasa(LoginRequiredMixin, ListView):
+class ConsultaTuboCarcasa(LoginRequiredMixin, ConsultaIntercambiador):
     """
     Resumen:
         Vista de consulta de evaluaciones. Contiene la lógica de filtrado y paginación.
@@ -953,7 +976,7 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ListView):
 
     def post(self, request, **kwargs):
         if(request.POST.get('tipo') == 'pdf'):
-            return generar_pdf(request, self.get_queryset(),"Reporte de Intercambiadores Tubo/Carcasa", "intercambiadores_tubo_carcasa")
+            return generar_pdf(request, self.get_queryset(),"Reporte de Intercambiadores Tubo/Carcasa", "intercambiadores")
         elif(request.POST.get('tipo') == 'xlsx'):
             response = reporte_intercambiadores(self.get_queryset(), request)
             fecha = datetime.datetime.now()
@@ -1021,7 +1044,7 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ListView):
         return new_context
 
 # VISTAS PARA LOS INTERCAMBIADORES DE DOBLE TUBO
-class ConsultaDobleTubo(LoginRequiredMixin, ListView):
+class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
     """
     Resumen:
         Vista de consulta de evaluaciones. Contiene la lógica de filtrado y paginación.
@@ -1053,7 +1076,7 @@ class ConsultaDobleTubo(LoginRequiredMixin, ListView):
 
     def post(self, request, **kwargs):
         if(request.POST['tipo'] == 'pdf'):
-            return generar_pdf(request, self.get_queryset(),"Reporte de Intercambiadores Doble Tubo", "intercambiadores_tubo_carcasa")
+            return generar_pdf(request, self.get_queryset(),"Reporte de Intercambiadores Doble Tubo", "intercambiadores")
         else:
             response = reporte_intercambiadores(self.get_queryset(), request)
             fecha = datetime.datetime.now()
@@ -1537,8 +1560,8 @@ class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, EdicionInterca
                     propiedades.u = request.POST['u'] if request.POST['u'] != '' else None
                     propiedades.conexiones_entrada_ex = request.POST['conexiones_entrada_carcasa']
                     propiedades.conexiones_salida_ex = request.POST['conexiones_salida_carcasa']
-                    propiedades.conexiones_entrada_tubos = request.POST['conexiones_entrada_tubo']
-                    propiedades.conexiones_salida_tubos = request.POST['conexiones_salida_tubo']
+                    propiedades.conexiones_entrada_in = request.POST['conexiones_entrada_tubo']
+                    propiedades.conexiones_salida_in = request.POST['conexiones_salida_tubo']
                     propiedades.fluido_in =  Fluido.objects.get(pk=request.POST['fluido_tubo']) if type(fluido_tubo) == str and fluido_tubo else fluido_tubo if type(fluido_tubo) == Fluido else None
                     propiedades.fluido_ex = Fluido.objects.get(pk=request.POST['fluido_carcasa']) if type(fluido_carcasa) == str and fluido_carcasa else fluido_carcasa if type(fluido_carcasa) == Fluido else None
                     propiedades.area_unidad = Unidades.objects.get(pk=request.POST['unidad_area'])
@@ -1751,11 +1774,10 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
                     cp_liquido_tubo,cp_gas_tubo = self.obtener_cps(t1,t2,presion,float(cond_tubo.flujo_liquido_entrada),float(cond_tubo.flujo_liquido_salida),
                                                             float(cond_tubo.flujo_vapor_entrada),float(cond_tubo.flujo_vapor_salida),
                                                             intercambiador.fluido_tubo.cas,cond_tubo.cambio_de_fase,unidad_cp)
-                elif(request.POST.get('tipo_cp_tubo') == 'M'):
-                    # Manual. Tomar en cuenta CDF.
+                elif(request.POST.get('tipo_cp_tubo') == 'M'): # Manual
                     cp_gas_tubo = float(request.POST['cp_gas_tubo']) if request.POST.get('cp_gas_tubo') else None
                     cp_liquido_tubo = float(request.POST['cp_liquido_tubo']) if request.POST.get('cp_liquido_tubo') else None
-                else:
+                else: # Automático
                     cp_gas_tubo = float(cond_tubo.fluido_cp_gas) if cond_tubo.fluido_cp_gas else None
                     cp_liquido_tubo = float(cond_tubo.fluido_cp_liquido) if cond_tubo.fluido_cp_liquido else None
 
@@ -1766,11 +1788,10 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
                     cp_liquido_carcasa,cp_gas_carcasa = self.obtener_cps(t1,t2,presion,float(cond_carcasa.flujo_liquido_entrada),float(cond_carcasa.flujo_liquido_salida),
                                                             float(cond_carcasa.flujo_vapor_entrada),float(cond_carcasa.flujo_vapor_salida),
                                                             intercambiador.fluido_carcasa.cas,cond_carcasa.cambio_de_fase,unidad_cp)
-                elif(request.POST.get('tipo_cp_carcasa') == 'M'):
-                    # Manual. Tomar en cuenta CDF.
+                elif(request.POST.get('tipo_cp_carcasa') == 'M'): # Manual
                     cp_gas_carcasa = float(request.POST['cp_gas_carcasa']) if request.POST.get('cp_gas_carcasa') else None
                     cp_liquido_carcasa = float(request.POST['cp_liquido_carcasa']) if request.POST.get('cp_liquido_carcasa') else None
-                else:
+                else: # Automático
                     cp_gas_carcasa = float(cond_carcasa.fluido_cp_gas) if cond_carcasa.fluido_cp_gas else None
                     cp_liquido_carcasa = float(cond_carcasa.fluido_cp_liquido) if cond_carcasa.fluido_cp_liquido else None
                 
@@ -1908,7 +1929,7 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def post(self, request, **kwargs):
-        if(request.POST.get('tipo')):
+        if(request.POST.get('tipo')): # Lógica de Generación de Reportes
             intercambiador = Intercambiador.objects.get(pk=kwargs['pk'])
             if(request.POST['tipo'] == 'pdf'):
                 return generar_pdf(request, self.get_queryset(), f'Reporte de Evaluaciones del Intercambiador {intercambiador.tag}', 'evaluaciones_intercambiadores')
@@ -2063,10 +2084,10 @@ class ConsultaCAS(LoginRequiredMixin, View):
         cas = request.GET['cas']
 
         if(Fluido.objects.filter(cas = cas).exists()):
-            estado = 2
+            estado = 2 # Encontrado en la BDD
             fluido = Fluido.objects.get(cas = cas).nombre
         else:
-            estado = 1
+            estado = 1 # No encontrado en la BDD pero sí en la librería
 
         if(estado != 2):
             try:
@@ -2074,7 +2095,7 @@ class ConsultaCAS(LoginRequiredMixin, View):
                 fluido = quimico.common_name
             except Exception as e:
                 print(str(e))
-                estado = 3
+                estado = 3 # No encontrado ni en la librería ni en la BDD
                 fluido = ''
 
         return JsonResponse({'nombre': fluido, 'estado': estado})
@@ -2100,7 +2121,7 @@ class ConsultaCP(LoginRequiredMixin, ObtencionParametrosMixin, View):
         t1,t2 = transformar_unidades_temperatura([t1,t2], unidad=unidad)      
 
         if(fluido != ''):
-            if(fluido.find('*') != -1):
+            if(fluido.find('*') != -1): # Búsqueda del CAS
                 cas = fluido.split('*')[1]
 
                 if(cas.find('-') == -1):
@@ -2108,14 +2129,14 @@ class ConsultaCP(LoginRequiredMixin, ObtencionParametrosMixin, View):
             else:
                 cas = Fluido.objects.get(pk = fluido).cas
 
-            if(not request.GET.get('intercambiador')):
+            if(not request.GET.get('intercambiador')): # Líneas utilizadas en creaciones / ediciones
                 flujos = {
                     'flujo_vapor_in': float(request.GET['flujo_vapor_in']) if request.GET.get('flujo_vapor_in') else 0,
                     'flujo_vapor_out': float(request.GET['flujo_vapor_out']) if request.GET.get('flujo_vapor_out') else 0,
                     'flujo_liquido_in': float(request.GET['flujo_liquido_in']) if request.GET.get('flujo_liquido_in') else 0,
                     'flujo_liquido_out': float(request.GET['flujo_liquido_out']) if request.GET.get('flujo_liquido_out') else 0
                 }
-            else:
+            else: # Líneas utilizadas en evaluaciones
                 intercambiador = Intercambiador.objects.get(pk = request.GET['intercambiador']).intercambiador()
 
                 if(type(intercambiador) == PropiedadesTuboCarcasa):
@@ -2137,7 +2158,7 @@ class ConsultaCP(LoginRequiredMixin, ObtencionParametrosMixin, View):
                 }
 
             cp_liq, cp_gas = self.obtener_cps(t1, t2, presion, flujos['flujo_liquido_in'], flujos['flujo_liquido_out'], flujos['flujo_vapor_in'], flujos['flujo_vapor_out'], cas, cambio_fase, unidad_salida)       
-        else:
+        else: # En caso de ser un fluido no registrado...
             return JsonResponse({'cp': ''})
         
         return JsonResponse({'cp_liquido': cp_liq, 'cp_gas': cp_gas})
@@ -2205,7 +2226,7 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, ValidacionCambioDeFaseMix
                 fluido = Fluido.objects.get_or_create(nombre = fluido[0].upper(), cas = fluido[1])
             else:
                 fluido = None
-        elif fluido != '': # Fluido registrable
+        elif fluido != '': # Fluido registrado
             fluido = Fluido.objects.get(pk=fluido)
 
         if(fluido):

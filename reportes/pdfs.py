@@ -161,8 +161,8 @@ def generar_historia(request, reporte, object_list):
         Esta función genera la historia utilizada por la librería para la generación del reporte PDF
         a través del código del reporte y la función de generación correspondiente.
     '''
-    if reporte == 'intercambiadores_tubo_carcasa':
-        return intercambiadores_tubo_carcasa(request, object_list)
+    if reporte == 'intercambiadores':
+        return intercambiadores(request, object_list)
 
     if reporte == 'ficha_tecnica_tubo_carcasa':
         return ficha_tecnica_tubo_carcasa(object_list)
@@ -544,7 +544,7 @@ def reporte_evaluacion(request, object_list):
 
     return [story, [grafica1, grafica2, grafica3, grafica4, grafica5, grafica6]]
 
-def intercambiadores_tubo_carcasa(request, object_list):
+def intercambiadores(request, object_list):
     '''
     Resumen:
         Esta función genera la historia de elementos a utilizar en el reporte de intercambiadores del tipo tubo/carcasa.
