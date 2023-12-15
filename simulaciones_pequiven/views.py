@@ -42,9 +42,14 @@ class Bienvenida(View):
             else:
                 user = None
             
-        if user is not None:
+        if user and user.is_active:
             login(request, user)
+            if(self.context.get('errores')):
+                del(self.context['errores'])
+
             return redirect('/')
+        elif(user and not user.is_active):
+            self.context['errores'] = 'Usuario inactivo.'            
         else:
             self.context['errores'] = 'Datos Incorrectos.'
             return redirect('/')

@@ -303,7 +303,7 @@ def calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_li
         elif(cdf == 'VD'):
             return abs(flujo*((t2-t1)*cp_gas - hvap*calidad))
 
-def  calcular_calor_cdft(flujo,t1,t2,fluido,presion,datos,cp_gas,cp_liquido) -> float:
+def calcular_calor_cdft(flujo,t1,t2,fluido,presion,datos,cp_gas,cp_liquido) -> float:
     '''
     Resumen:
         Función para calcular el calor de un fluido con cambio de fase total.
@@ -459,7 +459,7 @@ def truncar(numero: float, decimales: int = 2) -> float:
 def factor_correccion_tubo_carcasa(ti, ts, Ti, Ts, num_pasos_tubo, num_pasos_carcasa) -> float:
     '''
     Resumen:
-        Rutina aproximada para el factor de corrección de LMTD.
+        Rutina aproximada para el factor de corrección de LMTD. Se creó pero no se utilizó dado que había un método más preciso.
     '''
     try:
         P = abs((ts - ti)/(Ti - ti))
