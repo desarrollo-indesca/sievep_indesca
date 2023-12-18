@@ -405,10 +405,10 @@ class PropiedadesTuboCarcasa(models.Model):
             return None
 
     def condicion_tubo(self):
-        return self.intercambiador.condiciones.get(lado='T')
+        return self.intercambiador.condiciones.select_related('temperaturas_unidad','flujos_unidad','intercambiador','unidad_cp','unidad_presion').get(lado='T')
     
     def condicion_carcasa(self):
-        return self.intercambiador.condiciones.get(lado='C')
+        return self.intercambiador.condiciones.select_related('temperaturas_unidad','flujos_unidad','intercambiador','unidad_cp','unidad_presion').get(lado='C')
     
     def criticidad_larga(self):
         for x in criticidades:

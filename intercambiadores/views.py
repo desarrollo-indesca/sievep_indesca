@@ -1041,7 +1041,9 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ConsultaIntercambiador):
                 intercambiador__tag__icontains = tag
             )
 
-        return new_context
+        return new_context.select_related('intercambiador','area_unidad','longitud_tubos_unidad','diametro_tubos_unidad',
+            'q_unidad','u_unidad','ensuciamiento_unidad','intercambiador__planta__complejo','intercambiador__tema','unidades_pitch',
+            'fluido_carcasa','fluido_tubo').all()
 
 # VISTAS PARA LOS INTERCAMBIADORES DE DOBLE TUBO
 class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
@@ -1114,7 +1116,9 @@ class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
         complejo = self.request.GET.get('complejo', '')
         planta = self.request.GET.get('planta', '')
 
-        new_context = None
+        new_context = self.model.objects.select_related('intercambiador','area_unidad','longitud_tubos_unidad','diametro_tubos_unidad',
+            'q_unidad','u_unidad','ensuciamiento_unidad','intercambiador__planta__complejo','intercambiador__tema','unidades_pitch',
+            'fluido_carcasa','fluido_tubo').all()
 
         if(planta != '' and complejo != ''):
             new_context = self.model.objects.filter(
@@ -2019,7 +2023,7 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
                 nombre__icontains = nombre
             )
 
-        return new_context
+        return new_context.select_related('intercambiador','temperaturas_unidad','unidad_flujo','unidad_presion','cp_unidad')
 
 # VISTAS AJAX
 class EvaluarIntercambiador(LoginRequiredMixin, View):
