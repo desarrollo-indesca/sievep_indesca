@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from calculos.evaluaciones import evaluacion_tubo_carcasa, evaluacion_doble_tubo
 from django.utils.functional import cached_property
+from calculos.unidades import transformar_unidades_cp
 import os.path
 from simulaciones_pequiven.settings import BASE_DIR
 
@@ -397,6 +398,10 @@ class PropiedadesTuboCarcasa(models.Model):
             fluido_cp_gas_carcasa = float(cond_carcasa.fluido_cp_gas) if cond_carcasa.fluido_cp_gas else None
             fluido_cp_liquido_carcasa = float(cond_carcasa.fluido_cp_liquido) if cond_carcasa.fluido_cp_liquido else None
 
+            fluido_cp_gas_tubo,fluido_cp_liquido_tubo,fluido_cp_gas_carcasa,fluido_cp_gas_tubo = \
+                transformar_unidades_cp([fluido_cp_gas_tubo,fluido_cp_liquido_tubo,fluido_cp_gas_carcasa,fluido_cp_gas_tubo],\
+                                        cond_carcasa.unidad_cp.pk)
+
             return evaluacion_tubo_carcasa(self, ti, ts, Ti, Ts, ft, fc, 
                 self.numero_tubos,  fluido_cp_gas_tubo, fluido_cp_liquido_tubo,
                 fluido_cp_gas_carcasa, fluido_cp_liquido_carcasa,
@@ -537,6 +542,10 @@ class PropiedadesDobleTubo(models.Model):
             fluido_cp_liquido_tubo = float(condicion_in.fluido_cp_liquido) if condicion_in.fluido_cp_liquido else None
             fluido_cp_gas_carcasa = float(condicion_ex.fluido_cp_gas) if condicion_ex.fluido_cp_gas else None
             fluido_cp_liquido_carcasa = float(condicion_ex.fluido_cp_liquido) if condicion_ex.fluido_cp_liquido else None
+
+            fluido_cp_gas_tubo,fluido_cp_liquido_tubo,fluido_cp_gas_carcasa,fluido_cp_gas_tubo = \
+                transformar_unidades_cp([fluido_cp_gas_tubo,fluido_cp_liquido_tubo,fluido_cp_gas_carcasa,fluido_cp_gas_tubo],\
+                                        condicion_ex.unidad_cp.pk, 29)
 
             return evaluacion_doble_tubo(self, ti, ts, Ti, Ts, ft, fc, 
                 self.numero_tubos,  fluido_cp_gas_tubo, fluido_cp_liquido_tubo,

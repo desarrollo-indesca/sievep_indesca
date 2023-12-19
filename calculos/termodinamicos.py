@@ -44,6 +44,7 @@ def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida: int = 29, pres
         for i in range(5):
             try:
                 name = quimico.synonyms[i].title().replace(' ','').replace('O-','o-').replace('N-','n-').replace('P-','p-')
+                print(presion)
                 if(fase == 'g'):
                     cp = CP.PropsSI('C','T',t,'P|gas',presion,name)
                 elif(fase == 'l'):
@@ -55,8 +56,11 @@ def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida: int = 29, pres
                 continue
 
         if(cp == None):
-            raise Exception     
+            raise Exception
+        else:
+            print("COOLPROP")  
     except: # Cálculo de Cp con Thermo (En caso de falla)
+        print('thermo')
         if(fase == 'l'): # Líquido
             cp = quimico.Cpl
         elif(fase == 'g'): # Gase

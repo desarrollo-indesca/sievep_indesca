@@ -2042,10 +2042,13 @@ class EvaluarIntercambiador(LoginRequiredMixin, View):
         ft = (float(request.GET['flujo_tubo'].replace(',','.')))
         fc = (float(request.GET['flujo_carcasa'].replace(',','.')))
         nt = (float(request.GET['no_tubos']))
-        cp_gas_tubo = transformar_unidades_cp([float(request.GET['cp_gas_tubo'])], unidad=request.GET['unidad_cp'])[0] if request.GET.get('cp_gas_tubo') else None
-        cp_liquido_tubo = transformar_unidades_cp([float(request.GET['cp_liquido_tubo'])], unidad=request.GET['unidad_cp'])[0] if request.GET.get('cp_liquido_tubo') else None
-        cp_gas_carcasa = transformar_unidades_cp([float(request.GET['cp_gas_carcasa'])], unidad=request.GET['unidad_cp'])[0] if request.GET.get('cp_gas_carcasa') else None
-        cp_liquido_carcasa = transformar_unidades_cp([float(request.GET['cp_liquido_carcasa'])], unidad=request.GET['unidad_cp'])[0] if request.GET.get('cp_liquido_carcasa') else None
+
+        unidad_cp = int(request.GET['unidad_cp'])
+        cp_gas_tubo = transformar_unidades_cp([float(request.GET['cp_gas_tubo'])], unidad_cp, 29)[0] if request.GET.get('cp_gas_tubo') else None
+        cp_liquido_tubo = transformar_unidades_cp([float(request.GET['cp_liquido_tubo'])], unidad_cp, 29)[0] if request.GET.get('cp_liquido_tubo') else None
+        cp_gas_carcasa = transformar_unidades_cp([float(request.GET['cp_gas_carcasa'])], unidad_cp, 29)[0] if request.GET.get('cp_gas_carcasa') else None
+        cp_liquido_carcasa = transformar_unidades_cp([float(request.GET['cp_liquido_carcasa'])], unidad_cp, 29)[0] if request.GET.get('cp_liquido_carcasa') else None
+        
         unidad = int(request.GET['unidad'])
         unidad_flujo = int(request.GET['unidad_flujo'])
 
@@ -2118,6 +2121,7 @@ class ConsultaCP(LoginRequiredMixin, ObtencionParametrosMixin, View):
         cambio_fase = request.GET['cambio_fase'] if request.GET.get('cambio_fase') else 'S'
         unidad_presiones = int(request.GET['unidad_presiones']) if request.GET.get('unidad_presiones') else 33
         presion = transformar_unidades_presion([float(request.GET.get('presion'))], unidad_presiones)[0] if request.GET.get('presion') else 1e5
+        print(presion)
         t1,t2 = transformar_unidades_temperatura([t1,t2], unidad=unidad)      
 
         if(fluido != ''):
@@ -2209,17 +2213,21 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, ValidacionCambioDeFaseMix
         flujo_liquido_in = float(request.GET['flujo_liquido_in'])
         flujo_liquido_out = float(request.GET['flujo_liquido_out'])
         flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out], int(request.GET['unidad_flujos']))
+        
         cambio_fase = request.GET.get('cambio_fase')
         lado = 'Carcasa' if request.GET['lado'] == 'C' else 'Tubo'
+        
         unidad_temperaturas = int(request.GET['unidad_temperaturas'])
         t1,t2 = transformar_unidades_temperatura([float(request.GET.get('t1')),float(request.GET.get('t2'))], unidad_temperaturas)
+        
         unidad_presiones = int(request.GET['unidad_presiones'])
         presion = transformar_unidades_presion([float(request.GET['presion'])], unidad_presiones)[0]
+        
         fluido = request.GET['fluido']
         unidad_cp = int(request.GET['unidad_cp'])
         cp_gas, cp_liquido = float(request.GET['cp_gas']) if request.GET['cp_gas'] != '' else None, float(request.GET['cp_liquido']) if request.GET['cp_liquido'] != '' else None
         cp_gas, cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], unidad_cp, 29)
-       
+      
         if(fluido.find('*') != -1): # Fluido no registrado
             fluido = fluido.split('*')
             if(fluido[1].find('-') != -1):
@@ -2251,8 +2259,8 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, ValidacionCambioDeFaseMix
             calorcalc = calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in+flujo_liquido_in, t1, t2, hvap, cp_gas, cp_liquido)    
         elif(cambio_fase == 'S'):
             calorcalc = calcular_calor_scdf(flujo_vapor_in+flujo_liquido_in, cp_gas if cp_gas else cp_liquido, t1, t2)
-        
-        calorcalc = round(calorcalc, 2)
+       
+        calorcalc = round(transformar_unidades_calor([calorcalc], 28, int(request.GET['unidad_calor']))[0], 2)
 
         if(codigo == 200):
             return JsonResponse({'codigo': codigo, 'calorcalc': calorcalc})
