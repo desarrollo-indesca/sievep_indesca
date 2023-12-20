@@ -38,7 +38,7 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
 
     print(q_carcasa, q_tubo)
     
-    nt = nt if nt else float(intercambiador.numero_tubos) # Número de los tubos
+    nt = int(nt) if nt else float(intercambiador.numero_tubos) # Número de los tubos
 
     diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_tubos)], intercambiador.diametro_tubos_unidad.pk)[0] # Diametro (OD), transformacion a m
     longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad.pk)[0] # Longitud, transformacion a m
@@ -129,11 +129,10 @@ def evaluacion_doble_tubo(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_in 
     q_ex = calcular_calor(ft, ti, ts, cp_gas_in, cp_liquido_in, intercambiador, 'T') # Calor del tubo interno (W)
     q_in = calcular_calor(Fc, Ti, Ts, cp_gas_ex, cp_liquido_ex, intercambiador, 'C') # Calor de la tubo externo (W)
     
-    nt = nt if nt else float(intercambiador.numero_tubos) # Número de los tubos
+    nt = int(nt) if nt else float(intercambiador.numero_tubos) # Número de los tubos
 
     diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_in)], intercambiador.diametro_tubos_unidad.pk)[0] # Diametro (OD), transformacion a m
     longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad.pk)[0] # Longitud, transformacion a m
-
     area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
 
     arreglo_flujo = intercambiador.intercambiador.arreglo_flujo
