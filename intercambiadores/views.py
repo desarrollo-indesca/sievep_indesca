@@ -778,6 +778,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorM
                     intercambiador.efectividad = diseno['efectividad']
                     intercambiador.eficiencia = diseno['eficiencia']
                     intercambiador.lmtd = diseno['lmtd']
+                    intercambiador.save()
                 except Exception as e:
                     print(str(e))
                     print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
@@ -785,6 +786,7 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorM
                     intercambiador.efectividad = None
                     intercambiador.eficiencia = None
                     intercambiador.lmtd = None
+                    intercambiador.save()
 
                 intercambiador.save()
                 messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
@@ -911,6 +913,7 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
                     intercambiador.efectividad = diseno['efectividad']
                     intercambiador.eficiencia = diseno['eficiencia']
                     intercambiador.lmtd = diseno['lmtd']
+                    intercambiador.save()
                 except Exception as e:
                     print(str(e))
                     print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
@@ -918,8 +921,7 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
                     intercambiador.efectividad = None
                     intercambiador.eficiencia = None
                     intercambiador.lmtd = None
-
-                intercambiador.save()
+                    intercambiador.save()
 
                 # Actualización de Evaluaciones
                 self.editar_evaluaciones(intercambiador)
@@ -1478,7 +1480,6 @@ class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMix
 
                 try:
                     diseno = propiedades.calcular_diseno
-                    print(diseno)
                     intercambiador.ntu = diseno['ntu']
                     intercambiador.efectividad = diseno['efectividad']
                     intercambiador.eficiencia = diseno['eficiencia']
@@ -1491,6 +1492,7 @@ class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMix
                     intercambiador.efectividad = None
                     intercambiador.eficiencia = None
                     intercambiador.lmtd = None
+                    intercambiador.save()
 
                 messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
                 return redirect(f"/intercambiadores/evaluaciones/{intercambiador.pk}/")
@@ -1615,11 +1617,11 @@ class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, EdicionInterca
 
             try:
                 diseno = propiedades.calcular_diseno
-                print(diseno)
                 intercambiador.ntu = diseno['ntu']
                 intercambiador.efectividad = diseno['efectividad']
                 intercambiador.eficiencia = diseno['eficiencia']
                 intercambiador.lmtd = diseno['lmtd']
+                intercambiador.save()
             except Exception as e:
                 print(str(e))
                 print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
@@ -1627,9 +1629,8 @@ class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, EdicionInterca
                 intercambiador.efectividad = None
                 intercambiador.eficiencia = None
                 intercambiador.lmtd = None
-
-            intercambiador.save()
-
+                intercambiador.save()
+           
             # Actualización de Evaluaciones
             self.editar_evaluaciones(intercambiador)
             
