@@ -79,7 +79,7 @@ class ComponerFluidos(View):
 
             return HttpResponse("CREADO EXITOSAMENTE")
 
-# Carga de Intercambiadores (Revisión)
+# Carga de Intercambiadores -- Vista temporal para carga de intercambiadores. Actualmente dará error.
 class ComponerIntercambiadores(View):
     def get(self, request):
         import csv, random
@@ -296,7 +296,7 @@ class ComponerIntercambiadores(View):
                     continue
             return HttpResponse("Listo")
 
-# Carga de Temas
+# Carga de Temas -- Vista Temporal
 class ComponerTemas(View):
     def get(self, request):
         import csv
@@ -312,7 +312,8 @@ class ComponerTemas(View):
                     )
         
         return HttpResponse("Listo")
-    
+
+# Carga de Fluidos -- Vista Temporal
 class ComponerFluidos(View):
     def get(self, request):
         import csv

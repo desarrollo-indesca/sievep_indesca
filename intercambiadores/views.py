@@ -771,8 +771,6 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorM
 
                 # Condiciones de Diseño de la Tubo Externo
                 condiciones_diseno_ex =  self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad.pk, fluido_carcasa, 'carcasa', 'C')
-
-                messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
                 
                 try:
                     diseno = propiedades.calcular_diseno
@@ -780,10 +778,16 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorM
                     intercambiador.efectividad = diseno['efectividad']
                     intercambiador.eficiencia = diseno['eficiencia']
                     intercambiador.lmtd = diseno['lmtd']
-                    intercambiador.save()
-                except:
+                except Exception as e:
+                    print(str(e))
                     print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
+                    intercambiador.ntu = None
+                    intercambiador.efectividad = None
+                    intercambiador.eficiencia = None
+                    intercambiador.lmtd = None
 
+                intercambiador.save()
+                messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
                 return redirect(f"/intercambiadores/evaluaciones/{intercambiador.pk}/")
         except Exception as e:
             print(str(e))
@@ -907,8 +911,13 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
                     intercambiador.efectividad = diseno['efectividad']
                     intercambiador.eficiencia = diseno['eficiencia']
                     intercambiador.lmtd = diseno['lmtd']
-                except:
+                except Exception as e:
+                    print(str(e))
                     print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
+                    intercambiador.ntu = None
+                    intercambiador.efectividad = None
+                    intercambiador.eficiencia = None
+                    intercambiador.lmtd = None
 
                 intercambiador.save()
 
@@ -1041,7 +1050,9 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ConsultaIntercambiador):
                 intercambiador__tag__icontains = tag
             )
 
-        return new_context
+        return new_context.select_related('intercambiador','area_unidad','longitud_tubos_unidad','diametro_tubos_unidad',
+            'q_unidad','u_unidad','ensuciamiento_unidad','intercambiador__planta__complejo','intercambiador__tema','unidades_pitch',
+            'fluido_carcasa','fluido_tubo')
 
 # VISTAS PARA LOS INTERCAMBIADORES DE DOBLE TUBO
 class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
@@ -1138,7 +1149,9 @@ class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
                 intercambiador__tag__icontains = tag
             )
 
-        return new_context
+        return new_context.select_related('intercambiador','area_unidad','longitud_tubos_unidad','diametro_tubos_unidad',
+            'q_unidad','u_unidad','ensuciamiento_unidad','intercambiador__planta__complejo','intercambiador__tema',
+            'fluido_ex','fluido_in')
 
 class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMixin, View):
     """
@@ -1465,13 +1478,19 @@ class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMix
 
                 try:
                     diseno = propiedades.calcular_diseno
+                    print(diseno)
                     intercambiador.ntu = diseno['ntu']
                     intercambiador.efectividad = diseno['efectividad']
                     intercambiador.eficiencia = diseno['eficiencia']
                     intercambiador.lmtd = diseno['lmtd']
                     intercambiador.save()
-                except:
+                except Exception as e:
+                    print(str(e))
                     print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
+                    intercambiador.ntu = None
+                    intercambiador.efectividad = None
+                    intercambiador.eficiencia = None
+                    intercambiador.lmtd = None
 
                 messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
                 return redirect(f"/intercambiadores/evaluaciones/{intercambiador.pk}/")
@@ -1587,24 +1606,32 @@ class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, EdicionInterca
                     intercambiador.editado_por = request.user
                     intercambiador.editado_al = datetime.datetime.now()
 
-                    try:
-                        diseno = propiedades.calcular_diseno
-                        intercambiador.ntu = diseno['ntu']
-                        intercambiador.efectividad = diseno['efectividad']
-                        intercambiador.eficiencia = diseno['eficiencia']
-                        intercambiador.lmtd = diseno['lmtd']
-                    except:
-                        print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
-
                     intercambiador.save()
-
-                    # Actualización de Evaluaciones
-                    self.editar_evaluaciones(intercambiador)
             except Exception as e:
                 print("AAAAAAAAAAAAAAA")
                 print(str(e))
                 errores.append('Ha ocurrido un error desconocido al editar el intercambiador. Verifique los datos ingresados.')
                 return self.redirigir_por_errores(request, errores)
+
+            try:
+                diseno = propiedades.calcular_diseno
+                print(diseno)
+                intercambiador.ntu = diseno['ntu']
+                intercambiador.efectividad = diseno['efectividad']
+                intercambiador.eficiencia = diseno['eficiencia']
+                intercambiador.lmtd = diseno['lmtd']
+            except Exception as e:
+                print(str(e))
+                print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
+                intercambiador.ntu = None
+                intercambiador.efectividad = None
+                intercambiador.eficiencia = None
+                intercambiador.lmtd = None
+
+            intercambiador.save()
+
+            # Actualización de Evaluaciones
+            self.editar_evaluaciones(intercambiador)
             
             messages.success(request, "Se han editado las características del intercambiador exitosamente.")
             return redirect(f"/intercambiadores/doble_tubo/")
@@ -2019,7 +2046,7 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
                 nombre__icontains = nombre
             )
 
-        return new_context
+        return new_context.select_related('intercambiador','temperaturas_unidad','unidad_flujo','unidad_presion','cp_unidad')
 
 # VISTAS AJAX
 class EvaluarIntercambiador(LoginRequiredMixin, View):
@@ -2042,10 +2069,13 @@ class EvaluarIntercambiador(LoginRequiredMixin, View):
         ft = (float(request.GET['flujo_tubo'].replace(',','.')))
         fc = (float(request.GET['flujo_carcasa'].replace(',','.')))
         nt = (float(request.GET['no_tubos']))
-        cp_gas_tubo = transformar_unidades_cp([float(request.GET['cp_gas_tubo'])], unidad=request.GET['unidad_cp'])[0] if request.GET.get('cp_gas_tubo') else None
-        cp_liquido_tubo = transformar_unidades_cp([float(request.GET['cp_liquido_tubo'])], unidad=request.GET['unidad_cp'])[0] if request.GET.get('cp_liquido_tubo') else None
-        cp_gas_carcasa = transformar_unidades_cp([float(request.GET['cp_gas_carcasa'])], unidad=request.GET['unidad_cp'])[0] if request.GET.get('cp_gas_carcasa') else None
-        cp_liquido_carcasa = transformar_unidades_cp([float(request.GET['cp_liquido_carcasa'])], unidad=request.GET['unidad_cp'])[0] if request.GET.get('cp_liquido_carcasa') else None
+
+        unidad_cp = int(request.GET['unidad_cp'])
+        cp_gas_tubo = transformar_unidades_cp([float(request.GET['cp_gas_tubo'])], unidad_cp, 29)[0] if request.GET.get('cp_gas_tubo') else None
+        cp_liquido_tubo = transformar_unidades_cp([float(request.GET['cp_liquido_tubo'])], unidad_cp, 29)[0] if request.GET.get('cp_liquido_tubo') else None
+        cp_gas_carcasa = transformar_unidades_cp([float(request.GET['cp_gas_carcasa'])], unidad_cp, 29)[0] if request.GET.get('cp_gas_carcasa') else None
+        cp_liquido_carcasa = transformar_unidades_cp([float(request.GET['cp_liquido_carcasa'])], unidad_cp, 29)[0] if request.GET.get('cp_liquido_carcasa') else None
+        
         unidad = int(request.GET['unidad'])
         unidad_flujo = int(request.GET['unidad_flujo'])
 
@@ -2118,6 +2148,7 @@ class ConsultaCP(LoginRequiredMixin, ObtencionParametrosMixin, View):
         cambio_fase = request.GET['cambio_fase'] if request.GET.get('cambio_fase') else 'S'
         unidad_presiones = int(request.GET['unidad_presiones']) if request.GET.get('unidad_presiones') else 33
         presion = transformar_unidades_presion([float(request.GET.get('presion'))], unidad_presiones)[0] if request.GET.get('presion') else 1e5
+        print(presion)
         t1,t2 = transformar_unidades_temperatura([t1,t2], unidad=unidad)      
 
         if(fluido != ''):
@@ -2187,8 +2218,7 @@ class ConsultaGraficasEvaluacion(LoginRequiredMixin, View):
         unidad_presion = intercambiador.intercambiador().condicion_carcasa().unidad_presion if intercambiador.tipo.pk == 1 else intercambiador.intercambiador().condicion_externo().unidad_presion
 
         for i,x in enumerate(evaluaciones):
-            evaluaciones[i]['caida_presion_in'] = transformar_unidades_presion([x['caida_presion_in']], x['unidad_presion'], unidad_presion.pk)[0]
-            evaluaciones[i]['caida_presion_ex'] = transformar_unidades_presion([x['caida_presion_ex']], x['unidad_presion'], unidad_presion.pk)[0]
+            evaluaciones[i]['caida_presion_in'],evaluaciones[i]['caida_presion_ex'] = transformar_unidades_presion([x['caida_presion_in'],x['caida_presion_ex']], x['unidad_presion'], unidad_presion.pk)
 
         return JsonResponse(list(evaluaciones)[:15], safe=False)
 
@@ -2209,17 +2239,21 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, ValidacionCambioDeFaseMix
         flujo_liquido_in = float(request.GET['flujo_liquido_in'])
         flujo_liquido_out = float(request.GET['flujo_liquido_out'])
         flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out], int(request.GET['unidad_flujos']))
+        
         cambio_fase = request.GET.get('cambio_fase')
         lado = 'Carcasa' if request.GET['lado'] == 'C' else 'Tubo'
+        
         unidad_temperaturas = int(request.GET['unidad_temperaturas'])
         t1,t2 = transformar_unidades_temperatura([float(request.GET.get('t1')),float(request.GET.get('t2'))], unidad_temperaturas)
+        
         unidad_presiones = int(request.GET['unidad_presiones'])
         presion = transformar_unidades_presion([float(request.GET['presion'])], unidad_presiones)[0]
+        
         fluido = request.GET['fluido']
         unidad_cp = int(request.GET['unidad_cp'])
         cp_gas, cp_liquido = float(request.GET['cp_gas']) if request.GET['cp_gas'] != '' else None, float(request.GET['cp_liquido']) if request.GET['cp_liquido'] != '' else None
         cp_gas, cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], unidad_cp, 29)
-       
+      
         if(fluido.find('*') != -1): # Fluido no registrado
             fluido = fluido.split('*')
             if(fluido[1].find('-') != -1):
@@ -2251,8 +2285,8 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, ValidacionCambioDeFaseMix
             calorcalc = calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out,flujo_vapor_in+flujo_liquido_in, t1, t2, hvap, cp_gas, cp_liquido)    
         elif(cambio_fase == 'S'):
             calorcalc = calcular_calor_scdf(flujo_vapor_in+flujo_liquido_in, cp_gas if cp_gas else cp_liquido, t1, t2)
-        
-        calorcalc = round(calorcalc, 2)
+       
+        calorcalc = round(transformar_unidades_calor([calorcalc], 28, int(request.GET['unidad_calor']))[0], 2)
 
         if(codigo == 200):
             return JsonResponse({'codigo': codigo, 'calorcalc': calorcalc})

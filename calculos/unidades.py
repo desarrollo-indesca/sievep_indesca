@@ -108,9 +108,12 @@ def transformar_unidades_presion(args: list, unidad: int, unidad_salida: int = 3
         list -> Lista de valores transformados a la unidad de salida
     '''
     actualizadas = []
-    unidad_salida = ur.bar if unidad_salida == 7 else ur.atm if unidad_salida == 11 else ur.pound_force_per_square_inch if unidad_salida == 17 else ur.mmHg if unidad_salida == 22 else ur.kPa if unidad_salida == 26 else ur.Pa
-    unidad = ur.bar if unidad == 7 else ur.atm if unidad == 11 else ur.pound_force_per_square_inch if unidad == 17 else ur.mmHg if unidad == 22 else ur.kPa
 
+    unidad_salida = ur.bar if unidad_salida == 7 or unidad_salida == 38 else ur.atm if unidad_salida == 11 else ur.pound_force_per_square_inch \
+        if unidad_salida == 17 else ur.mmHg if unidad_salida == 22 else ur.kPa if unidad_salida == 26 else ur.Pa
+    unidad = ur.bar if unidad == 7 or unidad == 38 else ur.atm if unidad == 11 else ur.pound_force_per_square_inch \
+        if unidad == 17 else ur.mmHg if unidad == 22 else ur.kPa
+    
     for x in args:
         actualizadas.append(Q_(x, unidad).to(unidad_salida).magnitude)
 
@@ -130,8 +133,10 @@ def transformar_unidades_u(args: list, unidad: int, unidad_salida: int = 27) -> 
         list -> Lista de valores transformados a la unidad de salida
     '''
     actualizadas = []
-    unidad_salida = ur.watt/ur.meter**2/ur.kelvin if unidad_salida == 27 else ur.Btu_it/ur.hour/ur.feet**2/ur.delta_degF
-    unidad = ur.watt/ur.meter**2/ur.kelvin if unidad == 27 else ur.Btu_it/ur.hour/ur.feet**2/ur.delta_degF
+    unidad_salida = ur.watt/ur.meter**2/ur.kelvin if unidad_salida == 27 else ur.Btu_it/ur.hour/ur.feet**2/ur.delta_degF \
+        if unidad_salida == 23 else ur.kcal/ur.hour/ur.delta_degC/ur.meter**2
+    unidad = ur.watt/ur.meter**2/ur.kelvin if unidad == 27 else ur.Btu_it/ur.hour/ur.feet**2/ur.delta_degF \
+        if unidad == 23 else ur.kcal/ur.hour/ur.delta_degC/ur.meter**2
 
     for x in args:
         actualizadas.append(Q_(x, unidad).to(unidad_salida).magnitude)
@@ -152,8 +157,10 @@ def transformar_unidades_calor(args: list, unidad: int, unidad_salida: int = 28)
         list -> Lista de valores transformados a la unidad de salida
     '''
     actualizadas = []
-    unidad_salida = ur.watt if unidad_salida == 28 else ur.Btu_it/ur.hour if unidad_salida == 24 else ur.Btu_it/ur.second
-    unidad = ur.watt if unidad == 28 else ur.Btu_it/ur.hour if unidad == 24 else ur.Btu_it/ur.second
+    unidad_salida = ur.watt if unidad_salida == 28 else ur.Btu_it/ur.hour if unidad_salida == 24 else ur.Btu_it/ur.second \
+        if unidad_salida == 25 else ur.kcal/ur.hour
+    unidad = ur.watt if unidad == 28 else ur.Btu_it/ur.hour if unidad == 24 else ur.Btu_it/ur.second \
+        if unidad == 25 else ur.kcal/ur.hour
 
     for x in args:
         if(x == None):
@@ -176,9 +183,15 @@ def transformar_unidades_cp(args: list, unidad: int, unidad_salida: int = 30) ->
     Devuelve:
         list -> Lista de valores transformados a la unidad de salida
     '''
+    print(unidad, unidad_salida)
+
     actualizadas = []
-    unidad_salida = ur.joule/ur.kgram/ur.kelvin if unidad_salida == 29 else ur.Btu_it/ur.pound/ur.delta_degF
-    unidad = ur.joule/ur.kgram/ur.kelvin if unidad == 29 else ur.Btu_it/ur.pound/ur.delta_degF
+    unidad_salida = ur.joule/ur.kgram/ur.kelvin if unidad_salida == 29 else ur.Btu_it/ur.pound/ur.delta_degF \
+        if unidad_salida == 30 else ur.kcal/ur.kilogram/ur.delta_degC
+    unidad = ur.joule/ur.kgram/ur.kelvin if unidad == 29 else ur.Btu_it/ur.pound/ur.delta_degF \
+        if unidad == 30 else ur.kcal/ur.kilogram/ur.delta_degC
+    
+    print(unidad, unidad_salida)
 
     for x in args:
         if(x == None):
@@ -202,8 +215,10 @@ def transformar_unidades_ensuciamiento(args: list, unidad: int, unidad_salida: i
         list -> Lista de valores transformados a la unidad de salida
     '''
     actualizadas = []
-    unidad_salida = ur.meter**2*ur.kelvin/ur.watt if unidad_salida == 31 else ur.hour*ur.feet**2*ur.delta_degF/ur.Btu_it
-    unidad = ur.meter**2*ur.kelvin/ur.watt if unidad == 31 else ur.hour*ur.feet**2*ur.delta_degF/ur.Btu_it
+    unidad_salida = ur.meter**2*ur.kelvin/ur.watt if unidad_salida == 31 else ur.hour*ur.feet**2*ur.delta_degF/ur.Btu_it \
+        if unidad_salida == 32 else ur.hour*ur.meter**2*ur.delta_degC/ur.kcal
+    unidad = ur.meter**2*ur.kelvin/ur.watt if unidad == 31 else ur.hour*ur.feet**2*ur.delta_degF/ur.Btu_it \
+        if unidad == 32 else ur.hour*ur.meter**2*ur.delta_degC/ur.kcal
 
     for x in args:
         actualizadas.append(Q_(x, unidad).to(unidad_salida).magnitude)
