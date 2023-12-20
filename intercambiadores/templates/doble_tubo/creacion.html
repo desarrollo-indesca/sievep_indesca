@@ -338,7 +338,15 @@
                                             <input style="width: 60% !important;" class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_gas_carcasa" min="0.0001" id="cp_gas_carcasa" 
                                             {% if not previo.cp_tubo %}disabled{% endif %} value="{{previo.cp_gas_carcasa}}">
                                             <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
+                                                {% if previo.unidad_cp %}
+                                                {% for unidad in unidades_cp %}
+                                                {% if unidad.pk|slugify == previo.unidad_cp %}
+                                                <option>{{unidad}}</option>
+                                                {%endif%}                                                
+                                                {%endfor%}
+                                                {%else%}
                                                 <option value="">J/KgK</option>
+                                                {%endif%}
                                             </select>
                                         </div>  
                                     </div>
@@ -703,7 +711,15 @@
                                             <input style="width: 60% !important;" class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_liquido_tubo" min="0.0001" id="cp_liquido_tubo" 
                                             {% if not previo.cp_tubo %}disabled{% endif %} value="{{previo.cp_liquido_tubo}}">
                                             <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
-                                                <option value="{{unidad.pk|slugify}}">J/KgK</option>
+                                                {% if previo.unidad_cp %}
+                                                {% for unidad in unidades_cp %}
+                                                {% if unidad.pk|slugify == previo.unidad_cp %}
+                                                <option>{{unidad}}</option>
+                                                {%endif%}                                                
+                                                {%endfor%}
+                                                {%else%}
+                                                <option value="">J/KgK</option>
+                                                {%endif%}
                                             </select>
                                         </div>  
                                     </div>
@@ -713,7 +729,15 @@
                                             <input style="width: 60% !important;" class="form-control" type="number" step="0.0001" max="999999.9999" name="cp_gas_tubo" min="0.0001" id="cp_gas_tubo" 
                                             {% if not previo.cp_tubo %}disabled{% endif %} value="{{previo.cp_gas_tubo}}">
                                             <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
+                                                {% if previo.unidad_cp %}
+                                                {% for unidad in unidades_cp %}
+                                                {% if unidad.pk|slugify == previo.unidad_cp %}
+                                                <option>{{unidad}}</option>
+                                                {%endif%}                                                
+                                                {%endfor%}
+                                                {%else%}
                                                 <option value="">J/KgK</option>
+                                                {%endif%}
                                             </select>
                                         </div>  
                                     </div>

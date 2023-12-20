@@ -18,8 +18,6 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from .views import *
-from django.conf.urls import static
-from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,5 +28,5 @@ urlpatterns = [
     path('', include('pwa.urls')),
     path('migrar/intercambiadores/',ComponerIntercambiadores.as_view(), name="migrar_intercambiadores"),
     path('migrar/fluidos/',ComponerFluidos.as_view(), name="migrar_intercambiadores"),
-    path("__debug__/", include("debug_toolbar.urls")),
+    # path("__debug__/", include("debug_toolbar.urls")),
 ]

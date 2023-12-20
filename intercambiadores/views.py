@@ -87,10 +87,10 @@ class ObtencionParametrosMixin():
         if((cambio_fase == 'T' or cambio_fase == 'P') and tipo_cp == 'M' and type(fluido) != Fluido):
             tsatt = transformar_unidades_temperatura([tsat], int(request.POST.get('unidad_temperaturas')))[0] if t1 != t2 else tsat
             flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out = transformar_unidades_flujo([flujo_vapor_in,flujo_liquido_in,flujo_vapor_out,flujo_liquido_out],int(request.POST.get('unidad_flujos')))
-            cp_gas,cp_liquido = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp, 29)
+            cp_gas2,cp_liquido2 = transformar_unidades_cp([cp_gas, cp_liquido], unidad_cp, 29)
             calor = transformar_unidades_calor([calor],q_unidad)[0]
 
-            hvap,tsat = self.obtener_hvap_tsat(t1, t2, cambio_fase, tsatt, hvap, calor, cp_gas, cp_liquido,
+            hvap,tsat = self.obtener_hvap_tsat(t1, t2, cambio_fase, tsatt, hvap, calor, cp_gas2, cp_liquido2,
                                             flujo_vapor_in, flujo_liquido_in, flujo_vapor_out, flujo_liquido_out)
 
             tsat = transformar_unidades_temperatura([tsat], 2, int(request.POST.get('unidad_temperaturas')))[0]
@@ -180,8 +180,6 @@ class ObtencionParametrosMixin():
             tuple -> Tupla con el calor latente de vaporización y la temperatura de saturación.
         '''
 
-        print(t1, t2, cambio_fase, tsat, hvap, q, cp_gas, cp_liquido, flujo_vapor_in, flujo_liquido_in, flujo_vapor_out, flujo_liquido_out)
-
         if(cambio_fase == 'T'): # Cambio de Fase Total
             m = flujo_liquido_in + flujo_vapor_in # Flujo Total
             if(tsat == None): # Falta Tsat
@@ -246,7 +244,7 @@ class EdicionIntercambiadorMixin(ObtencionParametrosMixin):
         flujo_liquido_in,flujo_liquido_out = float(request.POST.get('flujo_liquido_in_' + lado)),float(request.POST.get('flujo_liquido_out_' + lado))
         flujo_vapor_in,flujo_vapor_out = float(request.POST.get('flujo_vapor_in_' + lado)), float(request.POST.get('flujo_vapor_out_' + lado))
         cambio_fase = obtener_cambio_fase(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out)
-
+        print("XDXDXDXDXDXDXD")
         cp_gas, cp_liquido, tsat, hvap = self.obtencion_parametros(calor, t1, t2, cambio_fase, tipo_cp, flujo_vapor_in, flujo_liquido_in, flujo_vapor_out, flujo_liquido_out, presion, fluido, unidad_calor, unidad_cp, request, lado)
         condicion.temp_entrada = request.POST['temp_in_' + lado]
         condicion.temp_salida = request.POST['temp_out_' + lado]
@@ -272,7 +270,7 @@ class EdicionIntercambiadorMixin(ObtencionParametrosMixin):
 
         if(fluido != ''):
             condicion.fluido_etiqueta = fluido[0] if type(fluido) != Fluido else None
-
+        print(cp_gas, cp_liquido)
         condicion.save()          
 
 class CreacionIntercambiadorMixin(ObtencionParametrosMixin):
