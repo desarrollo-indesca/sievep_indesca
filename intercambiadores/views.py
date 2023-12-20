@@ -780,9 +780,15 @@ class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorM
                     intercambiador.efectividad = diseno['efectividad']
                     intercambiador.eficiencia = diseno['eficiencia']
                     intercambiador.lmtd = diseno['lmtd']
-                    intercambiador.save()
-                except:
+                except Exception as e:
+                    print(str(e))
                     print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
+                    intercambiador.ntu = None
+                    intercambiador.efectividad = None
+                    intercambiador.eficiencia = None
+                    intercambiador.lmtd = None
+
+                intercambiador.save()
 
                 return redirect(f"/intercambiadores/evaluaciones/{intercambiador.pk}/")
         except Exception as e:
@@ -907,8 +913,13 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
                     intercambiador.efectividad = diseno['efectividad']
                     intercambiador.eficiencia = diseno['eficiencia']
                     intercambiador.lmtd = diseno['lmtd']
-                except:
+                except Exception as e:
+                    print(str(e))
                     print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
+                    intercambiador.ntu = None
+                    intercambiador.efectividad = None
+                    intercambiador.eficiencia = None
+                    intercambiador.lmtd = None
 
                 intercambiador.save()
 
@@ -1043,7 +1054,7 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ConsultaIntercambiador):
 
         return new_context.select_related('intercambiador','area_unidad','longitud_tubos_unidad','diametro_tubos_unidad',
             'q_unidad','u_unidad','ensuciamiento_unidad','intercambiador__planta__complejo','intercambiador__tema','unidades_pitch',
-            'fluido_carcasa','fluido_tubo').all()
+            'fluido_carcasa','fluido_tubo')
 
 # VISTAS PARA LOS INTERCAMBIADORES DE DOBLE TUBO
 class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
@@ -1116,9 +1127,7 @@ class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
         complejo = self.request.GET.get('complejo', '')
         planta = self.request.GET.get('planta', '')
 
-        new_context = self.model.objects.select_related('intercambiador','area_unidad','longitud_tubos_unidad','diametro_tubos_unidad',
-            'q_unidad','u_unidad','ensuciamiento_unidad','intercambiador__planta__complejo','intercambiador__tema','unidades_pitch',
-            'fluido_carcasa','fluido_tubo').all()
+        new_context = None
 
         if(planta != '' and complejo != ''):
             new_context = self.model.objects.filter(
@@ -1142,7 +1151,9 @@ class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
                 intercambiador__tag__icontains = tag
             )
 
-        return new_context
+        return new_context.select_related('intercambiador','area_unidad','longitud_tubos_unidad','diametro_tubos_unidad',
+            'q_unidad','u_unidad','ensuciamiento_unidad','intercambiador__planta__complejo','intercambiador__tema',
+            'fluido_ex','fluido_in')
 
 class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMixin, View):
     """
@@ -1469,13 +1480,19 @@ class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMix
 
                 try:
                     diseno = propiedades.calcular_diseno
+                    print(diseno)
                     intercambiador.ntu = diseno['ntu']
                     intercambiador.efectividad = diseno['efectividad']
                     intercambiador.eficiencia = diseno['eficiencia']
                     intercambiador.lmtd = diseno['lmtd']
                     intercambiador.save()
-                except:
+                except Exception as e:
+                    print(str(e))
                     print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
+                    intercambiador.ntu = None
+                    intercambiador.efectividad = None
+                    intercambiador.eficiencia = None
+                    intercambiador.lmtd = None
 
                 messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
                 return redirect(f"/intercambiadores/evaluaciones/{intercambiador.pk}/")
@@ -1597,8 +1614,13 @@ class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, EdicionInterca
                         intercambiador.efectividad = diseno['efectividad']
                         intercambiador.eficiencia = diseno['eficiencia']
                         intercambiador.lmtd = diseno['lmtd']
-                    except:
+                    except Exception as e:
+                        print(str(e))
                         print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
+                        intercambiador.ntu = None
+                        intercambiador.efectividad = None
+                        intercambiador.eficiencia = None
+                        intercambiador.lmtd = None
 
                     intercambiador.save()
 
@@ -2195,8 +2217,7 @@ class ConsultaGraficasEvaluacion(LoginRequiredMixin, View):
         unidad_presion = intercambiador.intercambiador().condicion_carcasa().unidad_presion if intercambiador.tipo.pk == 1 else intercambiador.intercambiador().condicion_externo().unidad_presion
 
         for i,x in enumerate(evaluaciones):
-            evaluaciones[i]['caida_presion_in'] = transformar_unidades_presion([x['caida_presion_in']], x['unidad_presion'], unidad_presion.pk)[0]
-            evaluaciones[i]['caida_presion_ex'] = transformar_unidades_presion([x['caida_presion_ex']], x['unidad_presion'], unidad_presion.pk)[0]
+            evaluaciones[i]['caida_presion_in'],evaluaciones[i]['caida_presion_ex'] = transformar_unidades_presion([x['caida_presion_in'],x['caida_presion_ex']], x['unidad_presion'], unidad_presion.pk)
 
         return JsonResponse(list(evaluaciones)[:15], safe=False)
 
