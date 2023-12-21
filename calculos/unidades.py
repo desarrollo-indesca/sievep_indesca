@@ -109,10 +109,10 @@ def transformar_unidades_presion(args: list, unidad: int, unidad_salida: int = 3
     '''
     actualizadas = []
 
-    unidad_salida = ur.bar if unidad_salida == 7 or unidad_salida == 38 else ur.atm if unidad_salida == 11 else ur.pound_force_per_square_inch \
+    unidad_salida = ur.bar if unidad_salida == 7 else ur.atm if unidad_salida == 11 else ur.kgf/ur.centimeter**2 if unidad_salida == 38 else ur.pound_force_per_square_inch \
         if unidad_salida == 17 else ur.mmHg if unidad_salida == 22 else ur.kPa if unidad_salida == 26 else ur.Pa
     unidad = ur.bar if unidad == 7 or unidad == 38 else ur.atm if unidad == 11 else ur.pound_force_per_square_inch \
-        if unidad == 17 else ur.mmHg if unidad == 22 else ur.kPa
+        if unidad == 17 else ur.kgf/ur.centimeter**2 if unidad_salida == 38 else ur.mmHg if unidad == 22 else ur.kPa
     
     for x in args:
         actualizadas.append(Q_(x, unidad).to(unidad_salida).magnitude)
@@ -183,16 +183,12 @@ def transformar_unidades_cp(args: list, unidad: int, unidad_salida: int = 30) ->
     Devuelve:
         list -> Lista de valores transformados a la unidad de salida
     '''
-    print(unidad, unidad_salida)
-
     actualizadas = []
     unidad_salida = ur.joule/ur.kgram/ur.kelvin if unidad_salida == 29 else ur.Btu_it/ur.pound/ur.delta_degF \
         if unidad_salida == 30 else ur.kcal/ur.kilogram/ur.delta_degC
     unidad = ur.joule/ur.kgram/ur.kelvin if unidad == 29 else ur.Btu_it/ur.pound/ur.delta_degF \
         if unidad == 30 else ur.kcal/ur.kilogram/ur.delta_degC
     
-    print(unidad, unidad_salida)
-
     for x in args:
         if(x == None):
             actualizadas.append(x)
