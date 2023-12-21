@@ -264,8 +264,7 @@ def calcular_calor_scdf(flujo, cp, t1, t2) -> float:
     Devuelve:
         float -> Q (W) del lado del intercambiador
     '''
-    print(flujo, cp, t1, t2)
-    print(flujo * cp * abs(t2-t1))
+    
     return flujo * cp * abs(t2-t1)
 
 def calcular_calor_cdfp(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out,flujo,t1,t2,hvap,cp_gas,cp_liquido) -> float:
@@ -326,15 +325,10 @@ def calcular_calor_cdft(flujo,t1,t2,fluido,presion,datos,cp_gas,cp_liquido) -> f
         tsat = transformar_unidades_temperatura([float(datos.tsat)], datos.temperaturas_unidad.pk)[0] if t1 != t2 else t1
         hvap = float(datos.hvap) if datos.hvap else datos
 
-    try:
-        fluido_cp_gas, fluido_cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], datos.unidad_cp.pk, 29)
-    except:
-        fluido_cp_gas, fluido_cp_liquido = cp_gas, cp_liquido
-
     if(t1 <= t2): # Vaporización
-        return flujo*(fluido_cp_gas*(t2-tsat)+hvap+fluido_cp_liquido*(tsat-t1))
+        return flujo*(cp_gas*(t2-tsat)+hvap+cp_liquido*(tsat-t1))
     else: # Condensación
-        return abs(flujo*(fluido_cp_gas*(tsat-t1)-hvap+fluido_cp_liquido*(t2-tsat)))
+        return abs(flujo*(cp_gas*(tsat-t1)-hvap+cp_liquido*(t2-tsat)))
 
 def obtener_c_eficiencia(condicion, flujo: float, cp_gas: float, cp_liquido: float) -> float:
     '''

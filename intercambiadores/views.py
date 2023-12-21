@@ -1821,12 +1821,12 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
                     cp_gas_carcasa = float(cond_carcasa.fluido_cp_gas) if cond_carcasa.fluido_cp_gas else None
                     cp_liquido_carcasa = float(cond_carcasa.fluido_cp_liquido) if cond_carcasa.fluido_cp_liquido else None
                 
-                cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa =  transformar_unidades_cp([cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa], unidad=unidad_cp, unidad_salida=29)
+                cp_gas_tubo2,cp_liquido_tubo2,cp_gas_carcasa2,cp_liquido_carcasa2 =  transformar_unidades_cp([cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa], unidad=unidad_cp, unidad_salida=29)
 
                 if(type(intercambiador) == PropiedadesTuboCarcasa):
-                    resultados = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+                    resultados = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo2, cp_liquido_tubo2, cp_gas_carcasa2, cp_liquido_carcasa2, unidad_temp=unidad, unidad_flujo = unidad_flujo)
                 elif(type(intercambiador) == PropiedadesDobleTubo):
-                    resultados = evaluacion_doble_tubo(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+                    resultados = evaluacion_doble_tubo(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo2, cp_liquido_tubo2, cp_gas_carcasa2, cp_liquido_carcasa2, unidad_temp=unidad, unidad_flujo = unidad_flujo)
                 
                 resultados['q'] = round(*transformar_unidades_calor([resultados['q']], 28, intercambiador.q_unidad.pk), 4)
                 resultados['area'] = round(*transformar_unidades_area([resultados['area']], 3, intercambiador.area_unidad.pk), 2)
@@ -1837,7 +1837,6 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
                 resultados['factor_ensuciamiento'] = round(*transformar_unidades_ensuciamiento([resultados['factor_ensuciamiento']], 31, intercambiador.ensuciamiento_unidad.pk), 6)
                 resultados['u'] = round(*transformar_unidades_u([resultados['u']], 27, intercambiador.u_unidad.pk), 4)
 
-                print(resultados, resultados['q'])
                 EvaluacionesIntercambiador.objects.create(
                     creado_por = request.user,
                     intercambiador = intercambiador.intercambiador,
@@ -1865,7 +1864,6 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
                     lmtd = resultados['lmtd'],
                     area_transferencia = resultados['area'],
                     u = round(resultados['u'], 4),
-                    ua = resultados['ua'],
                     ntu = resultados['ntu'],
                     efectividad = resultados['efectividad'],
                     eficiencia = resultados['eficiencia'],

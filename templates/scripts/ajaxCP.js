@@ -331,6 +331,11 @@ function anadir_listeners_cp() {
     $('#presion_entrada_tubo').keyup((e) => {
         ajaxCPTubo();
     });
+
+    $('#unidad_presiones').change((e) => {
+        ajaxCPCarcasa();
+        ajaxCPTubo();
+    });
 }
 
 // Cambio automático de unidades
