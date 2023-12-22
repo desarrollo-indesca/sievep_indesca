@@ -2169,14 +2169,14 @@ class ConsultaCP(LoginRequiredMixin, ObtencionParametrosMixin, View):
 
                 if(type(intercambiador) == PropiedadesTuboCarcasa):
                     if(request.GET['lado'] == 'C'):
-                        condiciones = condiciones.condicion_carcasa()
+                        condiciones = intercambiador.condicion_carcasa()
                     else:
-                        condiciones = condiciones.condicion_tubo()
+                        condiciones = intercambiador.condicion_tubo()
                 elif(type(intercambiador) == PropiedadesDobleTubo):
                     if(request.GET['lado'] == 'C'):
-                        condiciones = condiciones.condicion_externo()
+                        condiciones = intercambiador.condicion_externo()
                     else:
-                        condiciones = condiciones.condicion_interno()
+                        condiciones = intercambiador.condicion_interno()
 
                 flujos = {
                     'flujo_vapor_in': float(condiciones.flujo_vapor_entrada),
