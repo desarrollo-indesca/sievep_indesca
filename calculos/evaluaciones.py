@@ -42,18 +42,15 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
 
     diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_tubos)], intercambiador.diametro_tubos_unidad.pk)[0] # Diametro (OD), transformacion a m
     longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad.pk)[0] # Longitud, transformacion a m
-    diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_tubos)], intercambiador.diametro_tubos_unidad.pk)[0] # Diametro (OD), transformacion a m
-    longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad.pk)[0] # Longitud, transformacion a m
 
-    area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
     area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
 
     num_pasos_carcasa = float(intercambiador.numero_pasos_carcasa)
     num_pasos_tubo = float(intercambiador.numero_pasos_tubo)
     dtml = abs(((Ti - ts) - (Ts - ti))/np.log(abs((Ti - ts)/(Ts - ti)))) # Delta T Medio Logarítmico
-    
+
     try:
-        factor = round(F_LMTD_Fakheri(Ti, Ts, ti, ts, num_pasos_carcasa),3)  # Factor de corrección
+        factor = round(F_LMTD_Fakheri(Ti, Ts, ti, ts, num_pasos_carcasa),3) 
     except:
         factor = 1  # Factor de corrección
     
