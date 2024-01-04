@@ -1715,10 +1715,10 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
         
         try:
             with transaction.atomic():
-                ti = (float(request.POST['temp_in_carcasa']))
-                ts = (float(request.POST['temp_out_carcasa']))
-                Ti = (float(request.POST['temp_in_tubo']))
-                Ts = (float(request.POST['temp_out_tubo']))
+                Ti = (float(request.POST['temp_in_carcasa']))
+                Ts = (float(request.POST['temp_out_carcasa']))
+                ti = (float(request.POST['temp_in_tubo']))
+                ts = (float(request.POST['temp_out_tubo']))
                 ft = (float(request.POST['flujo_tubo']))
                 fc = (float(request.POST['flujo_carcasa']))
                 nt = (float(request.POST['no_tubos']))
@@ -1765,9 +1765,9 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
                 cp_gas_tubo2,cp_liquido_tubo2,cp_gas_carcasa2,cp_liquido_carcasa2 =  transformar_unidades_cp([cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa], unidad=unidad_cp, unidad_salida=29)
 
                 if(type(intercambiador) == PropiedadesTuboCarcasa):
-                    resultados = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo2, cp_liquido_tubo2, cp_gas_carcasa2, cp_liquido_carcasa2, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+                    resultados = evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, fc, nt, cp_gas_tubo2, cp_liquido_tubo2, cp_gas_carcasa2, cp_liquido_carcasa2, unidad_temp=unidad, unidad_flujo = unidad_flujo)
                 elif(type(intercambiador) == PropiedadesDobleTubo):
-                    resultados = evaluacion_doble_tubo(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo2, cp_liquido_tubo2, cp_gas_carcasa2, cp_liquido_carcasa2, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+                    resultados = evaluacion_doble_tubo(intercambiador, ti, ts, Ti, Ts, ft, fc, nt, cp_gas_tubo2, cp_liquido_tubo2, cp_gas_carcasa2, cp_liquido_carcasa2, unidad_temp=unidad, unidad_flujo = unidad_flujo)
                 
                 resultados['q'] = round(*transformar_unidades_calor([resultados['q']], 28, intercambiador.q_unidad.pk), 4)
                 resultados['area'] = round(*transformar_unidades_area([resultados['area']], 3, intercambiador.area_unidad.pk), 2)
@@ -2000,10 +2000,10 @@ class EvaluarIntercambiador(LoginRequiredMixin, View):
     def get(self, request, pk):
         intercambiador = Intercambiador.objects.get(pk = pk).intercambiador()
 
-        ti = (float(request.GET['temp_in_carcasa'].replace(',','.')))
-        ts = (float(request.GET['temp_out_carcasa'].replace(',','.')))
-        Ti = (float(request.GET['temp_in_tubo'].replace(',','.')))
-        Ts = (float(request.GET['temp_out_tubo'].replace(',','.')))
+        Ti = (float(request.GET['temp_in_carcasa'].replace(',','.')))
+        Ts = (float(request.GET['temp_out_carcasa'].replace(',','.')))
+        ti = (float(request.GET['temp_in_tubo'].replace(',','.')))
+        ts = (float(request.GET['temp_out_tubo'].replace(',','.')))
         ft = (float(request.GET['flujo_tubo'].replace(',','.')))
         fc = (float(request.GET['flujo_carcasa'].replace(',','.')))
         nt = (float(request.GET['no_tubos']))
@@ -2018,9 +2018,9 @@ class EvaluarIntercambiador(LoginRequiredMixin, View):
         unidad_flujo = int(request.GET['unidad_flujo'])
 
         if(type(intercambiador) == PropiedadesTuboCarcasa):
-            res = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+            res = evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
         elif(type(intercambiador) == PropiedadesDobleTubo):
-            res = evaluacion_doble_tubo(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+            res = evaluacion_doble_tubo(intercambiador, ti, ts, Ti, Ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
         
         # Transformar a Unidades de Salida
         res['q'] = round(*transformar_unidades_calor([res['q']], 28, intercambiador.q_unidad.pk), 4)
