@@ -689,7 +689,6 @@ class EvaluacionesIntercambiador(models.Model):
             q: float -> Calor calculado
             numero_tubos: float -> Número de tubos con los cuales se realizó la evaluación
 
-            lmtd_diseno_unidad: Unidad -> Unidad para no perder el almacenamiento de información de comparación
             area_diseno_unidad: Unidad -> Unidad para no perder el almacenamiento de información de comparación
             u_diseno_unidad: Unidad -> Unidad para no perder el almacenamiento de información de comparación
             q_diseno_unidad: Unidad -> Unidad para no perder el almacenamiento de información de comparación
