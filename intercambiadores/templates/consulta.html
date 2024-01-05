@@ -61,9 +61,9 @@
 <tbody class="text-center" id="tabla-body">
   {% if object_list.count %}
   {% if tipo == 1 %}
-  {% include 'tablas/intercambiadores/tubo_carcasa.html' %}
+  {% include 'tablas/tubo_carcasa.html' %}
   {% elif tipo == 2 %}
-  {% include 'tablas/intercambiadores/doble_tubo.html' %}
+  {% include 'tablas/doble_tubo.html' %}
   {% endif %}
   {% else %}
   <td colspan="7">No se encontraron intercambiadores con los datos de filtrado proporcionados.</td>

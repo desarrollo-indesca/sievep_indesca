@@ -59,7 +59,7 @@
 {% endif %}
 <tbody class="text-center">
   {% if object_list.count %}
-  {% include 'tablas/intercambiadores/evaluaciones.html' %}
+  {% include 'tablas/evaluaciones.html' %}
   {% else %}
   <td colspan="7">No se encontraron evaluaciones con los datos de filtrado proporcionados.</td>
   {% endif %}
@@ -78,11 +78,11 @@
     <button type="button" class="btn btn-secondary" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{intercambiador.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button>
     <button type="button" class="btn btn-warning" style="color: black;" data-bs-toggle="modal" data-bs-target="#grafica_historica"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Mostrar gráfica histórico">&nbsp;Gráfica Histórica</button>
   </form>
-  {% include 'resultados/intercambiadores/historico.html' %}
+  {% include 'resultados/historico.html' %}
   {% if generales.tipo.pk == 1 %}
-  {% include 'fichas/intercambiadores/tubo_carcasa.html' %}
+  {% include 'fichas/tubo_carcasa.html' %}
   {% elif generales.tipo.pk == 2 %}
-  {% include 'fichas/intercambiadores/doble_tubo.html' %}
+  {% include 'fichas/doble_tubo.html' %}
   {% endif %}
 </div>
 {% endwith %}

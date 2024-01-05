@@ -18,7 +18,7 @@
       <a class="btn btn-danger" href="{% url 'consulta_evaluaciones' pk=intercambiador.intercambiador.pk %}"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
     </td>
     <td>
-      {% include 'fichas/intercambiadores/tubo_carcasa.html' %}
+      {% include 'fichas/tubo_carcasa.html' %}
       <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#ficha_{{intercambiador.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica"></a>
     </td>
     {% endwith %}
