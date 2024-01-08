@@ -244,8 +244,8 @@ class EdicionIntercambiadorMixin(ObtencionParametrosMixin):
         flujo_liquido_in,flujo_liquido_out = float(request.POST.get('flujo_liquido_in_' + lado)),float(request.POST.get('flujo_liquido_out_' + lado))
         flujo_vapor_in,flujo_vapor_out = float(request.POST.get('flujo_vapor_in_' + lado)), float(request.POST.get('flujo_vapor_out_' + lado))
         cambio_fase = obtener_cambio_fase(flujo_vapor_in,flujo_vapor_out,flujo_liquido_in,flujo_liquido_out)
-        print("XDXDXDXDXDXDXD")
         cp_gas, cp_liquido, tsat, hvap = self.obtencion_parametros(calor, t1, t2, cambio_fase, tipo_cp, flujo_vapor_in, flujo_liquido_in, flujo_vapor_out, flujo_liquido_out, presion, fluido, unidad_calor, unidad_cp, request, lado)
+        
         condicion.temp_entrada = request.POST['temp_in_' + lado]
         condicion.temp_salida = request.POST['temp_out_' + lado]
         condicion.flujo_vapor_entrada = request.POST['flujo_vapor_in_' + lado]
@@ -852,7 +852,7 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
         if(len(errores)):
             return self.redirigir_por_errores(request, errores)
 
-        try:        
+        try:
             with transaction.atomic():
                 # Fluidos
                 fluido_tubo = self.obtencion_fluido(request, 'tubo')
@@ -923,9 +923,7 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
 
                 # Actualización de Evaluaciones
                 self.editar_evaluaciones(intercambiador)
-
         except Exception as e:
-            print("AAAAAAAAAAAAAAA")
             print(str(e))
             errores.append('Ha ocurrido un error desconocido al editar el intercambiador. Verifique los datos ingresados.')
             return self.redirigir_por_errores(request, errores)
@@ -1153,7 +1151,7 @@ class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
             'q_unidad','u_unidad','ensuciamiento_unidad','intercambiador__planta__complejo','intercambiador__tema',
             'fluido_ex','fluido_in')
 
-class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMixin, View):
+class CrearIntercambiadorDobleTubo(CrearIntercambiadorTuboCarcasa):
     """
     Resumen:
         Vista de Creación (Formulario) de un nuevo intercambiador de Doble Tubo. 
@@ -1375,38 +1373,6 @@ class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMix
 
         return errores
 
-    def redirigir_por_errores(self, request, errores):
-        copia_context = self.context.copy()
-        copia_context['previo'] = request.POST
-        copia_context['previo']._mutable = True
-
-        if(copia_context['previo'].get('fluido_tubo') and copia_context['previo'].get('fluido_tubo').find('*') != -1):
-            copia_context['previo']['fluido_tubo_etiqueta'] = copia_context['previo']['fluido_tubo'].split('*')[0]
-            copia_context['previo']['fluido_tubo_dato'] = copia_context['previo']['fluido_tubo'].split('*')[1]
-
-        if(copia_context['previo'].get('fluido_carcasa') and copia_context['previo'].get('fluido_carcasa').find('*') != -1):
-            copia_context['previo']['fluido_carcasa_etiqueta'] = copia_context['previo']['fluido_carcasa'].split('*')[0]
-            copia_context['previo']['fluido_carcasa_dato'] = copia_context['previo']['fluido_carcasa'].split('*')[1]
-
-        copia_context['errores'] = errores
-
-        copia_context['complejos'] = Complejo.objects.all()
-        copia_context['plantas'] = Planta.objects.filter(complejo__pk=1)
-        copia_context['tipos'] = TiposDeTubo.objects.all()
-        copia_context['temas'] = Tema.objects.filter(tipo_intercambiador__pk=2)
-        copia_context['fluidos'] = Fluido.objects.all()
-        copia_context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
-        copia_context['unidades_longitud'] = Unidades.objects.filter(tipo = 'L')
-        copia_context['unidades_area'] = Unidades.objects.filter(tipo = 'A')
-        copia_context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
-        copia_context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
-        copia_context['unidades_ensuciamiento'] = Unidades.objects.filter(tipo = 'E')
-        copia_context['unidades_q'] = Unidades.objects.filter(tipo = 'Q').order_by('-simbolo')
-        copia_context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
-        copia_context['unidades_u'] = Unidades.objects.filter(tipo = 'u').order_by('-simbolo')
-
-        return render(request, self.template_name, context=copia_context)
-
     def post(self, request): # Envío de Formulario de Creación
         errores = self.validar(request)
         if(len(errores)):
@@ -1498,30 +1464,6 @@ class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMix
             print(str(e))
             errores.append('Ha ocurrido un error desconocido al registrar el intercambiador. Verifique los datos ingresados.')
             return self.redirigir_por_errores(request, errores)
-        
-    def get(self, request):
-        self.context['complejos'] = Complejo.objects.all()
-        self.context['plantas'] = Planta.objects.filter(complejo__pk=1)
-        self.context['tipos'] = TiposDeTubo.objects.all()
-        self.context['temas'] = Tema.objects.filter(tipo_intercambiador__pk=2).order_by('codigo')
-        self.context['fluidos'] = Fluido.objects.all()
-        self.context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
-        self.context['unidades_longitud'] = Unidades.objects.filter(tipo = 'L')
-        self.context['unidades_area'] = Unidades.objects.filter(tipo = 'A')
-        self.context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
-        self.context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
-        self.context['unidades_ensuciamiento'] = Unidades.objects.filter(tipo = 'E')
-        self.context['unidades_q'] = Unidades.objects.filter(tipo = 'Q').order_by('-simbolo')
-        self.context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
-        self.context['unidades_u'] = Unidades.objects.filter(tipo = 'u').order_by('-simbolo')
-
-        if(self.context.get('errores')):
-            del(self.context['errores'])
-            
-        if(self.context.get('previo')):
-            del(self.context['previo'])            
-
-        return render(request, self.template_name, context=self.context)
 
 class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, EdicionIntercambiadorMixin):
     """
@@ -1608,7 +1550,6 @@ class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, EdicionInterca
 
                     intercambiador.save()
             except Exception as e:
-                print("AAAAAAAAAAAAAAA")
                 print(str(e))
                 errores.append('Ha ocurrido un error desconocido al editar el intercambiador. Verifique los datos ingresados.')
                 return self.redirigir_por_errores(request, errores)
@@ -1774,10 +1715,10 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
         
         try:
             with transaction.atomic():
-                ti = (float(request.POST['temp_in_carcasa']))
-                ts = (float(request.POST['temp_out_carcasa']))
-                Ti = (float(request.POST['temp_in_tubo']))
-                Ts = (float(request.POST['temp_out_tubo']))
+                Ti = (float(request.POST['temp_in_carcasa']))
+                Ts = (float(request.POST['temp_out_carcasa']))
+                ti = (float(request.POST['temp_in_tubo']))
+                ts = (float(request.POST['temp_out_tubo']))
                 ft = (float(request.POST['flujo_tubo']))
                 fc = (float(request.POST['flujo_carcasa']))
                 nt = (float(request.POST['no_tubos']))
@@ -1824,9 +1765,9 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
                 cp_gas_tubo2,cp_liquido_tubo2,cp_gas_carcasa2,cp_liquido_carcasa2 =  transformar_unidades_cp([cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa], unidad=unidad_cp, unidad_salida=29)
 
                 if(type(intercambiador) == PropiedadesTuboCarcasa):
-                    resultados = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo2, cp_liquido_tubo2, cp_gas_carcasa2, cp_liquido_carcasa2, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+                    resultados = evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, fc, nt, cp_gas_tubo2, cp_liquido_tubo2, cp_gas_carcasa2, cp_liquido_carcasa2, unidad_temp=unidad, unidad_flujo = unidad_flujo)
                 elif(type(intercambiador) == PropiedadesDobleTubo):
-                    resultados = evaluacion_doble_tubo(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo2, cp_liquido_tubo2, cp_gas_carcasa2, cp_liquido_carcasa2, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+                    resultados = evaluacion_doble_tubo(intercambiador, ti, ts, Ti, Ts, ft, fc, nt, cp_gas_tubo2, cp_liquido_tubo2, cp_gas_carcasa2, cp_liquido_carcasa2, unidad_temp=unidad, unidad_flujo = unidad_flujo)
                 
                 resultados['q'] = round(*transformar_unidades_calor([resultados['q']], 28, intercambiador.q_unidad.pk), 4)
                 resultados['area'] = round(*transformar_unidades_area([resultados['area']], 3, intercambiador.area_unidad.pk), 2)
@@ -2059,10 +2000,10 @@ class EvaluarIntercambiador(LoginRequiredMixin, View):
     def get(self, request, pk):
         intercambiador = Intercambiador.objects.get(pk = pk).intercambiador()
 
-        ti = (float(request.GET['temp_in_carcasa'].replace(',','.')))
-        ts = (float(request.GET['temp_out_carcasa'].replace(',','.')))
-        Ti = (float(request.GET['temp_in_tubo'].replace(',','.')))
-        Ts = (float(request.GET['temp_out_tubo'].replace(',','.')))
+        Ti = (float(request.GET['temp_in_carcasa'].replace(',','.')))
+        Ts = (float(request.GET['temp_out_carcasa'].replace(',','.')))
+        ti = (float(request.GET['temp_in_tubo'].replace(',','.')))
+        ts = (float(request.GET['temp_out_tubo'].replace(',','.')))
         ft = (float(request.GET['flujo_tubo'].replace(',','.')))
         fc = (float(request.GET['flujo_carcasa'].replace(',','.')))
         nt = (float(request.GET['no_tubos']))
@@ -2077,9 +2018,9 @@ class EvaluarIntercambiador(LoginRequiredMixin, View):
         unidad_flujo = int(request.GET['unidad_flujo'])
 
         if(type(intercambiador) == PropiedadesTuboCarcasa):
-            res = evaluacion_tubo_carcasa(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+            res = evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
         elif(type(intercambiador) == PropiedadesDobleTubo):
-            res = evaluacion_doble_tubo(intercambiador, Ti, Ts, ti, ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
+            res = evaluacion_doble_tubo(intercambiador, ti, ts, Ti, Ts, ft, fc, nt, cp_gas_tubo, cp_liquido_tubo, cp_gas_carcasa, cp_liquido_carcasa, unidad_temp=unidad, unidad_flujo = unidad_flujo)
         
         # Transformar a Unidades de Salida
         res['q'] = round(*transformar_unidades_calor([res['q']], 28, intercambiador.q_unidad.pk), 4)
