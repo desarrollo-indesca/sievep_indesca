@@ -20,7 +20,7 @@ def transformar_unidades_temperatura(args: list, unidad: int, unidad_salida: int
     unidad_salida = ur.kelvin if unidad_salida == 2 else ur.degC if unidad_salida == 1 else ur.degR if unidad_salida == 8 else ur.degF
     unidad = ur.degC if unidad == 1 else ur.degR if unidad == 8 else ur.degF if unidad != 2 else ur.kelvin
 
-    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude, args))
+    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
     return actualizadas
 
@@ -41,7 +41,7 @@ def transformar_unidades_flujo(args: list, unidad: int, unidad_salida: int = 10)
     unidad_salida = ur.kilogram/ur.second if unidad_salida == 10 else ur.kilogram/ur.hour if unidad_salida == 6 else ur.pound/ur.second if unidad_salida == 18 else ur.pound/ur.hour
     unidad = ur.kilogram/ur.second if unidad == 10 else ur.kilogram/ur.hour if unidad == 6 else ur.pound/ur.second if unidad == 18 else ur.pound/ur.hour
 
-    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude, args))
+    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
     return actualizadas
 
@@ -62,7 +62,7 @@ def transformar_unidades_longitud(args: list, unidad: int, unidad_salida: int = 
     unidad_salida = ur.meter if unidad_salida == 4 else ur.millimeter if unidad_salida == 5 else ur.centimeter if unidad_salida == 12 else ur.feet if unidad_salida == 14 else ur.inch
     unidad = ur.meter if unidad == 4 else ur.millimeter if unidad == 5 else ur.centimeter if unidad == 12 else ur.feet if unidad == 14 else ur.inch
 
-    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude, args))
+    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
     return actualizadas
 
@@ -83,7 +83,7 @@ def transformar_unidades_area(args: list, unidad: int, unidad_salida: int = 3) -
     unidad_salida = ur.meter ** 2 if unidad_salida == 3 else ur.feet**2 if unidad_salida == 20 else ur.inch**2
     unidad = ur.meter ** 2 if unidad == 3 else ur.feet**2 if unidad == 20 else ur.inch**2
 
-    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude, args))
+    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
     return actualizadas
 
@@ -107,7 +107,7 @@ def transformar_unidades_presion(args: list, unidad: int, unidad_salida: int = 3
     unidad = ur.bar if unidad == 7 or unidad == 38 else ur.atm if unidad == 11 else ur.pound_force_per_square_inch \
         if unidad == 17 else ur.kgf/ur.centimeter**2 if unidad_salida == 38 else ur.mmHg if unidad == 22 else ur.kPa
     
-    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude, args))
+    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
     return actualizadas
 
@@ -130,7 +130,7 @@ def transformar_unidades_u(args: list, unidad: int, unidad_salida: int = 27) -> 
     unidad = ur.watt/ur.meter**2/ur.kelvin if unidad == 27 else ur.Btu_it/ur.hour/ur.feet**2/ur.delta_degF \
         if unidad == 23 else ur.kcal/ur.hour/ur.delta_degC/ur.meter**2
 
-    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude, args))
+    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
     return actualizadas
 
@@ -153,7 +153,7 @@ def transformar_unidades_calor(args: list, unidad: int, unidad_salida: int = 28)
     unidad = ur.watt if unidad == 28 else ur.Btu_it/ur.hour if unidad == 24 else ur.Btu_it/ur.second \
         if unidad == 25 else ur.kcal/ur.hour
 
-    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude, args))
+    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
     return actualizadas
 
@@ -176,7 +176,7 @@ def transformar_unidades_cp(args: list, unidad: int, unidad_salida: int = 30) ->
     unidad = ur.joule/ur.kgram/ur.kelvin if unidad == 29 else ur.Btu_it/ur.pound/ur.delta_degF \
         if unidad == 30 else ur.kcal/ur.kilogram/ur.delta_degC
     
-    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude, args))
+    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
     return actualizadas
 
@@ -199,6 +199,6 @@ def transformar_unidades_ensuciamiento(args: list, unidad: int, unidad_salida: i
     unidad = ur.meter**2*ur.kelvin/ur.watt if unidad == 31 else ur.hour*ur.feet**2*ur.delta_degF/ur.Btu_it \
         if unidad == 32 else ur.hour*ur.meter**2*ur.delta_degC/ur.kcal
 
-    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude, args))
+    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
     return actualizadas
