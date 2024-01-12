@@ -110,6 +110,54 @@ def wtd_caso_ts(flujo_interes, t1i, t2i, tsi, t1c, t2c, cp_interes1, cp_interes2
    
     return round(sum(calores)/sum(qlmtds), 3)
 
+# # CASOS WTD - PARCIAL Y PARCIAL
+# # 207 - C
+# print(LMTD(-101.3,-101.6,-90.31,-95.6) * F_LMTD_Fakheri(-101.3,-101.6,-90.31,-95.6))
+
+# # POLINTER
+# print(LMTD(56.4,34.9, 32,34.9))
+
+# # 192-C
+# print(LMTD(-25.4, -25.5, -7.9, -20) * F_LMTD_Fakheri(-25.4, -25.5, -7.9, -20))
+
+# # 163-C
+# print(LMTD(-40.3, -40.7, -20, -34.4) * F_LMTD_Fakheri(-40.3, -40.7, -20, -34.4))
+
+# # 149-C
+# print(LMTD(-101,-101.1,-79.7,-90.1) * F_LMTD_Fakheri(-101,-101.1,-79.7,-90.1))
+
+# # 148-C
+# print(LMTD(-80,-80,-58,-75) * F_LMTD_Fakheri(-80,-80,-58,-75))
+
+# # 145-C
+# print(LMTD(-25.5,-25.7,7,-19) * F_LMTD_Fakheri(-25.5,-25.7,7,-19))
+
+# # 144-C
+# print(LMTD(2.11,2,40.6,7) * F_LMTD_Fakheri(2.11,2,40.6,7))
+
+# # 125-C
+# print(LMTD(-25.5,-25.5,-15.7,-16.5) * F_LMTD_Fakheri(-25.5,-25.5,-15.7,-16.5))
+
+# # 191-C
+# print(LMTD(-10.8, -11.3, 22.4, -5.3) * F_LMTD_Fakheri(-10.8, -11.3, 22.4, -5.3))
+# print(wtd_caso_ts(55210/3600,22.4, -5.3, -5.3*0.995, -10.8, -11.3, 2257, 6578, Chemical('ethylene', 273.15 - 5.3*0.995).Hvap))
+# print("--------------")
+
+# # 199-C
+# print(LMTD(131.1, 147.8, 178, 178))
+# print(wtd_caso_ts(3056/3600,178, 178, 178, 131.1, 147.8, Chemical('water', 273.15 + 178).Cpg, Chemical('water', 273.15 + 178).Cpl, Chemical('water', 273.15 + 178).Hvap))
+# print("--------------")
+
+# # 202-C
+# print(LMTD(-25.4, -25.5, -7.9, -20) * F_LMTD_Fakheri(-25.4, -25.5, -7.9, -20))
+# print(wtd_caso_ts(99980/3600,22.4,-5.3, -5.3*0.995, -10.8, -11.3, 2257, 6578, Chemical('ethylene', 273.15 - 5.3*0.995).Hvap))
+# print("--------------")
+
+# # 203-C
+# print(LMTD(-0.2, 0.9, 47.3, 41) * F_LMTD_Fakheri(-0.2, 0.9, 47.3, 41))
+# print(wtd_caso_ts(26861/3600,47.3,41, 41*1.005, -0.2, 0.9, 2090, 2840, Chemical('propylene', 273.15 - 41*1.005).Hvap))
+# print("--------------")
+
 # # 186-C
 # print(LMTD(46.7,45.8,33.3,40.3) * F_LMTD_Fakheri(46.7,45.8,33.3,40.3))
 # print(wtd_caso_ts(198937/3600,46.7,45.8,45.8*1.005,33.3,40.3,2357,2870,Chemical('propylene', 273.15 + 45.8*1.005).Hvap))
