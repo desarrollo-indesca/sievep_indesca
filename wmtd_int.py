@@ -134,6 +134,7 @@ def wtd_caso_ts(flujo_interes, t1i, t2i, tsi, t1c, t2c, cp_interes1, cp_interes2
 
 # # 144-C
 # print(LMTD(2.11,2,40.6,7) * F_LMTD_Fakheri(2.11,2,40.6,7))
+# print("---------------")
 
 # # 125-C
 # print(LMTD(-25.5,-25.5,-15.7,-16.5) * F_LMTD_Fakheri(-25.5,-25.5,-15.7,-16.5))
@@ -144,9 +145,9 @@ def wtd_caso_ts(flujo_interes, t1i, t2i, tsi, t1c, t2c, cp_interes1, cp_interes2
 # print("--------------")
 
 # # 199-C
-# print(LMTD(131.1, 147.8, 178, 178))
-# print(wtd_caso_ts(3056/3600,178, 178, 178, 131.1, 147.8, Chemical('water', 273.15 + 178).Cpg, Chemical('water', 273.15 + 178).Cpl, Chemical('water', 273.15 + 178).Hvap))
-# print("--------------")
+print(LMTD(131.1, 147.8, 178, 178))
+print(wtd_caso_ts(3056/3600,178, 178, 178, 131.1, 147.8, Chemical('water', 273.15 + 178).Cpg, Chemical('water', 273.15 + 178).Cpl, Chemical('water', 273.15 + 178).Hvap))
+print("--------------")
 
 # # 202-C
 # print(LMTD(-25.4, -25.5, -7.9, -20) * F_LMTD_Fakheri(-25.4, -25.5, -7.9, -20))
@@ -173,10 +174,10 @@ def wtd_caso_ts(flujo_interes, t1i, t2i, tsi, t1c, t2c, cp_interes1, cp_interes2
 # print(wtd_caso_ts(285808/3600,55.6,46,47.1,33.3,40.3,2423.5,3205,Chemical('propylene', 273.15 + 46*1.005).Hvap))
 # print("-"*10)
 
-# # 181-C
-# print("181-C")
-# print(LMTD(95.5,40.6,33.3,40.3) * F_LMTD_Fakheri(95.5,40.6,33.3,40.3))
-# print(wtd_caso_sp(114311/3600,95.5,40.6,33.3,40.3,(2181+1981)/2,1815604.8588,'LD',0.0122))
+# 181-C
+# print("180-C")
+# print(LMTD(97.6,40.6,33.3,40.3) * F_LMTD_Fakheri(97.6,40.6,33.3,40.3))
+# print(wtd_caso_sp(117223/3600,97.6,40.6,33.3,40.3,(2166+1969)/2,2397834.7997,'VD',0.0122))
 # print("-"*10)
 
 # # 182-C
