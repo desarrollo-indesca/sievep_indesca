@@ -44,7 +44,10 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
     diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_tubos)], intercambiador.diametro_tubos_unidad.pk)[0] # Diametro (OD), transformacion a m
     longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad.pk)[0] # Longitud, transformacion a m
 
-    area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
+    arreglo_serie = int(intercambiador.arreglo_serie)
+    arreglo_paralelo = int(intercambiador.arreglo_paralelo)
+
+    area_calculada = np.pi*diametro_tubo*nt*longitud_tubo*arreglo_serie*arreglo_paralelo # m2
 
     num_pasos_carcasa = float(intercambiador.numero_pasos_carcasa)
     num_pasos_tubo = float(intercambiador.numero_pasos_tubo)
@@ -133,10 +136,17 @@ def evaluacion_doble_tubo(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_in 
     q_in = calcular_calor(Fc, Ti, Ts, cp_gas_ex, cp_liquido_ex, intercambiador, 'C') # Calor de la tubo externo (W)
     
     nt = int(nt) if nt else float(intercambiador.numero_tubos) # Número de los tubos
+    na = int(intercambiador.numero_aletas)
 
-    diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_in)], intercambiador.diametro_tubos_unidad.pk)[0] # Diametro (OD), transformacion a m
+    diametro_tubo, altura_aletas = transformar_unidades_longitud([float(intercambiador.diametro_externo_ex), float(intercambiador.altura_aletas)], 
+                                                                 intercambiador.diametro_tubos_unidad.pk) # Diametro (OD del tubo EXTERNO) y altura de las aletas, transformacion a m
     longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad.pk)[0] # Longitud, transformacion a m
-    area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
+
+    print(nt, longitud_tubo, diametro_tubo, na, altura_aletas)
+    print(2*na*altura_aletas)
+    print(nt*longitud_tubo)
+    print(np.pi*diametro_tubo)
+    area_calculada = nt*longitud_tubo*(np.pi*diametro_tubo + 2*na*altura_aletas) #m2
 
     arreglo_flujo = intercambiador.intercambiador.arreglo_flujo
 
@@ -190,7 +200,7 @@ def evaluacion_doble_tubo(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_in 
     resultados = {
         'q': round(q_prom,3),
         'area': round(area_calculada,4),
-        'lmtd': round(dtml,4),
+        'lmtd': round(dtml,2),
         'eficiencia': round(eficiencia*100,2),
         'efectividad': round(efectividad*100, 2),
         'ntu': round(ntu,4),
