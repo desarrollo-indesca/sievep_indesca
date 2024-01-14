@@ -51,8 +51,7 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
     dtml = abs(((Ti - ts) - (Ts - ti))/np.log(abs((Ti - ts)/(Ts - ti)))) # Delta T Medio Logarítmico
 
     try:
-        print(num_pasos_carcasa)
-        factor = round(F_LMTD_Fakheri(ti, ts, Ti, Ts, num_pasos_carcasa),3) 
+        factor = round(F_LMTD_Fakheri(ti, ts, Ti, Ts),3) 
     except:
         factor = 1  # Factor de corrección
 
@@ -61,6 +60,7 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
     condicion_tubo = intercambiador.condicion_tubo()
     condicion_carcasa = intercambiador.condicion_carcasa()
 
+    print(dtml*factor)
     dtml = calcular_mtd(condicion_tubo, condicion_carcasa, intercambiador, ft, Fc, cp_gas_carcasa, cp_liquido_carcasa, cp_gas_tubo, cp_liquido_tubo, ti, ts, Ti, Ts, dtml, factor)
    
     print(f"FACTOR: {factor}")
@@ -517,8 +517,6 @@ def calcular_mtd(condicion_interno, condicion_externo, propiedades, flujo_tubo, 
     t1i,t2i,tsi = None,None,None
     t1c,t2c = None,None
 
-    print([x - 273.15 for x in [ti,ts,Ti,Ts]])
-
     caso_tubo = condicion_interno.cambio_de_fase
     caso_carcasa = condicion_externo.cambio_de_fase
    
@@ -526,31 +524,38 @@ def calcular_mtd(condicion_interno, condicion_externo, propiedades, flujo_tubo, 
     if(caso_tubo == 'T' or caso_carcasa == 'T' or (caso_tubo == 'P' and caso_carcasa == 'P')):
         if(condicion_interno.cambio_de_fase == 'T'):
             flujo_interes = flujo_tubo
-            t1i,t2i = ti,ts
-            t1c,t2c = Ti,Ts
+            t1i,t2i = ti - 273.15,ts - 273.15
+            t1c,t2c = Ti - 273.15,Ts - 273.15
 
             presion = transformar_unidades_presion([float(condicion_interno.presion_entrada)], condicion_interno.unidad_presion.pk)[0]
             quimico = Chemical(propiedades.fluido_tubo.cas) if propiedades.fluido_tubo else None
-            tsi = transformar_unidades_temperatura(condicion_interno.tsat, condicion_interno.temperaturas_unidad.pk) if condicion_interno.tsat else Chemical(propiedades.fluido_tubo.cas).Tsat(presion)
-            tsi = t2i*1.005 if tsi < t2i else tsi
+
+            if(t1i != t2i):
+                tsi = transformar_unidades_temperatura(condicion_interno.tsat, condicion_interno.temperaturas_unidad.pk) - 273.15 if condicion_interno.tsat else quimico.Tsat(presion) - 273.15
+                tsi = t2i*1.005 if tsi < t2i else tsi
+            else:
+                tsi = t1i
 
             if(type(quimico) == Chemical):
-                quimico.calculate(tsi)
+                quimico.calculate(tsi + 273.15)
 
             calor_latente_interes = float(condicion_interno.hvap) if condicion_interno.hvap else quimico.Hvap
 
         elif(condicion_externo.cambio_de_fase == 'T'):
             flujo_interes = flujo_carcasa
-            t1i,t2i = Ti,Ts
-            t1c,t2c = ti,ts
+            t1i,t2i = Ti - 273.15,Ts - 273.15
+            t1c,t2c = ti - 273.15,ts - 273.15
 
             presion = transformar_unidades_presion([float(condicion_externo.presion_entrada)], condicion_externo.unidad_presion.pk)[0]
             quimico = Chemical(propiedades.fluido_carcasa.cas) if propiedades.fluido_carcasa else None
-            tsi = transformar_unidades_temperatura(condicion_externo.tsat, condicion_externo.temperaturas_unidad.pk) if condicion_externo.tsat else quimico.Tsat(presion)
-            tsi = t2i*1.005 if tsi < t2i else tsi
+            if(t1i != t2i):
+                tsi = transformar_unidades_temperatura(condicion_interno.tsat, condicion_interno.temperaturas_unidad.pk) - 273.15 if condicion_interno.tsat else quimico.Tsat(presion) - 273.15
+                tsi = t2i*1.005 if tsi < t2i else tsi
+            else:
+                tsi = t1i
             
             if(type(quimico) == Chemical):
-                quimico.calculate(tsi)
+                quimico.calculate(tsi + 273.15)
 
             calor_latente_interes = float(condicion_externo.hvap) if condicion_externo.hvap else quimico.Hvap
 
@@ -595,7 +600,7 @@ def calcular_mtd(condicion_interno, condicion_externo, propiedades, flujo_tubo, 
             quimico = Chemical(propiedades.fluido_tubo.cas) if propiedades.fluido_tubo else None
             calor_latente_interes = float(condicion_interno.hvap) if condicion_interno.hvap else quimico.Hvap
 
-    print(f"CMTD: {lmtd_previo*factor}")
+    print(f"CMTD: {lmtd_previo*factor}, FACTOR: {factor}, LMTD: {lmtd_previo}")
 
     if(t1i == None or t2i == None):
         return lmtd_previo*factor
@@ -612,7 +617,8 @@ def calcular_mtd(condicion_interno, condicion_externo, propiedades, flujo_tubo, 
                                cp_carcasa_gas if condicion_externo.flujo_vapor_entrada else cp_carcasa_liquido, \
                                cp_carcasa_liquido if condicion_externo.flujo_liquido_salida else cp_carcasa_gas, \
                                calor_latente_interes)
-               
+
+    print("A")    
     return lmtd_previo*factor
 
 def wtd_caso_ts_tp(flujo_interes, t1i, t2i, tsi, t1c, t2c, cp_interes1, cp_interes2, calor_latente_interes) -> float:
@@ -628,11 +634,16 @@ def wtd_caso_ts_tp(flujo_interes, t1i, t2i, tsi, t1c, t2c, cp_interes1, cp_inter
     ]
 
     temps_interes = [t1i,tsi,tsi,t2i]
-    print("AAAAAAAAAAAAAAAAAAAA")
-    print(calores)
-    print(temps_interes)
     pendiente = calcular_pendiente(0,sum(calores),t1c,t2c)
     temps_complementarias = [t1c,t1c + pendiente*calores[0],t1c + pendiente*sum(calores[:2]),t2c]
+    print("*******************************")
+    print(flujo_interes)
+    print(calores)
+    print(cp_interes1, cp_interes2)
+    print(temps_interes)
+    print(temps_complementarias)
+    print(calor_latente_interes)
+    print("*******************************")
     
     qlmtds = []
 

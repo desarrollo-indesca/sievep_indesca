@@ -94,8 +94,14 @@ def wtd_caso_ts(flujo_interes, t1i, t2i, tsi, t1c, t2c, cp_interes1, cp_interes2
     pendiente = calcular_pendiente(0,sum(calores),t1c,t2c)
     temps_complementarias = [t1c,t1c + pendiente*calores[0],t1c + pendiente*sum(calores[:2]),t2c]
 
-    print(f"Temps. Interés: {temps_interes}")
-    print(f"Temps. Complementarias: {temps_complementarias}")
+    print("*******************************")
+    print(flujo_interes)
+    print(calores)
+    print(cp_interes1, cp_interes2)
+    print(temps_interes)
+    print(temps_complementarias)
+    print(calor_latente_interes)
+    print("*******************************")
 
     qlmtds = []
 
@@ -117,8 +123,8 @@ def wtd_caso_ts(flujo_interes, t1i, t2i, tsi, t1c, t2c, cp_interes1, cp_interes2
 # # POLINTER
 # print(LMTD(56.4,34.9, 32,34.9))
 
-# # 192-C
-# print(LMTD(-25.4, -25.5, -7.9, -20) * F_LMTD_Fakheri(-25.4, -25.5, -7.9, -20))
+# 192-C
+print(LMTD(-25.4, -25.5, -7.9, -20) * F_LMTD_Fakheri(-25.4, -25.5, -7.9, -20))
 
 # # 163-C
 # print(LMTD(-40.3, -40.7, -20, -34.4) * F_LMTD_Fakheri(-40.3, -40.7, -20, -34.4))
@@ -139,15 +145,21 @@ def wtd_caso_ts(flujo_interes, t1i, t2i, tsi, t1c, t2c, cp_interes1, cp_interes2
 # # 125-C
 # print(LMTD(-25.5,-25.5,-15.7,-16.5) * F_LMTD_Fakheri(-25.5,-25.5,-15.7,-16.5))
 
-# # 191-C
+# 191-C
 # print(LMTD(-10.8, -11.3, 22.4, -5.3) * F_LMTD_Fakheri(-10.8, -11.3, 22.4, -5.3))
 # print(wtd_caso_ts(55210/3600,22.4, -5.3, -5.3*0.995, -10.8, -11.3, 2257, 6578, Chemical('ethylene', 273.15 - 5.3*0.995).Hvap))
 # print("--------------")
 
-# # 199-C
-print(LMTD(131.1, 147.8, 178, 178))
-print(wtd_caso_ts(3056/3600,178, 178, 178, 131.1, 147.8, Chemical('water', 273.15 + 178).Cpg, Chemical('water', 273.15 + 178).Cpl, Chemical('water', 273.15 + 178).Hvap))
-print("--------------")
+# # # 199-C
+# print(LMTD(131.1, 147.8, 178, 178))
+# print(wtd_caso_ts(3056/3600,178, 178, 178, 131.1, 147.8, Chemical('water', 273.15 + 178).Cpg, Chemical('water', 273.15 + 178).Cpl, Chemical('water', 273.15 + 178).Hvap))
+# print("--------------")
+
+# 101-C
+# print("101-C")
+# print(LMTD(18.5,18.5,63.4,26))
+# print(wtd_caso_tdd(284196/3600,63.4, 26, 26, 18.5, 1811, 2780, 331000))
+# print("--------------")
 
 # # 202-C
 # print(LMTD(-25.4, -25.5, -7.9, -20) * F_LMTD_Fakheri(-25.4, -25.5, -7.9, -20))
@@ -159,14 +171,9 @@ print("--------------")
 # print(wtd_caso_ts(26861/3600,47.3,41, 41*1.005, -0.2, 0.9, 2090, 2840, Chemical('propylene', 273.15 - 41*1.005).Hvap))
 # print("--------------")
 
-# # 186-C
+# 186-C
 # print(LMTD(46.7,45.8,33.3,40.3) * F_LMTD_Fakheri(46.7,45.8,33.3,40.3))
 # print(wtd_caso_ts(198937/3600,46.7,45.8,45.8*1.005,33.3,40.3,2357,2870,Chemical('propylene', 273.15 + 45.8*1.005).Hvap))
-# print("-"*10)
-
-# # 143 - C
-# print(LMTD(46.7,45.8,33.3,40.3) * F_LMTD_Fakheri(46.7,45.8,33.3,40.3))
-# print(wtd_caso_ts(284196/3600,46.7,45.8,45.8*1.005,33.3,40.3,2357,2870,Chemical('propylene', 273.15 + 45.8*1.005).Hvap))
 # print("-"*10)
 
 # # 314-C
@@ -175,9 +182,9 @@ print("--------------")
 # print("-"*10)
 
 # 181-C
-# print("180-C")
-# print(LMTD(97.6,40.6,33.3,40.3) * F_LMTD_Fakheri(97.6,40.6,33.3,40.3))
-# print(wtd_caso_sp(117223/3600,97.6,40.6,33.3,40.3,(2166+1969)/2,2397834.7997,'VD',0.0122))
+# print("181-C")
+# print(LMTD(95.5,40.6,33.3,40.3) * F_LMTD_Fakheri(95.5,40.6,33.3,40.3))
+# print(wtd_caso_sp(117223/3600,95.5,40.6,33.3,40.3,(2116+1969)/2,1815604.7997,'VD',0.0122))
 # print("-"*10)
 
 # # 182-C
