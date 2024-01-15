@@ -994,13 +994,13 @@
 
                     <div class="col-6">
                         <label class="form-label" for="numero_aletas">Número de Aletas:</label>
-                        <input value="{{previo.numero_aletas}}" class="form-control" type="number" min="0" max="99999" name="numero_aletas" id="numero_aletas" required>
+                        <input placeholder="Rellenar con 0 si no hay aletas." value="{{previo.numero_aletas}}" class="form-control" type="number" min="0" max="99999" name="numero_aletas" id="numero_aletas" required>
                     </div>
 
                     <div class="col-6">
                         <label class="form-label" for="altura_aletas">Altura de Aletas:</label>
                         <div class="input-group">
-                            <input style="width: 60% !important;" value="{{previo.altura_aletas}}" max="999999.99" step="0.01" min="0" class="form-control" type="number" name="altura_aletas" id="altura_aletas" required>
+                            <input placeholder="Rellenar con 0 si no hay aletas." style="width: 60% !important;" value="{{previo.altura_aletas}}" max="999999.99" step="0.01" min="0" class="form-control" type="number" name="altura_aletas" id="altura_aletas" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_diametros" id="unidad_diametros" disabled>
                                 <option value="">m</option>
                             </select>

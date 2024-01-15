@@ -124,7 +124,7 @@ def wtd_caso_ts(flujo_interes, t1i, t2i, tsi, t1c, t2c, cp_interes1, cp_interes2
 # print(LMTD(56.4,34.9, 32,34.9))
 
 # 192-C
-print(LMTD(-25.4, -25.5, -7.9, -20) * F_LMTD_Fakheri(-25.4, -25.5, -7.9, -20))
+# print(LMTD(-25.4, -25.5, -7.9, -20) * F_LMTD_Fakheri(-25.4, -25.5, -7.9, -20))
 
 # # 163-C
 # print(LMTD(-40.3, -40.7, -20, -34.4) * F_LMTD_Fakheri(-40.3, -40.7, -20, -34.4))
@@ -145,7 +145,7 @@ print(LMTD(-25.4, -25.5, -7.9, -20) * F_LMTD_Fakheri(-25.4, -25.5, -7.9, -20))
 # # 125-C
 # print(LMTD(-25.5,-25.5,-15.7,-16.5) * F_LMTD_Fakheri(-25.5,-25.5,-15.7,-16.5))
 
-# 191-C
+# #191-C
 # print(LMTD(-10.8, -11.3, 22.4, -5.3) * F_LMTD_Fakheri(-10.8, -11.3, 22.4, -5.3))
 # print(wtd_caso_ts(55210/3600,22.4, -5.3, -5.3*0.995, -10.8, -11.3, 2257, 6578, Chemical('ethylene', 273.15 - 5.3*0.995).Hvap))
 # print("--------------")

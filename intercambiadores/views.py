@@ -1379,6 +1379,9 @@ class CrearIntercambiadorDobleTubo(LoginRequiredMixin, CreacionIntercambiadorMix
         if(not request.POST.get('altura_aletas')):
             errores.append('El campo Altura de Aletas es obligatorio.')
 
+        if(int(request.POST.get('numero_aletas')) != 0 and int(request.POST.get('altura_aletas')) == 0):
+            errores.append('La Altura de las Aletas debe ser mayor a 0 si el Número de Aletas es distinto de 0.')
+
         return errores
 
     def redirigir_por_errores(self, request, errores):
