@@ -681,7 +681,7 @@ class EvaluacionesIntercambiador(models.Model):
             tipo_cp_tubo: str -> Tipo de Cp utilizado en el lado del tubo del intercambiador
             cp_unidad: Unidad -> unidad utilizada para el Cp
 
-            lmtd: float -> LMTD de la evaluación
+            lmtd: float -> LMTD/MTD de la evaluación
             area_transferencia: float -> Área de Transferencia de la evaluación
             u: float -> U calculada
             ua: float ->  UA calculada

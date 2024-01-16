@@ -258,6 +258,14 @@
                       <th colspan="2" class="table-dark">Tipo Tubo</th>
                       <td>{{intercambiador.tipo_tubo}}</td>    
                     </tr>
+                    {% if intercambiador.numero_aletas %}
+                    <tr>
+                      <th colspan="2" class="table-dark">Número de Aletas</th>
+                      <td>{{intercambiador.numero_aletas}}</td>
+                      <th colspan="2" class="table-dark">Altura Aletas ({{intercambiador.diametro_tubos_unidad}})</th>
+                      <td>{{intercambiador.altura_aletas}}</td>
+                    </tr>
+                    {% endif %}
                     <tr>
                       <td colspan="6">Creado por el usuario <b>{{generales.creado_por.get_full_name}}</b> el día <b>{{generales.creado_al}}</b>.</td>
                     </tr>
@@ -265,7 +273,7 @@
                     <tr>
                       <td colspan="6">Editado por <b>{{generales.editado_por.get_full_name}}</b> el día <b>{{generales.editado_al}}</b>.</td>
                     </tr>
-                    {%endif%}
+                    {% endif %}
                   </tbody>
                 </table>
               </div>

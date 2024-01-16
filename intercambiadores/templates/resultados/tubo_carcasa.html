@@ -97,7 +97,7 @@
                             <th class="table-info" colspan="4">Resultados de la Evaluación</th>
                           </tr>
                           <tr>
-                            <th class="table-dark" style="vertical-align: middle;">LMTD ({{evaluacion.temperaturas_unidad}})</th>
+                            <th class="table-dark" style="vertical-align: middle;">MTD ({{evaluacion.temperaturas_unidad}})</th>
                             <td>{{evaluacion.lmtd}}</td>
                             <th class="table-dark" style="vertical-align: middle;">Área Transf. ({{evaluacion.area_diseno_unidad}})</th>
                             <td>{{evaluacion.area_transferencia}}</td>
@@ -141,7 +141,7 @@
                             <th class="table-warning" colspan="4">Datos de Diseño</th>
                           </tr>
                           <tr>
-                            <th class="table-dark" style="vertical-align: middle;">LMTD ({% if generales.tipo.pk == 1 %}{{intercambiador.condicion_tubo.temperaturas_unidad}}{%else%}{{intercambiador.condicion_externo.temperaturas_unidad}}{%endif%})</th>
+                            <th class="table-dark" style="vertical-align: middle;">MTD ({% if generales.tipo.pk == 1 %}{{intercambiador.condicion_tubo.temperaturas_unidad}}{%else%}{{intercambiador.condicion_externo.temperaturas_unidad}}{%endif%})</th>
                             <td>{% if generales.lmtd %}{{generales.lmtd}}{% endif %}</td>
                             <th class="table-dark" style="vertical-align: middle;">Área Transf. ({{intercambiador.area_unidad}})</th>
                             <td>{{intercambiador.area}}</td>

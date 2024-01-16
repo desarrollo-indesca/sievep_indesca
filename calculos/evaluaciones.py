@@ -37,8 +37,6 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
     q_tubo = calcular_calor(ft, ti, ts, cp_gas_tubo, cp_liquido_tubo, intercambiador, 'T') # Calor del tubo (W)
     q_carcasa = calcular_calor(Fc, Ti, Ts, cp_gas_carcasa, cp_liquido_carcasa, intercambiador, 'C') # Calor de la carcasa (W)
 
-    print(q_carcasa, q_tubo)
-    
     nt = int(nt) if nt else float(intercambiador.numero_tubos) # Número de los tubos
     
     if(intercambiador.tipo_tubo.nombre.upper() == 'TUBO EN U'):
@@ -61,12 +59,9 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
     except:
         factor = 1  # Factor de corrección
 
-    print(factor * dtml)
-
     condicion_tubo = intercambiador.condicion_tubo()
     condicion_carcasa = intercambiador.condicion_carcasa()
 
-    print(dtml*factor)
     dtml = calcular_mtd(condicion_tubo, condicion_carcasa, intercambiador, ft, Fc, cp_gas_carcasa, cp_liquido_carcasa, cp_gas_tubo, cp_liquido_tubo, ti, ts, Ti, Ts, dtml, factor)
    
     print(f"FACTOR: {factor}")
@@ -147,10 +142,6 @@ def evaluacion_doble_tubo(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_in 
                                                                  intercambiador.diametro_tubos_unidad.pk) # Diametro (OD del tubo EXTERNO) y altura de las aletas, transformacion a m
     longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad.pk)[0] # Longitud, transformacion a m
 
-    print(nt, longitud_tubo, diametro_tubo, na, altura_aletas)
-    print(2*na*altura_aletas)
-    print(nt*longitud_tubo)
-    print(np.pi*diametro_tubo)
     area_calculada = nt*longitud_tubo*(np.pi*diametro_tubo + 2*na*altura_aletas) #m2
 
     arreglo_flujo = intercambiador.intercambiador.arreglo_flujo
@@ -507,7 +498,7 @@ def factor_correccion_tubo_carcasa(ti, ts, Ti, Ts, num_pasos_tubo, num_pasos_car
 
     return factor
 
-def calcular_pendiente(q1, q2, t1, t2) -> float:
+def calcular_pendiente(q1: float, q2: float, t1: float, t2: float) -> float:
     '''
     Resumen:
         Función para calcular la pendiente de la recta entre dos puntos. Utilizado para el WTD.
@@ -521,12 +512,36 @@ def calcular_pendiente(q1, q2, t1, t2) -> float:
     Devuelve:
         float -> Pendiente de la recta.
     '''
-    print(t2,t1)
     return (t2-t1)/(q2-q1)
 
 def calcular_mtd(condicion_interno, condicion_externo, propiedades, flujo_tubo, flujo_carcasa,
                   cp_carcasa_gas, cp_carcasa_liquido, cp_tubo_gas, cp_tubo_liquido,
                   ti, ts, Ti, Ts, lmtd_previo, factor) -> float:
+    '''
+    Resumen:
+        Función para calcular el MTD de un intercambiador de calor dependiendo de su caso.
+        Si se presenta condensación total en alguno de los lados y este flujo es un fluido puro, se utiliza la aproximación del WTD.
+
+    Parámetros:
+        condicion_interno: Condicion -> Condición del fluido interno.
+        condicion_externo: Condicion -> Condición del fluido externo.
+        propiedades: Propiedades -> Propiedades del intercambiador.
+        flujo_tubo: float -> Flujo másico del tubo.
+        flujo_carcasa: float -> Flujo másico de la carcasa.
+        cp_carcasa_gas: float -> Cp del gas de la carcasa.
+        cp_carcasa_liquido: float -> Cp del líquido de la carcasa.
+        cp_tubo_gas: float -> Cp del gas del tubo.
+        cp_tubo_liquido: float -> Cp del líquido del tubo.
+        ti: float -> Temperatura de entrada del tubo.
+        ts: float -> Temperatura de salida del tubo.
+        Ti: float -> Temperatura de entrada de la carcasa.
+        Ts: float -> Temperatura de salida de la carcasa.
+        lmtd_previo: float -> LMTD previo.
+        factor: float -> Factor de corrección.
+    
+    Devuelve:
+        float -> MTD del intercambiador.
+    '''
     
     flujo_interes = None
     t1i,t2i,tsi = None,None,None
@@ -615,13 +630,10 @@ def calcular_mtd(condicion_interno, condicion_externo, propiedades, flujo_tubo, 
             quimico = Chemical(propiedades.fluido_tubo.cas) if propiedades.fluido_tubo else None
             calor_latente_interes = float(condicion_interno.hvap) if condicion_interno.hvap else quimico.Hvap
 
-    print(f"CMTD: {lmtd_previo*factor}, FACTOR: {factor}, LMTD: {lmtd_previo}")
-
     if(t1i == None or t2i == None):
         return lmtd_previo*factor
 
-    if(caso_tubo == 'T' or caso_carcasa == 'T'):
-        print("AQUI")
+    if((caso_tubo == 'T' and condicion_interno.flujo_vapor_entrada and not condicion_interno.fluido_etiqueta) or (caso_carcasa == 'T' and condicion_externo.flujo_vapor_entrada and not condicion_externo.fluido_etiqueta)):
         if(caso_tubo == 'T' and caso_carcasa == 'P' or caso_tubo == 'T' and caso_carcasa == 'S'):
             return wtd_caso_ts_tp(flujo_interes, t1i, t2i, tsi, t1c, t2c, \
                                cp_tubo_gas if condicion_interno.flujo_vapor_entrada else cp_tubo_liquido, \
@@ -633,13 +645,26 @@ def calcular_mtd(condicion_interno, condicion_externo, propiedades, flujo_tubo, 
                                cp_carcasa_liquido if condicion_externo.flujo_liquido_salida else cp_carcasa_gas, \
                                calor_latente_interes)
 
-    print("A")    
     return lmtd_previo*factor
 
 def wtd_caso_ts_tp(flujo_interes, t1i, t2i, tsi, t1c, t2c, cp_interes1, cp_interes2, calor_latente_interes) -> float:
     '''
     Resumen:
-        Función para calcular el WTD en el caso de que el intercambiador sea de tipo DD de un lado, TOTAL del otro.
+        Función para calcular el WTD en el caso de que el intercambiador sea de tipo parcial o sin cambio de fase de un lado, y cambio TOTAL del otro.
+
+    Parámetros:
+        flujo_interes: float -> Flujo másico del fluido de interés (Kg/s)
+        t1i: float -> Temperatura de entrada del fluido de interés (C)
+        t2i: float -> Temperatura de salida del fluido de interés (C)
+        tsi: float -> Temperatura de saturación del fluido de interés (C)
+        t1c: float -> Temperatura de entrada del fluido complementario (C)
+        t2c: float -> Temperatura de salida del fluido complementario (C)
+        cp_interes1: float -> Cp del fluido de interés en el primer tramo (J/KgK)
+        cp_interes2: float -> Cp del fluido de interés en el segundo tramo (J/KgK)
+        calor_latente_interes: float -> Calor latente del fluido de interés (J/Kg)
+
+    Devuelve:
+        float -> WTD (C)
     '''
 
     calores = [
@@ -651,14 +676,6 @@ def wtd_caso_ts_tp(flujo_interes, t1i, t2i, tsi, t1c, t2c, cp_interes1, cp_inter
     temps_interes = [t1i,tsi,tsi,t2i]
     pendiente = calcular_pendiente(0,sum(calores),t1c,t2c)
     temps_complementarias = [t1c,t1c + pendiente*calores[0],t1c + pendiente*sum(calores[:2]),t2c]
-    print("*******************************")
-    print(flujo_interes)
-    print(calores)
-    print(cp_interes1, cp_interes2)
-    print(temps_interes)
-    print(temps_complementarias)
-    print(calor_latente_interes)
-    print("*******************************")
     
     qlmtds = []
 
