@@ -1,6 +1,7 @@
 import numpy as np
-from .unidades import transformar_unidades_temperatura, transformar_unidades_flujo, transformar_unidades_longitud, transformar_unidades_presion, transformar_unidades_cp, transformar_unidades_u
-from ht import F_LMTD_Fakheri
+from .unidades import transformar_unidades_temperatura, transformar_unidades_flujo, transformar_unidades_longitud, transformar_unidades_presion, transformar_unidades_u
+from ht import F_LMTD_Fakheri, LMTD
+from thermo import Chemical
 from .termodinamicos import calcular_tsat_hvap
 
 def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_tubo = None, cp_liquido_tubo = None, cp_gas_carcasa = None, cp_liquido_carcasa = None, unidad_temp = 1, unidad_flujo = 6) -> dict:
@@ -36,8 +37,6 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
     q_tubo = calcular_calor(ft, ti, ts, cp_gas_tubo, cp_liquido_tubo, intercambiador, 'T') # Calor del tubo (W)
     q_carcasa = calcular_calor(Fc, Ti, Ts, cp_gas_carcasa, cp_liquido_carcasa, intercambiador, 'C') # Calor de la carcasa (W)
 
-    print(q_carcasa, q_tubo)
-    
     nt = int(nt) if nt else float(intercambiador.numero_tubos) # Número de los tubos
     
     if(intercambiador.tipo_tubo.nombre.upper() == 'TUBO EN U'):
@@ -46,25 +45,30 @@ def evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_t
     diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_tubos)], intercambiador.diametro_tubos_unidad.pk)[0] # Diametro (OD), transformacion a m
     longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad.pk)[0] # Longitud, transformacion a m
 
-    area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
+    arreglo_serie = int(intercambiador.arreglo_serie)
+    arreglo_paralelo = int(intercambiador.arreglo_paralelo)
+
+    area_calculada = np.pi*diametro_tubo*nt*longitud_tubo*arreglo_serie*arreglo_paralelo # m2
 
     num_pasos_carcasa = float(intercambiador.numero_pasos_carcasa)
     num_pasos_tubo = float(intercambiador.numero_pasos_tubo)
     dtml = abs(((Ti - ts) - (Ts - ti))/np.log(abs((Ti - ts)/(Ts - ti)))) # Delta T Medio Logarítmico
 
     try:
-        factor = round(F_LMTD_Fakheri(Ti, Ts, ti, ts, num_pasos_carcasa),3) 
+        factor = round(F_LMTD_Fakheri(ti, ts, Ti, Ts),3) 
     except:
         factor = 1  # Factor de corrección
-    
-    print(f"FACTOR: {factor}")
-    q_prom = np.mean([q_tubo,q_carcasa]) # Promedio del calor (W)
-    ucalc = q_prom/(area_calculada*dtml*factor) # U calculada (Wm2/K)
-    udiseno = transformar_unidades_u([float(intercambiador.u)], intercambiador.u_unidad.pk)[0] # transformación de la U de diseño
-    RF = 1/ucalc - 1/udiseno # Factor de Ensuciamiento respecto a la U de diseño (K/Wm2)
 
     condicion_tubo = intercambiador.condicion_tubo()
     condicion_carcasa = intercambiador.condicion_carcasa()
+
+    dtml = calcular_mtd(condicion_tubo, condicion_carcasa, intercambiador, ft, Fc, cp_gas_carcasa, cp_liquido_carcasa, cp_gas_tubo, cp_liquido_tubo, ti, ts, Ti, Ts, dtml, factor)
+   
+    print(f"FACTOR: {factor}")
+    q_prom = np.mean([q_tubo,q_carcasa]) # Promedio del calor (W)
+    ucalc = q_prom/(area_calculada*dtml) # U calculada (Wm2/K)
+    udiseno = transformar_unidades_u([float(intercambiador.u)], intercambiador.u_unidad.pk)[0] # transformación de la U de diseño
+    RF = 1/ucalc - 1/udiseno # Factor de Ensuciamiento respecto a la U de diseño (K/Wm2)
 
     ct = obtener_c_eficiencia(condicion_tubo, ft, cp_gas_tubo, cp_liquido_tubo) # Obtención de la C de tubo
     cc = obtener_c_eficiencia(condicion_carcasa, Fc, cp_gas_carcasa, cp_liquido_carcasa) # Obtención de la C de carcasa
@@ -130,12 +134,15 @@ def evaluacion_doble_tubo(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_in 
     q_in = calcular_calor(Fc, Ti, Ts, cp_gas_ex, cp_liquido_ex, intercambiador, 'C') # Calor de la tubo externo (W)
     
     nt = int(nt) if nt else float(intercambiador.numero_tubos) # Número de los tubos
+    na = int(intercambiador.numero_aletas)
     if(intercambiador.tipo_tubo.nombre.upper() == 'TUBO EN U'):
         nt *= 2
 
-    diametro_tubo = transformar_unidades_longitud([float(intercambiador.diametro_externo_in)], intercambiador.diametro_tubos_unidad.pk)[0] # Diametro (OD), transformacion a m
+    diametro_tubo, altura_aletas = transformar_unidades_longitud([float(intercambiador.diametro_externo_ex), float(intercambiador.altura_aletas)], 
+                                                                 intercambiador.diametro_tubos_unidad.pk) # Diametro (OD del tubo EXTERNO) y altura de las aletas, transformacion a m
     longitud_tubo = transformar_unidades_longitud([float(intercambiador.longitud_tubos)], intercambiador.longitud_tubos_unidad.pk)[0] # Longitud, transformacion a m
-    area_calculada = np.pi*diametro_tubo*nt*longitud_tubo #m2
+
+    area_calculada = nt*longitud_tubo*(np.pi*diametro_tubo + 2*na*altura_aletas) #m2
 
     arreglo_flujo = intercambiador.intercambiador.arreglo_flujo
 
@@ -189,7 +196,7 @@ def evaluacion_doble_tubo(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_in 
     resultados = {
         'q': round(q_prom,3),
         'area': round(area_calculada,4),
-        'lmtd': round(dtml,4),
+        'lmtd': round(dtml,2),
         'eficiencia': round(eficiencia*100,2),
         'efectividad': round(efectividad*100, 2),
         'ntu': round(ntu,4),
@@ -490,3 +497,195 @@ def factor_correccion_tubo_carcasa(ti, ts, Ti, Ts, num_pasos_tubo, num_pasos_car
         factor = 1
 
     return factor
+
+def calcular_pendiente(q1: float, q2: float, t1: float, t2: float) -> float:
+    '''
+    Resumen:
+        Función para calcular la pendiente de la recta entre dos puntos. Utilizado para el WTD.
+    
+    Parámetros:
+        q1: float -> Calor 1.
+        q2: float -> Calor 2.
+        t1: float -> Temp. 1.
+        t2: float -> Temp. 2.
+    
+    Devuelve:
+        float -> Pendiente de la recta.
+    '''
+    return (t2-t1)/(q2-q1)
+
+def calcular_mtd(condicion_interno, condicion_externo, propiedades, flujo_tubo, flujo_carcasa,
+                  cp_carcasa_gas, cp_carcasa_liquido, cp_tubo_gas, cp_tubo_liquido,
+                  ti, ts, Ti, Ts, lmtd_previo, factor) -> float:
+    '''
+    Resumen:
+        Función para calcular el MTD de un intercambiador de calor dependiendo de su caso.
+        Si se presenta condensación total en alguno de los lados y este flujo es un fluido puro, se utiliza la aproximación del WTD.
+
+    Parámetros:
+        condicion_interno: Condicion -> Condición del fluido interno.
+        condicion_externo: Condicion -> Condición del fluido externo.
+        propiedades: Propiedades -> Propiedades del intercambiador.
+        flujo_tubo: float -> Flujo másico del tubo.
+        flujo_carcasa: float -> Flujo másico de la carcasa.
+        cp_carcasa_gas: float -> Cp del gas de la carcasa.
+        cp_carcasa_liquido: float -> Cp del líquido de la carcasa.
+        cp_tubo_gas: float -> Cp del gas del tubo.
+        cp_tubo_liquido: float -> Cp del líquido del tubo.
+        ti: float -> Temperatura de entrada del tubo.
+        ts: float -> Temperatura de salida del tubo.
+        Ti: float -> Temperatura de entrada de la carcasa.
+        Ts: float -> Temperatura de salida de la carcasa.
+        lmtd_previo: float -> LMTD previo.
+        factor: float -> Factor de corrección.
+    
+    Devuelve:
+        float -> MTD del intercambiador.
+    '''
+    
+    flujo_interes = None
+    t1i,t2i,tsi = None,None,None
+    t1c,t2c = None,None
+
+    caso_tubo = condicion_interno.cambio_de_fase
+    caso_carcasa = condicion_externo.cambio_de_fase
+   
+    # Calculo de Información de Fluido de Interés
+    if(caso_tubo == 'T' or caso_carcasa == 'T' or (caso_tubo == 'P' and caso_carcasa == 'P')):
+        if(condicion_interno.cambio_de_fase == 'T'):
+            flujo_interes = flujo_tubo
+            t1i,t2i = ti - 273.15,ts - 273.15
+            t1c,t2c = Ti - 273.15,Ts - 273.15
+
+            presion = transformar_unidades_presion([float(condicion_interno.presion_entrada)], condicion_interno.unidad_presion.pk)[0]
+            quimico = Chemical(propiedades.fluido_tubo.cas) if propiedades.fluido_tubo else None
+
+            if(t1i != t2i):
+                tsi = transformar_unidades_temperatura(condicion_interno.tsat, condicion_interno.temperaturas_unidad.pk) - 273.15 if condicion_interno.tsat else quimico.Tsat(presion) - 273.15
+                tsi = t2i*1.005 if tsi < t2i else tsi
+            else:
+                tsi = t1i
+
+            if(type(quimico) == Chemical):
+                quimico.calculate(tsi + 273.15)
+
+            calor_latente_interes = float(condicion_interno.hvap) if condicion_interno.hvap else quimico.Hvap
+
+        elif(condicion_externo.cambio_de_fase == 'T'):
+            flujo_interes = flujo_carcasa
+            t1i,t2i = Ti - 273.15,Ts - 273.15
+            t1c,t2c = ti - 273.15,ts - 273.15
+
+            presion = transformar_unidades_presion([float(condicion_externo.presion_entrada)], condicion_externo.unidad_presion.pk)[0]
+            quimico = Chemical(propiedades.fluido_carcasa.cas) if propiedades.fluido_carcasa else None
+            if(t1i != t2i):
+                tsi = transformar_unidades_temperatura(condicion_interno.tsat, condicion_interno.temperaturas_unidad.pk) - 273.15 if condicion_interno.tsat else quimico.Tsat(presion) - 273.15
+                tsi = t2i*1.005 if tsi < t2i else tsi
+            else:
+                tsi = t1i
+            
+            if(type(quimico) == Chemical):
+                quimico.calculate(tsi + 273.15)
+
+            calor_latente_interes = float(condicion_externo.hvap) if condicion_externo.hvap else quimico.Hvap
+
+        cambio_parcial = None
+    elif(caso_tubo == 'S' and caso_carcasa == 'P' or caso_tubo == 'P' and caso_carcasa == 'S'):
+        if(caso_tubo == 'S' and caso_carcasa == 'P'):
+            flujo_v_i,flujo_v_s,flujo_l_i,flujo_l_s = condicion_externo.flujo_vapor_entrada, condicion_externo.flujo_vapor_salida, condicion_externo.flujo_liquido_entrada, condicion_externo.flujo_liquido_salida
+            cambio_parcial = determinar_cambio_parcial(flujo_v_i,flujo_v_s,flujo_l_i,flujo_l_s)
+            if(cambio_parcial == 'DD' and propiedades.fluido_carcasa):
+                return lmtd_previo*factor
+            else:
+                if(cambio_parcial == 'DD'):
+                    tsi = (Ti+Ts)/2
+                if(cambio_parcial[0] == 'D'):
+                    tsi = Ti
+                elif(cambio_parcial[1] == 'D'):
+                    tsi = Ts
+             
+            flujo_interes = flujo_carcasa
+            t1i,t2i = Ti,Ts
+            t1c,t2c = ti,ts
+            quimico = Chemical(propiedades.fluido_carcasa.cas) if propiedades.fluido_carcasa else None
+            calor_latente_interes = float(condicion_externo.hvap) if condicion_externo.hvap else quimico.Hvap
+
+        elif(caso_tubo == 'P' and caso_carcasa == 'S'):
+            flujo_v_i,flujo_v_s,flujo_l_i,flujo_l_s = condicion_interno.flujo_vapor_entrada, condicion_interno.flujo_vapor_salida, condicion_interno.flujo_liquido_entrada, condicion_interno.flujo_liquido_salida
+            cambio_parcial = determinar_cambio_parcial(flujo_v_i,flujo_v_s,flujo_l_i,flujo_l_s)
+            
+            if(cambio_parcial == 'DD' and propiedades.fluido_tubo):
+                return lmtd_previo*factor
+            else:
+                if(cambio_parcial == 'DD'):
+                    tsi = (Ti+Ts)/2
+                if(cambio_parcial[0] == 'D'):
+                    tsi = Ti
+                elif(cambio_parcial[1] == 'D'):
+                    tsi = Ts
+             
+            flujo_interes = flujo_carcasa
+            t1i,t2i = Ti,Ts
+            t1c,t2c = ti,ts
+            quimico = Chemical(propiedades.fluido_tubo.cas) if propiedades.fluido_tubo else None
+            calor_latente_interes = float(condicion_interno.hvap) if condicion_interno.hvap else quimico.Hvap
+
+    if(t1i == None or t2i == None):
+        return lmtd_previo*factor
+
+    if((caso_tubo == 'T' and condicion_interno.flujo_vapor_entrada and not condicion_interno.fluido_etiqueta) or (caso_carcasa == 'T' and condicion_externo.flujo_vapor_entrada and not condicion_externo.fluido_etiqueta)):
+        if(caso_tubo == 'T' and caso_carcasa == 'P' or caso_tubo == 'T' and caso_carcasa == 'S'):
+            return wtd_caso_ts_tp(flujo_interes, t1i, t2i, tsi, t1c, t2c, \
+                               cp_tubo_gas if condicion_interno.flujo_vapor_entrada else cp_tubo_liquido, \
+                               cp_tubo_liquido if condicion_interno.flujo_liquido_salida else cp_tubo_gas, \
+                               calor_latente_interes)
+        elif(caso_tubo == 'P' and caso_carcasa == 'T' or caso_tubo == 'S' and caso_carcasa == 'T'):
+            return wtd_caso_ts_tp(flujo_interes, t1i, t2i, tsi, t1c, t2c, \
+                               cp_carcasa_gas if condicion_externo.flujo_vapor_entrada else cp_carcasa_liquido, \
+                               cp_carcasa_liquido if condicion_externo.flujo_liquido_salida else cp_carcasa_gas, \
+                               calor_latente_interes)
+
+    return lmtd_previo*factor
+
+def wtd_caso_ts_tp(flujo_interes, t1i, t2i, tsi, t1c, t2c, cp_interes1, cp_interes2, calor_latente_interes) -> float:
+    '''
+    Resumen:
+        Función para calcular el WTD en el caso de que el intercambiador sea de tipo parcial o sin cambio de fase de un lado, y cambio TOTAL del otro.
+
+    Parámetros:
+        flujo_interes: float -> Flujo másico del fluido de interés (Kg/s)
+        t1i: float -> Temperatura de entrada del fluido de interés (C)
+        t2i: float -> Temperatura de salida del fluido de interés (C)
+        tsi: float -> Temperatura de saturación del fluido de interés (C)
+        t1c: float -> Temperatura de entrada del fluido complementario (C)
+        t2c: float -> Temperatura de salida del fluido complementario (C)
+        cp_interes1: float -> Cp del fluido de interés en el primer tramo (J/KgK)
+        cp_interes2: float -> Cp del fluido de interés en el segundo tramo (J/KgK)
+        calor_latente_interes: float -> Calor latente del fluido de interés (J/Kg)
+
+    Devuelve:
+        float -> WTD (C)
+    '''
+
+    calores = [
+        cp_interes1*flujo_interes*abs(tsi - t1i),
+        calor_latente_interes*flujo_interes,
+        cp_interes2*flujo_interes*abs(t2i - tsi)
+    ]
+
+    temps_interes = [t1i,tsi,tsi,t2i]
+    pendiente = calcular_pendiente(0,sum(calores),t1c,t2c)
+    temps_complementarias = [t1c,t1c + pendiente*calores[0],t1c + pendiente*sum(calores[:2]),t2c]
+    
+    qlmtds = []
+
+    for i in range(len(calores)):
+        t1,t2,t3,t4 = temps_interes[i],temps_interes[i+1],temps_complementarias[i],temps_complementarias[i+1]
+        try:
+            lmtd = abs(LMTD(t1,t2,t3,t4)) * F_LMTD_Fakheri(t1,t2,t3,t4)
+        except:
+            lmtd = abs(LMTD(t1,t2,t3,t4))
+
+        qlmtds.append(calores[i]/lmtd)
+   
+    return round(sum(calores)/sum(qlmtds), 3)

@@ -277,7 +277,7 @@ def detalle_evaluacion(evaluacion):
     story.append(Paragraph("Resultados de la Evaluación", ParagraphStyle('', alignment=1)))
     table = [
             [
-                Paragraph(f"LMTD ({evaluacion.temperaturas_unidad})", centrar_parrafo), 
+                Paragraph(f"MTD ({evaluacion.temperaturas_unidad})", centrar_parrafo), 
                 Paragraph(f"{evaluacion.lmtd}", centrar_parrafo), 
                 Paragraph(f"Área Transf. ({evaluacion.area_diseno_unidad})", centrar_parrafo), 
                 Paragraph(f"{evaluacion.area_transferencia}", centrar_parrafo)
@@ -331,7 +331,7 @@ def detalle_evaluacion(evaluacion):
     diseno = propiedades.calcular_diseno
     table = [
         [
-            Paragraph(f"LMTD ({condicion_carcasa.temperaturas_unidad})", centrar_parrafo), 
+            Paragraph(f"MTD ({condicion_carcasa.temperaturas_unidad})", centrar_parrafo), 
             Paragraph(f"{diseno['lmtd']}", centrar_parrafo), 
             Paragraph(f"Área Transf. ({propiedades.area_unidad})", centrar_parrafo), 
             Paragraph(f"{propiedades.area}", centrar_parrafo)
