@@ -526,6 +526,9 @@ class PropiedadesDobleTubo(models.Model):
     u_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_u_dobletubo", default=27)
     ensuciamiento_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_ensuciamiento_dobletubo",default=31)
 
+    numero_aletas = models.IntegerField(default = 20)
+    altura_aletas = models.DecimalField(max_digits=8, decimal_places=2, default=5.33)
+
     @cached_property
     def calcular_diseno(self):
         try:

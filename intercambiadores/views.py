@@ -1370,6 +1370,15 @@ class CrearIntercambiadorDobleTubo(CrearIntercambiadorTuboCarcasa):
 
         if(not request.POST.get('caida_presion_min_carcasa')):
             errores.append('El campo Caida de Presión Mínima de Tubo Externo es obligatorio.')
+        
+        if(not request.POST.get('numero_aletas')):
+            errores.append('El campo Número de Aletas es obligatorio.')
+
+        if(not request.POST.get('altura_aletas')):
+            errores.append('El campo Altura de Aletas es obligatorio.')
+
+        if(int(request.POST.get('numero_aletas')) != 0 and int(request.POST.get('altura_aletas')) == 0):
+            errores.append('La Altura de las Aletas debe ser mayor a 0 si el Número de Aletas es distinto de 0.')
 
         return errores
 
@@ -1433,7 +1442,9 @@ class CrearIntercambiadorDobleTubo(CrearIntercambiadorTuboCarcasa):
                     u = u,
                     u_unidad = Unidades.objects.get(pk=request.POST['unidad_u']),
                     ensuciamiento = float(request.POST['ensuciamiento']),
-                    ensuciamiento_unidad = Unidades.objects.get(pk=request.POST['unidad_fouling'])
+                    ensuciamiento_unidad = Unidades.objects.get(pk=request.POST['unidad_fouling']),
+                    numero_aletas = request.POST['numero_aletas'],
+                    altura_aletas = request.POST['altura_aletas']
                 )
 
                 # Condiciones de Diseño del Tubo Interno
@@ -1531,6 +1542,8 @@ class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, EdicionInterca
                     propiedades.q_unidad = Unidades.objects.get(pk=request.POST['unidad_q'])
                     propiedades.u_unidad = Unidades.objects.get(pk=request.POST['unidad_u'])
                     propiedades.ensuciamiento_unidad = Unidades.objects.get(pk=request.POST['unidad_fouling'])
+                    propiedades.numero_aletas = request.POST['numero_aletas']
+                    propiedades.altura_aletas = request.POST['altura_aletas']
 
                     propiedades.save()
 

@@ -1,59 +1,224 @@
-# Cambio parcial y total: se escoge el total
-from thermo import Chemical
 from ht import LMTD, F_LMTD_Fakheri
+from thermo.chemical import Chemical
 
-cp_carcasa_gas = 2357
-cp_tubo_gas = 0
-cp_carcasa_liquido = 2870
-cp_tubo_liquido = 0
-calor_latente_tubo = 289700 
-flujo_carcasa = 78.94333
-flujo_tubo = 0
+def wtd_caso_tdd(flujo_interes, t1i, t2i, tsi, t1c, cp_interes1, cp_interes2, calor_latente_interes) -> float:
+    '''
+    Resumen:
+        Función para calcular el WTD en el caso de que el intercambiador sea de tipo DD de un lado, TOTAL del otro.
+    '''
 
-t1c = 46.7
-t2c = 45.8
-tsc = 45.8
+    calores = [
+        cp_interes1*flujo_interes*abs(tsi - t1i),
+        calor_latente_interes*flujo_interes,
+        cp_interes2*flujo_interes*abs(t2i - tsi)
+    ]
 
-t1t = 33.3
-t2t = 40.3
+    temps_interes = [t1i,tsi,tsi,t2i]
+    temps_complementarias = [t1c,t1c,t1c,t1c]
 
-qs = []
-temps_carcasa = [t1c]
-temps_tubo = [t1t]
+    print(f"Temps. Interés: {temps_interes}")
 
-q1 = cp_carcasa_gas*abs(t1c-tsc)*flujo_carcasa
+    qlmtds = []
 
-qs.append(q1)
-temps_carcasa.append(tsc)
-temps_tubo.append(35.633)
+    for i in range(len(calores)):
+        t1,t2,t3,t4 = temps_interes[i],temps_interes[i+1],temps_complementarias[i],temps_complementarias[i+1]
+        try:
+            lmtd = abs(LMTD(t1,t2,t3,t4)) * F_LMTD_Fakheri(t1,t2,t3,t4)
+        except:
+            lmtd = abs(LMTD(t1,t2,t3,t4))
 
-q2 = calor_latente_tubo*flujo_carcasa
-qs.append(q2)
-temps_carcasa.append(tsc)
-temps_tubo.append(37.933)
+        qlmtds.append(calores[i]/lmtd)
 
-q3 = flujo_carcasa*abs(t2c-tsc)*cp_carcasa_liquido
-qs.append(q3) # W
-temps_carcasa.append(t1c)
-temps_tubo.append(t2t)
+    print(f"QLMTDs: {qlmtds}")
+    print(f"Suma: {sum(qlmtds)}")
+   
+    return round(sum(calores)/sum(qlmtds), 3)
 
-lmtds = [
-    abs(LMTD(temps_carcasa[0], temps_carcasa[1], temps_tubo[0], temps_tubo[1])),
-    abs(LMTD(temps_carcasa[1], temps_carcasa[2], temps_tubo[1], temps_tubo[2])),
-    abs(LMTD(temps_carcasa[2], temps_carcasa[3], temps_tubo[2], temps_tubo[3])),
-] # C
+def calcular_pendiente(q1,q2,t1,t2):
+    return (t2-t1)/(q2-q1)
 
-qlmtds = []
-for i in range(len(lmtds)):
-    q = qs[i]
-    lmtd = lmtds[i]
-    qlmtds.append(q/lmtd)
+def wtd_caso_sp(flujo_interes, t1i, t2i, t1c, t2c, cp_interes, calor_latente_interes, cambio_fase, calidad) -> float:
+    '''
+    Resumen:
+        Función para calcular el WTD en el caso de que el intercambiador sea de tipo DL,LD,DV y VD de un lado, y sin cambio de fase en el otro.
+    '''
 
-wmtd = 1/(sum(qlmtds)/(q1+q2+q3))
+    if(cambio_fase[0] == 'D'):
+        calores = [
+            calor_latente_interes*flujo_interes*calidad,
+            cp_interes*flujo_interes*abs(t2i - t1i)
+        ]
 
-print(temps_carcasa)
-print(temps_tubo)
-print(qs)
-print(lmtds)
-print(qlmtds)
-print(wmtd)
+        temps_interes = [t1i,t1i,t2i]
+    else:
+        calores = [
+            cp_interes*flujo_interes*abs(t1i - t2i),
+            calor_latente_interes*flujo_interes*calidad,
+        ]
+
+        temps_interes = [t1i,t2i,t2i]
+
+    pendiente = calcular_pendiente(0,sum(calores),t1c,t2c)
+    temps_complementarias = [t1c,t1c + pendiente*calores[0], t2c]
+    print(f"Calor: {sum(calores)}")
+    print(f"Calores: {calores}")
+    print(f"Temps. Interés: {temps_interes}")
+    print(f"Temps. Complementarias: {temps_complementarias}")
+
+    qlmtds = []
+
+    for i in range(len(calores)):
+        t1,t2,t3,t4 = temps_interes[i],temps_interes[i+1], temps_complementarias[i],temps_complementarias[i+1]
+        try:
+            lmtd = abs(LMTD(t1,t2,t3,t4)) * F_LMTD_Fakheri(t1,t2,t3,t4)
+        except:
+            lmtd = abs(LMTD(t1,t2,t3,t4))
+
+        qlmtds.append(calores[i]/lmtd)
+
+    return round(sum(calores)/sum(qlmtds), 3)
+
+def wtd_caso_ts(flujo_interes, t1i, t2i, tsi, t1c, t2c, cp_interes1, cp_interes2, calor_latente_interes) -> float:
+    '''
+    Resumen:
+        Función para calcular el WTD en el caso de que el intercambiador sea de tipo DD de un lado, TOTAL del otro.
+    '''
+
+    calores = [
+        cp_interes1*flujo_interes*abs(tsi - t1i),
+        calor_latente_interes*flujo_interes,
+        cp_interes2*flujo_interes*abs(t2i - tsi)
+    ]
+
+    temps_interes = [t1i,tsi,tsi,t2i]
+    pendiente = calcular_pendiente(0,sum(calores),t1c,t2c)
+    temps_complementarias = [t1c,t1c + pendiente*calores[0],t1c + pendiente*sum(calores[:2]),t2c]
+
+    print("*******************************")
+    print(flujo_interes)
+    print(calores)
+    print(cp_interes1, cp_interes2)
+    print(temps_interes)
+    print(temps_complementarias)
+    print(calor_latente_interes)
+    print("*******************************")
+
+    qlmtds = []
+
+    for i in range(len(calores)):
+        t1,t2,t3,t4 = temps_interes[i],temps_interes[i+1],temps_complementarias[i],temps_complementarias[i+1]
+        try:
+            lmtd = abs(LMTD(t1,t2,t3,t4)) * F_LMTD_Fakheri(t1,t2,t3,t4)
+        except:
+            lmtd = abs(LMTD(t1,t2,t3,t4))
+
+        qlmtds.append(calores[i]/lmtd)
+   
+    return round(sum(calores)/sum(qlmtds), 3)
+
+# # CASOS WTD - PARCIAL Y PARCIAL
+# # 207 - C
+# print(LMTD(-101.3,-101.6,-90.31,-95.6) * F_LMTD_Fakheri(-101.3,-101.6,-90.31,-95.6))
+
+# # POLINTER
+# print(LMTD(56.4,34.9, 32,34.9))
+
+# 192-C
+# print(LMTD(-25.4, -25.5, -7.9, -20) * F_LMTD_Fakheri(-25.4, -25.5, -7.9, -20))
+
+# # 163-C
+# print(LMTD(-40.3, -40.7, -20, -34.4) * F_LMTD_Fakheri(-40.3, -40.7, -20, -34.4))
+
+# # 149-C
+# print(LMTD(-101,-101.1,-79.7,-90.1) * F_LMTD_Fakheri(-101,-101.1,-79.7,-90.1))
+
+# # 148-C
+# print(LMTD(-80,-80,-58,-75) * F_LMTD_Fakheri(-80,-80,-58,-75))
+
+# # 145-C
+# print(LMTD(-25.5,-25.7,7,-19) * F_LMTD_Fakheri(-25.5,-25.7,7,-19))
+
+# # 144-C
+# print(LMTD(2.11,2,40.6,7) * F_LMTD_Fakheri(2.11,2,40.6,7))
+# print("---------------")
+
+# # 125-C
+# print(LMTD(-25.5,-25.5,-15.7,-16.5) * F_LMTD_Fakheri(-25.5,-25.5,-15.7,-16.5))
+
+# #191-C
+# print(LMTD(-10.8, -11.3, 22.4, -5.3) * F_LMTD_Fakheri(-10.8, -11.3, 22.4, -5.3))
+# print(wtd_caso_ts(55210/3600,22.4, -5.3, -5.3*0.995, -10.8, -11.3, 2257, 6578, Chemical('ethylene', 273.15 - 5.3*0.995).Hvap))
+# print("--------------")
+
+# # # 199-C
+# print(LMTD(131.1, 147.8, 178, 178))
+# print(wtd_caso_ts(3056/3600,178, 178, 178, 131.1, 147.8, Chemical('water', 273.15 + 178).Cpg, Chemical('water', 273.15 + 178).Cpl, Chemical('water', 273.15 + 178).Hvap))
+# print("--------------")
+
+# 101-C
+# print("101-C")
+# print(LMTD(18.5,18.5,63.4,26))
+# print(wtd_caso_tdd(284196/3600,63.4, 26, 26, 18.5, 1811, 2780, 331000))
+# print("--------------")
+
+# # 202-C
+# print(LMTD(-25.4, -25.5, -7.9, -20) * F_LMTD_Fakheri(-25.4, -25.5, -7.9, -20))
+# print(wtd_caso_ts(99980/3600,22.4,-5.3, -5.3*0.995, -10.8, -11.3, 2257, 6578, Chemical('ethylene', 273.15 - 5.3*0.995).Hvap))
+# print("--------------")
+
+# # 203-C
+# print(LMTD(-0.2, 0.9, 47.3, 41) * F_LMTD_Fakheri(-0.2, 0.9, 47.3, 41))
+# print(wtd_caso_ts(26861/3600,47.3,41, 41*1.005, -0.2, 0.9, 2090, 2840, Chemical('propylene', 273.15 - 41*1.005).Hvap))
+# print("--------------")
+
+# 186-C
+# print(LMTD(46.7,45.8,33.3,40.3) * F_LMTD_Fakheri(46.7,45.8,33.3,40.3))
+# print(wtd_caso_ts(198937/3600,46.7,45.8,45.8*1.005,33.3,40.3,2357,2870,Chemical('propylene', 273.15 + 45.8*1.005).Hvap))
+# print("-"*10)
+
+# # 314-C
+# print(LMTD(55.6,46,33.3,40.3) * F_LMTD_Fakheri(55.6,46,33.3,40.3))
+# print(wtd_caso_ts(285808/3600,55.6,46,47.1,33.3,40.3,2423.5,3205,Chemical('propylene', 273.15 + 46*1.005).Hvap))
+# print("-"*10)
+
+# 181-C
+# print("181-C")
+# print(LMTD(95.5,40.6,33.3,40.3) * F_LMTD_Fakheri(95.5,40.6,33.3,40.3))
+# print(wtd_caso_sp(117223/3600,95.5,40.6,33.3,40.3,(2116+1969)/2,1815604.7997,'VD',0.0122))
+# print("-"*10)
+
+# # 182-C
+# print("182-C")
+# print(LMTD(96.8,40.6,33.3,40.3) * F_LMTD_Fakheri(96.8,40.6,33.3,40.3))
+# print(wtd_caso_sp(114311/3600,96.8,40.6,33.3,40.3,2106.5,1529601.3426,'LD',0.00985))
+# print("-"*10)
+
+# # 183-C
+# print("183-C")
+# print(LMTD(66.1,68.2,110.9,74.6) * F_LMTD_Fakheri(66.1,68.2,110.9,74.6))
+# print(wtd_caso_sp(593160/3600,66.1,68.2,110.9,74.6,2106.5,260000,'DV',0.35))
+# print("-"*10)
+
+# # 193-C
+# print("193-C")
+# print(LMTD(-40.5,-40.6,-20,-26) * F_LMTD_Fakheri(-40.5,-40.6,-20,-26))
+# print(wtd_caso_sp(11615/3600,-40.5,-40.6,-20,-26,1300,432400,'DV',0.9270770555))
+# print("-"*10)
+
+# # 196-C
+# print("196-C")
+# print(LMTD(-40,-40,46.3,-37))
+# print(wtd_caso_sp(10040/3600,-40,-40,46.3,-37,1300,438000,'DV',0.88))
+# print("-"*10)
+
+# # 203-C
+# print("203-C")
+# print(LMTD(-0.2,0.9,47.3,41) * F_LMTD_Fakheri(-0.2,0.9,47.3,41))
+# print(wtd_caso_sp(75910/3600,-0.2,0.9,47.3,41,4615,224288,'LD',0.50703))
+# print("-"*10)
+
+# # 208-C
+# print("208-C")
+# print(LMTD(98.2,40.5,33.3,40.6) * F_LMTD_Fakheri(98.2,40.5,33.3,40.6))
+# print(wtd_caso_sp(113392/3600,98.2,40.5,33.3,40.6,2180,975780,'VD',0.00921))
+# print('-'*10)
