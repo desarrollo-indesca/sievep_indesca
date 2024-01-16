@@ -1,3 +1,4 @@
+from simulaciones_pequiven.settings import BASE_DIR
 from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout, login, get_user_model
@@ -58,6 +59,13 @@ class CerrarSesion(LoginRequiredMixin, View):
     def get(self, request):
         logout(request)
         return redirect('/')
+
+class ManualDeUsuario(LoginRequiredMixin, View):
+    def get(self, request):
+        with open(BASE_DIR.__str__() + '/static/pdf/manual_de_usuario.pdf','rb') as file:
+            response = HttpResponse(file.read(), content_type='application/pdf')
+        
+        return response
 
 # Esta vista es temporal. Fue usada para cargar los datos de los fluidos 
 class ComponerFluidos(View):

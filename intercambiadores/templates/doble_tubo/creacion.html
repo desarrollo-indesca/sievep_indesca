@@ -1019,11 +1019,9 @@
 {% endblock %}
 
 {% block extra_javascript %}
+<script src="{% static 'js/intercambiadores/ajaxCP.js' %}"></script>
 <script>
-    {% include 'scripts/ajaxCP.js' %}
-
     {% include 'scripts/validaciones_flujo.js' %}
-
-    {% include 'scripts/cambio_fase.js' %}
 </script>
+<script src="{% static 'js/intercambiadores/cambio_fase.js' %}"></script>
 {% endblock %}

@@ -13,7 +13,7 @@
     <td>{{evaluacion.nombre}}</td>
     <td>{{evaluacion.creado_por.first_name}}</td>
     <td>
-      {% include 'resultados/intercambiadores/tubo_carcasa.html' %}
+      {% include 'resultados/tubo_carcasa.html' %}
       
       <button data-bs-toggle="modal" id="boton_resultados_{{evaluacion.pk}}" data-bs-target="#resultados_{{evaluacion.pk}}" class="btn btn-danger"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Ícono de Resultados"></button>
     </td>

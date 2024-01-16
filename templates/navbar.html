@@ -34,6 +34,7 @@
               {% if request.user.is_superuser %}
               <li><a class="dropdown-item" href="{% url 'consultar_usuarios' %}">Administrar Usuarios</a></li>
               {% endif %}
+              <li><a class="dropdown-item" target="_blank" href="{% url 'manual' %}">Manual de Usuario</a></li>
               <li><a class="dropdown-item" href="{% url 'cerrar_sesion' %}">Cerrar Sesión</a></li>
             </ul>
           </li>
