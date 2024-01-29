@@ -193,7 +193,3 @@ PWA_APP_SCREENSHOTS = [
       "type": "image/png"
     }
 ]
-
-# INTERNAL_IPS = [
-#     "127.0.0.1",
-# ]

@@ -26,8 +26,7 @@ urlpatterns = [
     path('intercambiadores/', include('intercambiadores.urls')),
     path('usuarios/', include('usuarios.urls')),
     path('', include('pwa.urls')),
-    path('migrar/intercambiadores/',ComponerIntercambiadores.as_view(), name="migrar_intercambiadores"),
-    path('migrar/fluidos/',ComponerFluidos.as_view(), name="migrar_intercambiadores"),
+    path('calderas', include('calderas.urls')),
     path('manual/', ManualDeUsuario.as_view(), name="manual"),
     # path("__debug__/", include("debug_toolbar.urls")),
 ]
