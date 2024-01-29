@@ -1,6 +1,7 @@
 # Introducción
 Este repositorio corresponde al Sistema Integrado de Evaluación de Equipos de Procesos (SIEVEP), el cual corresponde al resultado del proyecto asociado a la **solicitud de servicio SS23147**. Con Python + Django + JQuery + HTMX se planteó migrar herramientas en Excel de evaluación de equipos de procesos, centralizándose en este software.
 
+
 ## :ledger: Índice
 
 - [Información](#beginner-información)
@@ -104,4 +105,4 @@ Colocar FAQs al finalizar proyecto.
 - **Diego Faria**: Ingeniero en Informática de Indesca (Programación)
 - **Edgar Salas**: Ingeniero de Procesos que apoyó en la parte técnica (Modelo Inicial y bibliografía)
 - **Alejandra Romero**: Tesista de OOPP que apoyó en la parte técnica (Cambio de Fase)
-- **Nicole Pirela**: Ingeniero de Procesos que apoyó en la parte técnica (Cambio de Fase)
+- **Nicole Pirela**: Ingeniero de OOPP que apoyó en la parte técnica (Cambio de Fase)
