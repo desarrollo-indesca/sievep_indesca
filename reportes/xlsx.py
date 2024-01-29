@@ -346,6 +346,8 @@ def ficha_tecnica_doble_tubo_xlsx(intercambiador, request):
     worksheet.write(f'AZ{num}', f'Material Tubo Externo', bold_bordered)
     worksheet.write(f'BA{num}', f'Material Tubo Interno', bold_bordered)
     worksheet.write(f'BB{num}', f'Criticidad', bold_bordered)
+    worksheet.write(f'BC{num}', f'Número de Aletas', bold_bordered)
+    worksheet.write(f'BD{num}', f'Altura Alteras ({propiedades.diametro_tubos_unidad})', bold_bordered)
 
     num += 1
 
@@ -406,6 +408,8 @@ def ficha_tecnica_doble_tubo_xlsx(intercambiador, request):
     worksheet.write(f'AZ{num}', f'{propiedades.material_ex}', bordered)
     worksheet.write(f'BA{num}', f'{propiedades.material_in}', bordered)
     worksheet.write(f'BB{num}', f'{propiedades.criticidad_larga()}', bordered)
+    worksheet.write(f'BC{num}', f'{propiedades.numero_aletas}', bordered)
+    worksheet.write(f'BD{num}', f'{propiedades.altura_aletas}', bordered)
 
     worksheet.write(f"E{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
     worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)

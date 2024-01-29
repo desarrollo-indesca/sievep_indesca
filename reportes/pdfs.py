@@ -1167,6 +1167,10 @@ def ficha_tecnica_doble_tubo(object_list):
             f'Tipo del Tubo', Paragraph(f"{propiedades.tipo_tubo}", centrar_parrafo), '',
             f'Criticidad', Paragraph(f"{propiedades.criticidad_larga()}", centrar_parrafo), '',
         ],
+        [
+            f'Número de Aletas', Paragraph(f"{propiedades.numero_aletas}", centrar_parrafo), '',
+            f'Altura Aletas ({propiedades.diametro_tubos_unidad})', Paragraph(f"{propiedades.altura_aletas}", centrar_parrafo), '',
+        ],
     ]
 
     estilo = TableStyle(
