@@ -890,7 +890,8 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
                 propiedades.q_unidad = Unidades.objects.get(pk=request.POST['unidad_q'])
                 propiedades.u_unidad = Unidades.objects.get(pk=request.POST['unidad_u'])
                 propiedades.ensuciamiento_unidad = Unidades.objects.get(pk=request.POST['unidad_fouling'])
-
+                propiedades.arreglo_paralelo = request.POST['arreglo_paralelo']
+                propiedades.arreglo_serie = request.POST['arreglo_serie']
                 propiedades.save()
 
                 # Actualización condiciones de diseño del tubo
@@ -1377,7 +1378,7 @@ class CrearIntercambiadorDobleTubo(CrearIntercambiadorTuboCarcasa):
         if(not request.POST.get('altura_aletas')):
             errores.append('El campo Altura de Aletas es obligatorio.')
 
-        if(int(request.POST.get('numero_aletas')) != 0 and int(request.POST.get('altura_aletas')) == 0):
+        if(int(request.POST.get('numero_aletas')) != 0 and request.POST.get('altura_aletas') == '0'):
             errores.append('La Altura de las Aletas debe ser mayor a 0 si el Número de Aletas es distinto de 0.')
 
         return errores
@@ -1517,7 +1518,7 @@ class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, EdicionInterca
 
                     calor = float(request.POST['calor'])
 
-                    # Actualización propiedades de tubo y carcasa
+                    # Actualización propiedades de doble tubo
                     propiedades = PropiedadesDobleTubo.objects.get(pk=pk)
                     propiedades.area = request.POST['area']
                     propiedades.numero_tubos = request.POST['no_tubos']
@@ -1542,6 +1543,10 @@ class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, EdicionInterca
                     propiedades.q_unidad = Unidades.objects.get(pk=request.POST['unidad_q'])
                     propiedades.u_unidad = Unidades.objects.get(pk=request.POST['unidad_u'])
                     propiedades.ensuciamiento_unidad = Unidades.objects.get(pk=request.POST['unidad_fouling'])
+                    propiedades.arreglo_serie_ex = request.POST['arreglo_serie_ex']
+                    propiedades.arreglo_paralelo_ex = request.POST['arreglo_paralelo_ex']
+                    propiedades.arreglo_serie_in = request.POST['arreglo_serie_in']
+                    propiedades.arreglo_paralelo_in = request.POST['arreglo_paralelo_in']
                     propiedades.numero_aletas = request.POST['numero_aletas']
                     propiedades.altura_aletas = request.POST['altura_aletas']
 
