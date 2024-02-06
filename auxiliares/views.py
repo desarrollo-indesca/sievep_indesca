@@ -4,7 +4,7 @@ from django.views import View
 
 # Create your views here.
 
-class SeleccionTipo(LoginRequiredMixin, View):
+class SeleccionEquipo(LoginRequiredMixin, View):
     """
     Resumen:
         Vista de consulta de los equipos auxiliares planteados en el proyecto.

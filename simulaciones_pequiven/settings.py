@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'intercambiadores',
+    'auxiliares',
     'usuarios',
     'static',
     'pwa',
