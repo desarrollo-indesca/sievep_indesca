@@ -866,7 +866,7 @@
 
         $('button[type="submit"]').attr('disabled','disabled');
 
-        return true;
+        return confirm("¿Está seguro de almacenar esta evaluación?");
     };
 
     function ajaxValidacion(lado = 'C'){
