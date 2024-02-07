@@ -298,7 +298,7 @@
         <hr>
         
         <div class="d-flex justify-content-center mb-3">
-            <button id="registrar_resultado" class="btn btn-danger" disabled>Registrar Resultados De La Evaluación</button>
+            <button id="registrar_resultado" type="submit" class="btn btn-danger" disabled>Registrar Resultados De La Evaluación</button>
         </div>
     </form>
     {% endwith %}
@@ -864,9 +864,11 @@
             return confirm(mensaje);
         }
 
-        $('button[type="submit"]').attr('disabled','disabled');
+        const respuesta = confirm("¿Está seguro de almacenar esta evaluación?");
+        if(respuesta)
+            $('button[type="submit"]').attr('disabled','disabled');
 
-        return confirm("¿Está seguro de almacenar esta evaluación?");
+        return respuesta;
     };
 
     function ajaxValidacion(lado = 'C'){
