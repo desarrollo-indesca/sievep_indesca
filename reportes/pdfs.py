@@ -809,11 +809,11 @@ def ficha_tecnica_tubo_carcasa(object_list):
 
             ('SPAN', (2, 2), (3, 2)),
             ('SPAN', (4, 2), (5, 2)),
-            ('SPAN', (0, 19), (-1, 19)),
+            ('SPAN', (0, 18), (-1, 18)),
 
             ('BACKGROUND', (2, 0), (-1, 1), sombreado),
             ('BACKGROUND', (0, 2), (1, 18), sombreado),
-            ('BACKGROUND', (0, 19), (-1, 19), sombreado)
+            ('BACKGROUND', (0, 18), (-1, 18), sombreado)
 
         ]
     )
