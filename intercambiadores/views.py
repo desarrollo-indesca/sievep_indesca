@@ -2213,7 +2213,7 @@ class ValidarCambioDeFaseExistente(LoginRequiredMixin, ValidacionCambioDeFaseMix
         if(fluido.find('*') != -1): # Fluido no registrado
             fluido = fluido.split('*')
             if(fluido[1].find('-') != -1):
-                fluido = Fluido.objects.get_or_create(nombre = fluido[0].upper(), cas = fluido[1])
+                fluido = Fluido.objects.get_or_create(nombre = fluido[0].upper(), cas = fluido[1])[0]
             else:
                 fluido = None
         elif fluido != '': # Fluido registrado
