@@ -68,8 +68,12 @@ function anadir_listeners_registro() {
             const valor = `${document.getElementById('nombre_compuesto_carcasa_cas').value}*${document.getElementById('cas_compuesto_carcasa').value}`;
             document.getElementById('fluido_carcasa').innerHTML += `<option value="${valor}" selected>${document.getElementById('nombre_compuesto_carcasa_cas').value.toUpperCase()}</option>`;
             actualizar_tipos('C');
+
             if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '')
                ajaxCPCarcasa();
+
+            document.getElementById('nombre_compuesto_carcasa_cas').value = '';
+            document.getElementById('cas_compuesto_carcasa').value = '';
             
             $('#condiciones_diseno_fluido_carcasaClose').click();
         } else
@@ -83,6 +87,9 @@ function anadir_listeners_registro() {
             actualizar_tipos('T');
             if($('#temp_out_tubo').val() !== '' && $('#temp_in_tubo').val() !== '')
                 ajaxCPTubo();
+
+            document.getElementById('nombre_compuesto_tubo_cas').value = '';
+            document.getElementById('cas_compuesto_tubo').value = '';
             
             $('#condiciones_diseno_fluido_tuboClose').click();
         } else
@@ -131,6 +138,9 @@ function anadir_listeners_registro() {
             document.getElementById('cp_gas_tubo').value = document.getElementById('cp_compuesto_tubo').value;
         }
 
+        $('#nombre_compuesto_tubo').val('');
+        $('#cp_compuesto_tubo').val('');
+
         $('#condiciones_diseno_fluido_tuboClose').click();
         actualizar_tipos('T');
     });
@@ -175,6 +185,9 @@ function anadir_listeners_registro() {
             document.getElementById('cp_liquido_carcasa').value = document.getElementById('cp_compuesto_carcasa').value;
             document.getElementById('cp_gas_carcasa').value = document.getElementById('cp_compuesto_carcasa').value;
         }
+
+        $('#nombre_compuesto_carcasa').val('')
+        $('#cp_compuesto_carcasa').val('')
 
         $('#condiciones_diseno_fluido_carcasaClose').click();
         actualizar_tipos('C');
