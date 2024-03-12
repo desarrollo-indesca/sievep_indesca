@@ -9,7 +9,8 @@ class Command(BaseCommand):
     help = "Carga las bombas de Servicios Industriales"
 
     def clean_text(self, text) -> str:
-        texto = text.strip().replace("0","")
+        texto = text.strip().replace(",",".").replace("(", "").replace(")", "").replace("NO","")
+        texto = '' if texto == '0' else texto
 
         return texto if texto != '' else None
 
@@ -21,10 +22,12 @@ class Command(BaseCommand):
             
             for pump in data:
                 print("------------------------------------")
-                print(f"BOMBA {pump["tag"]}")
+                print(pump)
+                print(f"BOMBA {pump['tag']}")
 
                 print("Detalles de construcción de la bomba")
                 tipo_carcasa = self.clean_text(pump["tipodecarcasa"]).split("/") if self.clean_text(pump["tipodecarcasa"]) else None
+                print(tipo_carcasa)
                 detalles_construccion = DetallesConstruccionBomba.objects.create(
                     conexion_succion = self.clean_text(pump["conexiondesuccion"]),
                     conexion_descarga = self.clean_text(pump["conexiondedescarga"]),
@@ -33,7 +36,7 @@ class Command(BaseCommand):
                     carcasa_dividida = self.clean_text(pump["carcasadividida"])[0].upper() if self.clean_text(pump["carcasadividida"]) else None,
                     modelo = self.clean_text(pump["modeloconstruccion"]),
                     fabricante_sello = self.clean_text(pump["fabricantesello"]),
-                    tipo = TipoBombaConstruccion.objects.get(nombre = self.clean_text(pump["tipodebombaconstruccion"])) if self.clean_textpump["tipodebombaconstruccion"] else None,
+                    tipo = TipoBombaConstruccion.objects.get(nombre = self.clean_text(pump["tipodebombaconstruccion"])) if self.clean_text(pump["tipodebombaconstruccion"]) else None,
                     tipo_carcasa1 = TipoCarcasaBomba.objects.get(nombre = tipo_carcasa[0]) if tipo_carcasa and tipo_carcasa[0] else None,
                     tipo_carcasa2 = TipoCarcasaBomba.objects.get(nombre = tipo_carcasa[1]) if tipo_carcasa and len(tipo_carcasa) > 1 else None                 
                 )
@@ -49,7 +52,7 @@ class Command(BaseCommand):
                     posicion = self.clean_text(pump["posiciondelmotor"])[0].upper() if self.clean_text(pump["posiciondelmotor"]) else None,
                     voltaje = self.clean_text(pump["voltaje"]),
                     voltaje_unidad = Unidades.objects.get(simbolo = "V"),
-                    fase = self.clean_text(pump["fase"]),
+                    fases = self.clean_text(pump["fase"]),
                     frecuencia = self.clean_text(pump["frecuencia"]),
                     frecuencia_unidad =  Unidades.objects.get(simbolo = "Hz"),
                     aislamiento = "F" if self.clean_text(pump["aislamiento"]) else None,
@@ -87,11 +90,11 @@ class Command(BaseCommand):
                     temperatura_operacion = self.clean_text(pump["temperaturadeoperacion"]),
                     temperatura_unidad = Unidades.objects.get(pk = 1),
                     presion_vapor = self.clean_text(pump["presiondevapor"]),
-                    temperatura_unidad = Unidades.objects.get(simbolo = "KPa"),
+                    presion_unidad = Unidades.objects.get(simbolo = "KPa"),
                     temperatura_presion_vapor = self.clean_text(pump["temperaturapresionvapor"]),
                     densidad_relativa = self.clean_text(pump["densidadrelativa"]),
                     viscosidad = self.clean_text(pump["viscosidad"]),
-                    viscosidad_unidad = self.clean_text(pump["viscosidad_unidad"]),
+                    viscosidad_unidad = Unidades.objects.get(simbolo = "cP"),
                     corrosividad = self.clean_text(pump["corrosivo"])[0] if self.clean_text(pump["corrosivo"]) else 'D',
                     peligroso = self.clean_text(pump["peligroso"])[0] if self.clean_text(pump["peligroso"]) else 'D',
                     inflamable = self.clean_text(pump["inflamable"])[0] if self.clean_text(pump["inflamable"]) else 'D',
@@ -121,8 +124,7 @@ class Command(BaseCommand):
                 bomba = Bombas.objects.create(
                     tag = self.clean_text(pump["tag"]).upper(),
                     descripcion = self.clean_text(pump["descripcion"]).upper(),
-                    fabricante = self.clean_text(pump["fabricante"]).title(),
-                    modelo = self.clean_text(pump["modelo"]).title(),
+                    modelo = self.clean_text(pump["modelo"]).title() if self.clean_text(pump["modelo"]) else None,
                     fabricante = self.clean_text(pump["fabricante"]).title(),
                     creado_por = get_user_model().objects.get(pk = 1),
                     planta = Planta.objects.get(nombre = "Servicios Industriales"),
@@ -153,3 +155,5 @@ class Command(BaseCommand):
                     bomba = bomba
                 )
                 print("Listo")
+
+                print("LISTO CON ESTA BOMBA")

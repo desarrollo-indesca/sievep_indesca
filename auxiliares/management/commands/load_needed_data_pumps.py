@@ -94,3 +94,18 @@ class Command(BaseCommand):
                 MaterialTuberia.objects.bulk_create(materiales)
             except Exception as e:
                 print(f"No se pudo crear los materiales faltantes: {str(e)}")
+
+            # Creación de Tipos de Carcasa Requeridos
+            carcasas = [
+                TipoCarcasaBomba(nombre = "Voluta Simple"),
+                TipoCarcasaBomba(nombre = "VolutaMultiple"),
+                TipoCarcasaBomba(nombre = "Difusor"),
+                TipoCarcasaBomba(nombre = "OverHUNG"),
+                TipoCarcasaBomba(nombre = "EntreCojinetes"),
+                TipoCarcasaBomba(nombre = "Barril")
+            ]
+
+            try:
+                TipoCarcasaBomba.objects.bulk_create(carcasas)
+            except Exception as e:
+                print(f"No se pudo crear los materiales faltantes: {str(e)}")
