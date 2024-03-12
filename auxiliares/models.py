@@ -2,7 +2,8 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from intercambiadores.models import Fluido, Planta, Unidades
 
-# MODELOS DE BOMBAS
+
+# CONSTANTES DE SELECCIÓN
 
 MOTOR_POSICIONES = (
     ('H', 'Horizontal'),
@@ -36,6 +37,13 @@ CALCULO_PROPIEDADES = (
     ('A', 'Automático')
 )
 
+CARCASA_DIVIDIDA = (
+    ('A', 'Axial'),
+    ('R', 'Radial')
+)
+
+# MODELOS DE BOMBAS
+
 class Material(models.Model):
     nombre = models.CharField(max_length = 45)
     rugosidad = models.FloatField()
@@ -46,25 +54,62 @@ class EspecificacionesInstalacion(models.Model):
     elevacion_unidad = models.ForeignKey(Unidades, related_name="elevacion_unidad_especificacionesinstalacion")
     longitud_tuberia = models.FloatField(null = True)
     longitud_tuberia_unidad = models.CharField(max_length = 45)
-    numero_codos_90 = models.IntegerField(null = True)
-    numero_codos_90_rl = models.IntegerField(null = True, verbose_name="Número de Codos a 90°")
-    numero_codos_90_ros = models.IntegerField(null = True)
-    numero_codos_45 = models.IntegerField(null = True)
-    numero_codos_45_ros = models.IntegerField(null = True)
-    numero_codos_180 = models.IntegerField(null = True)
-    conexiones_t_directo = models.IntegerField(null = True)
-    conexiones_t_ramal = models.IntegerField(null = True)
-    numero_valvulas_mariposa_2_8 = models.IntegerField(null = True)
-    numero_valvulas_mariposa_10_14 = models.IntegerField(null = True)
-    numero_valvulas_mariposa_16_24 = models.IntegerField(null = True)
-    numero_contracciones_linea = models.IntegerField(null = True)
-    numero_expansiones_linea = models.IntegerField(null = True)
+
+    numero_codos_90 = models.PositiveIntegerField(null = True)
+    numero_codos_90_rl = models.PositiveIntegerField(null = True, verbose_name="Número de Codos a 90°")
+    numero_codos_90_ros = models.PositiveIntegerField(null = True)
+    numero_codos_45 = models.PositiveIntegerField(null = True)
+    numero_codos_45_ros = models.PositiveIntegerField(null = True)
+    numero_codos_180 = models.PositiveIntegerField(null = True)
+    conexiones_t_directo = models.PositiveIntegerField(null = True)
+    conexiones_t_ramal = models.PositiveIntegerField(null = True)
+
+    # VÁLVULAS COMPUERTA
+    numero_valvulas_compuerta = models.PositiveIntegerField(null = True)
+    numero_valvulas_compuerta_abierta_3_4 = models.PositiveIntegerField(null = True)
+    numero_valvulas_compuerta_abierta_1_2 = models.PositiveIntegerField(null = True)
+    numero_valvulas_compuerta_abierta_1_4 = models.PositiveIntegerField(null = True)
+
+    # VÁLVULAS MARIPOSA
+    numero_valvulas_mariposa_2_8 = models.PositiveIntegerField(null = True)
+    numero_valvulas_mariposa_2_8_abiertas = models.PositiveIntegerField(null = True)
+    numero_valvulas_mariposa_10_14 = models.PositiveIntegerField(null = True)
+    numero_valvulas_mariposa_10_14_abiertas = models.PositiveIntegerField(null = True)
+    numero_valvulas_mariposa_16_24 = models.PositiveIntegerField(null = True)
+    numero_valvulas_mariposa_16_24_abiertas = models.PositiveIntegerField(null = True)
+
+    # VÁLVULAS CHECK
+    numero_valvula_giratoria = models.PositiveIntegerField(null = True)
+    numero_valvula_bola = models.PositiveIntegerField(null = True)
+    numero_valvula_vastago = models.PositiveIntegerField(null = True)
+    numero_valvula_bisagra = models.PositiveIntegerField(null = True)
+
+    # ACCESORIOS
+    numero_valvula_globo = models.PositiveIntegerField(null = True)
+    numero_valvula_globo_abiertas = models.PositiveIntegerField(null = True)
+    numero_valvula_angulo = models.PositiveIntegerField(null = True)
+    numero_valvula_angulo_abiertas = models.PositiveIntegerField(null = True)
+    
+    numero_contracciones_linea = models.PositiveIntegerField(null = True)
+    numero_expansiones_linea = models.PositiveIntegerField(null = True)
 
 class TipoCarcasaBomba(models.Model):
     nombre = models.CharField(max_length = 45, unique = True)
 
 class TipoBombaConstruccion(models.Model):
     nombre = models.CharField(max_length = 45, unique = True)
+
+class DetallesConstruccionBomba(models.Model):
+    conexion_succion = models.PositiveIntegerField(null = True)
+    tamano_rating_succion = models.FloatField(null = True)
+    conexion_descarga = models.PositiveIntegerField(null = True)
+    tamano_rating_descarga = models.FloatField(null = True)
+    carcasa_dividida = models.CharField(max_length = 1, null = True, choices = CALCULO_PROPIEDADES)
+    modelo = models.CharField(max_length = 45, null = True)
+    fabricante_sello = models.CharField(max_length = 45, null = True)
+    tipo = models.ForeignKey(TipoBombaConstruccion)
+    tipo_carcasa1 = models.ForeignKey(TipoCarcasaBomba, related_name="tipo_carcasa_construccion1")
+    tipo_carcasa2 = models.ForeignKey(TipoCarcasaBomba, related_name="tipo_carcasa_construccion2")
 
 class TipoBomba(models.Model):
     nombre = models.CharField(max_length = 45, unique = True)
@@ -77,7 +122,7 @@ class DetallesMotorBomba(models.Model):
     posicion = models.CharField(null = True, max_length = 1, choices = MOTOR_POSICIONES, verbose_name="Posición del Motor")
     voltaje = models.FloatField(null=True)
     voltaje_unidad = models.ForeignKey(Unidades, related_name="voltaje_unidad_detallesmotor")
-    fases = models.SmallIntegerField(null = True)
+    fases = models.PositiveSmallIntegerField(null = True)
     frecuencia = models.FloatField(null = True)
     frecuencia_unidad = models.ForeignKey(Unidades, related_name="frecuencia_unidad_detallesmotor")
     aislamiento = models.CharField(null = True, max_length = 1, choices = AISLAMIENTO)
@@ -96,10 +141,17 @@ class EspecificacionesBomba(models.Model):
     cabezal_total = models.FloatField()
     cabezal_unidad = models.ForeignKey(Unidades, related_name="cabezal_unidad_especificacionesbomba")
     numero_etapas = models.SmallIntegerField()
+    
     succion_id = models.FloatField()
     descarga_id = models.FloatField()
     id_unidad = models.ForeignKey(Unidades, related_name="id_unidad_especificacionesbomba")
+
     material_tuberia = models.ForeignKey(Material)
+
+    entrada_proyectada_dentro_succion = models.PositiveIntegerField(null = True)
+    entrada_bordes_afilados_succion = models.PositiveIntegerField(null = True)
+    entrada_achaflamada_succion = models.PositiveIntegerField(null = True)
+    salida = models.PositiveIntegerField(null = True)
 
 class CondicionFluidoBomba(models.Model):
     temperatura_operacion = models.FloatField()
@@ -114,7 +166,7 @@ class CondicionFluidoBomba(models.Model):
     concentracion_cloro = models.FloatField() 
     concentracion_unidad = models.ForeignKey(Unidades, related_name = "presion_unidad_condicionesfluido")
     nombre_fluido = models.CharField(max_length = 45, null = True)
-    calculo_propiedades = models.CharField(max_length = 1, default = "M", choices=)
+    calculo_propiedades = models.CharField(max_length = 1, default = "M", choices=CALCULO_PROPIEDADES)
     fluido = models.ForeignKey(Fluido)
 
 class CondicionesDisenoBomba(models.Model):
@@ -136,9 +188,16 @@ class Bombas(models.Model):
     editado_al = models.DateTimeField(null = True)
     creado_por = models.ForeignKey(get_user_model())
     editado_por = models.ForeignKey(get_user_model(), null = True)
+    planta = models.ForeignKey(Planta)
     tipo_bomba = models.ForeignKey(TipoBomba)
-    detalle_motor = models.ForeignKey(DetallesMotor)
-    especificaciones_bombre = models.ForeignKey(EspecificacionesBomba)
+    detalles_motor = models.OneToOneField(DetallesMotorBomba)
+    especificaciones_bomba = models.OneToOneField(EspecificacionesBomba)
+    especificaciones_instalacion = models.OneToOneField(EspecificacionesInstalacion)
+    detalles_construccion = models.OneToOneField(DetallesConstruccionBomba)
+    condiciones_diseno = models.OneToOneField(CondicionesDisenoBomba)
+    grafica = models.FileField(null = False)
+
+# Evaluación de Bombas
 
 # MODELOS DE VENTILADORES
 
