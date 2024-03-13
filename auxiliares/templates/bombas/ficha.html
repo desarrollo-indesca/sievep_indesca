@@ -86,7 +86,7 @@
                 <table class="table table-light text-center table-bordered tabla_ficha mt-0">
                   <tbody id="tabla_ficha_contenido_body">
                     <tr>
-                      <th class="table-dark" colspan="4">
+                      <th class="table-dark" colspan="6">
                         <div class="d-inline-flex align-items-center">
                           Condiciones de Diseño de la Bomba
                         </div>
@@ -113,7 +113,7 @@
 
                     {% with condiciones_fluido=bomba.condiciones_diseno.condiciones_fluido %}
                     <tr>
-                        <th class="table-dark" colspan="4">
+                        <th class="table-dark" colspan="6">
                           <div class="d-inline-flex align-items-center">
                             Condiciones de Diseño del Fluido
                           </div>
@@ -170,7 +170,7 @@
                     {% endwith %}
 
                     <tr>
-                        <th class="table-dark" colspan="4">
+                        <th class="table-dark" colspan="6">
                           <div class="d-inline-flex align-items-center">
                             Especificaciones Técnicas de la Bomba
                           </div>
@@ -208,7 +208,7 @@
                     {% endwith %}
 
                     <tr>
-                        <th class="table-dark" colspan="4">
+                        <th class="table-dark" colspan="6">
                           <div class="d-inline-flex align-items-center">
                             Detalles de Construcción
                           </div>
@@ -250,11 +250,301 @@
                     </tr>
 
                     <tr>
-                      <td colspan="4">Creado por el usuario <b>{{bomba.condiciones_diseno.creado_por.get_full_name}}</b> el día <b>{{bomba.creado_al}}</b>.</td>
+                        <th class="table-dark" colspan="6">
+                          <div class="d-inline-flex align-items-center">
+                            Detalles del Motor
+                          </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Potencia ({{bomba.detalles_motor.potencia_unidad}})</th>
+                        <td>{{bomba.detalles_motor.potencia}}</td>
+                        <th class="table-dark">Velocidad ({{bomba.detalles_motor.velocidad_unidad}})</th>
+                        <td>{{bomba.detalles_motor.velocidad}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Factor de Servicio</th>
+                        <td>{{bomba.detalles_motor.factor_de_servicio}}</td>
+                        <th class="table-dark">Posición</th>
+                        <td>{{bomba.detalles_motor.posicion_largo}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Voltaje ({{bomba.detalles_motor.voltaje_unidad}})</th>
+                        <td>{{bomba.detalles_motor.voltaje}}</td>
+                        <th class="table-dark">Fases</th>
+                        <td>{{bomba.detalles_motor.fases}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Frecuencia ({{bomba.detalles_motor.frecuencia_unidad}})</th>
+                        <td>{{bomba.detalles_motor.frecuencia}}</td>
+                        <th class="table-dark">Aislamiento</th>
+                        <td>{{bomba.detalles_motor.aislamiento_largo}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="1">Método de Arranque</th>
+                        <td colspan="3">{{bomba.detalles_motor.arranque}}</td>
+                    </tr>
+
+                    <tr>
+                        <th class="table-dark" colspan="6">
+                          <div class="d-inline-flex align-items-center">
+                            Especificaciones de Instalación
+                          </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th colspan="2" class="table-dark">
+                            Codos
+                        </th>
+                        <th class="table-dark">
+                            Succión
+                        </th>
+                        <th class="table-dark">
+                            Descarga
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Núm. Codos 90°</td>
+                        <td>{{bomba.instalacion_succion.numero_codos_90}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_codos_90}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Núm. Codos 90° Radio Largo</td>
+                        <td>{{bomba.instalacion_succion.numero_codos_90_rl}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_codos_90_rl}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Núm. Codos Roscados a 90°</td>
+                        <td>{{bomba.instalacion_succion.numero_codos_90_ros}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_codos_90_ros}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Núm. Codos 45°</td>
+                        <td>{{bomba.instalacion_succion.numero_codos_45}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_codos_45}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Núm. Codos Roscados a 45°</td>
+                        <td>{{bomba.instalacion_succion.numero_codos_45_ros}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_codos_45_ros}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Núm. Codos 180°</td>
+                        <td>{{bomba.instalacion_succion.numero_codos_90}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_codos_90}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Núm. Codos 90°</td>
+                        <td>{{bomba.instalacion_succion.numero_codos_90}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_codos_90}}</td>
+                    </tr>
+
+                    <tr>
+                        <th colspan="2" class="table-dark">
+                            Instalación General
+                        </th>
+                        <th class="table-dark">
+                            Succión
+                        </th>
+                        <th class="table-dark">
+                            Descarga
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Elevación ({{bomba.instalacion_succion.elevacion_unidad}})</td>
+                        <td>{{bomba.instalacion_succion.elevacion}}</td>
+                        <td>{{bomba.instalacion_descarga.elevacion}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Longitud de la Tubería ({{bomba.instalacion_succion.longitud_tuberia_unidad}})</td>
+                        <td>{{bomba.instalacion_succion.longitud_tuberia}}</td>
+                        <td>{{bomba.instalacion_descarga.longitud_tuberia}}</td>
+                    </tr>
+                    
+                    <tr>
+                        <th colspan="2" class="table-dark">
+                            Válvulas de Compuerta
+                        </th>
+                        <th class="table-dark">
+                            Succión
+                        </th>
+                        <th class="table-dark">
+                            Descarga
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Núm. Válvulas Compuerta</td>
+                        <td>{{bomba.instalacion_succion.numero_valvulas_compuerta}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_valvulas_compuerta}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Abiertas a 3/4</td>
+                        <td>{{bomba.instalacion_succion.numero_valvulas_compuerta_abierta_3_4}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_valvulas_compuerta_abierta_3_4}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Abiertas a 1/2</td>
+                        <td>{{bomba.instalacion_succion.numero_valvulas_compuerta_abierta_1_2}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_valvulas_compuerta_abierta_1_2}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Abiertas a 1/4</td>
+                        <td>{{bomba.instalacion_succion.numero_valvulas_compuerta_abierta_1_4}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_valvulas_compuerta_abierta_1_4}}</td>
+                    </tr>
+
+                    <tr>
+                        <th colspan="2" class="table-dark">
+                            Válvulas de Mariposa
+                        </th>
+                        <th class="table-dark">
+                            Succión
+                        </th>
+                        <th class="table-dark">
+                            Descarga
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Núm. Válvulas Mariposa 2"-8"</td>
+                        <td>{{bomba.instalacion_succion.numero_valvulas_mariposa_2_8}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_valvulas_mariposa_2_8}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Válvulas Mariposa 2"-8" Abiertas</td>
+                        <td>{{bomba.instalacion_succion.numero_valvulas_mariposa_2_8_abiertas}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_valvulas_mariposa_2_8_abiertas}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Núm. Válvulas Mariposa 10"-14"</td>
+                        <td>{{bomba.instalacion_succion.numero_valvulas_mariposa_10_14}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_valvulas_mariposa_10_14}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Válvulas Mariposa 10"-14" Abiertas</td>
+                        <td>{{bomba.instalacion_succion.numero_valvulas_mariposa_10_14_abiertas}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_valvulas_mariposa_10_14_abiertas}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Núm. Válvulas Mariposa 16"-24"</td>
+                        <td>{{bomba.instalacion_succion.numero_valvulas_mariposa_16_24}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_valvulas_mariposa_16_24}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Válvulas Mariposa 16"-24" Abiertas</td>
+                        <td>{{bomba.instalacion_succion.numero_valvulas_mariposa_16_24_abiertas}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_valvulas_mariposa_16_24_abiertas}}</td>
+                    </tr>
+
+                    <tr>
+                        <th colspan="2" class="table-dark">
+                            Válvulas Check
+                        </th>
+                        <th class="table-dark">
+                            Succión
+                        </th>
+                        <th class="table-dark">
+                            Descarga
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Núm. Válvulas Verif. Giratorias</td>
+                        <td>{{bomba.instalacion_succion.numero_valvula_giratoria}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_valvula_giratoria}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Núm. Válvulas Verif. Bola</td>
+                        <td>{{bomba.instalacion_succion.numero_valvula_bola}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_valvula_bola}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Núm. Válvulas Disco de Bisagra</td>
+                        <td>{{bomba.instalacion_succion.numero_valvula_bisagra}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_valvula_bisagra}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Núm. Válvulas Disco de Vástago</td>
+                        <td>{{bomba.instalacion_succion.numero_valvula_vastago}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_valvula_vastago}}</td>
+                    </tr>
+
+                    <tr>
+                        <th colspan="2" class="table-dark">
+                            Accesorios
+                        </th>
+                        <th class="table-dark">
+                            Succión
+                        </th>
+                        <th class="table-dark">
+                            Descarga
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Número de Válvulas Globo</td>
+                        <td>{{bomba.instalacion_succion.numero_valvula_globo}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_valvula_globo}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Número de Válvulas Globo Abiertas</td>
+                        <td>{{bomba.instalacion_succion.numero_valvula_globo_abiertas}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_valvula_globo_abiertas}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Número de Válvulas angulo</td>
+                        <td>{{bomba.instalacion_succion.numero_valvula_angulo}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_valvula_angulo}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Número de Válvulas angulo Abiertas</td>
+                        <td>{{bomba.instalacion_succion.numero_valvula_angulo_abiertas}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_valvula_angulo_abiertas}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Número de Contracciones en Línea</td>
+                        <td>{{bomba.instalacion_succion.numero_contracciones_linea}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_contracciones_linea}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Número de Expansiones en Línea</td>
+                        <td>{{bomba.instalacion_succion.numero_expansiones_linea}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_expansiones_linea}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Conexiones T Flujo Directo</td>
+                        <td>{{bomba.instalacion_succion.conexiones_t_directo}}</td>
+                        <td>{{bomba.instalacion_descarga.conexiones_t_directo}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Conexiones T Flujo Ramal</td>
+                        <td>{{bomba.instalacion_succion.conexiones_t_ramal}}</td>
+                        <td>{{bomba.instalacion_descarga.conexiones_t_ramal}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Entradas Proyectada Dentro</td>
+                        <td>{{bomba.especificaciones_bomba.entrada_proyectada_dentro_succion}}</td>
+                        <td>N/A</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Entradas con Bordes Afilados</td>
+                        <td>{{bomba.especificaciones_bomba.entrada_bordes_afilados_succion}}</td>
+                        <td>N/A</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Entradas Achaflamada</td>
+                        <td>{{bomba.especificaciones_bomba.entrada_achaflamada_succion}}</td>
+                        <td>N/A</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Salidas</td>
+                        <td>N/A</td>
+                        <td>{{bomba.especificaciones_bomba.salida}}</td>
+                    </tr>
+
+                    <tr>
+                      <td colspan="6">Creado por el usuario <b>{{bomba.condiciones_diseno.creado_por.get_full_name}}</b> el día <b>{{bomba.creado_al}}</b>.</td>
                     </tr>
                     {% if bomba.editado_al %}
                     <tr>
-                      <td colspan="4">Editado por <b>{{bomba.editado_por.get_full_name}}</b> el día <b>{{bomba.editado_al}}</b>.</td>
+                      <td colspan="6">Editado por <b>{{bomba.editado_por.get_full_name}}</b> el día <b>{{bomba.editado_al}}</b>.</td>
                     </tr>
                     {% endif %}
                   </tbody>

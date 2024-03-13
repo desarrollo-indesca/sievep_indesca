@@ -120,6 +120,21 @@ class Command(BaseCommand):
                 )
                 print("Listo")
 
+                print("Especificaciones de instalación de la succión")
+                instalacion_succion = EspecificacionesInstalacion.objects.create(
+                    elevacion = self.clean_text(pump['elevaciondedelasuccion']),
+                    elevacion_unidad = Unidades.objects.get(simbolo = "m"),
+                    longitud_tuberia_unidad = Unidades.objects.get(simbolo = "m")
+                )
+                print("Listo")
+
+                print("Especificaciones de instalación de la descarga")
+                instalacion_descarga = EspecificacionesInstalacion.objects.create(
+                    elevacion_unidad = Unidades.objects.get(simbolo = "m"),
+                    longitud_tuberia_unidad = Unidades.objects.get(simbolo = "m")
+                )
+                print("Listo")
+
                 print("Creación del modelo de bombas")
                 bomba = Bombas.objects.create(
                     tag = self.clean_text(pump["tag"]).upper(),
@@ -133,26 +148,9 @@ class Command(BaseCommand):
                     especificaciones_bomba = especificaciones_bomba,
                     detalles_construccion = detalles_construccion,
                     condiciones_diseno = condicion_diseno_bomba,
-                    grafica = None
-                )
-                print("Listo")
-
-                print("Especificaciones de instalación de la succión")
-                EspecificacionesInstalacion.objects.create(
-                    lado = 'S',
-                    elevacion = self.clean_text(pump['elevaciondedelasuccion']),
-                    elevacion_unidad = Unidades.objects.get(simbolo = "m"),
-                    longitud_tuberia_unidad = Unidades.objects.get(simbolo = "m"),
-                    bomba = bomba
-                )
-                print("Listo")
-
-                print("Especificaciones de instalación de la descarga")
-                EspecificacionesInstalacion.objects.create(
-                    lado = 'D',
-                    elevacion_unidad = Unidades.objects.get(simbolo = "m"),
-                    longitud_tuberia_unidad = Unidades.objects.get(simbolo = "m"),
-                    bomba = bomba
+                    grafica = None,
+                    instalacion_succion = instalacion_succion,
+                    instalacion_descarga = instalacion_descarga
                 )
                 print("Listo")
 

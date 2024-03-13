@@ -100,6 +100,12 @@ class DetallesMotorBomba(models.Model):
     aislamiento = models.CharField(null = True, max_length = 1, choices = AISLAMIENTO)
     arranque = models.CharField(null = True, max_length = 45)
 
+    def posicion_largo(self):
+        return conseguir_largo(MOTOR_POSICIONES, self.posicion)
+    
+    def aislamiento_largo(self):
+        return conseguir_largo(AISLAMIENTO, self.aislamiento)
+
 class EspecificacionesBomba(models.Model):
     numero_curva = models.CharField(max_length = 10, null = True)
     velocidad = models.FloatField(null = True)
@@ -165,28 +171,7 @@ class CondicionesDisenoBomba(models.Model):
     npsha_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="npsha_unidad_condicionesdisenobomba")
     condiciones_fluido = models.OneToOneField(CondicionFluidoBomba, on_delete=models.CASCADE)
 
-class Bombas(models.Model):
-    tag = models.CharField(max_length = 45, unique = True)
-    descripcion = models.CharField(max_length = 80)
-    fabricante = models.CharField(max_length = 45)
-    modelo = models.CharField(max_length = 45, null = True)
-    creado_al = models.DateTimeField(auto_now = True)
-    editado_al = models.DateTimeField(null = True)
-    creado_por = models.ForeignKey(get_user_model(), on_delete = models.CASCADE, related_name="bomba_creada_por")
-    editado_por = models.ForeignKey(get_user_model(), on_delete = models.CASCADE, related_name="bomba_editada_por", null = True)
-    planta = models.ForeignKey(Planta, on_delete=models.CASCADE)
-    tipo_bomba = models.ForeignKey(TipoBomba, on_delete=models.CASCADE)
-    detalles_motor = models.OneToOneField(DetallesMotorBomba, on_delete=models.CASCADE)
-    especificaciones_bomba = models.OneToOneField(EspecificacionesBomba, on_delete=models.CASCADE)
-    detalles_construccion = models.OneToOneField(DetallesConstruccionBomba, on_delete=models.CASCADE)
-    condiciones_diseno = models.OneToOneField(CondicionesDisenoBomba, on_delete=models.CASCADE)
-    grafica = models.FileField(null = True)
-
-    def __str__(self) -> str:
-        return self.tag.upper()
-
 class EspecificacionesInstalacion(models.Model):
-    lado = models.CharField(max_length = 1, choices = LADOS_BOMBA)
     elevacion =  models.FloatField(null = True)
     elevacion_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="elevacion_unidad_especificacionesinstalacion")
     longitud_tuberia = models.FloatField(null = True)
@@ -230,7 +215,28 @@ class EspecificacionesInstalacion(models.Model):
     numero_contracciones_linea = models.PositiveIntegerField(null = True)
     numero_expansiones_linea = models.PositiveIntegerField(null = True)
 
-    bomba = models.ForeignKey(Bombas, on_delete=models.CASCADE)
+class Bombas(models.Model):
+    tag = models.CharField(max_length = 45, unique = True)
+    descripcion = models.CharField(max_length = 80)
+    fabricante = models.CharField(max_length = 45)
+    modelo = models.CharField(max_length = 45, null = True)
+    creado_al = models.DateTimeField(auto_now = True)
+    editado_al = models.DateTimeField(null = True)
+    creado_por = models.ForeignKey(get_user_model(), on_delete = models.CASCADE, related_name="bomba_creada_por")
+    editado_por = models.ForeignKey(get_user_model(), on_delete = models.CASCADE, related_name="bomba_editada_por", null = True)
+    planta = models.ForeignKey(Planta, on_delete=models.CASCADE)
+    tipo_bomba = models.ForeignKey(TipoBomba, on_delete=models.CASCADE)
+    detalles_motor = models.OneToOneField(DetallesMotorBomba, on_delete=models.CASCADE)
+    especificaciones_bomba = models.OneToOneField(EspecificacionesBomba, on_delete=models.CASCADE)
+    detalles_construccion = models.OneToOneField(DetallesConstruccionBomba, on_delete=models.CASCADE)
+    condiciones_diseno = models.OneToOneField(CondicionesDisenoBomba, on_delete=models.CASCADE)
+    grafica = models.FileField(null = True)
+
+    instalacion_succion = models.OneToOneField(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_succion")
+    instalacion_descarga = models.OneToOneField(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_descarga")
+
+    def __str__(self) -> str:
+        return self.tag.upper()
 
 # Evaluación de Bombas
 

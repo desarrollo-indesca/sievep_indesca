@@ -97,13 +97,13 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
         new_context = None
 
         if(planta != '' and complejo != ''):
-            new_context = self.model.objects.select_related('creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba','detalles_construccion','condiciones_diseno').filter(
+            new_context = self.model.objects.select_related('instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba','detalles_construccion','condiciones_diseno').filter(
                 planta__pk=planta
             )
         elif(complejo != ''):
             new_context = new_context.filter(
                 planta__complejo__pk=complejo
-            ) if new_context else self.model.objects.select_related('creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba','detalles_construccion','condiciones_diseno').filter(
+            ) if new_context else self.model.objects.select_related('instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba','detalles_construccion','condiciones_diseno').filter(
                 planta__complejo__pk=complejo
             )
 
@@ -113,7 +113,7 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
                 tag__icontains = tag
             )
         else:
-            new_context = self.model.objects.select_related('creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba','detalles_construccion','condiciones_diseno').filter(
+            new_context = self.model.objects.select_related('instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba','detalles_construccion','condiciones_diseno').filter(
                 descripcion__icontains = descripcion,
                 tag__icontains = tag
             )
