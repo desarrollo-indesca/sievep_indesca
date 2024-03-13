@@ -17,7 +17,8 @@
       <a class="btn btn-danger" href="#"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
     </td>
     <td>
-      <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#ficha_{{intercambiador.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica"></a>
+        {% include 'bombas/ficha.html' %}
+      <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#ficha_{{bomba.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica"></a>
     </td>
   </tr>
 {% endfor %}

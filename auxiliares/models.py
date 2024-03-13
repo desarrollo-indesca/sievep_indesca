@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from intercambiadores.models import Fluido, Planta, Unidades
-
+from calculos.utils import conseguir_largo
 
 # CONSTANTES DE SELECCIÓN
 
@@ -23,6 +23,7 @@ CORROSIVIDAD = (
     ('C', 'Corrosivo'),
     ('E', 'Erosivo'),
     ('N', 'No Errosivo ni Corrosivo'), 
+    ('A', 'Ambos'),
     ('D', 'Desconocido')
 )  
 
@@ -48,11 +49,20 @@ class MaterialTuberia(models.Model):
     nombre = models.CharField(max_length = 45)
     rugosidad = models.FloatField()
 
+    def __str__(self) -> str:
+        return self.nombre.upper()
+
 class TipoCarcasaBomba(models.Model):
     nombre = models.CharField(max_length = 45, unique = True)
 
+    def __str__(self) -> str:
+        return self.nombre.upper()
+
 class TipoBombaConstruccion(models.Model):
     nombre = models.CharField(max_length = 45, unique = True)
+
+    def __str__(self) -> str:
+        return self.nombre.upper()
 
 class DetallesConstruccionBomba(models.Model):
     conexion_succion = models.PositiveIntegerField(null = True)
@@ -66,8 +76,14 @@ class DetallesConstruccionBomba(models.Model):
     tipo_carcasa1 = models.ForeignKey(TipoCarcasaBomba, on_delete=models.CASCADE, null = True, related_name="tipo_carcasa_construccion1")
     tipo_carcasa2 = models.ForeignKey(TipoCarcasaBomba, on_delete=models.CASCADE, null = True, related_name="tipo_carcasa_construccion2")
 
+    def carcasa_dividida_largo(self):
+        return conseguir_largo(CARCASA_DIVIDIDA, self.carcasa_dividida)
+
 class TipoBomba(models.Model):
     nombre = models.CharField(max_length = 45, unique = True)
+
+    def __str__(self) -> str:
+        return self.nombre.upper()
 
 class DetallesMotorBomba(models.Model):
     potencia = models.FloatField(null = True, verbose_name = "Potencia de la Bomba")
@@ -102,6 +118,7 @@ class EspecificacionesBomba(models.Model):
     descarga_id = models.FloatField()
     id_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="id_unidad_especificacionesbomba")
 
+    # Especificaciones de Instalación
     material_tuberia = models.ForeignKey(MaterialTuberia, on_delete=models.CASCADE, null = True)
 
     entrada_proyectada_dentro_succion = models.PositiveIntegerField(null = True)
@@ -126,7 +143,16 @@ class CondicionFluidoBomba(models.Model):
     nombre_fluido = models.CharField(max_length = 45, null = True)
     calculo_propiedades = models.CharField(max_length = 1, default = "M", choices=CALCULO_PROPIEDADES)
     presion_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="presion_unidad_condicionesfluido")
-    fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE)
+    fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE, null=True)
+
+    def corrosividad_largo(self):
+        return conseguir_largo(CORROSIVIDAD, self.corrosividad)
+    
+    def peligroso_largo(self):
+        return conseguir_largo(SI_NO_DESC, self.peligroso)
+    
+    def inflamable_largo(self):
+        return conseguir_largo(SI_NO_DESC, self.inflamable)
 
 class CondicionesDisenoBomba(models.Model):
     capacidad = models.FloatField()
@@ -155,6 +181,9 @@ class Bombas(models.Model):
     detalles_construccion = models.OneToOneField(DetallesConstruccionBomba, on_delete=models.CASCADE)
     condiciones_diseno = models.OneToOneField(CondicionesDisenoBomba, on_delete=models.CASCADE)
     grafica = models.FileField(null = True)
+
+    def __str__(self) -> str:
+        return self.tag.upper()
 
 class EspecificacionesInstalacion(models.Model):
     lado = models.CharField(max_length = 1, choices = LADOS_BOMBA)
