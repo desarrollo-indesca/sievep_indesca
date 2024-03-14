@@ -143,19 +143,19 @@
                     </tr>
                     {% with temperatura_unidad=condiciones_fluido.temperatura_unidad %}
                     <tr>
-                        <th class="table-dark">Temp. Operación ({{temperatura_unidad|default_if_none:'-'}})</th>
+                        <th class="table-dark">Temp. Operación ({{temperatura_unidad}})</th>
                         <td>{{condiciones_fluido.temperatura_operacion|default_if_none:'-'}}</td>
-                        <th class="table-dark">Presión Vapor ({{condiciones_fluido.presion_unidad|default_if_none:'-'}})</th>
+                        <th class="table-dark">Presión Vapor ({{condiciones_fluido.presion_unidad}})</th>
                         <td>{{condiciones_fluido.presion_vapor|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
-                        <th class="table-dark">Temp. Presión Vapor ({{temperatura_unidad|default_if_none:'-'}})</th>
+                        <th class="table-dark">Temp. Presión Vapor ({{temperatura_unidad}})</th>
                         <td>{{condiciones_fluido.temperatura_presion_vapor|default_if_none:'-'}}</td>
                         <th class="table-dark">Densidad Relativa</th>
                         <td>{{condiciones_fluido.densidad_relativa|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
-                        <th class="table-dark">Viscosidad ({{condiciones_fluido.viscosidad_unidad|default_if_none:'-'}})</th>
+                        <th class="table-dark">Viscosidad ({{condiciones_fluido.viscosidad_unidad}})</th>
                         <td>{{condiciones_fluido.viscosidad|default_if_none:'-'}}</td>
                         <th class="table-dark">¿Es Corrosivo/Erosivo?</th>
                         <td>{{condiciones_fluido.corrosividad_largo|default_if_none:'-'}}</td>
@@ -168,9 +168,9 @@
                     </tr>
                     {% with concentracion_unidad=condiciones_fluido.concentracion_unidad %}
                     <tr>
-                        <th class="table-dark">Concentración H2S ({{concentracion_unidad|default_if_none:'-'}})</th>
+                        <th class="table-dark">Concentración H2S ({{concentracion_unidad}})</th>
                         <td>{{condiciones_fluido.concentracion_h2s|default_if_none:'-'}}</td>
-                        <th class="table-dark">Concentración Cloro ({{concentracion_unidad|default_if_none:'-'}})</th>
+                        <th class="table-dark">Concentración Cloro ({{concentracion_unidad}})</th>
                         <td>{{condiciones_fluido.concentracion_cloro|default_if_none:'-'}}</td>
                     </tr>
                     {% endwith %}
@@ -204,9 +204,9 @@
                     </tr>
                     {% with id_unidad=bomba.especificaciones_bomba.id_unidad %}
                     <tr>
-                        <th class="table-dark">Diametro Interno Succión ({{id_unidad|default_if_none:'-'}})</th>
+                        <th class="table-dark">Diametro Interno Succión ({{id_unidad}})</th>
                         <td>{{bomba.especificaciones_bomba.succion_id|default_if_none:'-'}}</td>
-                        <th class="table-dark">Diámetro Interno Descarga ({{id_unidad|default_if_none:'-'}})</th>
+                        <th class="table-dark">Diámetro Interno Descarga ({{id_unidad}})</th>
                         <td>{{bomba.especificaciones_bomba.descarga_id|default_if_none:'-'}}</td>
                     </tr>
                     {% endwith %}
@@ -408,6 +408,11 @@
                         <td>{{bomba.instalacion_succion.longitud_tuberia|default_if_none:'-'}}</td>
                         <td>{{bomba.instalacion_descarga.longitud_tuberia|default_if_none:'-'}}</td>
                     </tr>
+                    <tr>
+                        <th class="table-dark" colspan="2">Diámetro de la Tubería ({{bomba.instalacion_succion.diametro_tuberia_unidad_unidad|default_if_none:'-'}})</td>
+                        <td>{{bomba.instalacion_succion.diametro_tuberia|default_if_none:'-'}}</td>
+                        <td>{{bomba.instalacion_descarga.diametro_tuberia|default_if_none:'-'}}</td>
+                    </tr>
                     
                     <tr>
                         <th colspan="2" class="table-dark">
@@ -458,29 +463,14 @@
                         <td>{{bomba.instalacion_descarga.numero_valvulas_mariposa_2_8|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
-                        <th class="table-dark" colspan="2">Válvulas Mariposa 2"-8" Abiertas</td>
-                        <td>{{bomba.instalacion_succion.numero_valvulas_mariposa_2_8_abiertas|default_if_none:'-'}}</td>
-                        <td>{{bomba.instalacion_descarga.numero_valvulas_mariposa_2_8_abiertas|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
                         <th class="table-dark" colspan="2">Núm. Válvulas Mariposa 10"-14"</td>
                         <td>{{bomba.instalacion_succion.numero_valvulas_mariposa_10_14|default_if_none:'-'}}</td>
                         <td>{{bomba.instalacion_descarga.numero_valvulas_mariposa_10_14|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
-                        <th class="table-dark" colspan="2">Válvulas Mariposa 10"-14" Abiertas</td>
-                        <td>{{bomba.instalacion_succion.numero_valvulas_mariposa_10_14_abiertas|default_if_none:'-'}}</td>
-                        <td>{{bomba.instalacion_descarga.numero_valvulas_mariposa_10_14_abiertas|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
                         <th class="table-dark" colspan="2">Núm. Válvulas Mariposa 16"-24"</td>
                         <td>{{bomba.instalacion_succion.numero_valvulas_mariposa_16_24|default_if_none:'-'}}</td>
                         <td>{{bomba.instalacion_descarga.numero_valvulas_mariposa_16_24|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-dark" colspan="2">Válvulas Mariposa 16"-24" Abiertas</td>
-                        <td>{{bomba.instalacion_succion.numero_valvulas_mariposa_16_24_abiertas|default_if_none:'-'}}</td>
-                        <td>{{bomba.instalacion_descarga.numero_valvulas_mariposa_16_24_abiertas|default_if_none:'-'}}</td>
                     </tr>
 
                     <tr>
@@ -532,19 +522,9 @@
                         <td>{{bomba.instalacion_descarga.numero_valvula_globo|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
-                        <th class="table-dark" colspan="2">Número de Válvulas Globo Abiertas</td>
-                        <td>{{bomba.instalacion_succion.numero_valvula_globo_abiertas|default_if_none:'-'}}</td>
-                        <td>{{bomba.instalacion_descarga.numero_valvula_globo_abiertas|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
                         <th class="table-dark" colspan="2">Número de Válvulas Ángulo</td>
                         <td>{{bomba.instalacion_succion.numero_valvula_angulo|default_if_none:'-'}}</td>
                         <td>{{bomba.instalacion_descarga.numero_valvula_angulo|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-dark" colspan="2">Número de Válvulas Ángulo Abiertas</td>
-                        <td>{{bomba.instalacion_succion.numero_valvula_angulo_abiertas|default_if_none:'-'}}</td>
-                        <td>{{bomba.instalacion_descarga.numero_valvula_angulo_abiertas|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                         <th colspan="2" class="table-dark">
@@ -587,37 +567,6 @@
                         <th class="table-dark" colspan="2">Conexiones T Flujo Ramal</td>
                         <td>{{bomba.instalacion_succion.conexiones_t_ramal|default_if_none:'-'}}</td>
                         <td>{{bomba.instalacion_descarga.conexiones_t_ramal|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th colspan="2" class="table-dark">
-                            Entradas y Salidas
-                        </th>
-                        <th class="table-dark">
-                            Succión
-                        </th>
-                        <th class="table-dark">
-                            Descarga
-                        </th>
-                    </tr>
-                    <tr>
-                        <th class="table-dark" colspan="2">Entradas Proyectada Dentro</td>
-                        <td>{{bomba.especificaciones_bomba.entrada_proyectada_dentro_succion|default_if_none:'-'}}</td>
-                        <td>N/A</td>
-                    </tr>
-                    <tr>
-                        <th class="table-dark" colspan="2">Entradas con Bordes Afilados</td>
-                        <td>{{bomba.especificaciones_bomba.entrada_bordes_afilados_succion|default_if_none:'-'}}</td>
-                        <td>N/A</td>
-                    </tr>
-                    <tr>
-                        <th class="table-dark" colspan="2">Entradas Achaflamada</td>
-                        <td>{{bomba.especificaciones_bomba.entrada_achaflamada_succion|default_if_none:'-'}}</td>
-                        <td>N/A</td>
-                    </tr>
-                    <tr>
-                        <th class="table-dark" colspan="2">Salidas</td>
-                        <td>N/A</td>
-                        <td>{{bomba.especificaciones_bomba.salida|default_if_none:'-'}}</td>
                     </tr>
                   </tbody>
                 </table>

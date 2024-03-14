@@ -128,11 +128,6 @@ class EspecificacionesBomba(models.Model):
     # Especificaciones de Instalación
     material_tuberia = models.ForeignKey(MaterialTuberia, on_delete=models.CASCADE, null = True)
 
-    entrada_proyectada_dentro_succion = models.PositiveIntegerField(null = True)
-    entrada_bordes_afilados_succion = models.PositiveIntegerField(null = True)
-    entrada_achaflamada_succion = models.PositiveIntegerField(null = True)
-    salida = models.PositiveIntegerField(null = True)
-
 class CondicionFluidoBomba(models.Model):
     temperatura_operacion = models.FloatField()
     presion_vapor = models.FloatField(null = True)
@@ -177,6 +172,8 @@ class EspecificacionesInstalacion(models.Model):
     elevacion_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="elevacion_unidad_especificacionesinstalacion")
     longitud_tuberia = models.FloatField(null = True)
     longitud_tuberia_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="longitud_tuberia_unidad_especificacionesinstalacion")
+    diametro_tuberia = models.FloatField(null = True)
+    diametro_tuberia_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="diametro_tuberia_unidad_especificacionesinstalacion")
 
     numero_codos_90 = models.PositiveIntegerField(null = True)
     numero_codos_90_rl = models.PositiveIntegerField(null = True, verbose_name="Número de Codos a 90°")
@@ -195,11 +192,8 @@ class EspecificacionesInstalacion(models.Model):
 
     # VÁLVULAS MARIPOSA
     numero_valvulas_mariposa_2_8 = models.PositiveIntegerField(null = True)
-    numero_valvulas_mariposa_2_8_abiertas = models.PositiveIntegerField(null = True)
     numero_valvulas_mariposa_10_14 = models.PositiveIntegerField(null = True)
-    numero_valvulas_mariposa_10_14_abiertas = models.PositiveIntegerField(null = True)
     numero_valvulas_mariposa_16_24 = models.PositiveIntegerField(null = True)
-    numero_valvulas_mariposa_16_24_abiertas = models.PositiveIntegerField(null = True)
 
     # VÁLVULAS CHECK
     numero_valvula_giratoria = models.PositiveIntegerField(null = True)
@@ -209,9 +203,7 @@ class EspecificacionesInstalacion(models.Model):
 
     # ACCESORIOS
     numero_valvula_globo = models.PositiveIntegerField(null = True)
-    numero_valvula_globo_abiertas = models.PositiveIntegerField(null = True)
     numero_valvula_angulo = models.PositiveIntegerField(null = True)
-    numero_valvula_angulo_abiertas = models.PositiveIntegerField(null = True)
     
     numero_contracciones_linea = models.PositiveIntegerField(null = True)
     numero_expansiones_linea = models.PositiveIntegerField(null = True)
@@ -233,8 +225,8 @@ class Bombas(models.Model):
     condiciones_diseno = models.OneToOneField(CondicionesDisenoBomba, on_delete=models.CASCADE)
     grafica = models.FileField(null = True, upload_to=MEDIA_ROOT + 'auxiliares/bombas/')
 
-    instalacion_succion = models.OneToOneField(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_succion")
-    instalacion_descarga = models.OneToOneField(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_descarga")
+    instalacion_succion = models.ForeignKey(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_succion")
+    instalacion_descarga = models.ForeignKey(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_descarga")
 
     def __str__(self) -> str:
         return self.tag.upper()
