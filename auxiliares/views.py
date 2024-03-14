@@ -7,6 +7,7 @@ from django.views.generic import ListView
 from django.http import HttpRequest, HttpResponse
 
 from auxiliares.models import *
+from auxiliares.forms import *
 from intercambiadores.models import Complejo, Planta
 
 # Create your views here.
@@ -84,7 +85,7 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
         if(context['plantax']):
             context['plantax'] = int(context['plantax'])
 
-        # context['link_creacion'] = 'crear_bomba'
+        context['link_creacion'] = 'creacion_bomba'
 
         return context
     
@@ -140,3 +141,16 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
         )
         return new_context
 
+class CreacionBomba(View):
+
+    context = {
+        'form_bomba': BombaForm, 
+        'form_especificaciones': EspecificacionesBombaForm, 
+        'form_detalles_construccion': DetallesConstruccionBombaForm, 
+        'form_detalles_motor': DetallesMotorBombaForm,
+        'form_condiciones_diseno': CondicionesDisenoBombaForm,
+        'form_condiciones_fluido': CondicionFluidoBombaForm
+    }
+
+    def get(self, request):
+        return render(request, 'bombas/creacion_bomba.html', self.context)
