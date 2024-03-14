@@ -33,17 +33,17 @@
                       <td><span id="tag_ficha">{{bomba.tag|default_if_none:'-'}}</span></td>
                       <td colspan="2" rowspan="5" style="background-color: lightgray;">
                         {% if bomba.grafica %}
-                            <div id="carousel{{bomba.pk|default_if_none:'-'}}" class="carousel" data-bs-interval="false" style="max-width: 100%; min-width: 100%; max-height: 350px; height: 350px;">
+                            <div id="carousel{{bomba.pk|default_if_none:'-'}}" class="carousel" data-bs-interval="false" style="max-width: 100%; width: 100%; min-width: 100%; max-height: 350px; height: 350px;">
                                 <div class="carousel-inner">
                                     <div class="carousel-item active">
                                         {% if bomba.detalles_construccion.tipo %}
-                                        <img src="../../static/img/equipos_aux/bombas/{{bomba.detalles_construccion.tipo}}.jpg" class="d-block w-100" style="max-width: 100%; min-width: 100%; max-height: 350px; height: 350px;">
+                                        <img src="/static/img/equipos_aux/bombas/{{bomba.detalles_construccion.tipo}}.jpg" class="d-block w-100" style="max-width: 100%; width: 100%; min-width: 100%; max-height: 350px; height: 350px;">
                                         {% else %}
-                                        <img src="../../static/img/equipos_aux/bomba_centrifuga.png" class="d-block w-100" style="max-width: 100%; min-width: 100%; max-height: 350px; height: 350px;" alt="">
+                                        <img src="/static/img/equipos_aux/bomba_centrifuga.png" class="d-block w-100" style="max-width: 100%; width: 100%; min-width: 100%; max-height: 350px; height: 350px;" alt="">
                                         {% endif %}
                                     </div>
                                     <div class="carousel-item">
-                                        <img src="/media/auxiliares/09P-01A.jpg" class="d-block w-100" style="max-width: 100%; min-width: 100%; max-height: 350px; height: 350px;" alt="...">
+                                        <img src="{{bomba.grafica}}" class="d-block w-100" style="max-width: 100%; width: 100%; min-width: 100%; max-height: 350px; height: 350px;" alt="...">
                                     </div>
                                 </div>
                                 <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{bomba.pk|default_if_none:'-'}}" data-bs-slide="prev">
@@ -57,9 +57,9 @@
                             </div>
                         {%else%}
                             {% if bomba.detalles_construccion.tipo %}
-                            <img src="../../static/img/equipos_aux/bombas/{{bomba.detalles_construccion.tipo|default_if_none:'-'}}.jpg" alt="">
+                            <img src="/static/img/equipos_aux/bombas/{{bomba.detalles_construccion.tipo|default_if_none:'-'}}.jpg" alt="">
                             {% else %}
-                            <img src="../../static/img/equipos_aux/bomba_centrifuga.png" style="max-width: 100%;" alt="">
+                            <img src="/static/img/equipos_aux/bomba_centrifuga.png" style="max-width: 100%;" alt="">
                             {% endif %}
                         {%endif%}
                       </td>
@@ -69,7 +69,7 @@
                       <td>{{bomba.planta|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark">Tipo de Bomba</th>
+                      <th class="table-dark">Tipo</th>
                       <td>{{bomba.tipo_bomba|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
@@ -86,7 +86,7 @@
                     </tr>
                     {% if bomba.grafica %}
                     <tr>
-                      <td colspan="4">Presione el botón del carrusel o <a target="_blank" href="/media/auxiliares/09P-01A.jpg">aquí</a> para ver la gráfica</td>
+                      <td colspan="4">Presione el botón del carrusel o <a target="_blank" href="{{bomba.grafica}}">aquí</a> para ver la gráfica</td>
                     </tr>
                     {%endif%}
                   </tbody>
@@ -95,7 +95,7 @@
                   <tbody id="tabla_ficha_contenido_body">
                     <tr>
                       <th class="table-dark" colspan="6">
-                        <div class="d-inline-flex align-items-center">
+                        <div class="d-inline-flex align-items-center text-uppercase">
                           Condiciones de Diseño de la Bomba
                         </div>
                       </th>
@@ -121,7 +121,7 @@
 
                     {% with condiciones_fluido=bomba.condiciones_diseno.condiciones_fluido %}
                     <tr>
-                        <th class="table-dark" colspan="6">
+                        <th class="table-dark text-uppercase" colspan="4">
                           <div class="d-inline-flex align-items-center">
                             Condiciones de Diseño del Fluido
                           </div>
@@ -179,7 +179,7 @@
 
                     <tr>
                         <th class="table-dark" colspan="6">
-                          <div class="d-inline-flex align-items-center">
+                          <div class="d-inline-flex align-items-center text-uppercase">
                             Especificaciones Técnicas de la Bomba
                           </div>
                         </th>
@@ -202,10 +202,6 @@
                         <th class="table-dark">Cabezal Total ({{bomba.especificaciones_bomba.cabezal_unidad|default_if_none:'-'}})</th>
                         <td>{{bomba.especificaciones_bomba.eficiencia|default_if_none:'-'}}</td>
                     </tr>
-                    <tr>
-                        <th class="table-dark">Número de Etapas</th>
-                        <td colspan="3">{{bomba.especificaciones_bomba.numero_etapas|default_if_none:'-'}}</td>
-                    </tr>
                     {% with id_unidad=bomba.especificaciones_bomba.id_unidad %}
                     <tr>
                         <th class="table-dark">Diametro Interno Succión ({{id_unidad|default_if_none:'-'}})</th>
@@ -214,10 +210,13 @@
                         <td>{{bomba.especificaciones_bomba.descarga_id|default_if_none:'-'}}</td>
                     </tr>
                     {% endwith %}
-
+                    <tr>
+                        <th class="table-dark">Número de Etapas</th>
+                        <td colspan="3">{{bomba.especificaciones_bomba.numero_etapas|default_if_none:'-'}}</td>
+                    </tr>
                     <tr>
                         <th class="table-dark" colspan="6">
-                          <div class="d-inline-flex align-items-center">
+                          <div class="d-inline-flex align-items-center text-uppercase">
                             Detalles de Construcción
                           </div>
                         </th>
@@ -259,7 +258,7 @@
 
                     <tr>
                         <th class="table-dark" colspan="6">
-                          <div class="d-inline-flex align-items-center">
+                          <div class="d-inline-flex align-items-center text-uppercase">
                             Detalles del Motor
                           </div>
                         </th>
@@ -292,7 +291,45 @@
                         <th class="table-dark" colspan="1">Método de Arranque</th>
                         <td colspan="3">{{bomba.detalles_motor.arranque|default_if_none:'-'}}</td>
                     </tr>
+                    <tr>
+                      <td colspan="6">Creado por el usuario <b>{{bomba.condiciones_diseno.creado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{bomba.creado_al|default_if_none:'-'}}</b>.</td>
+                    </tr>
+                    {% if bomba.editado_al %}
+                    <tr>
+                      <td colspan="6">Editado por <b>{{bomba.editado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{bomba.editado_al|default_if_none:'-'}}</b>.</td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-target="#modal_instalacion{{bomba.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Especificaciones de Instalación</button>
+          {% if request.user.is_superuser %}
+          <a href="#" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+          {% endif %}
 
+          <a name="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>
+          <a name="xlsx" target="_blank" href="#" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</a>
+        </div>
+      </div>
+    </div>
+</div>
+<div class="modal fade" id="modal_instalacion{{bomba.pk|default_if_none:'-'}}" tabindex="-1" aria-labelledby="modal_instalacion{{bomba.pk|default_if_none:'-'}}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modal_instalacion{{bomba.pk|default_if_none:'-'}}Label">Especificaciones de Instalación Bomba Centrífuga ({{bomba.tag|default_if_none:'-'}})</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-start small">
+          <div class="row">
+            <div class="col-12">
+              <div class="d-flex flex-column">
+                <table class="table table-light text-center table-bordered tabla_ficha mb-0">
+                  <tbody id="tabla_ficha_body">
                     <tr>
                         <th class="table-dark" colspan="6">
                           <div class="d-inline-flex align-items-center">
@@ -346,7 +383,6 @@
                         <td>{{bomba.instalacion_succion.numero_codos_90|default_if_none:'-'}}</td>
                         <td>{{bomba.instalacion_descarga.numero_codos_90|default_if_none:'-'}}</td>
                     </tr>
-
                     <tr>
                         <th colspan="2" class="table-dark">
                             Instalación General
@@ -583,15 +619,6 @@
                         <td>N/A</td>
                         <td>{{bomba.especificaciones_bomba.salida|default_if_none:'-'}}</td>
                     </tr>
-
-                    <tr>
-                      <td colspan="6">Creado por el usuario <b>{{bomba.condiciones_diseno.creado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{bomba.creado_al|default_if_none:'-'}}</b>.</td>
-                    </tr>
-                    {% if bomba.editado_al %}
-                    <tr>
-                      <td colspan="6">Editado por <b>{{bomba.editado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{bomba.editado_al|default_if_none:'-'}}</b>.</td>
-                    </tr>
-                    {% endif %}
                   </tbody>
                 </table>
               </div>
@@ -599,6 +626,7 @@
           </div>
         </div>
         <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-target="#ficha_{{bomba.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Datos de Ficha</button>
           {% if request.user.is_superuser %}
           <a href="#" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
           {% endif %}

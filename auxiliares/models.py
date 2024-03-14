@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from intercambiadores.models import Fluido, Planta, Unidades
 from calculos.utils import conseguir_largo
+from simulaciones_pequiven.settings import MEDIA_ROOT
 
 # CONSTANTES DE SELECCIÓN
 
@@ -230,7 +231,7 @@ class Bombas(models.Model):
     especificaciones_bomba = models.OneToOneField(EspecificacionesBomba, on_delete=models.CASCADE)
     detalles_construccion = models.OneToOneField(DetallesConstruccionBomba, on_delete=models.CASCADE)
     condiciones_diseno = models.OneToOneField(CondicionesDisenoBomba, on_delete=models.CASCADE)
-    grafica = models.FileField(null = True)
+    grafica = models.FileField(null = True, upload_to=MEDIA_ROOT + 'auxiliares/bombas/')
 
     instalacion_succion = models.OneToOneField(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_succion")
     instalacion_descarga = models.OneToOneField(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_descarga")
