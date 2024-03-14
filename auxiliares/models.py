@@ -230,6 +230,9 @@ class Bombas(models.Model):
 
     def __str__(self) -> str:
         return self.tag.upper()
+    
+    class Meta:
+        ordering = ('tag',)
 
 # Evaluación de Bombas
 
