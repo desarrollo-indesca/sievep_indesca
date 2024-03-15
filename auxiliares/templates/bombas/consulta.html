@@ -19,7 +19,7 @@
 </div>
 <div class="d-flex flex-column col">
     <label class="form-label" for="descripcion">Descripción:</label>
-    <input type="text" id="descripcion" name="descripcion" class="form-control" value="{{descripcion}}">
+    <input type="text" id="servicio" name="descripcion" class="form-control" value="{{descripcion}}">
 </div>
 <div class="d-flex flex-column col">
     <label class="form-label" for="complejo">Complejo:</label>
@@ -62,7 +62,7 @@
   {% if object_list.count %}
   {% include 'bombas/tabla.html' %}
   {% else %}
-  <td colspan="7">No se encontraron intercambiadores con los datos de filtrado proporcionados.</td>
+  <td colspan="7">No se encontraron bombas con los datos de filtrado proporcionados.</td>
   {% endif %}
 </tbody>
 {% endblock %}
@@ -102,6 +102,11 @@
 <script>
   $('select').change(() => {
     $('#filtrado').submit();
+  });
+  
+  $('input').keyup((e) => {
+    if(e.keyCode === 13)
+      $('#filtrado').submit();
   });
 </script>
 {% endblock %}

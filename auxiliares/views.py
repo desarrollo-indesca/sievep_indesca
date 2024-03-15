@@ -7,6 +7,7 @@ from django.views.generic import ListView
 from django.http import HttpRequest, HttpResponse
 
 from auxiliares.models import *
+from auxiliares.forms import *
 from intercambiadores.models import Complejo, Planta
 
 # Create your views here.
@@ -31,7 +32,7 @@ class SeleccionEquipo(LoginRequiredMixin, View):
     def get(self, request):
         return render(request, 'seleccion_equipo.html', context=self.context)
 
-# VISTA DE BOMBAS
+# VISTAS DE BOMBAS
 
 class ConsultaBombas(LoginRequiredMixin, ListView):
     """
@@ -84,7 +85,7 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
         if(context['plantax']):
             context['plantax'] = int(context['plantax'])
 
-        # context['link_creacion'] = 'crear_bomba'
+        context['link_creacion'] = 'creacion_bomba'
 
         return context
     
@@ -97,13 +98,13 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
         new_context = None
 
         if(planta != '' and complejo != ''):
-            new_context = self.model.objects.select_related('instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba','detalles_construccion','condiciones_diseno').filter(
+            new_context = self.model.objects.filter(
                 planta__pk=planta
             )
         elif(complejo != ''):
             new_context = new_context.filter(
                 planta__complejo__pk=complejo
-            ) if new_context else self.model.objects.select_related('instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba','detalles_construccion','condiciones_diseno').filter(
+            ) if new_context else self.model.objects.filter(
                 planta__complejo__pk=complejo
             )
 
@@ -113,10 +114,43 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
                 tag__icontains = tag
             )
         else:
-            new_context = self.model.objects.select_related('instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba','detalles_construccion','condiciones_diseno').filter(
+            new_context = self.model.objects.filter(
                 descripcion__icontains = descripcion,
                 tag__icontains = tag
             )
 
+        new_context = new_context.select_related('instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba','detalles_construccion','condiciones_diseno')
+        new_context = new_context.prefetch_related(
+            'instalacion_succion__elevacion_unidad', 'instalacion_succion__longitud_tuberia_unidad',
+            'instalacion_succion__diametro_tuberia_unidad', 'condiciones_diseno__capacidad_unidad', 
+
+            'condiciones_diseno__presion_unidad', 'condiciones_diseno__npsha_unidad', 
+            
+            'condiciones_diseno__condiciones_fluido', 'condiciones_diseno__condiciones_fluido__temperatura_unidad',
+            'condiciones_diseno__condiciones_fluido__presion_unidad', 'condiciones_diseno__condiciones_fluido__viscosidad_unidad',
+            'condiciones_diseno__condiciones_fluido__concentracion_unidad', 'condiciones_diseno__condiciones_fluido__fluido',
+
+            'especificaciones_bomba__velocidad_unidad', 'especificaciones_bomba__potencia_unidad',
+            'especificaciones_bomba__npshr_unidad', 'especificaciones_bomba__cabezal_unidad',
+            'especificaciones_bomba__id_unidad', 'especificaciones_bomba__material_tuberia',
+
+            'detalles_construccion__tipo_carcasa1', 'detalles_construccion__tipo_carcasa2',
+            'detalles_construccion__tipo',
+
+            'planta__complejo',
+        )
         return new_context
 
+class CreacionBomba(View):
+
+    context = {
+        'form_bomba': BombaForm(), 
+        'form_especificaciones': EspecificacionesBombaForm(), 
+        # 'form_detalles_construccion': DetallesConstruccionBombaForm(), 
+        # 'form_detalles_motor': DetallesMotorBombaForm(),
+        # 'form_condiciones_diseno': CondicionesDisenoBombaForm(),
+        # 'form_condiciones_fluido': CondicionFluidoBombaForm()
+    }
+
+    def get(self, request):
+        return render(request, 'bombas/creacion_bomba.html', self.context)
