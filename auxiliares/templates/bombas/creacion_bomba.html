@@ -193,7 +193,7 @@
                     <label for="id_fluido">{{form_condiciones_fluido.fluido.label_tag}}</label>
                     <div class="d-flex w-100">
                         {% render_field form_condiciones_fluido.fluido class="form-select" %}
-                        <a href="#fluido-nuevo" class="btn btn-danger">+</a>
+                        <a href="#fluido-nuevo" data-bs-toggle="modal" data-bs-target="#anadir_fluido_no_registrado" class="btn btn-danger">+</a>
                     </div>                    
                 </div>
     
@@ -378,6 +378,45 @@
             <div class="d-flex w-100 justify-content-center mb-3">
                 <button type="submit" class="btn btn-danger" disabled>Enviar Formulario</button>
             </div>
+
+            
+<div class="modal fade" id="anadir_fluido_no_registrado" tabindex="-1" aria-labelledby="anadir_fluido_no_registradoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Registrar Fluido No Registrado</h5>
+          <button id="anadir_fluido_no_registradoClose" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <h3 style="color: #e31e24;" class="text-center">Mezcla o Fluido Sin CAS</h3>
+            <div class="row">
+                <div class="col-5">
+                    <label for="etiqueta">Nombre del Compuesto:</label>
+                    <input class="form-control" id="nombre_compuesto_carcasa" type="text" maxlength="25">
+                </div>
+                <div class="col-2 offset-5 d-flex justify-content-center align-items-end">
+                    <button id="guardar-desconocido" class="no-submit btn btn-danger w-100" disabled>Enviar</button>
+                </div>
+            </div>
+          <hr>
+          <h3 style="color: #e31e24;" class="text-center">Fluido Puro por Código CAS</h3>
+            <div class="row">
+                <div class="col-5">
+                    <label for="etiqueta">Código CAS:</label>
+                    <input class="form-control" id="cas_compuesto_carcasa" type="text" maxlength="25" pattern="[0-9]+-[0-9]+-[0-9]+">
+                </div>
+                <div class="col-5">
+                    <label for="etiqueta">Nombre:</label>
+                    <input class="form-control" id="nombre_compuesto_carcasa_cas" type="text" maxlength="25">
+                </div>
+                <div class="col-2 d-flex justify-content-center align-items-end">
+                    <button id="guardar-cas" class="no-submit btn btn-danger w-100" disabled>Enviar</button>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+</div>
 </form>
 {% endblock %}
 
