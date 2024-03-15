@@ -32,7 +32,7 @@ class SeleccionEquipo(LoginRequiredMixin, View):
     def get(self, request):
         return render(request, 'seleccion_equipo.html', context=self.context)
 
-# VISTA DE BOMBAS
+# VISTAS DE BOMBAS
 
 class ConsultaBombas(LoginRequiredMixin, ListView):
     """
@@ -144,12 +144,12 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
 class CreacionBomba(View):
 
     context = {
-        'form_bomba': BombaForm, 
-        'form_especificaciones': EspecificacionesBombaForm, 
-        'form_detalles_construccion': DetallesConstruccionBombaForm, 
-        'form_detalles_motor': DetallesMotorBombaForm,
-        'form_condiciones_diseno': CondicionesDisenoBombaForm,
-        'form_condiciones_fluido': CondicionFluidoBombaForm
+        'form_bomba': BombaForm(), 
+        'form_especificaciones': EspecificacionesBombaForm(), 
+        # 'form_detalles_construccion': DetallesConstruccionBombaForm(), 
+        # 'form_detalles_motor': DetallesMotorBombaForm(),
+        # 'form_condiciones_diseno': CondicionesDisenoBombaForm(),
+        # 'form_condiciones_fluido': CondicionFluidoBombaForm()
     }
 
     def get(self, request):

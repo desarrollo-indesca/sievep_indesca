@@ -46,8 +46,10 @@ INSTALLED_APPS = [
     'usuarios',
     'static',
     'pwa',
+
     'templatetags',
     'mathfilters',
+    'widget_tweaks',
     # "debug_toolbar",
 ]
 
