@@ -127,12 +127,12 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
             'condiciones_diseno__presion_unidad', 'condiciones_diseno__npsha_unidad', 
             
             'condiciones_diseno__condiciones_fluido', 'condiciones_diseno__condiciones_fluido__temperatura_unidad',
-            'condiciones_diseno__condiciones_fluido__presion_unidad', 'condiciones_diseno__condiciones_fluido__viscosidad_unidad',
+            'condiciones_diseno__condiciones_fluido__presion_vapor_unidad', 'condiciones_diseno__condiciones_fluido__viscosidad_unidad',
             'condiciones_diseno__condiciones_fluido__concentracion_unidad', 'condiciones_diseno__condiciones_fluido__fluido',
 
             'especificaciones_bomba__velocidad_unidad', 'especificaciones_bomba__potencia_unidad',
             'especificaciones_bomba__npshr_unidad', 'especificaciones_bomba__cabezal_unidad',
-            'especificaciones_bomba__id_unidad', 'especificaciones_bomba__material_tuberia',
+            'especificaciones_bomba__id_unidad', 'instalacion_succion__material_tuberia',
 
             'detalles_construccion__tipo_carcasa1', 'detalles_construccion__tipo_carcasa2',
             'detalles_construccion__tipo',
@@ -146,10 +146,11 @@ class CreacionBomba(View):
     context = {
         'form_bomba': BombaForm(), 
         'form_especificaciones': EspecificacionesBombaForm(), 
-        # 'form_detalles_construccion': DetallesConstruccionBombaForm(), 
-        # 'form_detalles_motor': DetallesMotorBombaForm(),
-        # 'form_condiciones_diseno': CondicionesDisenoBombaForm(),
-        # 'form_condiciones_fluido': CondicionFluidoBombaForm()
+        'form_detalles_construccion': DetallesConstruccionBombaForm(), 
+        'form_detalles_motor': DetallesMotorBombaForm(),
+        'form_condiciones_diseno': CondicionesDisenoBombaForm(),
+        'form_condiciones_fluido': CondicionFluidoBombaForm(),
+        'titulo': 'SIEVEP - Creación de Bomba Centrífuga'
     }
 
     def get(self, request):

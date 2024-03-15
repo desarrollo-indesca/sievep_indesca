@@ -54,7 +54,7 @@ class Command(BaseCommand):
 
             # Creación de Unidades Faltantes
             unidades = [
-                Unidades(simbolo = 'm3/h', tipo = 'c'),
+                Unidades(simbolo = 'm³/h', tipo = 'c'),
                 Unidades(simbolo = 'cP', tipo = 'v'),
                 Unidades(simbolo = 'P', tipo = 'v'),
                 Unidades(simbolo = 'ppm', tipo = 'q'),

@@ -145,7 +145,7 @@
                     <tr>
                         <th class="table-dark">Temp. Operación ({{temperatura_unidad}})</th>
                         <td>{{condiciones_fluido.temperatura_operacion|default_if_none:'-'}}</td>
-                        <th class="table-dark">Presión Vapor ({{condiciones_fluido.presion_unidad}})</th>
+                        <th class="table-dark">Presión Vapor ({{condiciones_fluido.presion_vapor_unidad}})</th>
                         <td>{{condiciones_fluido.presion_vapor|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
@@ -237,7 +237,7 @@
                         <th class="table-dark">Carcasa Dividida</th>
                         <td>{{bomba.detalles_construccion.carcasa_dividida_largo|default_if_none:'-'}}</td>
                         <th class="table-dark">Modelo</th>
-                        <td>{{bomba.detalles_construccion.modelo|default_if_none:'-'}}</td>
+                        <td>{{bomba.detalles_construccion.modelo_construccion|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                         <th class="table-dark">Fabricante de Sello</th>
@@ -396,7 +396,8 @@
                     </tr>
                     <tr>
                         <th class="table-dark" colspan="2">Material de la Tubería</td>
-                        <td colspan="2">{{bomba.especificaciones_bomba.material_tuberia|default_if_none:'-'}}</td>
+                        <td>{{bomba.instalacion_succion.material_tuberia|default_if_none:'-'}}</td>
+                        <td>{{bomba.instalacion_descarga.material_tuberia|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                         <th class="table-dark" colspan="2">Elevación ({{bomba.instalacion_succion.elevacion_unidad|default_if_none:'-'}})</td>
@@ -409,7 +410,7 @@
                         <td>{{bomba.instalacion_descarga.longitud_tuberia|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
-                        <th class="table-dark" colspan="2">Diámetro de la Tubería ({{bomba.instalacion_succion.diametro_tuberia_unidad_unidad|default_if_none:'-'}})</td>
+                        <th class="table-dark" colspan="2">Diámetro de la Tubería ({{bomba.instalacion_succion.diametro_tuberia_unidad|default_if_none:'-'}})</td>
                         <td>{{bomba.instalacion_succion.diametro_tuberia|default_if_none:'-'}}</td>
                         <td>{{bomba.instalacion_descarga.diametro_tuberia|default_if_none:'-'}}</td>
                     </tr>
@@ -426,7 +427,7 @@
                         </th>
                     </tr>
                     <tr>
-                        <th class="table-dark" colspan="2">Núm. Válvulas Compuerta</td>
+                        <th class="table-dark" colspan="2">Núm. Válvulas Compuerta Abiertas Totalmente</td>
                         <td>{{bomba.instalacion_succion.numero_valvulas_compuerta|default_if_none:'-'}}</td>
                         <td>{{bomba.instalacion_descarga.numero_valvulas_compuerta|default_if_none:'-'}}</td>
                     </tr>

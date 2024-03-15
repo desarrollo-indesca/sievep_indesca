@@ -66,16 +66,16 @@ class TipoBombaConstruccion(models.Model):
         return self.nombre.upper()
 
 class DetallesConstruccionBomba(models.Model):
-    conexion_succion = models.PositiveIntegerField(null = True)
-    tamano_rating_succion = models.FloatField(null = True)
-    conexion_descarga = models.PositiveIntegerField(null = True)
-    tamano_rating_descarga = models.FloatField(null = True)
-    carcasa_dividida = models.CharField(max_length = 1, null = True, choices = CARCASA_DIVIDIDA)
-    modelo = models.CharField(max_length = 45, null = True)
-    fabricante_sello = models.CharField(max_length = 45, null = True)
-    tipo = models.ForeignKey(TipoBombaConstruccion, on_delete=models.CASCADE, null = True)
-    tipo_carcasa1 = models.ForeignKey(TipoCarcasaBomba, on_delete=models.CASCADE, null = True, related_name="tipo_carcasa_construccion1")
-    tipo_carcasa2 = models.ForeignKey(TipoCarcasaBomba, on_delete=models.CASCADE, null = True, related_name="tipo_carcasa_construccion2")
+    conexion_succion = models.PositiveIntegerField(null = True, verbose_name = "Conexión de Succión")
+    tamano_rating_succion = models.FloatField(null = True, verbose_name = "Tamaño Rating (Succión)")
+    conexion_descarga = models.PositiveIntegerField(null = True, verbose_name = "Conexión de Descarga")
+    tamano_rating_descarga = models.FloatField(null = True, verbose_name = "Tamaño Rating (Descarga)")
+    carcasa_dividida = models.CharField(max_length = 1, null = True, choices = CARCASA_DIVIDIDA, verbose_name = "Carcasa Dividida")
+    modelo_construccion = models.CharField(max_length = 45, null = True, verbose_name = "Modelo de Construcción")
+    fabricante_sello = models.CharField(max_length = 45, null = True, verbose_name = "Fabricante de Sello")
+    tipo = models.ForeignKey(TipoBombaConstruccion, on_delete=models.CASCADE, null = True, verbose_name = "Tipo por Construcción")
+    tipo_carcasa1 = models.ForeignKey(TipoCarcasaBomba, verbose_name = "Tipo de Carcasa (1)", on_delete=models.CASCADE, null = True, related_name="tipo_carcasa_construccion1")
+    tipo_carcasa2 = models.ForeignKey(TipoCarcasaBomba, verbose_name = "Tipo de Carcasa (2)", on_delete=models.CASCADE, null = True, related_name="tipo_carcasa_construccion2")
 
     def carcasa_dividida_largo(self):
         return conseguir_largo(CARCASA_DIVIDIDA, self.carcasa_dividida)
@@ -87,13 +87,13 @@ class TipoBomba(models.Model):
         return self.nombre.upper()
 
 class DetallesMotorBomba(models.Model):
-    potencia = models.FloatField(null = True, verbose_name = "Potencia de la Bomba")
+    potencia = models.FloatField(null = True, verbose_name = "Potencia del Motor")
     potencia_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="potencia_unidad_detallesmotor")
-    velocidad = models.FloatField(verbose_name="Velocidad del Motor (RPM)") # RPM
+    velocidad = models.FloatField(verbose_name="Velocidad del Motor") # RPM
     velocidad_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="velocidad_unidad_detallesmotor")
-    factor_de_servicio = models.FloatField(null = True)
+    factor_de_servicio = models.FloatField(null = True, verbose_name = "Factor de Servicio")
     posicion = models.CharField(null = True, max_length = 1, choices = MOTOR_POSICIONES, verbose_name="Posición del Motor")
-    voltaje = models.FloatField(null=True)
+    voltaje = models.FloatField(null=True, verbose_name = "Voiltaje del Motor")
     voltaje_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="voltaje_unidad_detallesmotor")
     fases = models.PositiveSmallIntegerField(null = True)
     frecuencia = models.FloatField(null = True)
@@ -108,44 +108,42 @@ class DetallesMotorBomba(models.Model):
         return conseguir_largo(AISLAMIENTO, self.aislamiento)
 
 class EspecificacionesBomba(models.Model):
-    numero_curva = models.CharField(max_length = 10, null = True)
+    numero_curva = models.CharField(max_length = 10, null = True, verbose_name = "Número de Curva")
     velocidad = models.FloatField(null = True)
     velocidad_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="velocidad_unidad_especificacionesbomba")
-    potencia_maxima = models.FloatField()
+    potencia_maxima = models.FloatField(verbose_name = "Potencia Máxima")
     potencia_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="potencia_unidad_especificacionesbomba")
     eficiencia = models.FloatField()
-    npshr = models.FloatField(null = True)
+    npshr = models.FloatField(null = True, verbose_name = "NPSHr")
     npshr_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="npshr_unidad_especificacionesbomba")
 
     cabezal_total = models.FloatField()
     cabezal_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="cabezal_unidad_especificacionesbomba")
-    numero_etapas = models.SmallIntegerField()
+    numero_etapas = models.SmallIntegerField(verbose_name = "Número de Etapas")
     
-    succion_id = models.FloatField()
-    descarga_id = models.FloatField()
+    succion_id = models.FloatField(verbose_name = "Diámetro Interno Succión")
+    descarga_id = models.FloatField(verbose_name = "Diámetro Interno Descarga")
     id_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="id_unidad_especificacionesbomba")
 
-    # Especificaciones de Instalación
-    material_tuberia = models.ForeignKey(MaterialTuberia, on_delete=models.CASCADE, null = True)
-
 class CondicionFluidoBomba(models.Model):
-    temperatura_operacion = models.FloatField()
-    presion_vapor = models.FloatField(null = True)
-    temperatura_presion_vapor = models.FloatField(null = True)
-    densidad_relativa = models.FloatField(null = True)
+    temperatura_operacion = models.FloatField(verbose_name = "Temperatura de Operación*")
+    presion_vapor = models.FloatField(null = True, verbose_name = "Presión de Vapor")
+    temperatura_presion_vapor = models.FloatField(null = True, verbose_name = "Temperatura a la Presión de Vapor")
+    densidad = models.FloatField(null = True)
+    densidad_unidad = models.ForeignKey(Unidades, on_delete = models.CASCADE, related_name="densidad_unidad_condicionesdisenobomba", null = True)
     temperatura_unidad = models.ForeignKey(Unidades, on_delete = models.CASCADE, related_name="temperatura_unidad_condicionesdisenobomba")
     viscosidad = models.FloatField(null = True)
     viscosidad_unidad = models.ForeignKey(Unidades, on_delete = models.CASCADE, related_name="viscosidad_unidad_condicionesdisenobomba")
-    corrosividad = models.CharField(max_length = 1, choices = CORROSIVIDAD)
-    peligroso = models.CharField(max_length = 1, choices = SI_NO_DESC)
-    inflamable = models.CharField(max_length = 1, choices = SI_NO_DESC)
-    concentracion_h2s = models.FloatField(null = True)
-    concentracion_cloro = models.FloatField(null = True)
+    corrosividad = models.CharField(max_length = 1, choices = CORROSIVIDAD, verbose_name = "Corrosivo/Erosivo*")
+    peligroso = models.CharField(max_length = 1, choices = SI_NO_DESC, verbose_name = "Peligroso*")
+    inflamable = models.CharField(max_length = 1, choices = SI_NO_DESC, verbose_name = "Inflamable*")
+    concentracion_h2s = models.FloatField(null = True, verbose_name = "Concentración de H₂S")
+    concentracion_cloro = models.FloatField(null = True, verbose_name = "Concentración de Cloro")
     concentracion_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name = "concentracion_unidad_condicionesfluido")
     nombre_fluido = models.CharField(max_length = 45, null = True)
-    calculo_propiedades = models.CharField(max_length = 1, default = "M", choices=CALCULO_PROPIEDADES)
-    presion_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="presion_unidad_condicionesfluido")
-    fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE, null=True)
+    calculo_propiedades = models.CharField(max_length = 1, default = "M", choices=CALCULO_PROPIEDADES, verbose_name = "Cálculo de Propiedades")
+    presion_vapor_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="presion_unidad_condicionesfluido")
+    fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE, verbose_name = "Fluido*")
 
     def corrosividad_largo(self):
         return conseguir_largo(CORROSIVIDAD, self.corrosividad)
@@ -157,13 +155,13 @@ class CondicionFluidoBomba(models.Model):
         return conseguir_largo(SI_NO_DESC, self.inflamable)
 
 class CondicionesDisenoBomba(models.Model):
-    capacidad = models.FloatField()
+    capacidad = models.FloatField(verbose_name = "Capacidad*")
     capacidad_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="capacidad_unidad_condicionesdisenobomba")
-    presion_succion = models.FloatField()
-    presion_descarga = models.FloatField()
-    presion_diferencial = models.FloatField(null = True)
+    presion_succion = models.FloatField(verbose_name = "Presión de Succión*")
+    presion_descarga = models.FloatField(verbose_name = "Presión de Descarga*")
+    presion_diferencial = models.FloatField(null = True, verbose_name = "Presión Diferencial")
     presion_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="presion_unidad_condicionesdisenobomba")
-    npsha = models.FloatField(null = True)
+    npsha = models.FloatField(null = True, verbose_name = "NPSHa")
     npsha_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="npsha_unidad_condicionesdisenobomba")
     condiciones_fluido = models.OneToOneField(CondicionFluidoBomba, on_delete=models.CASCADE)
 
@@ -183,6 +181,7 @@ class EspecificacionesInstalacion(models.Model):
     numero_codos_180 = models.PositiveIntegerField(null = True)
     conexiones_t_directo = models.PositiveIntegerField(null = True)
     conexiones_t_ramal = models.PositiveIntegerField(null = True)
+    material_tuberia = models.ForeignKey(MaterialTuberia, on_delete=models.CASCADE, null = True)
 
     # VÁLVULAS COMPUERTA
     numero_valvulas_compuerta = models.PositiveIntegerField(null = True)
