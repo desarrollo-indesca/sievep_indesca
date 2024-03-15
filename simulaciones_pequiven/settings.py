@@ -46,10 +46,8 @@ INSTALLED_APPS = [
     'usuarios',
     'static',
     'pwa',
-
     'templatetags',
     'mathfilters',
-    'widget_tweaks',
     # "debug_toolbar",
 ]
 
@@ -88,6 +86,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'simulaciones_pequiven.wsgi.application'
+
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
