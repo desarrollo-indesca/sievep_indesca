@@ -29,36 +29,36 @@
 
     <div class="row">
         <div class="col-3">
-            <label for="tag">{{form_bomba.tag.label_tag}}</label>
+            <label for="id_tag">{{form_bomba.tag.label_tag}}</label>
             {% render_field form_bomba.tag class="form-control" %}
         </div>
         <div class="col-3">
-            <label for="complejo">{{form_bomba.complejo.label_tag}}</label>
+            <label for="id_complejo">{{form_bomba.complejo.label_tag}}</label>
             {% render_field form_bomba.complejo class="form-control" %}
         </div>
         <div class="col-3">
-            <label for="planta">{{form_bomba.planta.label_tag}}</label>
+            <label for="id_planta">{{form_bomba.planta.label_tag}}</label>
             {% render_field form_bomba.planta class="form-control" %}
         </div>
         <div class="col-3">
-            <label for="fabricante">{{form_bomba.fabricante.label_tag}}</label>
+            <label for="id_fabricante">{{form_bomba.fabricante.label_tag}}</label>
             {% render_field form_bomba.fabricante class="form-control" %}
         </div>
 
         <div class="col-3">
-            <label for="modelo">{{form_bomba.modelo.label_tag}}</label>
+            <label for="id_modelo">{{form_bomba.modelo.label_tag}}</label>
             {% render_field form_bomba.modelo class="form-control" %}
         </div>
         <div class="col-3">
-            <label for="tipo_bomba">{{form_bomba.tipo_bomba.label_tag}}</label>
+            <label for="id_tipo_bomba">{{form_bomba.tipo_bomba.label_tag}}</label>
             {% render_field form_bomba.tipo_bomba class="form-control" %}
         </div>
         <div class="col-6">
-            <label for="grafica">{{form_bomba.grafica.label_tag}}</label>
+            <label for="id_grafica">{{form_bomba.grafica.label_tag}}</label>
             {% render_field form_bomba.grafica class="form-control" %}
         </div>
         <div class="col-12">
-            <label for="descripcion">{{form_bomba.descripcion.label_tag}}</label>
+            <label for="id_descripcion">{{form_bomba.descripcion.label_tag}}</label>
             {% render_field form_bomba.descripcion class="form-control" %}
         </div>
     </div>
@@ -69,7 +69,7 @@
 
     <div class="row">
         <div class="col-3">
-            <label for="velocidad">{{form_especificaciones.velocidad.label_tag}}</label>
+            <label for="id_velocidad">{{form_especificaciones.velocidad.label_tag}}</label>
             <div class="input-group mb-3">
                 {% render_field form_especificaciones.velocidad class="form-control" %}
                 {% render_field form_especificaciones.velocidad_unidad class="form-select" %}
@@ -77,7 +77,7 @@
         </div>
 
         <div class="col-3">
-            <label for="potencia">{{form_especificaciones.potencia_maxima.label_tag}}</label>
+            <label for="id_potencia">{{form_especificaciones.potencia_maxima.label_tag}}</label>
             <div class="input-group mb-3">
                 {% render_field form_especificaciones.potencia_maxima class="form-control" %}
                 {% render_field form_especificaciones.potencia_unidad class="form-select" %}
@@ -85,7 +85,7 @@
         </div>
 
         <div class="col-3">
-            <label for="npshr">{{form_especificaciones.npshr.label_tag}}</label>
+            <label for="id_npshr">{{form_especificaciones.npshr.label_tag}}</label>
             <div class="input-group mb-3">
                 {% render_field form_especificaciones.npshr class="form-control" %}
                 {% render_field form_especificaciones.npshr_unidad class="form-select" %}
@@ -93,7 +93,7 @@
         </div>
 
         <div class="col-3">
-            <label for="cabezal_total">{{form_especificaciones.cabezal_total.label_tag}}</label>
+            <label for="id_cabezal_total">{{form_especificaciones.cabezal_total.label_tag}}</label>
             <div class="input-group mb-3">
                 {% render_field form_especificaciones.cabezal_total class="form-control" %}
                 {% render_field form_especificaciones.cabezal_unidad class="form-select" %}
@@ -101,7 +101,7 @@
         </div>
 
         <div class="col-3">
-            <label for="succion_id">{{form_especificaciones.succion_id.label_tag}}</label>
+            <label for="id_succion_id">{{form_especificaciones.succion_id.label_tag}}</label>
             <div class="input-group mb-3">
                 {% render_field form_especificaciones.succion_id class="form-control" %}
                 {% render_field form_especificaciones.id_unidad class="form-select" %}
@@ -109,7 +109,7 @@
         </div>
 
         <div class="col-3">
-            <label for="descarga_id">{{form_especificaciones.descarga_id.label_tag}}</label>
+            <label for="id_descarga_id">{{form_especificaciones.descarga_id.label_tag}}</label>
             <div class="input-group mb-3">
                 {% render_field form_especificaciones.descarga_id class="form-control" %}
                 {% render_field form_especificaciones.id_unidad class="form-select" disabled="disabled" %}
@@ -117,12 +117,12 @@
         </div>
 
         <div class="col-3">
-            <label for="numero_etapas">{{form_especificaciones.numero_etapas.label_tag}}</label>
+            <label for="id_numero_etapas">{{form_especificaciones.numero_etapas.label_tag}}</label>
             {% render_field form_especificaciones.numero_etapas class="form-control" %}        
         </div>
 
         <div class="col-3">
-            <label for="eficiencia">{{form_especificaciones.eficiencia.label_tag}}</label>
+            <label for="id_eficiencia">{{form_especificaciones.eficiencia.label_tag}}</label>
             {% render_field form_especificaciones.eficiencia class="form-control" %}
         </div>
     </div>
@@ -133,7 +133,7 @@
 
         <div class="row">
             <div class="col-4">
-                <label for="capacidad">{{form_condiciones_diseno.capacidad.label_tag}}</label>
+                <label for="id_capacidad">{{form_condiciones_diseno.capacidad.label_tag}}</label>
                 <div class="input-group mb-3">
                     {% render_field form_condiciones_diseno.capacidad class="form-control" %}
                     {% render_field form_condiciones_diseno.capacidad_unidad class="form-select" %}
@@ -143,7 +143,7 @@
             <div class="col-4"></div>
 
             <div class="col-4">
-                <label for="npsha">{{form_condiciones_diseno.npsha.label_tag}}</label>
+                <label for="id_npsha">{{form_condiciones_diseno.npsha.label_tag}}</label>
                 <div class="input-group mb-3">
                     {% render_field form_condiciones_diseno.npsha class="form-control" %}
                     {% render_field form_condiciones_diseno.npsha_unidad class="form-select" %}
@@ -151,7 +151,7 @@
             </div>
     
             <div class="col-4">
-                <label for="presion_succion">{{form_condiciones_diseno.presion_succion.label_tag}}</label>
+                <label for="id_presion_succion">{{form_condiciones_diseno.presion_succion.label_tag}}</label>
                 <div class="input-group mb-3">
                     {% render_field form_condiciones_diseno.presion_succion class="form-control" %}
                     {% render_field form_condiciones_diseno.presion_unidad class="form-select" %}
@@ -159,7 +159,7 @@
             </div>
     
             <div class="col-4">
-                <label for="presion_descarga">{{form_condiciones_diseno.presion_descarga.label_tag}}</label>
+                <label for="id_presion_descarga">{{form_condiciones_diseno.presion_descarga.label_tag}}</label>
                 <div class="input-group mb-3">
                     {% render_field form_condiciones_diseno.presion_descarga class="form-control" %}
                     {% render_field form_condiciones_diseno.presion_unidad disabled="disabled" class="form-select" %}
@@ -167,7 +167,7 @@
             </div>
 
             <div class="col-4">
-                <label for="presion_diferencial">{{form_condiciones_diseno.presion_diferencial.label_tag}}</label>
+                <label for="id_presion_diferencial">{{form_condiciones_diseno.presion_diferencial.label_tag}}</label>
                 <div class="input-group mb-3">
                     {% render_field form_condiciones_diseno.presion_diferencial class="form-control" %}
                     {% render_field form_condiciones_diseno.presion_unidad disabled="disabled" class="form-select" %}
@@ -182,7 +182,7 @@
 
             <div class="row">
                 <div class="col-4">
-                    <label for="temperatura_operacion">{{form_condiciones_fluido.temperatura_operacion.label_tag}}</label>
+                    <label for="id_temperatura_operacion">{{form_condiciones_fluido.temperatura_operacion.label_tag}}</label>
                     <div class="input-group mb-3">
                         {% render_field form_condiciones_fluido.temperatura_operacion class="form-control" %}
                         {% render_field form_condiciones_fluido.temperatura_unidad class="form-select" %}
@@ -190,7 +190,7 @@
                 </div>
 
                 <div class="col-4">
-                    <label for="fluido">{{form_condiciones_fluido.fluido.label_tag}}</label>
+                    <label for="id_fluido">{{form_condiciones_fluido.fluido.label_tag}}</label>
                     <div class="d-flex w-100">
                         {% render_field form_condiciones_fluido.fluido class="form-select" %}
                         <a href="#fluido-nuevo" class="btn btn-danger">+</a>
@@ -198,14 +198,14 @@
                 </div>
     
                 <div class="col-4">
-                    <label for="npsha">{{form_condiciones_fluido.calculo_propiedades.label_tag}}</label>
+                    <label for="id_npsha">{{form_condiciones_fluido.calculo_propiedades.label_tag}}</label>
                     <div class="input-group mb-3">
                         {% render_field form_condiciones_fluido.calculo_propiedades class="form-select" %}
                     </div>
                 </div>
 
                 <div class="col-3">
-                    <label for="presion_vapor">{{form_condiciones_fluido.presion_vapor.label_tag}}</label>
+                    <label for="id_presion_vapor">{{form_condiciones_fluido.presion_vapor.label_tag}}</label>
                     <div class="input-group mb-3">
                         {% render_field form_condiciones_fluido.presion_vapor class="form-control" %}
                         {% render_field form_condiciones_fluido.presion_vapor_unidad class="form-select" %}
@@ -213,7 +213,7 @@
                 </div>
         
                 <div class="col-3">
-                    <label for="viscosidad">{{form_condiciones_fluido.viscosidad.label_tag}}</label>
+                    <label for="id_viscosidad">{{form_condiciones_fluido.viscosidad.label_tag}}</label>
                     <div class="input-group mb-3">
                         {% render_field form_condiciones_fluido.viscosidad class="form-control" %}
                         {% render_field form_condiciones_fluido.viscosidad_unidad class="form-select" %}
@@ -221,7 +221,7 @@
                 </div>
         
                 <div class="col-3">
-                    <label for="densidad">{{form_condiciones_fluido.densidad.label_tag}}</label>
+                    <label for="id_densidad">{{form_condiciones_fluido.densidad.label_tag}}</label>
                     <div class="input-group mb-3">
                         {% render_field form_condiciones_fluido.densidad class="form-control" %}
                         {% render_field form_condiciones_fluido.densidad_unidad class="form-select" %}
@@ -229,7 +229,7 @@
                 </div>
 
                 <div class="col-3">
-                    <label for="temperatura_presion_vapor">{{form_condiciones_fluido.temperatura_presion_vapor.label_tag}}</label>
+                    <label for="id_temperatura_presion_vapor">{{form_condiciones_fluido.temperatura_presion_vapor.label_tag}}</label>
                     <div class="input-group mb-3">
                         {% render_field form_condiciones_fluido.temperatura_presion_vapor class="form-control" %}
                         {% render_field form_condiciones_fluido.temperatura_unidad class="form-select" disabled="disabled" %}
@@ -237,30 +237,30 @@
                 </div>
 
                 <div class="col-2">
-                    <label for="peligroso">{{form_condiciones_fluido.peligroso.label_tag}}</label>
+                    <label for="id_peligroso">{{form_condiciones_fluido.peligroso.label_tag}}</label>
                     {% render_field form_condiciones_fluido.peligroso class="form-control" %}
                 </div>
     
                 <div class="col-2">
-                    <label for="inflamable">{{form_condiciones_fluido.inflamable.label_tag}}</label>
+                    <label for="id_inflamable">{{form_condiciones_fluido.inflamable.label_tag}}</label>
                     {% render_field form_condiciones_fluido.inflamable class="form-control" %}
                 </div>
 
                 <div class="col-2">
-                    <label for="corrosividad">{{form_condiciones_fluido.corrosividad.label_tag}}</label>
+                    <label for="id_corrosividad">{{form_condiciones_fluido.corrosividad.label_tag}}</label>
                     {% render_field form_condiciones_fluido.corrosividad class="form-control" %}
                 </div>
     
                 <div class="col-3">
-                    <label for="concentracion_h2s">{{form_condiciones_fluido.concentracion_h2s.label_tag}}</label>
+                    <label for="id_concentracion_h2s">{{form_condiciones_fluido.concentracion_h2s.label_tag}}</label>
                     <div class="input-group mb-3">
                         {% render_field form_condiciones_fluido.concentracion_h2s class="form-control" %}
-                        {% render_field form_condiciones_fluido.concentracion_unidad disabled="disabled" class="form-select" %}
+                        {% render_field form_condiciones_fluido.concentracion_unidad class="form-select" %}
                     </div>
                 </div>
     
                 <div class="col-3">
-                    <label for="concentracion_cloro">{{form_condiciones_fluido.concentracion_cloro.label_tag}}</label>
+                    <label for="id_concentracion_cloro">{{form_condiciones_fluido.concentracion_cloro.label_tag}}</label>
                     <div class="input-group mb-3">
                         {% render_field form_condiciones_fluido.concentracion_cloro class="form-control" %}
                         {% render_field form_condiciones_fluido.concentracion_unidad disabled="disabled" class="form-select" %}
@@ -274,45 +274,45 @@
 
                 <div class="row">
                     <div class="col-3">
-                        <label for="conexion_succion">{{form_detalles_construccion.conexion_succion.label_tag}}</label>
+                        <label for="id_conexion_succion">{{form_detalles_construccion.conexion_succion.label_tag}}</label>
                         {% render_field form_detalles_construccion.conexion_succion class="form-control" %}
                     </div>
                     <div class="col-3">
-                        <label for="tamano_rating_succion">{{form_detalles_construccion.tamano_rating_succion.label_tag}}</label>
+                        <label for="id_tamano_rating_succion">{{form_detalles_construccion.tamano_rating_succion.label_tag}}</label>
                         {% render_field form_detalles_construccion.tamano_rating_succion class="form-control" %}
                     </div>
                     <div class="col-3">
-                        <label for="conexion_descarga">{{form_detalles_construccion.conexion_descarga.label_tag}}</label>
+                        <label for="id_conexion_descarga">{{form_detalles_construccion.conexion_descarga.label_tag}}</label>
                         {% render_field form_detalles_construccion.conexion_descarga class="form-control" %}
                     </div>
                     <div class="col-3">
-                        <label for="tamano_rating_descarga">{{form_detalles_construccion.tamano_rating_descarga.label_tag}}</label>
+                        <label for="id_tamano_rating_descarga">{{form_detalles_construccion.tamano_rating_descarga.label_tag}}</label>
                         {% render_field form_detalles_construccion.tamano_rating_descarga class="form-control" %}
                     </div>
 
                     <div class="col-4">
-                        <label for="tipo">{{form_detalles_construccion.tipo.label_tag}}</label>
+                        <label for="id_tipo">{{form_detalles_construccion.tipo.label_tag}}</label>
                         {% render_field form_detalles_construccion.tipo class="form-control" %}
                     </div>
                     <div class="col-4">
-                        <label for="carcasa_dividida">{{form_detalles_construccion.carcasa_dividida.label_tag}}</label>
+                        <label for="id_carcasa_dividida">{{form_detalles_construccion.carcasa_dividida.label_tag}}</label>
                         {% render_field form_detalles_construccion.carcasa_dividida class="form-select" %}
                     </div>
                     <div class="col-4">
-                        <label for="modelo_construccion">{{form_detalles_construccion.modelo_construccion.label_tag}}</label>
+                        <label for="id_modelo_construccion">{{form_detalles_construccion.modelo_construccion.label_tag}}</label>
                         {% render_field form_detalles_construccion.modelo_construccion class="form-control" %}
                     </div>
 
                     <div class="col-4">
-                        <label for="fabricante_sello">{{form_detalles_construccion.fabricante_sello.label_tag}}</label>
+                        <label for="id_fabricante_sello">{{form_detalles_construccion.fabricante_sello.label_tag}}</label>
                         {% render_field form_detalles_construccion.fabricante_sello class="form-control" %}
                     </div>
                     <div class="col-4">
-                        <label for="tipo_carcasa1">{{form_detalles_construccion.tipo_carcasa1.label_tag}}</label>
+                        <label for="id_tipo_carcasa1">{{form_detalles_construccion.tipo_carcasa1.label_tag}}</label>
                         {% render_field form_detalles_construccion.tipo_carcasa1 class="form-control" %}
                     </div>
                     <div class="col-4">
-                        <label for="tipo_carcasa2">{{form_detalles_construccion.tipo_carcasa2.label_tag}}</label>
+                        <label for="id_tipo_carcasa2">{{form_detalles_construccion.tipo_carcasa2.label_tag}}</label>
                         {% render_field form_detalles_construccion.tipo_carcasa2 class="form-control" disabled="disabled" %}
                     </div>
                 </div>
@@ -323,28 +323,28 @@
 
                 <div class="row">
                     <div class="col-3">
-                        <label for="potencia">{{form_detalles_motor.potencia.label_tag}}</label>
+                        <label for="id_potencia">{{form_detalles_motor.potencia.label_tag}}</label>
                         <div class="input-group mb-3">
                             {% render_field form_detalles_motor.potencia class="form-control" %}
                             {% render_field form_detalles_motor.potencia_unidad class="form-select" %}
                         </div>
                     </div>
                     <div class="col-3">
-                        <label for="velocidad">{{form_detalles_motor.velocidad.label_tag}}</label>
+                        <label for="id_velocidad">{{form_detalles_motor.velocidad.label_tag}}</label>
                         <div class="input-group mb-3">
                             {% render_field form_detalles_motor.velocidad class="form-control" %}
                             {% render_field form_detalles_motor.velocidad_unidad class="form-select" %}
                         </div>
                     </div>
                     <div class="col-3">
-                        <label for="voltaje">{{form_detalles_motor.voltaje.label_tag}}</label>
+                        <label for="id_voltaje">{{form_detalles_motor.voltaje.label_tag}}</label>
                         <div class="input-group mb-3">
                             {% render_field form_detalles_motor.voltaje class="form-control" %}
                             {% render_field form_detalles_motor.voltaje_unidad class="form-select" %}
                         </div>
                     </div>
                     <div class="col-3">
-                        <label for="frecuencia">{{form_detalles_motor.frecuencia.label_tag}}</label>
+                        <label for="id_frecuencia">{{form_detalles_motor.frecuencia.label_tag}}</label>
                         <div class="input-group mb-3">
                             {% render_field form_detalles_motor.frecuencia class="form-control" %}
                             {% render_field form_detalles_motor.frecuencia_unidad class="form-select" %}
@@ -352,23 +352,23 @@
                     </div>
 
                     <div class="col-3">
-                        <label for="factor_de_servicio">{{form_detalles_motor.factor_de_servicio.label_tag}}</label>
+                        <label for="id_factor_de_servicio">{{form_detalles_motor.factor_de_servicio.label_tag}}</label>
                         {% render_field form_detalles_motor.factor_de_servicio class="form-control" %}
                     </div>
                     <div class="col-3">
-                        <label for="posicion">{{form_detalles_motor.posicion.label_tag}}</label>
+                        <label for="id_posicion">{{form_detalles_motor.posicion.label_tag}}</label>
                         {% render_field form_detalles_motor.posicion class="form-select" %}
                     </div>
                     <div class="col-2">
-                        <label for="fases">{{form_detalles_motor.fases.label_tag}}</label>
+                        <label for="id_fases">{{form_detalles_motor.fases.label_tag}}</label>
                         {% render_field form_detalles_motor.fases class="form-control" %}
                     </div>
                     <div class="col-2">
-                        <label for="aislamiento">{{form_detalles_motor.aislamiento.label_tag}}</label>
+                        <label for="id_aislamiento">{{form_detalles_motor.aislamiento.label_tag}}</label>
                         {% render_field form_detalles_motor.aislamiento class="form-select" %}
                     </div>
                     <div class="col-2">
-                        <label for="arranque">{{form_detalles_motor.arranque.label_tag}}</label>
+                        <label for="id_arranque">{{form_detalles_motor.arranque.label_tag}}</label>
                         {% render_field form_detalles_motor.arranque class="form-control" %}
                     </div>
                 </div>
@@ -382,5 +382,5 @@
 {% endblock %}
 
 {% block extra_javascript %}
-
+<script src="/static/js/auxiliares/bombas/creacion.js"></script>
 {% endblock %}

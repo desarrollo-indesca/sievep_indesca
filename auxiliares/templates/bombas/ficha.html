@@ -151,8 +151,8 @@
                     <tr>
                         <th class="table-dark">Temp. Presión Vapor ({{temperatura_unidad}})</th>
                         <td>{{condiciones_fluido.temperatura_presion_vapor|default_if_none:'-'}}</td>
-                        <th class="table-dark">Densidad Relativa</th>
-                        <td>{{condiciones_fluido.densidad_relativa|default_if_none:'-'}}</td>
+                        <th class="table-dark">Densidad ({{condiciones_fluido.densidad_unidad|default_if_none:"Relativa"}})</th>
+                        <td>{{condiciones_fluido.densidad|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                         <th class="table-dark">Viscosidad ({{condiciones_fluido.viscosidad_unidad}})</th>
