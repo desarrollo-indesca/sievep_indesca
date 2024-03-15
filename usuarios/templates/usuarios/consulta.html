@@ -92,11 +92,6 @@
     $('#filtrado').submit();
   });
 
-  $('input').keyup((e) => {
-    if(e.keyCode === 13)
-      $('#filtrado').submit();
-  });
-
   $('.alert').delay(2000, async () => {
     await new Promise(resolve => setTimeout(resolve, 2000));
     $('.alert').remove();
