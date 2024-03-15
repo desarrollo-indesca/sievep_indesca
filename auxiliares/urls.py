@@ -6,4 +6,5 @@ urlpatterns = [
 
     # URLs de BOMBAS
     path('bombas/', ConsultaBombas.as_view(), name="consulta_bombas"),
+    path('bombas/creacion/', CreacionBomba.as_view(), name="creacion_bomba"),
 ]

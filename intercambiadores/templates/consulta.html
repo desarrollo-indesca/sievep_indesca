@@ -107,5 +107,9 @@
   $('select').change(() => {
     $('#filtrado').submit();
   });
+  $('input').keyup((e) => {
+    if(e.keyCode === 13)
+      $('#filtrado').submit();
+  });
 </script>
 {% endblock %}
