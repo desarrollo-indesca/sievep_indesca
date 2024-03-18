@@ -191,7 +191,7 @@ def calcular_fase(cas: str, t1: float, t2: float, presion) -> str:
 
     return Chemical(cas,T=numpy.mean([t1,t2]), P=presion).phase
 
-def calcular_viscosidad(cas: str, t: float, p: float) -> float:
+def calcular_viscosidad(cas: str, t: float, p: float = 101325) -> float:
     """
     Resumen:
         Esta función calculará la viscosidad dinámica de un fluido según su temperatura y presión.
@@ -205,10 +205,13 @@ def calcular_viscosidad(cas: str, t: float, p: float) -> float:
         float -> viscosidad dinámica del fluido en las condiciones presentadas.
     """
 
+    print(cas, t, p)
+
+
     quimico = Chemical(cas, t, p)
     return quimico.mu
 
-def calcular_presion_vapor(cas: str, t: float, p: float) -> float:
+def calcular_presion_vapor(cas: str, t: float, p: float = 101325) -> float:
     """
     Resumen:
         Esta función calculará la presión de vapor de un fluido según su temperatura y presión.
@@ -221,11 +224,10 @@ def calcular_presion_vapor(cas: str, t: float, p: float) -> float:
     Devuelve:
         float -> Presión de vapor del fluido en las condiciones presentadas.
     """
-
     quimico = Chemical(cas, t, p)
     return quimico.Psat
 
-def calcular_densidad(cas: str, t: float, p: float) -> float:
+def calcular_densidad(cas: str, t: float, p: float = 101325) -> float:
     """
     Resumen:
         Esta función calculará la densidad de un fluido según su temperatura y presión.

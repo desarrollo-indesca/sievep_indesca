@@ -178,30 +178,29 @@ class CreacionBomba(View, SuperUserRequiredMixin):
 
 class ObtencionDatosFluidosBomba(View, SuperUserRequiredMixin):
     def get(self, request):
-        fluido:int = request.GET.get('fluido')
+        print(request.GET)
+        fluido = int(request.GET.get('fluido'))
 
-        unidad_temp:int = request.GET.get('unidad_temp')
-        unidad_presion:int = request.GET.get('unidad_presion')
+        unidad_temperatura = int(request.GET.get('temperatura_unidad'))
 
-        unidad_viscosidad:int = request.GET.get('unidad_viscosidad')
-        unidad_densidad:int = request.GET.get('unidad_densidad')
-        unidad_presion_vapor:int = request.GET.get('unidad_presion_vapor')
+        unidad_viscosidad = int(request.GET.get('viscosidad_unidad'))
+        unidad_densidad = int(request.GET.get('densidad_unidad'))
+        unidad_presion_vapor = int(request.GET.get('presion_vapor_unidad'))
 
-        temp:float = request.GET.get('temp')
-        presion:float = request.GET.get('presion')
+        temp = float(request.GET.get('temperatura_operacion'))
 
-        temp = transformar_unidades_temperatura([temp], unidad_temp)[0]
-        presion = transformar_unidades_presion([presion], unidad_presion)[0]
+        print([temp, unidad_temperatura])
+        temp = transformar_unidades_temperatura([temp], unidad_temperatura)[0]
 
         cas = Fluido.objects.get(pk = fluido).cas
 
         contexto = {
-            'viscosidad': transformar_unidades_viscosidad(calcular_viscosidad(cas, temp, presion), 31, unidad_viscosidad)[0],
-            'densidad': transformar_unidades_densidad(calcular_densidad(cas, temp, presion), 31, unidad_densidad)[0],
-            'presion': transformar_unidades_presion(calcular_presion_vapor(cas, temp, presion), 31, unidad_presion)[0],
+            'viscosidad': transformar_unidades_viscosidad([calcular_viscosidad(cas, temp)], 31, unidad_viscosidad)[0],
+            'densidad': transformar_unidades_densidad([calcular_densidad(cas, temp)], 31, unidad_densidad)[0],
+            'presion_vapor': transformar_unidades_presion([calcular_presion_vapor(cas, temp)], 31, unidad_presion_vapor)[0],
         }
 
-        return render(request, 'partials/fluido_bomba.html', contexto)
+        return render(request, 'bombas/partials/fluido_bomba.html', contexto)
 
 class EdicionBomba(View, SuperUserRequiredMixin):
     def get_context(self, pk):

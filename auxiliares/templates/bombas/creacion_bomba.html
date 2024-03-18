@@ -2,6 +2,10 @@
 {% load static %}
 {% load widget_tweaks %}
 
+{% block head %}
+<script src="/static/js/htmx.min.js"></script>
+{% endblock %}
+
 {% block contenido %}
 <form method="post">
     {% csrf_token %}
@@ -192,7 +196,7 @@
                 <div class="col-4">
                     <label for="id_fluido">{{form_condiciones_fluido.fluido.label_tag}}</label>
                     <div class="d-flex w-100">
-                        {% render_field form_condiciones_fluido.fluido class="form-select" %}
+                        {% render_field form_condiciones_fluido.fluido class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-include="#id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
                         <a href="#fluido-nuevo" data-bs-toggle="modal" data-bs-target="#anadir_fluido_no_registrado" class="btn btn-danger">+</a>
                     </div>                    
                 </div>
