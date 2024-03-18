@@ -66,7 +66,7 @@
 
 {% block opciones %}
 <footer aria-label="Page navigation example">
-    <ul class="pagination" hx-boost="true">
+    <ul class="pagination">
       <li class="page-item">
         {% if page_obj.has_previous %}
         <a class="page-link bg-dark text-white" href="?{% url_replace page=page_obj.previous_page_number %}" aria-label="Previous">
