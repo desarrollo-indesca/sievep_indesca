@@ -1,14 +1,18 @@
 from typing import Any
 
+from django.db import transaction
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.views.generic import ListView
 from django.http import HttpRequest, HttpResponse
 
+from usuarios.views import SuperUserRequiredMixin
 from auxiliares.models import *
 from auxiliares.forms import *
 from intercambiadores.models import Complejo, Planta
+from calculos.termodinamicos import calcular_densidad, calcular_presion_vapor, calcular_viscosidad
+from calculos.unidades import transformar_unidades_presion, transformar_unidades_temperatura, transformar_unidades_densidad, transformar_unidades_viscosidad
 
 # Create your views here.
 
@@ -141,7 +145,7 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
         )
         return new_context
 
-class CreacionBomba(View):
+class CreacionBomba(View, SuperUserRequiredMixin):
     context = {
         'form_bomba': BombaForm(), 
         'form_especificaciones': EspecificacionesBombaForm(), 
@@ -159,10 +163,47 @@ class CreacionBomba(View):
         form_bomba = BombaForm(request.POST)
         form_especificaciones = EspecificacionesBombaForm(request.POST)
         form_detalles_motor = DetallesMotorBombaForm(request.POST)
+
+        # Añadir automáticos
+
         form_condiciones_diseno = CondicionesDisenoBombaForm(request.POST)
         form_condiciones_fluido = CondicionFluidoBombaForm(request.POST)
 
-class EdicionBomba(View):
+        with transaction.atomic():
+            if(form_bomba.is_valid()):
+                form_bomba.save()
+
+            if(form_especificaciones.is_valid()):
+                form_especificaciones.save()
+
+class ObtencionDatosFluidosBomba(View, SuperUserRequiredMixin):
+    def get(self, request):
+        fluido:int = request.GET.get('fluido')
+
+        unidad_temp:int = request.GET.get('unidad_temp')
+        unidad_presion:int = request.GET.get('unidad_presion')
+
+        unidad_viscosidad:int = request.GET.get('unidad_viscosidad')
+        unidad_densidad:int = request.GET.get('unidad_densidad')
+        unidad_presion_vapor:int = request.GET.get('unidad_presion_vapor')
+
+        temp:float = request.GET.get('temp')
+        presion:float = request.GET.get('presion')
+
+        temp = transformar_unidades_temperatura([temp], unidad_temp)[0]
+        presion = transformar_unidades_presion([presion], unidad_presion)[0]
+
+        cas = Fluido.objects.get(pk = fluido).cas
+
+        contexto = {
+            'viscosidad': transformar_unidades_viscosidad(calcular_viscosidad(cas, temp, presion), 31, unidad_viscosidad)[0],
+            'densidad': transformar_unidades_densidad(calcular_densidad(cas, temp, presion), 31, unidad_densidad)[0],
+            'presion': transformar_unidades_presion(calcular_presion_vapor(cas, temp, presion), 31, unidad_presion)[0],
+        }
+
+        return render(request, 'partials/fluido_bomba.html', contexto)
+
+class EdicionBomba(View, SuperUserRequiredMixin):
     def get_context(self, pk):
         bomba = Bombas.objects.get(pk = pk)
         return {
