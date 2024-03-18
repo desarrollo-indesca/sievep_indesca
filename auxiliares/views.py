@@ -142,7 +142,6 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
         return new_context
 
 class CreacionBomba(View):
-
     context = {
         'form_bomba': BombaForm(), 
         'form_especificaciones': EspecificacionesBombaForm(), 
@@ -155,3 +154,26 @@ class CreacionBomba(View):
 
     def get(self, request):
         return render(request, 'bombas/creacion_bomba.html', self.context)
+    
+    def post(self, request):
+        form_bomba = BombaForm(request.POST)
+        form_especificaciones = EspecificacionesBombaForm(request.POST)
+        form_detalles_motor = DetallesMotorBombaForm(request.POST)
+        form_condiciones_diseno = CondicionesDisenoBombaForm(request.POST)
+        form_condiciones_fluido = CondicionFluidoBombaForm(request.POST)
+
+class EdicionBomba(View):
+    def get_context(self, pk):
+        bomba = Bombas.objects.get(pk = pk)
+        return {
+        'form_bomba': BombaForm(instance = bomba), 
+        'form_especificaciones': EspecificacionesBombaForm(instance = bomba.especificaciones_bomba), 
+        'form_detalles_construccion': DetallesConstruccionBombaForm(instance = bomba.detalles_construccion), 
+        'form_detalles_motor': DetallesMotorBombaForm(instance = bomba.detalles_motor),
+        'form_condiciones_diseno': CondicionesDisenoBombaForm(instance = bomba.condiciones_diseno),
+        'form_condiciones_fluido': CondicionFluidoBombaForm(instance = bomba.condiciones_diseno.condiciones_fluido),
+        'titulo': f'SIEVEP - Edición de la Bomba {bomba.tag}'
+    }
+
+    def get(self, request, pk):
+        return render(request, 'bombas/creacion_bomba.html', self.get_context(pk))
