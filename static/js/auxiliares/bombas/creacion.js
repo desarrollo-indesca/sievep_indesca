@@ -80,15 +80,15 @@ function anadir_listeners_dropboxes() {
     });
     
     $('#guardar-cas').click((e) => {
-        if(document.getElementById('nombre_compuesto_cas').value !== '' && document.getElementById('nombre_compuesto_cas').value.indexOf('*')){
+        const compuesto_cas = document.getElementById('nombre_compuesto_cas').value;
+        if(compuesto_cas !== '' && compuesto_cas.indexOf('*')){
             $.ajax({
                 url: '/auxiliares/registrar_fluido_cas/', data: {
                     'cas': document.getElementById('cas_compuesto').value,
-                    'nombre': document.getElementById('nombre_compuesto_cas').value
+                    'nombre': compuesto_cas
                 }, success: (res) => {
                     const valor = res.id;
-                    console.log(valor);
-                    document.getElementById('id_fluido').innerHTML += `<option value="${valor}" selected>${document.getElementById('nombre_compuesto_cas').value.toUpperCase()}</option>`;
+                    document.getElementById('id_fluido').innerHTML += `<option value="${valor}" selected>${compuesto_cas.toUpperCase()}</option>`;
             
                     $('#anadir_fluido_no_registradoClose').click();
                 }, error: (res) => {
@@ -100,11 +100,50 @@ function anadir_listeners_dropboxes() {
         } else
             alert("Debe de colocarle un nombre válido al compuesto.");
     });
+
+    $('#id_calculo_propiedades').change((e) => {
+        if(e.target.value === 'M')
+            $('button[type=submit]').removeAttr('disabled');
+    })
+
+    $('#nombre_compuesto').keyup((e) => {
+        if(e.target.value !== ''){
+            document.getElementById('guardar-desconocido').removeAttribute('disabled');
+        } else
+            document.getElementById('guardar-desconocido').setAttribute('disabled', true);               
+    });
+
+    $('#guardar-desconocido').click((e) => {
+        const valor = `${document.getElementById('nombre_compuesto').value}}`;
+        document.getElementById('id_fluido').innerHTML += `<option value="${valor}" selected>${document.getElementById('nombre_compuesto').value.toUpperCase()}</option>`;
+
+        document.getElementById('nombre_compuesto').value = '';
+        $('#anadir_fluido_no_registradoClose').click();
+    });
+
+    $('#id_fluido').change((e) => {
+        if(!isNaN(document.getElementById('id_fluido').value))
+            $('#id_calculo_propiedades').html("<option value='A'>Automático</option><option value='M'>Manual</option>");
+        else{
+            $('#id_calculo_propiedades').html("<option value='M'>Manual</option>");
+            $('#id_viscosidad').removeAttr('disabled');
+            $('#id_presion_vapor').removeAttr('disabled');
+            $('#id_densidad').removeAttr('disabled');
+            $('button[type=submit]').removeAttr('disabled');
+        }
+    
+     });
 }
 
 const anadir_listeners_htmx = () => {
     document.body.addEventListener('htmx:beforeRequest', function(evt) {
-        if(document.getElementById('id_calculo_propiedades').value === 'M' || !document.getElementById('id_temperatura_presion_vapor').value){
+        if(document.getElementById('id_calculo_propiedades').value === 'M' || 
+            document.getElementById('id_temperatura_presion_vapor').value === '' ||
+            document.getElementById('id_fluido').value === '' ||
+            isNaN(Number(document.getElementById('id_fluido').value)) ||
+            document.getElementById('id_temperatura_operacion').value === '' ||
+            document.getElementById('id_presion_succion').value === ''
+        ){
             evt.preventDefault();
             if(document.getElementById('id_calculo_propiedades').value === 'M'){
                 $('#id_viscosidad').removeAttr('disabled');
@@ -118,6 +157,9 @@ const anadir_listeners_htmx = () => {
         if(evt.detail.failed){
             alert("Ha ocurrido un error al momento de llevar a cabo los cálculos de las propiedades termodinámicas. Verifique que los datos corresponden a la fase líquida del fluido ingresado.");
             $('button[type=submit]').attr('disabled', 'disabled');
+            $('#id_viscosidad').val("");
+            $('#id_presion_vapor').val("");
+            $('#id_densidad').val("");
         }
         else
             $('button[type=submit]').removeAttr('disabled');

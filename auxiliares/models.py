@@ -93,7 +93,7 @@ class DetallesMotorBomba(models.Model):
     velocidad_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="velocidad_unidad_detallesmotor")
     factor_de_servicio = models.FloatField(null = True, verbose_name = "Factor de Servicio")
     posicion = models.CharField(null = True, max_length = 1, choices = MOTOR_POSICIONES, verbose_name="Posición del Motor")
-    voltaje = models.FloatField(null=True, verbose_name = "Voiltaje del Motor")
+    voltaje = models.FloatField(null=True, verbose_name = "Voltaje del Motor")
     voltaje_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="voltaje_unidad_detallesmotor")
     fases = models.PositiveSmallIntegerField(null = True)
     frecuencia = models.FloatField(null = True)

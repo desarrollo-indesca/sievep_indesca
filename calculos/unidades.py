@@ -102,16 +102,12 @@ def transformar_unidades_presion(args: list, unidad: int, unidad_salida: int = 3
     '''
     actualizadas = []
 
-    print(unidad, unidad_salida)
-
     unidad_salida = ur.bar if unidad_salida == 7 else ur.atm if unidad_salida == 11 else ur.kgf/ur.centimeter**2 if unidad_salida == 38 else ur.pound_force_per_square_inch \
         if unidad_salida == 17 else ur.mmHg if unidad_salida == 22 else ur.kPa if unidad_salida == 26 else ur.Pa
     
     unidad = ur.bar if unidad == 7 or unidad == 38 else ur.atm if unidad == 11 else ur.pound_force_per_square_inch \
         if unidad == 17 else ur.kgf/ur.centimeter**2 if unidad_salida == 38 else ur.mmHg if unidad == 22 else ur.Pa if unidad == 33 else ur.kPa
     
-    print(unidad, unidad_salida)
-
     actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
     return actualizadas
