@@ -299,7 +299,7 @@
                         {% render_field form_detalles_construccion.tipo class="form-control" %}
                     </div>
                     <div class="col-4">
-                        <label for="id_carcasa_dividida">{{form_detalles_construccion.carcasa_dividida.label_tag}}</label>
+                        <label for="id_dividida">{{form_detalles_construccion.carcasa_dividida.label_tag}}</label>
                         {% render_field form_detalles_construccion.carcasa_dividida class="form-select" %}
                     </div>
                     <div class="col-4">
@@ -312,12 +312,12 @@
                         {% render_field form_detalles_construccion.fabricante_sello class="form-control" %}
                     </div>
                     <div class="col-4">
-                        <label for="id_tipo_carcasa1">{{form_detalles_construccion.tipo_carcasa1.label_tag}}</label>
-                        {% render_field form_detalles_construccion.tipo_carcasa1 class="form-control" %}
+                        <label for="id_tipo_carcasa1">{{form_detalles_construccion.tipo1.label_tag}}</label>
+                        {% render_field form_detalles_construccion.tipo1 class="form-control" %}
                     </div>
                     <div class="col-4">
-                        <label for="id_tipo_carcasa2">{{form_detalles_construccion.tipo_carcasa2.label_tag}}</label>
-                        {% render_field form_detalles_construccion.tipo_carcasa2 class="form-control" disabled="disabled" %}
+                        <label for="id_tipo_carcasa2">{{form_detalles_construccion.tipo2.label_tag}}</label>
+                        {% render_field form_detalles_construccion.tipo2 class="form-control" disabled="disabled" %}
                     </div>
                 </div>
                 
@@ -396,7 +396,7 @@
             <div class="row">
                 <div class="col-5">
                     <label for="etiqueta">Nombre del Compuesto:</label>
-                    <input class="form-control" id="nombre_compuesto_carcasa" type="text" maxlength="25">
+                    <input class="form-control" id="nombre_compuesto" type="text" maxlength="25">
                 </div>
                 <div class="col-2 offset-5 d-flex justify-content-center align-items-end">
                     <button id="guardar-desconocido" class="no-submit btn btn-danger w-100" disabled>Enviar</button>
@@ -407,11 +407,11 @@
             <div class="row">
                 <div class="col-5">
                     <label for="etiqueta">Código CAS:</label>
-                    <input class="form-control" id="cas_compuesto_carcasa" type="text" maxlength="25" pattern="[0-9]+-[0-9]+-[0-9]+">
+                    <input class="form-control" id="cas_compuesto" type="text" maxlength="25" pattern="[0-9]+-[0-9]+-[0-9]+">
                 </div>
                 <div class="col-5">
                     <label for="etiqueta">Nombre:</label>
-                    <input class="form-control" id="nombre_compuesto_carcasa_cas" type="text" maxlength="25">
+                    <input class="form-control" id="nombre_compuesto_cas" type="text" maxlength="25">
                 </div>
                 <div class="col-2 d-flex justify-content-center align-items-end">
                     <button id="guardar-cas" class="no-submit btn btn-danger w-100" disabled>Enviar</button>

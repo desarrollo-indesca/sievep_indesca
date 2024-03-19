@@ -5,14 +5,15 @@ from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.views.generic import ListView
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 
 from usuarios.views import SuperUserRequiredMixin
 from auxiliares.models import *
 from auxiliares.forms import *
 from intercambiadores.models import Complejo, Planta
-from calculos.termodinamicos import calcular_densidad, calcular_presion_vapor, calcular_viscosidad
+from calculos.termodinamicos import calcular_densidad, calcular_presion_vapor, calcular_viscosidad, calcular_densidad_relativa
 from calculos.unidades import transformar_unidades_presion, transformar_unidades_temperatura, transformar_unidades_densidad, transformar_unidades_viscosidad
+from calculos.utils import fluido_existe, registrar_fluido
 
 # Create your views here.
 
@@ -35,6 +36,16 @@ class SeleccionEquipo(LoginRequiredMixin, View):
 
     def get(self, request):
         return render(request, 'seleccion_equipo.html', context=self.context)
+
+class CargarFluidoNuevo(View, SuperUserRequiredMixin):
+
+    def get(self, request):
+        return JsonResponse(fluido_existe(request.GET.get('cas')))
+
+class RegistrarFluidoCAS(View, SuperUserRequiredMixin):
+    
+    def get(self, request):
+        return JsonResponse(registrar_fluido(request.GET.get('cas'), request.GET.get('nombre')))
 
 # VISTAS DE BOMBAS
 
@@ -202,8 +213,8 @@ class ObtencionDatosFluidosBomba(View, SuperUserRequiredMixin):
         cas = Fluido.objects.get(pk = fluido).cas
 
         contexto = {
-            'viscosidad': round(transformar_unidades_viscosidad([calcular_viscosidad(cas, temp, presion_succion)], 44, unidad_viscosidad)[0], 4),
-            'densidad': round(transformar_unidades_densidad([calcular_densidad(cas, temp, presion_succion)], 43, unidad_densidad)[0] if unidad_densidad else calcular_densidad(cas, temp, presion_succion)/1000.1953, 4),
+            'viscosidad': round(transformar_unidades_viscosidad([calcular_viscosidad(cas, temp, presion_succion)], 44, unidad_viscosidad)[0], 6),
+            'densidad': round(transformar_unidades_densidad([calcular_densidad(cas, temp, presion_succion)], 43, unidad_densidad)[0] if unidad_densidad else calcular_densidad_relativa(cas, temp, presion_succion), 4),
             'presion_vapor': round(transformar_unidades_presion([calcular_presion_vapor(cas, temp_presion_vapor, presion_succion)], 33, unidad_presion_vapor)[0], 4),
         }
 

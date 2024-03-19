@@ -4,6 +4,8 @@ import CoolProp.CoolProp as CP
 from .unidades import transformar_unidades_cp
 import numpy
 
+DENSIDAD_DEL_AGUA_LIQUIDA_A_5C = 1000.1953
+
 def calcular_cp(fluido: str, t1: float, t2: float, unidad_salida: int = 29, presion: float = 101325, fase: str = 'a') -> float:
     """
     Resumen:
@@ -209,7 +211,7 @@ def calcular_viscosidad(cas: str, t: float, p: float = 101325) -> float:
 
 
     quimico = Chemical(cas, t, p)
-    return quimico.mu
+    return quimico.mul
 
 def calcular_presion_vapor(cas: str, t: float, p: float = 101325) -> float:
     """
@@ -241,5 +243,22 @@ def calcular_densidad(cas: str, t: float, p: float = 101325) -> float:
         float -> Densidad del fluido en las condiciones presentadas.
     """
 
-    quimico = Chemical(cas, t, 565370)
+    quimico = Chemical(cas, t, p)
     return quimico.rhol
+
+def calcular_densidad_relativa(cas: str, t: float, p: float = 101325) -> float:
+    """
+    Resumen:
+        Esta función calculará la densidad de un fluido según su temperatura y presión.
+
+    Parámetros:
+        cas: str -> CAS del fluido
+        t: float -> Temperatura inicial (K)
+        p: float -> Presión (Pa)
+
+    Devuelve:
+        float -> Densidad del fluido en las condiciones presentadas.
+    """
+
+    quimico = Chemical(cas, t, p)
+    return quimico.rhol/DENSIDAD_DEL_AGUA_LIQUIDA_A_5C
