@@ -178,26 +178,33 @@ class CreacionBomba(View, SuperUserRequiredMixin):
 
 class ObtencionDatosFluidosBomba(View, SuperUserRequiredMixin):
     def get(self, request):
-        print(request.GET)
         fluido = int(request.GET.get('fluido'))
 
         unidad_temperatura = int(request.GET.get('temperatura_unidad'))
 
         unidad_viscosidad = int(request.GET.get('viscosidad_unidad'))
-        unidad_densidad = int(request.GET.get('densidad_unidad'))
+        unidad_densidad = request.GET.get('densidad_unidad')
+
+        if(unidad_densidad):
+            unidad_densidad = int(unidad_densidad)
+
         unidad_presion_vapor = int(request.GET.get('presion_vapor_unidad'))
+        unidad_presion = int(request.GET.get('presion_unidad'))
 
         temp = float(request.GET.get('temperatura_operacion'))
+        temp_presion_vapor = float(request.GET.get('temperatura_presion_vapor'))
+        presion_succion = float(request.GET.get('presion_succion'))
 
-        print([temp, unidad_temperatura])
         temp = transformar_unidades_temperatura([temp], unidad_temperatura)[0]
+        temp_presion_vapor = transformar_unidades_temperatura([temp_presion_vapor], unidad_temperatura)[0]
+        presion_succion = transformar_unidades_presion([presion_succion], unidad_presion)[0]
 
         cas = Fluido.objects.get(pk = fluido).cas
 
         contexto = {
-            'viscosidad': transformar_unidades_viscosidad([calcular_viscosidad(cas, temp)], 31, unidad_viscosidad)[0],
-            'densidad': transformar_unidades_densidad([calcular_densidad(cas, temp)], 31, unidad_densidad)[0],
-            'presion_vapor': transformar_unidades_presion([calcular_presion_vapor(cas, temp)], 31, unidad_presion_vapor)[0],
+            'viscosidad': round(transformar_unidades_viscosidad([calcular_viscosidad(cas, temp, presion_succion)], 44, unidad_viscosidad)[0], 4),
+            'densidad': round(transformar_unidades_densidad([calcular_densidad(cas, temp, presion_succion)], 43, unidad_densidad)[0] if unidad_densidad else calcular_densidad(cas, temp, presion_succion)/1000.1953, 4),
+            'presion_vapor': round(transformar_unidades_presion([calcular_presion_vapor(cas, temp_presion_vapor, presion_succion)], 33, unidad_presion_vapor)[0], 4),
         }
 
         return render(request, 'bombas/partials/fluido_bomba.html', contexto)

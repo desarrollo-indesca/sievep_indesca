@@ -157,8 +157,8 @@
             <div class="col-4">
                 <label for="id_presion_succion">{{form_condiciones_diseno.presion_succion.label_tag}}</label>
                 <div class="input-group mb-3">
-                    {% render_field form_condiciones_diseno.presion_succion class="form-control" %}
-                    {% render_field form_condiciones_diseno.presion_unidad class="form-select" %}
+                    {% render_field form_condiciones_diseno.presion_succion class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                    {% render_field form_condiciones_diseno.presion_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
                 </div>
             </div>
     
@@ -185,58 +185,58 @@
         <h4 class="text-center" style="color: #e31e24;">Condiciones del Fluido</h2>
 
             <div class="row">
-                <div class="col-4">
+                <div class="col-3">
                     <label for="id_temperatura_operacion">{{form_condiciones_fluido.temperatura_operacion.label_tag}}</label>
                     <div class="input-group mb-3">
-                        {% render_field form_condiciones_fluido.temperatura_operacion class="form-control" %}
-                        {% render_field form_condiciones_fluido.temperatura_unidad class="form-select" %}
-                    </div>
-                </div>
-
-                <div class="col-4">
-                    <label for="id_fluido">{{form_condiciones_fluido.fluido.label_tag}}</label>
-                    <div class="d-flex w-100">
-                        {% render_field form_condiciones_fluido.fluido class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-include="#id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
-                        <a href="#fluido-nuevo" data-bs-toggle="modal" data-bs-target="#anadir_fluido_no_registrado" class="btn btn-danger">+</a>
-                    </div>                    
-                </div>
-    
-                <div class="col-4">
-                    <label for="id_npsha">{{form_condiciones_fluido.calculo_propiedades.label_tag}}</label>
-                    <div class="input-group mb-3">
-                        {% render_field form_condiciones_fluido.calculo_propiedades class="form-select" %}
-                    </div>
-                </div>
-
-                <div class="col-3">
-                    <label for="id_presion_vapor">{{form_condiciones_fluido.presion_vapor.label_tag}}</label>
-                    <div class="input-group mb-3">
-                        {% render_field form_condiciones_fluido.presion_vapor class="form-control" %}
-                        {% render_field form_condiciones_fluido.presion_vapor_unidad class="form-select" %}
-                    </div>
-                </div>
-        
-                <div class="col-3">
-                    <label for="id_viscosidad">{{form_condiciones_fluido.viscosidad.label_tag}}</label>
-                    <div class="input-group mb-3">
-                        {% render_field form_condiciones_fluido.viscosidad class="form-control" %}
-                        {% render_field form_condiciones_fluido.viscosidad_unidad class="form-select" %}
-                    </div>
-                </div>
-        
-                <div class="col-3">
-                    <label for="id_densidad">{{form_condiciones_fluido.densidad.label_tag}}</label>
-                    <div class="input-group mb-3">
-                        {% render_field form_condiciones_fluido.densidad class="form-control" %}
-                        {% render_field form_condiciones_fluido.densidad_unidad class="form-select" %}
+                        {% render_field form_condiciones_fluido.temperatura_operacion class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                        {% render_field form_condiciones_fluido.temperatura_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
                     </div>
                 </div>
 
                 <div class="col-3">
                     <label for="id_temperatura_presion_vapor">{{form_condiciones_fluido.temperatura_presion_vapor.label_tag}}</label>
                     <div class="input-group mb-3">
-                        {% render_field form_condiciones_fluido.temperatura_presion_vapor class="form-control" %}
+                        {% render_field form_condiciones_fluido.temperatura_presion_vapor class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
                         {% render_field form_condiciones_fluido.temperatura_unidad class="form-select" disabled="disabled" %}
+                    </div>
+                </div>
+
+                <div class="col-3">
+                    <label for="id_fluido">{{form_condiciones_fluido.fluido.label_tag}}</label>
+                    <div class="d-flex w-100">
+                        {% render_field form_condiciones_fluido.fluido class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                        <a href="#fluido-nuevo" data-bs-toggle="modal" data-bs-target="#anadir_fluido_no_registrado" class="btn btn-danger">+</a>
+                    </div>                    
+                </div>
+    
+                <div class="col-3">
+                    <label for="id_calculo_propiedades">{{form_condiciones_fluido.calculo_propiedades.label_tag}}</label>
+                    <div class="input-group mb-3">
+                        {% render_field form_condiciones_fluido.calculo_propiedades class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                    </div>
+                </div>
+
+                <div class="col-4">
+                    <label for="id_presion_vapor">{{form_condiciones_fluido.presion_vapor.label_tag}}</label>
+                    <div class="input-group mb-3">
+                        {% render_field form_condiciones_fluido.presion_vapor class="form-control" %}
+                        {% render_field form_condiciones_fluido.presion_vapor_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                    </div>
+                </div>
+        
+                <div class="col-4">
+                    <label for="id_viscosidad">{{form_condiciones_fluido.viscosidad.label_tag}}</label>
+                    <div class="input-group mb-3">
+                        {% render_field form_condiciones_fluido.viscosidad class="form-control" %}
+                        {% render_field form_condiciones_fluido.viscosidad_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                    </div>
+                </div>
+        
+                <div class="col-4">
+                    <label for="id_densidad">{{form_condiciones_fluido.densidad.label_tag}}</label>
+                    <div class="input-group mb-3">
+                        {% render_field form_condiciones_fluido.densidad class="form-control" %}
+                        {% render_field form_condiciones_fluido.densidad_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
                     </div>
                 </div>
 

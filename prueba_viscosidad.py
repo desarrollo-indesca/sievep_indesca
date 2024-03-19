@@ -1,8 +1,11 @@
 from thermo.chemical import Chemical
+from thermo import VolumeLiquid
 from CoolProp.CoolProp import PropsSI 
 
-agua = Chemical('water', 273.15 + 21.11, 101325 + 2966.12)
 
-print(agua.rho, agua.mu, agua.Psat)
+print(PropsSI("V","T",407.3888888888888888888888888888888888889,"P",565370,"water"))
+print(PropsSI("D","T",407.3888888888888888888888888888888888889,"P",565370,"water"))
 
-print(PropsSI("D","T",273.15 + 21.11,"P",101325 + 2966.12,"water"))
+quimico = Chemical('water', 407.3888888888888888888888888888888888889, 565370)
+print(quimico.mul)
+print(quimico.rhol)
