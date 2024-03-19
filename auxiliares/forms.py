@@ -52,11 +52,11 @@ class DetallesConstruccionBombaForm(forms.ModelForm):
 
 class DetallesMotorBombaForm(FormConUnidades):
     def limpiar_campos_unidades(self):
-        self.fields['velocidad_unidad'].empty_label = None
-        self.fields['velocidad_unidad'].queryset = Unidades.objects.filter(simbolo = 'RPM')
+        self.fields['velocidad_motor_unidad'].empty_label = None
+        self.fields['velocidad_motor_unidad'].queryset = Unidades.objects.filter(simbolo = 'RPM')
 
-        self.fields['potencia_unidad'].empty_label = None
-        self.fields['potencia_unidad'].queryset = Unidades.objects.filter(tipo = 'B')
+        self.fields['potencia_motor_unidad'].empty_label = None
+        self.fields['potencia_motor_unidad'].queryset = Unidades.objects.filter(tipo = 'B')
 
         self.fields['voltaje_unidad'].empty_label = None
         self.fields['voltaje_unidad'].queryset = Unidades.objects.filter(tipo = 'X')

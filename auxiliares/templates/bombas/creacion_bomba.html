@@ -296,7 +296,7 @@
 
                     <div class="col-4">
                         <label for="id_tipo">{{form_detalles_construccion.tipo.label_tag}}</label>
-                        {% render_field form_detalles_construccion.tipo class="form-control" %}
+                        {% render_field form_detalles_construccion.tipo class="form-select" %}
                     </div>
                     <div class="col-4">
                         <label for="id_dividida">{{form_detalles_construccion.carcasa_dividida.label_tag}}</label>
@@ -313,11 +313,11 @@
                     </div>
                     <div class="col-4">
                         <label for="id_tipo_carcasa1">{{form_detalles_construccion.tipo_carcasa1.label_tag}}</label>
-                        {% render_field form_detalles_construccion.tipo_carcasa1 class="form-control" %}
+                        {% render_field form_detalles_construccion.tipo_carcasa1 class="form-select" %}
                     </div>
                     <div class="col-4">
                         <label for="id_tipo_carcasa2">{{form_detalles_construccion.tipo_carcasa2.label_tag}}</label>
-                        {% render_field form_detalles_construccion.tipo_carcasa2 class="form-control" disabled="disabled" %}
+                        {% render_field form_detalles_construccion.tipo_carcasa2 class="form-select" disabled="disabled" %}
                     </div>
                 </div>
                 
@@ -327,17 +327,17 @@
 
                 <div class="row">
                     <div class="col-3">
-                        <label for="id_potencia">{{form_detalles_motor.potencia.label_tag}}</label>
+                        <label for="id_potencia">{{form_detalles_motor.potencia_motor.label_tag}}</label>
                         <div class="input-group mb-3">
-                            {% render_field form_detalles_motor.potencia class="form-control" %}
-                            {% render_field form_detalles_motor.potencia_unidad class="form-select" %}
+                            {% render_field form_detalles_motor.potencia_motor class="form-control" %}
+                            {% render_field form_detalles_motor.potencia_motor_unidad class="form-select" %}
                         </div>
                     </div>
                     <div class="col-3">
-                        <label for="id_velocidad">{{form_detalles_motor.velocidad.label_tag}}</label>
+                        <label for="id_velocidad">{{form_detalles_motor.velocidad_motor.label_tag}}</label>
                         <div class="input-group mb-3">
-                            {% render_field form_detalles_motor.velocidad class="form-control" %}
-                            {% render_field form_detalles_motor.velocidad_unidad class="form-select" %}
+                            {% render_field form_detalles_motor.velocidad_motor class="form-control" %}
+                            {% render_field form_detalles_motor.velocidad_motor_unidad class="form-select" %}
                         </div>
                     </div>
                     <div class="col-3">

@@ -87,10 +87,10 @@ class TipoBomba(models.Model):
         return self.nombre.upper()
 
 class DetallesMotorBomba(models.Model):
-    potencia = models.FloatField(null = True, verbose_name = "Potencia del Motor")
-    potencia_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="potencia_unidad_detallesmotor")
-    velocidad = models.FloatField(verbose_name="Velocidad del Motor") # RPM
-    velocidad_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="velocidad_unidad_detallesmotor")
+    potencia_motor = models.FloatField(null = True, verbose_name = "Potencia del Motor")
+    potencia_motor_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="potencia_unidad_detallesmotor")
+    velocidad_motor = models.FloatField(verbose_name="Velocidad del Motor") # RPM
+    velocidad_motor_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="velocidad_unidad_detallesmotor")
     factor_de_servicio = models.FloatField(null = True, verbose_name = "Factor de Servicio")
     posicion = models.CharField(null = True, max_length = 1, choices = MOTOR_POSICIONES, verbose_name="Posición del Motor")
     voltaje = models.FloatField(null=True, verbose_name = "Voltaje del Motor")
