@@ -32,11 +32,11 @@ class Bienvenida(View):
         username = request.POST["email"]
         password = request.POST["password"]
         UserModel = get_user_model()
+        user = None
         try:
             user = UserModel.objects.get(email=username)
         except UserModel.DoesNotExist:
             self.context['errores'] = 'Usuario no encontrado.'
-            return redirect('/')
         else:
             if user.check_password(password):
                 user = user
@@ -48,12 +48,12 @@ class Bienvenida(View):
             if(self.context.get('errores')):
                 del(self.context['errores'])
 
-            return redirect('/')
         elif(user and not user.is_active):
             self.context['errores'] = 'Usuario inactivo.'            
         else:
             self.context['errores'] = 'Datos Incorrectos.'
-            return redirect('/')
+        
+        return redirect('/')
         
 class CerrarSesion(LoginRequiredMixin, View):
     def get(self, request):
