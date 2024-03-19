@@ -16,7 +16,7 @@ class BombaForm(forms.ModelForm):
         model = Bombas
         fields = [
             "tag", "descripcion", "fabricante", "modelo",
-            "planta", "grafica", "tipo_bomba"
+            "planta", "grafica", "tipo_bomba", "creado_por"
         ]
 
 class EspecificacionesBombaForm(FormConUnidades):

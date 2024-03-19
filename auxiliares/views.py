@@ -180,12 +180,31 @@ class CreacionBomba(View, SuperUserRequiredMixin):
         form_condiciones_diseno = CondicionesDisenoBombaForm(request.POST)
         form_condiciones_fluido = CondicionFluidoBombaForm(request.POST)
 
+        valid = True
+
         with transaction.atomic():
-            if(form_bomba.is_valid()):
-                form_bomba.save()
+            valid = valid and form_especificaciones.is_valid()
 
             if(form_especificaciones.is_valid()):
-                form_especificaciones.save()
+                especificaciones = form_especificaciones.save()
+
+            valid = valid and form_detalles_motor.is_valid()
+            
+            if(form_detalles_motor.is_valid()):
+                detalles_motor = form_detalles_motor.save()
+
+            valid = valid and form_condiciones_fluido.is_valid()
+
+            if(form_condiciones_fluido.is_valid()):
+                condiciones_fluido = form_condiciones_fluido.save()
+
+            if(valid):
+                form_condiciones_diseno.instance.condiciones_fluido = condiciones_fluido
+
+                if(form_condiciones_diseno.is_valid()):
+                    condiciones_diseno = form_condiciones_diseno.save()
+
+        
 
 class ObtencionDatosFluidosBomba(View, SuperUserRequiredMixin):
     def get(self, request):
