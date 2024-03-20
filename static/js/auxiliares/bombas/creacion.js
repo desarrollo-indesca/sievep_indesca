@@ -80,6 +80,7 @@ function anadir_listeners_dropboxes() {
     });
     
     $('#guardar-cas').click((e) => {
+        e.preventDefault();
         const compuesto_cas = document.getElementById('nombre_compuesto_cas').value;
         if(compuesto_cas !== '' && compuesto_cas.indexOf('*')){
             $.ajax({
@@ -89,7 +90,7 @@ function anadir_listeners_dropboxes() {
                 }, success: (res) => {
                     const valor = res.id;
                     document.getElementById('id_fluido').innerHTML += `<option value="${valor}" selected>${compuesto_cas.toUpperCase()}</option>`;
-            
+                    document.getElementById('id_calculo_propiedades').innerHTML = `<option value='A'>Automático</option><option value='M'>Manual</option>"`;
                     $('#anadir_fluido_no_registradoClose').click();
                 }, error: (res) => {
                     alert("No se pudo registrar el fluido en la base de datos.");
@@ -114,22 +115,29 @@ function anadir_listeners_dropboxes() {
     });
 
     $('#guardar-desconocido').click((e) => {
-        const valor = `${document.getElementById('nombre_compuesto').value}}`;
-        document.getElementById('id_fluido').innerHTML += `<option value="${valor}" selected>${document.getElementById('nombre_compuesto').value.toUpperCase()}</option>`;
+        e.preventDefault();
+        const valor = `${document.getElementById('nombre_compuesto').value}`;
+        document.getElementById('id_fluido').innerHTML += `<option value selected>${document.getElementById('nombre_compuesto').value.toUpperCase()}</option>`;
 
+        $('#id_nombre_fluido').val(valor);
         document.getElementById('nombre_compuesto').value = '';
+        $('#id_calculo_propiedades').html("<option value='M'>Manual</option>");
+        $('#id_calculo_propiedades').change();
         $('#anadir_fluido_no_registradoClose').click();
     });
 
     $('#id_fluido').change((e) => {
-        if(!isNaN(document.getElementById('id_fluido').value))
+        if(document.getElementById('id_fluido').value !== ''){
+            $('#id_nombre_fluido').val('');
             $('#id_calculo_propiedades').html("<option value='A'>Automático</option><option value='M'>Manual</option>");
+        }
         else{
             $('#id_calculo_propiedades').html("<option value='M'>Manual</option>");
             $('#id_viscosidad').removeAttr('disabled');
             $('#id_presion_vapor').removeAttr('disabled');
             $('#id_densidad').removeAttr('disabled');
             $('button[type=submit]').removeAttr('disabled');
+            $('#id_nombre_fluido').val(e.target.querySelector('option:checked').innerHTML);
         }
     
      });

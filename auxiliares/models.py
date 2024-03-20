@@ -128,11 +128,11 @@ class EspecificacionesBomba(models.Model):
 class CondicionFluidoBomba(models.Model):
     temperatura_operacion = models.FloatField(verbose_name = "Temperatura de Operación*")
     presion_vapor = models.FloatField(null = True, blank = True, verbose_name = "Presión de Vapor")
-    temperatura_presion_vapor = models.FloatField(null = True, blank = True, verbose_name = "Temperatura a la Presión de Vapor")
-    densidad = models.FloatField(null = True)
+    temperatura_presion_vapor = models.FloatField(null = True, verbose_name = "Temperatura a la Presión de Vapor")
+    densidad = models.FloatField(null = True, blank = True)
     densidad_unidad = models.ForeignKey(Unidades, blank = True, on_delete = models.CASCADE, related_name="densidad_unidad_condicionesdisenobomba", null = True)
     temperatura_unidad = models.ForeignKey(Unidades, on_delete = models.CASCADE, related_name="temperatura_unidad_condicionesdisenobomba")
-    viscosidad = models.FloatField(null = True)
+    viscosidad = models.FloatField(null = True, blank = True)
     viscosidad_unidad = models.ForeignKey(Unidades, on_delete = models.CASCADE, related_name="viscosidad_unidad_condicionesdisenobomba")
     corrosividad = models.CharField(max_length = 1, choices = CORROSIVIDAD, verbose_name = "Corrosivo/Erosivo*")
     peligroso = models.CharField(max_length = 1, choices = SI_NO_DESC, verbose_name = "Peligroso*")
@@ -143,7 +143,7 @@ class CondicionFluidoBomba(models.Model):
     nombre_fluido = models.CharField(max_length = 45, null = True, blank = True)
     calculo_propiedades = models.CharField(max_length = 1, default = "M", choices=CALCULO_PROPIEDADES, verbose_name = "Cálculo de Propiedades")
     presion_vapor_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="presion_unidad_condicionesfluido")
-    fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE, verbose_name = "Fluido*")
+    fluido = models.ForeignKey(Fluido, null = True, blank = True, on_delete=models.CASCADE, verbose_name = "Fluido*")
 
     def corrosividad_largo(self):
         return conseguir_largo(CORROSIVIDAD, self.corrosividad)
@@ -222,7 +222,7 @@ class Bombas(models.Model):
     especificaciones_bomba = models.OneToOneField(EspecificacionesBomba, on_delete=models.CASCADE)
     detalles_construccion = models.OneToOneField(DetallesConstruccionBomba, on_delete=models.CASCADE)
     condiciones_diseno = models.OneToOneField(CondicionesDisenoBomba, on_delete=models.CASCADE)
-    grafica = models.ImageField(null = True, blank = True, upload_to=MEDIA_ROOT + 'auxiliares/bombas/', verbose_name = "Gráfica del Equipo")
+    grafica = models.ImageField(null = True, blank = True, upload_to=MEDIA_ROOT + '/auxiliares/bombas/', verbose_name = "Gráfica del Equipo")
 
     instalacion_succion = models.ForeignKey(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_succion")
     instalacion_descarga = models.ForeignKey(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_descarga")

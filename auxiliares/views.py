@@ -172,7 +172,7 @@ class CreacionBomba(View, SuperUserRequiredMixin):
         return render(request, 'bombas/creacion_bomba.html', self.context)
     
     def post(self, request):
-        form_bomba = BombaForm(request.POST)
+        form_bomba = BombaForm(request.POST, request.FILES)
         form_especificaciones = EspecificacionesBombaForm(request.POST)
         form_detalles_motor = DetallesMotorBombaForm(request.POST)
         form_detalles_construccion = DetallesConstruccionBombaForm(request.POST)
@@ -195,12 +195,7 @@ class CreacionBomba(View, SuperUserRequiredMixin):
             if(form_detalles_motor.is_valid()):
                 detalles_motor = form_detalles_motor.save()
 
-            valid = valid and form_condiciones_fluido.is_valid()
-
-            if(form_condiciones_fluido.is_valid()):
-                condiciones_fluido = form_condiciones_fluido.save()
-
-            valid = valid and form_detalles_construccion.is_valid()
+            valid = valid and form_condiciones_fluido.is_valid() and form_detalles_construccion.is_valid()
 
             if(form_detalles_construccion.is_valid()):
                 detalles_construccion = form_detalles_construccion.save()
@@ -208,6 +203,21 @@ class CreacionBomba(View, SuperUserRequiredMixin):
             valid = valid and form_condiciones_diseno.is_valid()
 
             if(valid):
+                if(form_condiciones_fluido.instance.calculo_propiedades == 'A'):
+                    instancia = form_condiciones_fluido.instance
+
+                    propiedades = ObtencionDatosFluidosBomba.calcular_propiedades(None, 
+                        instancia.fluido.pk, instancia.temperatura_operacion, instancia.temperatura_presion_vapor, 
+                        form_condiciones_diseno.instance.presion_succion, instancia.presion_vapor_unidad.pk, 
+                        instancia.viscosidad_unidad.pk, instancia.densidad_unidad.pk if instancia.densidad_unidad else None, 
+                        form_condiciones_diseno.instance.presion_unidad.pk, instancia.temperatura_unidad.pk
+                    )
+
+                    form_condiciones_fluido.instance.densidad = propiedades['densidad']
+                    form_condiciones_fluido.instance.viscosidad = propiedades['viscosidad']
+                    form_condiciones_fluido.instance.presion_vapor = propiedades['presion_vapor']
+
+                condiciones_fluido = form_condiciones_fluido.save()
                 form_condiciones_diseno.instance.condiciones_fluido = condiciones_fluido
 
                 if(form_condiciones_diseno.is_valid()):
@@ -227,8 +237,6 @@ class CreacionBomba(View, SuperUserRequiredMixin):
                 instalacion_succion = EspecificacionesInstalacion.objects.create()
                 instalacion_descarga = EspecificacionesInstalacion.objects.create()
 
-                print(instalacion_succion, instalacion_descarga)
-
                 form_bomba.instance.instalacion_succion = instalacion_succion
                 form_bomba.instance.instalacion_descarga = instalacion_descarga
 
@@ -247,6 +255,24 @@ class CreacionBomba(View, SuperUserRequiredMixin):
             })
         
 class ObtencionDatosFluidosBomba(View, SuperUserRequiredMixin):
+    def calcular_propiedades(self, fluido, temp, temp_presion_vapor, presion_succion, 
+                              unidad_presion_vapor, unidad_viscosidad, unidad_densidad,
+                              unidad_presion, unidad_temperatura) -> dict:
+        
+        temp = transformar_unidades_temperatura([temp], unidad_temperatura)[0]
+        temp_presion_vapor = transformar_unidades_temperatura([temp_presion_vapor], unidad_temperatura)[0]
+        presion_succion = transformar_unidades_presion([presion_succion], unidad_presion)[0]
+
+        cas = Fluido.objects.get(pk = fluido).cas
+
+        propiedades = {
+            'viscosidad': round(transformar_unidades_viscosidad([calcular_viscosidad(cas, temp, presion_succion)], 44, unidad_viscosidad)[0], 6),
+            'densidad': round(transformar_unidades_densidad([calcular_densidad(cas, temp, presion_succion)], 43, unidad_densidad)[0] if unidad_densidad else calcular_densidad_relativa(cas, temp, presion_succion), 4),
+            'presion_vapor': round(transformar_unidades_presion([calcular_presion_vapor(cas, temp_presion_vapor, presion_succion)], 33, unidad_presion_vapor)[0], 4),
+        }
+
+        return propiedades
+
     def get(self, request):
         fluido = int(request.GET.get('fluido'))
 
@@ -255,9 +281,6 @@ class ObtencionDatosFluidosBomba(View, SuperUserRequiredMixin):
         unidad_viscosidad = int(request.GET.get('viscosidad_unidad'))
         unidad_densidad = request.GET.get('densidad_unidad')
 
-        if(unidad_densidad):
-            unidad_densidad = int(unidad_densidad)
-
         unidad_presion_vapor = int(request.GET.get('presion_vapor_unidad'))
         unidad_presion = int(request.GET.get('presion_unidad'))
 
@@ -265,19 +288,15 @@ class ObtencionDatosFluidosBomba(View, SuperUserRequiredMixin):
         temp_presion_vapor = float(request.GET.get('temperatura_presion_vapor'))
         presion_succion = float(request.GET.get('presion_succion'))
 
-        temp = transformar_unidades_temperatura([temp], unidad_temperatura)[0]
-        temp_presion_vapor = transformar_unidades_temperatura([temp_presion_vapor], unidad_temperatura)[0]
-        presion_succion = transformar_unidades_presion([presion_succion], unidad_presion)[0]
+        if(unidad_densidad):
+            unidad_densidad = int(unidad_densidad)
 
-        cas = Fluido.objects.get(pk = fluido).cas
+        propiedades = self.calcular_propiedades(fluido, temp, temp_presion_vapor, 
+                                                presion_succion, unidad_presion_vapor, 
+                                                unidad_viscosidad, unidad_densidad, 
+                                                unidad_presion, unidad_temperatura)
 
-        contexto = {
-            'viscosidad': round(transformar_unidades_viscosidad([calcular_viscosidad(cas, temp, presion_succion)], 44, unidad_viscosidad)[0], 6),
-            'densidad': round(transformar_unidades_densidad([calcular_densidad(cas, temp, presion_succion)], 43, unidad_densidad)[0] if unidad_densidad else calcular_densidad_relativa(cas, temp, presion_succion), 4),
-            'presion_vapor': round(transformar_unidades_presion([calcular_presion_vapor(cas, temp_presion_vapor, presion_succion)], 33, unidad_presion_vapor)[0], 4),
-        }
-
-        return render(request, 'bombas/partials/fluido_bomba.html', contexto)
+        return render(request, 'bombas/partials/fluido_bomba.html', propiedades)
 
 class EdicionBomba(View, SuperUserRequiredMixin):
     def get_context(self, pk):

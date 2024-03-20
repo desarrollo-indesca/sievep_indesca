@@ -43,7 +43,7 @@ class EspecificacionesBombaForm(FormConUnidades):
             "id",
         )
 
-class DetallesConstruccionBombaForm(forms.ModelForm):    
+class DetallesConstruccionBombaForm(forms.ModelForm): 
     class Meta:
         model = DetallesConstruccionBomba
         exclude = (
@@ -103,6 +103,36 @@ class CondicionFluidoBombaForm(FormConUnidades):
         self.fields['concentracion_unidad'].queryset = Unidades.objects.filter(tipo = '%')
 
         self.fields['densidad_unidad'].queryset = Unidades.objects.filter(tipo = 'd')
+
+    def clean_densidad(self):
+        if(self.data.get('densidad') in (None, '') and self.data['calculo_propiedades'] == 'M'):
+            raise forms.ValidationError('Esta propiedad es requerida. Si no la tiene use el cálculo automático.')
+        
+        return self.data.get('densidad')
+    
+    def clean_viscosidad(self):
+        if(self.data.get('viscosidad') in (None, '') and self.data['calculo_propiedades'] == 'M'):
+            raise forms.ValidationError('Esta propiedad es requerida. Si no la tiene use el cálculo automático.')
+        
+        return self.data.get('viscosidad')
+    
+    def clean_presion_vapor(self):
+        if(self.data.get('presion_vapor') in (None, '') and self.data['calculo_propiedades'] == 'M'):
+            raise forms.ValidationError('Esta propiedad es requerida. Si no la tiene use el cálculo automático.')
+        
+        return self.data.get('presion_vapor')
+    
+    def clean_fluido(self):
+        fluido = self.data.get('fluido')
+        if((fluido == None or fluido == '') and self.data.get('nombre_fluido') == '---------'):
+            raise forms.ValidationError('Se debe establecer un fluido para la bomba.')
+        elif(fluido.isnumeric()):
+            return Fluido.objects.get(pk = int(fluido))
+        else:
+            return None
+        
+    def clean_nombre_fluido(self):
+        return self.data.get('nombre_fluido').upper() if not self.clean_fluido() else None 
 
     class Meta:
         model = CondicionFluidoBomba
