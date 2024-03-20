@@ -244,14 +244,16 @@ class CreacionBomba(View, SuperUserRequiredMixin):
 
                 messages.success(request, "La nueva bomba ha sido registrada exitosamente.")
                 return redirect('/auxiliares/bombas/')
-
+            
+            transaction.rollback()
             return render(request, 'bombas/creacion_bomba.html', context={
                 'form_bomba': form_bomba, 
                 'form_especificaciones': form_especificaciones,
                 'form_detalles_construccion': form_detalles_construccion, 
                 'form_detalles_motor': form_detalles_motor,
                 'form_condiciones_diseno': form_condiciones_diseno,
-                'form_condiciones_fluido': form_condiciones_fluido
+                'form_condiciones_fluido': form_condiciones_fluido,
+                'edicion': True
             })
         
 class ObtencionDatosFluidosBomba(View, SuperUserRequiredMixin):
@@ -308,7 +310,8 @@ class EdicionBomba(View, SuperUserRequiredMixin):
         'form_detalles_motor': DetallesMotorBombaForm(instance = bomba.detalles_motor),
         'form_condiciones_diseno': CondicionesDisenoBombaForm(instance = bomba.condiciones_diseno),
         'form_condiciones_fluido': CondicionFluidoBombaForm(instance = bomba.condiciones_diseno.condiciones_fluido),
-        'titulo': f'SIEVEP - Edición de la Bomba {bomba.tag}'
+        'titulo': f'SIEVEP - Edición de la Bomba {bomba.tag}',
+        'edicion': True
     }
 
     def get(self, request, pk):
