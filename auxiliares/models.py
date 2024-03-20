@@ -167,11 +167,11 @@ class CondicionesDisenoBomba(models.Model):
 
 class EspecificacionesInstalacion(models.Model):
     elevacion =  models.FloatField(null = True)
-    elevacion_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="elevacion_unidad_especificacionesinstalacion")
+    elevacion_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="elevacion_unidad_especificacionesinstalacion")
     longitud_tuberia = models.FloatField(null = True)
-    longitud_tuberia_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="longitud_tuberia_unidad_especificacionesinstalacion")
+    longitud_tuberia_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="longitud_tuberia_unidad_especificacionesinstalacion")
     diametro_tuberia = models.FloatField(null = True)
-    diametro_tuberia_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="diametro_tuberia_unidad_especificacionesinstalacion")
+    diametro_tuberia_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="diametro_tuberia_unidad_especificacionesinstalacion")
 
     numero_codos_90 = models.PositiveIntegerField(null = True)
     numero_codos_90_rl = models.PositiveIntegerField(null = True, blank = True, verbose_name="Número de Codos a 90°")

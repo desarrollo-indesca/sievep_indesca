@@ -1,11 +1,12 @@
 from typing import Any
 
 from django.db import transaction
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.views.generic import ListView
 from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.contrib import messages
 
 from usuarios.views import SuperUserRequiredMixin
 from auxiliares.models import *
@@ -174,6 +175,7 @@ class CreacionBomba(View, SuperUserRequiredMixin):
         form_bomba = BombaForm(request.POST)
         form_especificaciones = EspecificacionesBombaForm(request.POST)
         form_detalles_motor = DetallesMotorBombaForm(request.POST)
+        form_detalles_construccion = DetallesConstruccionBombaForm(request.POST)
 
         # Añadir automáticos
 
@@ -198,14 +200,52 @@ class CreacionBomba(View, SuperUserRequiredMixin):
             if(form_condiciones_fluido.is_valid()):
                 condiciones_fluido = form_condiciones_fluido.save()
 
+            valid = valid and form_detalles_construccion.is_valid()
+
+            if(form_detalles_construccion.is_valid()):
+                detalles_construccion = form_detalles_construccion.save()
+
+            valid = valid and form_condiciones_diseno.is_valid()
+
             if(valid):
                 form_condiciones_diseno.instance.condiciones_fluido = condiciones_fluido
 
                 if(form_condiciones_diseno.is_valid()):
                     condiciones_diseno = form_condiciones_diseno.save()
 
-        
+            valid = valid and form_bomba.is_valid()
+            
+            if(valid):
+                form_bomba.instance.creado_por = request.user
+                form_bomba.instance.detalles_motor = detalles_motor
+                form_bomba.instance.especificaciones_bomba = especificaciones
+                form_bomba.instance.condiciones_diseno = condiciones_diseno
+                form_bomba.instance.detalles_motor = detalles_motor
+                form_bomba.instance.detalles_construccion = detalles_construccion
+                form_bomba.instance.condiciones_fluido = condiciones_fluido
 
+                instalacion_succion = EspecificacionesInstalacion.objects.create()
+                instalacion_descarga = EspecificacionesInstalacion.objects.create()
+
+                print(instalacion_succion, instalacion_descarga)
+
+                form_bomba.instance.instalacion_succion = instalacion_succion
+                form_bomba.instance.instalacion_descarga = instalacion_descarga
+
+                form_bomba.save()
+
+                messages.success(request, "La nueva bomba ha sido registrada exitosamente.")
+                return redirect('/auxiliares/bombas/')
+
+            return render(request, 'bombas/creacion_bomba.html', context={
+                'form_bomba': form_bomba, 
+                'form_especificaciones': form_especificaciones,
+                'form_detalles_construccion': form_detalles_construccion, 
+                'form_detalles_motor': form_detalles_motor,
+                'form_condiciones_diseno': form_condiciones_diseno,
+                'form_condiciones_fluido': form_condiciones_fluido
+            })
+        
 class ObtencionDatosFluidosBomba(View, SuperUserRequiredMixin):
     def get(self, request):
         fluido = int(request.GET.get('fluido'))
