@@ -80,7 +80,6 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
         request.session['planta_consulta'] = request.GET.get('planta') if request.GET.get('planta') else ''
         
         return super().get(request, *args, **kwargs)
-    
         
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -137,8 +136,7 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
 
         new_context = new_context.select_related('instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba','detalles_construccion','condiciones_diseno')
         new_context = new_context.prefetch_related(
-            'instalacion_succion__elevacion_unidad', 'instalacion_succion__longitud_tuberia_unidad',
-            'instalacion_succion__diametro_tuberia_unidad', 'condiciones_diseno__capacidad_unidad', 
+            'instalacion_succion__elevacion_unidad', 'condiciones_diseno__capacidad_unidad', 
 
             'condiciones_diseno__presion_unidad', 'condiciones_diseno__npsha_unidad', 
             
@@ -148,7 +146,7 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
 
             'especificaciones_bomba__velocidad_unidad', 'especificaciones_bomba__potencia_unidad',
             'especificaciones_bomba__npshr_unidad', 'especificaciones_bomba__cabezal_unidad',
-            'especificaciones_bomba__id_unidad', 'instalacion_succion__material_tuberia',
+            'especificaciones_bomba__id_unidad',
 
             'detalles_construccion__tipo_carcasa1', 'detalles_construccion__tipo_carcasa2',
             'detalles_construccion__tipo',
@@ -352,3 +350,32 @@ class EdicionBomba(CreacionBomba):
                 'edicion': True,
                 'titulo': self.get_context()['titulo']
             })
+        
+class CreacionInstalacionBomba(View, SuperUserRequiredMixin):
+    def get_context(self):
+        bomba = Bombas.objects.get(pk = self.kwargs['pk'])
+        instalacion_succion = bomba.instalacion_succion
+        instalacion_descarga = bomba.instalacion_descarga
+
+        context = {
+            'bomba': bomba,
+            'forms_instalacion': EspecificacionesInstalacionFormSet(queryset=EspecificacionesInstalacion.objects.filter(pk__in = [instalacion_succion.pk, instalacion_descarga.pk])),
+            'forms_tuberia_succion': TuberiaFormSet(queryset=TuberiaInstalacionBomba.objects.filter(instalacion = instalacion_succion)),
+            'forms_tuberia_descarga': TuberiaFormSet(queryset=TuberiaInstalacionBomba.objects.filter(instalacion = instalacion_descarga))
+        }
+
+        return context
+    
+    def post(self, request, **kwargs):
+        with transaction.atomic():
+            copia = request.POST.copy()
+            formset = EspecificacionesInstalacionFormSet(copia or None)
+
+            for form in formset:
+                print(form.errors)
+                
+            return render(request, 'bombas/creacion_instalacion.html', context={'forms_instalacion': formset}) 
+
+    
+    def get(self, request, **kwargs):
+        return render(request, 'bombas/creacion_instalacion.html', context=self.get_context())

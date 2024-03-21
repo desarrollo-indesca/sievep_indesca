@@ -375,13 +375,8 @@
                     </tr>
                     <tr>
                         <th class="table-dark" colspan="2">Núm. Codos 180°</td>
-                        <td>{{bomba.instalacion_succion.numero_codos_90|default_if_none:'-'}}</td>
-                        <td>{{bomba.instalacion_descarga.numero_codos_90|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-dark" colspan="2">Núm. Codos 90°</td>
-                        <td>{{bomba.instalacion_succion.numero_codos_90|default_if_none:'-'}}</td>
-                        <td>{{bomba.instalacion_descarga.numero_codos_90|default_if_none:'-'}}</td>
+                        <td>{{bomba.instalacion_succion.numero_codos_180|default_if_none:'-'}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_codos_180|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                         <th colspan="2" class="table-dark">
@@ -578,7 +573,7 @@
         <div class="modal-footer">
             <button class="btn btn-secondary" data-bs-target="#ficha_{{bomba.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Datos de Ficha</button>
           {% if request.user.is_superuser %}
-          <a href="#" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+          <a href="{% url 'creacion_instalacion_bomba' pk=bomba.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
           {% endif %}
 
           <a name="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>

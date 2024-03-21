@@ -139,3 +139,17 @@ class CondicionFluidoBombaForm(FormConUnidades):
         exclude = (
             "id",
         )
+
+class EspecificacionesInstalacionForm(FormConUnidades):
+    def limpiar_campos_unidades(self):
+        self.fields['elevacion_unidad'].empty_label = None
+        self.fields['elevacion_unidad'].queryset = Unidades.objects.filter(tipo = 'L')
+
+    class Meta:
+        model = EspecificacionesInstalacion
+        exclude = (
+            "pk",
+        )
+
+EspecificacionesInstalacionFormSet = forms.modelformset_factory(EspecificacionesInstalacion, form=EspecificacionesInstalacionForm, min_num=2, max_num=2)
+TuberiaFormSet = forms.modelformset_factory(TuberiaInstalacionBomba, exclude=["id"], min_num=1)

@@ -168,46 +168,41 @@ class CondicionesDisenoBomba(models.Model):
     condiciones_fluido = models.OneToOneField(CondicionFluidoBomba, on_delete=models.CASCADE)
 
 class EspecificacionesInstalacion(models.Model):
-    elevacion =  models.FloatField(null = True)
+    elevacion =  models.FloatField(null = True, blank = True)
     elevacion_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="elevacion_unidad_especificacionesinstalacion")
-    longitud_tuberia = models.FloatField(null = True)
-    longitud_tuberia_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="longitud_tuberia_unidad_especificacionesinstalacion")
-    diametro_tuberia = models.FloatField(null = True)
-    diametro_tuberia_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="diametro_tuberia_unidad_especificacionesinstalacion")
 
-    numero_codos_90 = models.PositiveIntegerField(null = True)
+    numero_codos_90 = models.PositiveIntegerField(null = True, blank = True)
     numero_codos_90_rl = models.PositiveIntegerField(null = True, blank = True, verbose_name="Número de Codos a 90°")
-    numero_codos_90_ros = models.PositiveIntegerField(null = True)
-    numero_codos_45 = models.PositiveIntegerField(null = True)
-    numero_codos_45_ros = models.PositiveIntegerField(null = True)
-    numero_codos_180 = models.PositiveIntegerField(null = True)
-    conexiones_t_directo = models.PositiveIntegerField(null = True)
-    conexiones_t_ramal = models.PositiveIntegerField(null = True)
-    material_tuberia = models.ForeignKey(MaterialTuberia, on_delete=models.CASCADE, null = True)
+    numero_codos_90_ros = models.PositiveIntegerField(null = True, blank = True)
+    numero_codos_45 = models.PositiveIntegerField(null = True, blank = True)
+    numero_codos_45_ros = models.PositiveIntegerField(null = True, blank = True)
+    numero_codos_180 = models.PositiveIntegerField(null = True, blank = True)
+    conexiones_t_directo = models.PositiveIntegerField(null = True, blank = True)
+    conexiones_t_ramal = models.PositiveIntegerField(null = True, blank = True)
 
     # VÁLVULAS COMPUERTA
-    numero_valvulas_compuerta = models.PositiveIntegerField(null = True)
-    numero_valvulas_compuerta_abierta_3_4 = models.PositiveIntegerField(null = True)
-    numero_valvulas_compuerta_abierta_1_2 = models.PositiveIntegerField(null = True)
-    numero_valvulas_compuerta_abierta_1_4 = models.PositiveIntegerField(null = True)
+    numero_valvulas_compuerta = models.PositiveIntegerField(null = True, blank = True)
+    numero_valvulas_compuerta_abierta_3_4 = models.PositiveIntegerField(null = True, blank = True)
+    numero_valvulas_compuerta_abierta_1_2 = models.PositiveIntegerField(null = True, blank = True)
+    numero_valvulas_compuerta_abierta_1_4 = models.PositiveIntegerField(null = True, blank = True)
 
     # VÁLVULAS MARIPOSA
-    numero_valvulas_mariposa_2_8 = models.PositiveIntegerField(null = True)
-    numero_valvulas_mariposa_10_14 = models.PositiveIntegerField(null = True)
-    numero_valvulas_mariposa_16_24 = models.PositiveIntegerField(null = True)
+    numero_valvulas_mariposa_2_8 = models.PositiveIntegerField(null = True, blank = True)
+    numero_valvulas_mariposa_10_14 = models.PositiveIntegerField(null = True, blank = True)
+    numero_valvulas_mariposa_16_24 = models.PositiveIntegerField(null = True, blank = True)
 
     # VÁLVULAS CHECK
-    numero_valvula_giratoria = models.PositiveIntegerField(null = True)
-    numero_valvula_bola = models.PositiveIntegerField(null = True)
-    numero_valvula_vastago = models.PositiveIntegerField(null = True)
-    numero_valvula_bisagra = models.PositiveIntegerField(null = True)
+    numero_valvula_giratoria = models.PositiveIntegerField(null = True, blank = True)
+    numero_valvula_bola = models.PositiveIntegerField(null = True, blank = True)
+    numero_valvula_vastago = models.PositiveIntegerField(null = True, blank = True)
+    numero_valvula_bisagra = models.PositiveIntegerField(null = True, blank = True)
 
     # ACCESORIOS
-    numero_valvula_globo = models.PositiveIntegerField(null = True)
-    numero_valvula_angulo = models.PositiveIntegerField(null = True)
+    numero_valvula_globo = models.PositiveIntegerField(null = True, blank = True)
+    numero_valvula_angulo = models.PositiveIntegerField(null = True, blank = True)
     
-    numero_contracciones_linea = models.PositiveIntegerField(null = True)
-    numero_expansiones_linea = models.PositiveIntegerField(null = True)
+    numero_contracciones_linea = models.PositiveIntegerField(null = True, blank = True)
+    numero_expansiones_linea = models.PositiveIntegerField(null = True, blank = True)
 
 class Bombas(models.Model):
     tag = models.CharField(max_length = 45, unique = True, verbose_name = "Tag del Equipo*")
@@ -234,6 +229,15 @@ class Bombas(models.Model):
     
     class Meta:
         ordering = ('tag',)
+
+class TuberiaInstalacionBomba(models.Model):
+    instalacion = models.ForeignKey(EspecificacionesInstalacion, on_delete = models.CASCADE)
+    longitud_tuberia = models.FloatField(null = True)
+    longitud_tuberia_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="longitud_tuberia_unidad_especificacionesinstalacion")
+    diametro_tuberia = models.FloatField(null = True)
+    diametro_tuberia_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="diametro_tuberia_unidad_especificacionesinstalacion")
+    numero_tubos = models.PositiveIntegerField(null = True)
+    material_tuberia = models.ForeignKey(MaterialTuberia, on_delete=models.CASCADE, null = True)
 
 # Evaluación de Bombas
 
