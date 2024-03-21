@@ -158,18 +158,19 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
         return new_context
 
 class CreacionBomba(View, SuperUserRequiredMixin):
-    context = {
-        'form_bomba': BombaForm(), 
-        'form_especificaciones': EspecificacionesBombaForm(), 
-        'form_detalles_construccion': DetallesConstruccionBombaForm(), 
-        'form_detalles_motor': DetallesMotorBombaForm(),
-        'form_condiciones_diseno': CondicionesDisenoBombaForm(),
-        'form_condiciones_fluido': CondicionFluidoBombaForm(),
-        'titulo': 'SIEVEP - Creación de Bomba Centrífuga'
-    }
+    def get_context(self):
+        return {
+            'form_bomba': BombaForm(), 
+            'form_especificaciones': EspecificacionesBombaForm(), 
+            'form_detalles_construccion': DetallesConstruccionBombaForm(), 
+            'form_detalles_motor': DetallesMotorBombaForm(),
+            'form_condiciones_diseno': CondicionesDisenoBombaForm(),
+            'form_condiciones_fluido': CondicionFluidoBombaForm(),
+            'titulo': 'SIEVEP - Creación de Bomba Centrífuga'
+        }
 
-    def get(self, request):
-        return render(request, 'bombas/creacion_bomba.html', self.context)
+    def get(self, request, **kwargs):
+        return render(request, 'bombas/creacion_bomba.html', self.get_context())
     
     def almacenar_datos(self, form_bomba, form_detalles_motor, form_condiciones_fluido,
                             form_detalles_construccion, form_condiciones_diseno, 
@@ -261,7 +262,8 @@ class CreacionBomba(View, SuperUserRequiredMixin):
                 'form_detalles_motor': form_detalles_motor,
                 'form_condiciones_diseno': form_condiciones_diseno,
                 'form_condiciones_fluido': form_condiciones_fluido,
-                'edicion': True
+                'edicion': True,
+                'titulo': self.get_context()['titulo']
             })
         
 class ObtencionDatosFluidosBomba(View, SuperUserRequiredMixin):
@@ -308,19 +310,45 @@ class ObtencionDatosFluidosBomba(View, SuperUserRequiredMixin):
 
         return render(request, 'bombas/partials/fluido_bomba.html', propiedades)
 
-class EdicionBomba(View, SuperUserRequiredMixin):
-    def get_context(self, pk):
-        bomba = Bombas.objects.get(pk = pk)
+class EdicionBomba(CreacionBomba):
+    def get_context(self):
+        bomba = self.get_bomba()
         return {
-        'form_bomba': BombaForm(instance = bomba), 
-        'form_especificaciones': EspecificacionesBombaForm(instance = bomba.especificaciones_bomba), 
-        'form_detalles_construccion': DetallesConstruccionBombaForm(instance = bomba.detalles_construccion), 
-        'form_detalles_motor': DetallesMotorBombaForm(instance = bomba.detalles_motor),
-        'form_condiciones_diseno': CondicionesDisenoBombaForm(instance = bomba.condiciones_diseno),
-        'form_condiciones_fluido': CondicionFluidoBombaForm(instance = bomba.condiciones_diseno.condiciones_fluido),
-        'titulo': f'SIEVEP - Edición de la Bomba {bomba.tag}',
-        'edicion': True
-    }
+            'form_bomba': BombaForm(instance = bomba), 
+            'form_especificaciones': EspecificacionesBombaForm(instance = bomba.especificaciones_bomba), 
+            'form_detalles_construccion': DetallesConstruccionBombaForm(instance = bomba.detalles_construccion), 
+            'form_detalles_motor': DetallesMotorBombaForm(instance = bomba.detalles_motor),
+            'form_condiciones_diseno': CondicionesDisenoBombaForm(instance = bomba.condiciones_diseno),
+            'form_condiciones_fluido': CondicionFluidoBombaForm(instance = bomba.condiciones_diseno.condiciones_fluido),
+            'titulo': f'SIEVEP - Edición de la Bomba {bomba.tag}',
+            'edicion': True
+        }
+    
+    def get_bomba(self):
+        return Bombas.objects.get(pk = self.kwargs['pk'])
+    
+    def post(self, request, pk):
+        bomba = self.get_bomba()
 
-    def get(self, request, pk):
-        return render(request, 'bombas/creacion_bomba.html', self.get_context(pk))
+        form_bomba = BombaForm(request.POST, request.FILES ,instance=bomba)
+        form_especificaciones = EspecificacionesBombaForm(request.POST, instance = bomba.especificaciones_bomba)
+        form_detalles_motor = DetallesMotorBombaForm(request.POST, instance = bomba.detalles_motor)
+        form_detalles_construccion = DetallesConstruccionBombaForm(request.POST, instance = bomba.detalles_construccion)
+
+        form_condiciones_diseno = CondicionesDisenoBombaForm(request.POST, instance = bomba.condiciones_diseno)
+        form_condiciones_fluido = CondicionFluidoBombaForm(request.POST, instance = bomba.condiciones_diseno.condiciones_fluido)
+
+        try:
+            return self.almacenar_datos(form_bomba, form_detalles_motor, form_condiciones_fluido,
+                                form_detalles_construccion, form_condiciones_diseno, form_especificaciones)
+        except Exception as e:
+            return render(request, 'bombas/creacion_bomba.html', context={
+                'form_bomba': form_bomba, 
+                'form_especificaciones': form_especificaciones,
+                'form_detalles_construccion': form_detalles_construccion, 
+                'form_detalles_motor': form_detalles_motor,
+                'form_condiciones_diseno': form_condiciones_diseno,
+                'form_condiciones_fluido': form_condiciones_fluido,
+                'edicion': True,
+                'titulo': self.get_context()['titulo']
+            })
