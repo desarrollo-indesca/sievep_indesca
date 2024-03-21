@@ -235,12 +235,12 @@ class Bombas(models.Model):
 
 class TuberiaInstalacionBomba(models.Model):
     instalacion = models.ForeignKey(EspecificacionesInstalacion, on_delete = models.CASCADE, related_name="tuberias")
-    longitud_tuberia = models.FloatField()
+    longitud_tuberia = models.FloatField(verbose_name="Longitud")
     longitud_tuberia_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="longitud_tuberia_unidad_especificacionesinstalacion")
-    diametro_tuberia = models.FloatField()
+    diametro_tuberia = models.FloatField(verbose_name="Diámetro")
     diametro_tuberia_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="diametro_tuberia_unidad_especificacionesinstalacion")
-    numero_tubos = models.PositiveIntegerField()
-    material_tuberia = models.ForeignKey(MaterialTuberia, on_delete=models.CASCADE)
+    numero_tubos = models.PositiveIntegerField(verbose_name="# Tubos")
+    material_tuberia = models.ForeignKey(MaterialTuberia, on_delete=models.CASCADE, verbose_name="Material")
 
 # Evaluación de Bombas
 
