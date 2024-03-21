@@ -171,81 +171,89 @@ class CreacionBomba(View, SuperUserRequiredMixin):
     def get(self, request):
         return render(request, 'bombas/creacion_bomba.html', self.context)
     
+    def almacenar_datos(self, form_bomba, form_detalles_motor, form_condiciones_fluido,
+                            form_detalles_construccion, form_condiciones_diseno, 
+                            form_especificaciones):
+        
+        valid = True
+        
+        with transaction.atomic():
+                valid = valid and form_especificaciones.is_valid()
+
+                if(form_especificaciones.is_valid()):
+                    especificaciones = form_especificaciones.save()
+
+                valid = valid and form_detalles_motor.is_valid()
+                
+                if(form_detalles_motor.is_valid()):
+                    detalles_motor = form_detalles_motor.save()
+
+                valid = valid and form_condiciones_fluido.is_valid() and form_detalles_construccion.is_valid()
+
+                if(form_detalles_construccion.is_valid()):
+                    detalles_construccion = form_detalles_construccion.save()
+
+                valid = valid and form_condiciones_diseno.is_valid()
+
+                if(valid):
+                    if(form_condiciones_fluido.instance.calculo_propiedades == 'A'):
+                        instancia = form_condiciones_fluido.instance
+
+                        propiedades = ObtencionDatosFluidosBomba.calcular_propiedades(None, 
+                            instancia.fluido.pk, instancia.temperatura_operacion, instancia.temperatura_presion_vapor, 
+                            form_condiciones_diseno.instance.presion_succion, instancia.presion_vapor_unidad.pk, 
+                            instancia.viscosidad_unidad.pk, instancia.densidad_unidad.pk if instancia.densidad_unidad else None, 
+                            form_condiciones_diseno.instance.presion_unidad.pk, instancia.temperatura_unidad.pk
+                        )
+
+                        form_condiciones_fluido.instance.densidad = propiedades['densidad']
+                        form_condiciones_fluido.instance.viscosidad = propiedades['viscosidad']
+                        form_condiciones_fluido.instance.presion_vapor = propiedades['presion_vapor']
+
+                    condiciones_fluido = form_condiciones_fluido.save()
+                    form_condiciones_diseno.instance.condiciones_fluido = condiciones_fluido
+
+                    if(form_condiciones_diseno.is_valid()):
+                        condiciones_diseno = form_condiciones_diseno.save()
+
+                valid = valid and form_bomba.is_valid()
+                
+                if(valid):
+                    form_bomba.instance.creado_por = self.request.user
+                    form_bomba.instance.detalles_motor = detalles_motor
+                    form_bomba.instance.especificaciones_bomba = especificaciones
+                    form_bomba.instance.condiciones_diseno = condiciones_diseno
+                    form_bomba.instance.detalles_motor = detalles_motor
+                    form_bomba.instance.detalles_construccion = detalles_construccion
+                    form_bomba.instance.condiciones_fluido = condiciones_fluido
+
+                    instalacion_succion = EspecificacionesInstalacion.objects.create()
+                    instalacion_descarga = EspecificacionesInstalacion.objects.create()
+
+                    form_bomba.instance.instalacion_succion = instalacion_succion
+                    form_bomba.instance.instalacion_descarga = instalacion_descarga
+
+                    form_bomba.save()
+
+                    messages.success(self.request, "La nueva bomba ha sido registrada exitosamente.")
+                    return redirect('/auxiliares/bombas/')
+                else:
+                    raise Exception("Ocurrió un error")
+    
     def post(self, request):
         form_bomba = BombaForm(request.POST, request.FILES)
         form_especificaciones = EspecificacionesBombaForm(request.POST)
         form_detalles_motor = DetallesMotorBombaForm(request.POST)
         form_detalles_construccion = DetallesConstruccionBombaForm(request.POST)
 
-        # Añadir automáticos
-
         form_condiciones_diseno = CondicionesDisenoBombaForm(request.POST)
         form_condiciones_fluido = CondicionFluidoBombaForm(request.POST)
 
-        valid = True
-
-        with transaction.atomic():
-            valid = valid and form_especificaciones.is_valid()
-
-            if(form_especificaciones.is_valid()):
-                especificaciones = form_especificaciones.save()
-
-            valid = valid and form_detalles_motor.is_valid()
-            
-            if(form_detalles_motor.is_valid()):
-                detalles_motor = form_detalles_motor.save()
-
-            valid = valid and form_condiciones_fluido.is_valid() and form_detalles_construccion.is_valid()
-
-            if(form_detalles_construccion.is_valid()):
-                detalles_construccion = form_detalles_construccion.save()
-
-            valid = valid and form_condiciones_diseno.is_valid()
-
-            if(valid):
-                if(form_condiciones_fluido.instance.calculo_propiedades == 'A'):
-                    instancia = form_condiciones_fluido.instance
-
-                    propiedades = ObtencionDatosFluidosBomba.calcular_propiedades(None, 
-                        instancia.fluido.pk, instancia.temperatura_operacion, instancia.temperatura_presion_vapor, 
-                        form_condiciones_diseno.instance.presion_succion, instancia.presion_vapor_unidad.pk, 
-                        instancia.viscosidad_unidad.pk, instancia.densidad_unidad.pk if instancia.densidad_unidad else None, 
-                        form_condiciones_diseno.instance.presion_unidad.pk, instancia.temperatura_unidad.pk
-                    )
-
-                    form_condiciones_fluido.instance.densidad = propiedades['densidad']
-                    form_condiciones_fluido.instance.viscosidad = propiedades['viscosidad']
-                    form_condiciones_fluido.instance.presion_vapor = propiedades['presion_vapor']
-
-                condiciones_fluido = form_condiciones_fluido.save()
-                form_condiciones_diseno.instance.condiciones_fluido = condiciones_fluido
-
-                if(form_condiciones_diseno.is_valid()):
-                    condiciones_diseno = form_condiciones_diseno.save()
-
-            valid = valid and form_bomba.is_valid()
-            
-            if(valid):
-                form_bomba.instance.creado_por = request.user
-                form_bomba.instance.detalles_motor = detalles_motor
-                form_bomba.instance.especificaciones_bomba = especificaciones
-                form_bomba.instance.condiciones_diseno = condiciones_diseno
-                form_bomba.instance.detalles_motor = detalles_motor
-                form_bomba.instance.detalles_construccion = detalles_construccion
-                form_bomba.instance.condiciones_fluido = condiciones_fluido
-
-                instalacion_succion = EspecificacionesInstalacion.objects.create()
-                instalacion_descarga = EspecificacionesInstalacion.objects.create()
-
-                form_bomba.instance.instalacion_succion = instalacion_succion
-                form_bomba.instance.instalacion_descarga = instalacion_descarga
-
-                form_bomba.save()
-
-                messages.success(request, "La nueva bomba ha sido registrada exitosamente.")
-                return redirect('/auxiliares/bombas/')
-            
-            transaction.rollback()
+        try:
+            return self.almacenar_datos(form_bomba, form_detalles_motor, form_condiciones_fluido,
+                                form_detalles_construccion, form_condiciones_diseno, form_especificaciones)
+        except Exception as e:
+            print(str(e))       
             return render(request, 'bombas/creacion_bomba.html', context={
                 'form_bomba': form_bomba, 
                 'form_especificaciones': form_especificaciones,

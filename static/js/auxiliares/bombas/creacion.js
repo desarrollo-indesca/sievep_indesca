@@ -158,7 +158,8 @@ const anadir_listeners_htmx = () => {
                 $('#id_presion_vapor').removeAttr('disabled');
                 $('#id_densidad').removeAttr('disabled');
             }            
-        }
+        }  else
+            $('button[type=submit]').attr('disabled', 'disabled');
     });
 
     document.body.addEventListener('htmx:afterRequest', function(evt) {

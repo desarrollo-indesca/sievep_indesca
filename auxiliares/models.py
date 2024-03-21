@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
+
 from intercambiadores.models import Fluido, Planta, Unidades
 from calculos.utils import conseguir_largo
 from simulaciones_pequiven.settings import MEDIA_ROOT
@@ -67,9 +69,9 @@ class TipoBombaConstruccion(models.Model):
 
 class DetallesConstruccionBomba(models.Model):
     conexion_succion = models.PositiveIntegerField(null = True, blank = True, verbose_name = "Conexión de Succión")
-    tamano_rating_succion = models.FloatField(null = True, blank = True, verbose_name = "Tamaño Rating (Succión)")
+    tamano_rating_succion = models.FloatField(validators=[MinValueValidator(0.0)], null = True, blank = True, verbose_name = "Tamaño Rating (Succión)")
     conexion_descarga = models.PositiveIntegerField(null = True, blank = True, verbose_name = "Conexión de Descarga")
-    tamano_rating_descarga = models.FloatField(null = True, blank = True, verbose_name = "Tamaño Rating (Descarga)")
+    tamano_rating_descarga = models.FloatField(validators=[MinValueValidator(0.0)], null = True, blank = True, verbose_name = "Tamaño Rating (Descarga)")
     carcasa_dividida = models.CharField(max_length = 1, null = True, blank = True, choices = CARCASA_DIVIDIDA, verbose_name = "Carcasa Dividida")
     modelo_construccion = models.CharField(max_length = 45, null = True, blank = True, verbose_name = "Modelo de Construcción")
     fabricante_sello = models.CharField(max_length = 45, null = True, blank = True, verbose_name = "Fabricante de Sello")
