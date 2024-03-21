@@ -4,7 +4,9 @@
 
 {% block contenido %}
 <form method="post">
-   
+    {{forms_instalacion.management_form}}   
+    {{forms_tuberia_descarga.management_form}}   
+    {{forms_tuberia_succion.management_form}}   
     {% for field in forms_instalacion.hidden_fields %}
         {{ field }}
     {% endfor %}
@@ -19,6 +21,7 @@
 
     <div class="row">
         {% for form_instalacion in forms_instalacion.forms %}
+        {{ form_instalacion.id }}
         <div class="col-6  {% if forloop.counter == 1 %}border-end border-dark{% endif %}">
             <div class="row">
                 <div class="col-12">
@@ -195,6 +198,9 @@
                     <h3 class="text-center">Tuberías</h3>
                     {% if forloop.counter == 1 %}
                     {% for form in forms_tuberia_succion %}
+                    {% for field in form.hidden_fields %}
+                        {{ field }}
+                    {% endfor %}
                     <div class="row">
                         <div class="col-3">
                             <label>{{form.longitud_tuberia.label_tag}}</label>
@@ -233,6 +239,9 @@
                     {% endfor %}
                     {% else %}
                         {% for form in forms_tuberia_descarga %}
+                        {% for field in form.hidden_fields %}
+                            {{ field }}
+                        {% endfor %}
                         <div class="row p-0">
                             <div class="col-3">
                                 <label>{{form.longitud_tuberia.label_tag}}</label>

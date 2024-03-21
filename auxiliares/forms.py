@@ -151,5 +151,21 @@ class EspecificacionesInstalacionForm(FormConUnidades):
             "pk",
         )
 
+class TuberiaInstalacionBombaForm(FormConUnidades):
+    def limpiar_campos_unidades(self):
+        self.fields['diametro_tuberia_unidad'].empty_label = None
+        self.fields['diametro_tuberia_unidad'].queryset = Unidades.objects.filter(tipo = 'L')
+
+        self.fields['longitud_tuberia_unidad'].empty_label = None
+        self.fields['longitud_tuberia_unidad'].queryset = Unidades.objects.filter(tipo = 'L')
+
+    class Meta:
+        model = TuberiaInstalacionBomba
+        exclude = (
+            "pk",
+            "instalacion",
+            "usuario"
+        )
+
 EspecificacionesInstalacionFormSet = forms.modelformset_factory(EspecificacionesInstalacion, form=EspecificacionesInstalacionForm, min_num=2, max_num=2)
-TuberiaFormSet = forms.modelformset_factory(TuberiaInstalacionBomba, exclude=["id"], min_num=1)
+TuberiaFormSet = forms.modelformset_factory(TuberiaInstalacionBomba, form=TuberiaInstalacionBombaForm, min_num=1, extra=0)

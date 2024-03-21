@@ -564,7 +564,68 @@
                         <td>{{bomba.instalacion_succion.conexiones_t_ramal|default_if_none:'-'}}</td>
                         <td>{{bomba.instalacion_descarga.conexiones_t_ramal|default_if_none:'-'}}</td>
                     </tr>
-                  </tbody>
+                        <tr>
+                            <th class="table-dark text-center" colspan="4">Tuberías del lado de Succión</th>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Longitud</th>
+                            <th class="table-dark text-center">Diámetro</th>
+                            <th class="table-dark text-center"># Tubos</th>
+                            <th class="table-dark text-center">Material</th>
+                        </tr>
+                        {% for tuberia in bomba.instalacion_succion.tuberias.all %}
+                        <tr>
+                            <td>
+                                {{tuberia.longitud_tuberia}} {{tuberia.longitud_tuberia_unidad}}
+                            </td>
+                            <td>
+                                {{tuberia.diametro_tuberia}} {{tuberia.diametro_tuberia_unidad}}
+                            </td>
+                            <td>
+                                {{tuberia.numero_tubos}}
+                            </td>
+                            <td>
+                                {{tuberia.material_tuberia}}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">No hay registradas.</td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <th class="table-dark text-center" colspan="4">Tuberías del lado de Descarga</th>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Longitud</th>
+                            <th class="table-dark text-center">Diámetro</th>
+                            <th class="table-dark text-center"># Tubos</th>
+                            <th class="table-dark text-center">Material</th>
+                        </tr>
+                        {% for tuberia in bomba.instalacion_descarga.tuberias.all %}
+                        <tr>
+                            <td>
+                                {{tuberia.longitud_tuberia}} {{tuberia.longitud_tuberia_unidad}}
+                            </td>
+                            <td>
+                                {{tuberia.diametro_tuberia}} {{tuberia.diametro_tuberia_unidad}}
+                            </td>
+                            <td>
+                                {{tuberia.numero_tubos}}
+                            </td>
+                            <td>
+                                {{tuberia.material_tuberia}}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">No hay registradas.</td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td colspan="4">Datos de Instalación modificados por última vez el {{bomba.instalacion_succion.fecha}} por.</td>
+                        </tr>
+                    </tbody>
                 </table>
               </div>
             </div>

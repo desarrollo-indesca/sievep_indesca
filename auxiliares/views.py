@@ -352,28 +352,78 @@ class EdicionBomba(CreacionBomba):
             })
         
 class CreacionInstalacionBomba(View, SuperUserRequiredMixin):
+    PREFIJO_INSTALACIONES = "formset-instalaciones"
+    PREFIJO_TUBERIAS_SUCCION = "formset-succion"
+    PREFIJO_TUBERIAS_DESCARGA = "formset-descarga"
+
+    def get_bomba(self):
+        return Bombas.objects.get(pk = self.kwargs['pk'])
+
     def get_context(self):
-        bomba = Bombas.objects.get(pk = self.kwargs['pk'])
+        bomba = self.get_bomba()
         instalacion_succion = bomba.instalacion_succion
         instalacion_descarga = bomba.instalacion_descarga
 
         context = {
             'bomba': bomba,
-            'forms_instalacion': EspecificacionesInstalacionFormSet(queryset=EspecificacionesInstalacion.objects.filter(pk__in = [instalacion_succion.pk, instalacion_descarga.pk])),
-            'forms_tuberia_succion': TuberiaFormSet(queryset=TuberiaInstalacionBomba.objects.filter(instalacion = instalacion_succion)),
-            'forms_tuberia_descarga': TuberiaFormSet(queryset=TuberiaInstalacionBomba.objects.filter(instalacion = instalacion_descarga))
+            'forms_instalacion': EspecificacionesInstalacionFormSet(queryset=EspecificacionesInstalacion.objects.filter(pk__in = [instalacion_succion.pk, instalacion_descarga.pk]), prefix = self.PREFIJO_INSTALACIONES),
+            'forms_tuberia_succion': TuberiaFormSet(queryset=instalacion_succion.tuberias.all(), prefix=self.PREFIJO_TUBERIAS_SUCCION),
+            'forms_tuberia_descarga': TuberiaFormSet(queryset=instalacion_descarga.tuberias.all(), prefix=self.PREFIJO_TUBERIAS_DESCARGA)
         }
 
         return context
     
     def post(self, request, **kwargs):
-        with transaction.atomic():
-            copia = request.POST.copy()
-            formset = EspecificacionesInstalacionFormSet(copia or None)
+        bomba = self.get_bomba()
 
-            for form in formset:
-                print(form.errors)
+        try:
+            with transaction.atomic():
+                formset = EspecificacionesInstalacionFormSet(request.POST or None, prefix=self.PREFIJO_INSTALACIONES)
+
+                if(formset.is_valid()):
+                    succion = formset.forms[0]
+                    succion.instance.usuario = request.user
+                    descarga = formset.forms[1]
+                    descarga.instance.usuario = request.user
+
+                    bomba.instalacion_succion = succion
+                    bomba.instalacion_descarga = descarga
+                    bomba.save()
+                else:
+                    raise Exception("Ocurrió un error al validar los datos de instalación.")
                 
+                formset = TuberiaFormSet(request.POST or None, prefix=self.PREFIJO_TUBERIAS_SUCCION)
+                fallos = 0
+
+                if(formset.is_valid()):
+                    for form in formset:
+                        if(form.is_valid()):
+                            print("guardando")
+                            form.instance.instalacion = succion
+                            form.save()
+                        else:
+                            fallos += 1
+
+                formset = TuberiaFormSet(request.POST or None, prefix=self.PREFIJO_TUBERIAS_DESCARGA)
+
+                if(formset.is_valid()):
+                    for form in formset:
+                        if(form.is_valid()):
+                            print("guardando des")
+                            form.instance.instalacion = descarga
+                            form.save()
+                        else:
+                            fallos += 1
+
+                if(fallos > 0):                
+                    messages.success(request, "Se han actualizado los datos de instalación exitosamente.")
+                else:
+                    messages.warning(request, f"Se actualizaron los datos de instalación exitosamente. Sin embargo, {fallos} tubería(s) no pudieron ser añadidas.")
+                
+                return redirect('/auxiliares/bombas/')    
+                      
+        except Exception as e:
+            print(str(e))        
             return render(request, 'bombas/creacion_instalacion.html', context={'forms_instalacion': formset}) 
 
     
