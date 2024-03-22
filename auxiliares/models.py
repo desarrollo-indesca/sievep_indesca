@@ -172,13 +172,13 @@ class EspecificacionesInstalacion(models.Model):
     elevacion_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="elevacion_unidad_especificacionesinstalacion")
 
     numero_codos_90 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos a 90°")
-    numero_codos_90_rl = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos a 90° Radio Largo")
-    numero_codos_90_ros = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos Roscados a 90°")
+    numero_codos_90_rl = models.PositiveIntegerField(null = True, blank = True, verbose_name="Codos 90° Radio Largo")
+    numero_codos_90_ros = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos Rosc. 90°")
     numero_codos_45 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos a 45")
-    numero_codos_45_ros = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Codos Roscados a 45°")
+    numero_codos_45_ros = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos Rosc. 45°")
     numero_codos_180 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Codos a 180°")
     conexiones_t_directo = models.PositiveIntegerField(null = True, blank = True, verbose_name="Conexiones T Flujo Directo")
-    conexiones_t_ramal = models.PositiveIntegerField(null = True, blank = True, verbose_name="Conexiones T Flujo Ramal°")
+    conexiones_t_ramal = models.PositiveIntegerField(null = True, blank = True, verbose_name="Conexiones T Flujo Ramal")
 
     # VÁLVULAS COMPUERTA
     numero_valvulas_compuerta = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. de Compuerta")

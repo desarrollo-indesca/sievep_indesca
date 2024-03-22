@@ -42,33 +42,33 @@
                     <h3 class="text-center">Codos</h3>
                 </div>
                 
-                <div class="col-4">
+                <div class="col-6">
                     <label for="id_numero_codos_90">{{form_instalacion.numero_codos_90.label_tag}}</label>
                     {% render_field form_instalacion.numero_codos_90 min="0" class="form-control" %}
                     <small>{{form_instalacion.numero_codos_90.errors}}</small>
                 </div>
-                <div class="col-4">
+                <div class="col-6">
                     <label for="id_numero_codos_90_rl">{{form_instalacion.numero_codos_90_rl.label_tag}}</label>
                     {% render_field form_instalacion.numero_codos_90_rl min="0" class="form-control" %}
                     <small>{{form_instalacion.numero_codos_90_rl.errors}}</small>
                 </div>
-                <div class="col-4">
+                <div class="col-6">
                     <label for="id_numero_codos_90_ros">{{form_instalacion.numero_codos_90_ros.label_tag}}</label>
                     {% render_field form_instalacion.numero_codos_90_ros min="0" class="form-control" %}
                     <small>{{form_instalacion.numero_codos_90_ros.errors}}</small>
                 </div>
 
-                <div class="col-4">
+                <div class="col-6">
                     <label for="id_numero_codos_45">{{form_instalacion.numero_codos_45.label_tag}}</label>
                     {% render_field form_instalacion.numero_codos_45 min="0" class="form-control" %}
                     <small>{{form_instalacion.numero_codos_45.errors}}</small>
                 </div>
-                <div class="col-4">
+                <div class="col-6">
                     <label for="id_numero_codos_45_ros">{{form_instalacion.numero_codos_45_ros.label_tag}}</label>
                     {% render_field form_instalacion.numero_codos_45_ros min="0" class="form-control" %}
                     <small>{{form_instalacion.numero_codos_45_ros.errors}}</small>
                 </div>
-                <div class="col-4">
+                <div class="col-6">
                     <label for="id_numero_codos_180">{{form_instalacion.numero_codos_180.label_tag}}</label>
                     {% render_field form_instalacion.numero_codos_180 min="0" class="form-control" %}
                     <small>{{form_instalacion.numero_codos_180.errors}}</small>
@@ -193,7 +193,7 @@
                     <small>{{form_instalacion.conexiones_t_ramal.errors}}</small>
                 </div>
 
-                <div class="col-12">
+                <div class="col-12" id="{% if forloop.counter == 1 %}forms-succion{% else %}forms-descarga{% endif %}">
                     <hr>
                     <h3 class="text-center">Tuberías</h3>
                     {% if forloop.counter == 1 %}
@@ -201,7 +201,7 @@
                     {% for field in form.hidden_fields %}
                         {{ field }}
                     {% endfor %}
-                    <div class="row">
+                    <div class="row succion-form">
                         <div class="col-3">
                             <label>{{form.longitud_tuberia.label_tag}}</label>
                             <div class="input-group mb-1">
@@ -230,10 +230,10 @@
                         </div>
                         <div class="col-1 fs-5 d-flex align-items-end">
                             {% if forloop.last %}
-                                <a class="w-100 h-75 d-flex justify-content-center align-items-center btn btn-success">+</a>
-                                {% else %}
-                                <a class="w-100 h-75 d-flex justify-content-center align-items-center btn btn-danger">-</a>
-                                {% endif %}
+                                <a class="w-100 h-75 d-flex justify-content-center align-items-center btn btn-success anadir">+</a>
+                            {% else %}
+                                <a class="w-100 h-75 d-flex justify-content-center align-items-center btn btn-danger eliminar">-</a>
+                            {% endif %}
                         </div>
                     </div>
                     {% endfor %}
@@ -242,7 +242,7 @@
                         {% for field in form.hidden_fields %}
                             {{ field }}
                         {% endfor %}
-                        <div class="row p-0">
+                        <div class="row p-0 descarga-form">
                             <div class="col-3">
                                 <label>{{form.longitud_tuberia.label_tag}}</label>
                                 <div class="input-group mb-1">
@@ -271,9 +271,9 @@
                             </div>
                             <div class="col-1 fs-5 d-flex align-items-end">
                                 {% if forloop.last %}
-                                <a class="w-100 h-75 d-flex justify-content-center align-items-center btn btn-success">+</a>
+                                <a class="w-100 h-75 d-flex justify-content-center align-items-center btn btn-success anadir">+</a>
                                 {% else %}
-                                <a class="w-100 h-75 d-flex justify-content-center align-items-center btn btn-danger">-</a>
+                                <a class="w-100 h-75 d-flex justify-content-center align-items-center btn btn-danger eliminar">-</a>
                                 {% endif %}
                             </div>
                         </div>
@@ -293,5 +293,5 @@
 {% endblock %}
 
 {% block extra_javascript %}
-
+<script src="/static/js/auxiliares/bombas/instalacion.js"></script>
 {% endblock %}

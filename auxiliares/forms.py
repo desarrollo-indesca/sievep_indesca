@@ -149,6 +149,7 @@ class EspecificacionesInstalacionForm(FormConUnidades):
         model = EspecificacionesInstalacion
         exclude = (
             "pk",
+            "usuario"
         )
 
 class TuberiaInstalacionBombaForm(FormConUnidades):
@@ -163,8 +164,7 @@ class TuberiaInstalacionBombaForm(FormConUnidades):
         model = TuberiaInstalacionBomba
         exclude = (
             "pk",
-            "instalacion",
-            "usuario"
+            "instalacion"
         )
 
 EspecificacionesInstalacionFormSet = forms.modelformset_factory(EspecificacionesInstalacion, form=EspecificacionesInstalacionForm, min_num=2, max_num=2)
