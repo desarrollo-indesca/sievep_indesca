@@ -205,7 +205,7 @@
                         <div class="col-3">
                             <label>{{form.longitud_tuberia.label_tag}}</label>
                             <div class="input-group mb-1">
-                                {% render_field form.longitud_tuberia min="0.0001" class="form-control" %}
+                                {% render_field form.longitud_tuberia min="0" class="form-control" %}
                                 {% render_field form.longitud_tuberia_unidad class="form-select" style="width: 30% !important;" %}
                             </div>
                             <small>{{form.longitud_tuberia.errors}}</small>
@@ -213,7 +213,7 @@
                         <div class="col-3">
                             <label>{{form.diametro_tuberia.label_tag}}</label>
                             <div class="input-group mb-1">
-                                {% render_field form.diametro_tuberia min="0.0001" class="form-control" %}
+                                {% render_field form.diametro_tuberia min="0" class="form-control" %}
                                 {% render_field form.diametro_tuberia_unidad class="form-select" style="width: 30% !important;" %}
                             </div>
                             <small>{{form.diametro_tuberia.errors}}</small>
@@ -246,7 +246,7 @@
                             <div class="col-3">
                                 <label>{{form.longitud_tuberia.label_tag}}</label>
                                 <div class="input-group mb-1">
-                                    {% render_field form.longitud_tuberia min="0.0001" class="form-control" %}
+                                    {% render_field form.longitud_tuberia min="0" class="form-control" %}
                                     {% render_field form.longitud_tuberia_unidad class="form-select" style="width: 30% !important;" %}
                                 </div>
                                 <small>{{form.longitud_tuberia.errors}}</small>
@@ -254,7 +254,7 @@
                             <div class="col-3">
                                 <label>{{form.diametro_tuberia.label_tag}}</label>
                                 <div class="input-group mb-1">
-                                    {% render_field form.diametro_tuberia min="0.0001" class="form-control" %}
+                                    {% render_field form.diametro_tuberia min="0" class="form-control" %}
                                     {% render_field form.diametro_tuberia_unidad class="form-select" style="width: 30% !important;" %}
                                 </div>
                                 <small>{{form.diametro_tuberia.errors}}</small>
@@ -266,7 +266,7 @@
                             </div>
                             <div class="col-3">
                                 <label>{{form.material_tuberia.label_tag}}</label>
-                                {% render_field form.material_tuberia min="0" class="form-control" %}
+                                {% render_field form.material_tuberia class="form-control" %}
                                 <small>{{form.material_tuberia.errors}}</small>
                             </div>
                             <div class="col-1 fs-5 d-flex align-items-end">

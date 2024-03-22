@@ -58,3 +58,4 @@ const anadir = e => {
     totalForms.setAttribute('value', `${formNum+1}`);
 };
 
+cargarEventListeners();
