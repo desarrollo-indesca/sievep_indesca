@@ -43,7 +43,7 @@
                                         {% endif %}
                                     </div>
                                     <div class="carousel-item">
-                                        <img src="{{bomba.grafica}}" class="d-block w-100" style="max-width: 100%; width: 100%; min-width: 100%; max-height: 350px; height: 350px;" alt="...">
+                                        <img src="/media/{{bomba.grafica}}" class="d-block w-100" style="max-width: 100%; width: 100%; min-width: 100%; max-height: 350px; height: 350px;" alt="...">
                                     </div>
                                 </div>
                                 <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{bomba.pk|default_if_none:'-'}}" data-bs-slide="prev">
@@ -86,7 +86,7 @@
                     </tr>
                     {% if bomba.grafica %}
                     <tr>
-                      <td colspan="4">Presione el botón del carrusel o <a target="_blank" href="{{bomba.grafica}}">aquí</a> para ver la gráfica</td>
+                      <td colspan="4">Presione el botón del carrusel o <a target="_blank" href="/media/{{bomba.grafica}}">aquí</a> para ver la gráfica</td>
                     </tr>
                     {%endif%}
                   </tbody>
@@ -145,14 +145,14 @@
                     <tr>
                         <th class="table-dark">Temp. Operación ({{temperatura_unidad}})</th>
                         <td>{{condiciones_fluido.temperatura_operacion|default_if_none:'-'}}</td>
-                        <th class="table-dark">Presión Vapor ({{condiciones_fluido.presion_unidad}})</th>
+                        <th class="table-dark">Presión Vapor ({{condiciones_fluido.presion_vapor_unidad}})</th>
                         <td>{{condiciones_fluido.presion_vapor|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                         <th class="table-dark">Temp. Presión Vapor ({{temperatura_unidad}})</th>
                         <td>{{condiciones_fluido.temperatura_presion_vapor|default_if_none:'-'}}</td>
-                        <th class="table-dark">Densidad Relativa</th>
-                        <td>{{condiciones_fluido.densidad_relativa|default_if_none:'-'}}</td>
+                        <th class="table-dark">Densidad ({{condiciones_fluido.densidad_unidad|default_if_none:"Relativa"}})</th>
+                        <td>{{condiciones_fluido.densidad|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                         <th class="table-dark">Viscosidad ({{condiciones_fluido.viscosidad_unidad}})</th>
@@ -237,7 +237,7 @@
                         <th class="table-dark">Carcasa Dividida</th>
                         <td>{{bomba.detalles_construccion.carcasa_dividida_largo|default_if_none:'-'}}</td>
                         <th class="table-dark">Modelo</th>
-                        <td>{{bomba.detalles_construccion.modelo|default_if_none:'-'}}</td>
+                        <td>{{bomba.detalles_construccion.modelo_construccion|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                         <th class="table-dark">Fabricante de Sello</th>
@@ -264,10 +264,10 @@
                         </th>
                     </tr>
                     <tr>
-                        <th class="table-dark">Potencia ({{bomba.detalles_motor.potencia_unidad|default_if_none:'-'}})</th>
-                        <td>{{bomba.detalles_motor.potencia|default_if_none:'-'}}</td>
-                        <th class="table-dark">Velocidad ({{bomba.detalles_motor.velocidad_unidad|default_if_none:'-'}})</th>
-                        <td>{{bomba.detalles_motor.velocidad|default_if_none:'-'}}</td>
+                        <th class="table-dark">Potencia ({{bomba.detalles_motor.potencia_motor_unidad|default_if_none:'-'}})</th>
+                        <td>{{bomba.detalles_motor.potencia_motor|default_if_none:'-'}}</td>
+                        <th class="table-dark">Velocidad ({{bomba.detalles_motor.velocidad_motor_unidad|default_if_none:'-'}})</th>
+                        <td>{{bomba.detalles_motor.velocidad_motor|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                         <th class="table-dark">Factor de Servicio</th>
@@ -308,7 +308,7 @@
         <div class="modal-footer">
             <button class="btn btn-secondary" data-bs-target="#modal_instalacion{{bomba.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Especificaciones de Instalación</button>
           {% if request.user.is_superuser %}
-          <a href="#" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+          <a href="{% url 'edicion_bomba' pk=bomba.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
           {% endif %}
 
           <a name="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>
@@ -375,13 +375,8 @@
                     </tr>
                     <tr>
                         <th class="table-dark" colspan="2">Núm. Codos 180°</td>
-                        <td>{{bomba.instalacion_succion.numero_codos_90|default_if_none:'-'}}</td>
-                        <td>{{bomba.instalacion_descarga.numero_codos_90|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-dark" colspan="2">Núm. Codos 90°</td>
-                        <td>{{bomba.instalacion_succion.numero_codos_90|default_if_none:'-'}}</td>
-                        <td>{{bomba.instalacion_descarga.numero_codos_90|default_if_none:'-'}}</td>
+                        <td>{{bomba.instalacion_succion.numero_codos_180|default_if_none:'-'}}</td>
+                        <td>{{bomba.instalacion_descarga.numero_codos_180|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                         <th colspan="2" class="table-dark">
@@ -396,22 +391,13 @@
                     </tr>
                     <tr>
                         <th class="table-dark" colspan="2">Material de la Tubería</td>
-                        <td colspan="2">{{bomba.especificaciones_bomba.material_tuberia|default_if_none:'-'}}</td>
+                        <td>{{bomba.instalacion_succion.material_tuberia|default_if_none:'-'}}</td>
+                        <td>{{bomba.instalacion_descarga.material_tuberia|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                         <th class="table-dark" colspan="2">Elevación ({{bomba.instalacion_succion.elevacion_unidad|default_if_none:'-'}})</td>
                         <td>{{bomba.instalacion_succion.elevacion|default_if_none:'-'}}</td>
                         <td>{{bomba.instalacion_descarga.elevacion|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-dark" colspan="2">Longitud de la Tubería ({{bomba.instalacion_succion.longitud_tuberia_unidad|default_if_none:'-'}})</td>
-                        <td>{{bomba.instalacion_succion.longitud_tuberia|default_if_none:'-'}}</td>
-                        <td>{{bomba.instalacion_descarga.longitud_tuberia|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-dark" colspan="2">Diámetro de la Tubería ({{bomba.instalacion_succion.diametro_tuberia_unidad_unidad|default_if_none:'-'}})</td>
-                        <td>{{bomba.instalacion_succion.diametro_tuberia|default_if_none:'-'}}</td>
-                        <td>{{bomba.instalacion_descarga.diametro_tuberia|default_if_none:'-'}}</td>
                     </tr>
                     
                     <tr>
@@ -426,7 +412,7 @@
                         </th>
                     </tr>
                     <tr>
-                        <th class="table-dark" colspan="2">Núm. Válvulas Compuerta</td>
+                        <th class="table-dark" colspan="2">Núm. Válvulas Compuerta Abiertas Totalmente</td>
                         <td>{{bomba.instalacion_succion.numero_valvulas_compuerta|default_if_none:'-'}}</td>
                         <td>{{bomba.instalacion_descarga.numero_valvulas_compuerta|default_if_none:'-'}}</td>
                     </tr>
@@ -568,7 +554,68 @@
                         <td>{{bomba.instalacion_succion.conexiones_t_ramal|default_if_none:'-'}}</td>
                         <td>{{bomba.instalacion_descarga.conexiones_t_ramal|default_if_none:'-'}}</td>
                     </tr>
-                  </tbody>
+                        <tr>
+                            <th class="table-dark text-center" colspan="4">Tuberías del lado de Succión</th>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Longitud</th>
+                            <th class="table-dark text-center">Diámetro</th>
+                            <th class="table-dark text-center"># Tubos</th>
+                            <th class="table-dark text-center">Material</th>
+                        </tr>
+                        {% for tuberia in bomba.instalacion_succion.tuberias.all %}
+                        <tr>
+                            <td>
+                                {{tuberia.longitud_tuberia}} {{tuberia.longitud_tuberia_unidad}}
+                            </td>
+                            <td>
+                                {{tuberia.diametro_tuberia}} {{tuberia.diametro_tuberia_unidad}}
+                            </td>
+                            <td>
+                                {{tuberia.numero_tubos}}
+                            </td>
+                            <td>
+                                {{tuberia.material_tuberia}}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">No hay registradas.</td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <th class="table-dark text-center" colspan="4">Tuberías del lado de Descarga</th>
+                        </tr>
+                        <tr>
+                            <th class="table-dark text-center">Longitud</th>
+                            <th class="table-dark text-center">Diámetro</th>
+                            <th class="table-dark text-center"># Tubos</th>
+                            <th class="table-dark text-center">Material</th>
+                        </tr>
+                        {% for tuberia in bomba.instalacion_descarga.tuberias.all %}
+                        <tr>
+                            <td>
+                                {{tuberia.longitud_tuberia}} {{tuberia.longitud_tuberia_unidad}}
+                            </td>
+                            <td>
+                                {{tuberia.diametro_tuberia}} {{tuberia.diametro_tuberia_unidad}}
+                            </td>
+                            <td>
+                                {{tuberia.numero_tubos}}
+                            </td>
+                            <td>
+                                {{tuberia.material_tuberia}}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">No hay registradas.</td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td colspan="4">Datos de Instalación modificados por última vez el {{bomba.instalacion_succion.fecha}} por {{bomba.instalacion_succion.usuario}}.</td>
+                        </tr>
+                    </tbody>
                 </table>
               </div>
             </div>
@@ -577,7 +624,7 @@
         <div class="modal-footer">
             <button class="btn btn-secondary" data-bs-target="#ficha_{{bomba.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Datos de Ficha</button>
           {% if request.user.is_superuser %}
-          <a href="#" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+          <a href="{% url 'creacion_instalacion_bomba' pk=bomba.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
           {% endif %}
 
           <a name="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>

@@ -104,8 +104,9 @@ def transformar_unidades_presion(args: list, unidad: int, unidad_salida: int = 3
 
     unidad_salida = ur.bar if unidad_salida == 7 else ur.atm if unidad_salida == 11 else ur.kgf/ur.centimeter**2 if unidad_salida == 38 else ur.pound_force_per_square_inch \
         if unidad_salida == 17 else ur.mmHg if unidad_salida == 22 else ur.kPa if unidad_salida == 26 else ur.Pa
+    
     unidad = ur.bar if unidad == 7 or unidad == 38 else ur.atm if unidad == 11 else ur.pound_force_per_square_inch \
-        if unidad == 17 else ur.kgf/ur.centimeter**2 if unidad_salida == 38 else ur.mmHg if unidad == 22 else ur.kPa
+        if unidad == 17 else ur.kgf/ur.centimeter**2 if unidad_salida == 38 else ur.mmHg if unidad == 22 else ur.Pa if unidad == 33 else ur.kPa
     
     actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
@@ -199,6 +200,58 @@ def transformar_unidades_ensuciamiento(args: list, unidad: int, unidad_salida: i
     unidad = ur.meter**2*ur.kelvin/ur.watt if unidad == 31 else ur.hour*ur.feet**2*ur.delta_degF/ur.Btu_it \
         if unidad == 32 else ur.hour*ur.meter**2*ur.delta_degC/ur.kcal
 
+    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
+
+    return actualizadas
+
+def transformar_unidades_densidad(args: list, unidad: int, unidad_salida: int = 30) -> list:
+    '''
+    Resumen:
+        Función para transformar unidades de densidad volumétrica.
+
+    Parámetros:
+        args: list -> Lista de valores a transformar
+        unidad: int -> ID de la unidad de entrada
+        unidad_salida: int -> ID de la unidad de salida. De no dar ninguna devolverá en Kg/m**3.
+
+    Devuelve:
+        list -> Lista de valores transformados a la unidad de salida
+    '''
+
+    def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
+        return ur.ounce / ur.inch ** 3 if unidad == 47 \
+            else ur.pound / ur.inch ** 3 if unidad == 45 else ur.pound / ur.feet ** 3 \
+            if unidad == 46 else ur.kilogram / ur.meter ** 3
+
+    actualizadas = []
+    unidad_salida = obtener_unidad(unidad_salida)
+    unidad = obtener_unidad(unidad)
+    
+    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
+
+    return actualizadas
+
+def transformar_unidades_viscosidad(args: list, unidad: int, unidad_salida: int = 31) -> list:
+    '''
+    Resumen:
+        Función para transformar unidades de viscosidad dinámica.
+
+    Parámetros:
+        args: list -> Lista de valores a transformar
+        unidad: int -> ID de la unidad de entrada
+        unidad_salida: int -> ID de la unidad de salida. De no dar ninguna devolverá en Pa.s .
+
+    Devuelve:
+        list -> Lista de valores transformados a la unidad de salida
+    '''
+
+    def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
+        return ur.centipoise if unidad == 35 else ur.poise if unidad == 36 else ur.pascal * ur.second
+
+    actualizadas = []
+    unidad_salida = obtener_unidad(unidad_salida)
+    unidad = obtener_unidad(unidad)
+    
     actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
     return actualizadas

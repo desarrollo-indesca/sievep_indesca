@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
+
 from intercambiadores.models import Fluido, Planta, Unidades
 from calculos.utils import conseguir_largo
 from simulaciones_pequiven.settings import MEDIA_ROOT
@@ -66,16 +68,16 @@ class TipoBombaConstruccion(models.Model):
         return self.nombre.upper()
 
 class DetallesConstruccionBomba(models.Model):
-    conexion_succion = models.PositiveIntegerField(null = True)
-    tamano_rating_succion = models.FloatField(null = True)
-    conexion_descarga = models.PositiveIntegerField(null = True)
-    tamano_rating_descarga = models.FloatField(null = True)
-    carcasa_dividida = models.CharField(max_length = 1, null = True, choices = CARCASA_DIVIDIDA)
-    modelo = models.CharField(max_length = 45, null = True)
-    fabricante_sello = models.CharField(max_length = 45, null = True)
-    tipo = models.ForeignKey(TipoBombaConstruccion, on_delete=models.CASCADE, null = True)
-    tipo_carcasa1 = models.ForeignKey(TipoCarcasaBomba, on_delete=models.CASCADE, null = True, related_name="tipo_carcasa_construccion1")
-    tipo_carcasa2 = models.ForeignKey(TipoCarcasaBomba, on_delete=models.CASCADE, null = True, related_name="tipo_carcasa_construccion2")
+    conexion_succion = models.PositiveIntegerField(null = True, blank = True, verbose_name = "Conexión de Succión")
+    tamano_rating_succion = models.FloatField(validators=[MinValueValidator(0.0)], null = True, blank = True, verbose_name = "Tamaño Rating (Succión)")
+    conexion_descarga = models.PositiveIntegerField(null = True, blank = True, verbose_name = "Conexión de Descarga")
+    tamano_rating_descarga = models.FloatField(validators=[MinValueValidator(0.0)], null = True, blank = True, verbose_name = "Tamaño Rating (Descarga)")
+    carcasa_dividida = models.CharField(max_length = 1, null = True, blank = True, choices = CARCASA_DIVIDIDA, verbose_name = "Carcasa Dividida")
+    modelo_construccion = models.CharField(max_length = 45, null = True, blank = True, verbose_name = "Modelo de Construcción")
+    fabricante_sello = models.CharField(max_length = 45, null = True, blank = True, verbose_name = "Fabricante de Sello")
+    tipo = models.ForeignKey(TipoBombaConstruccion, on_delete=models.CASCADE, null = True, blank = True, verbose_name = "Tipo por Construcción")
+    tipo_carcasa1 = models.ForeignKey(TipoCarcasaBomba, verbose_name = "Tipo de Carcasa (1)", on_delete=models.CASCADE, null = True, blank = True, related_name="tipo_carcasa_construccion1")
+    tipo_carcasa2 = models.ForeignKey(TipoCarcasaBomba, verbose_name = "Tipo de Carcasa (2)", on_delete=models.CASCADE, null = True, blank = True, related_name="tipo_carcasa_construccion2")
 
     def carcasa_dividida_largo(self):
         return conseguir_largo(CARCASA_DIVIDIDA, self.carcasa_dividida)
@@ -87,19 +89,19 @@ class TipoBomba(models.Model):
         return self.nombre.upper()
 
 class DetallesMotorBomba(models.Model):
-    potencia = models.FloatField(null = True, verbose_name = "Potencia de la Bomba")
-    potencia_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="potencia_unidad_detallesmotor")
-    velocidad = models.FloatField(verbose_name="Velocidad del Motor (RPM)") # RPM
-    velocidad_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="velocidad_unidad_detallesmotor")
-    factor_de_servicio = models.FloatField(null = True)
-    posicion = models.CharField(null = True, max_length = 1, choices = MOTOR_POSICIONES, verbose_name="Posición del Motor")
-    voltaje = models.FloatField(null=True)
+    potencia_motor = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True, verbose_name = "Potencia del Motor")
+    potencia_motor_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="potencia_unidad_detallesmotor")
+    velocidad_motor = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name="Velocidad del Motor") # RPM
+    velocidad_motor_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="velocidad_unidad_detallesmotor")
+    factor_de_servicio = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True, verbose_name = "Factor de Servicio")
+    posicion = models.CharField(null = True, blank = True, max_length = 1, choices = MOTOR_POSICIONES, verbose_name="Posición del Motor")
+    voltaje = models.FloatField(validators=[MinValueValidator(0.0001)], null=True, verbose_name = "Voltaje del Motor")
     voltaje_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="voltaje_unidad_detallesmotor")
     fases = models.PositiveSmallIntegerField(null = True)
-    frecuencia = models.FloatField(null = True)
+    frecuencia = models.FloatField(validators=[MinValueValidator(0.0001)], null = True)
     frecuencia_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="frecuencia_unidad_detallesmotor")
-    aislamiento = models.CharField(null = True, max_length = 1, choices = AISLAMIENTO)
-    arranque = models.CharField(null = True, max_length = 45)
+    aislamiento = models.CharField(null = True, blank = True, max_length = 1, choices = AISLAMIENTO)
+    arranque = models.CharField(null = True, blank = True, max_length = 45)
 
     def posicion_largo(self):
         return conseguir_largo(MOTOR_POSICIONES, self.posicion)
@@ -108,44 +110,42 @@ class DetallesMotorBomba(models.Model):
         return conseguir_largo(AISLAMIENTO, self.aislamiento)
 
 class EspecificacionesBomba(models.Model):
-    numero_curva = models.CharField(max_length = 10, null = True)
-    velocidad = models.FloatField(null = True)
+    numero_curva = models.CharField(max_length = 10, null = True, blank = True, verbose_name = "Número de Curva")
+    velocidad = models.FloatField(validators=[MinValueValidator(0.0001)], null = True)
     velocidad_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="velocidad_unidad_especificacionesbomba")
-    potencia_maxima = models.FloatField()
+    potencia_maxima = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name = "Potencia Máxima")
     potencia_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="potencia_unidad_especificacionesbomba")
     eficiencia = models.FloatField()
-    npshr = models.FloatField(null = True)
+    npshr = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True, verbose_name = "NPSHr")
     npshr_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="npshr_unidad_especificacionesbomba")
 
-    cabezal_total = models.FloatField()
+    cabezal_total = models.FloatField(validators=[MinValueValidator(0.0001)])
     cabezal_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="cabezal_unidad_especificacionesbomba")
-    numero_etapas = models.SmallIntegerField()
+    numero_etapas = models.SmallIntegerField(verbose_name = "Número de Etapas")
     
-    succion_id = models.FloatField()
-    descarga_id = models.FloatField()
+    succion_id = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name = "Diámetro Interno Succión")
+    descarga_id = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name = "Diámetro Interno Descarga")
     id_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="id_unidad_especificacionesbomba")
 
-    # Especificaciones de Instalación
-    material_tuberia = models.ForeignKey(MaterialTuberia, on_delete=models.CASCADE, null = True)
-
 class CondicionFluidoBomba(models.Model):
-    temperatura_operacion = models.FloatField()
-    presion_vapor = models.FloatField(null = True)
-    temperatura_presion_vapor = models.FloatField(null = True)
-    densidad_relativa = models.FloatField(null = True)
+    temperatura_operacion = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name = "Temperatura de Operación*")
+    presion_vapor = models.FloatField(validators=[MinValueValidator(0.000001)], null = True, blank = True, verbose_name = "Presión de Vapor")
+    temperatura_presion_vapor = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, verbose_name = "Temperatura a la Presión de Vapor")
+    densidad = models.FloatField(validators=[MinValueValidator(0.000001)], null = True, blank = True)
+    densidad_unidad = models.ForeignKey(Unidades, blank = True, on_delete = models.CASCADE, related_name="densidad_unidad_condicionesdisenobomba", null = True)
     temperatura_unidad = models.ForeignKey(Unidades, on_delete = models.CASCADE, related_name="temperatura_unidad_condicionesdisenobomba")
-    viscosidad = models.FloatField(null = True)
+    viscosidad = models.FloatField(validators=[MinValueValidator(0.000001)], null = True, blank = True)
     viscosidad_unidad = models.ForeignKey(Unidades, on_delete = models.CASCADE, related_name="viscosidad_unidad_condicionesdisenobomba")
-    corrosividad = models.CharField(max_length = 1, choices = CORROSIVIDAD)
-    peligroso = models.CharField(max_length = 1, choices = SI_NO_DESC)
-    inflamable = models.CharField(max_length = 1, choices = SI_NO_DESC)
-    concentracion_h2s = models.FloatField(null = True)
-    concentracion_cloro = models.FloatField(null = True)
+    corrosividad = models.CharField(max_length = 1, choices = CORROSIVIDAD, verbose_name = "Corrosivo/Erosivo*")
+    peligroso = models.CharField(max_length = 1, choices = SI_NO_DESC, verbose_name = "Peligroso*")
+    inflamable = models.CharField(max_length = 1, choices = SI_NO_DESC, verbose_name = "Inflamable*")
+    concentracion_h2s = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True, verbose_name = "Concentración de H₂S")
+    concentracion_cloro = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True, verbose_name = "Concentración de Cloro")
     concentracion_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name = "concentracion_unidad_condicionesfluido")
-    nombre_fluido = models.CharField(max_length = 45, null = True)
-    calculo_propiedades = models.CharField(max_length = 1, default = "M", choices=CALCULO_PROPIEDADES)
-    presion_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="presion_unidad_condicionesfluido")
-    fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE, null=True)
+    nombre_fluido = models.CharField(max_length = 45, null = True, blank = True)
+    calculo_propiedades = models.CharField(max_length = 1, default = "M", choices=CALCULO_PROPIEDADES, verbose_name = "Cálculo de Propiedades")
+    presion_vapor_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="presion_unidad_condicionesfluido")
+    fluido = models.ForeignKey(Fluido, null = True, blank = True, on_delete=models.CASCADE, verbose_name = "Fluido*")
 
     def corrosividad_largo(self):
         return conseguir_largo(CORROSIVIDAD, self.corrosividad)
@@ -157,62 +157,61 @@ class CondicionFluidoBomba(models.Model):
         return conseguir_largo(SI_NO_DESC, self.inflamable)
 
 class CondicionesDisenoBomba(models.Model):
-    capacidad = models.FloatField()
+    capacidad = models.FloatField(verbose_name = "Capacidad*")
     capacidad_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="capacidad_unidad_condicionesdisenobomba")
-    presion_succion = models.FloatField()
-    presion_descarga = models.FloatField()
-    presion_diferencial = models.FloatField(null = True)
+    presion_succion = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name = "Presión de Succión*")
+    presion_descarga = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name = "Presión de Descarga*")
+    presion_diferencial = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True, verbose_name = "Presión Diferencial")
     presion_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="presion_unidad_condicionesdisenobomba")
-    npsha = models.FloatField(null = True)
+    npsha = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True, verbose_name = "NPSHa")
     npsha_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="npsha_unidad_condicionesdisenobomba")
     condiciones_fluido = models.OneToOneField(CondicionFluidoBomba, on_delete=models.CASCADE)
 
 class EspecificacionesInstalacion(models.Model):
-    elevacion =  models.FloatField(null = True)
-    elevacion_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="elevacion_unidad_especificacionesinstalacion")
-    longitud_tuberia = models.FloatField(null = True)
-    longitud_tuberia_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="longitud_tuberia_unidad_especificacionesinstalacion")
-    diametro_tuberia = models.FloatField(null = True)
-    diametro_tuberia_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="diametro_tuberia_unidad_especificacionesinstalacion")
+    elevacion =  models.FloatField(null = True, blank = True)
+    elevacion_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="elevacion_unidad_especificacionesinstalacion")
 
-    numero_codos_90 = models.PositiveIntegerField(null = True)
-    numero_codos_90_rl = models.PositiveIntegerField(null = True, verbose_name="Número de Codos a 90°")
-    numero_codos_90_ros = models.PositiveIntegerField(null = True)
-    numero_codos_45 = models.PositiveIntegerField(null = True)
-    numero_codos_45_ros = models.PositiveIntegerField(null = True)
-    numero_codos_180 = models.PositiveIntegerField(null = True)
-    conexiones_t_directo = models.PositiveIntegerField(null = True)
-    conexiones_t_ramal = models.PositiveIntegerField(null = True)
+    numero_codos_90 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos a 90°")
+    numero_codos_90_rl = models.PositiveIntegerField(null = True, blank = True, verbose_name="Codos 90° Radio Largo")
+    numero_codos_90_ros = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos Rosc. 90°")
+    numero_codos_45 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos a 45")
+    numero_codos_45_ros = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos Rosc. 45°")
+    numero_codos_180 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Codos a 180°")
+    conexiones_t_directo = models.PositiveIntegerField(null = True, blank = True, verbose_name="Conexiones T Flujo Directo")
+    conexiones_t_ramal = models.PositiveIntegerField(null = True, blank = True, verbose_name="Conexiones T Flujo Ramal")
 
     # VÁLVULAS COMPUERTA
-    numero_valvulas_compuerta = models.PositiveIntegerField(null = True)
-    numero_valvulas_compuerta_abierta_3_4 = models.PositiveIntegerField(null = True)
-    numero_valvulas_compuerta_abierta_1_2 = models.PositiveIntegerField(null = True)
-    numero_valvulas_compuerta_abierta_1_4 = models.PositiveIntegerField(null = True)
+    numero_valvulas_compuerta = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. de Compuerta Abierta")
+    numero_valvulas_compuerta_abierta_3_4 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Compuerta a 3/4")
+    numero_valvulas_compuerta_abierta_1_2 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Compuerta a 1/2")
+    numero_valvulas_compuerta_abierta_1_4 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Compuerta a 1/4")
 
     # VÁLVULAS MARIPOSA
-    numero_valvulas_mariposa_2_8 = models.PositiveIntegerField(null = True)
-    numero_valvulas_mariposa_10_14 = models.PositiveIntegerField(null = True)
-    numero_valvulas_mariposa_16_24 = models.PositiveIntegerField(null = True)
+    numero_valvulas_mariposa_2_8 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Mariposa 2\"-8\"")
+    numero_valvulas_mariposa_10_14 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Mariposa 10\"-14\"")
+    numero_valvulas_mariposa_16_24 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Mariposa 16\"-24\"")
 
     # VÁLVULAS CHECK
-    numero_valvula_giratoria = models.PositiveIntegerField(null = True)
-    numero_valvula_bola = models.PositiveIntegerField(null = True)
-    numero_valvula_vastago = models.PositiveIntegerField(null = True)
-    numero_valvula_bisagra = models.PositiveIntegerField(null = True)
+    numero_valvula_giratoria = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Giratorias")
+    numero_valvula_bola = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Bola")
+    numero_valvula_vastago = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Vástago")
+    numero_valvula_bisagra = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Bisagra")
 
     # ACCESORIOS
-    numero_valvula_globo = models.PositiveIntegerField(null = True)
-    numero_valvula_angulo = models.PositiveIntegerField(null = True)
+    numero_valvula_globo = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Globo")
+    numero_valvula_angulo = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Ángulo")
     
-    numero_contracciones_linea = models.PositiveIntegerField(null = True)
-    numero_expansiones_linea = models.PositiveIntegerField(null = True)
+    numero_contracciones_linea = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Contracciones")
+    numero_expansiones_linea = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Expansiones")
+
+    fecha = models.DateTimeField(auto_now = True)
+    usuario = models.ForeignKey(get_user_model(), default = 1, on_delete=models.CASCADE)
 
 class Bombas(models.Model):
     tag = models.CharField(max_length = 45, unique = True, verbose_name = "Tag del Equipo*")
     descripcion = models.CharField(max_length = 80, verbose_name = "Descripción del Equipo*")
     fabricante = models.CharField(max_length = 45, verbose_name = "Fabricante*")
-    modelo = models.CharField(max_length = 45, null = True, verbose_name = "Modelo del Equipo")
+    modelo = models.CharField(max_length = 45, null = True, blank = True, verbose_name = "Modelo del Equipo")
     creado_al = models.DateTimeField(auto_now = True)
     editado_al = models.DateTimeField(null = True)
     creado_por = models.ForeignKey(get_user_model(), on_delete = models.CASCADE, related_name="bomba_creada_por")
@@ -223,7 +222,7 @@ class Bombas(models.Model):
     especificaciones_bomba = models.OneToOneField(EspecificacionesBomba, on_delete=models.CASCADE)
     detalles_construccion = models.OneToOneField(DetallesConstruccionBomba, on_delete=models.CASCADE)
     condiciones_diseno = models.OneToOneField(CondicionesDisenoBomba, on_delete=models.CASCADE)
-    grafica = models.ImageField(null = True, upload_to=MEDIA_ROOT + 'auxiliares/bombas/', verbose_name = "Gráfica del Equipo")
+    grafica = models.ImageField(null = True, blank = True, upload_to=MEDIA_ROOT + '/auxiliares/bombas/', verbose_name = "Gráfica del Equipo")
 
     instalacion_succion = models.ForeignKey(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_succion")
     instalacion_descarga = models.ForeignKey(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_descarga")
@@ -233,6 +232,15 @@ class Bombas(models.Model):
     
     class Meta:
         ordering = ('tag',)
+
+class TuberiaInstalacionBomba(models.Model):
+    instalacion = models.ForeignKey(EspecificacionesInstalacion, on_delete = models.CASCADE, related_name="tuberias")
+    longitud_tuberia = models.FloatField(verbose_name="Longitud", validators=[MinValueValidator(0)])
+    longitud_tuberia_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="longitud_tuberia_unidad_especificacionesinstalacion")
+    diametro_tuberia = models.FloatField(verbose_name="Diámetro", validators=[MinValueValidator(0)])
+    diametro_tuberia_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="diametro_tuberia_unidad_especificacionesinstalacion")
+    numero_tubos = models.PositiveIntegerField(verbose_name="# Tubos", validators=[MinValueValidator(0)])
+    material_tuberia = models.ForeignKey(MaterialTuberia, on_delete=models.CASCADE, verbose_name="Material")
 
 # Evaluación de Bombas
 
