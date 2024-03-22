@@ -181,7 +181,7 @@ class EspecificacionesInstalacion(models.Model):
     conexiones_t_ramal = models.PositiveIntegerField(null = True, blank = True, verbose_name="Conexiones T Flujo Ramal")
 
     # VÁLVULAS COMPUERTA
-    numero_valvulas_compuerta = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. de Compuerta")
+    numero_valvulas_compuerta = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. de Compuerta Abierta")
     numero_valvulas_compuerta_abierta_3_4 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Compuerta a 3/4")
     numero_valvulas_compuerta_abierta_1_2 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Compuerta a 1/2")
     numero_valvulas_compuerta_abierta_1_4 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Compuerta a 1/4")

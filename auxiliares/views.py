@@ -137,6 +137,7 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
         new_context = new_context.select_related('instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba','detalles_construccion','condiciones_diseno')
         new_context = new_context.prefetch_related(
             'instalacion_succion__elevacion_unidad', 'condiciones_diseno__capacidad_unidad', 
+            'instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad',
 
             'condiciones_diseno__presion_unidad', 'condiciones_diseno__npsha_unidad', 
             
@@ -150,6 +151,9 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
 
             'detalles_construccion__tipo_carcasa1', 'detalles_construccion__tipo_carcasa2',
             'detalles_construccion__tipo',
+
+            'detalles_motor__potencia_motor_unidad','detalles_motor__velocidad_motor_unidad',
+            'detalles_motor__voltaje_unidad', 'detalles_motor__velocidad_motor_unidad',
 
             'planta__complejo',
         )
