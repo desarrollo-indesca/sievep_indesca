@@ -1,19 +1,25 @@
-const cargarEventListeners = () => {
+const cargarEventListeners = (anadirListeners = true) => {
     $('.eliminar').click(e => {
         eliminar(e);
-    })
+    });
     
-    $('.anadir').click(e => {
-        anadir(e);
-    })
+    if(anadirListeners)
+        $('.anadir').click(e => {
+            anadir(e);
+        });
 }
 
 const reindex = (lado) => {
     let forms = document.querySelectorAll(`.${lado}-form`);    
     let formRegex = RegExp(`formset-${lado}-(\\d)+-`,'g');
 
+    console.log(forms);
+
     for(let i = 0; i < forms.length; i++){
-        forms[i].innerHTML = forms[i].innerHTML.replace(formRegex, `formset-${lado}-${i}-`);
+
+        console.log(forms[i].innerHTML.indexOf(`formset-${lado}-${i}-`) === -1);
+        if(forms[i].innerHTML.indexOf(`formset-${lado}-${i}-`) === -1)
+            forms[i].innerHTML = forms[i].innerHTML.replace(formRegex, `formset-${lado}-${i}-`);
     }
 }
 
@@ -26,7 +32,7 @@ const eliminar = e => {
     e.target.parentElement.parentElement.remove();
     reindex(lado);
 
-    cargarEventListeners();
+    cargarEventListeners(false);
 };
     
 const anadir = e => {
@@ -40,20 +46,21 @@ const anadir = e => {
     let formRegex = RegExp(`formset-${lado}-(\\d)+-`,'g')
     
     formNum++
-    newForm.innerHTML = newForm.innerHTML.replace(formRegex, `formset-${lado}-${formNum}-`)
-    const newElement = formContainer.insertBefore(newForm,e.target.parentNode.parentNode);
+    newForm.innerHTML = newForm.innerHTML.replace(formRegex, `formset-${lado}-${formNum}-`);
 
-    if(formNum === 1){
-        $(newElement).find('a').removeClass('btn-success');
-        $(newElement).find('a').addClass('btn-danger');
-        $(newElement).find('a').removeClass('anadir');
-        $(newElement).find('a').addClass('eliminar');
-        $(newElement).find('a').html('-');
-    }
+    let newElement;
+
+    newElement = formContainer.insertBefore(newForm,e.target.parentNode.parentNode.lastChild.nextSibling);
+
+    $(newElement).find('a').removeClass('btn-success');
+    $(newElement).find('a').addClass('btn-danger');
+    $(newElement).find('a').removeClass('anadir');
+    $(newElement).find('a').addClass('eliminar');
+    $(newElement).find('a').html('-');
 
     reindex(lado);
 
-    cargarEventListeners();
+    cargarEventListeners(false);
 
     totalForms.setAttribute('value', `${formNum+1}`);
 };

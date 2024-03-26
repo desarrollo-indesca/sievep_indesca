@@ -229,7 +229,7 @@
                             <small>{{form.material_tuberia.errors}}</small>
                         </div>
                         <div class="col-1 fs-5 d-flex align-items-end">
-                            {% if forloop.last %}
+                            {% if forloop.first %}
                                 <a class="w-100 h-75 d-flex justify-content-center align-items-center btn btn-success anadir">+</a>
                             {% else %}
                                 <a class="w-100 h-75 d-flex justify-content-center align-items-center btn btn-danger eliminar">-</a>
@@ -270,7 +270,7 @@
                                 <small>{{form.material_tuberia.errors}}</small>
                             </div>
                             <div class="col-1 fs-5 d-flex align-items-end">
-                                {% if forloop.last %}
+                                {% if forloop.first %}
                                 <a class="w-100 h-75 d-flex justify-content-center align-items-center btn btn-success anadir">+</a>
                                 {% else %}
                                 <a class="w-100 h-75 d-flex justify-content-center align-items-center btn btn-danger eliminar">-</a>

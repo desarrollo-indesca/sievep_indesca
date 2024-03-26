@@ -372,7 +372,8 @@ class CreacionInstalacionBomba(View, SuperUserRequiredMixin):
             'bomba': bomba,
             'forms_instalacion': EspecificacionesInstalacionFormSet(queryset=EspecificacionesInstalacion.objects.filter(pk__in = [instalacion_succion.pk, instalacion_descarga.pk]), prefix = self.PREFIJO_INSTALACIONES),
             'forms_tuberia_succion': TuberiaFormSet(queryset=instalacion_succion.tuberias.all(), prefix=self.PREFIJO_TUBERIAS_SUCCION),
-            'forms_tuberia_descarga': TuberiaFormSet(queryset=instalacion_descarga.tuberias.all(), prefix=self.PREFIJO_TUBERIAS_DESCARGA)
+            'forms_tuberia_descarga': TuberiaFormSet(queryset=instalacion_descarga.tuberias.all(), prefix=self.PREFIJO_TUBERIAS_DESCARGA),
+            'titulo': "Especificaciones de Instalación"
         }
 
         return context
@@ -413,8 +414,7 @@ class CreacionInstalacionBomba(View, SuperUserRequiredMixin):
                             form.instance.pk = None
                             form.instance.instalacion = succion
                             form.save()
-
-                elif(len(formset_tuberias_descarga) > 1):
+                elif(int(request.POST.get('formset-succion-TOTAL_FORMS')) > 1):
                     raise Exception("Ocurrió un error al validar los datos de tuberías de la succión.")
 
                 if(formset_tuberias_descarga.is_valid()):
@@ -423,7 +423,7 @@ class CreacionInstalacionBomba(View, SuperUserRequiredMixin):
                             form.instance.pk = None
                             form.instance.instalacion = descarga
                             form.save()
-                elif(len(formset_tuberias_descarga) > 1):
+                elif(int(request.POST.get('formset-descarga-TOTAL_FORMS')) > 1):
                     raise Exception("Ocurrió un error al validar los datos de tuberías de la descarga.")
 
                 messages.success(request, "Se han actualizado los datos de instalación exitosamente.")
@@ -433,6 +433,5 @@ class CreacionInstalacionBomba(View, SuperUserRequiredMixin):
             print(str(e))        
             return render(request, 'bombas/creacion_instalacion.html', context={'forms_instalacion': formset_instalacion, 'forms_tuberia_succion': formset_tuberias_succion, 'forms_tuberia_descarga': formset_tuberias_descarga}) 
 
-    
     def get(self, request, **kwargs):
         return render(request, 'bombas/creacion_instalacion.html', context=self.get_context())
