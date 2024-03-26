@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 from intercambiadores.models import Fluido, Planta, Unidades
 from calculos.utils import conseguir_largo
@@ -170,36 +170,6 @@ class CondicionesDisenoBomba(models.Model):
 class EspecificacionesInstalacion(models.Model):
     elevacion =  models.FloatField(null = True, blank = True)
     elevacion_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="elevacion_unidad_especificacionesinstalacion")
-
-    numero_codos_90 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos a 90°")
-    numero_codos_90_rl = models.PositiveIntegerField(null = True, blank = True, verbose_name="Codos 90° Radio Largo")
-    numero_codos_90_ros = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos Rosc. 90°")
-    numero_codos_45 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos a 45")
-    numero_codos_45_ros = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos Rosc. 45°")
-    numero_codos_180 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Codos a 180°")
-    conexiones_t_directo = models.PositiveIntegerField(null = True, blank = True, verbose_name="Conexiones T Flujo Directo")
-    conexiones_t_ramal = models.PositiveIntegerField(null = True, blank = True, verbose_name="Conexiones T Flujo Ramal")
-
-    # VÁLVULAS COMPUERTA
-    numero_valvulas_compuerta = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. de Compuerta Abierta")
-    numero_valvulas_compuerta_abierta_3_4 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Compuerta a 3/4")
-    numero_valvulas_compuerta_abierta_1_2 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Compuerta a 1/2")
-    numero_valvulas_compuerta_abierta_1_4 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Compuerta a 1/4")
-
-    # VÁLVULAS MARIPOSA
-    numero_valvulas_mariposa_2_8 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Mariposa 2\"-8\"")
-    numero_valvulas_mariposa_10_14 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Mariposa 10\"-14\"")
-    numero_valvulas_mariposa_16_24 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Mariposa 16\"-24\"")
-
-    # VÁLVULAS CHECK
-    numero_valvula_giratoria = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Giratorias")
-    numero_valvula_bola = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Bola")
-    numero_valvula_vastago = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Vástago")
-    numero_valvula_bisagra = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Bisagra")
-
-    # ACCESORIOS
-    numero_valvula_globo = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Globo")
-    numero_valvula_angulo = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Ángulo")
     
     numero_contracciones_linea = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Contracciones")
     numero_expansiones_linea = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Expansiones")
@@ -239,10 +209,90 @@ class TuberiaInstalacionBomba(models.Model):
     longitud_tuberia_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="longitud_tuberia_unidad_especificacionesinstalacion")
     diametro_tuberia = models.FloatField(verbose_name="Diámetro", validators=[MinValueValidator(0)])
     diametro_tuberia_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="diametro_tuberia_unidad_especificacionesinstalacion")
-    numero_tubos = models.PositiveIntegerField(verbose_name="# Tubos", validators=[MinValueValidator(0)])
     material_tuberia = models.ForeignKey(MaterialTuberia, on_delete=models.CASCADE, verbose_name="Material")
 
+    numero_codos_90 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos a 90°")
+    numero_codos_90_rl = models.PositiveIntegerField(null = True, blank = True, verbose_name="Codos 90° Radio Largo")
+    numero_codos_90_ros = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos Rosc. 90°")
+    numero_codos_45 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos a 45")
+    numero_codos_45_ros = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos Rosc. 45°")
+    numero_codos_180 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Codos a 180°")
+    conexiones_t_directo = models.PositiveIntegerField(null = True, blank = True, verbose_name="Conexiones T Flujo Directo")
+    conexiones_t_ramal = models.PositiveIntegerField(null = True, blank = True, verbose_name="Conexiones T Flujo Ramal")
+
+    # VÁLVULAS COMPUERTA
+    numero_valvulas_compuerta = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. de Compuerta Abierta")
+    numero_valvulas_compuerta_abierta_3_4 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Compuerta a 3/4")
+    numero_valvulas_compuerta_abierta_1_2 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Compuerta a 1/2")
+    numero_valvulas_compuerta_abierta_1_4 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Compuerta a 1/4")
+
+    # VÁLVULAS MARIPOSA
+    numero_valvulas_mariposa_2_8 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Mariposa 2\"-8\"")
+    numero_valvulas_mariposa_10_14 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Mariposa 10\"-14\"")
+    numero_valvulas_mariposa_16_24 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Mariposa 16\"-24\"")
+
+    # VÁLVULAS CHECK
+    numero_valvula_giratoria = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Giratorias")
+    numero_valvula_bola = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Bola")
+    numero_valvula_vastago = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Vástago")
+    numero_valvula_bisagra = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Bisagra")
+
+    # ACCESORIOS
+    numero_valvula_globo = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Globo")
+    numero_valvula_angulo = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Ángulo")
+
 # Evaluación de Bombas
+    
+class EvaluacionBomba(models.Model):
+    nombre = models.CharField(max_length = 45)
+    fecha = models.DateField(auto_now = True)
+    bomba = models.ForeignKey(Bombas, on_delete = models.PROTECT)
+
+    # Evaluaciones S: Evaluaciones Registradas por el Sistema
+    # Evaluaciones U: Evaluaciones Registradar por el Usuario
+    tipo = models.CharField(max_length = 1, choices = (('S','S'), ('U','U')), default = 'U')
+    activo = models.BooleanField(default = True)
+
+    usuario = models.ForeignKey(get_user_model(), on_delete = models.PROTECT)
+    instalacion = models.ForeignKey(EspecificacionesInstalacion, on_delete = models.PROTECT)
+
+class EntradaEvaluacion(models.Model):
+    presion = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)])
+    altura = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)])
+    diametro_bomba = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)])
+    flujo = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)])
+    temperatura_operacion =  models.FloatField(validators=[MinValueValidator(-273.15), MaxValueValidator(9999.99)])
+    potencia =  models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)])
+    npshr =  models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)])
+
+    densidad = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)])
+    viscosidad = models.FloatField(models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)]))
+    presion_vapor = models.FloatField(models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)]))
+
+    evaluacion = models.ForeignKey(EvaluacionBomba, on_delete = models.PROTECT)
+
+class SalidaEvaluacionBombaGeneral(models.Model):
+    cabezal_total = models.FloatField()
+    potencia = models.FloatField()
+    eficiencia = models.FloatField()
+    velocidad = models.FloatField()
+    npsha = models.FloatField()
+    cavita = models.BooleanField(null = True, blank = True)
+
+    evaluacion = models.ForeignKey(EvaluacionBomba, on_delete = models.PROTECT)
+
+class SalidaSeccionesEvaluacionBombaGeneral(models.Model):
+    lado = models.CharField(max_length = 1, choices = (('S', 'Succión'), ('D', 'Descarga')))
+    numero_reynolds = models.FloatField()
+    factor_friccion = models.FloatField()
+    factor_friccion_turbulento = models.FloatField()
+    tipo_flujo = models.CharField(max_length = 1, choices = (('T', 'Turbulento'), ('L', 'Laminar'), ('R', 'Transitorio')))
+    perdida_carga_tuberia = models.FloatField()
+    perdida_carga_accesorios = models.FloatField(null = True)
+    perdida_carga_total = models.FloatField()
+    velocidad = models.FloatField()
+    area_interna_tuberias = models.FloatField()
+    evaluacion = models.ForeignKey(EvaluacionBomba, on_delete = models.PROTECT)
 
 # MODELOS DE VENTILADORES
 

@@ -415,6 +415,7 @@ class CreacionInstalacionBomba(View, SuperUserRequiredMixin):
                             form.instance.instalacion = succion
                             form.save()
                 elif(int(request.POST.get('formset-succion-TOTAL_FORMS')) > 1):
+                    print(formset_tuberias_succion.errors)
                     raise Exception("Ocurrió un error al validar los datos de tuberías de la succión.")
 
                 if(formset_tuberias_descarga.is_valid()):

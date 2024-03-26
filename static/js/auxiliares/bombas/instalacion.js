@@ -52,11 +52,8 @@ const anadir = e => {
 
     newElement = formContainer.insertBefore(newForm,e.target.parentNode.parentNode.lastChild.nextSibling);
 
-    $(newElement).find('a').removeClass('btn-success');
-    $(newElement).find('a').addClass('btn-danger');
-    $(newElement).find('a').removeClass('anadir');
-    $(newElement).find('a').addClass('eliminar');
-    $(newElement).find('a').html('-');
+    $(newElement).find('a.anadir').removeClass('btn-success').addClass('btn-danger').removeClass('anadir').addClass('eliminar');
+    $(newElement).find('a.eliminar').html('-');
 
     reindex(lado);
 
