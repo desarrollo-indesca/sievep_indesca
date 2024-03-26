@@ -145,6 +145,9 @@ function anadir_listeners_dropboxes() {
 
 const anadir_listeners_htmx = () => {
     document.body.addEventListener('htmx:beforeRequest', function(evt) {
+        const body = document.getElementsByTagName('body')[0]
+        body.style.opacity = 0.25;
+
         if(document.getElementById('id_calculo_propiedades').value === 'M' || 
             document.getElementById('id_temperatura_presion_vapor').value === '' ||
             document.getElementById('id_fluido').value === '' ||
@@ -158,6 +161,7 @@ const anadir_listeners_htmx = () => {
                 $('#id_presion_vapor').removeAttr('disabled');
                 $('#id_densidad').removeAttr('disabled');
             }            
+            body.style.opacity = 1.0;
         }  else
             $('button[type=submit]').attr('disabled', 'disabled');
     });
@@ -172,6 +176,8 @@ const anadir_listeners_htmx = () => {
         }
         else
             $('button[type=submit]').removeAttr('disabled');
+
+        body.style.opacity = 1.0;
     });
 }
 
