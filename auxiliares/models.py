@@ -54,6 +54,9 @@ class MaterialTuberia(models.Model):
 
     def __str__(self) -> str:
         return self.nombre.upper()
+    
+    class Meta:
+        ordering = ('nombre',)
 
 class TipoCarcasaBomba(models.Model):
     nombre = models.CharField(max_length = 45, unique = True)
