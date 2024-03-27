@@ -161,6 +161,8 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
         return new_context
 
 class CreacionBomba(View, SuperUserRequiredMixin):
+    success_message = "La nueva bomba ha sido registrada exitosamente. Los datos de instalación ya pueden ser cargados."
+
     def get_context(self):
         return {
             'form_bomba': BombaForm(), 
@@ -239,7 +241,7 @@ class CreacionBomba(View, SuperUserRequiredMixin):
 
                     form_bomba.save()
 
-                    messages.success(self.request, "La nueva bomba ha sido registrada exitosamente. Los datos de instalación ya pueden ser cargados.")
+                    messages.success(self.request, self.success_message)
                     return redirect(f'/auxiliares/bombas/')
                 else:
                     raise Exception("Ocurrió un error")
@@ -314,6 +316,7 @@ class ObtencionDatosFluidosBomba(View, SuperUserRequiredMixin):
         return render(request, 'bombas/partials/fluido_bomba.html', propiedades)
 
 class EdicionBomba(CreacionBomba):
+    success_message = "Se han guardado los cambios exitosamente."
     def get_context(self):
         bomba = self.get_bomba()
         return {
