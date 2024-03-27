@@ -278,11 +278,12 @@ class ObtencionDatosFluidosBomba(View, SuperUserRequiredMixin):
         presion_succion = transformar_unidades_presion([presion_succion], unidad_presion)[0]
 
         cas = Fluido.objects.get(pk = fluido).cas
-
+        viscosidad, bandera = calcular_viscosidad(cas, temp, presion_succion)
         propiedades = {
-            'viscosidad': round(transformar_unidades_viscosidad([calcular_viscosidad(cas, temp, presion_succion)], 44, unidad_viscosidad)[0], 6),
-            'densidad': round(transformar_unidades_densidad([calcular_densidad(cas, temp, presion_succion)], 43, unidad_densidad)[0] if unidad_densidad else calcular_densidad_relativa(cas, temp, presion_succion), 4),
+            'viscosidad': round(transformar_unidades_viscosidad([viscosidad], 44, unidad_viscosidad)[0], 6),
+            'densidad': round(transformar_unidades_densidad([calcular_densidad(cas, temp, presion_succion)[0]], 43, unidad_densidad)[0] if unidad_densidad else calcular_densidad_relativa(cas, temp, presion_succion), 4),
             'presion_vapor': round(transformar_unidades_presion([calcular_presion_vapor(cas, temp_presion_vapor, presion_succion)], 33, unidad_presion_vapor)[0], 4),
+            'bandera': bandera
         }
 
         return propiedades

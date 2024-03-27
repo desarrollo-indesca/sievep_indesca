@@ -1,5 +1,6 @@
 from thermo.chemical import Chemical
 from thermo.mixture import Mixture
+
 import CoolProp.CoolProp as CP
 from .unidades import transformar_unidades_cp
 import numpy
@@ -193,10 +194,15 @@ def calcular_fase(cas: str, t1: float, t2: float, presion) -> str:
 
     return Chemical(cas,T=numpy.mean([t1,t2]), P=presion).phase
 
-def calcular_viscosidad(cas: str, t: float, p: float = 101325) -> float:
+def obtener_viscosidad_liquido_saturado(quimico, t):
+    psat = quimico.Psat
+    quimico.calculate(t, psat + 10)
+    return quimico.mul
+
+def calcular_viscosidad(cas: str, t: float, p: float = 101325) -> (float, bool):
     """
     Resumen:
-        Esta función calculará la viscosidad dinámica de un fluido según su temperatura y presión.
+        Esta función calculará la viscosidad dinámica de un fluido según su temperatura y presión. En fase Líquido.
 
     Parámetros:
         cas: str -> CAS del fluido
@@ -204,14 +210,17 @@ def calcular_viscosidad(cas: str, t: float, p: float = 101325) -> float:
         p: float -> Presión (Pa)
 
     Devuelve:
-        float -> viscosidad dinámica del fluido en las condiciones presentadas.
+        (float, bool) -> viscosidad dinámica del fluido en las condiciones presentadas en fase líquido. / boolean indicando si se asumió saturado
     """
-
-    print(cas, t, p)
-
-
     quimico = Chemical(cas, t, p)
-    return quimico.mul
+    mu = quimico.mul
+    flag = False
+
+    if(not mu):
+        mu = obtener_viscosidad_liquido_saturado(quimico, t)
+        flag = True
+
+    return (mu, flag)
 
 def calcular_presion_vapor(cas: str, t: float, p: float = 101325) -> float:
     """
@@ -232,7 +241,7 @@ def calcular_presion_vapor(cas: str, t: float, p: float = 101325) -> float:
 def calcular_densidad(cas: str, t: float, p: float = 101325) -> float:
     """
     Resumen:
-        Esta función calculará la densidad de un fluido según su temperatura y presión.
+        Esta función calculará la densidad de un fluido según su temperatura y presión. En fase líquido.
 
     Parámetros:
         cas: str -> CAS del fluido
@@ -240,10 +249,22 @@ def calcular_densidad(cas: str, t: float, p: float = 101325) -> float:
         p: float -> Presión (Pa)
 
     Devuelve:
-        float -> Densidad del fluido en las condiciones presentadas.
+        (float, bool) -> Densidad del fluido en las condiciones presentadas. En fase líquido. / boolean indicando si se asumió saturado
     """
 
     quimico = Chemical(cas, t, p)
+    rho = quimico.rhol
+    flag = False
+
+    if(not rho):
+        rho = obtener_densidad_liquido_saturado(quimico, t)
+        flag = True
+
+    return (rho, flag)
+
+def obtener_densidad_liquido_saturado(quimico, t):
+    psat = quimico.Psat
+    quimico.calculate(t, psat + 10)
     return quimico.rhol
 
 def calcular_densidad_relativa(cas: str, t: float, p: float = 101325) -> float:
@@ -261,4 +282,9 @@ def calcular_densidad_relativa(cas: str, t: float, p: float = 101325) -> float:
     """
 
     quimico = Chemical(cas, t, p)
-    return quimico.rhol/DENSIDAD_DEL_AGUA_LIQUIDA_A_5C
+    rho = quimico.rhol
+
+    if(not rho):
+        rho = obtener_densidad_liquido_saturado(quimico, t)
+
+    return rho/DENSIDAD_DEL_AGUA_LIQUIDA_A_5C
