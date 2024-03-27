@@ -203,6 +203,8 @@ class EntradaEvaluacionBombaForm(FormConUnidades):
 
         self.fields['densidad_unidad'].queryset = Unidades.objects.filter(tipo = 'D')
 
+        self.fields['calculo_propiedades'].choices = (('A', 'Automático'), ('M', 'Manual'), ('F', 'Ficha'))
+
     class Meta:
         model = EntradaEvaluacionBomba
         exclude = ('id', 'evaluacion')

@@ -130,8 +130,8 @@
                 <div class="col-4">
                     <label for="id_fluido">Fluido:</label>
                     <div class="d-flex w-100">
-                        <select disabled name="fluido" id="id_fluido" class="form-select">
-                            <option value="{{bomba.condiciones_diseno.condiciones_fluido.fluido.pk}}">{{bomba.condiciones_diseno.condiciones_fluido.fluido}}</option>
+                        <select name="fluido" id="id_fluido" class="form-select">
+                            <option value="{{bomba.condiciones_diseno.condiciones_fluido.fluido.pk}}" selected>{{bomba.condiciones_diseno.condiciones_fluido.fluido}}</option>
                         </select>
                     </div>                    
                     <small>{{form_entrada_evaluacion.fluido.errors}}</small>

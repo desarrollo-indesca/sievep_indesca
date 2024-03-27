@@ -333,7 +333,7 @@ class ObtencionDatosFluidosBomba(View, SuperUserRequiredMixin):
                               unidad_presion, unidad_temperatura) -> dict:
         
         temp = transformar_unidades_temperatura([temp], unidad_temperatura)[0]
-        temp_presion_vapor = transformar_unidades_temperatura([temp_presion_vapor], unidad_temperatura)[0]
+        temp_presion_vapor = transformar_unidades_temperatura([temp_presion_vapor], unidad_temperatura)[0] if temp_presion_vapor else temp
         presion_succion = transformar_unidades_presion([presion_succion], unidad_presion)[0]
 
         cas = Fluido.objects.get(pk = fluido).cas
@@ -358,8 +358,8 @@ class ObtencionDatosFluidosBomba(View, SuperUserRequiredMixin):
         unidad_presion_vapor = int(request.GET.get('presion_vapor_unidad'))
         unidad_presion = int(request.GET.get('presion_unidad'))
 
-        temp = float(request.GET.get('temperatura_operacion'))
-        temp_presion_vapor = float(request.GET.get('temperatura_presion_vapor'))
+        temp = float(request.GET.get('temperatura_operacion')) 
+        temp_presion_vapor = float(request.GET.get('temperatura_presion_vapor', temp))
         presion_succion = float(request.GET.get('presion_succion'))
 
         if(unidad_densidad):
