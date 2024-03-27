@@ -167,5 +167,45 @@ class TuberiaInstalacionBombaForm(FormConUnidades):
             "instalacion"
         )
 
+class EvaluacionBombaForm(forms.ModelForm):
+    class Meta:
+        model = EvaluacionBomba
+        fields = ('nombre',)
+
+class EntradaEvaluacionBombaForm(FormConUnidades):
+    def limpiar_campos_unidades(self):
+        self.fields['altura_unidad'].empty_label = None
+        self.fields['altura_unidad'].queryset = Unidades.objects.filter(tipo = 'L')
+
+        self.fields['diametro_unidad'].empty_label = None
+        self.fields['diametro_unidad'].queryset = Unidades.objects.filter(tipo = 'L')
+
+        self.fields['presion_unidad'].empty_label = None
+        self.fields['presion_unidad'].queryset = Unidades.objects.filter(tipo = 'P')
+        
+        self.fields['presion_vapor_unidad'].empty_label = None
+        self.fields['presion_vapor_unidad'].queryset = Unidades.objects.filter(tipo = 'P')
+
+        self.fields['temperatura_unidad'].empty_label = None
+        self.fields['temperatura_unidad'].queryset = Unidades.objects.filter(tipo = 'T')
+
+        self.fields['viscosidad_unidad'].empty_label = None
+        self.fields['viscosidad_unidad'].queryset = Unidades.objects.filter(tipo = 'V')
+
+        self.fields['potencia_unidad'].empty_label = None
+        self.fields['potencia_unidad'].queryset = Unidades.objects.filter(tipo = 'P')
+
+        self.fields['flujo_unidad'].empty_label = None
+        self.fields['flujo_unidad'].queryset = Unidades.objects.filter(tipo = 'Q')
+
+        self.fields['npshr_unidad'].empty_label = None
+        self.fields['npshr_unidad'].queryset = Unidades.objects.filter(tipo = 'L')
+
+        self.fields['densidad_unidad'].queryset = Unidades.objects.filter(tipo = 'D')
+
+    class Meta:
+        model = EntradaEvaluacionBomba
+        exclude = ('id', 'evaluacion')
+
 EspecificacionesInstalacionFormSet = forms.modelformset_factory(EspecificacionesInstalacion, form=EspecificacionesInstalacionForm, min_num=2, max_num=2)
 TuberiaFormSet = forms.modelformset_factory(TuberiaInstalacionBomba, form=TuberiaInstalacionBombaForm, min_num=1, extra=0)

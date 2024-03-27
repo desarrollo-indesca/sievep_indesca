@@ -261,13 +261,16 @@ class EvaluacionBomba(models.Model):
     instalacion_descarga = models.ForeignKey(EspecificacionesInstalacion, on_delete = models.PROTECT, related_name="instalacion_descarga_evaluacionbomba")
 
 class EntradaEvaluacionBomba(models.Model):
-    presion = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)])
+    presion_succion = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Presión")
+    presion_descarga = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Presión")
     presion_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="presion_unidad_evaluacionbomba")
     
-    altura = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)])
+    altura_succion = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Altura")
+    altura_descarga = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Altura")
     altura_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="altura_unidad_evaluacionbomba")
     
-    diametro_bomba = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)])
+    diametro_succion = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Diámetro Interno")
+    diametro_descarga = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Diámetro Interno")
     diametro_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="diametro_unidad_evaluacionbomba")
 
     flujo = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)])
@@ -279,15 +282,19 @@ class EntradaEvaluacionBomba(models.Model):
     potencia =  models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)])
     potencia_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="potencia_unidad_evaluacionbomba")
 
-    npshr =  models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)])
+    npshr =  models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "NPSHr")
     npshr_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="npshr_unidad_evaluacionbomba")
 
-    densidad = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)])
+    densidad = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name="Densidad")
     densidad_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="densidad_unidad_evaluacionbomba")
+    
     viscosidad = models.FloatField(models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)]))
+    
     viscosidad_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="viscosidad_unidad_evaluacionbomba")
     presion_vapor = models.FloatField(models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)]))
     presion_vapor_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="presion_vapor_unidad_evaluacionbomba")
+
+    calculo_propiedades = models.CharField(max_length = 1, default = "M", choices=CALCULO_PROPIEDADES, verbose_name = "Cálculo de Propiedades")
 
     evaluacion = models.ForeignKey(EvaluacionBomba, on_delete = models.PROTECT, related_name = "entrada_evaluacion_evaluacionbomba")
 

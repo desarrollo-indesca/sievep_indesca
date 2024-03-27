@@ -12,5 +12,6 @@ urlpatterns = [
     path('bombas/edicion/<int:pk>/', EdicionBomba.as_view(), name="edicion_bomba"),
     path('bombas/instalacion/creacion/<int:pk>/', CreacionInstalacionBomba.as_view(), name="creacion_instalacion_bomba"),
     path('bombas/datos_fluido/', ObtencionDatosFluidosBomba.as_view(), name="datos_fluido_bomba"),
-    path('bombas/evaluacion/<int:pk>/', ConsultaEvaluacionBomba.as_view(), name = "evaluacion_bomba")
+    path('bombas/evaluaciones/<int:pk>/', ConsultaEvaluacionBomba.as_view(), name = "evaluacion_bomba"),
+    path('bombas/evaluar/<int:pk>/', CreacionEvaluacionBomba.as_view(), name = "crear_evaluacion_bomba"),
 ]

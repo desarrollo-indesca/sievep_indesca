@@ -47,8 +47,65 @@ class RegistrarFluidoCAS(View, SuperUserRequiredMixin):
     
     def get(self, request):
         return JsonResponse(registrar_fluido(request.GET.get('cas'), request.GET.get('nombre')))
+    
+class ConsultaEvaluacion(ListView, LoginRequiredMixin):
+    model = None
+    model_equipment = None
+    clase_equipo = ""
+    template_name = 'consulta_evaluaciones.html'
+    paginate_by = 10
+    titulo = "SIEVEP - Consulta de Evaluaciones"
 
+    def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
+        context = super().get_context_data(**kwargs)
+        context["titulo"] = "SIEVEP - Consulta de Evaluaciones"
+        equipo = self.model_equipment.objects.filter(pk=self.kwargs['pk'])
+        
+        context['equipo'] = equipo
+
+        context['nombre'] = self.request.GET.get('nombre', '')
+        context['desde'] = self.request.GET.get('desde', '')
+        context['hasta'] = self.request.GET.get('hasta')
+        context['usuario'] = self.request.GET.get('usuario','')
+
+        context['clase_equipo'] = self.clase_equipo
+
+        return context
+    
+    def get_queryset(self):
+        new_context = self.model.objects.filter(equipo__pk=self.kwargs['pk'], activo=True)
+        desde = self.request.GET.get('desde', '')
+        hasta = self.request.GET.get('hasta', '')
+        usuario = self.request.GET.get('usuario', '')
+        nombre = self.request.GET.get('nombre', '')
+
+        if(desde != ''):
+            new_context = new_context.filter(
+                fecha__gte = desde
+            )
+
+        if(hasta != ''):
+            new_context = new_context.filter(
+                fecha__lte=hasta
+            )
+
+        if(usuario != ''):
+            new_context = new_context.filter(
+                usuario__first_name__icontains = usuario
+            )
+
+        if(nombre != ''):
+            new_context = new_context.filter(
+                nombre__icontains = nombre
+            )
+
+        return new_context
+    
 # VISTAS DE BOMBAS
+
+class CargarBombaMixin():
+    def get_bomba(self):
+        return Bombas.objects.get(pk = self.kwargs['pk'])
 
 class ConsultaBombas(LoginRequiredMixin, ListView):
     """
@@ -315,7 +372,7 @@ class ObtencionDatosFluidosBomba(View, SuperUserRequiredMixin):
 
         return render(request, 'bombas/partials/fluido_bomba.html', propiedades)
 
-class EdicionBomba(CreacionBomba):
+class EdicionBomba(CreacionBomba, CargarBombaMixin):
     success_message = "Se han guardado los cambios exitosamente."
     def get_context(self):
         bomba = self.get_bomba()
@@ -329,9 +386,6 @@ class EdicionBomba(CreacionBomba):
             'titulo': f'SIEVEP - Edición de la Bomba {bomba.tag}',
             'edicion': True
         }
-    
-    def get_bomba(self):
-        return Bombas.objects.get(pk = self.kwargs['pk'])
     
     def post(self, request, pk):
         bomba = self.get_bomba()
@@ -359,13 +413,10 @@ class EdicionBomba(CreacionBomba):
                 'titulo': self.get_context()['titulo']
             })
         
-class CreacionInstalacionBomba(View, SuperUserRequiredMixin):
+class CreacionInstalacionBomba(View, CargarBombaMixin, SuperUserRequiredMixin):
     PREFIJO_INSTALACIONES = "formset-instalaciones"
     PREFIJO_TUBERIAS_SUCCION = "formset-succion"
     PREFIJO_TUBERIAS_DESCARGA = "formset-descarga"
-
-    def get_bomba(self):
-        return Bombas.objects.get(pk = self.kwargs['pk'])
 
     def get_context(self):
         bomba = self.get_bomba()
@@ -440,59 +491,6 @@ class CreacionInstalacionBomba(View, SuperUserRequiredMixin):
 
     def get(self, request, **kwargs):
         return render(request, 'bombas/creacion_instalacion.html', context=self.get_context())
-    
-class ConsultaEvaluacion(ListView, LoginRequiredMixin):
-    model = None
-    model_equipment = None
-    clase_equipo = ""
-    template_name = 'consulta_evaluaciones.html'
-    paginate_by = 10
-    titulo = "SIEVEP - Consulta de Evaluaciones"
-
-    def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
-        context = super().get_context_data(**kwargs)
-        context["titulo"] = "SIEVEP - Consulta de Evaluaciones"
-        equipo = self.model_equipment.objects.filter(pk=self.kwargs['pk'])
-        
-        context['equipo'] = equipo
-
-        context['nombre'] = self.request.GET.get('nombre', '')
-        context['desde'] = self.request.GET.get('desde', '')
-        context['hasta'] = self.request.GET.get('hasta')
-        context['usuario'] = self.request.GET.get('usuario','')
-
-        context['clase_equipo'] = self.clase_equipo
-
-        return context
-    
-    def get_queryset(self):
-        new_context = self.model.objects.filter(equipo__pk=self.kwargs['pk'], activo=True)
-        desde = self.request.GET.get('desde', '')
-        hasta = self.request.GET.get('hasta', '')
-        usuario = self.request.GET.get('usuario', '')
-        nombre = self.request.GET.get('nombre', '')
-
-        if(desde != ''):
-            new_context = new_context.filter(
-                fecha__gte = desde
-            )
-
-        if(hasta != ''):
-            new_context = new_context.filter(
-                fecha__lte=hasta
-            )
-
-        if(usuario != ''):
-            new_context = new_context.filter(
-                usuario__first_name__icontains = usuario
-            )
-
-        if(nombre != ''):
-            new_context = new_context.filter(
-                nombre__icontains = nombre
-            )
-
-        return new_context
 
 class ConsultaEvaluacionBomba(ConsultaEvaluacion):
     model = EvaluacionBomba
@@ -544,3 +542,22 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion):
         context['equipo'] = context['equipo'][0]
 
         return context
+    
+class CreacionEvaluacionBomba(View, CargarBombaMixin, LoginRequiredMixin):
+    PREFIJO_INSTALACIONES = "formset-instalaciones"
+    PREFIJO_TUBERIAS_SUCCION = "formset-succion"
+    PREFIJO_TUBERIAS_DESCARGA = "formset-descarga"
+
+    def get_context_data(self):
+        bomba = self.get_bomba()
+        context = {
+            'bomba': bomba,
+            'form_evaluacion': EvaluacionBombaForm(),
+            'form_entrada_evaluacion': EntradaEvaluacionBombaForm(),
+            'titulo': "Evaluación de Bomba"
+        }
+
+        return context
+    
+    def get(self, request, pk):
+        return render(request, 'bombas/evaluacion.html', self.get_context_data())

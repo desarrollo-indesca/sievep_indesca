@@ -4,11 +4,11 @@
 
 {% block encabezado %}
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="
-    {% url 'consulta_doble_tubo' %}?page={{request.session.pagina_consulta}}&tag={{request.session.tag_consulta}}&servicio={{request.session.servicio_consulta}}&complejo={{request.session.complejo_consulta}}&planta={{request.session.planta_consulta}}
+    {% url 'consulta_bombas' %}?page={{request.session.pagina_consulta}}&tag={{request.session.tag_consulta}}&servicio={{request.session.servicio_consulta}}&complejo={{request.session.complejo_consulta}}&planta={{request.session.planta_consulta}}
   ">↶ Regresar</a></div>
   <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Evaluaciones de{{clase_equipo}} {{equipo.tag}}</h3></div>
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
-    <a class="btn d-block btn-success" href="#">+ Nueva</a> &nbsp;
+    <a class="btn d-block btn-success" href="{% url 'crear_evaluacion_bomba' pk=equipo.pk %}">+ Nueva</a> &nbsp;
   </div>
 
   <script>
