@@ -440,3 +440,107 @@ class CreacionInstalacionBomba(View, SuperUserRequiredMixin):
 
     def get(self, request, **kwargs):
         return render(request, 'bombas/creacion_instalacion.html', context=self.get_context())
+    
+class ConsultaEvaluacion(ListView, LoginRequiredMixin):
+    model = None
+    model_equipment = None
+    clase_equipo = ""
+    template_name = 'consulta_evaluaciones.html'
+    paginate_by = 10
+    titulo = "SIEVEP - Consulta de Evaluaciones"
+
+    def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
+        context = super().get_context_data(**kwargs)
+        context["titulo"] = "SIEVEP - Consulta de Evaluaciones"
+        equipo = self.model_equipment.objects.filter(pk=self.kwargs['pk'])
+        
+        context['equipo'] = equipo
+
+        context['nombre'] = self.request.GET.get('nombre', '')
+        context['desde'] = self.request.GET.get('desde', '')
+        context['hasta'] = self.request.GET.get('hasta')
+        context['usuario'] = self.request.GET.get('usuario','')
+
+        context['clase_equipo'] = self.clase_equipo
+
+        return context
+    
+    def get_queryset(self):
+        new_context = self.model.objects.filter(equipo__pk=self.kwargs['pk'], activo=True)
+        desde = self.request.GET.get('desde', '')
+        hasta = self.request.GET.get('hasta', '')
+        usuario = self.request.GET.get('usuario', '')
+        nombre = self.request.GET.get('nombre', '')
+
+        if(desde != ''):
+            new_context = new_context.filter(
+                fecha__gte = desde
+            )
+
+        if(hasta != ''):
+            new_context = new_context.filter(
+                fecha__lte=hasta
+            )
+
+        if(usuario != ''):
+            new_context = new_context.filter(
+                usuario__first_name__icontains = usuario
+            )
+
+        if(nombre != ''):
+            new_context = new_context.filter(
+                nombre__icontains = nombre
+            )
+
+        return new_context
+
+class ConsultaEvaluacionBomba(ConsultaEvaluacion):
+    model = EvaluacionBomba
+    model_equipment = Bombas
+    clase_equipo = " la Bomba"
+    
+    def get_queryset(self):
+        new_context = super().get_queryset()
+
+        new_context = new_context.select_related('instalacion_succion', 'instalacion_descarga', 'usuario')
+        new_context = new_context.prefetch_related('instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad',
+                                                   'instalacion_succion__tuberias__longitud_tuberia_unidad', 'instalacion_succion__tuberias__material_tuberia',
+                                                   'entrada_evaluacion_evaluacionbomba', 'entrada_evaluacion_evaluacionbomba__presion_unidad', 'entrada_evaluacion_evaluacionbomba__altura_unidad',
+                                                   'entrada_evaluacion_evaluacionbomba__diametro_unidad', 'entrada_evaluacion_evaluacionbomba__flujo_unidad', 
+                                                   'entrada_evaluacion_evaluacionbomba__temperatura_unidad', 'entrada_evaluacion_evaluacionbomba__potencia_unidad',
+                                                   'entrada_evaluacion_evaluacionbomba__npshr_unidad', 'entrada_evaluacion_evaluacionbomba__densidad_unidad',
+                                                   'entrada_evaluacion_evaluacionbomba__viscosidad_unidad', 'entrada_evaluacion_evaluacionbomba_presion_vapor_unidad',
+                                                   'salida_general_evaluacionbomba', 'salida_secciones_evaluacionbomba')
+
+        return new_context
+
+    def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
+        context = super().get_context_data(**kwargs)
+        context['equipo'] = context['equipo']
+        context['equipo'] = context['equipo'].select_related('instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba','detalles_construccion','condiciones_diseno')
+        context['equipo'] = context['equipo'].prefetch_related(
+            'instalacion_succion__elevacion_unidad', 'condiciones_diseno__capacidad_unidad', 
+            'instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad',
+
+            'condiciones_diseno__presion_unidad', 'condiciones_diseno__npsha_unidad', 
+            
+            'condiciones_diseno__condiciones_fluido', 'condiciones_diseno__condiciones_fluido__temperatura_unidad',
+            'condiciones_diseno__condiciones_fluido__presion_vapor_unidad', 'condiciones_diseno__condiciones_fluido__viscosidad_unidad',
+            'condiciones_diseno__condiciones_fluido__concentracion_unidad', 'condiciones_diseno__condiciones_fluido__fluido',
+
+            'especificaciones_bomba__velocidad_unidad', 'especificaciones_bomba__potencia_unidad',
+            'especificaciones_bomba__npshr_unidad', 'especificaciones_bomba__cabezal_unidad',
+            'especificaciones_bomba__id_unidad',
+
+            'detalles_construccion__tipo_carcasa1', 'detalles_construccion__tipo_carcasa2',
+            'detalles_construccion__tipo',
+
+            'detalles_motor__potencia_motor_unidad','detalles_motor__velocidad_motor_unidad',
+            'detalles_motor__voltaje_unidad', 'detalles_motor__velocidad_motor_unidad',
+
+            'planta__complejo',
+        )
+
+        context['equipo'] = context['equipo'][0]
+
+        return context
