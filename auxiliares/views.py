@@ -13,8 +13,9 @@ from auxiliares.models import *
 from auxiliares.forms import *
 from intercambiadores.models import Complejo, Planta
 from calculos.termodinamicos import calcular_densidad, calcular_presion_vapor, calcular_viscosidad, calcular_densidad_relativa
-from calculos.unidades import transformar_unidades_presion, transformar_unidades_temperatura, transformar_unidades_densidad, transformar_unidades_viscosidad
+from calculos.unidades import transformar_unidades_presion, transformar_unidades_longitud, transformar_unidades_temperatura, transformar_unidades_densidad, transformar_unidades_viscosidad
 from calculos.utils import fluido_existe, registrar_fluido
+from .evaluacion import evaluacion_bomba
 
 # Create your views here.
 
@@ -542,7 +543,39 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion):
         context['equipo'] = context['equipo'][0]
 
         return context
-    
+
+class CalcularResultados(View, LoginRequiredMixin):
+    def get(self, request):
+        # Obtención de Parámetros
+        bomba = Bombas.objects.get(pk = request.GET.get('bomba'))
+        velocidad = request.GET.get('velocidad')
+        temp_operacion = request.GET.get('temp_operacion')
+        presion_succion = request.GET.get('presion_succion')
+        presion_descarga = request.GET.get('presion_descarga')
+        altura_succion = request.GET.get('altura_succion', 0)
+        altura_descarga = request.GET.get('altura_descarga', 0)
+        presion_descarga = request.GET.get('presion_descarga')
+        diametro_interno_succion = bomba.especificaciones_bomba.succion_id
+        diametro_interno_descarga = bomba.especificaciones_bomba.descarga_id
+        flujo = request.GET.get('flujo')
+        potencia = request.GET.get('potencia')
+        npshr = request.GET.get('npshr')
+
+        # Conversión de Parámetros
+        temp_operacion = transformar_unidades_temperatura([temp_operacion], int(request.GET.get('temp_operacion_unidad', 2)))[0]
+        presion_descarga, presion_succion = transformar_unidades_presion([presion_descarga, presion_succion], int(request.GET.get('presion_unidad', 33)))
+        altura_descarga, altura_succion = transformar_unidades_longitud([altura_descarga, altura_succion], int(request.GET.get('altura_unidad')))
+        diametro_interno_succion, diametro_interno_descarga = transformar_unidades_longitud([diametro_interno_succion, diametro_interno_descarga], bomba.especificaciones_bomba.id_unidad.pk)
+        # TODO: flujo = tra
+
+        context = evaluacion_bomba(
+            bomba, velocidad, temp_operacion,
+            presion_succion, presion_descarga,
+            altura_succion, altura_descarga,
+            diametro_interno_succion, diametro_interno_descarga,
+            flujo, potencia, npshr
+        )
+
 class CreacionEvaluacionBomba(View, CargarBombaMixin, LoginRequiredMixin):
     PREFIJO_INSTALACIONES = "formset-instalaciones"
     PREFIJO_TUBERIAS_SUCCION = "formset-succion"

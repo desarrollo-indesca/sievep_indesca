@@ -193,10 +193,10 @@ class EntradaEvaluacionBombaForm(FormConUnidades):
         self.fields['viscosidad_unidad'].queryset = Unidades.objects.filter(tipo = 'V')
 
         self.fields['potencia_unidad'].empty_label = None
-        self.fields['potencia_unidad'].queryset = Unidades.objects.filter(tipo = 'P')
+        self.fields['potencia_unidad'].queryset = Unidades.objects.filter(tipo = 'B')
 
         self.fields['flujo_unidad'].empty_label = None
-        self.fields['flujo_unidad'].queryset = Unidades.objects.filter(tipo = 'Q')
+        self.fields['flujo_unidad'].queryset = Unidades.objects.filter(tipo = 'K')
 
         self.fields['npshr_unidad'].empty_label = None
         self.fields['npshr_unidad'].queryset = Unidades.objects.filter(tipo = 'L')
