@@ -13,7 +13,7 @@ from auxiliares.models import *
 from auxiliares.forms import *
 from intercambiadores.models import Complejo, Planta
 from calculos.termodinamicos import calcular_densidad, calcular_presion_vapor, calcular_viscosidad, calcular_densidad_relativa
-from calculos.unidades import transformar_unidades_presion, transformar_unidades_longitud, transformar_unidades_temperatura, transformar_unidades_densidad, transformar_unidades_viscosidad
+from calculos.unidades import transformar_unidades_presion, transformar_unidades_flujo_volumetrico, transformar_unidades_potencia, transformar_unidades_longitud, transformar_unidades_temperatura, transformar_unidades_densidad, transformar_unidades_viscosidad
 from calculos.utils import fluido_existe, registrar_fluido
 from .evaluacion import evaluacion_bomba
 
@@ -545,28 +545,34 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion):
         return context
 
 class CalcularResultados(View, LoginRequiredMixin):
-    def get(self, request):
+    def post(self, request, pk):
+
+        print(request.POST)
+
         # Obtención de Parámetros
-        bomba = Bombas.objects.get(pk = request.GET.get('bomba'))
-        velocidad = request.GET.get('velocidad')
-        temp_operacion = request.GET.get('temp_operacion')
-        presion_succion = request.GET.get('presion_succion')
-        presion_descarga = request.GET.get('presion_descarga')
-        altura_succion = request.GET.get('altura_succion', 0)
-        altura_descarga = request.GET.get('altura_descarga', 0)
-        presion_descarga = request.GET.get('presion_descarga')
+        bomba = Bombas.objects.get(pk = pk)
+        velocidad = bomba.especificaciones_bomba.velocidad
+        print(velocidad)
+        temp_operacion = float(request.POST.get('temperatura_operacion'))
+        presion_succion = float(request.POST.get('presion_succion'))
+        presion_descarga = float(request.POST.get('presion_descarga'))
+        altura_succion = float(request.POST.get('altura_succion', 0))
+        altura_descarga = float(request.POST.get('altura_descarga', 0))
+        presion_descarga = float(request.POST.get('presion_descarga'))
         diametro_interno_succion = bomba.especificaciones_bomba.succion_id
         diametro_interno_descarga = bomba.especificaciones_bomba.descarga_id
-        flujo = request.GET.get('flujo')
-        potencia = request.GET.get('potencia')
-        npshr = request.GET.get('npshr')
+        flujo = float(request.POST.get('flujo'))
+        potencia = float(request.POST.get('potencia'))
+        npshr = float(request.POST.get('npshr'))
 
-        # Conversión de Parámetros
-        temp_operacion = transformar_unidades_temperatura([temp_operacion], int(request.GET.get('temp_operacion_unidad', 2)))[0]
-        presion_descarga, presion_succion = transformar_unidades_presion([presion_descarga, presion_succion], int(request.GET.get('presion_unidad', 33)))
-        altura_descarga, altura_succion = transformar_unidades_longitud([altura_descarga, altura_succion], int(request.GET.get('altura_unidad')))
+        # Conversión de Parámetros a SI
+        temp_operacion = transformar_unidades_temperatura([temp_operacion], int(request.POST.get('temperatura_unidad')))[0]
+        presion_descarga, presion_succion = transformar_unidades_presion([presion_descarga, presion_succion], int(request.POST.get('presion_unidad', 33)))
+        altura_descarga, altura_succion = transformar_unidades_longitud([altura_descarga, altura_succion], int(request.POST.get('altura_unidad')))
         diametro_interno_succion, diametro_interno_descarga = transformar_unidades_longitud([diametro_interno_succion, diametro_interno_descarga], bomba.especificaciones_bomba.id_unidad.pk)
-        # TODO: flujo = tra
+        potencia = transformar_unidades_potencia([potencia], int(request.POST.get('potencia_unidad')))[0]
+        flujo = transformar_unidades_flujo_volumetrico([flujo], int(request.POST.get('flujo_unidad')))[0]
+        npshr = transformar_unidades_longitud([npshr], int(request.POST.get('npshr_unidad')))[0]
 
         context = evaluacion_bomba(
             bomba, velocidad, temp_operacion,
@@ -575,6 +581,8 @@ class CalcularResultados(View, LoginRequiredMixin):
             diametro_interno_succion, diametro_interno_descarga,
             flujo, potencia, npshr
         )
+
+        print(context)
 
 class CreacionEvaluacionBomba(View, CargarBombaMixin, LoginRequiredMixin):
     PREFIJO_INSTALACIONES = "formset-instalaciones"

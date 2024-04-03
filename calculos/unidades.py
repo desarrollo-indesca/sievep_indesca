@@ -61,9 +61,7 @@ def transformar_unidades_longitud(args: list, unidad: int, unidad_salida: int = 
     actualizadas = []
     unidad_salida = ur.meter if unidad_salida == 4 else ur.millimeter if unidad_salida == 5 else ur.centimeter if unidad_salida == 12 else ur.feet if unidad_salida == 14 else ur.inch
     unidad = ur.meter if unidad == 4 else ur.millimeter if unidad == 5 else ur.centimeter if unidad == 12 else ur.feet if unidad == 14 else ur.inch
-
     actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
-
     return actualizadas
 
 def transformar_unidades_area(args: list, unidad: int, unidad_salida: int = 3) -> list:
@@ -256,22 +254,47 @@ def transformar_unidades_viscosidad(args: list, unidad: int, unidad_salida: int 
 
     return actualizadas
 
-def transformar_unidades_viscosidad(args: list, unidad: int, unidad_salida: int = 31) -> list:
+def transformar_unidades_flujo_volumetrico(args: list, unidad: int, unidad_salida: int = 42) -> list:
     '''
     Resumen:
-        Función para transformar unidades de viscosidad dinámica.
+        Función para transformar unidades de flujo volumétrico.
 
     Parámetros:
         args: list -> Lista de valores a transformar
         unidad: int -> ID de la unidad de entrada
-        unidad_salida: int -> ID de la unidad de salida. De no dar ninguna devolverá en Pa.s .
+        unidad_salida: int -> ID de la unidad de salida. De no dar ninguna devolverá en m3/h .
 
     Devuelve:
         list -> Lista de valores transformados a la unidad de salida
     '''
 
     def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
-        return ur.gallon / ur.minute if unidad == 48 else ur.meter ** 3 / ur.hour
+        return ur.gallon / ur.minute if unidad == 48 else ur.meter ** 3 / ur.hour if unidad == 34 else ur.meter ** 3 /ur.second
+
+    actualizadas = []
+    unidad_salida = obtener_unidad(unidad_salida)
+    unidad = obtener_unidad(unidad)
+    
+    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
+
+    return actualizadas
+
+def transformar_unidades_potencia(args: list, unidad: int, unidad_salida: int = 49) -> list:
+    '''
+    Resumen:
+        Función para transformar unidades de potencia.
+
+    Parámetros:
+        args: list -> Lista de valores a transformar
+        unidad: int -> ID de la unidad de entrada
+        unidad_salida: int -> ID de la unidad de salida. De no dar ninguna devolverá en Watt.
+
+    Devuelve:
+        list -> Lista de valores transformados a la unidad de salida
+    '''
+
+    def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
+        return ur.HP if unidad == 40 else ur.watt
 
     actualizadas = []
     unidad_salida = obtener_unidad(unidad_salida)
