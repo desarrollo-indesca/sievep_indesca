@@ -547,12 +547,9 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion):
 class CalcularResultados(View, LoginRequiredMixin):
     def post(self, request, pk):
 
-        print(request.POST)
-
         # Obtención de Parámetros
         bomba = Bombas.objects.get(pk = pk)
         velocidad = bomba.especificaciones_bomba.velocidad
-        print(velocidad)
         temp_operacion = float(request.POST.get('temperatura_operacion'))
         presion_succion = float(request.POST.get('presion_succion'))
         presion_descarga = float(request.POST.get('presion_descarga'))
@@ -574,7 +571,7 @@ class CalcularResultados(View, LoginRequiredMixin):
         flujo = transformar_unidades_flujo_volumetrico([flujo], int(request.POST.get('flujo_unidad')))[0]
         npshr = transformar_unidades_longitud([npshr], int(request.POST.get('npshr_unidad')))[0]
 
-        context = evaluacion_bomba(
+        res = evaluacion_bomba(
             bomba, velocidad, temp_operacion,
             presion_succion, presion_descarga,
             altura_succion, altura_descarga,
@@ -582,7 +579,11 @@ class CalcularResultados(View, LoginRequiredMixin):
             flujo, potencia, npshr
         )
 
-        print(context)
+        res['cabezal_total'] = transformar_unidades_longitud([res['cabezal_total']], bomba.especificaciones_bomba.cabezal_unidad.pk)
+        res['potencia_calculada'] = transformar_unidades_longitud([res['potencia_calculada']], bomba.especificaciones_bomba.potencia_unidad.pk)
+        res['npsha'] = transformar_unidades_longitud([res['npsha']], bomba.condiciones_diseno.npsha_unidad.pk) 
+
+        return render(request, 'bombas/partials/resultado_evaluacion.html', context={'res': res, 'bomba': bomba})
 
 class CreacionEvaluacionBomba(View, CargarBombaMixin, LoginRequiredMixin):
     PREFIJO_INSTALACIONES = "formset-instalaciones"

@@ -25,7 +25,7 @@ AISLAMIENTO = (
 CORROSIVIDAD = (
     ('C', 'Corrosivo'),
     ('E', 'Erosivo'),
-    ('N', 'No Errosivo ni Corrosivo'), 
+    ('N', 'No Erosivo ni Corrosivo'), 
     ('A', 'Ambos'),
     ('D', 'Desconocido')
 )  

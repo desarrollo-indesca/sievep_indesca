@@ -65,41 +65,39 @@ def calcular_cabezal(densidad, presion_descarga, presion_succion, altura_descarg
 def calculo_perdida_tramos(tramos, velocidad, area, area_comp, flujos):
     ec = velocidad**2/(2*GRAVEDAD)
     c,e = calculo_contracciones_expansiones(tramos)
-    k,h,ft = [],0,0
+    k,h,ft = 0,0,0
 
     for i,tramo in enumerate(tramos.all()):
-        kn = 0
         longitud = transformar_unidades_longitud([tramo.longitud_tuberia], tramo.longitud_tuberia_unidad.pk)[0]
         diametro = transformar_unidades_longitud([tramo.diametro_tuberia], tramo.diametro_tuberia_unidad.pk)[0]
         h += flujos[i]['factor_friccion']*(longitud/diametro)*(velocidad**2/(2*GRAVEDAD))
-        kn += 340*tramo.numero_valvula_globo if tramo.numero_valvula_globo else 0
-        kn += 150*tramo.numero_valvula_angulo if tramo.numero_valvula_angulo else 0
-        kn += 8*tramo.numero_valvulas_compuerta if tramo.numero_valvulas_compuerta else 0
-        kn += 35*tramo.numero_valvulas_compuerta_abierta_3_4 if tramo.numero_valvulas_compuerta_abierta_3_4 else 0
-        kn += 160*tramo.numero_valvulas_compuerta_abierta_1_2 if tramo.numero_valvulas_compuerta_abierta_1_2 else 0
-        kn += 900*tramo.numero_valvulas_compuerta_abierta_1_4 if tramo.numero_valvulas_compuerta_abierta_1_4 else 0
-        kn += 100*tramo.numero_valvula_giratoria if tramo.numero_valvula_giratoria else 0
-        kn += 150*tramo.numero_valvula_bola if tramo.numero_valvula_bola else 0
-        kn += 45*tramo.numero_valvulas_mariposa_2_8 if tramo.numero_valvulas_mariposa_2_8 else 0
-        kn += 35*tramo.numero_valvulas_mariposa_10_14 if tramo.numero_valvulas_mariposa_10_14 else 0
-        kn += 25*tramo.numero_valvulas_mariposa_16_24 if tramo.numero_valvulas_mariposa_16_24 else 0
-        kn += 420*tramo.numero_valvula_vastago if tramo.numero_valvula_vastago else 0
-        kn += 75*tramo.numero_valvula_bisagra if tramo.numero_valvula_bisagra else 0
-        kn += 30*tramo.numero_codos_90 if tramo.numero_codos_90 else 0
-        kn += 20*tramo.numero_codos_90_rl if tramo.numero_codos_90_rl else 0
-        kn += 50*tramo.numero_codos_90_ros if tramo.numero_codos_90_ros else 0
-        kn += 16*tramo.numero_codos_45 if tramo.numero_codos_45 else 0
-        kn += 26*tramo.numero_codos_45_ros if tramo.numero_codos_45_ros else 0
-        kn += 50*tramo.numero_codos_180 if tramo.numero_codos_180 else 0
-        kn += 20*tramo.conexiones_t_directo if tramo.conexiones_t_directo else 0
-        kn += 60*tramo.conexiones_t_ramal if tramo.conexiones_t_ramal else 0
-        kn += 1 if i == 0 else 0 # Entrada / Salida
+        k += 340*tramo.numero_valvula_globo if tramo.numero_valvula_globo else 0
+        k += 150*tramo.numero_valvula_angulo if tramo.numero_valvula_angulo else 0
+        k += 8*tramo.numero_valvulas_compuerta if tramo.numero_valvulas_compuerta else 0
+        k += 35*tramo.numero_valvulas_compuerta_abierta_3_4 if tramo.numero_valvulas_compuerta_abierta_3_4 else 0
+        k += 160*tramo.numero_valvulas_compuerta_abierta_1_2 if tramo.numero_valvulas_compuerta_abierta_1_2 else 0
+        k += 900*tramo.numero_valvulas_compuerta_abierta_1_4 if tramo.numero_valvulas_compuerta_abierta_1_4 else 0
+        k += 100*tramo.numero_valvula_giratoria if tramo.numero_valvula_giratoria else 0
+        k += 150*tramo.numero_valvula_bola if tramo.numero_valvula_bola else 0
+        k += 45*tramo.numero_valvulas_mariposa_2_8 if tramo.numero_valvulas_mariposa_2_8 else 0
+        k += 35*tramo.numero_valvulas_mariposa_10_14 if tramo.numero_valvulas_mariposa_10_14 else 0
+        k += 25*tramo.numero_valvulas_mariposa_16_24 if tramo.numero_valvulas_mariposa_16_24 else 0
+        k += 420*tramo.numero_valvula_vastago if tramo.numero_valvula_vastago else 0
+        k += 75*tramo.numero_valvula_bisagra if tramo.numero_valvula_bisagra else 0
+        k += 30*tramo.numero_codos_90 if tramo.numero_codos_90 else 0
+        k += 20*tramo.numero_codos_90_rl if tramo.numero_codos_90_rl else 0
+        k += 50*tramo.numero_codos_90_ros if tramo.numero_codos_90_ros else 0
+        k += 16*tramo.numero_codos_45 if tramo.numero_codos_45 else 0
+        k += 26*tramo.numero_codos_45_ros if tramo.numero_codos_45_ros else 0
+        k += 50*tramo.numero_codos_180 if tramo.numero_codos_180 else 0
+        k += 20*tramo.conexiones_t_directo if tramo.conexiones_t_directo else 0
+        k += 60*tramo.conexiones_t_ramal if tramo.conexiones_t_ramal else 0
+        k += 1 if i == 0 else 0 # Entrada / Salida
         ft += flujos[i]['factor_turbulento']
-        kn += 0.5*c*1/(tramos.count())
-        kn += (1-(area/area_comp)**2)*e*0*1/(tramos.count())
-        k.append(kn)
+        k += 0.5*c*1/(tramos.count())
+        k += (1-(area/area_comp)**2)*e*0*1/(tramos.count())
 
-    h_accesorios = ft*ec*sum(k)
+    h_accesorios = ft*ec*k
 
     return [h, h_accesorios]
 
@@ -161,21 +159,37 @@ def evaluacion_bomba(bomba, velocidad, temp_operacion, presion_succion, presion_
         'velocidad_especifica': ns,
         'npsha': npsha,
         'cavita': cavita,
-        'reynolds': {
-            's': nr_succion,
-            'd': nr_descarga
-        },
         'friccion': {
             's': sum([flujo['factor_friccion'] for flujo in flujos_succion]),
-            'd': sum([flujo['factor_friccion'] for flujo in flujos_descarga])
+            'd': sum([flujo['factor_friccion'] for flujo in flujos_descarga]),
+            't': sum([flujo['factor_friccion'] for flujo in flujos_succion]) + sum([flujo['factor_friccion'] for flujo in flujos_descarga])
         },
         'turbulento': {
             's': sum([flujo['factor_turbulento'] for flujo in flujos_succion]),
-            'd': sum([flujo['factor_turbulento'] for flujo in flujos_descarga])
+            'd': sum([flujo['factor_turbulento'] for flujo in flujos_descarga]),
+            't': sum([flujo['factor_turbulento'] for flujo in flujos_descarga]) + sum([flujo['factor_turbulento'] for flujo in flujos_succion])
         },
         'flujo': {
-            's': [flujo['tipo_flujo'] for flujo in flujos_succion],
-            'd': [flujo['tipo_flujo'] for flujo in flujos_descarga]
+            's': flujos_succion[-1]['tipo_flujo'],
+            'd': flujos_descarga[-1]['tipo_flujo'],
+            't': '-'
+        },
+        'perdidas': {
+            's': {
+                'tuberia': h_succion_tuberia,
+                'accesorio': h_succion_acc,
+                'total': h_total_succion
+            },
+            'd': {
+                'tuberia': h_descarga_tuberia,
+                'accesorio': h_descarga_acc,
+                'total': h_total_descarga
+            },
+            't': {
+               'tuberia': h_succion_tuberia + h_descarga_tuberia,
+               'accesorio': h_descarga_acc + h_succion_acc,
+               'total': h_total_succion + h_total_descarga
+            }
         }
     }
 

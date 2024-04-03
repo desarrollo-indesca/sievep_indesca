@@ -1,13 +1,185 @@
-<table>
+<hr>
+
+<h5 class="text-center">
+    Resultados de la Evaluación
+</h5>
+
+<table class="table table-responsive">
     <thead>
         <tr>
-            <td class="text-center" colspan="2">
+            <th class="text-center table-dark" colspan="3">
                 RESULTADOS DE LA EVALUACIÓN
+            </th>
+        </tr>
+        <tr>
+            <th class="text-center table-dark">RESULTADO</th>
+            <th class="text-center table-dark">VALOR CALCULADO</th>
+            <th class="text-center table-dark">VALOR POR FICHA</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr>
+            <th class="table-dark text-center">Cabezal Total</th>
+            <td class="text-center">{{res.cabezal_total.0|floatformat:5}} {{bomba.especificaciones_bomba.cabezal_unidad}}</td>
+            <td class="text-center">{{bomba.especificaciones_bomba.cabezal_total}} {{bomba.especificaciones_bomba.cabezal_unidad}}</td>
+        </tr>
+        <tr>
+            <th class="table-dark text-center">Eficiencia</th>
+            <td class="text-center">{{res.eficiencia|floatformat:5}}%</td>
+            <td class="text-center">{{bomba.especificaciones_bomba.eficiencia}}%</td>
+        </tr>
+        <tr>
+            <th class="table-dark text-center">Potencia Calculada</th>
+            <td class="text-center">{{res.potencia_calculada.0|floatformat:5}} {{bomba.especificaciones_bomba.potencia_unidad}}</td>
+            <td class="text-center">{{bomba.especificaciones_bomba.potencia_maxima}} {{bomba.especificaciones_bomba.potencia_unidad}}</td>
+        </tr>
+        <tr>
+            <th class="table-dark text-center">Velocidad Específica</th>
+            <td class="text-center">{{res.velocidad_especifica|floatformat:5}} {{bomba.especificaciones_bomba.velocidad_unidad}}</td>
+            <td class="text-center">{{bomba.especificaciones_bomba.velocidad}} {{bomba.especificaciones_bomba.velocidad_unidad}}</td>
+        </tr>
+        <tr>
+            <th class="table-dark text-center">NPSHa</th>
+            <td class="text-center">{{res.npsha.0|floatformat:5}} {{bomba.condiciones_diseno.npsha_unidad}}</td>
+            <td class="text-center">
+                {% if bomba.condiciones_diseno.npsha %}
+                {{bomba.condiciones_diseno.npsha}} {{bomba.condiciones_diseno.npsha_unidad}}
+                {% endif %}
             </td>
         </tr>
         <tr>
-            <td class="text-center">RESULTADO</td>
-            <td class="text-center">VALOR CALCULADO</td>
+            <th class="table-dark text-center">La bomba cavita</th>
+            <td class="text-center">
+                {% if res.cavita == 'C' %}
+                Sí
+                {% elif res.cavita == 'N' %}
+                No
+                {% else %}
+                Desconocido (NPSHr desconocido)
+                {% endif %}
+            </td>
+            <td class="text-center"></td>
+        </tr>
+    </tbody>
+</table>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th class="table-dark text-center">
+                LADO
+            </th>
+            <th class="table-dark text-center">
+                PÉRDIDAS POR TUBERÍA
+            </th>
+            <th class="table-dark text-center">
+                PÉRDIDAS POR ACCESORIOS
+            </th>
+            <th class="table-dark text-center">
+                PÉRDIDAS TOTALES
+            </th>
+            <th class="table-dark text-center">
+                FACTOR DE FRICCIÓN TOTAL
+            </th>
+            <th class="table-dark text-center">
+                FACTOR TURBULENTO TOTAL
+            </th>
+            <th class="table-dark text-center">
+                TIPO DE FLUJO POR TRAMO
+            </th>
         </tr>
     </thead>
+
+    <tbody>
+        <tr>
+            <th class="text-center table-dark">
+                SUCCIÓN
+            </th>
+            <td class="text-center">
+                {{res.perdidas.s.tuberia|floatformat:5}}
+            </td>
+            <td class="text-center">
+                {{res.perdidas.s.accesorio|floatformat:5}}
+            </td>
+            <td class="text-center">
+                {{res.perdidas.s.total|floatformat:5}}
+            </td>
+            <td class="text-center">
+                {{res.friccion.s|floatformat:5}}
+            </td>     
+            <td class="text-center">
+                {{res.turbulento.s|floatformat:5}}
+            </td>     
+            <td class="text-center">
+                {% for x in res.flujo.s %}
+                    {% if x == 'L' %}
+                    Laminar
+                    {% elif x == 'T' %}
+                    Turbulento
+                    {% else %}
+                    Transitorio
+                    {% endif %} {% if not forloop.last %} - {% endif %}
+                {% endfor %}
+            </td>         
+        </tr>
+
+        <tr>
+            <th class="table-dark text-center">
+                DESCARGA
+            </th>
+            <td class="text-center">
+                {{res.perdidas.d.tuberia|floatformat:5}}
+            </td>
+            <td class="text-center">
+                {{res.perdidas.d.accesorio|floatformat:5}}
+            </td>
+            <td class="text-center">
+                {{res.perdidas.d.total|floatformat:5}}
+            </td>
+            <td class="text-center">
+                {{res.friccion.d|floatformat:5}}
+            </td>     
+            <td class="text-center">
+                {{res.turbulento.d|floatformat:5}}
+            </td>     
+            <td class="text-center">
+                {% for x in res.flujo.d %}
+                    {% if x == 'L' %}
+                    Laminar
+                    {% elif x == 'T' %}
+                    Turbulento
+                    {% else %}
+                    Transitorio
+                    {% endif %} {% if not forloop.last %} - {% endif %}
+                {% endfor %}
+            </td>    
+        </tr>
+
+        <tr class="table-dark">
+            <th class="text-center">
+                TOTAL
+            </th>
+            <td class="text-center">
+                {{res.perdidas.t.tuberia|floatformat:5}}
+            </td>
+            <td class="text-center">
+                {{res.perdidas.t.accesorio|floatformat:5}}
+            </td>
+            <td class="text-center">
+                {{res.perdidas.t.total|floatformat:5}}
+            </td>
+            <td class="text-center">
+                {{res.friccion.t|floatformat:5}}
+            </td>     
+            <td class="text-center">
+                {{res.turbulento.t|floatformat:5}}
+            </td>     
+            <td class="text-center">
+                -
+            </td>    
+        </tr>
+    </tbody>
 </table>
+
+<button type="submit" id="submit" hx-swap-oob="true" class="btn btn-danger">Almacenar Evaluación</button>
