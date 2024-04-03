@@ -207,7 +207,7 @@ class EntradaEvaluacionBombaForm(FormConUnidades):
 
     class Meta:
         model = EntradaEvaluacionBomba
-        exclude = ('id', 'evaluacion')
+        exclude = ('id', 'evaluacion', 'diametro_succion', 'diametro_descarga', 'diametro_unidad', 'velocidad', 'velocidad_unidad')
 
 EspecificacionesInstalacionFormSet = forms.modelformset_factory(EspecificacionesInstalacion, form=EspecificacionesInstalacionForm, min_num=2, max_num=2)
 TuberiaFormSet = forms.modelformset_factory(TuberiaInstalacionBomba, form=TuberiaInstalacionBombaForm, min_num=1, extra=0)

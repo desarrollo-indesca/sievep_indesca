@@ -41,6 +41,12 @@ CALCULO_PROPIEDADES = (
     ('A', 'Automático')
 )
 
+CALCULO_PROPIEDADES_EVALUACION = (
+    ('M', 'Manual'),
+    ('A', 'Automático'),
+    ('F', 'Ficha')
+)
+
 CARCASA_DIVIDIDA = (
     ('A', 'Axial'),
     ('R', 'Radial')
@@ -273,6 +279,9 @@ class EntradaEvaluacionBomba(models.Model):
     diametro_descarga = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Diámetro Interno")
     diametro_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="diametro_unidad_evaluacionbomba")
 
+    velocidad = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Velocidad")
+    velocidad_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="velocidad_unidad_evaluacionbomba")
+
     flujo = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)])
     flujo_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="flujo_unidad_evaluacionbomba")
 
@@ -286,7 +295,7 @@ class EntradaEvaluacionBomba(models.Model):
     npshr_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="npshr_unidad_evaluacionbomba")
 
     densidad = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name="Densidad")
-    densidad_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="densidad_unidad_evaluacionbomba")
+    densidad_unidad = models.ForeignKey(Unidades,  null=True, blank = True, on_delete = models.PROTECT, related_name="densidad_unidad_evaluacionbomba")
     
     viscosidad = models.FloatField(models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)]))
     
@@ -294,7 +303,7 @@ class EntradaEvaluacionBomba(models.Model):
     presion_vapor = models.FloatField(models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)]))
     presion_vapor_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="presion_vapor_unidad_evaluacionbomba")
 
-    calculo_propiedades = models.CharField(max_length = 1, default = "M", choices=CALCULO_PROPIEDADES, verbose_name = "Cálculo de Propiedades")
+    calculo_propiedades = models.CharField(max_length = 1, default = "M", choices=CALCULO_PROPIEDADES_EVALUACION, verbose_name = "Cálculo de Propiedades")
 
     evaluacion = models.ForeignKey(EvaluacionBomba, on_delete = models.PROTECT, related_name = "entrada_evaluacion_evaluacionbomba")
 
