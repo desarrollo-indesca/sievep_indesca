@@ -1,3 +1,5 @@
+{% load static %}
+
 <hr>
 
 <h5 class="text-center">
@@ -106,7 +108,7 @@
             </td>
             <td class="text-center">
                 {% if res.flujo.s %}
-                <a href="#" class="btn btn-primary">Flujos por Tramo</a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#succion" class="btn btn-primary">Flujos por Tramo</a>
                 {% else %}
                 N/A
                 {% endif %}             
@@ -131,7 +133,7 @@
             </td>
             <td class="text-center">
                 {% if res.flujo.d %}
-                <a href="#" class="btn btn-primary">Flujos por Tramo</a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#descarga" class="btn btn-primary">Flujos por Tramo</a>
                 {% else %}
                 N/A
                 {% endif %}             
@@ -160,5 +162,117 @@
         </tr>
     </tbody>
 </table>
+
+<div class="modal fade" id="succion" tabindex="-1" aria-labelledby="succionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="succionLabel">Tipos de Flujo de la Succión</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-start small">
+          <div class="row">
+            <div class="col-12">
+              <div class="d-flex flex-column">
+                <table class="table table-light text-center table-bordered mb-0">
+                  <tbody>
+                    <tr>
+                        <th class="table-dark text-center">
+                            # TRAMO
+                        </th>
+                        <th class="table-dark text-center">
+                            DIÁMETRO
+                        </th>
+                        <th class="table-dark text-center">
+                            LONGITUD TOTAL
+                        </th>
+                        <th class="table-dark text-center">
+                            TIPO DE FLUJO
+                        </th>
+                    </tr>
+                    {% for tramo in res.flujo.s %}
+                    <tr>
+                        <td>{{forloop.counter}}</td>
+                        <td>{{tramo.diametro}} {{tramo.diametro_unidad}}</td>
+                        <td>{{tramo.longitud}} {{tramo.longitud_unidad}}</td>
+                        <td class="{% if tramo.tipo_flujo == 'L' %}table-success{% elif tramo.tipo_flujo == 'T' %}table-danger{%else%}table-warning{%endif%} text-center">
+                            {% if tramo.tipo_flujo == 'L' %}
+                            Laminar
+                            {% elif tramo.tipo_flujo == 'T' %}
+                            Turbulento
+                            {% else %}
+                            Transitorio
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+            
+        </div>
+      </div>
+    </div>
+</div>
+
+<div class="modal fade" id="descarga" tabindex="-1" aria-labelledby="descargaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="descargaLabel">Tipos de Flujo de la Descarga</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-start small">
+          <div class="row">
+            <div class="col-12">
+              <div class="d-flex flex-column">
+                <table class="table table-light text-center table-bordered mb-0">
+                  <tbody>
+                    <tr>
+                        <th class="table-dark text-center">
+                            # TRAMO
+                        </th>
+                        <th class="table-dark text-center">
+                            DIÁMETRO
+                        </th>
+                        <th class="table-dark text-center">
+                            LONGITUD TOTAL
+                        </th>
+                        <th class="table-dark text-center">
+                            TIPO DE FLUJO
+                        </th>
+                    </tr>
+                    {% for tramo in res.flujo.d %}
+                    <tr>
+                        <td>{{forloop.counter}}</td>
+                        <td>{{tramo.diametro}} {{tramo.diametro_unidad}}</td>
+                        <td>{{tramo.longitud}} {{tramo.longitud_unidad}}</td>
+                        <td class="{% if tramo.tipo_flujo == 'L' %}table-success{% elif tramo.tipo_flujo == 'T' %}table-danger{%else%}table-warning{%endif%} text-center">
+                            {% if tramo.tipo_flujo == 'L' %}
+                            Laminar
+                            {% elif tramo.tipo_flujo == 'T' %}
+                            Turbulento
+                            {% else %}
+                            Transitorio
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+           
+        </div>
+      </div>
+    </div>
+</div>
 
 <button type="submit" id="submit" hx-swap-oob="true" class="btn btn-danger">Almacenar Evaluación</button>
