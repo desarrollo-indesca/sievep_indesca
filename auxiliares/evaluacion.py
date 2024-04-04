@@ -32,7 +32,9 @@ def calcular_flujo_bomba(tramos, numeros_reynolds):
     for i,tramo in enumerate(tramos.all()):
         numero_reynolds = numeros_reynolds[i]
         diametro = transformar_unidades_longitud([tramo.diametro_tuberia], tramo.diametro_tuberia_unidad.pk)[0]
+        
         tipo_flujo = 'L' if numero_reynolds < 2000 else 'T' if numero_reynolds > 4000 else 'R'
+        
         factor_friccion = calcular_factor_friccion(tipo_flujo, numero_reynolds, diametro, tramo.material_tuberia.rugosidad)
         factor_turbulento = 0.25/(math.log10(1/(3.7*diametro/tramo.material_tuberia.rugosidad)))**2
 
@@ -95,7 +97,7 @@ def calculo_perdida_tramos(tramos, velocidad, area, area_comp, flujos):
         k += 1 if i == 0 else 0 # Entrada / Salida
         ft += flujos[i]['factor_turbulento']
         k += 0.5*c*1/(tramos.count())
-        k += (1-(area/area_comp)**2)*e*0*1/(tramos.count())
+        k += (1-(area/area_comp)**2)*e*diametro*1/(tramos.count())
 
     h_accesorios = ft*ec*k
 

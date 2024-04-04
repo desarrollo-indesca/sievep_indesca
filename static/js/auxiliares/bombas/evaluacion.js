@@ -27,7 +27,16 @@ $('#id_fluido, #id_calculo_propiedades').change((e) => {
 });
 
 $('#id_calculo_propiedades').change((e) => {
-    if('MF'.indexOf(e.target.value) !== -1)
+    if(e.target.value !== 'F'){
+        $('#id_temperatura_operacion').removeAttr('disabled');
+        $('#id_temperatura_unidad').removeAttr('disabled');
+        $('#id_presion_unidad').removeAttr('disabled');
+        $('#id_presion_succion').removeAttr('disabled');
+        $('#id_presion_vapor_unidad').removeAttr('disabled');
+        $('#id_viscosidad_unidad').removeAttr('disabled');
+    }
+
+    if(e.target.value == 'M')
         $('button[type=submit]').removeAttr('disabled');
 })
 
@@ -35,15 +44,28 @@ document.body.addEventListener('htmx:beforeRequest', function(evt) {
     const body = document.getElementsByTagName('body')[0]
     body.style.opacity = 0.25;
 
-    if('MF'.indexOf(document.getElementById('id_calculo_propiedades')) !== -1 || 
+    if(document.getElementById('id_calculo_propiedades').value === 'F')
+        return;
+    else{
+        console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        $('#id_temperatura_operacion').removeAttr('disabled');
+        $('#id_temperatura_unidad').removeAttr('disabled');
+        $('#id_presion_unidad').removeAttr('disabled');
+        $('#id_presion_succion').removeAttr('disabled');
+        $('#id_presion_vapor_unidad').removeAttr('disabled');
+        $('#id_viscosidad_unidad').removeAttr('disabled');
+    }
+
+    if(document.getElementById('id_calculo_propiedades').value == 'M' || 
         document.getElementById('id_temperatura_operacion').value === '' ||
         document.getElementById('id_presion_succion').value === ''
     ){
         evt.preventDefault();
-        if('MF'.indexOf(document.getElementById('id_calculo_propiedades')) !== -1){
+        if(document.getElementById('id_calculo_propiedades').value == 'M'){
             $('#id_viscosidad').removeAttr('disabled');
             $('#id_presion_vapor').removeAttr('disabled');
             $('#id_densidad').removeAttr('disabled');
+            $('#temperatura_operacion').removeAttr('disabled');
             $('#aviso').html('');
         }            
         body.style.opacity = 1.0;
@@ -63,6 +85,8 @@ document.body.addEventListener('htmx:afterRequest', function(evt) {
     }
     else
         $('button[type=submit]').removeAttr('disabled');
+
+    $('#id_presion_unidad').change();
 });
 
 document.body.addEventListener('htmx:afterRequest', function(evt) {

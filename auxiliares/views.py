@@ -349,27 +349,47 @@ class ObtencionDatosFluidosBomba(View, SuperUserRequiredMixin):
         return propiedades
 
     def get(self, request):
-        fluido = int(request.GET.get('fluido'))
+        tipo = request.GET.get('calculo_propiedades', 'A')
+        print(tipo, request.GET)
 
         unidad_temperatura = int(request.GET.get('temperatura_unidad'))
-
         unidad_viscosidad = int(request.GET.get('viscosidad_unidad'))
         unidad_densidad = request.GET.get('densidad_unidad')
-
         unidad_presion_vapor = int(request.GET.get('presion_vapor_unidad'))
         unidad_presion = int(request.GET.get('presion_unidad'))
 
-        temp = float(request.GET.get('temperatura_operacion')) 
-        temp_presion_vapor = float(request.GET.get('temperatura_presion_vapor', temp))
-        presion_succion = float(request.GET.get('presion_succion'))
+        if(tipo == 'A'):
+            fluido = int(request.GET.get('fluido'))
 
-        if(unidad_densidad):
-            unidad_densidad = int(unidad_densidad)
+            temp = float(request.GET.get('temperatura_operacion')) 
+            temp_presion_vapor = float(request.GET.get('temperatura_presion_vapor', temp))
+            presion_succion = float(request.GET.get('presion_succion'))
 
-        propiedades = self.calcular_propiedades(fluido, temp, temp_presion_vapor, 
-                                                presion_succion, unidad_presion_vapor, 
-                                                unidad_viscosidad, unidad_densidad, 
-                                                unidad_presion, unidad_temperatura)
+            if(unidad_densidad):
+                unidad_densidad = int(unidad_densidad)
+
+            propiedades = self.calcular_propiedades(fluido, temp, temp_presion_vapor, 
+                                                    presion_succion, unidad_presion_vapor, 
+                                                    unidad_viscosidad, unidad_densidad, 
+                                                    unidad_presion, unidad_temperatura)
+        else:
+            bomba = Bombas.objects.get(pk = request.GET.get('bomba'))
+            diseno = bomba.condiciones_diseno
+            fluido = diseno.condiciones_fluido
+    
+            propiedades = {
+                'viscosidad':fluido.viscosidad,
+                'viscosidad_unidad': fluido.viscosidad_unidad.pk,
+                'densidad': fluido.densidad,
+                'densidad_unidad': fluido.densidad_unidad.pk if fluido.densidad_unidad else None,
+                'presion_vapor': fluido.presion_vapor,
+                'presion_vapor_unidad': fluido.presion_vapor_unidad.pk,
+                'presion_succion': diseno.presion_succion,
+                'presion_unidad': diseno.presion_unidad.pk,
+                'temperatura_operacion': fluido.temperatura_operacion,
+                'temperatura_unidad': fluido.temperatura_unidad.pk,
+                'ficha': True
+            }
 
         return render(request, 'bombas/partials/fluido_bomba.html', propiedades)
 
@@ -584,8 +604,6 @@ class CalcularResultados(View, LoginRequiredMixin):
         res['npsha'] = transformar_unidades_longitud([res['npsha']], int(request.POST.get('npshr_unidad')))
         res['npshr'] = npshr
         res['npshr_unidad'] = Unidades.objects.get(pk = int(request.POST.get('npshr_unidad'))) 
-
-        print(res)
 
         return render(request, 'bombas/partials/resultado_evaluacion.html', context={'res': res, 'bomba': bomba})
 
