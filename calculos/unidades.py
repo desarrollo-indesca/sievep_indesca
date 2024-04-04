@@ -294,7 +294,7 @@ def transformar_unidades_potencia(args: list, unidad: int, unidad_salida: int = 
     '''
 
     def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
-        return ur.HP if unidad == 40 else ur.watt
+        return ur.horsepower if unidad == 40 else ur.watt
 
     actualizadas = []
     unidad_salida = obtener_unidad(unidad_salida)

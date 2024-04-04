@@ -560,7 +560,7 @@ class CalcularResultados(View, LoginRequiredMixin):
         diametro_interno_descarga = bomba.especificaciones_bomba.descarga_id
         flujo = float(request.POST.get('flujo'))
         potencia = float(request.POST.get('potencia'))
-        npshr = float(request.POST.get('npshr'))
+        npshr = float(request.POST.get('npshr')) if request.POST.get('npshr') else None
 
         # Conversión de Parámetros a SI
         temp_operacion = transformar_unidades_temperatura([temp_operacion], int(request.POST.get('temperatura_unidad')))[0]
@@ -581,7 +581,11 @@ class CalcularResultados(View, LoginRequiredMixin):
 
         res['cabezal_total'] = transformar_unidades_longitud([res['cabezal_total']], bomba.especificaciones_bomba.cabezal_unidad.pk)
         res['potencia_calculada'] = transformar_unidades_longitud([res['potencia_calculada']], bomba.especificaciones_bomba.potencia_unidad.pk)
-        res['npsha'] = transformar_unidades_longitud([res['npsha']], bomba.condiciones_diseno.npsha_unidad.pk) 
+        res['npsha'] = transformar_unidades_longitud([res['npsha']], int(request.POST.get('npshr_unidad')))
+        res['npshr'] = npshr
+        res['npshr_unidad'] = Unidades.objects.get(pk = int(request.POST.get('npshr_unidad'))) 
+
+        print(res)
 
         return render(request, 'bombas/partials/resultado_evaluacion.html', context={'res': res, 'bomba': bomba})
 
@@ -592,10 +596,19 @@ class CreacionEvaluacionBomba(View, CargarBombaMixin, LoginRequiredMixin):
 
     def get_context_data(self):
         bomba = self.get_bomba()
+        precargo = {
+            'altura_succion': bomba.instalacion_succion.elevacion,
+            'altura_descarga': bomba.instalacion_descarga.elevacion,
+            'altura_unidad': bomba.instalacion_succion.elevacion_unidad.pk,
+            'potencia': bomba.especificaciones_bomba.potencia_maxima,
+            'potencia_unidad': bomba.especificaciones_bomba.potencia_unidad,
+            'npshr': bomba.especificaciones_bomba.npshr,
+            'npshr_unidad': bomba.especificaciones_bomba.npshr_unidad
+        }
         context = {
             'bomba': bomba,
             'form_evaluacion': EvaluacionBombaForm(),
-            'form_entrada_evaluacion': EntradaEvaluacionBombaForm(),
+            'form_entrada_evaluacion': EntradaEvaluacionBombaForm(precargo),
             'titulo': "Evaluación de Bomba"
         }
 

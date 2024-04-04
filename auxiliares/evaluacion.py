@@ -60,7 +60,7 @@ def calculo_contracciones_expansiones(tramos):
     return [c, e]
 
 def calcular_cabezal(densidad, presion_descarga, presion_succion, altura_descarga, altura_succion, flujo, area_descarga, area_succion, htotal):
-    return 1/(densidad*GRAVEDAD)*(presion_descarga - presion_succion) + (altura_descarga - altura_succion) + flujo**2/(2*GRAVEDAD)*(1/area_descarga**2 - 1/area_succion**2) + htotal
+    return abs(1/(densidad*GRAVEDAD)*(presion_descarga - presion_succion) + (altura_descarga - altura_succion) + flujo**2/(2*GRAVEDAD)*(1/area_descarga**2 - 1/area_succion**2) + htotal)
 
 def calculo_perdida_tramos(tramos, velocidad, area, area_comp, flujos):
     ec = velocidad**2/(2*GRAVEDAD)
@@ -150,7 +150,7 @@ def evaluacion_bomba(bomba, velocidad, temp_operacion, presion_succion, presion_
     eficiencia = potencia_calculada/potencia*100
     ns = velocidad*math.sqrt(flujo*15850.35)/(cabezal*3.28)**0.75
     npsha = presion_succion/(densidad*GRAVEDAD) + altura_succion - presion_vapor/(densidad*GRAVEDAD) - h_total_succion
-    cavita = determinar_cavitacion(npshr, npsha)
+    cavita = determinar_cavitacion(npsha, npshr)
    
     res = {
         'cabezal_total': cabezal,
@@ -159,16 +159,6 @@ def evaluacion_bomba(bomba, velocidad, temp_operacion, presion_succion, presion_
         'velocidad_especifica': ns,
         'npsha': npsha,
         'cavita': cavita,
-        'friccion': {
-            's': sum([flujo['factor_friccion'] for flujo in flujos_succion]),
-            'd': sum([flujo['factor_friccion'] for flujo in flujos_descarga]),
-            't': sum([flujo['factor_friccion'] for flujo in flujos_succion]) + sum([flujo['factor_friccion'] for flujo in flujos_descarga])
-        },
-        'turbulento': {
-            's': sum([flujo['factor_turbulento'] for flujo in flujos_succion]),
-            'd': sum([flujo['factor_turbulento'] for flujo in flujos_descarga]),
-            't': sum([flujo['factor_turbulento'] for flujo in flujos_descarga]) + sum([flujo['factor_turbulento'] for flujo in flujos_succion])
-        },
         'flujo': {
             's': flujos_succion[-1]['tipo_flujo'],
             'd': flujos_descarga[-1]['tipo_flujo'],

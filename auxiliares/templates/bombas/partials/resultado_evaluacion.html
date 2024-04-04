@@ -40,17 +40,17 @@
             <td class="text-center">{{bomba.especificaciones_bomba.velocidad}} {{bomba.especificaciones_bomba.velocidad_unidad}}</td>
         </tr>
         <tr>
-            <th class="table-dark text-center">NPSHa</th>
-            <td class="text-center">{{res.npsha.0|floatformat:5}} {{bomba.condiciones_diseno.npsha_unidad}}</td>
+            <th class="table-dark text-center">NPSHa / NPSHr</th>
+            <td class="text-center">{{res.npsha.0|floatformat:5}} {{res.npshr_unidad}}</td>
             <td class="text-center">
-                {% if bomba.condiciones_diseno.npsha %}
-                {{bomba.condiciones_diseno.npsha}} {{bomba.condiciones_diseno.npsha_unidad}}
-                {% endif %}
+                {% if res.npshr %}
+                {{res.npshr}} {{res.npshr_unidad}}
+                {% endif %}         
             </td>
         </tr>
         <tr>
             <th class="table-dark text-center">La bomba cavita</th>
-            <td class="text-center">
+            <td class="text-center" colspan="2">
                 {% if res.cavita == 'C' %}
                 Sí
                 {% elif res.cavita == 'N' %}
@@ -59,7 +59,6 @@
                 Desconocido (NPSHr desconocido)
                 {% endif %}
             </td>
-            <td class="text-center"></td>
         </tr>
     </tbody>
 </table>
@@ -78,12 +77,6 @@
             </th>
             <th class="table-dark text-center">
                 PÉRDIDAS TOTALES
-            </th>
-            <th class="table-dark text-center">
-                FACTOR DE FRICCIÓN TOTAL
-            </th>
-            <th class="table-dark text-center">
-                FACTOR TURBULENTO TOTAL
             </th>
             <th class="table-dark text-center">
                 TIPO DE FLUJO POR TRAMO
@@ -105,12 +98,6 @@
             <td class="text-center">
                 {{res.perdidas.s.total|floatformat:5}}
             </td>
-            <td class="text-center">
-                {{res.friccion.s|floatformat:5}}
-            </td>     
-            <td class="text-center">
-                {{res.turbulento.s|floatformat:5}}
-            </td>     
             <td class="text-center">
                 {% for x in res.flujo.s %}
                     {% if x == 'L' %}
@@ -136,13 +123,7 @@
             </td>
             <td class="text-center">
                 {{res.perdidas.d.total|floatformat:5}}
-            </td>
-            <td class="text-center">
-                {{res.friccion.d|floatformat:5}}
-            </td>     
-            <td class="text-center">
-                {{res.turbulento.d|floatformat:5}}
-            </td>     
+            </td>  
             <td class="text-center">
                 {% for x in res.flujo.d %}
                     {% if x == 'L' %}

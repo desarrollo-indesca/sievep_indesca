@@ -177,9 +177,6 @@ class EntradaEvaluacionBombaForm(FormConUnidades):
         self.fields['altura_unidad'].empty_label = None
         self.fields['altura_unidad'].queryset = Unidades.objects.filter(tipo = 'L')
 
-        self.fields['diametro_unidad'].empty_label = None
-        self.fields['diametro_unidad'].queryset = Unidades.objects.filter(tipo = 'L')
-
         self.fields['presion_unidad'].empty_label = None
         self.fields['presion_unidad'].queryset = Unidades.objects.filter(tipo = 'P')
         
