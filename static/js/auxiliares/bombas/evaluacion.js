@@ -1,3 +1,30 @@
+let estado = 0;
+$('form').submit(e => {
+    if($('#submit').val() == 'calcular'){
+        estado = 1;
+    }
+});
+
+const listeners_cambio = () => {
+    $('input[type="number"]').keyup(e => {
+        if(estado === 1){
+            estado = 0;
+            $('#submit').val('calcular');
+            $('#submit').html("Calcular Resultados");
+            $('#resultados').html('');
+        }
+    });
+    
+    $('select').change(e => {
+        if(estado === 1){
+            estado = 0;
+            $('#submit').val('calcular');
+            $('#submit').html("Calcular Resultados");
+            $('#resultados').html('');
+        }
+    });
+}
+
 $('#id_presion_unidad').change((e) => {
     const array = $('select[name="presion_unidad"]').toArray().slice(1);
 
@@ -47,7 +74,6 @@ document.body.addEventListener('htmx:beforeRequest', function(evt) {
     if(document.getElementById('id_calculo_propiedades').value === 'F')
         return;
     else{
-        console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         $('#id_temperatura_operacion').removeAttr('disabled');
         $('#id_temperatura_unidad').removeAttr('disabled');
         $('#id_presion_unidad').removeAttr('disabled');
@@ -81,14 +107,15 @@ document.body.addEventListener('htmx:afterRequest', function(evt) {
         $('#id_presion_vapor').val("");
         $('#id_densidad').val("");
         $('#aviso').html('');
+        listeners_cambio();
         document.body.style.opacity = 1.0;
     }
     else
         $('button[type=submit]').removeAttr('disabled');
-
-    $('#id_presion_unidad').change();
 });
 
 document.body.addEventListener('htmx:afterRequest', function(evt) {
     document.body.style.opacity = 1.0;
 });
+
+listeners_cambio();

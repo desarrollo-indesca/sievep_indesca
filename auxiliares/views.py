@@ -350,7 +350,6 @@ class ObtencionDatosFluidosBomba(View, SuperUserRequiredMixin):
 
     def get(self, request):
         tipo = request.GET.get('calculo_propiedades', 'A')
-        print(tipo, request.GET)
 
         unidad_temperatura = int(request.GET.get('temperatura_unidad'))
         unidad_viscosidad = int(request.GET.get('viscosidad_unidad'))

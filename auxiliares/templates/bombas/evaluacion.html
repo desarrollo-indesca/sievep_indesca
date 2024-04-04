@@ -184,9 +184,7 @@
                 <small id="aviso" class="text-center"></small>
     </div>
 
-    <div id="resultados">
-
-    </div>
+    <div id="resultados"></div>
 
     <div class="d-flex w-100 justify-content-center mb-2 mt-2">
         <button id="submit" name="submit" value="calcular" type="submit" class="btn btn-danger">Calcular Resultados</button>
@@ -205,29 +203,6 @@
 <script src="/static/js/auxiliares/bombas/evaluacion.js"></script>
 
 <script>
-    let estado = 0;
-    $('form').submit(e => {
-        if($('#submit').val() == 'calcular'){
-            estado = 1;
-        }
-    });
-
-    $('input[type="number"]').keyup(e => {
-        if(estado === 1){
-            estado = 0;
-            $('#resultados').html('');
-            $('#submit').val('calcular');
-            $('#submit').html("Calcular Resultados");
-        }
-    });
-
-    $('select').change(e => {
-        if(estado === 1){
-            estado = 0;
-            $('#resultados').html('');
-            $('#submit').val('calcular');
-            $('#submit').html("Calcular Resultados");
-        }
-    })
+    
 </script>
 {% endblock %}
