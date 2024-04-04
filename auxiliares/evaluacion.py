@@ -39,6 +39,10 @@ def calcular_flujo_bomba(tramos, numeros_reynolds):
         factor_turbulento = 0.25/(math.log10(1/(3.7*diametro/tramo.material_tuberia.rugosidad)))**2
 
         res.append({
+            'diametro': tramo.diametro_tuberia,
+            'diametro_unidad': tramo.diametro_tuberia_unidad.simbolo,
+            'longitud': tramo.longitud_tuberia,
+            'longitud_unidad': tramo.longitud_tuberia_unidad.simbolo,            
             'tipo_flujo': tipo_flujo,
             'factor_friccion': factor_friccion,
             'factor_turbulento': factor_turbulento,
@@ -46,32 +50,21 @@ def calcular_flujo_bomba(tramos, numeros_reynolds):
 
     return res
 
-def calculo_contracciones_expansiones(tramos):
-    diametro = 0
-    c,e = 0,0
-
-    for tramo in tramos.all():
-        actual = transformar_unidades_longitud([tramo.diametro_tuberia], tramo.diametro_tuberia_unidad.pk)[0]
-        if(diametro == 0):
-            diametro = actual
-        elif(actual > diametro):
-            e += 1
-        elif(actual < diametro):
-            c += 1
-    
-    return [c, e]
-
 def calcular_cabezal(densidad, presion_descarga, presion_succion, altura_descarga, altura_succion, flujo, area_descarga, area_succion, htotal):
     return abs(1/(densidad*GRAVEDAD)*(presion_descarga - presion_succion) + (altura_descarga - altura_succion) + flujo**2/(2*GRAVEDAD)*(1/area_descarga**2 - 1/area_succion**2) + htotal)
 
 def calculo_perdida_tramos(tramos, velocidad, area, area_comp, flujos):
     ec = velocidad**2/(2*GRAVEDAD)
-    c,e = calculo_contracciones_expansiones(tramos)
     k,h,ft = 0,0,0
+    diametro_previo = 0
 
     for i,tramo in enumerate(tramos.all()):
         longitud = transformar_unidades_longitud([tramo.longitud_tuberia], tramo.longitud_tuberia_unidad.pk)[0]
         diametro = transformar_unidades_longitud([tramo.diametro_tuberia], tramo.diametro_tuberia_unidad.pk)[0]
+        
+        if(not diametro_previo):
+            diametro_previo = diametro_previo
+        
         h += flujos[i]['factor_friccion']*(longitud/diametro)*(velocidad**2/(2*GRAVEDAD))
         k += 340*tramo.numero_valvula_globo if tramo.numero_valvula_globo else 0
         k += 150*tramo.numero_valvula_angulo if tramo.numero_valvula_angulo else 0
@@ -96,8 +89,13 @@ def calculo_perdida_tramos(tramos, velocidad, area, area_comp, flujos):
         k += 60*tramo.conexiones_t_ramal if tramo.conexiones_t_ramal else 0
         k += 1 if i == 0 else 0 # Entrada / Salida
         ft += flujos[i]['factor_turbulento']
-        k += 0.5*c*1/(tramos.count())
-        k += (1-(area/area_comp)**2)*e*diametro*1/(tramos.count())
+
+        if(diametro_previo < diametro):
+            k += (1-(area/area_comp)**2)*diametro
+        elif(diametro_previo > diametro):
+            k += 0.5
+
+        diametro_previo = diametro
 
     h_accesorios = ft*ec*k
 
@@ -117,16 +115,10 @@ def calcular_propiedades_termodinamicas_bomba(temp_operacion, presion_succion, c
     viscosidad = transformar_unidades_viscosidad([condiciones_fluido.viscosidad], condiciones_fluido.viscosidad_unidad.pk)
     presion_vapor = transformar_unidades_presion([condiciones_fluido.presion_vapor], condiciones_fluido.presion_vapor_unidad.pk)
     densidad = transformar_unidades_presion([condiciones_fluido.densidad], condiciones_fluido.densidad_unidad.pk)
-    
 
     return (viscosidad, densidad, presion_vapor)        
 
-def evaluacion_bomba(bomba, velocidad, temp_operacion, presion_succion, presion_descarga, 
-                     altura_succion, altura_descarga, diametro_interno_succion,
-                     diametro_interno_descarga, flujo, potencia, npshr, tipo_propiedades,
-                     propiedades = None, unidades_propiedades = None):
-    
-    # SE ASUMEN TODAS LAS UNIDADES EN SISTEMA INTERNACIONAL
+def obtener_propiedades(temp_operacion, presion_succion, bomba, propiedades, unidades_propiedades, tipo_propiedades):
     if(tipo_propiedades == 'A'):
         viscosidad, densidad, presion_vapor = calcular_propiedades_termodinamicas_bomba(temp_operacion, presion_succion, bomba.condiciones_diseno.condiciones_fluido)
     elif(tipo_propiedades == 'F'):
@@ -148,6 +140,15 @@ def evaluacion_bomba(bomba, velocidad, temp_operacion, presion_succion, presion_
         
         presion_vapor = transformar_unidades_presion([float(propiedades[2])], int(unidades_propiedades[2]))[0]
 
+    return (densidad, presion_vapor, viscosidad)
+
+def evaluacion_bomba(bomba, velocidad, temp_operacion, presion_succion, presion_descarga, 
+                     altura_succion, altura_descarga, diametro_interno_succion,
+                     diametro_interno_descarga, flujo, potencia, npshr, tipo_propiedades,
+                     propiedades = None, unidades_propiedades = None):
+    
+    densidad, presion_vapor, viscosidad = obtener_propiedades(temp_operacion, presion_succion, bomba, propiedades, unidades_propiedades, tipo_propiedades)
+    
     area_succion, area_descarga = calcular_area(diametro_interno_succion), calcular_area(diametro_interno_descarga)
     
     velocidad_succion, velocidad_descarga = calcular_velocidad(flujo, area_succion), calcular_velocidad(flujo, area_descarga)
@@ -180,9 +181,13 @@ def evaluacion_bomba(bomba, velocidad, temp_operacion, presion_succion, presion_
         'velocidad_especifica': ns,
         'npsha': npsha,
         'cavita': cavita,
+        'velocidad': {
+            's': velocidad_succion,
+            'd': velocidad_descarga
+        },
         'flujo': {
-            's': flujos_succion[-1]['tipo_flujo'] if len(flujos_succion) else '-' ,
-            'd': flujos_descarga[-1]['tipo_flujo'] if len(flujos_descarga) else '-' ,
+            's': flujos_succion,
+            'd': flujos_descarga,
             't': '-'
         },
         'perdidas': {

@@ -79,7 +79,10 @@
                 PÉRDIDAS TOTALES
             </th>
             <th class="table-dark text-center">
-                TIPO DE FLUJO POR TRAMO
+                VELOCIDAD
+            </th>
+            <th class="table-dark text-center">
+                TRAMOS
             </th>
         </tr>
     </thead>
@@ -99,16 +102,15 @@
                 {{res.perdidas.s.total|floatformat:5}}
             </td>
             <td class="text-center">
-                {% for x in res.flujo.s %}
-                    {% if x == 'L' %}
-                    Laminar
-                    {% elif x == 'T' %}
-                    Turbulento
-                    {% else %}
-                    Transitorio
-                    {% endif %} {% if not forloop.last %} - {% endif %}
-                {% endfor %}
-            </td>         
+                {{res.velocidad.s|floatformat:5}} m/s            
+            </td>
+            <td class="text-center">
+                {% if res.flujo.s %}
+                <a href="#" class="btn btn-primary">Flujos por Tramo</a>
+                {% else %}
+                N/A
+                {% endif %}             
+            </td> 
         </tr>
 
         <tr>
@@ -125,15 +127,14 @@
                 {{res.perdidas.d.total|floatformat:5}}
             </td>  
             <td class="text-center">
-                {% for x in res.flujo.d %}
-                    {% if x == 'L' %}
-                    Laminar
-                    {% elif x == 'T' %}
-                    Turbulento
-                    {% else %}
-                    Transitorio
-                    {% endif %} {% if not forloop.last %} - {% endif %}
-                {% endfor %}
+                {{res.velocidad.s|floatformat:5}} m/s            
+            </td>
+            <td class="text-center">
+                {% if res.flujo.d %}
+                <a href="#" class="btn btn-primary">Flujos por Tramo</a>
+                {% else %}
+                N/A
+                {% endif %}             
             </td>    
         </tr>
 
@@ -150,6 +151,9 @@
             <td class="text-center">
                 {{res.perdidas.t.total|floatformat:5}}
             </td>
+            <td class="text-center">
+                -
+            </td> 
             <td class="text-center">
                 -
             </td>    
