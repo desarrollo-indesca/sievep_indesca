@@ -1,6 +1,6 @@
 import math
 from calculos.unidades import transformar_unidades_longitud, transformar_unidades_viscosidad, transformar_unidades_densidad, transformar_unidades_presion
-from calculos.termodinamicos import calcular_densidad, calcular_presion_vapor, calcular_viscosidad
+from calculos.termodinamicos import DENSIDAD_DEL_AGUA_LIQUIDA_A_5C,calcular_densidad, calcular_presion_vapor, calcular_viscosidad
 
 GRAVEDAD = 9.81
 
@@ -123,11 +123,30 @@ def calcular_propiedades_termodinamicas_bomba(temp_operacion, presion_succion, c
 
 def evaluacion_bomba(bomba, velocidad, temp_operacion, presion_succion, presion_descarga, 
                      altura_succion, altura_descarga, diametro_interno_succion,
-                     diametro_interno_descarga, flujo, potencia, npshr):
+                     diametro_interno_descarga, flujo, potencia, npshr, tipo_propiedades,
+                     propiedades = None, unidades_propiedades = None):
     
     # SE ASUMEN TODAS LAS UNIDADES EN SISTEMA INTERNACIONAL
-    
-    viscosidad, densidad, presion_vapor = calcular_propiedades_termodinamicas_bomba(temp_operacion, presion_succion, bomba.condiciones_diseno.condiciones_fluido)
+    if(tipo_propiedades == 'A'):
+        viscosidad, densidad, presion_vapor = calcular_propiedades_termodinamicas_bomba(temp_operacion, presion_succion, bomba.condiciones_diseno.condiciones_fluido)
+    elif(tipo_propiedades == 'F'):
+        fluido = bomba.condiciones_diseno.condiciones_fluido
+        viscosidad = transformar_unidades_viscosidad([fluido.viscosidad], fluido.viscosidad_unidad.pk)[0]
+        
+        if(not fluido.densidad_unidad):
+            densidad = fluido.densidad * DENSIDAD_DEL_AGUA_LIQUIDA_A_5C
+        else:
+            densidad = transformar_unidades_densidad([fluido.densidad], fluido.densidad_unidad.pk)[0]
+        
+        presion_vapor = transformar_unidades_presion([fluido.presion_vapor], fluido.presion_vapor_unidad.pk)[0]
+    elif(tipo_propiedades == 'M'):
+        viscosidad = transformar_unidades_viscosidad([float(propiedades[0])], int(unidades_propiedades[0]))[0]
+        if(unidades_propiedades[1] == '' or not unidades_propiedades[1]):
+            densidad = float(propiedades[1])*DENSIDAD_DEL_AGUA_LIQUIDA_A_5C
+        else:
+            densidad = transformar_unidades_densidad([float(propiedades[1])], int(unidades_propiedades[1]))[0]
+        
+        presion_vapor = transformar_unidades_presion([float(propiedades[2])], int(unidades_propiedades[2]))[0]
 
     area_succion, area_descarga = calcular_area(diametro_interno_succion), calcular_area(diametro_interno_descarga)
     
@@ -153,7 +172,7 @@ def evaluacion_bomba(bomba, velocidad, temp_operacion, presion_succion, presion_
     ns = velocidad*math.sqrt(flujo*15850.35)/(cabezal*3.28)**0.75
     npsha = presion_succion/(densidad*GRAVEDAD) + altura_succion - presion_vapor/(densidad*GRAVEDAD) - h_total_succion
     cavita = determinar_cavitacion(npsha, npshr)
-   
+    
     res = {
         'cabezal_total': cabezal,
         'potencia_calculada': potencia_calculada,
@@ -162,8 +181,8 @@ def evaluacion_bomba(bomba, velocidad, temp_operacion, presion_succion, presion_
         'npsha': npsha,
         'cavita': cavita,
         'flujo': {
-            's': flujos_succion[-1]['tipo_flujo'],
-            'd': flujos_descarga[-1]['tipo_flujo'],
+            's': flujos_succion[-1]['tipo_flujo'] if len(flujos_succion) else '-' ,
+            'd': flujos_descarga[-1]['tipo_flujo'] if len(flujos_descarga) else '-' ,
             't': '-'
         },
         'perdidas': {

@@ -567,10 +567,11 @@ class CalcularResultados(View, LoginRequiredMixin):
     def post(self, request, pk):
 
         # Obtención de Parámetros
+        tipo_propiedades = request.POST.get('calculo_propiedades', 'A')
         bomba = Bombas.objects.get(pk = pk)
         velocidad = bomba.especificaciones_bomba.velocidad
-        temp_operacion = float(request.POST.get('temperatura_operacion'))
-        presion_succion = float(request.POST.get('presion_succion'))
+        temp_operacion = float(request.POST.get('temperatura_operacion')) if tipo_propiedades != 'F' else bomba.condiciones_diseno.condiciones_fluido.temperatura_operacion
+        presion_succion = float(request.POST.get('presion_succion')) if tipo_propiedades != 'F' else bomba.condiciones_diseno.presion_succion
         presion_descarga = float(request.POST.get('presion_descarga'))
         altura_succion = float(request.POST.get('altura_succion', 0))
         altura_descarga = float(request.POST.get('altura_descarga', 0))
@@ -582,8 +583,8 @@ class CalcularResultados(View, LoginRequiredMixin):
         npshr = float(request.POST.get('npshr')) if request.POST.get('npshr') else None
 
         # Conversión de Parámetros a SI
-        temp_operacion = transformar_unidades_temperatura([temp_operacion], int(request.POST.get('temperatura_unidad')))[0]
-        presion_descarga, presion_succion = transformar_unidades_presion([presion_descarga, presion_succion], int(request.POST.get('presion_unidad', 33)))
+        temp_operacion = transformar_unidades_temperatura([temp_operacion], int(request.POST.get('temperatura_unidad', bomba.condiciones_diseno.condiciones_fluido.temperatura_unidad.pk)))[0]
+        presion_descarga, presion_succion = transformar_unidades_presion([presion_descarga, presion_succion], int(request.POST.get('presion_unidad', bomba.condiciones_diseno.presion_unidad.pk)))
         altura_descarga, altura_succion = transformar_unidades_longitud([altura_descarga, altura_succion], int(request.POST.get('altura_unidad')))
         diametro_interno_succion, diametro_interno_descarga = transformar_unidades_longitud([diametro_interno_succion, diametro_interno_descarga], bomba.especificaciones_bomba.id_unidad.pk)
         potencia = transformar_unidades_potencia([potencia], int(request.POST.get('potencia_unidad')))[0]
@@ -595,7 +596,9 @@ class CalcularResultados(View, LoginRequiredMixin):
             presion_succion, presion_descarga,
             altura_succion, altura_descarga,
             diametro_interno_succion, diametro_interno_descarga,
-            flujo, potencia, npshr
+            flujo, potencia, npshr, tipo_propiedades, 
+            [request.POST.get('viscosidad'), request.POST.get('densidad'), request.POST.get('presion_vapor')],
+            [request.POST.get('viscosidad_unidad'), request.POST.get('densidad_unidad'), request.POST.get('presion_vapor_unidad')]
         )
 
         res['cabezal_total'] = transformar_unidades_longitud([res['cabezal_total']], bomba.especificaciones_bomba.cabezal_unidad.pk)

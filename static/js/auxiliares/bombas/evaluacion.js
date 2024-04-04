@@ -86,7 +86,10 @@ document.body.addEventListener('htmx:beforeRequest', function(evt) {
         document.getElementById('id_temperatura_operacion').value === '' ||
         document.getElementById('id_presion_succion').value === ''
     ){
-        evt.preventDefault();
+        console.log(evt.target.name);
+        if(evt.target.name !== "form")
+            evt.preventDefault();
+
         if(document.getElementById('id_calculo_propiedades').value == 'M'){
             $('#id_viscosidad').removeAttr('disabled');
             $('#id_presion_vapor').removeAttr('disabled');
