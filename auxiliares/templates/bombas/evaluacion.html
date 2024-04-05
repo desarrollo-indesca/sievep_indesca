@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load l10n %}
+{% load widget_tweaks %}
+
+{% block head %}
+<script src="/static/js/htmx.min.js"></script>
+
+<style>
+    small{
+        color: #e31e24;
+        font-weight: bold;
+    }
+
+    .indicator-style {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        z-index: 1000;
+        margin-left: -50px;
+        margin-top: -50px;
+    }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<form method="post" name="form" enctype="multipart/form-data" hx-target="#resultados" hx-post="{% url 'resultados_evaluacion_bombas' pk=bomba.pk %}#resultados" hx-include="input,select">
+    {% csrf_token %}
+    <input type="hidden" id="bomba" name="bomba" value="{{bomba.pk}}">
+    <div class="row">
+        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_bombas' %}">↶ Regresar</a></div>
+        <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Nueva Evaluación Bomba {{bomba.tag}}</h3></div>
+        <div class="col-md-3 col-lg-2"><button type="button" class="btn btn-success" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{bomba.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button></div>
+    </div>
+            
+    <hr>
+
+    <div class="row">
+        <div class="col-12">
+            {{ form_evaluacion.nombre.label_tag }}
+            {% render_field form_evaluacion.nombre class="form-control" %}
+            <hr>
+        </div>
+        <div class="col-6">
+            <h4 class="text-center">Succión</h2>
+            <div class="row">
+                <div class="col-12">
+                    {{ form_entrada_evaluacion.presion_succion.label_tag }}
+                    <div class="input-group mb-1">
+                        {% render_field form_entrada_evaluacion.presion_succion min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
+                        {% render_field form_entrada_evaluacion.presion_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
+                    </div>                    
+                </div>
+                <div class="col-12">
+                    {{ form_entrada_evaluacion.altura_succion.label_tag }}
+                    <div class="input-group mb-1">
+                        {% render_field form_entrada_evaluacion.altura_succion min="-273.15" class="form-control" %}
+                        {% render_field form_entrada_evaluacion.altura_unidad class="form-select" %}
+                    </div>                    
+                </div>
+                <div class="col-12">
+                    <label for="id_diametro_succion">Diámetro Interno:</label>
+                    <div class="input-group mb-1">
+                        <input id="id_diametro_succion" name="diametro_succion" type="number" step="0.0001" class="form-control" value="{{bomba.especificaciones_bomba.succion_id|unlocalize}}" disabled>
+                        <select class="form-select" name="diametro_unidad" id="id_diametro_unidad" disabled>
+                            <option>{{bomba.especificaciones_bomba.id_unidad}}</option>
+                        </select>
+                    </div>                    
+                </div>
+                <div class="col-12">
+                    <label for="id_velocidad">Velocidad:</label>
+                    <div class="input-group mb-1">
+                        <input id="id_velocidad" name="velocidad" type="number" step="0.0001" class="form-control" value="{{bomba.especificaciones_bomba.velocidad|unlocalize}}" disabled>
+                        <select class="form-select" name="velocidad_unidad" id="id_velocidad_unidad" disabled>
+                            <option>{{bomba.especificaciones_bomba.velocidad_unidad}}</option>
+                        </select>
+                    </div>                    
+                </div>
+
+                <div class="col-12">
+                    {{ form_entrada_evaluacion.flujo.label_tag }}
+                    <div class="input-group mb-1">
+                        {% render_field form_entrada_evaluacion.flujo min="-273.15" class="form-control" %}
+                        {% render_field form_entrada_evaluacion.flujo_unidad class="form-select" %}
+                    </div>                    
+                </div>
+                <div class="col-12">
+                    {{ form_entrada_evaluacion.potencia.label_tag }}
+                    <div class="input-group mb-1">
+                        {% render_field form_entrada_evaluacion.potencia min="-273.15" class="form-control" %}
+                        {% render_field form_entrada_evaluacion.potencia_unidad class="form-select" %}
+                    </div>                    
+                </div>
+                <div class="col-12">
+                    {{ form_entrada_evaluacion.npshr.label_tag }}
+                    <div class="input-group mb-1">
+                        {% render_field form_entrada_evaluacion.npshr min="-273.15" class="form-control" %}
+                        {% render_field form_entrada_evaluacion.npshr_unidad class="form-select" %}
+                    </div>                    
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <h4 class="text-center">Descarga</h2>
+                <div class="col-12">
+                    {{ form_entrada_evaluacion.presion_descarga.label_tag }}
+                    <div class="input-group mb-1">
+                        {% render_field form_entrada_evaluacion.presion_descarga min="-273.15" class="form-control" %}
+                        {% render_field form_entrada_evaluacion.presion_unidad disabled="disabled" class="form-select" %}
+                    </div>                    
+                </div>
+                <div class="col-12">
+                    {{ form_entrada_evaluacion.altura_descarga.label_tag }}
+                    <div class="input-group mb-1">
+                        {% render_field form_entrada_evaluacion.altura_descarga min="-273.15" class="form-control" %}
+                        {% render_field form_entrada_evaluacion.altura_unidad disabled="disabled" class="form-select" %}
+                    </div>                    
+                </div>
+                <div class="col-12">
+                    <label for="id_diametro_descarga">Diámetro Interno:</label>
+                    <div class="input-group mb-1">
+                        <input id="id_diametro_descarga" name="diametro_descarga" type="number" step="0.0001" class="form-control" value="{{bomba.especificaciones_bomba.descarga_id|unlocalize}}" disabled>
+                        <select class="form-select" name="diametro_unidad" id="id_diametro_unidad" disabled>
+                            <option>{{bomba.especificaciones_bomba.id_unidad}}</option>
+                        </select>
+                    </div>                    
+                </div>
+        </div>
+    </div>
+
+    <hr>
+   
+    <h4 class="text-center" style="color: #e31e24;">Condiciones del Fluido</h2>
+
+    <div class="row">
+                <div class="col-4">
+                    {{form_entrada_evaluacion.temperatura_operacion.label_tag}}
+                    <div class="input-group mb-1">
+                        {% render_field form_entrada_evaluacion.temperatura_operacion min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
+                        {% render_field form_entrada_evaluacion.temperatura_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
+                    </div>
+                </div>
+
+                <div class="col-4">
+                    <label for="id_fluido">Fluido:</label>
+                    <div class="d-flex w-100">
+                        <select name="fluido" id="id_fluido" class="form-select">
+                            <option value="{{bomba.condiciones_diseno.condiciones_fluido.fluido.pk}}" selected>{{bomba.condiciones_diseno.condiciones_fluido.fluido}}</option>
+                        </select>
+                    </div>                    
+                </div>
+    
+                <div class="col-4">
+                    {{form_entrada_evaluacion.calculo_propiedades.label_tag}}
+                    <div class="input-group mb-1">
+                        {% render_field form_entrada_evaluacion.calculo_propiedades min="0.0001" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
+                    </div>
+                </div>
+
+                <div class="col-4">
+                    <label for="id_presion_vapor">Presión Vapor:</label>
+                    <div class="input-group mb-1">
+                        {% render_field form_entrada_evaluacion.presion_vapor min="0.0001" class="form-control" %}
+                        {% render_field form_entrada_evaluacion.presion_vapor_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
+                    </div>
+                </div>
+        
+                <div class="col-4">
+                    <label for="id_viscosidad">Viscosidad:</label>
+                    <div class="input-group mb-1">
+                        {% render_field form_entrada_evaluacion.viscosidad min="0.0001" class="form-control" %}
+                        {% render_field form_entrada_evaluacion.viscosidad_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
+                    </div>
+                </div>
+        
+                <div class="col-4">
+                    {{form_entrada_evaluacion.densidad.label_tag}}
+                    <div class="input-group mb-1">
+                        {% render_field form_entrada_evaluacion.densidad min="0.0001" class="form-control" %}
+                        {% render_field form_entrada_evaluacion.densidad_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
+                    </div>
+                </div>
+
+                <small id="aviso" class="text-center"></small>
+    </div>
+
+    <div id="resultados"></div>
+
+    <div class="d-flex w-100 justify-content-center mb-2 mt-2">
+        <button id="submit" name="submit" value="calcular" type="submit" class="btn btn-danger">Calcular Resultados</button>
+    </div>
+</form>
+
+<div id="spinner" class="htmx-indicator indicator-style">
+    <div class="spinner-grow text-danger" style="width: 6rem; height: 6rem;">
+    </div>
+</div>
+
+{% include 'bombas/ficha.html' %}
+{% endblock %}
+
+{% block extra_javascript %}
+<script src="/static/js/auxiliares/bombas/evaluacion.js"></script>
+{% endblock %}

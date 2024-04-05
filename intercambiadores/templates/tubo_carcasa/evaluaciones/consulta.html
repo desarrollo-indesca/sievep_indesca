@@ -87,7 +87,7 @@
 </div>
 {% endwith %}
 <footer aria-label="Page navigation example">
-  <ul class="pagination" hx-boost="true">
+  <ul class="pagination">
     <li class="page-item">
       {% if page_obj.has_previous %}
       <a class="page-link bg-dark text-white" href="?{% url_replace page=page_obj.previous_page_number %}" aria-label="Previous">
@@ -115,6 +115,11 @@
 
   $('input[type="datetime-local"]').change(() => {
     $('#filtrado').submit();
+  });
+
+  $('input').keyup((e) => {
+    if(e.keyCode === 13)
+      $('#filtrado').submit();
   });
 </script>
 {% endblock %}
