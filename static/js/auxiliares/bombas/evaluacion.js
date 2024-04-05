@@ -10,6 +10,7 @@ const listeners_cambio = () => {
         if(estado === 1){
             estado = 0;
             $('#submit').val('calcular');
+            $('#submit').attr('name','submit');
             $('#submit').html("Calcular Resultados");
             $('#resultados').html('');
         }
@@ -19,6 +20,7 @@ const listeners_cambio = () => {
         if(estado === 1){
             estado = 0;
             $('#submit').val('calcular');
+            $('#submit').attr('name','submit');
             $('#submit').html("Calcular Resultados");
             $('#resultados').html('');
         }
@@ -119,7 +121,17 @@ document.body.addEventListener('htmx:afterRequest', function(evt) {
     else
         $('button[type=submit]').removeAttr('disabled');
 
+    if(!evt.detail.failed){
+        console.log($('#submit').val());
+        if($('#submit').val() == 'calcular'){
+            $('#submit').val('almacenar');
+        } else{
+            $('#submit').val('calcular');
+        }
+    }
+
     listeners_cambio();
+    $('#submit').attr('name', 'submit');
 });
 
 document.body.addEventListener('htmx:afterRequest', function(evt) {

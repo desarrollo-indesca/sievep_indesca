@@ -59,15 +59,6 @@
                     </div>                    
                 </div>
                 <div class="col-12">
-                    <label for="id_diametro_succion">Diámetro Interno:</label>
-                    <div class="input-group mb-1">
-                        <input id="id_diametro_succion" name="diametro_succion" type="number" step="0.0001" class="form-control" value="{{bomba.especificaciones_bomba.succion_id|unlocalize}}" disabled>
-                        <select class="form-select" name="diametro_unidad" id="id_diametro_unidad" disabled>
-                            <option>{{bomba.especificaciones_bomba.id_unidad}}</option>
-                        </select>
-                    </div>                    
-                </div>
-                <div class="col-12">
                     <label for="id_velocidad">Velocidad:</label>
                     <div class="input-group mb-1">
                         <input id="id_velocidad" name="velocidad" type="number" step="0.0001" class="form-control" value="{{bomba.especificaciones_bomba.velocidad|unlocalize}}" disabled>
@@ -114,15 +105,6 @@
                     <div class="input-group mb-1">
                         {% render_field form_entrada_evaluacion.altura_descarga min="-273.15" class="form-control" %}
                         {% render_field form_entrada_evaluacion.altura_unidad disabled="disabled" class="form-select" %}
-                    </div>                    
-                </div>
-                <div class="col-12">
-                    <label for="id_diametro_descarga">Diámetro Interno:</label>
-                    <div class="input-group mb-1">
-                        <input id="id_diametro_descarga" name="diametro_descarga" type="number" step="0.0001" class="form-control" value="{{bomba.especificaciones_bomba.descarga_id|unlocalize}}" disabled>
-                        <select class="form-select" name="diametro_unidad" id="id_diametro_unidad" disabled>
-                            <option>{{bomba.especificaciones_bomba.id_unidad}}</option>
-                        </select>
                     </div>                    
                 </div>
         </div>

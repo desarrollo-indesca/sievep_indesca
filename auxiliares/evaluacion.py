@@ -34,7 +34,7 @@ def calcular_factor_friccion(flujo, numero_reynolds, diametro, rugosidad):
 
 def calcular_flujo_bomba(tramos, numeros_reynolds, velocidades):
     res = []
-    for i,tramo in enumerate(tramos.all()):
+    for i,tramo in enumerate(tramos.all().order_by('pk')):
         numero_reynolds = numeros_reynolds[i]
         diametro = transformar_unidades_longitud([tramo.diametro_tuberia], tramo.diametro_tuberia_unidad.pk)[0]
         
@@ -184,6 +184,11 @@ def evaluacion_bomba(bomba, velocidad, temp_operacion, presion_succion, presion_
     cavita = determinar_cavitacion(npsha, npshr)
    
     res = {
+        'propiedades': {
+            'densidad': densidad,
+            'viscosidad': viscosidad,
+            'presion_vapor': presion_vapor
+        },
         'cabezal_total': cabezal,
         'potencia_calculada': potencia_calculada,
         'eficiencia': eficiencia,

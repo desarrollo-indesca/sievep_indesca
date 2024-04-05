@@ -253,6 +253,7 @@ class TuberiaInstalacionBomba(models.Model):
 # Evaluación de Bombas
     
 class EvaluacionBomba(models.Model):
+    id = models.UUIDField(primary_key=True)
     nombre = models.CharField(max_length = 45)
     fecha = models.DateTimeField(auto_now = True)
     equipo = models.ForeignKey(Bombas, on_delete = models.PROTECT)
@@ -267,6 +268,7 @@ class EvaluacionBomba(models.Model):
     instalacion_descarga = models.ForeignKey(EspecificacionesInstalacion, on_delete = models.PROTECT, related_name="instalacion_descarga_evaluacionbomba")
 
 class EntradaEvaluacionBomba(models.Model):
+    id = models.UUIDField(primary_key=True)
     presion_succion = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Presión")
     presion_descarga = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Presión")
     presion_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="presion_unidad_evaluacionbomba")
@@ -274,10 +276,6 @@ class EntradaEvaluacionBomba(models.Model):
     altura_succion = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Altura")
     altura_descarga = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Altura")
     altura_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="altura_unidad_evaluacionbomba")
-    
-    diametro_succion = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Diámetro Interno")
-    diametro_descarga = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Diámetro Interno")
-    diametro_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="diametro_unidad_evaluacionbomba")
 
     velocidad = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Velocidad")
     velocidad_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="velocidad_unidad_evaluacionbomba")
@@ -291,7 +289,7 @@ class EntradaEvaluacionBomba(models.Model):
     potencia =  models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)])
     potencia_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="potencia_unidad_evaluacionbomba")
 
-    npshr =  models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "NPSHr")
+    npshr =  models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], null = True, blank = True, verbose_name = "NPSHr")
     npshr_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="npshr_unidad_evaluacionbomba")
 
     densidad = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name="Densidad")
@@ -308,6 +306,7 @@ class EntradaEvaluacionBomba(models.Model):
     evaluacion = models.ForeignKey(EvaluacionBomba, on_delete = models.PROTECT, related_name = "entrada_evaluacion_evaluacionbomba")
 
 class SalidaEvaluacionBombaGeneral(models.Model):
+    id = models.UUIDField(primary_key=True)
     cabezal_total = models.FloatField()
     potencia = models.FloatField()
     eficiencia = models.FloatField()
@@ -318,17 +317,20 @@ class SalidaEvaluacionBombaGeneral(models.Model):
     evaluacion = models.ForeignKey(EvaluacionBomba, on_delete = models.PROTECT, related_name="salida_general_evaluacionbomba")
 
 class SalidaSeccionesEvaluacionBomba(models.Model):
+    id = models.UUIDField(primary_key=True)
     lado = models.CharField(max_length = 1, choices = (('S', 'Succión'), ('D', 'Descarga')))
-    numero_reynolds = models.FloatField()
-    factor_friccion = models.FloatField()
-    factor_friccion_turbulento = models.FloatField()
-    tipo_flujo = models.CharField(max_length = 1, choices = (('T', 'Turbulento'), ('L', 'Laminar'), ('R', 'Transitorio')))
     perdida_carga_tuberia = models.FloatField()
     perdida_carga_accesorios = models.FloatField(null = True)
     perdida_carga_total = models.FloatField()
-    velocidad = models.FloatField()
-    area_interna_tuberias = models.FloatField()
     evaluacion = models.ForeignKey(EvaluacionBomba, on_delete = models.PROTECT, related_name="salida_secciones_evaluacionbomba")
+
+class EntradaTramos(models.Model):
+    id = models.UUIDField(primary_key=True)
+    tramo = models.ForeignKey(TuberiaInstalacionBomba, on_delete=models.CASCADE, related_name="tramos_entrada")
+    flujo = models.CharField(max_length=1, choices=(('T','Turbulento'), ('L', 'Laminar'), ('R', 'Transitorio')))
+    velocidad = models.FloatField() # m/s
+
+    salida = models.ForeignKey(SalidaSeccionesEvaluacionBomba, on_delete=models.PROTECT, related_name="datos_tramos_seccion")
 
 # MODELOS DE VENTILADORES
 
