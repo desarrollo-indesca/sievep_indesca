@@ -4,8 +4,11 @@ from calculos.termodinamicos import DENSIDAD_DEL_AGUA_LIQUIDA_A_5C,calcular_dens
 
 GRAVEDAD = 9.81
 
-def calcular_area(diametro):
-    return math.pi/4*diametro**2
+def calcular_areas(tramos):
+    areas = []
+    for tramo in tramos.all():
+        diametro = transformar_unidades_longitud([tramo.diametro_tuberia], tramo.diametro_tuberia_unidad.pk)[0]
+        areas.append(math.pi/4*diametro**2)
 
 def calcular_velocidad(flujo, area):
     return flujo/area
