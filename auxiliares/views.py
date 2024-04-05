@@ -564,35 +564,39 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion):
         return context
 
 class CalcularResultados(View, LoginRequiredMixin):
-    def post(self, request, pk):
+    bomba = None
 
-        # Obtención de Parámetros
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.bomba = bomba = Bombas.objects.get(pk = kwargs['pk'])
+
+    def evaluar(self, request):
         tipo_propiedades = request.POST.get('calculo_propiedades', 'A')
-        bomba = Bombas.objects.get(pk = pk)
-        velocidad = bomba.especificaciones_bomba.velocidad
-        temp_operacion = float(request.POST.get('temperatura_operacion')) if tipo_propiedades != 'F' else bomba.condiciones_diseno.condiciones_fluido.temperatura_operacion
-        presion_succion = float(request.POST.get('presion_succion')) if tipo_propiedades != 'F' else bomba.condiciones_diseno.presion_succion
+        
+        velocidad = self.bomba.especificaciones_bomba.velocidad
+        temp_operacion = float(request.POST.get('temperatura_operacion')) if tipo_propiedades != 'F' else self.bomba.condiciones_diseno.condiciones_fluido.temperatura_operacion
+        presion_succion = float(request.POST.get('presion_succion')) if tipo_propiedades != 'F' else self.bomba.condiciones_diseno.presion_succion
         presion_descarga = float(request.POST.get('presion_descarga'))
         altura_succion = float(request.POST.get('altura_succion', 0))
         altura_descarga = float(request.POST.get('altura_descarga', 0))
         presion_descarga = float(request.POST.get('presion_descarga'))
-        diametro_interno_succion = bomba.especificaciones_bomba.succion_id
-        diametro_interno_descarga = bomba.especificaciones_bomba.descarga_id
+        diametro_interno_succion = self.bomba.especificaciones_bomba.succion_id
+        diametro_interno_descarga = self.bomba.especificaciones_bomba.descarga_id
         flujo = float(request.POST.get('flujo'))
         potencia = float(request.POST.get('potencia'))
         npshr = float(request.POST.get('npshr')) if request.POST.get('npshr') else None
 
         # Conversión de Parámetros a SI
-        temp_operacion = transformar_unidades_temperatura([temp_operacion], int(request.POST.get('temperatura_unidad', bomba.condiciones_diseno.condiciones_fluido.temperatura_unidad.pk)))[0]
-        presion_descarga, presion_succion = transformar_unidades_presion([presion_descarga, presion_succion], int(request.POST.get('presion_unidad', bomba.condiciones_diseno.presion_unidad.pk)))
+        temp_operacion = transformar_unidades_temperatura([temp_operacion], int(request.POST.get('temperatura_unidad', self.bomba.condiciones_diseno.condiciones_fluido.temperatura_unidad.pk)))[0]
+        presion_descarga, presion_succion = transformar_unidades_presion([presion_descarga, presion_succion], int(request.POST.get('presion_unidad', self.bomba.condiciones_diseno.presion_unidad.pk)))
         altura_descarga, altura_succion = transformar_unidades_longitud([altura_descarga, altura_succion], int(request.POST.get('altura_unidad')))
-        diametro_interno_succion, diametro_interno_descarga = transformar_unidades_longitud([diametro_interno_succion, diametro_interno_descarga], bomba.especificaciones_bomba.id_unidad.pk)
+        diametro_interno_succion, diametro_interno_descarga = transformar_unidades_longitud([diametro_interno_succion, diametro_interno_descarga], self.bomba.especificaciones_bomba.id_unidad.pk)
         potencia = transformar_unidades_potencia([potencia], int(request.POST.get('potencia_unidad')))[0]
         flujo = transformar_unidades_flujo_volumetrico([flujo], int(request.POST.get('flujo_unidad')))[0]
         npshr = transformar_unidades_longitud([npshr], int(request.POST.get('npshr_unidad')))[0]
 
         res = evaluacion_bomba(
-            bomba, velocidad, temp_operacion,
+            self.bomba, velocidad, temp_operacion,
             presion_succion, presion_descarga,
             altura_succion, altura_descarga,
             diametro_interno_succion, diametro_interno_descarga,
@@ -601,11 +605,25 @@ class CalcularResultados(View, LoginRequiredMixin):
             [request.POST.get('viscosidad_unidad'), request.POST.get('densidad_unidad'), request.POST.get('presion_vapor_unidad')]
         )
 
-        res['cabezal_total'] = transformar_unidades_longitud([res['cabezal_total']], bomba.especificaciones_bomba.cabezal_unidad.pk)
-        res['potencia_calculada'] = transformar_unidades_longitud([res['potencia_calculada']], bomba.especificaciones_bomba.potencia_unidad.pk)
+        res['cabezal_total'] = transformar_unidades_longitud([res['cabezal_total']], self.bomba.especificaciones_bomba.cabezal_unidad.pk)
+        res['potencia_calculada'] = transformar_unidades_longitud([res['potencia_calculada']], self.bomba.especificaciones_bomba.potencia_unidad.pk)
         res['npsha'] = transformar_unidades_longitud([res['npsha']], int(request.POST.get('npshr_unidad')))
         res['npshr'] = npshr
         res['npshr_unidad'] = Unidades.objects.get(pk = int(request.POST.get('npshr_unidad'))) 
+
+        return res
+    
+    def calcular(self, request):
+        res = self.calcular(request)
+        return render(request, 'bombas/partials/resultado_evaluacion.html', context={'res': res, 'bomba': self.bomba})
+
+    def post(self, request, pk):
+        # Obtención de Parámetros
+        
+        if(request.POST.get('submit') == 'calcular'):
+            res = self.calcular(request)
+        elif(request.POST.get('submit') == 'almacenar'):
+            res = self.almacenar(request)
 
         return render(request, 'bombas/partials/resultado_evaluacion.html', context={'res': res, 'bomba': bomba})
 
