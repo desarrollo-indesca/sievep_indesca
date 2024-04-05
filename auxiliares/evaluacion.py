@@ -173,9 +173,7 @@ def evaluacion_bomba(bomba, velocidad, temp_operacion, presion_succion, presion_
     ns = velocidad*math.sqrt(flujo*15850.35)/(cabezal*3.28)**0.75
     npsha = presion_succion/(densidad*GRAVEDAD) + altura_succion - presion_vapor/(densidad*GRAVEDAD) - h_total_succion
     cavita = determinar_cavitacion(npsha, npshr)
-
-    print(flujos_succion)
-    
+   
     res = {
         'cabezal_total': cabezal,
         'potencia_calculada': potencia_calculada,

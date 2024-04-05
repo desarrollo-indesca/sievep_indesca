@@ -82,11 +82,17 @@ document.body.addEventListener('htmx:beforeRequest', function(evt) {
         $('#id_viscosidad_unidad').removeAttr('disabled');
     }
 
+    if(evt.target.name === "form" && $('#id_presion_succion').val() > $('#id_presion_descarga').val()){
+        evt.preventDefault();
+        alert("La presión de succión no puede ser mayor que la presión de la descarga. Verifique los datos.");
+        body.style.opacity = 1.0;
+        return;
+    }
+
     if(document.getElementById('id_calculo_propiedades').value == 'M' || 
         document.getElementById('id_temperatura_operacion').value === '' ||
         document.getElementById('id_presion_succion').value === ''
     ){
-        console.log(evt.target.name);
         if(evt.target.name !== "form")
             evt.preventDefault();
 
@@ -98,23 +104,22 @@ document.body.addEventListener('htmx:beforeRequest', function(evt) {
             $('#aviso').html('');
         }            
         body.style.opacity = 1.0;
-    } else
-        $('button[type=submit]').attr('disabled', 'disabled');
+    }
 });
 
 document.body.addEventListener('htmx:afterRequest', function(evt) {
-    if(evt.detail.failed){
-        alert("Ha ocurrido un error al momento de llevar a cabo los cálculos de las propiedades termodinámicas. Verifique que los datos corresponden a la fase líquida del fluido ingresado y no sobrepase la temperatura crítica.");
-        $('button[type=submit]').attr('disabled', 'disabled');
+    if(evt.detail.failed || document.getElementById('id_viscosidad').value == '' || document.getElementById('id_presion_vapor').value == '' || document.getElementById('id_densidad').value == ''){
+        alert("Ha ocurrido un error al momento de obtener la información solicitada. Verifique que los datos están completos y son consistentes.");
         $('#id_viscosidad').val("");
         $('#id_presion_vapor').val("");
         $('#id_densidad').val("");
         $('#aviso').html('');
-        listeners_cambio();
         document.body.style.opacity = 1.0;
     }
     else
         $('button[type=submit]').removeAttr('disabled');
+
+    listeners_cambio();
 });
 
 document.body.addEventListener('htmx:afterRequest', function(evt) {
