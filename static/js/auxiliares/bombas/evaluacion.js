@@ -121,9 +121,9 @@ document.body.addEventListener('htmx:afterRequest', function(evt) {
     else
         $('button[type=submit]').removeAttr('disabled');
 
-    if(!evt.detail.failed){
+    if(!evt.detail.failed && evt.target.name == 'submit'){
         console.log($('#submit').val());
-        if($('#submit').val() == 'calcular'){
+        if($('#submit').val() === 'calcular' || $('#submit').val() === ''){
             $('#submit').val('almacenar');
         } else{
             $('#submit').val('calcular');

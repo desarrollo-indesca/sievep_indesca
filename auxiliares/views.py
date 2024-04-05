@@ -662,6 +662,7 @@ class CalcularResultados(View, LoginRequiredMixin):
 
                 evaluacion = form_evaluacion.save()
 
+                form_entrada.instance.velocidad = self.bomba.especificaciones_bomba.velocidad
                 form_entrada.instance.evaluacion = evaluacion
                 form_entrada.save()
 
@@ -673,7 +674,7 @@ class CalcularResultados(View, LoginRequiredMixin):
                     npsha = res['npsha'],
                     cavita = None if res['cavita'] == 'D' else res['cavita'] == 'S',
                     evaluacion = evaluacion
-                )
+                )             
 
                 salida_succion = SalidaSeccionesEvaluacionBomba.objects.create(
                     lado = 'S',
@@ -727,12 +728,13 @@ class CalcularResultados(View, LoginRequiredMixin):
         entrada = self.parse_entrada(request, self.bomba.especificaciones_bomba, res) 
         
         form_entrada = EntradaEvaluacionBombaForm(entrada)
-        form_evaluacion = EvaluacionBombaForm(request)
+        form_evaluacion = EvaluacionBombaForm(request.POST)
+
+        print(form_entrada.is_valid(), form_evaluacion.is_valid())
 
         if(form_entrada.is_valid() and form_evaluacion.is_valid()):
             return self.almacenar_bdd(form_entrada, form_evaluacion)
         else:
-            print("INVaLIDO")
             print(form_entrada.errors)
             print(form_evaluacion.errors)
             context = {
@@ -747,6 +749,8 @@ class CalcularResultados(View, LoginRequiredMixin):
     def post(self, request, pk):
         # Obtención de Parámetros
         self.bomba = Bombas.objects.get(pk = pk)
+
+        print(request.POST)
         
         if(request.POST.get('submit') == 'calcular'):
             res = self.calcular(request)
@@ -755,7 +759,7 @@ class CalcularResultados(View, LoginRequiredMixin):
 
         return res
 
-class CreacionEvaluacionBomba(View, CargarBombaMixin, LoginRequiredMixin):
+class CreacionEvaluacionBomba(View, LoginRequiredMixin, CargarBombaMixin):
     PREFIJO_INSTALACIONES = "formset-instalaciones"
     PREFIJO_TUBERIAS_SUCCION = "formset-succion"
     PREFIJO_TUBERIAS_DESCARGA = "formset-descarga"

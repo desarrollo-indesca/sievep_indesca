@@ -6,6 +6,8 @@ from intercambiadores.models import Fluido, Planta, Unidades
 from calculos.utils import conseguir_largo
 from simulaciones_pequiven.settings import MEDIA_ROOT
 
+import uuid
+
 # CONSTANTES DE SELECCIÓN
 
 MOTOR_POSICIONES = (
@@ -253,7 +255,7 @@ class TuberiaInstalacionBomba(models.Model):
 # Evaluación de Bombas
     
 class EvaluacionBomba(models.Model):
-    id = models.UUIDField(primary_key=True)
+    id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     nombre = models.CharField(max_length = 45)
     fecha = models.DateTimeField(auto_now = True)
     equipo = models.ForeignKey(Bombas, on_delete = models.PROTECT)
@@ -268,7 +270,7 @@ class EvaluacionBomba(models.Model):
     instalacion_descarga = models.ForeignKey(EspecificacionesInstalacion, on_delete = models.PROTECT, related_name="instalacion_descarga_evaluacionbomba")
 
 class EntradaEvaluacionBomba(models.Model):
-    id = models.UUIDField(primary_key=True)
+    id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     presion_succion = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Presión")
     presion_descarga = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Presión")
     presion_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="presion_unidad_evaluacionbomba")
@@ -306,7 +308,7 @@ class EntradaEvaluacionBomba(models.Model):
     evaluacion = models.ForeignKey(EvaluacionBomba, on_delete = models.PROTECT, related_name = "entrada_evaluacion_evaluacionbomba")
 
 class SalidaEvaluacionBombaGeneral(models.Model):
-    id = models.UUIDField(primary_key=True)
+    id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     cabezal_total = models.FloatField()
     potencia = models.FloatField()
     eficiencia = models.FloatField()
@@ -317,7 +319,7 @@ class SalidaEvaluacionBombaGeneral(models.Model):
     evaluacion = models.ForeignKey(EvaluacionBomba, on_delete = models.PROTECT, related_name="salida_general_evaluacionbomba")
 
 class SalidaSeccionesEvaluacionBomba(models.Model):
-    id = models.UUIDField(primary_key=True)
+    id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     lado = models.CharField(max_length = 1, choices = (('S', 'Succión'), ('D', 'Descarga')))
     perdida_carga_tuberia = models.FloatField()
     perdida_carga_accesorios = models.FloatField(null = True)
@@ -325,7 +327,7 @@ class SalidaSeccionesEvaluacionBomba(models.Model):
     evaluacion = models.ForeignKey(EvaluacionBomba, on_delete = models.PROTECT, related_name="salida_secciones_evaluacionbomba")
 
 class EntradaTramos(models.Model):
-    id = models.UUIDField(primary_key=True)
+    id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     tramo = models.ForeignKey(TuberiaInstalacionBomba, on_delete=models.CASCADE, related_name="tramos_entrada")
     flujo = models.CharField(max_length=1, choices=(('T','Turbulento'), ('L', 'Laminar'), ('R', 'Transitorio')))
     velocidad = models.FloatField() # m/s
