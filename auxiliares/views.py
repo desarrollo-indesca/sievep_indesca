@@ -520,15 +520,17 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion):
     def get_queryset(self):
         new_context = super().get_queryset()
 
-        new_context = new_context.select_related('instalacion_succion', 'instalacion_descarga', 'creado_por')
+        new_context = new_context.select_related('instalacion_succion', 'instalacion_descarga', 'creado_por', 'entrada', 'salida')
         new_context = new_context.prefetch_related('instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad',
                                                    'instalacion_succion__tuberias__longitud_tuberia_unidad', 'instalacion_succion__tuberias__material_tuberia',
-                                                   'entrada_evaluacion_evaluacionbomba', 'entrada_evaluacion_evaluacionbomba__presion_unidad', 'entrada_evaluacion_evaluacionbomba__altura_unidad',
-                                                   'entrada_evaluacion_evaluacionbomba__flujo_unidad', 'salida_secciones_evaluacionbomba__datos_tramos_seccion',
-                                                   'entrada_evaluacion_evaluacionbomba__temperatura_unidad', 'entrada_evaluacion_evaluacionbomba__potencia_unidad',
-                                                   'entrada_evaluacion_evaluacionbomba__npshr_unidad', 'entrada_evaluacion_evaluacionbomba__densidad_unidad',
-                                                   'entrada_evaluacion_evaluacionbomba__viscosidad_unidad', 'entrada_evaluacion_evaluacionbomba__presion_vapor_unidad',
-                                                   'salida_general_evaluacionbomba', 'salida_secciones_evaluacionbomba')
+                                                   'entrada__presion_unidad', 'entrada__altura_unidad',
+                                                   'entrada__flujo_unidad', 'salida_secciones_evaluacionbomba__datos_tramos_seccion',
+                                                   'entrada__temperatura_unidad', 'entrada__potencia_unidad', 'salida__velocidad_unidad',
+                                                   'entrada__npshr_unidad', 'entrada__densidad_unidad', 'salida__potencia_unidad',
+                                                   'entrada__viscosidad_unidad', 'entrada__presion_vapor_unidad', 'salida_secciones_evaluacionbomba',
+                                                   'salida__cabezal_total_unidad', 'salida_secciones_evaluacionbomba__datos_tramos_seccion', 'salida_secciones_evaluacionbomba__datos_tramos_seccion__tramo',
+                                                   'salida_secciones_evaluacionbomba__datos_tramos_seccion__tramo__diametro_tuberia_unidad', 'salida_secciones_evaluacionbomba__datos_tramos_seccion__tramo__longitud_tuberia_unidad',
+                                                   'salida_secciones_evaluacionbomba__datos_tramos_seccion__tramo__material_tuberia')
 
         return new_context
 
@@ -654,27 +656,32 @@ class CalcularResultados(View, LoginRequiredMixin):
 
         try:
             with transaction.atomic():
+                form_entrada.instance.velocidad = self.bomba.especificaciones_bomba.velocidad
+                form_entrada.instance.velocidad_unidad = self.bomba.especificaciones_bomba.velocidad_unidad
+                form_entrada.save()
+
+                especificaciones = self.bomba.especificaciones_bomba
+
+                salida = SalidaEvaluacionBombaGeneral.objects.create(
+                    cabezal_total = res['cabezal_total'][0],
+                    cabezal_total_unidad = especificaciones.cabezal_unidad,
+                    potencia = res['potencia_calculada'][0],
+                    potencia_unidad = especificaciones.potencia_unidad,
+                    eficiencia = res['eficiencia'],
+                    velocidad = res['velocidad_especifica'],
+                    velocidad_unidad = especificaciones.velocidad_unidad,
+                    npsha = res['npsha'][0],
+                    cavita = None if res['cavita'] == 'D' else res['cavita'] == 'S'
+                )
+
                 form_evaluacion.instance.equipo = self.bomba
                 form_evaluacion.instance.creado_por = self.request.user
                 form_evaluacion.instance.instalacion_succion = self.bomba.instalacion_succion
                 form_evaluacion.instance.instalacion_descarga = self.bomba.instalacion_descarga
+                form_evaluacion.instance.entrada = form_entrada.instance
+                form_evaluacion.instance.salida = salida
 
                 evaluacion = form_evaluacion.save()
-
-                form_entrada.instance.velocidad = self.bomba.especificaciones_bomba.velocidad
-                form_entrada.instance.evaluacion = evaluacion
-                form_entrada.instance.velocidad_unidad = self.bomba.especificaciones_bomba.velocidad_unidad
-                form_entrada.save()
-
-                SalidaEvaluacionBombaGeneral.objects.create(
-                    cabezal_total = res['cabezal_total'][0],
-                    potencia = res['potencia_calculada'][0],
-                    eficiencia = res['eficiencia'],
-                    velocidad = res['velocidad_especifica'],
-                    npsha = res['npsha'][0],
-                    cavita = None if res['cavita'] == 'D' else res['cavita'] == 'S',
-                    evaluacion = evaluacion
-                )             
 
                 salida_succion = SalidaSeccionesEvaluacionBomba.objects.create(
                     lado = 'S',
@@ -705,7 +712,7 @@ class CalcularResultados(View, LoginRequiredMixin):
                         tramo = tramo,
                         flujo = res['flujo']['d'][i]['tipo_flujo'],
                         velocidad = res['flujo']['d'][i]['velocidad'],
-                        salida = salida_succion
+                        salida = salida_descarga
                     )
 
             messages.success(self.request, "Se almacenó la evaluación correctamente.")
@@ -714,7 +721,7 @@ class CalcularResultados(View, LoginRequiredMixin):
         except Exception as e:
             print(str(e))
 
-            return render(self.request, 'bombas/partials/carga_fallida.html')
+            return render(self.request, 'bombas/partials/carga_fallida.html', {'bomba': self.bomba})
 
     def almacenar(self, request):
         res = self.evaluar(request)

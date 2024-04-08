@@ -253,24 +253,6 @@ class TuberiaInstalacionBomba(models.Model):
     numero_valvula_angulo = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Ángulo")
 
 # Evaluación de Bombas
-    
-class EvaluacionBomba(models.Model):
-    id = models.UUIDField(primary_key=True, default= uuid.uuid4)
-    nombre = models.CharField(max_length = 45)
-    fecha = models.DateTimeField(auto_now = True)
-    equipo = models.ForeignKey(Bombas, on_delete = models.PROTECT)
-
-    # Evaluaciones S: Evaluaciones Registradas por el Sistema
-    # Evaluaciones U: Evaluaciones Registradar por el Usuario
-    tipo = models.CharField(max_length = 1, choices = (('S','S'), ('U','U')), default = 'U')
-    activo = models.BooleanField(default = True)
-
-    creado_por = models.ForeignKey(get_user_model(), on_delete = models.PROTECT)
-    instalacion_succion = models.ForeignKey(EspecificacionesInstalacion, on_delete = models.PROTECT, related_name="instalacion_succion_evaluacionbomba")
-    instalacion_descarga = models.ForeignKey(EspecificacionesInstalacion, on_delete = models.PROTECT, related_name="instalacion_descarga_evaluacionbomba")
-
-    class Meta:
-        ordering = ('-fecha',)
 
 class EntradaEvaluacionBomba(models.Model):
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
@@ -308,18 +290,43 @@ class EntradaEvaluacionBomba(models.Model):
 
     calculo_propiedades = models.CharField(max_length = 1, default = "M", choices=CALCULO_PROPIEDADES_EVALUACION, verbose_name = "Cálculo de Propiedades")
 
-    evaluacion = models.ForeignKey(EvaluacionBomba, on_delete = models.PROTECT, related_name = "entrada_evaluacion_evaluacionbomba")
-
 class SalidaEvaluacionBombaGeneral(models.Model):
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     cabezal_total = models.FloatField()
+    cabezal_total_unidad = models.ForeignKey(Unidades, default=4, on_delete=models.PROTECT, related_name="cabezal_total_unidad_salida_evaluacion_bomba")
     potencia = models.FloatField()
+    potencia_unidad = models.ForeignKey(Unidades, default=40, on_delete=models.PROTECT, related_name="potencia_unidad_salida_evaluacion_bomba")
     eficiencia = models.FloatField()
     velocidad = models.FloatField()
+    velocidad_unidad = models.ForeignKey(Unidades, default=38, on_delete=models.PROTECT, related_name="velocidad_unidad_salida_evaluacion_bomba")
     npsha = models.FloatField()
     cavita = models.BooleanField(null = True, blank = True)
+    
+class EvaluacionBomba(models.Model):
+    id = models.UUIDField(primary_key=True, default= uuid.uuid4)
+    nombre = models.CharField(max_length = 45)
+    fecha = models.DateTimeField(auto_now = True)
+    equipo = models.ForeignKey(Bombas, on_delete = models.PROTECT)
 
-    evaluacion = models.ForeignKey(EvaluacionBomba, on_delete = models.PROTECT, related_name="salida_general_evaluacionbomba")
+    # Evaluaciones S: Evaluaciones Registradas por el Sistema
+    # Evaluaciones U: Evaluaciones Registradar por el Usuario
+    tipo = models.CharField(max_length = 1, choices = (('S','S'), ('U','U')), default = 'U')
+    activo = models.BooleanField(default = True)
+
+    creado_por = models.ForeignKey(get_user_model(), on_delete = models.PROTECT)
+    instalacion_succion = models.ForeignKey(EspecificacionesInstalacion, on_delete = models.PROTECT, related_name="instalacion_succion_evaluacionbomba")
+    instalacion_descarga = models.ForeignKey(EspecificacionesInstalacion, on_delete = models.PROTECT, related_name="instalacion_descarga_evaluacionbomba")
+    entrada = models.ForeignKey(EntradaEvaluacionBomba, on_delete = models.PROTECT, related_name = "entrada_evaluacion_evaluacionbomba")
+    salida = models.ForeignKey(SalidaEvaluacionBombaGeneral, on_delete= models.PROTECT)
+
+    def salida_succion(self):
+        return self.salida_secciones_evaluacionbomba.get(lado = 'S')
+    
+    def salida_descarga(self):
+        return self.salida_secciones_evaluacionbomba.get(lado = 'D')
+
+    class Meta:
+        ordering = ('-fecha',)
 
 class SalidaSeccionesEvaluacionBomba(models.Model):
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
