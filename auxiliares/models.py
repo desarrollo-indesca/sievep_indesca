@@ -216,9 +216,9 @@ class Bombas(models.Model):
 
 class TuberiaInstalacionBomba(models.Model):
     instalacion = models.ForeignKey(EspecificacionesInstalacion, on_delete = models.CASCADE, related_name="tuberias")
-    longitud_tuberia = models.FloatField(verbose_name="Longitud", validators=[MinValueValidator(0)])
+    longitud_tuberia = models.FloatField(verbose_name="Longitud Total", validators=[MinValueValidator(0)])
     longitud_tuberia_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="longitud_tuberia_unidad_especificacionesinstalacion")
-    diametro_tuberia = models.FloatField(verbose_name="Diámetro", validators=[MinValueValidator(0)])
+    diametro_tuberia = models.FloatField(verbose_name="Diámetro Interno", validators=[MinValueValidator(0)])
     diametro_tuberia_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="diametro_tuberia_unidad_especificacionesinstalacion")
     material_tuberia = models.ForeignKey(MaterialTuberia, on_delete=models.CASCADE, verbose_name="Material")
 
@@ -265,9 +265,12 @@ class EvaluacionBomba(models.Model):
     tipo = models.CharField(max_length = 1, choices = (('S','S'), ('U','U')), default = 'U')
     activo = models.BooleanField(default = True)
 
-    usuario = models.ForeignKey(get_user_model(), on_delete = models.PROTECT)
+    creado_por = models.ForeignKey(get_user_model(), on_delete = models.PROTECT)
     instalacion_succion = models.ForeignKey(EspecificacionesInstalacion, on_delete = models.PROTECT, related_name="instalacion_succion_evaluacionbomba")
     instalacion_descarga = models.ForeignKey(EspecificacionesInstalacion, on_delete = models.PROTECT, related_name="instalacion_descarga_evaluacionbomba")
+
+    class Meta:
+        ordering = ('-fecha',)
 
 class EntradaEvaluacionBomba(models.Model):
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)

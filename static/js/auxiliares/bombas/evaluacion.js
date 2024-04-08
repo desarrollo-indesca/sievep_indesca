@@ -84,7 +84,8 @@ document.body.addEventListener('htmx:beforeRequest', function(evt) {
         $('#id_viscosidad_unidad').removeAttr('disabled');
     }
 
-    if(evt.target.name === "form" && $('#id_presion_succion').val() > $('#id_presion_descarga').val()){
+    if(evt.target.name === "form" && Number($('#id_presion_succion').val()) > Number($('#id_presion_descarga').val())){
+        console.log( $('#id_presion_succion').val(),  $('#id_presion_descarga').val());
         evt.preventDefault();
         alert("La presión de succión no puede ser mayor que la presión de la descarga. Verifique los datos.");
         body.style.opacity = 1.0;
@@ -106,6 +107,15 @@ document.body.addEventListener('htmx:beforeRequest', function(evt) {
             $('#aviso').html('');
         }            
         body.style.opacity = 1.0;
+    }
+
+    if(evt.target.name === 'form'){
+        if($('#submit').val() === 'almacenar'){
+            evt.detail.xhr.target = document.getElementsByTagName('form')[0];
+        }        
+        else{
+            evt.detail.xhr.target = document.getElementById('resultados');
+        }
     }
 });
 

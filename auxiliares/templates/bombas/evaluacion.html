@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block contenido %}
-<form method="post" name="form" enctype="multipart/form-data" hx-target="#resultados" hx-post="{% url 'resultados_evaluacion_bombas' pk=bomba.pk %}#resultados" hx-include="input,select">
+<form id="form" method="post" name="form" enctype="multipart/form-data" hx-swap="none" hx-post="{% url 'resultados_evaluacion_bombas' pk=bomba.pk %}#resultados" hx-include="input,select">
     {% csrf_token %}
     <input type="hidden" id="bomba" name="bomba" value="{{bomba.pk}}">
     <div class="row">
