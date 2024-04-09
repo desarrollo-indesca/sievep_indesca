@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block contenido %}
-<form method="post" name="form" enctype="multipart/form-data" hx-target="#resultados" hx-post="{% url 'resultados_evaluacion_bombas' pk=bomba.pk %}#resultados" hx-include="input,select">
+<form id="form" method="post" name="form" enctype="multipart/form-data" hx-swap="none" hx-post="{% url 'resultados_evaluacion_bombas' pk=bomba.pk %}#resultados" hx-include="input,select">
     {% csrf_token %}
     <input type="hidden" id="bomba" name="bomba" value="{{bomba.pk}}">
     <div class="row">
@@ -56,15 +56,6 @@
                     <div class="input-group mb-1">
                         {% render_field form_entrada_evaluacion.altura_succion min="-273.15" class="form-control" %}
                         {% render_field form_entrada_evaluacion.altura_unidad class="form-select" %}
-                    </div>                    
-                </div>
-                <div class="col-12">
-                    <label for="id_diametro_succion">Diámetro Interno:</label>
-                    <div class="input-group mb-1">
-                        <input id="id_diametro_succion" name="diametro_succion" type="number" step="0.0001" class="form-control" value="{{bomba.especificaciones_bomba.succion_id|unlocalize}}" disabled>
-                        <select class="form-select" name="diametro_unidad" id="id_diametro_unidad" disabled>
-                            <option>{{bomba.especificaciones_bomba.id_unidad}}</option>
-                        </select>
                     </div>                    
                 </div>
                 <div class="col-12">
@@ -114,15 +105,6 @@
                     <div class="input-group mb-1">
                         {% render_field form_entrada_evaluacion.altura_descarga min="-273.15" class="form-control" %}
                         {% render_field form_entrada_evaluacion.altura_unidad disabled="disabled" class="form-select" %}
-                    </div>                    
-                </div>
-                <div class="col-12">
-                    <label for="id_diametro_descarga">Diámetro Interno:</label>
-                    <div class="input-group mb-1">
-                        <input id="id_diametro_descarga" name="diametro_descarga" type="number" step="0.0001" class="form-control" value="{{bomba.especificaciones_bomba.descarga_id|unlocalize}}" disabled>
-                        <select class="form-select" name="diametro_unidad" id="id_diametro_unidad" disabled>
-                            <option>{{bomba.especificaciones_bomba.id_unidad}}</option>
-                        </select>
                     </div>                    
                 </div>
         </div>

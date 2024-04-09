@@ -10,6 +10,7 @@ const listeners_cambio = () => {
         if(estado === 1){
             estado = 0;
             $('#submit').val('calcular');
+            $('#submit').attr('name','submit');
             $('#submit').html("Calcular Resultados");
             $('#resultados').html('');
         }
@@ -19,6 +20,7 @@ const listeners_cambio = () => {
         if(estado === 1){
             estado = 0;
             $('#submit').val('calcular');
+            $('#submit').attr('name','submit');
             $('#submit').html("Calcular Resultados");
             $('#resultados').html('');
         }
@@ -82,7 +84,8 @@ document.body.addEventListener('htmx:beforeRequest', function(evt) {
         $('#id_viscosidad_unidad').removeAttr('disabled');
     }
 
-    if(evt.target.name === "form" && $('#id_presion_succion').val() > $('#id_presion_descarga').val()){
+    if(evt.target.name === "form" && Number($('#id_presion_succion').val()) > Number($('#id_presion_descarga').val())){
+        console.log( $('#id_presion_succion').val(),  $('#id_presion_descarga').val());
         evt.preventDefault();
         alert("La presión de succión no puede ser mayor que la presión de la descarga. Verifique los datos.");
         body.style.opacity = 1.0;
@@ -105,6 +108,15 @@ document.body.addEventListener('htmx:beforeRequest', function(evt) {
         }            
         body.style.opacity = 1.0;
     }
+
+    if(evt.target.name === 'form'){
+        if($('#submit').val() === 'almacenar'){
+            evt.detail.xhr.target = document.getElementsByTagName('form')[0];
+        }        
+        else{
+            evt.detail.xhr.target = document.getElementById('resultados');
+        }
+    }
 });
 
 document.body.addEventListener('htmx:afterRequest', function(evt) {
@@ -119,7 +131,17 @@ document.body.addEventListener('htmx:afterRequest', function(evt) {
     else
         $('button[type=submit]').removeAttr('disabled');
 
+    if(!evt.detail.failed && evt.target.name == 'submit'){
+        console.log($('#submit').val());
+        if($('#submit').val() === 'calcular' || $('#submit').val() === ''){
+            $('#submit').val('almacenar');
+        } else{
+            $('#submit').val('calcular');
+        }
+    }
+
     listeners_cambio();
+    $('#submit').attr('name', 'submit');
 });
 
 document.body.addEventListener('htmx:afterRequest', function(evt) {

@@ -1,0 +1,44 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th class="table-{{color}} text-center" colspan="6">
+                FLUJOS Y VELOCIDADES DE LA SUCCIÓN
+            </th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr>
+            <th class="table-dark text-center" style="vertical-align: middle;">#</th>
+            <th class="table-dark text-center">DIÁMETRO INTERNO</th>
+            <th class="table-dark text-center">LONGITUD TOTAL</th>
+            <th class="table-dark text-center">MATERIAL TUBERÍA</th>
+            <th class="table-dark text-center" style="vertical-align: middle;">VELOCIDAD</th>
+            <th class="table-dark text-center">TIPO DE FLUJO</th>
+        </tr>
+        {% for tramo in tramos.all %}
+        <tr>
+            <th>{{forloop.counter}}</th>
+            <td>{{tramo.tramo.diametro_tuberia|floatformat:4}} {{tramo.tramo.diametro_tuberia_unidad}}</td>
+            <td>{{tramo.tramo.longitud_tuberia|floatformat:4}} {{tramo.tramo.longitud_tuberia_unidad}}</td>
+            <td><small>{{tramo.tramo.material_tuberia}}</small></td>
+            <td>{{tramo.velocidad|floatformat:4}} m/s</td>
+            <td class="{% if tramo.flujo == 'T' %}table-danger{% elif tramo.flujo == 'L' %}table-success{%else%}table-warning{%endif%}">
+                {% if tramo.flujo == 'T' %}
+                Turbulento
+                {% elif tramo.flujo == 'L' %}
+                Laminar
+                {% else %}
+                Transitorio
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="text-center">
+                No hay tramos registrados de este lado al momento de registrar esta evaluación.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
