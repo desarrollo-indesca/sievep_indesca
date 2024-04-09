@@ -1,19 +1,10 @@
 {% load static %}
 {% load mathfilters %}
-<style>
-  .tabla_ficha {
-    width: 100% ;
-  }
 
-  #tabla_ficha_contenido_body > tr > td, #tabla_ficha_contenido_body > tr > th{
-    width: 25% !important;
-  }
-
-  #tabla_ficha_body > tr > td, #tabla_ficha_body > tr > th{
-    vertical-align: middle;
-    text-align: center;
-  } 
-</style>
+{% block head %}
+<script src="{% static 'js/popper.js' %}"></script>
+<script src="{% static 'js/tippy.js' %}"></script>
+{% endblock %}
 
 <div class="modal fade" id="ficha_{{bomba.pk|default_if_none:'-'}}" tabindex="-1" aria-labelledby="ficha_{{bomba.pk|default_if_none:'-'}}Label" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
@@ -324,14 +315,14 @@
           <h5 class="modal-title" id="modal_instalacion{{bomba.pk|default_if_none:'-'}}Label">Especificaciones de Instalación Bomba Centrífuga ({{bomba.tag|default_if_none:'-'}})</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body text-start small">
+        <div class="modal-body text-start small" >
           <div class="row">
             <div class="col-12">
               <div class="d-flex flex-column">
                 <table class="table table-light text-center table-bordered tabla_ficha mb-0">
                   <tbody id="tabla_ficha_body">
                     <tr>
-                        <th colspan="2" class="table-dark">
+                        <th colspan="3" class="table-dark">
                             Instalación General
                         </th>
                         <th class="table-dark">
@@ -342,138 +333,166 @@
                         </th>
                     </tr>
                     <tr>
-                        <th class="table-dark" colspan="2">Elevación ({{bomba.instalacion_succion.elevacion_unidad|default_if_none:'-'}})</td>
+                        <th class="table-dark" colspan="3">Elevación ({{bomba.instalacion_succion.elevacion_unidad|default_if_none:'-'}})</td>
                         <td>{{bomba.instalacion_succion.elevacion|default_if_none:'-'}}</td>
                         <td>{{bomba.instalacion_descarga.elevacion|default_if_none:'-'}}</td>
                     </tr>   
                     <tr>
-                        <th class="table-dark" colspan="4">
+                        <th class="table-dark" colspan="5">
                           <div class="d-inline-flex align-items-center">
                             Tramos de Tuberías en la Succión
                           </div>
                         </th>
                     </tr>
-                    {% for tuberia in bomba.instalacion_succion.tuberias.all %}
                     <tr>
-                        <th class="text-bold text-center" colspan="4">TRAMO #{{forloop.counter}}</th>
-                    </tr>
-                    <tr class="table-dark">Tramo #{{forloop.counter}} Succión</tr>
-                    <tr>
+                        <th class="table-dark text-center">#</th>
                         <th class="table-dark text-center">Longitud Total</th>
                         <th class="table-dark text-center">Diámetro</th>
-                        <th class="table-dark text-center" colspan="2">Material</th>
+                        <th class="table-dark text-center">Material</th>
+                        <th class="table-dark text-center">Accesorios</th>
                     </tr>
+                    {% for tuberia in bomba.instalacion_succion.tuberias.all %}
                     <tr>
-                        <td>
-                            {{tuberia.longitud_tuberia}} {{tuberia.longitud_tuberia_unidad}}
+                        <td class="text-center">
+                            <small>{{forloop.counter}}</small>
+                        </td>
+                        <td class="text-center">
+                            <small>{{tuberia.longitud_tuberia}} {{tuberia.longitud_tuberia_unidad}}</small>
+                        </td>
+                        <td class="text-center">
+                            <small>{{tuberia.diametro_tuberia}} {{tuberia.diametro_tuberia_unidad}}</small>
+                        </td>
+                        <td class="text-center">
+                            <small>{{tuberia.material_tuberia}}</small>
                         </td>
                         <td>
-                            {{tuberia.diametro_tuberia}} {{tuberia.diametro_tuberia_unidad}}
+                            <a id="t{{tuberia.id}}" href="#" data-tooltip="t{{tuberia.id}}">Accesorios</a>
+                            <div id="t{{tuberia.id}}codos" style="display: none; font-size: 8pt;">
+                                <table class="table table-light">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center table-dark" colspan="4">
+                                                Codos del Tramo #{{forloop.counter}} Succión
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th class="table-dark">Codos 90°</th>
+                                            <td>{{tuberia.numero_codos_90|default_if_none:'-'}}</td>
+                                            <th class="table-dark">Codos 90° Radio Largo</th>
+                                            <td>{{tuberia.numero_codos_90_rl|default_if_none:'-'}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="table-dark">Codos Roscados a 90°</th>
+                                            <td>{{tuberia.numero_codos_90_ros|default_if_none:'-'}}</td>
+                                            <th class="table-dark">Codos 45°</th>
+                                            <td>{{tuberia.numero_codos_45|default_if_none:'-'}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="table-dark">Codos Roscados a 45°</th>
+                                            <td>{{tuberia.numero_codos_45_ros|default_if_none:'-'}}</td>
+                                            <th class="table-dark">Codos 180°</th>
+                                            <td>{{tuberia.numero_codos_180|default_if_none:'-'}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="t{{tuberia.id}}valvulas" style="display: none; font-size: 8pt;">
+                                    <table class="table table-light">
+                                        <thead>
+                                            <th colspan="4" class="table-dark text-center">Válvulas del Tramo #{{forloop.counter}} Succión</th>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th class="table-dark">Válv. Compuerta Abiertas</th>
+                                                <td>{{tuberia.numero_valvulas_compuerta|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Abiertas a 3/4</th>
+                                                <td>{{tuberia.numero_valvulas_compuerta_abierta_3_4|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Abiertas a 1/2</th>
+                                                <td>{{tuberia.numero_valvulas_compuerta_abierta_1_2|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Abiertas a 1/4</th>
+                                                <td>{{tuberia.numero_valvulas_compuerta_abierta_1_4|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Válv. Mariposa 2"-8"</th>
+                                                <td>{{tuberia.numero_valvulas_mariposa_2_8|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Válv. Mariposa 10"-14"</th>
+                                                <td>{{tuberia.numero_valvulas_mariposa_10_14|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Válv. Mariposa 16"-24"</th>
+                                                <td colspan="3">{{tuberia.numero_valvulas_mariposa_16_24|default_if_none:'-'}}</td>
+                                            </tr>
+                        
+                                            <tr>
+                                                <th class="table-dark">Válv. Verif. Giratorias</th>
+                                                <td>{{tuberia.numero_valvula_giratoria|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Válv. Verif. Bola</th>
+                                                <td>{{tuberia.numero_valvula_bola|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Válv. Disco Bisagra</th>
+                                                <td>{{tuberia.numero_valvula_bisagra|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Válv. Disco Vástago</th>
+                                                <td>{{tuberia.numero_valvula_vastago|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Válv. Globo</th>
+                                                <td>{{tuberia.numero_valvula_globo|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Válv. Ángulo</th>
+                                                <td>{{tuberia.numero_valvula_angulo|default_if_none:'-'}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                            <div id="t{{tuberia.id}}conexiones" style="display: none; font-size: 8pt;">
+                                    <table class="table table-light">
+                                        <thead>
+                                            <th colspan="4" class="table-dark text-center">Conexiones T del Tramo #{{forloop.counter}} Succión</th>
+                                        </thead>
+                                        <tbody>                        
+                                            <tr>
+                                                <th class="table-dark">Conexiones T Flujo Directo</th>
+                                                <td>{{tuberia.conexiones_t_directo|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Conexiones T Flujo Ramal</th>
+                                                <td>{{tuberia.conexiones_t_ramal|default_if_none:'-'}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                            <script>
+                                tippy('#t{{tuberia.id}}', {
+                                    content: document.getElementById('t{{tuberia.id}}codos').innerHTML,
+                                    placement: 'left',
+                                    theme: 'light',
+                                    interactive: true,
+                                    maxWidth: '150%',
+                                    boundary: 'viewport',
+                                    multiple: true
+                                });
+                                tippy('#t{{tuberia.id}}', {
+                                    content: document.getElementById('t{{tuberia.id}}valvulas').innerHTML,
+                                    placement: 'top-start',
+                                    theme: 'light',
+                                    interactive: true,
+                                    maxWidth: '150%',
+                                    boundary: 'viewport',
+                                    multiple: true
+                                });
+                                tippy('#t{{tuberia.id}}', {
+                                    content: document.getElementById('t{{tuberia.id}}conexiones').innerHTML,
+                                    placement: 'bottom-start',
+                                    theme: 'light',
+                                    interactive: true,
+                                    maxWidth: '150%',
+                                    boundary: 'viewport',
+                                    multiple: true
+                                });
+                            </script>
                         </td>
-                        <td colspan="2">
-                            {{tuberia.material_tuberia}}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th colspan="4" class="table-dark">
-                            Codos Tramo #{{forloop.counter}} Succión
-                        </th>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Núm. Codos 90°</td>
-                        <td>{{tuberia.numero_codos_90|default_if_none:'-'}}</td>
-                        <th class="table-dark">Núm. Codos 90° Radio Largo</td>
-                        <td>{{tuberia.numero_codos_90_rl|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Núm. Codos Roscados a 90°</td>
-                        <td>{{tuberia.numero_codos_90_ros|default_if_none:'-'}}</td>
-                        <th class="table-dark">Núm. Codos 45°</td>
-                        <td>{{tuberia.numero_codos_45|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Núm. Codos Roscados a 45°</td>
-                        <td>{{tuberia.numero_codos_45_ros|default_if_none:'-'}}</td>
-                        <th class="table-dark">Núm. Codos 180°</td>
-                        <td>{{tuberia.numero_codos_180|default_if_none:'-'}}</td>
-                    </tr>
-                    
-                    <tr>
-                        <th colspan="4" class="table-dark">
-                            Válvulas de Compuerta Tramo #{{forloop.counter}} Succión
-                        </th>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Núm. Válvulas Compuerta Abiertas Totalmente</td>
-                        <td>{{tuberia.numero_valvulas_compuerta|default_if_none:'-'}}</td>
-                        <th class="table-dark">Abiertas a 3/4</td>
-                        <td>{{tuberia.numero_valvulas_compuerta_abierta_3_4|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Abiertas a 1/2</td>
-                        <td>{{tuberia.numero_valvulas_compuerta_abierta_1_2|default_if_none:'-'}}</td>
-                        <th class="table-dark">Abiertas a 1/4</td>
-                        <td>{{tuberia.numero_valvulas_compuerta_abierta_1_4|default_if_none:'-'}}</td>
-                    </tr>
-
-                    <tr>
-                        <th colspan="4" class="table-dark">
-                            Válvulas de Mariposa Tramo #{{forloop.counter}} Succión
-                        </th>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Núm. Válvulas Mariposa 2"-8"</td>
-                        <td>{{tuberia.numero_valvulas_mariposa_2_8|default_if_none:'-'}}</td>
-                        <th class="table-dark">Núm. Válvulas Mariposa 10"-14"</td>
-                        <td>{{tuberia.numero_valvulas_mariposa_10_14|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Núm. Válvulas Mariposa 16"-24"</td>
-                        <td colspan="3">{{tuberia.numero_valvulas_mariposa_16_24|default_if_none:'-'}}</td>
-                    </tr>
-
-                    <tr>
-                        <th colspan="4" class="table-dark">
-                            Válvulas Check Tramo #{{forloop.counter}} Succión
-                        </th>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Núm. Válvulas Verif. Giratorias</td>
-                        <td>{{tuberia.numero_valvula_giratoria|default_if_none:'-'}}</td>
-                        <th class="table-dark">Núm. Válvulas Verif. Bola</td>
-                        <td>{{tuberia.numero_valvula_bola|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Núm. Válvulas Disco de Bisagra</td>
-                        <td>{{tuberia.numero_valvula_bisagra|default_if_none:'-'}}</td>
-                        <th class="table-dark">Núm. Válvulas Disco de Vástago</td>
-                        <td>{{tuberia.numero_valvula_vastago|default_if_none:'-'}}</td>
-                    </tr>
-
-                    <tr>
-                        <th colspan="4" class="table-dark">
-                            Accesorios Tramo #{{forloop.counter}} Succión
-                        </th>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Número de Válvulas Globo</td>
-                        <td>{{tuberia.numero_valvula_globo|default_if_none:'-'}}</td>
-                        <th class="table-dark">Número de Válvulas Ángulo</td>
-                        <td>{{tuberia.numero_valvula_angulo|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th colspan="4" class="table-dark">
-                            Conexiones Tipo T Tramo #{{forloop.counter}} Succión
-                        </th>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Conexiones T Flujo Directo</td>
-                        <td>{{tuberia.conexiones_t_directo|default_if_none:'-'}}</td>
-                        <th class="table-dark">Conexiones T Flujo Ramal</td>
-                        <td>{{tuberia.conexiones_t_ramal|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th class="text-bold text-center" colspan="4">FIN DEL TRAMO #{{forloop.counter}}</th>
                     </tr>
                     {% empty %}
                     <tr>
@@ -481,138 +500,167 @@
                     </tr>
                     {% endfor %}
                     <tr>
-                      <th class="table-dark text-center" colspan="4">Tramos de Tuberías en la Descarga</th>
+                      <th class="table-dark text-center" colspan="5">Tramos de Tuberías en la Descarga</th>
+                    </tr>
+                    <tr>
+                        <th class="table-dark text-center">#</th>
+                        <th class="table-dark text-center">Longitud Total</th>
+                        <th class="table-dark text-center">Diámetro Interno</th>
+                        <th class="table-dark text-center">Material</th>
+                        <th class="table-dark text-center">Accesorios</th>
                     </tr>
                     {% for tuberia in bomba.instalacion_descarga.tuberias.all %}
                     <tr>
-                        <th class="text-bold text-center" colspan="4">TRAMO #{{forloop.counter}} DESCARGA</th>
-                    </tr>
-                    <tr class="table-dark">Tramo #{{forloop.counter}} Descarga</tr>
-                    <tr>
-                        <th class="table-dark text-center">Longitud Total</th>
-                        <th class="table-dark text-center">Diámetro</th>
-                        <th class="table-dark text-center" colspan="2">Material</th>
-                    </tr>
-                    <tr>
-                        <td>
-                            {{tuberia.longitud_tuberia}} {{tuberia.longitud_tuberia_unidad}}
+                        <td class="text-center">
+                            <small>{{forloop.counter}}</small>
+                        </td>
+                        <td class="text-center">
+                            <small>{{tuberia.longitud_tuberia}} {{tuberia.longitud_tuberia_unidad}}</small>
+                        </td>
+                        <td class="text-center">
+                            <small>{{tuberia.diametro_tuberia}} {{tuberia.diametro_tuberia_unidad}}</small>
+                        </td>
+                        <td class="text-center">
+                            <small>{{tuberia.material_tuberia}}</small>
                         </td>
                         <td>
-                            {{tuberia.diametro_tuberia}} {{tuberia.diametro_tuberia_unidad}}
+                            <a id="t{{tuberia.id}}" href="#" data-tooltip="t{{tuberia.id}}">Accesorios</a>
+                            <div id="t{{tuberia.id}}codos" style="display: none; font-size: 8pt;">
+                                <table class="table table-light">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center table-dark" colspan="4">
+                                                Codos del Tramo #{{forloop.counter}} Descarga
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th class="table-dark">Codos 90°</th>
+                                            <td>{{tuberia.numero_codos_90|default_if_none:'-'}}</td>
+                                            <th class="table-dark">Codos 90° Radio Largo</th>
+                                            <td>{{tuberia.numero_codos_90_rl|default_if_none:'-'}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="table-dark">Codos Roscados a 90°</th>
+                                            <td>{{tuberia.numero_codos_90_ros|default_if_none:'-'}}</td>
+                                            <th class="table-dark">Codos 45°</th>
+                                            <td>{{tuberia.numero_codos_45|default_if_none:'-'}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="table-dark">Codos Roscados a 45°</th>
+                                            <td>{{tuberia.numero_codos_45_ros|default_if_none:'-'}}</td>
+                                            <th class="table-dark">Codos 180°</th>
+                                            <td>{{tuberia.numero_codos_180|default_if_none:'-'}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="t{{tuberia.id}}valvulas" style="display: none; font-size: 8pt;">
+                                    <table class="table table-light">
+                                        <thead>
+                                            <th colspan="4" class="table-dark text-center">Válvulas del Tramo #{{forloop.counter}} Descarga</th>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th class="table-dark">Válv. Compuerta Abiertas</th>
+                                                <td>{{tuberia.numero_valvulas_compuerta|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Compuertas a 3/4</th>
+                                                <td>{{tuberia.numero_valvulas_compuerta_abierta_3_4|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Compuertas a 1/2</th>
+                                                <td>{{tuberia.numero_valvulas_compuerta_abierta_1_2|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Compuertas a 1/4</th>
+                                                <td>{{tuberia.numero_valvulas_compuerta_abierta_1_4|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Válv. Mariposa 2"-8"</th>
+                                                <td>{{tuberia.numero_valvulas_mariposa_2_8|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Válv. Mariposa 10"-14"</th>
+                                                <td>{{tuberia.numero_valvulas_mariposa_10_14|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Válv. Mariposa 16"-24"</th>
+                                                <td colspan="3">{{tuberia.numero_valvulas_mariposa_16_24|default_if_none:'-'}}</td>
+                                            </tr>
+                        
+                                            <tr>
+                                                <th class="table-dark">Válv. Verif. Giratorias</th>
+                                                <td>{{tuberia.numero_valvula_giratoria|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Válv. Verif. Bola</th>
+                                                <td>{{tuberia.numero_valvula_bola|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Válv. Disco Bisagra</th>
+                                                <td>{{tuberia.numero_valvula_bisagra|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Válv. Disco Vástago</th>
+                                                <td>{{tuberia.numero_valvula_vastago|default_if_none:'-'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="table-dark">Válv. Globo</th>
+                                                <td>{{tuberia.numero_valvula_globo|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Válv. Ángulo</th>
+                                                <td>{{tuberia.numero_valvula_angulo|default_if_none:'-'}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                            <div id="t{{tuberia.id}}conexiones" style="display: none; font-size: 8pt;">
+                                    <table class="table table-light">
+                                        <thead>
+                                            <th colspan="4" class="table-dark text-center">Conexiones T del Tramo #{{forloop.counter}} Descarga</th>
+                                        </thead>
+                                        <tbody>                        
+                                            <tr>
+                                                <th class="table-dark">Conexiones T Flujo Directo</th>
+                                                <td>{{tuberia.conexiones_t_directo|default_if_none:'-'}}</td>
+                                                <th class="table-dark">Conexiones T Flujo Ramal</th>
+                                                <td>{{tuberia.conexiones_t_ramal|default_if_none:'-'}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                            <script>
+                                tippy('#t{{tuberia.id}}', {
+                                    content: document.getElementById('t{{tuberia.id}}codos').innerHTML,
+                                    placement: 'left',
+                                    theme: 'light',
+                                    interactive: true,
+                                    maxWidth: '150%',
+                                    boundary: 'viewport',
+                                    multiple: true
+                                });
+                                tippy('#t{{tuberia.id}}', {
+                                    content: document.getElementById('t{{tuberia.id}}valvulas').innerHTML,
+                                    placement: 'top-start',
+                                    theme: 'light',
+                                    interactive: true,
+                                    maxWidth: '150%',
+                                    boundary: 'viewport',
+                                    multiple: true
+                                });
+                                tippy('#t{{tuberia.id}}', {
+                                    content: document.getElementById('t{{tuberia.id}}conexiones').innerHTML,
+                                    placement: 'bottom-start',
+                                    theme: 'light',
+                                    interactive: true,
+                                    maxWidth: '150%',
+                                    boundary: 'viewport',
+                                    multiple: true
+                                });
+                            </script>
                         </td>
-                        <td colspan="2">
-                            {{tuberia.material_tuberia}}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th colspan="4" class="table-dark">
-                            Codos Tramo #{{forloop.counter}} Descarga
-                        </th>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Núm. Codos 90°</td>
-                        <td>{{tuberia.numero_codos_90|default_if_none:'-'}}</td>
-                        <th class="table-dark">Núm. Codos 90° Radio Largo</td>
-                        <td>{{tuberia.numero_codos_90_rl|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Núm. Codos Roscados a 90°</td>
-                        <td>{{tuberia.numero_codos_90_ros|default_if_none:'-'}}</td>
-                        <th class="table-dark">Núm. Codos 45°</td>
-                        <td>{{tuberia.numero_codos_45|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Núm. Codos Roscados a 45°</td>
-                        <td>{{tuberia.numero_codos_45_ros|default_if_none:'-'}}</td>
-                        <th class="table-dark">Núm. Codos 180°</td>
-                        <td>{{tuberia.numero_codos_180|default_if_none:'-'}}</td>
-                    </tr>
-                    
-                    <tr>
-                        <th colspan="4" class="table-dark">
-                            Válvulas de Compuerta Tramo #{{forloop.counter}} Descarga
-                        </th>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Núm. Válvulas Compuerta Abiertas Totalmente</td>
-                        <td>{{tuberia.numero_valvulas_compuerta|default_if_none:'-'}}</td>
-                        <th class="table-dark">Abiertas a 3/4</td>
-                        <td>{{tuberia.numero_valvulas_compuerta_abierta_3_4|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Abiertas a 1/2</td>
-                        <td>{{tuberia.numero_valvulas_compuerta_abierta_1_2|default_if_none:'-'}}</td>
-                        <th class="table-dark">Abiertas a 1/4</td>
-                        <td>{{tuberia.numero_valvulas_compuerta_abierta_1_4|default_if_none:'-'}}</td>
                     </tr>
 
-                    <tr>
-                        <th colspan="4" class="table-dark">
-                            Válvulas de Mariposa Tramo #{{forloop.counter}} Descarga
-                        </th>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Núm. Válvulas Mariposa 2"-8"</td>
-                        <td>{{tuberia.numero_valvulas_mariposa_2_8|default_if_none:'-'}}</td>
-                        <th class="table-dark">Núm. Válvulas Mariposa 10"-14"</td>
-                        <td>{{tuberia.numero_valvulas_mariposa_10_14|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Núm. Válvulas Mariposa 16"-24"</td>
-                        <td colspan="3">{{tuberia.numero_valvulas_mariposa_16_24|default_if_none:'-'}}</td>
-                    </tr>
-
-                    <tr>
-                        <th colspan="4" class="table-dark">
-                            Válvulas Check Tramo #{{forloop.counter}} Descarga
-                        </th>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Núm. Válvulas Verif. Giratorias</td>
-                        <td>{{tuberia.numero_valvula_giratoria|default_if_none:'-'}}</td>
-                        <th class="table-dark">Núm. Válvulas Verif. Bola</td>
-                        <td>{{tuberia.numero_valvula_bola|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Núm. Válvulas Disco de Bisagra</td>
-                        <td>{{tuberia.numero_valvula_bisagra|default_if_none:'-'}}</td>
-                        <th class="table-dark">Núm. Válvulas Disco de Vástago</td>
-                        <td>{{tuberia.numero_valvula_vastago|default_if_none:'-'}}</td>
-                    </tr>
-
-                    <tr>
-                        <th colspan="4" class="table-dark">
-                            Accesorios Tramo #{{forloop.counter}} Descarga
-                        </th>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Número de Válvulas Globo</td>
-                        <td>{{tuberia.numero_valvula_globo|default_if_none:'-'}}</td>
-                        <th class="table-dark">Número de Válvulas Ángulo</td>
-                        <td>{{tuberia.numero_valvula_angulo|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th colspan="4" class="table-dark">
-                            Conexiones Tipo T Tramo #{{forloop.counter}} Descarga
-                        </th>
-                    </tr>
-                    <tr>
-                        <th class="table-dark">Conexiones T Flujo Directo</td>
-                        <td>{{tuberia.conexiones_t_directo|default_if_none:'-'}}</td>
-                        <th class="table-dark">Conexiones T Flujo Ramal</td>
-                        <td>{{tuberia.conexiones_t_ramal|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                        <th class="text-bold text-center" colspan="4">FIN DEL TRAMO #{{forloop.counter}} DESCARGA</th>
-                    </tr>
                     {% empty %}
                     <tr>
-                        <th colspan="4" class="text-bold text-center">No hay tramos registrados en la succión.</th>
+                        <th colspan="5" class="text-bold text-center">No hay tramos registrados en la descarga.</th>
                     </tr>
                     {% endfor %}
                        
                    <tr>
-                      <td colspan="4">Datos de Instalación modificados por última vez el <b>{{bomba.instalacion_succion.fecha}}</b> por <b>{{bomba.instalacion_succion.usuario.get_full_name}}</b>.</td>
+                      <td colspan="5">Datos de Instalación modificados por última vez el <b>{{bomba.instalacion_succion.fecha}}</b> por <b>{{bomba.instalacion_succion.usuario.get_full_name}}</b>.</td>
                     </tr>
                     </tbody>
                 </table>
