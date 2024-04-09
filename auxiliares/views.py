@@ -612,7 +612,6 @@ class CalcularResultados(View, LoginRequiredMixin):
     
     def calcular(self, request):
         res = self.evaluar(request)
-        print(res)
         return render(request, 'bombas/partials/resultado_evaluacion.html', context={'res': res, 'bomba': self.bomba})
 
     def parse_entrada(self, request, specs, res):
@@ -733,13 +732,9 @@ class CalcularResultados(View, LoginRequiredMixin):
         form_entrada = EntradaEvaluacionBombaForm(entrada)
         form_evaluacion = EvaluacionBombaForm(request.POST)
 
-        print(form_entrada.is_valid(), form_evaluacion.is_valid())
-
         if(form_entrada.is_valid() and form_evaluacion.is_valid()):
             return self.almacenar_bdd(form_entrada, form_evaluacion)
         else:
-            print(form_entrada.errors)
-            print(form_evaluacion.errors)
             context = {
                 'bomba': self.bomba,
                 'form_evaluacion': form_evaluacion,

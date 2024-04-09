@@ -60,7 +60,7 @@ def calcular_flujo_bomba(tramos, numeros_reynolds, velocidades):
     return res
 
 def calcular_cabezal(densidad, presion_descarga, presion_succion, altura_descarga, altura_succion, flujo, area_descarga, area_succion, htotal):
-    return abs(1/(densidad*GRAVEDAD)*(presion_descarga - presion_succion) + (altura_descarga - altura_succion) + flujo**2/(2*GRAVEDAD)*(1/area_descarga**2 - 1/area_succion**2) + htotal)
+    return (1/(densidad*GRAVEDAD)*(presion_descarga - presion_succion) + (altura_descarga - altura_succion) + flujo**2/(2*GRAVEDAD)*(1/area_descarga**2 - 1/area_succion**2) + htotal)
 
 def calculo_perdida_tramos(tramos, velocidades, areas, area_comp, flujos):
     ec = 0
@@ -180,7 +180,6 @@ def evaluacion_bomba(bomba, velocidad, temp_operacion, presion_succion, presion_
     htotal = h_total_succion + h_total_descarga
 
     cabezal = calcular_cabezal(densidad, presion_descarga, presion_succion, altura_succion, altura_descarga, flujo, sum(areas_descarga), sum(areas_succion), htotal)   
-    
     potencia_calculada = cabezal*densidad*GRAVEDAD*flujo
     eficiencia = potencia_calculada/potencia*100
     ns = velocidad*math.sqrt(flujo*15850.35)/(cabezal*3.28)**0.75
