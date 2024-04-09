@@ -673,7 +673,8 @@ class CalcularResultados(View, LoginRequiredMixin):
                     velocidad = res['velocidad_especifica'],
                     velocidad_unidad = especificaciones.velocidad_unidad,
                     npsha = res['npsha'][0],
-                    cavita = None if res['cavita'] == 'D' else res['cavita'] == 'S'
+                    cavita = None if res['cavita'] == 'D' else res['cavita'] == 'S',
+                    fluido = self.bomba.condiciones_diseno.condiciones_fluido.fluido
                 )
 
                 form_evaluacion.instance.equipo = self.bomba
@@ -788,3 +789,24 @@ class CreacionEvaluacionBomba(View, LoginRequiredMixin, CargarBombaMixin):
     
     def get(self, request, pk):
         return render(request, 'bombas/evaluacion.html', self.get_context_data())
+    
+class GenerarGrafica(View, LoginRequiredMixin):
+    def get(self, request, pk):
+        bomba = Bombas.objects.get(pk=pk)
+        evaluaciones = EvaluacionBomba.objects.filter(equipo = bomba).order_by('fecha')
+        
+        if(request.GET.get('desde')):
+            evaluaciones = evaluaciones.filter(fecha__gte = request.GET.get('desde'))
+
+        if(request.GET.get('hasta')):
+            evaluaciones = evaluaciones.filter(fecha__lte = request.GET.get('hasta'))
+
+        if(request.GET.get('usuario')):
+            evaluaciones = evaluaciones.filter(creado_por__first_name__icontains = request.GET.get('hasta'))
+
+        if(request.GET.get('nombre')):
+            evaluaciones = evaluaciones.filter(nombre__icontains = request.GET.get('nombre'))
+        
+        evaluaciones = evaluaciones.values('fecha','salida__eficiencia')
+
+        return JsonResponse(list(evaluaciones)[:15], safe=False)

@@ -288,6 +288,8 @@ class EntradaEvaluacionBomba(models.Model):
     presion_vapor = models.FloatField(models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)]))
     presion_vapor_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="presion_vapor_unidad_evaluacionbomba")
 
+    fluido = models.ForeignKey(Fluido, on_delete=models.PROTECT, related_name="fluido_salidaevaluacionbomba")
+    
     calculo_propiedades = models.CharField(max_length = 1, default = "M", choices=CALCULO_PROPIEDADES_EVALUACION, verbose_name = "Cálculo de Propiedades")
 
 class SalidaEvaluacionBombaGeneral(models.Model):
