@@ -616,10 +616,12 @@ class CalcularResultados(View, LoginRequiredMixin):
         return render(request, 'bombas/partials/resultado_evaluacion.html', context={'res': res, 'bomba': self.bomba})
 
     def parse_entrada(self, request, specs, res):
+        condiciones_diseno = self.bomba.condiciones_diseno
+        condiciones_fluido = condiciones_diseno.condiciones_fluido
         return {
-            'presion_succion': request.POST.get('presion_succion'),
+            'presion_succion': request.POST.get('presion_succion', condiciones_diseno.presion_succion),
             'presion_descarga': request.POST.get('presion_descarga'),
-            'presion_unidad': request.POST.get('presion_unidad'),
+            'presion_unidad': request.POST.get('presion_unidad', condiciones_diseno.presion_unidad.pk),
 
             'altura_succion': request.POST.get('altura_succion'),
             'altura_descarga': request.POST.get('altura_descarga'),
@@ -630,8 +632,8 @@ class CalcularResultados(View, LoginRequiredMixin):
             'flujo': request.POST.get('flujo'),
             'flujo_unidad': request.POST.get('flujo_unidad'),
 
-            'temperatura_operacion': request.POST.get('temperatura_operacion'),
-            'temperatura_unidad': request.POST.get('temperatura_unidad'),
+            'temperatura_operacion': request.POST.get('temperatura_operacion', condiciones_fluido.temperatura_operacion),
+            'temperatura_unidad': request.POST.get('temperatura_unidad', condiciones_fluido.temperatura_unidad.pk),
 
             'potencia': request.POST.get('potencia'),
             'potencia_unidad': request.POST.get('potencia_unidad'),
@@ -640,13 +642,13 @@ class CalcularResultados(View, LoginRequiredMixin):
             'npshr_unidad': request.POST.get('npshr_unidad'),
 
             'densidad': res['propiedades']['densidad'],
-            'densidad_unidad': request.POST.get('densidad_unidad'),
+            'densidad_unidad': request.POST.get('densidad_unidad', condiciones_fluido.densidad_unidad.pk if condiciones_fluido.densidad_unidad else None),
 
             'viscosidad': res['propiedades']['viscosidad'],
-            'viscosidad_unidad': request.POST.get('viscosidad_unidad'),
+            'viscosidad_unidad': request.POST.get('viscosidad_unidad', condiciones_fluido.viscosidad_unidad.pk),
 
             'presion_vapor': res['propiedades']['presion_vapor'],
-            'presion_vapor_unidad': request.POST.get('presion_vapor_unidad'),
+            'presion_vapor_unidad': request.POST.get('presion_vapor_unidad', condiciones_fluido.presion_vapor_unidad.pk),
 
             'calculo_propiedades': request.POST.get('calculo_propiedades'),
         }

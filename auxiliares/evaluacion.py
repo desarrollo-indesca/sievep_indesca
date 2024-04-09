@@ -4,11 +4,14 @@ from calculos.termodinamicos import DENSIDAD_DEL_AGUA_LIQUIDA_A_5C,calcular_dens
 
 GRAVEDAD = 9.81
 
-def calcular_areas(tramos):
+def calcular_areas(tramos, id):
     areas = []
-    for tramo in tramos.all():
-        diametro = transformar_unidades_longitud([tramo.diametro_tuberia], tramo.diametro_tuberia_unidad.pk)[0]
-        areas.append(math.pi/4*diametro**2)
+    if(tramos.count()):
+        for tramo in tramos.all():
+            diametro = transformar_unidades_longitud([tramo.diametro_tuberia], tramo.diametro_tuberia_unidad.pk)[0]
+            areas.append(math.pi/4*diametro**2)
+    else:
+        areas.append(math.pi/4*id**2)
 
     return areas
 
@@ -157,19 +160,20 @@ def evaluacion_bomba(bomba, velocidad, temp_operacion, presion_succion, presion_
                      propiedades = None, unidades_propiedades = None):
     
     densidad, presion_vapor, viscosidad = obtener_propiedades(temp_operacion, presion_succion, bomba, propiedades, unidades_propiedades, tipo_propiedades)
-    
-    areas_succion, areas_descarga = calcular_areas(bomba.instalacion_succion.tuberias), calcular_areas(bomba.instalacion_descarga.tuberias)
-    print(areas_succion, areas_descarga)
+    tramos_succion = bomba.instalacion_succion.tuberias
+    tramos_descarga = bomba.instalacion_descarga.tuberias
+
+    areas_succion, areas_descarga = calcular_areas(tramos_succion, diametro_interno_succion), calcular_areas(tramos_descarga, diametro_interno_succion)
     velocidades_succion, velocidades_descarga = calcular_velocidades(flujo, areas_succion), calcular_velocidades(flujo, areas_descarga)
 
-    nr_succion = calcular_numeros_reynolds(velocidades_succion, bomba.instalacion_succion.tuberias, densidad, viscosidad)
-    nr_descarga = calcular_numeros_reynolds(velocidades_descarga, bomba.instalacion_descarga.tuberias, densidad, viscosidad)
+    nr_succion = calcular_numeros_reynolds(velocidades_succion, tramos_succion, densidad, viscosidad)
+    nr_descarga = calcular_numeros_reynolds(velocidades_descarga, tramos_descarga, densidad, viscosidad)
 
-    flujos_succion = calcular_flujo_bomba(bomba.instalacion_succion.tuberias, nr_succion, velocidades_succion)
-    flujos_descarga = calcular_flujo_bomba(bomba.instalacion_descarga.tuberias, nr_descarga, velocidades_descarga)
+    flujos_succion = calcular_flujo_bomba(tramos_succion, nr_succion, velocidades_succion)
+    flujos_descarga = calcular_flujo_bomba(tramos_descarga, nr_descarga, velocidades_descarga)
 
-    h_succion_tuberia, h_succion_acc = calculo_perdida_tramos(bomba.instalacion_succion.tuberias, velocidades_succion, areas_succion, areas_descarga, flujos_succion)
-    h_descarga_tuberia, h_descarga_acc = calculo_perdida_tramos(bomba.instalacion_descarga.tuberias, velocidades_descarga, areas_descarga, areas_descarga, flujos_descarga)
+    h_succion_tuberia, h_succion_acc = calculo_perdida_tramos(tramos_succion, velocidades_succion, areas_succion, areas_descarga, flujos_succion)
+    h_descarga_tuberia, h_descarga_acc = calculo_perdida_tramos(tramos_descarga, velocidades_descarga, areas_descarga, areas_descarga, flujos_descarga)
 
     h_total_succion = h_succion_tuberia + h_succion_acc
     h_total_descarga = h_descarga_tuberia + h_descarga_acc

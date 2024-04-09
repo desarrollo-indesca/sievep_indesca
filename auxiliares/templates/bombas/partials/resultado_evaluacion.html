@@ -254,6 +254,10 @@
                                 {% endif %}
                             </td>
                         </tr>
+                        {% empty %}
+                        <tr>
+                           <td colspan="5" class="text-center">No hay tramos cargados al momento de esta evaluación.</td> 
+                        </tr>
                         {% endfor %}
                     </tbody>
                     </table>

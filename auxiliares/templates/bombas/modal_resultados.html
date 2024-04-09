@@ -54,7 +54,7 @@
                         </tr>
                         <tr>
                             <th class="table-dark text-center">NPSHr ({{entrada.npshr_unidad}})</th>
-                            <td class="text-center" colspan="2">{{entrada.npshr}}</td>
+                            <td class="text-center" colspan="2">{{entrada.npshr|default_if_none:"Desconocido"}}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -189,88 +189,18 @@
             </div>
 
             <div class="col-lg-6 col-xs-12">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th class="table-info text-center" colspan="6">
-                                FLUJOS Y VELOCIDADES DE LA SUCCIÓN
-                            </th>
-                        </tr>
-                    </thead>
-            
-                    <tbody>
-                        <tr>
-                            <th class="table-dark text-center">#</th>
-                            <th class="table-dark text-center">DIÁMETRO INTERNO</th>
-                            <th class="table-dark text-center">LONGITUD TOTAL</th>
-                            <th class="table-dark text-center">MATERIAL TUBERÍA</th>
-                            <th class="table-dark text-center">VELOCIDAD</th>
-                            <th class="table-dark text-center">TIPO DE FLUJO</th>
-                        </tr>
-                        {% for tramo in salida_succion.datos_tramos_seccion.all %}
-                        <tr>
-                            <th>{{forloop.counter}}</th>
-                            <td>{{tramo.tramo.diametro_tuberia|floatformat:4}} {{tramo.tramo.diametro_tuberia_unidad}}</td>
-                            <td>{{tramo.tramo.longitud_tuberia|floatformat:4}} {{tramo.tramo.longitud_tuberia_unidad}}</td>
-                            <td><small>{{tramo.tramo.material_tuberia}}</small></td>
-                            <td>{{tramo.velocidad|floatformat:4}} m/s</td>
-                            <td class="{% if tramo.flujo == 'T' %}table-danger{% elif tramo.flujo == 'L' %}table-success{%else%}table-warning{%endif%}">
-                                {% if tramo.flujo == 'T' %}
-                                Turbulento
-                                {% elif tramo.flujo == 'L' %}
-                                Laminar
-                                {% else %}
-                                Transitorio
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                {% include 'bombas/partials/tabla_velocidad_lado.html' with tramos=salida_succion.datos_tramos_seccion color="warning" %}
             </div>
 
             <div class="col-lg-6 col-xs-12">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th class="table-warning text-center" colspan="6">
-                                FLUJOS Y VELOCIDADES DE LA SUCCIÓN
-                            </th>
-                        </tr>
-                    </thead>
-            
-                    <tbody>
-                        <tr>
-                            <th class="table-dark text-center">#</th>
-                            <th class="table-dark text-center">DIÁMETRO INTERNO</th>
-                            <th class="table-dark text-center">LONGITUD TOTAL</th>
-                            <th class="table-dark text-center">MATERIAL TUBERÍA</th>
-                            <th class="table-dark text-center">VELOCIDAD</th>
-                            <th class="table-dark text-center">TIPO DE FLUJO</th>
-                        </tr>
-                        {% for tramo in salida_descarga.datos_tramos_seccion.all %}
-                        <tr>
-                            <th>{{forloop.counter}}</th>
-                            <td>{{tramo.tramo.diametro_tuberia|floatformat:4}} {{tramo.tramo.diametro_tuberia_unidad}}</td>
-                            <td>{{tramo.tramo.longitud_tuberia|floatformat:4}} {{tramo.tramo.longitud_tuberia_unidad}}</td>
-                            <td><small>{{tramo.tramo.material_tuberia}}</small></td>
-                            <td>{{tramo.velocidad|floatformat:4}} m/s</td>
-                            <td class="{% if tramo.flujo == 'T' %}table-danger{% elif tramo.flujo == 'L' %}table-success{%else%}table-warning{%endif%}">
-                                {% if tramo.flujo == 'T' %}
-                                Turbulento
-                                {% elif tramo.flujo == 'L' %}
-                                Laminar
-                                {% else %}
-                                Transitorio
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                {% include 'bombas/partials/tabla_velocidad_lado.html' with tramos=salida_descarga.datos_tramos_seccion color="info" %}
             </div>
             {% endwith %}
             {% endwith %}
+          </div>
+
+          <div class="col-12 text-end">
+            <small>Evaluación creada por {{evaluacion.creado_por.first_name}} al {{evaluacion.fecha}}.</small>            
           </div>
         </div>
         <div class="modal-footer">
