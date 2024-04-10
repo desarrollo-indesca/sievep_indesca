@@ -127,7 +127,15 @@
                     <label for="id_fluido">Fluido:</label>
                     <div class="d-flex w-100">
                         <select name="fluido" id="id_fluido" class="form-select">
-                            <option value="{{bomba.condiciones_diseno.condiciones_fluido.fluido.pk}}" selected>{{bomba.condiciones_diseno.condiciones_fluido.fluido}}</option>
+                            {% with condiciones_fluido=bomba.condiciones_diseno.condiciones_fluido %}
+                            <option value="{{condiciones_fluido.pk}}" selected>
+                                    {% if condiciones_fluido.fluido %}
+                                    {{condiciones_fluido.fluido}}
+                                    {% else %}
+                                    {{condiciones_fluido.nombre_fluido}}
+                                    {% endif %}
+                            </option>
+                            {% endwith %}
                         </select>
                     </div>                    
                 </div>

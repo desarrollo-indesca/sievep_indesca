@@ -132,7 +132,7 @@ class CondicionFluidoBombaForm(FormConUnidades):
             return None
         
     def clean_nombre_fluido(self):
-        return self.data.get('nombre_fluido').upper() if not self.clean_fluido() else None 
+        return (self.data.get('nombre_fluido').upper() if self.data.get('nombre_fluido') else self.instance.nombre_fluido) if not self.clean_fluido() else None 
 
     class Meta:
         model = CondicionFluidoBomba

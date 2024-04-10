@@ -270,7 +270,7 @@ class EntradaEvaluacionBomba(models.Model):
     flujo = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)])
     flujo_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="flujo_unidad_evaluacionbomba")
 
-    temperatura_operacion =  models.FloatField(validators=[MinValueValidator(-273.15), MaxValueValidator(9999.99)])
+    temperatura_operacion =  models.FloatField(verbose_name="Temperatura de Operación", validators=[MinValueValidator(-273.15), MaxValueValidator(9999.99)])
     temperatura_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="temperatura_unidad_evaluacionbomba")
     
     potencia =  models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)])

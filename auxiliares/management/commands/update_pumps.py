@@ -32,6 +32,7 @@ class Command(BaseCommand):
                 design.presion_succion = pump.get('presion_succion')
                 design.presion_descarga = pump.get('presion_descarga')
                 design.presion_diferencial = pump.get('presion_diferencial')
+                design.capacidad = pump.get('capacidad')
 
                 fluid.save()
                 design.save()

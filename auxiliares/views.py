@@ -105,8 +105,35 @@ class ConsultaEvaluacion(ListView, LoginRequiredMixin):
 # VISTAS DE BOMBAS
 
 class CargarBombaMixin():
-    def get_bomba(self):
-        return Bombas.objects.get(pk = self.kwargs['pk'])
+    def get_bomba(self, prefetch = True):
+        bomba = Bombas.objects.filter(pk = self.kwargs['pk'])
+
+        if(prefetch):
+            bomba = bomba.select_related('instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba','detalles_construccion','condiciones_diseno')
+            bomba = bomba.prefetch_related(
+                'instalacion_succion__elevacion_unidad', 'condiciones_diseno__capacidad_unidad', 
+                'instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad',
+
+                'condiciones_diseno__presion_unidad', 'condiciones_diseno__npsha_unidad', 
+                
+                'condiciones_diseno__condiciones_fluido', 'condiciones_diseno__condiciones_fluido__temperatura_unidad',
+                'condiciones_diseno__condiciones_fluido__presion_vapor_unidad', 'condiciones_diseno__condiciones_fluido__viscosidad_unidad',
+                'condiciones_diseno__condiciones_fluido__concentracion_unidad', 'condiciones_diseno__condiciones_fluido__fluido',
+
+                'especificaciones_bomba__velocidad_unidad', 'especificaciones_bomba__potencia_unidad',
+                'especificaciones_bomba__npshr_unidad', 'especificaciones_bomba__cabezal_unidad',
+                'especificaciones_bomba__id_unidad',
+
+                'detalles_construccion__tipo_carcasa1', 'detalles_construccion__tipo_carcasa2',
+                'detalles_construccion__tipo',
+
+                'detalles_motor__potencia_motor_unidad','detalles_motor__velocidad_motor_unidad',
+                'detalles_motor__voltaje_unidad', 'detalles_motor__velocidad_motor_unidad',
+
+                'planta__complejo',
+            )
+
+        return bomba[0]
 
 class ConsultaBombas(LoginRequiredMixin, ListView):
     """
@@ -396,13 +423,14 @@ class EdicionBomba(CreacionBomba, CargarBombaMixin):
     success_message = "Se han guardado los cambios exitosamente."
     def get_context(self):
         bomba = self.get_bomba()
+        diseno = bomba.condiciones_diseno
         return {
             'form_bomba': BombaForm(instance = bomba), 
             'form_especificaciones': EspecificacionesBombaForm(instance = bomba.especificaciones_bomba), 
             'form_detalles_construccion': DetallesConstruccionBombaForm(instance = bomba.detalles_construccion), 
             'form_detalles_motor': DetallesMotorBombaForm(instance = bomba.detalles_motor),
-            'form_condiciones_diseno': CondicionesDisenoBombaForm(instance = bomba.condiciones_diseno),
-            'form_condiciones_fluido': CondicionFluidoBombaForm(instance = bomba.condiciones_diseno.condiciones_fluido),
+            'form_condiciones_diseno': CondicionesDisenoBombaForm(instance = diseno),
+            'form_condiciones_fluido': CondicionFluidoBombaForm(instance = diseno.condiciones_fluido),
             'titulo': f'SIEVEP - Edición de la Bomba {bomba.tag}',
             'edicion': True
         }
@@ -764,14 +792,17 @@ class CreacionEvaluacionBomba(View, LoginRequiredMixin, CargarBombaMixin):
 
     def get_context_data(self):
         bomba = self.get_bomba()
+        instalacion_succion = bomba.instalacion_succion
+        especificaciones = bomba.especificaciones_bomba
+        
         precargo = {
-            'altura_succion': bomba.instalacion_succion.elevacion,
+            'altura_succion': instalacion_succion.elevacion,
             'altura_descarga': bomba.instalacion_descarga.elevacion,
-            'altura_unidad': bomba.instalacion_succion.elevacion_unidad.pk,
-            'potencia': bomba.especificaciones_bomba.potencia_maxima,
-            'potencia_unidad': bomba.especificaciones_bomba.potencia_unidad,
-            'npshr': bomba.especificaciones_bomba.npshr,
-            'npshr_unidad': bomba.especificaciones_bomba.npshr_unidad
+            'altura_unidad':instalacion_succion.elevacion_unidad.pk,
+            'potencia': especificaciones.potencia_maxima,
+            'potencia_unidad': especificaciones.potencia_unidad,
+            'npshr': especificaciones.npshr,
+            'npshr_unidad': especificaciones.npshr_unidad
         }
         context = {
             'bomba': bomba,

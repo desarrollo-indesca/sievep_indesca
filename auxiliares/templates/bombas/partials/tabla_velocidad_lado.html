@@ -18,12 +18,12 @@
         </tr>
         {% for tramo in tramos.all %}
         <tr>
-            <th>{{forloop.counter}}</th>
-            <td>{{tramo.tramo.diametro_tuberia|floatformat:4}} {{tramo.tramo.diametro_tuberia_unidad}}</td>
-            <td>{{tramo.tramo.longitud_tuberia|floatformat:4}} {{tramo.tramo.longitud_tuberia_unidad}}</td>
-            <td><small>{{tramo.tramo.material_tuberia}}</small></td>
-            <td>{{tramo.velocidad|floatformat:4}} m/s</td>
-            <td class="{% if tramo.flujo == 'T' %}table-danger{% elif tramo.flujo == 'L' %}table-success{%else%}table-warning{%endif%}">
+            <th class="text-center">{{forloop.counter}}</th>
+            <td class="text-center">{{tramo.tramo.diametro_tuberia|floatformat:2}} {{tramo.tramo.diametro_tuberia_unidad}}</td>
+            <td class="text-center">{{tramo.tramo.longitud_tuberia|floatformat:2}} {{tramo.tramo.longitud_tuberia_unidad}}</td>
+            <td class="text-center"><small>{{tramo.tramo.material_tuberia}}</small></td>
+            <td class="text-center">{{tramo.velocidad|floatformat:2}} m/s</td>
+            <td class="text-center {% if tramo.flujo == 'T' %}table-danger{% elif tramo.flujo == 'L' %}table-success{%else%}table-warning{%endif%}">
                 {% if tramo.flujo == 'T' %}
                 Turbulento
                 {% elif tramo.flujo == 'L' %}
