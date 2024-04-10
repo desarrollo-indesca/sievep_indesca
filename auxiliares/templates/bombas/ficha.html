@@ -106,7 +106,7 @@
                         <th class="table-dark">Presión Diferencial ({{unidad_presion|default_if_none:'-'}})</th>
                         <td>{{bomba.condiciones_diseno.presion_diferencial|default_if_none:'-'}}</td>
                         <th class="table-dark">NPSHa ({{bomba.condiciones_diseno.npsha_unidad|default_if_none:'-'}})</th>
-                        <td>{{bomba.condiciones_diseno.presion_descarga|default_if_none:'-'}}</td>
+                        <td>{{bomba.condiciones_diseno.npsha|default_if_none:'-'}}</td>
                     </tr>
                     {% endwith %}
 
@@ -191,7 +191,7 @@
                         <th class="table-dark">NPSHr ({{bomba.especificaciones_bomba.npshr_unidad|default_if_none:'-'}})</th>
                         <td>{{bomba.especificaciones_bomba.npshr|default_if_none:'-'}}</td>
                         <th class="table-dark">Cabezal Total ({{bomba.especificaciones_bomba.cabezal_unidad|default_if_none:'-'}})</th>
-                        <td>{{bomba.especificaciones_bomba.eficiencia|default_if_none:'-'}}</td>
+                        <td>{{bomba.especificaciones_bomba.cabezal_total|default_if_none:'-'}}</td>
                     </tr>
                     {% with id_unidad=bomba.especificaciones_bomba.id_unidad %}
                     <tr>
@@ -496,7 +496,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <th colspan="4" class="text-bold text-center">No hay tramos registrados en la succión.</th>
+                        <th colspan="5" class="text-bold text-center">No hay tramos registrados en la succión.</th>
                     </tr>
                     {% endfor %}
                     <tr>
