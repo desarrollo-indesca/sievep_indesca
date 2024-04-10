@@ -833,6 +833,6 @@ class GenerarGrafica(View, LoginRequiredMixin):
         if(request.GET.get('nombre')):
             evaluaciones = evaluaciones.filter(nombre__icontains = request.GET.get('nombre'))
         
-        evaluaciones = evaluaciones.values('fecha','salida__eficiencia')
+        evaluaciones = evaluaciones.values('fecha','salida__eficiencia','salida__cabezal_total','salida__npsha')
 
         return JsonResponse(list(evaluaciones)[:15], safe=False)
