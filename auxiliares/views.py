@@ -685,11 +685,14 @@ class CalcularResultados(View, LoginRequiredMixin):
 
         try:
             with transaction.atomic():
+                especificaciones = self.bomba.especificaciones_bomba
+                condicion_fluido = self.bomba.condiciones_diseno.condiciones_fluido
+
                 form_entrada.instance.velocidad = self.bomba.especificaciones_bomba.velocidad
                 form_entrada.instance.velocidad_unidad = self.bomba.especificaciones_bomba.velocidad_unidad
+                form_entrada.instance.fluido = condicion_fluido.fluido
+                form_entrada.instance.nombre_fluido = condicion_fluido.nombre_fluido
                 form_entrada.save()
-
-                especificaciones = self.bomba.especificaciones_bomba
 
                 salida = SalidaEvaluacionBombaGeneral.objects.create(
                     cabezal_total = res['cabezal_total'][0],
@@ -700,8 +703,7 @@ class CalcularResultados(View, LoginRequiredMixin):
                     velocidad = res['velocidad_especifica'],
                     velocidad_unidad = especificaciones.velocidad_unidad,
                     npsha = res['npsha'][0],
-                    cavita = None if res['cavita'] == 'D' else res['cavita'] == 'S',
-                    fluido = self.bomba.condiciones_diseno.condiciones_fluido.fluido
+                    cavita = None if res['cavita'] == 'D' else res['cavita'] == 'S'
                 )
 
                 form_evaluacion.instance.equipo = self.bomba
@@ -763,6 +765,7 @@ class CalcularResultados(View, LoginRequiredMixin):
         if(form_entrada.is_valid() and form_evaluacion.is_valid()):
             return self.almacenar_bdd(form_entrada, form_evaluacion)
         else:
+            print(form_entrada.errors, form_evaluacion.errors)
             context = {
                 'bomba': self.bomba,
                 'form_evaluacion': form_evaluacion,
@@ -781,6 +784,7 @@ class CalcularResultados(View, LoginRequiredMixin):
         if(request.POST.get('submit') == 'calcular'):
             res = self.calcular(request)
         elif(request.POST.get('submit') == 'almacenar'):
+            print("A")
             res = self.almacenar(request)
 
         return res

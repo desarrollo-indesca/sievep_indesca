@@ -51,7 +51,17 @@ $('#id_fluido, #id_calculo_propiedades').change((e) => {
     } else{
         $('#id_viscosidad').removeAttr('disabled');
         $('#id_presion_vapor').removeAttr('disabled');
-        $('#id_densidad').removeAttr('disabled');        
+        $('#id_densidad').removeAttr('disabled');   
+        
+        if(e.target.value === 'M'){
+            $('#submit').removeAttr('disabled');
+        }
+    }
+
+    if(e.target.value !== 'F'){
+        $('#id_viscosidad_unidad').removeAttr('disabled');
+        $('#id_presion_vapor_unidad').removeAttr('disabled');
+        $('#id_densidad_unidad').removeAttr('disabled');   
     }
 });
 
@@ -127,6 +137,8 @@ document.body.addEventListener('htmx:afterRequest', function(evt) {
         $('#id_densidad').val("");
         $('#aviso').html('');
         document.body.style.opacity = 1.0;
+
+        $('#submit').attr('disabled', 'disabled');
     }
     else
         $('button[type=submit]').removeAttr('disabled');
