@@ -57,6 +57,22 @@ CARCASA_DIVIDIDA = (
 # MODELOS DE BOMBAS
 
 class MaterialTuberia(models.Model):
+    '''
+    Resumen:
+        Modelo para almacenar el material de tubería de cada tramo de la instalacion de un lado de la bomba.
+
+    Atributos:
+        (a efectos de documentación se trabaja con tipos primitivos a menos de ser necesario indicar lo contrario)
+        nombre: str (max 45) -> 
+        rugosidad = models.FloatField()
+
+    Métodos:
+        __str__() -> str
+            Devuelve el nombre del material en UPPERCASE al renderizar el modelo.
+    
+    Meta:
+        Este modelo se ordena por nombre en orden ascendente.
+    '''
     nombre = models.CharField(max_length = 45)
     rugosidad = models.FloatField()
 
@@ -67,18 +83,65 @@ class MaterialTuberia(models.Model):
         ordering = ('nombre',)
 
 class TipoCarcasaBomba(models.Model):
+    '''
+    Resumen:
+        Modelo para almacenar el tipo de carcasa que tiene la bomba.
+        Una bomba puede tener un máximo de 2 tipos de carcasa.
+
+    Atributos:
+        (a efectos de documentación se trabaja con tipos primitivos a menos de ser necesario indicar lo contrario)
+        nombre: str (max 45, unique) -> Nombre del tipo de carcasa
+
+    Métodos:
+        __str__() -> str
+            Devuelve el nombre del tipo de carcasa en UPPERCASE al renderizar el modelo.
+    '''
     nombre = models.CharField(max_length = 45, unique = True)
 
     def __str__(self) -> str:
         return self.nombre.upper()
 
 class TipoBombaConstruccion(models.Model):
+    '''
+    Resumen:
+        Modelo para almacenar el tipo de construcción que tiene la bomba.
+
+    Atributos:
+        (a efectos de documentación se trabaja con tipos primitivos a menos de ser necesario indicar lo contrario)
+        nombre: str (max 45, unique) -> Nombre del tipo de construcción
+
+    Métodos:
+        __str__() -> str
+            Devuelve el nombre del tipo de carcasa en UPPERCASE al renderizar el modelo.
+    '''
     nombre = models.CharField(max_length = 45, unique = True)
 
     def __str__(self) -> str:
         return self.nombre.upper()
 
 class DetallesConstruccionBomba(models.Model):
+    '''
+    Resumen:
+        Modelo para almacenar los detalles de construcción de la bomba.
+        Estos datos son referenciales y no se utilizan en los cálculos de evaluación.
+
+    Atributos:
+        (a efectos de documentación se trabaja con tipos primitivos a menos de ser necesario indicar lo contrario)
+        conexion_succion: int
+        tamano_rating_succion: int
+        conexion_descarga: int
+        tamano_rating_descarga: int
+        carcasa_dividida: int
+        modelo_construccion: int
+        fabricante_sello: int
+        tipo: TipoBombaconstruccion
+        tipo_carcasa1: TipoCarcasaBomba
+        tipo_carcasa2: TipoCarcasaBomba
+
+    Métodos:
+        carcasa_dividida_largo() -> str
+            Devuelve el nombre del tipo de carcasa dividida de acuerdo a su llaveen UPPERCASE.
+    '''
     conexion_succion = models.PositiveIntegerField(null = True, blank = True, verbose_name = "Conexión de Succión")
     tamano_rating_succion = models.FloatField(validators=[MinValueValidator(0.0)], null = True, blank = True, verbose_name = "Tamaño Rating (Succión)")
     conexion_descarga = models.PositiveIntegerField(null = True, blank = True, verbose_name = "Conexión de Descarga")
@@ -94,12 +157,53 @@ class DetallesConstruccionBomba(models.Model):
         return conseguir_largo(CARCASA_DIVIDIDA, self.carcasa_dividida)
 
 class TipoBomba(models.Model):
+    '''
+    Resumen:
+        Modelo para almacenar el tipo de bomba.
+        Estos datos son referenciales y no se utilizan en los cálculos de evaluación.
+
+    Atributos:
+        (a efectos de documentación se trabaja con tipos primitivos a menos de ser necesario indicar lo contrario)
+        nombre: str -> Nombre del tipo de bomba.
+
+    Métodos:
+        __str__() -> str:
+            Devuelve el nombre del tipo de bomba de acuerdo a su llaveen UPPERCASE.
+    '''
     nombre = models.CharField(max_length = 45, unique = True)
 
     def __str__(self) -> str:
         return self.nombre.upper()
 
 class DetallesMotorBomba(models.Model):
+    '''
+    Resumen:
+        Modelo para almacenar los detalles del motor de la bomba.
+        Estos datos son referenciales y no se utilizan en los cálculos de evaluación.
+
+    Atributos:
+        (a efectos de documentación se trabaja con tipos primitivos a menos de ser necesario indicar lo contrario)
+        potencia_motor: float
+        potencia_motor_unidad: Unidad ('B')
+        velocidad_motor: float
+        velocidad_motor_unidad: Unidad ('-', RPM)
+        factor_de_servicio: float
+        posicion: str
+        voltaje: float
+        voltaje_unidad: Unidad('V')
+        fases: int
+        frecuencia: float
+        frecuencia_unidad: Unidad ('H')
+        aislamiento: str
+        arranque: str
+
+    Métodos:
+        posicion_largo() -> str:
+            Nombre largo de la posición de acuerdo a su clave.
+
+        aislamiento_largo() -> sr:
+            Nombre largo del aislamiento de acuerdo a su clave.
+    '''
     potencia_motor = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True, verbose_name = "Potencia del Motor")
     potencia_motor_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="potencia_unidad_detallesmotor")
     velocidad_motor = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name="Velocidad del Motor") # RPM
@@ -121,6 +225,28 @@ class DetallesMotorBomba(models.Model):
         return conseguir_largo(AISLAMIENTO, self.aislamiento)
 
 class EspecificacionesBomba(models.Model):
+    '''
+    Resumen:
+        Modelo para almacenar las especificaciones de la bomba.
+        Algunos de estos datos son utilizados en la evaluación.
+
+    Atributos:
+        (a efectos de documentación se trabaja con tipos primitivos a menos de ser necesario indicar lo contrario)
+        numero_curva: str
+        velocidad: float
+        velocidad_unidad: Unidad ('-', RPM)
+        potencia_maxima: float
+        potencia_unidad: Unidad ('B')
+        eficiencia: float
+        npshr: float
+        npshr_unidad: Unidad ('L')
+        cabezal_total: float
+        cabezal_unidad: Unidad ('L')
+        numero_etapas: int
+        succion_id: float
+        descarga_id: float
+        id_unidad: Unidad ('L')
+    '''
     numero_curva = models.CharField(max_length = 10, null = True, blank = True, verbose_name = "Número de Curva")
     velocidad = models.FloatField(validators=[MinValueValidator(0.0001)], null = True)
     velocidad_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="velocidad_unidad_especificacionesbomba")
@@ -139,6 +265,42 @@ class EspecificacionesBomba(models.Model):
     id_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="id_unidad_especificacionesbomba")
 
 class CondicionFluidoBomba(models.Model):
+    '''
+    Resumen:
+        Modelo para almacenar las condiciones del fluido que circula por la bomba.
+        Data Crítica para la evaluación, especialmente si se utilizan los datos por ficha.
+
+    Atributos:
+        (a efectos de documentación se trabaja con tipos primitivos a menos de ser necesario indicar lo contrario)
+        temperatura_operacion: float
+        presion_vapor: float
+        temperatura_presion_vapor: float
+        densidad: float
+        densidad_unidad: Unidad ('D')
+        temperatura_unidad: Unidad ('T')
+        viscosidad: float
+        viscosidad_unidad: Unidad ('V')
+        corrosividad: str
+        peligroso: str
+        inflamable: str
+        concentracion_h2s: float
+        concentracion_cloro: float
+        concentracion_unidad: Unidad('%')
+        nombre_fluido: str
+        calculo_propiedades: str
+        presion_vapor_unidad: Unidad ('P')
+        fluido: Fluido
+
+    Métodos:
+        corrosividad_largo() -> str
+            Corrosividad larga de acuerdo a su clave.
+        
+        peligroso_largo() -> str
+            Valor de peligro largo de acuerdo a su clave.
+
+        inflamable_largo() -> str
+            Valor de peligro largo de acuerdo a su clave.
+    '''
     temperatura_operacion = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name = "Temperatura de Operación*")
     presion_vapor = models.FloatField(validators=[MinValueValidator(0.000001)], null = True, blank = True, verbose_name = "Presión de Vapor")
     temperatura_presion_vapor = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, verbose_name = "Temperatura a la Presión de Vapor")
@@ -168,6 +330,23 @@ class CondicionFluidoBomba(models.Model):
         return conseguir_largo(SI_NO_DESC, self.inflamable)
 
 class CondicionesDisenoBomba(models.Model):
+    '''
+    Resumen:
+        Modelo para almacenar las condiciones de diseño de la bomba.
+        Data Crítica para la evaluación, especialmente si se utilizan los datos por ficha.
+
+    Atributos:
+        capacidad: float
+        capacidad_unidad: Unidad ('K')
+        presion_succion: float
+        presion_descarga: float
+        presion_diferencial: float
+        presion_unidad: Unidad ('P')
+        npsha: float
+        npsha_unidad: Unidad ('L')
+        condiciones_fluido: CondicionFluidoBomba
+    
+    '''
     capacidad = models.FloatField(verbose_name = "Capacidad*")
     capacidad_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="capacidad_unidad_condicionesdisenobomba")
     presion_succion = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name = "Presión de Succión*")
@@ -179,6 +358,21 @@ class CondicionesDisenoBomba(models.Model):
     condiciones_fluido = models.OneToOneField(CondicionFluidoBomba, on_delete=models.CASCADE)
 
 class EspecificacionesInstalacion(models.Model):
+    '''
+    Resumen:
+        Modelo para almacenar las especificaciones de instalación de la bomba.
+        Data opcional pero Crítica para la evaluación, especialmente si se utilizan los datos por ficha.
+        Esta data es variable. Los datos de instalación pueden cambiar de acuerdo al tiempo.
+        Pero las evaluaciones pueden estar ligadas a instalaciones pasadas.
+
+    Atributos:
+        elevacion: float
+        elevacion_unidad: Unidad ('L')
+        numero_contracciones_linea: int
+        numero_expansiones_linea: int
+        fecha: DateTime
+        usuario: Usuario
+    '''
     elevacion =  models.FloatField(null = True, blank = True)
     elevacion_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="elevacion_unidad_especificacionesinstalacion")
     
@@ -189,6 +383,29 @@ class EspecificacionesInstalacion(models.Model):
     usuario = models.ForeignKey(get_user_model(), default = 1, on_delete=models.CASCADE)
 
 class Bombas(models.Model):
+    '''
+    Resumen:
+        Modelo principal de las bombas. Aquí se almacena la data de identificación y las referencias a otros datos.
+
+    Atributos:
+        tag: str PK
+        descripcion: str
+        fabricante: str
+        modelo: str
+        creado_al: DateTime
+        editado_al: DateTime
+        creado_por: Usuario
+        editado_por: Usuario
+        planta: Planta
+        tipo_bomba: TipoBomba
+        detalles_motor: DetallesMotor
+        especificaciones_bomba: EspecificacionesBomba
+        detalles_construccion: DetallesConstruccionBomba
+        condiciones_diseno: CondicionesDisenoBomba
+        grafica: ImageField
+        instalacion_succion: EspecificacionesInstalacion
+        instalacion_descarga: EspecificacionesInstalacion
+    '''
     tag = models.CharField(max_length = 45, unique = True, verbose_name = "Tag del Equipo*")
     descripcion = models.CharField(max_length = 80, verbose_name = "Descripción del Equipo*")
     fabricante = models.CharField(max_length = 45, verbose_name = "Fabricante*")
@@ -215,6 +432,39 @@ class Bombas(models.Model):
         ordering = ('tag',)
 
 class TuberiaInstalacionBomba(models.Model):
+    '''
+    Resumen:
+        Modelo de registro de los tramos de las tuberías en la instalación.
+
+    Atributos:
+        instalacion: EspecificacionesInstalacion
+        longitud_tuberia: float
+        longitud_tuberia_unidad: Unidad ('L')
+        diametro_tuberia: float
+        diametro_tuberia_unidad: Unidad ('L')
+        material_tuberia: MaterialTuberia
+        numero_codos_90: int
+        numero_codos_90_rl: int
+        numero_codos_90_ros: int
+        numero_codos_45: int
+        numero_codos_45_ros: int
+        numero_codos_180: int
+        conexiones_t_directo: int
+        conexiones_t_ramal: int
+        numero_valvulas_compuerta: int
+        numero_valvulas_compuerta_abierta_3_4: int
+        numero_valvulas_compuerta_abierta_1_2: int
+        numero_valvulas_compuerta_abierta_1_4: int
+        numero_valvulas_mariposa_2_8: int
+        numero_valvulas_mariposa_10_14: int
+        numero_valvulas_mariposa_16_24: int
+        numero_valvula_giratoria: int
+        numero_valvula_bola: int
+        numero_valvula_vastago: int
+        numero_valvula_bisagra: int
+        numero_valvula_globo: int
+        numero_valvula_angulo: int    
+    '''
     instalacion = models.ForeignKey(EspecificacionesInstalacion, on_delete = models.CASCADE, related_name="tuberias")
     longitud_tuberia = models.FloatField(verbose_name="Longitud Total", validators=[MinValueValidator(0)])
     longitud_tuberia_unidad = models.ForeignKey(Unidades, default = 4, on_delete=models.CASCADE, related_name="longitud_tuberia_unidad_especificacionesinstalacion")
