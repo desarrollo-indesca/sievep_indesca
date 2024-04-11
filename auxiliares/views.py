@@ -307,6 +307,16 @@ class CreacionBomba(View, SuperUserRequiredMixin):
                     if(form_condiciones_diseno.is_valid()):
                         condiciones_diseno = form_condiciones_diseno.save()
 
+                    if(self.request.POST.get('fluido')):
+                        condiciones_fluido.nombre_fluido = None
+                    else:
+                        condiciones_fluido.fluido = None
+
+                        if(self.request.POST.get('nombre_fluido')):
+                            condiciones_fluido.nombre_fluido = self.request.POST.get('nombre_fluido')
+                    
+                    condiciones_fluido.save()
+
                 valid = valid and form_bomba.is_valid()
                 
                 if(valid):
