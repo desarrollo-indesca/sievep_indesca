@@ -761,7 +761,7 @@ class CalcularResultados(View, LoginRequiredMixin):
                 )
 
                 for i,tramo in enumerate(self.bomba.instalacion_succion.tuberias.all().order_by('pk')):
-                    EntradaTramos.objects.create(
+                    SalidaTramosEvaluacionBomba.objects.create(
                         tramo = tramo,
                         flujo = res['flujo']['s'][i]['tipo_flujo'],
                         velocidad = res['flujo']['s'][i]['velocidad'],
@@ -769,7 +769,7 @@ class CalcularResultados(View, LoginRequiredMixin):
                     )
 
                 for i,tramo in enumerate(self.bomba.instalacion_descarga.tuberias.all().order_by('pk')):
-                    EntradaTramos.objects.create(
+                    SalidaTramosEvaluacionBomba.objects.create(
                         tramo = tramo,
                         flujo = res['flujo']['d'][i]['tipo_flujo'],
                         velocidad = res['flujo']['d'][i]['velocidad'],

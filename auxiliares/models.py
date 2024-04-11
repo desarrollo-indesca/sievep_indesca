@@ -505,6 +505,39 @@ class TuberiaInstalacionBomba(models.Model):
 # Evaluación de Bombas
 
 class EntradaEvaluacionBomba(models.Model):
+    '''
+    Resumen:
+        Modelo de registro de los datos de entrada de una evaluación de una bomba.
+
+    Atributos:
+        id: UUID
+        presion_succion: float
+        presion_descarga: float
+        presion_unidad
+        altura_succion: float
+        altura_descarga: float
+        altura_unidad: Unidad ('L')
+        velocidad: float
+        velocidad_unidad: Unidad ('-', RPM)
+        flujo: float
+        flujo_unidad: Unidad ('K')
+        temperatura_operacion: float
+        temperatura_unidad: Unidad ('T')
+        potencia: float
+        potencia_unidad: Unidad ('B')
+        npshr: float
+        npshr_unidad: Unidad ('L')
+        densidad: float
+        densidad_unidad: Unidad ('D')
+        viscosidad: float
+        viscosidad_unidad: Unidad ('V')
+        presion_vapor: float
+        presion_vapor_unidad: Unidad ('P')
+        fluido: Fluido
+        nombre_fluido: str
+        calculo_propiedades: str 
+    '''
+
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     presion_succion = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Presión")
     presion_descarga = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Presión")
@@ -544,6 +577,23 @@ class EntradaEvaluacionBomba(models.Model):
     calculo_propiedades = models.CharField(max_length = 1, default = "M", choices=CALCULO_PROPIEDADES_EVALUACION, verbose_name = "Cálculo de Propiedades")
 
 class SalidaEvaluacionBombaGeneral(models.Model):
+    '''
+    Resumen:
+        Modelo de registro de los datos de salida de una evaluación de una bomba.
+
+    Atributos:
+        id: UUID
+        cabezal_total: float
+        cabezal_total_unidad: Unidad ('L')
+        potencia: float
+        potencia_unidad: Unidad ('B')
+        eficiencia: float
+        velocidad: float
+        velocidad_unidad: Unidad ('-', RPM)
+        npsha: float
+        cavita: str
+    '''
+
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     cabezal_total = models.FloatField()
     cabezal_total_unidad = models.ForeignKey(Unidades, default=4, on_delete=models.PROTECT, related_name="cabezal_total_unidad_salida_evaluacion_bomba")
@@ -556,6 +606,23 @@ class SalidaEvaluacionBombaGeneral(models.Model):
     cavita = models.BooleanField(null = True, blank = True)
     
 class EvaluacionBomba(models.Model):
+    '''
+    Resumen:
+        Modelo de registro de los datos de identificación de una evaluación.
+        Este es el modelo central de la evaluación de bombas.
+
+    Atributos:
+        id: UUID
+        nombre: str
+        fecha: date
+        tipo: str
+        activo: bool
+        creado_por: Usuario
+        instalacion_succion: EspecificacionesInstalacion
+        instalacion_descarga: EspecificacionesInstalacion
+        entrada: EntradaEvaluacionBomba
+        salida: SalidaEvaluacionBombaGeneral
+    '''
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     nombre = models.CharField(max_length = 45)
     fecha = models.DateTimeField(auto_now = True)
@@ -582,6 +649,20 @@ class EvaluacionBomba(models.Model):
         ordering = ('-fecha',)
 
 class SalidaSeccionesEvaluacionBomba(models.Model):
+    '''
+    Resumen:
+        Modelo de registro de los datos de salida de una evaluación de una bomba.
+        Cada evaluación debe tener dos: lado succión 'S' y lado descarga 'D'.
+
+    Atributos:
+        id: UUID
+        lado: str
+        perdida_carga_tuberia: float
+        perdida_carga_accesorios: float
+        perdida_carga_total: float
+        evaluacion: EvaluacionBomba
+    '''
+
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     lado = models.CharField(max_length = 1, choices = (('S', 'Succión'), ('D', 'Descarga')))
     perdida_carga_tuberia = models.FloatField()
@@ -589,7 +670,20 @@ class SalidaSeccionesEvaluacionBomba(models.Model):
     perdida_carga_total = models.FloatField()
     evaluacion = models.ForeignKey(EvaluacionBomba, on_delete = models.PROTECT, related_name="salida_secciones_evaluacionbomba")
 
-class EntradaTramos(models.Model):
+class SalidaTramosEvaluacionBomba(models.Model):
+    '''
+    Resumen:
+        Modelo de registro de los datos de salida de una evaluación de una bomba.
+        Cada evaluación debe tener dos: lado succión 'S' y lado descarga 'D'.
+
+    Atributos:
+        id: UUID
+        tramo: TuberiaInstalacionBomba
+        flujo: str
+        velocidad: float (m/s)
+        salida: float
+    '''
+
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     tramo = models.ForeignKey(TuberiaInstalacionBomba, on_delete=models.CASCADE, related_name="tramos_entrada")
     flujo = models.CharField(max_length=1, choices=(('T','Turbulento'), ('L', 'Laminar'), ('R', 'Transitorio')))
