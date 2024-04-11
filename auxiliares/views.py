@@ -1,4 +1,5 @@
 from typing import Any
+import datetime
 
 from django.db import transaction
 from django.shortcuts import render, redirect
@@ -457,8 +458,15 @@ class EdicionBomba(CreacionBomba, CargarBombaMixin):
         form_condiciones_fluido = CondicionFluidoBombaForm(request.POST, instance = bomba.condiciones_diseno.condiciones_fluido)
 
         try:
-            return self.almacenar_datos(form_bomba, form_detalles_motor, form_condiciones_fluido,
+            res = self.almacenar_datos(form_bomba, form_detalles_motor, form_condiciones_fluido,
                                 form_detalles_construccion, form_condiciones_diseno, form_especificaciones)
+            
+            bomba.editado_al = datetime.datetime.now()
+            bomba.editado_por = self.request.user
+            bomba.save()
+            
+            return res
+        
         except Exception as e:
             return render(request, 'bombas/creacion_bomba.html', context={
                 'form_bomba': form_bomba, 

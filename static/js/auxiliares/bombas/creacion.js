@@ -186,5 +186,10 @@ document.body.addEventListener('htmx:afterRequest', function(evt) {
     document.body.style.opacity = 1.0;
 });
 
+$('#submit').click(e => {
+    if(!confirm("¿Está seguro que desea realizar esta acción?"))
+        evt.preventDefault();
+})
+
 anadir_listeners_htmx();
 anadir_listeners_dropboxes();

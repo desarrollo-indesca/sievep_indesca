@@ -559,7 +559,7 @@ class EvaluacionBomba(models.Model):
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     nombre = models.CharField(max_length = 45)
     fecha = models.DateTimeField(auto_now = True)
-    equipo = models.ForeignKey(Bombas, on_delete = models.PROTECT)
+    equipo = models.ForeignKey(Bombas, on_delete = models.PROTECT, related_name='evaluaciones_bomba')
 
     # Evaluaciones S: Evaluaciones Registradas por el Sistema
     # Evaluaciones U: Evaluaciones Registradar por el Usuario

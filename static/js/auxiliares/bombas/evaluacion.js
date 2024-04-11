@@ -122,6 +122,8 @@ document.body.addEventListener('htmx:beforeRequest', function(evt) {
     if(evt.target.name === 'form'){
         if($('#submit').val() === 'almacenar'){
             evt.detail.xhr.target = document.getElementsByTagName('form')[0];
+            if(!confirm("¿Está seguro que desea almacenar esta evaluación?"))
+                evt.preventDefault();
         }        
         else{
             evt.detail.xhr.target = document.getElementById('resultados');

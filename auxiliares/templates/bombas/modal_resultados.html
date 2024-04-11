@@ -33,7 +33,7 @@
                         
                         <tr>
                             <th class="table-dark text-center">Fluido</th>
-                            <td class="text-center" colspan="2">{{entrada.fluido}}</td>
+                            <td class="text-center" colspan="2">{{entrada.fluido|default_if_none:entrada.nombre_fluido}}</td>
                         </tr>
                         <tr>
                             <th class="table-dark text-center">Presión ({{entrada.presion_unidad}})</th>
@@ -205,7 +205,7 @@
           </div>
 
           <div class="col-12 text-end">
-            <small>Evaluación creada por {{evaluacion.creado_por.first_name}} al {{evaluacion.fecha}}.</small>            
+            <small>Evaluación creada por {{evaluacion.creado_por.first_name}} al {{evaluacion.fecha}}.</small> 
           </div>
         </div>
         <div class="modal-footer">
