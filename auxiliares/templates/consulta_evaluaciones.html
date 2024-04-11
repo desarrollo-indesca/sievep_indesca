@@ -105,5 +105,10 @@
     if(e.keyCode === 13)
       $('#filtrado').submit();
   });
+
+  $('form[method="POST"]').submit(e => {
+    if(!confirm("¿Está seguro que desea eliminar esta evaluación? La única forma de reincorporar la misma es contactando al administrador de la base de datos."))
+      return false;
+  })
 </script>
 {% endblock %}

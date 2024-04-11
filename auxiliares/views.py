@@ -464,7 +464,7 @@ class EdicionBomba(CreacionBomba, CargarBombaMixin):
             bomba.editado_al = datetime.datetime.now()
             bomba.editado_por = self.request.user
             bomba.save()
-            
+
             return res
         
         except Exception as e:
@@ -562,9 +562,20 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion):
     model = EvaluacionBomba
     model_equipment = Bombas
     clase_equipo = " la Bomba"
+
+    def post(self, request, **kwargs):
+        if(request.user.is_superuser): # Lógica de "Eliminación"
+            evaluacion = EvaluacionBomba.objects.get(pk=request.POST['evaluacion'])
+            evaluacion.activo = False
+            evaluacion.save()
+            messages.success(request, "Evaluación eliminada exitosamente.")
+        else:
+            messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
+
+        return self.get(request, **kwargs)
     
     def get_queryset(self):
-        new_context = super().get_queryset()
+        new_context = super().get_queryset().filter(activo = True)
 
         new_context = new_context.select_related('instalacion_succion', 'instalacion_descarga', 'creado_por', 'entrada', 'salida')
         new_context = new_context.prefetch_related('instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad',
@@ -841,7 +852,7 @@ class CreacionEvaluacionBomba(View, LoginRequiredMixin, CargarBombaMixin):
 class GenerarGrafica(View, LoginRequiredMixin):
     def get(self, request, pk):
         bomba = Bombas.objects.get(pk=pk)
-        evaluaciones = EvaluacionBomba.objects.filter(equipo = bomba).order_by('fecha')
+        evaluaciones = EvaluacionBomba.objects.filter(activo = True, equipo = bomba).order_by('fecha')
         
         if(request.GET.get('desde')):
             evaluaciones = evaluaciones.filter(fecha__gte = request.GET.get('desde'))

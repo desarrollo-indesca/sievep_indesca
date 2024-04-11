@@ -209,6 +209,11 @@
           </div>
         </div>
         <div class="modal-footer">
+            <form method="post" hx-confirm="¿Está seguro que desea eliminar esta evaluación">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">ELIMINAR EVALUACIÓN</button>
+                <input type="hidden" name="evaluacion" value="{{evaluacion.pk}}">
+            </form>
           <a name="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>
           <a name="xlsx" target="_blank" href="#" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</a>
         </div>
