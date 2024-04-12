@@ -43,10 +43,10 @@
                     <h5 class="text-center">Colocar en orden</h5>
                     {% if forloop.counter == 1 %}
                     {% for form in forms_tuberia_succion %}
-                    {% for field in form.hidden_fields %}
-                        {{ field }}
-                    {% endfor %}
                     <div class="row succion-form">
+                        {% for field in form.hidden_fields %}
+                            {{ field }}
+                        {% endfor %}
                         <div class="col-4">
                             <label>{{form.longitud_tuberia.label_tag}}</label>
                             <div class="input-group mb-1">
@@ -65,7 +65,7 @@
                         </div>
                         <div class="col-2">
                             <label>{{form.material_tuberia.label_tag}}</label>
-                            {% render_field form.material_tuberia min="0" class="form-control" %}
+                            {% render_field form.material_tuberia min="0" class="form-select" %}
                             <small>{{form.material_tuberia.errors}}</small>
                         </div>
                         <div class="col-1 fs-5 d-flex align-items-end">
@@ -83,10 +83,10 @@
                     {% endfor %}
                     {% else %}
                         {% for form in forms_tuberia_descarga %}
-                        {% for field in form.hidden_fields %}
-                            {{ field }}
-                        {% endfor %}
                         <div class="row p-0 descarga-form">
+                            {% for field in form.hidden_fields %}
+                                {{ field }}
+                            {% endfor %}
                             <div class="col-4">
                                 <label>{{form.longitud_tuberia.label_tag}}</label>
                                 <div class="input-group mb-1">

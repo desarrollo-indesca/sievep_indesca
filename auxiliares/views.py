@@ -677,6 +677,7 @@ class CreacionInstalacionBomba(View, CargarBombaMixin, SuperUserRequiredMixin):
     
     def post(self, request, **kwargs):
         bomba = self.get_bomba()
+        print(request.POST)
 
         try:
             with transaction.atomic():
@@ -722,6 +723,7 @@ class CreacionInstalacionBomba(View, CargarBombaMixin, SuperUserRequiredMixin):
                             form.instance.instalacion = descarga
                             form.save()
                 elif(int(request.POST.get('formset-descarga-TOTAL_FORMS')) > 1):
+                    print(formset_tuberias_descarga.errors)
                     raise Exception("Ocurrió un error al validar los datos de tuberías de la descarga.")
 
                 messages.success(request, "Se han actualizado los datos de instalación exitosamente.")
@@ -729,7 +731,7 @@ class CreacionInstalacionBomba(View, CargarBombaMixin, SuperUserRequiredMixin):
                       
         except Exception as e:
             print(str(e))        
-            return render(request, self.template_name, context={'forms_instalacion': formset_instalacion, 'forms_tuberia_succion': formset_tuberias_succion, 'forms_tuberia_descarga': formset_tuberias_descarga}) 
+            return render(request, self.template_name, context={'bomba': bomba, 'forms_instalacion': formset_instalacion, 'forms_tuberia_succion': formset_tuberias_succion, 'forms_tuberia_descarga': formset_tuberias_descarga}) 
 
     def get(self, request, **kwargs):
         return render(request, self.template_name, context=self.get_context())
