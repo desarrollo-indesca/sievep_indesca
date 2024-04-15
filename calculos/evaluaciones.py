@@ -1,3 +1,6 @@
+'''
+Este archivo engloba las evaluaciones de intercambiadores.
+'''
 import numpy as np
 from .unidades import transformar_unidades_temperatura, transformar_unidades_flujo, transformar_unidades_longitud, transformar_unidades_presion, transformar_unidades_u
 from ht import F_LMTD_Fakheri, LMTD
