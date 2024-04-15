@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from reportlab.lib.units import inch
 from reportlab.lib import colors
 from intercambiadores.models import Planta, Complejo
-from calculos.unidades import transformar_unidades_presion, transformar_unidades_area, transformar_unidades_u, transformar_unidades_ensuciamiento
+from calculos.unidades import *
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('agg')
@@ -155,6 +155,8 @@ def generar_pdf(request,object_list,titulo,reporte):
 
     return response
 
+# REPORTES DE INTERCAMBIADORES
+
 def generar_historia(request, reporte, object_list):
     '''
     Resumen:
@@ -175,6 +177,12 @@ def generar_historia(request, reporte, object_list):
     
     if reporte == 'evaluacion_detalle':
         return detalle_evaluacion(object_list)
+    
+    if reporte == 'bombas':
+        return reporte_bombas(request, object_list)
+    
+    if reporte == 'evaluaciones_bombas':
+        return reporte_evaluaciones_bombas(request, object_list)
 
 def detalle_evaluacion(evaluacion):
     '''
@@ -1202,3 +1210,138 @@ def ficha_tecnica_doble_tubo(object_list):
         story.append(Paragraph(f"Intercambiador editado por {intercambiador.editado_por.get_full_name()} el día {intercambiador.editado_al.strftime('%d/%m/%Y %H:%M:%S')}.", centrar_parrafo))
 
     return [story, None]
+
+# REPORTES DE BOMBAS
+
+def reporte_bombas(request, object_list):
+    '''
+    Resumen:
+        Esta función genera la historia de elementos a utilizar en el reporte de bombas centrífugas.
+        No devuelve archivos.
+    '''
+    print(request, object_list)
+    story = []
+    story.append(Spacer(0,60))
+
+    if(len(request.GET) >= 2 and (request.GET['tag'] or request.GET['descripcion'] or request.GET.get('planta') or request.GET.get('complejo'))):
+        story.append(Paragraph("Datos de Filtrado", centrar_parrafo))
+        table = [[Paragraph("Tag", centrar_parrafo), Paragraph("Descripción", centrar_parrafo), Paragraph("Planta", centrar_parrafo), Paragraph("Complejo", centrar_parrafo)]]
+        table.append([
+            Paragraph(request.GET['tag'], parrafo_tabla),
+            Paragraph(request.GET['descripcion'], parrafo_tabla),
+            Paragraph(Planta.objects.get(pk=request.GET.get('planta')).nombre if request.GET.get('planta') else '', parrafo_tabla),
+            Paragraph(Complejo.objects.get(pk=request.GET.get('complejo')).nombre if request.GET.get('complejo') else '', parrafo_tabla),
+        ])
+
+        table = Table(table)
+        table.setStyle(basicTableStyle)
+
+        story.append(table)
+        story.append(Spacer(0,7))
+
+    table = [[Paragraph("#", centrar_parrafo), Paragraph("Tag", centrar_parrafo), Paragraph("Descripción", centrar_parrafo),Paragraph("Planta", centrar_parrafo)]]
+    for n,x in enumerate(object_list):
+        table.append([
+            Paragraph(str(n+1), numero_tabla),
+            Paragraph(x.tag, parrafo_tabla),
+            Paragraph(x.descripcion, parrafo_tabla),
+            Paragraph(x.planta.nombre, parrafo_tabla)
+        ])
+        
+    table = Table(table, colWidths=[0.5*inch, 1.5*inch, 3.2*inch,1.8*inch])
+    table.setStyle(basicTableStyle)
+    story.append(table)
+    return [story, None]
+
+def anadir_grafica(historia, datos, labels, etiqueta_x, etiqueta_y, titulo, width = 5*inch, height=2.5*inch):
+    grafica = BytesIO()
+    fig, ax = plt.subplots(nrows=1, ncols=1)
+    ax.plot(labels, datos)
+    ax.set_xlabel(etiqueta_x)
+    ax.set_ylabel(etiqueta_y)
+    ax.set_title(titulo)   
+    fig.savefig(grafica, format='jpeg')
+    plt.close(fig)
+
+    historia.append(Spacer(0,7))
+    historia.append(Image(grafica, width=width, height=height))
+
+    return (historia, grafica)
+
+def reporte_evaluaciones_bombas(request, object_list):
+    '''
+    Resumen:
+        Esta función genera la historia de elementos a utilizar en el reporte de histórico de evaluaciones de una bomba centrífuga.
+        Devuelve además una lista de elementos de archivos que deben ser cerrados una vez se genere el reporte.
+    '''
+    story = []
+    story.append(Spacer(0,60))
+
+    bomba = object_list[0].equipo
+    condiciones_diseno = bomba.condiciones_diseno
+    especificaciones = bomba.especificaciones_bomba
+    
+    # Condiciones de Filtrado
+    if(len(request.GET) >= 2 and (request.GET['desde'] or request.GET['hasta'] or request.GET['usuario'] or request.GET['nombre'])):
+        story.append(Paragraph("Datos de Filtrado", centrar_parrafo))
+        table = [[Paragraph("Desde", centrar_parrafo), Paragraph("Hasta", centrar_parrafo), Paragraph("Usuario", centrar_parrafo), Paragraph("Nombre Ev.", centrar_parrafo)]]
+        table.append([
+            Paragraph(request.GET.get('desde'), parrafo_tabla),
+            Paragraph(request.GET.get('hasta'), parrafo_tabla),
+            Paragraph(request.GET.get('usuario'), parrafo_tabla),
+            Paragraph(request.GET.get('nombre'), parrafo_tabla),
+        ])
+
+        table = Table(table)
+        table.setStyle(basicTableStyle)
+
+        story.append(table)
+        story.append(Spacer(0,7))
+    
+    # Primera tabla: Evaluaciones
+    table = [
+        [
+            Paragraph(f"Fecha", centrar_parrafo),
+            Paragraph(f"Cabezal Total ({bomba.especificaciones_bomba.cabezal_unidad})", centrar_parrafo), 
+            Paragraph(f"Eficiencia (%)", centrar_parrafo),
+            Paragraph(f"NPSHa ({condiciones_diseno.npsha_unidad})", centrar_parrafo)
+        ]
+    ]
+
+    eficiencias = []
+    cabezales = []
+    npshas = []
+    fechas = []
+
+    object_list = object_list.order_by('fecha')
+    for x in object_list:
+        salida = x.salida
+        entrada = x.entrada
+        eficiencia = round(salida.eficiencia, 4)
+        npsha = round(transformar_unidades_longitud([salida.npsha], entrada.npshr_unidad.pk, condiciones_diseno.npsha_unidad.pk)[0], 4)
+        cabezal = round(transformar_unidades_longitud([salida.cabezal_total], salida.cabezal_total_unidad.pk, especificaciones.cabezal_unidad.pk)[0], 4)
+        fecha = x.fecha.strftime('%d/%m/%Y %H:%M')            
+
+        eficiencias.append(eficiencia)
+        cabezales.append(cabezal)
+        npshas.append(npsha)
+        fechas.append(fecha)
+            
+        table.append([Paragraph(fecha, centrar_parrafo), Paragraph(str(cabezal), centrar_parrafo), 
+                      Paragraph(str(eficiencia), centrar_parrafo), Paragraph(str(npsha), centrar_parrafo)])
+        
+    table = Table(table, colWidths=[1.8*inch, 1.8*inch, 1.8*inch, 1.8*inch])
+    table.setStyle(basicTableStyle)
+    story.append(table)
+
+    sub = "Fechas" # Subtítulo de las evaluaciones
+    if(len(fechas) >= 5):
+        fechas = list(range(1,len(fechas)+1))
+        sub = "Evaluaciones"
+
+    # Generación de Gráficas históricas. Todas las magnitudes deben encontrarse en la misma unidad.
+    story, grafica1 = anadir_grafica(story, eficiencias, fechas, sub, "Eficiencia", "Eficiencias (%)")
+    story, grafica2 = anadir_grafica(story, npshas, fechas, sub, "NPSHa", f"NPSHa ({condiciones_diseno.npsha_unidad})")
+    story, grafica3 = anadir_grafica(story, cabezales, fechas, sub, "Cabezal Total", f"Cabezal Total ({especificaciones.cabezal_unidad})")
+
+    return [story, [grafica1, grafica2, grafica3]]

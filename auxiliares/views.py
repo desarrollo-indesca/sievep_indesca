@@ -27,6 +27,7 @@ from calculos.termodinamicos import calcular_densidad, calcular_presion_vapor, c
 from calculos.unidades import transformar_unidades_presion, transformar_unidades_flujo_volumetrico, transformar_unidades_potencia, transformar_unidades_longitud, transformar_unidades_temperatura, transformar_unidades_densidad, transformar_unidades_viscosidad
 from calculos.utils import fluido_existe, registrar_fluido
 from .evaluacion import evaluacion_bomba
+from reportes.pdfs import generar_pdf
 
 # Create your views here.
 
@@ -232,7 +233,11 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
     template_name = 'bombas/consulta.html'
     paginate_by = 10
 
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+    def post(self, request, *args, **kwargs):
+        if(request.POST.get('tipo') == 'pdf'):
+            return generar_pdf(request, self.get_queryset(), 'Reporte de Bombas Centrífugas', 'bombas')
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:        
         if(request.GET.get('page')):
             request.session['pagina_consulta'] = request.GET['page']
         else:
@@ -763,13 +768,16 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion, CargarBombaMixin):
     clase_equipo = " la Bomba"
 
     def post(self, request, **kwargs):
-        if(request.user.is_superuser): # Lógica de "Eliminación"
+        if(request.user.is_superuser and request.POST.get('evaluacion')): # Lógica de "Eliminación"
             evaluacion = EvaluacionBomba.objects.get(pk=request.POST['evaluacion'])
             evaluacion.activo = False
             evaluacion.save()
             messages.success(request, "Evaluación eliminada exitosamente.")
         else:
             messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
+
+        if(request.POST.get('tipo') == 'pdf'):
+            return generar_pdf(request, self.get_queryset(), f"Evaluaciones de la Bomba {self.get_bomba().tag}", "evaluaciones_bombas")
 
         return self.get(request, **kwargs)
     
@@ -1085,6 +1093,16 @@ class GenerarGrafica(View, LoginRequiredMixin):
         if(request.GET.get('nombre')):
             evaluaciones = evaluaciones.filter(nombre__icontains = request.GET.get('nombre'))
         
-        evaluaciones = evaluaciones.values('fecha','salida__eficiencia','salida__cabezal_total','salida__npsha')
+        res = []
 
-        return JsonResponse(list(evaluaciones)[:15], safe=False)
+        for value in evaluaciones:
+            salida = value.salida
+            res.append({
+                'fecha': value.fecha.__str__(),
+                'salida__eficiencia': salida.eficiencia,
+                'salida__cabezal_total': transformar_unidades_longitud([salida.cabezal_total], salida.cabezal_total_unidad.pk, bomba.especificaciones_bomba.cabezal_unidad.pk),
+                'salida__npsha': transformar_unidades_longitud([salida.npsha], value.entrada.npshr_unidad.pk, bomba.condiciones_diseno.npsha_unidad.pk),
+            })
+            
+
+        return JsonResponse(res[:15], safe=False)
