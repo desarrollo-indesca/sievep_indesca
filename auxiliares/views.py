@@ -866,9 +866,9 @@ class CalcularResultados(View, LoginRequiredMixin):
         )
 
         # Transformación de unidades de salida a unidades de la bomba para comparación
-        res['cabezal_total'] = transformar_unidades_longitud([res['cabezal_total']], especificaciones.cabezal_unidad.pk)
-        res['potencia_calculada'] = transformar_unidades_longitud([res['potencia_calculada']], especificaciones.potencia_unidad.pk)
-        res['npsha'] = transformar_unidades_longitud([res['npsha']], int(request.POST.get('npshr_unidad')))
+        res['cabezal_total'] = transformar_unidades_longitud([res['cabezal_total']], 4, especificaciones.cabezal_unidad.pk)
+        res['potencia_calculada'] = transformar_unidades_potencia([res['potencia_calculada']], 49, especificaciones.potencia_unidad.pk)
+        res['npsha'] = transformar_unidades_longitud([res['npsha']], 4, int(request.POST.get('npshr_unidad')))
         res['npshr'] = npshr
         res['npshr_unidad'] = Unidades.objects.get(pk = int(request.POST.get('npshr_unidad'))) 
         return res
