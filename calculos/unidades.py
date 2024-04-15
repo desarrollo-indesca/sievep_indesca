@@ -262,7 +262,7 @@ def transformar_unidades_flujo_volumetrico(args: list, unidad: int, unidad_salid
     Parámetros:
         args: list -> Lista de valores a transformar
         unidad: int -> ID de la unidad de entrada
-        unidad_salida: int -> ID de la unidad de salida. De no dar ninguna devolverá en m3/h .
+        unidad_salida: int -> ID de la unidad de salida. De no dar ninguna devolverá en m3/s.
 
     Devuelve:
         list -> Lista de valores transformados a la unidad de salida

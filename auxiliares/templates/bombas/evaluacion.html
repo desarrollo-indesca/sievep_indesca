@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block contenido %}
-<form id="form" method="post" name="form" enctype="multipart/form-data" hx-swap="none" hx-post="{% url 'resultados_evaluacion_bombas' pk=bomba.pk %}#resultados" hx-include="input,select">
+<form id="form" method="post" name="form" enctype="multipart/form-data" hx-indicator="#spinner" hx-swap="none" hx-post="{% url 'resultados_evaluacion_bombas' pk=bomba.pk %}#resultados" hx-include="input,select">
     {% csrf_token %}
     <input type="hidden" id="bomba" name="bomba" value="{{bomba.pk}}">
     <div class="row">
@@ -123,11 +123,18 @@
                     </div>
                 </div>
 
+                {% with condiciones_fluido=bomba.condiciones_diseno.condiciones_fluido %}
                 <div class="col-4">
                     <label for="id_fluido">Fluido:</label>
                     <div class="d-flex w-100">
                         <select name="fluido" id="id_fluido" class="form-select">
-                            <option value="{{bomba.condiciones_diseno.condiciones_fluido.fluido.pk}}" selected>{{bomba.condiciones_diseno.condiciones_fluido.fluido}}</option>
+                            <option value="{{condiciones_fluido.fluido.pk}}" selected>
+                                    {% if condiciones_fluido.fluido %}
+                                    {{condiciones_fluido.fluido}}
+                                    {% else %}
+                                    {{condiciones_fluido.nombre_fluido}}
+                                    {% endif %}
+                            </option>
                         </select>
                     </div>                    
                 </div>
@@ -135,9 +142,24 @@
                 <div class="col-4">
                     {{form_entrada_evaluacion.calculo_propiedades.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_entrada_evaluacion.calculo_propiedades min="0.0001" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
+                        {% if condiciones_fluido.fluido %}
+                        <select name="calculo_propiedades" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" hx-indicator="#spinner" hx-trigger="change" hx-get="/auxiliares/bombas/datos_fluido/" hx-swap="none" class="form-select" min="0.0001" id="id_calculo_propiedades">
+                            <option value="A">Automático</option>
+                          
+                            <option value="M">Manual</option>
+                          
+                            <option value="F">Ficha</option>  
+                        </select>
+                        {% else %}
+                        <select name="calculo_propiedades" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" hx-indicator="#spinner" hx-trigger="change" hx-get="/auxiliares/bombas/datos_fluido/" hx-swap="none" class="form-select" min="0.0001" id="id_calculo_propiedades">                         
+                            <option value="M">Manual</option>
+                          
+                            <option value="F">Ficha</option>                          
+                          </select>
+                        {% endif %}
                     </div>
                 </div>
+                {% endwith %}
 
                 <div class="col-4">
                     <label for="id_presion_vapor">Presión Vapor:</label>

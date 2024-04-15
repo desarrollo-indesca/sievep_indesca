@@ -14,7 +14,6 @@
   <script>
     let chart = null;
     let canvas = null;
-    let datosGrafica = null;
   </script>
 {% endblock %}
 
@@ -68,7 +67,7 @@
     <button type="button" class="btn btn-secondary" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{equipo.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button>
     <button type="button" class="btn btn-warning" style="color: black;" data-bs-toggle="modal" data-bs-target="#grafica_historica"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Mostrar gráfica histórico">&nbsp;Gráfica Histórica</button>
   </form>
-  {% include 'resultados/historico.html' with bomba=equipo %}
+  {% include 'bombas/partials/historico.html' with bomba=equipo %}
   {% include 'bombas/ficha.html' with bomba=equipo %}
 </div>
 <footer aria-label="Page navigation example">
@@ -106,5 +105,10 @@
     if(e.keyCode === 13)
       $('#filtrado').submit();
   });
+
+  $('form[method="POST"]').submit(e => {
+    if(!confirm("¿Está seguro que desea eliminar esta evaluación? La única forma de reincorporar la misma es contactando al administrador de la base de datos."))
+      return false;
+  })
 </script>
 {% endblock %}

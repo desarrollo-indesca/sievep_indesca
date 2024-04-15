@@ -30,6 +30,11 @@
                     </thead>
             
                     <tbody>
+                        
+                        <tr>
+                            <th class="table-dark text-center">Fluido</th>
+                            <td class="text-center" colspan="2">{{entrada.fluido|default_if_none:entrada.nombre_fluido}}</td>
+                        </tr>
                         <tr>
                             <th class="table-dark text-center">Presión ({{entrada.presion_unidad}})</th>
                             <td class="text-center">{{entrada.presion_succion|floatformat:4}}</td>
@@ -93,7 +98,7 @@
                         <tr>
                             <th class="table-dark text-center">Velocidad Espec.</th>
                             <td class="text-center">{{salida.velocidad|floatformat:4}} {{salida.velocidad_unidad}}</td>
-                            <td class="text-center">{{equipo.especificaciones_bomba.velocidad}} {{equipo.especificaciones_bomba.velocidad_unidad}}</td>
+                            <td class="text-center">-</td>
                         </tr>
                         <tr>
                             <th class="table-dark text-center">NPSHa / NPSHr</th>
@@ -146,13 +151,13 @@
                             </th>
                             
                             <td class="text-center">
-                                {{salida_succion.perdida_carga_tuberia|floatformat:8}} m
+                                {{salida_succion.perdida_carga_tuberia|floatformat:4}} m
                             </td>
                             <td class="text-center">
-                                {{salida_succion.perdida_carga_accesorios|floatformat:8}} m
+                                {{salida_succion.perdida_carga_accesorios|floatformat:4}} m
                             </td>
                             <td class="text-center">
-                                {{salida_succion.perdida_carga_total|floatformat:8}} m
+                                {{salida_succion.perdida_carga_total|floatformat:4}} m
                             </td>
                         </tr>
             
@@ -161,13 +166,13 @@
                                 DESCARGA
                             </th>
                             <td class="text-center">
-                                {{salida_descarga.perdida_carga_tuberia|floatformat:8}} m
+                                {{salida_descarga.perdida_carga_tuberia|floatformat:4}} m
                             </td>
                             <td class="text-center">
-                                {{salida_descarga.perdida_carga_accesorios|floatformat:8}} m
+                                {{salida_descarga.perdida_carga_accesorios|floatformat:4}} m
                             </td>
                             <td class="text-center">
-                                {{salida_descarga.perdida_carga_total|floatformat:8}} m
+                                {{salida_descarga.perdida_carga_total|floatformat:4}} m
                             </td>
                         </tr>
             
@@ -176,34 +181,41 @@
                                 TOTAL
                             </th>
                             <td class="text-center">
-                                {{salida_succion.perdida_carga_tuberia|addition:salida_descarga.perdida_carga_tuberia|floatformat:8}} m
+                                {{salida_succion.perdida_carga_tuberia|addition:salida_descarga.perdida_carga_tuberia|floatformat:4}} m
                             </td>
                             <td class="text-center">
-                                {{salida_succion.perdida_carga_accesorios|addition:salida_descarga.perdida_carga_accesorios|floatformat:8}} m
+                                {{salida_succion.perdida_carga_accesorios|addition:salida_descarga.perdida_carga_accesorios|floatformat:4}} m
                             </td>
                             <td class="text-center">
-                                {{salida_succion.perdida_carga_total|addition:salida_descarga.perdida_carga_total|floatformat:8}} m
+                                {{salida_succion.perdida_carga_total|addition:salida_descarga.perdida_carga_total|floatformat:4}} m
                             </td>
                     </tbody>
                 </table>
             </div>
 
-            <div class="col-lg-6 col-xs-12">
-                {% include 'bombas/partials/tabla_velocidad_lado.html' with tramos=salida_succion.datos_tramos_seccion color="warning" %}
+            <div class="col-xl-6 col-xs-12">
+                {% include 'bombas/partials/tabla_velocidad_lado.html' with tramos=salida_succion.datos_tramos_seccion color="warning" lado="succión" %}
             </div>
 
-            <div class="col-lg-6 col-xs-12">
-                {% include 'bombas/partials/tabla_velocidad_lado.html' with tramos=salida_descarga.datos_tramos_seccion color="info" %}
+            <div class="col-xl-6 col-xs-12">
+                {% include 'bombas/partials/tabla_velocidad_lado.html' with tramos=salida_descarga.datos_tramos_seccion color="info" lado="descarga" %}
             </div>
             {% endwith %}
             {% endwith %}
           </div>
 
           <div class="col-12 text-end">
-            <small>Evaluación creada por {{evaluacion.creado_por.first_name}} al {{evaluacion.fecha}}.</small>            
+            <small>Evaluación creada por {{evaluacion.creado_por.first_name}} al {{evaluacion.fecha}}.</small> 
           </div>
         </div>
         <div class="modal-footer">
+            {% if request.user.is_superuser %}
+            <form method="post" hx-confirm="¿Está seguro que desea eliminar esta evaluación">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">ELIMINAR EVALUACIÓN</button>
+                <input type="hidden" name="evaluacion" value="{{evaluacion.pk}}">
+            </form>
+            {%endif%}
           <a name="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>
           <a name="xlsx" target="_blank" href="#" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</a>
         </div>

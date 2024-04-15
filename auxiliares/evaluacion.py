@@ -1,5 +1,5 @@
 import math
-from calculos.unidades import transformar_unidades_longitud, transformar_unidades_viscosidad, transformar_unidades_densidad, transformar_unidades_presion
+from calculos.unidades import transformar_unidades_longitud, transformar_unidades_viscosidad, transformar_unidades_densidad, transformar_unidades_presion, transformar_unidades_flujo_volumetrico
 from calculos.termodinamicos import DENSIDAD_DEL_AGUA_LIQUIDA_A_5C,calcular_densidad, calcular_presion_vapor, calcular_viscosidad
 
 GRAVEDAD = 9.81
@@ -60,7 +60,7 @@ def calcular_flujo_bomba(tramos, numeros_reynolds, velocidades):
     return res
 
 def calcular_cabezal(densidad, presion_descarga, presion_succion, altura_descarga, altura_succion, flujo, area_descarga, area_succion, htotal):
-    return abs(1/(densidad*GRAVEDAD)*(presion_descarga - presion_succion) + (altura_descarga - altura_succion) + flujo**2/(2*GRAVEDAD)*(1/area_descarga**2 - 1/area_succion**2) + htotal)
+    return (1/(densidad*GRAVEDAD)*(presion_descarga - presion_succion) + (altura_descarga - altura_succion) + flujo**2/(2*GRAVEDAD)*(1/area_descarga**2 - 1/area_succion**2) + htotal)
 
 def calculo_perdida_tramos(tramos, velocidades, areas, area_comp, flujos):
     ec = 0
@@ -163,7 +163,7 @@ def evaluacion_bomba(bomba, velocidad, temp_operacion, presion_succion, presion_
     tramos_succion = bomba.instalacion_succion.tuberias
     tramos_descarga = bomba.instalacion_descarga.tuberias
 
-    areas_succion, areas_descarga = calcular_areas(tramos_succion, diametro_interno_succion), calcular_areas(tramos_descarga, diametro_interno_succion)
+    areas_succion, areas_descarga = calcular_areas(tramos_succion, diametro_interno_succion), calcular_areas(tramos_descarga, diametro_interno_descarga)
     velocidades_succion, velocidades_descarga = calcular_velocidades(flujo, areas_succion), calcular_velocidades(flujo, areas_descarga)
 
     nr_succion = calcular_numeros_reynolds(velocidades_succion, tramos_succion, densidad, viscosidad)
@@ -180,10 +180,12 @@ def evaluacion_bomba(bomba, velocidad, temp_operacion, presion_succion, presion_
     htotal = h_total_succion + h_total_descarga
 
     cabezal = calcular_cabezal(densidad, presion_descarga, presion_succion, altura_succion, altura_descarga, flujo, sum(areas_descarga), sum(areas_succion), htotal)   
-    
+    print(cabezal, densidad, flujo)
     potencia_calculada = cabezal*densidad*GRAVEDAD*flujo
+    print(potencia_calculada)
     eficiencia = potencia_calculada/potencia*100
-    ns = velocidad*math.sqrt(flujo*15850.35)/(cabezal*3.28)**0.75
+    # Ns = RPM * sqrt(GPM) / ft**(3/4)
+    ns = velocidad*math.sqrt(transformar_unidades_flujo_volumetrico([flujo], 42, 48)[0])/(transformar_unidades_longitud([cabezal], 4, 14)[0])**0.75
     npsha = presion_succion/(densidad*GRAVEDAD) + altura_succion - presion_vapor/(densidad*GRAVEDAD) - h_total_succion
     cavita = determinar_cavitacion(npsha, npshr)
    
