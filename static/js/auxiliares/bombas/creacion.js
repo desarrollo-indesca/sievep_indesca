@@ -145,6 +145,9 @@ function anadir_listeners_dropboxes() {
 
 const anadir_listeners_htmx = () => {
     document.body.addEventListener('htmx:beforeRequest', function(evt) {
+        const body = document.getElementsByTagName('body')[0]
+        body.style.opacity = 0.25;
+
         if(document.getElementById('id_calculo_propiedades').value === 'M' || 
             document.getElementById('id_temperatura_presion_vapor').value === '' ||
             document.getElementById('id_fluido').value === '' ||
@@ -157,23 +160,36 @@ const anadir_listeners_htmx = () => {
                 $('#id_viscosidad').removeAttr('disabled');
                 $('#id_presion_vapor').removeAttr('disabled');
                 $('#id_densidad').removeAttr('disabled');
+                $('#aviso').html('');
             }            
+            body.style.opacity = 1.0;
         }  else
             $('button[type=submit]').attr('disabled', 'disabled');
     });
 
     document.body.addEventListener('htmx:afterRequest', function(evt) {
         if(evt.detail.failed){
-            alert("Ha ocurrido un error al momento de llevar a cabo los cálculos de las propiedades termodinámicas. Verifique que los datos corresponden a la fase líquida del fluido ingresado.");
+            alert("Ha ocurrido un error al momento de llevar a cabo los cálculos de las propiedades termodinámicas. Verifique que los datos corresponden a la fase líquida del fluido ingresado y no sobrepase la temperatura crítica.");
             $('button[type=submit]').attr('disabled', 'disabled');
             $('#id_viscosidad').val("");
             $('#id_presion_vapor').val("");
             $('#id_densidad').val("");
+            $('#aviso').html('');
+            document.body.style.opacity = 1.0;
         }
         else
             $('button[type=submit]').removeAttr('disabled');
     });
 }
+
+document.body.addEventListener('htmx:afterRequest', function(evt) {
+    document.body.style.opacity = 1.0;
+});
+
+$('#submit').click(e => {
+    if(!confirm("¿Está seguro que desea realizar esta acción?"))
+        evt.preventDefault();
+})
 
 anadir_listeners_htmx();
 anadir_listeners_dropboxes();

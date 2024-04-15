@@ -132,7 +132,7 @@ class CondicionFluidoBombaForm(FormConUnidades):
             return None
         
     def clean_nombre_fluido(self):
-        return self.data.get('nombre_fluido').upper() if not self.clean_fluido() else None 
+        return (self.data.get('nombre_fluido').upper() if self.data.get('nombre_fluido') else self.instance.nombre_fluido) if not self.clean_fluido() else None 
 
     class Meta:
         model = CondicionFluidoBomba
@@ -166,6 +166,45 @@ class TuberiaInstalacionBombaForm(FormConUnidades):
             "pk",
             "instalacion"
         )
+
+class EvaluacionBombaForm(forms.ModelForm):
+    class Meta:
+        model = EvaluacionBomba
+        fields = ('nombre',)
+
+class EntradaEvaluacionBombaForm(FormConUnidades):
+    def limpiar_campos_unidades(self):
+        self.fields['altura_unidad'].empty_label = None
+        self.fields['altura_unidad'].queryset = Unidades.objects.filter(tipo = 'L')
+
+        self.fields['presion_unidad'].empty_label = None
+        self.fields['presion_unidad'].queryset = Unidades.objects.filter(tipo = 'P')
+        
+        self.fields['presion_vapor_unidad'].empty_label = None
+        self.fields['presion_vapor_unidad'].queryset = Unidades.objects.filter(tipo = 'P')
+
+        self.fields['temperatura_unidad'].empty_label = None
+        self.fields['temperatura_unidad'].queryset = Unidades.objects.filter(tipo = 'T')
+
+        self.fields['viscosidad_unidad'].empty_label = None
+        self.fields['viscosidad_unidad'].queryset = Unidades.objects.filter(tipo = 'V')
+
+        self.fields['potencia_unidad'].empty_label = None
+        self.fields['potencia_unidad'].queryset = Unidades.objects.filter(tipo = 'B')
+
+        self.fields['flujo_unidad'].empty_label = None
+        self.fields['flujo_unidad'].queryset = Unidades.objects.filter(tipo = 'K')
+
+        self.fields['npshr_unidad'].empty_label = None
+        self.fields['npshr_unidad'].queryset = Unidades.objects.filter(tipo = 'L')
+
+        self.fields['densidad_unidad'].queryset = Unidades.objects.filter(tipo = 'D')
+
+        self.fields['calculo_propiedades'].choices = (('A', 'Automático'), ('M', 'Manual'), ('F', 'Ficha'))
+
+    class Meta:
+        model = EntradaEvaluacionBomba
+        exclude = ('id', 'evaluacion', 'diametro_succion', 'diametro_descarga', 'diametro_unidad', 'velocidad', 'velocidad_unidad')
 
 EspecificacionesInstalacionFormSet = forms.modelformset_factory(EspecificacionesInstalacion, form=EspecificacionesInstalacionForm, min_num=2, max_num=2)
 TuberiaFormSet = forms.modelformset_factory(TuberiaInstalacionBomba, form=TuberiaInstalacionBombaForm, min_num=1, extra=0)
