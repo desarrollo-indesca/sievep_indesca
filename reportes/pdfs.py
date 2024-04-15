@@ -43,6 +43,21 @@ centrar_parrafo = ParagraphStyle('', alignment=1)
 parrafo_tabla = ParagraphStyle('', fontSize=9)
 numero_tabla = ParagraphStyle('', fontSize=9, alignment=1)
 
+def anadir_grafica(historia, datos, labels, etiqueta_x, etiqueta_y, titulo, width = 5*inch, height=2.5*inch):
+    grafica = BytesIO()
+    fig, ax = plt.subplots(nrows=1, ncols=1)
+    ax.plot(labels, datos)
+    ax.set_xlabel(etiqueta_x)
+    ax.set_ylabel(etiqueta_y)
+    ax.set_title(titulo)   
+    fig.savefig(grafica, format='jpeg')
+    plt.close(fig)
+
+    historia.append(Spacer(0,7))
+    historia.append(Image(grafica, width=width, height=height))
+
+    return (historia, grafica)
+
 def generar_pdf(request,object_list,titulo,reporte):
     '''
     Resumen:
@@ -183,6 +198,9 @@ def generar_historia(request, reporte, object_list):
     
     if reporte == 'evaluaciones_bombas':
         return reporte_evaluaciones_bombas(request, object_list)
+    
+    if reporte == 'detalle_evaluacion_bomba':
+        return detalle_evaluacion_bomba(object_list)
 
 def detalle_evaluacion(evaluacion):
     '''
@@ -1253,21 +1271,6 @@ def reporte_bombas(request, object_list):
     story.append(table)
     return [story, None]
 
-def anadir_grafica(historia, datos, labels, etiqueta_x, etiqueta_y, titulo, width = 5*inch, height=2.5*inch):
-    grafica = BytesIO()
-    fig, ax = plt.subplots(nrows=1, ncols=1)
-    ax.plot(labels, datos)
-    ax.set_xlabel(etiqueta_x)
-    ax.set_ylabel(etiqueta_y)
-    ax.set_title(titulo)   
-    fig.savefig(grafica, format='jpeg')
-    plt.close(fig)
-
-    historia.append(Spacer(0,7))
-    historia.append(Image(grafica, width=width, height=height))
-
-    return (historia, grafica)
-
 def reporte_evaluaciones_bombas(request, object_list):
     '''
     Resumen:
@@ -1345,3 +1348,180 @@ def reporte_evaluaciones_bombas(request, object_list):
     story, grafica3 = anadir_grafica(story, cabezales, fechas, sub, "Cabezal Total", f"Cabezal Total ({especificaciones.cabezal_unidad})")
 
     return [story, [grafica1, grafica2, grafica3]]
+
+def detalle_evaluacion_bomba(evaluacion):
+    '''
+    Resumen:
+        Esta función genera la historia de elementos a utilizar en el reporte de detalle de evaluación.
+        Envía un archivo para cerrar.
+    '''
+    story = [Spacer(0,70)]
+    bomba = evaluacion.equipo
+    especificaciones = bomba.especificaciones_bomba
+    entrada = evaluacion.entrada
+    salida = evaluacion.salida
+    salida_succion,salida_descarga = evaluacion.salida_succion(), evaluacion.salida_descarga()
+
+    # TABLA DE DATOS DE ENTRADA
+    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.first_name}"))
+    story.append(Paragraph(f"<b>Tag del Equipo:</b> {bomba.tag}"))
+    story.append(Paragraph(f"<b>ID de la Evaluación:</b> {evaluacion.id}"))
+    story.append(Paragraph("Datos de Entrada de la Evaluación", ParagraphStyle('', alignment=1)))
+
+    table = [
+        [
+            Paragraph("PROPIEDAD", centrar_parrafo),
+            Paragraph("SUCCIÓN", centrar_parrafo),
+            Paragraph(f"DESCARGA", centrar_parrafo)
+        ],
+        [
+            'Fluido',
+            Paragraph(f"{entrada.fluido if entrada.fluido else entrada.nombre_fluido}", centrar_parrafo)
+        ],
+        [
+            f'Presión ({entrada.presion_unidad})', 
+            Paragraph(f"{entrada.presion_succion}", centrar_parrafo),
+            Paragraph(f"{entrada.presion_descarga}", centrar_parrafo)
+        ],
+        [
+            f'Temperatura Operación ({entrada.temperatura_unidad})',
+            Paragraph(f"{entrada.temperatura_operacion}", centrar_parrafo)
+        ],        
+        [
+            f'Altura ({entrada.altura_unidad})',
+            Paragraph(f"{entrada.altura_succion}", centrar_parrafo),
+            Paragraph(f"{entrada.altura_descarga}", centrar_parrafo),
+        ],
+        [
+            f'Flujo ({entrada.flujo_unidad})',
+            Paragraph(f"{entrada.flujo}", centrar_parrafo)
+        ],
+        [
+            f'Potencia ({entrada.potencia_unidad})',
+            Paragraph(f"{entrada.potencia}", centrar_parrafo)
+        ],
+        [
+            f'NPSHr ({entrada.npshr_unidad})',
+            Paragraph(f"{entrada.npshr}", centrar_parrafo)
+        ],
+    ]
+
+    estilo = TableStyle(
+        [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+
+            ('SPAN', (1,1), (2,1)),
+            ('SPAN', (1,3), (2,3)),
+            ('SPAN', (1,-1), (2,-1)),
+            ('SPAN', (1,-2), (2,-2)),
+            ('SPAN', (1,-3), (2,-3)),            
+
+            ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+            ('BACKGROUND', (0, 0), (0, -1), sombreado),
+        ]
+    )
+
+    table = Table(table)
+    table.setStyle(estilo)
+    story.append(table)
+
+    # TABLA DE RESULTADOS
+    story.append(Paragraph("Resultados de la Evaluación", ParagraphStyle('', alignment=1)))
+
+    table = [
+        [
+            Paragraph("RESULTADO", centrar_parrafo),
+            Paragraph("EVALUACIÓN", centrar_parrafo),
+            Paragraph(f"FICHA", centrar_parrafo)
+        ],
+        [
+            f'Cabezal Total',
+            Paragraph(f"{round(salida.cabezal_total, 4)} {salida.cabezal_total_unidad}", centrar_parrafo),
+            Paragraph(f"{especificaciones.cabezal_total} {especificaciones.cabezal_unidad}", centrar_parrafo)
+        ],
+        [
+            f'Eficiencia (%)', 
+            Paragraph(f"{round(salida.eficiencia, 4)}", centrar_parrafo),
+            Paragraph(f"{especificaciones.eficiencia}", centrar_parrafo)
+        ],
+        [
+            f'Potencia Calculada',
+            Paragraph(f"{round(salida.potencia, 4)} {salida.potencia_unidad}", centrar_parrafo),
+            Paragraph(f"{especificaciones.potencia_maxima} {especificaciones.potencia_unidad}", centrar_parrafo),
+        ],        
+        [
+            f'Velocidad Específica',
+            Paragraph(f"{round(salida.velocidad, 4)} RPM", centrar_parrafo)
+        ],
+        [
+            f'NPSHa / NPSHr ({entrada.npshr_unidad})',
+            Paragraph(f"{round(salida.npsha, 4)}", centrar_parrafo),
+            Paragraph(f"{entrada.npshr}", centrar_parrafo),
+        ],
+        [
+            f'La Bomba Cavita',
+            Paragraph(f"{salida.cavitacion()}", centrar_parrafo)
+        ]
+    ]
+
+    estilo = TableStyle(
+        [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+
+            ('SPAN', (1,4), (2,4)),
+            ('SPAN', (1,-1), (2,-1)),           
+
+            ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+            ('BACKGROUND', (0, 0), (0, -1), sombreado),
+        ]
+    )
+
+    table = Table(table)
+    table.setStyle(estilo)
+    story.append(table)
+
+    # TABLA DE PÉRDIDAS
+    story.append(Paragraph("Resumen de Pérdidas", ParagraphStyle('', alignment=1)))
+
+    table = [
+        [
+            Paragraph('LADO', centrar_parrafo),
+            Paragraph('PÉRDIDAS POR TUBERÍA', centrar_parrafo),
+            Paragraph('PÉRDIDAS POR ACCESORIO', centrar_parrafo),
+            Paragraph('PÉRDIDAS TOTALES', centrar_parrafo)
+        ],
+        [
+            Paragraph("SUCCIÓN", centrar_parrafo),
+            Paragraph(f"{round(salida_succion.perdida_carga_tuberia, 6)} m"),
+            Paragraph(f"{round(salida_succion.perdida_carga_accesorios, 6)} m"),
+            Paragraph(f"{round(salida_succion.perdida_carga_total, 6)} m"),
+        ],
+        [
+            Paragraph("DESCARGA", centrar_parrafo),
+            Paragraph(f"{round(salida_descarga.perdida_carga_tuberia, 6)} m"),
+            Paragraph(f"{round(salida_descarga.perdida_carga_accesorios, 6)} m"),
+            Paragraph(f"{round(salida_descarga.perdida_carga_total, 6)} m"),
+        ],
+        [
+            Paragraph("TOTAL", centrar_parrafo),
+            Paragraph(f"{round(salida_descarga.perdida_carga_tuberia + salida_succion.perdida_carga_tuberia, 6)} m"),
+            Paragraph(f"{round(salida_descarga.perdida_carga_accesorios + salida_succion.perdida_carga_accesorios, 6)} m"),
+            Paragraph(f"{round(salida_descarga.perdida_carga_total + salida_succion.perdida_carga_total, 6)} m"),
+        ]
+    ]
+
+    estilo = TableStyle(
+        [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),       
+
+            ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+            ('BACKGROUND', (0, 0), (0, -1), sombreado),
+            ('BACKGROUND', (0, -1), (-1, -1), sombreado),
+        ]
+    )
+
+    table = Table(table)
+    table.setStyle(estilo)
+    story.append(table)
+
+    return [story, []]

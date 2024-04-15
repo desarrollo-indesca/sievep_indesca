@@ -604,6 +604,9 @@ class SalidaEvaluacionBombaGeneral(models.Model):
     velocidad_unidad = models.ForeignKey(Unidades, default=38, on_delete=models.PROTECT, related_name="velocidad_unidad_salida_evaluacion_bomba")
     npsha = models.FloatField()
     cavita = models.BooleanField(null = True, blank = True)
+
+    def cavitacion(self):
+        return 'Sí' if self.cavita else 'No' if not self.cavita else 'Desconocido'
     
 class EvaluacionBomba(models.Model):
     '''

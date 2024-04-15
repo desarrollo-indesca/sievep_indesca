@@ -773,11 +773,14 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion, CargarBombaMixin):
             evaluacion.activo = False
             evaluacion.save()
             messages.success(request, "Evaluación eliminada exitosamente.")
-        else:
+        elif(request.POST.get('evaluacion') and not request.user.is_superuser):
             messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
 
         if(request.POST.get('tipo') == 'pdf'):
             return generar_pdf(request, self.get_queryset(), f"Evaluaciones de la Bomba {self.get_bomba().tag}", "evaluaciones_bombas")
+        
+        if(request.POST.get('detalle')):
+            return generar_pdf(request, EvaluacionBomba.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Bomba", "detalle_evaluacion_bomba")
 
         return self.get(request, **kwargs)
     

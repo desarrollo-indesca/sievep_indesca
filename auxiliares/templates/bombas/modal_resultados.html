@@ -50,6 +50,10 @@
                             <td class="text-center" colspan="2">{{salida.velocidad|floatformat:4}}</td>
                         </tr>
                         <tr>
+                            <th class="table-dark text-center">Temp. Operación ({{entrada.temperatura_unidad}})</th>
+                            <td class="text-center" colspan="2">{{entrada.temperatura_operacion|floatformat:4}}</td>
+                        </tr>
+                        <tr>
                             <th class="table-dark text-center">Flujo ({{entrada.flujo_unidad}})</th>
                             <td class="text-center" colspan="2">{{entrada.velocidad|floatformat:4}}</td>
                         </tr>
@@ -216,8 +220,11 @@
                 <input type="hidden" name="evaluacion" value="{{evaluacion.pk}}">
             </form>
             {%endif%}
-          <a name="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>
-          <a name="xlsx" target="_blank" href="#" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</a>
+
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" name="detalle" value="{{evaluacion.pk}}" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>
+            </form>
         </div>
         {% endwith %}
         {% endwith %}
