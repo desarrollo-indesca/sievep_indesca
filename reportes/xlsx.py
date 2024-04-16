@@ -492,6 +492,163 @@ def reporte_intercambiadores(object_list, request):
     return response
 
 # REPORTES DE BOMBAS CENTRÍFUGAS
+def ficha_tecnica_bomba_centrifuga(bomba, request):
+    '''
+    Resumen:
+        Función que genera los datos de ficha técnica en formato XLSX de un intercambiador tubo/carcasa.
+    '''
+    excel_io = BytesIO()
+    workbook = xlsxwriter.Workbook(excel_io)
+    
+    worksheet = workbook.add_worksheet()
+
+    bold = workbook.add_format({'bold': True})
+    identificacion = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'yellow'})
+    condiciones_diseno_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'red'})
+    condiciones_fluido_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'cyan'})
+    especificaciones_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'green'})
+    construccion_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'purple'})
+    motor_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'gray'})
+    center_bordered = workbook.add_format({'border': 1})
+    bordered = workbook.add_format({'border': 1})
+    fecha =  workbook.add_format({'border': 1})
+
+    fecha.set_align('right')
+    identificacion.set_align('vcenter')
+    center_bordered.set_align('vcenter')
+    identificacion.set_align('center')
+    center_bordered.set_align('center')
+
+    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.write('C1', f'Ficha Técnica Bomba Centrífuga {bomba.tag}', bold)
+    worksheet.insert_image(0, 7, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+
+    num = 6
+
+    condiciones_diseno = bomba.condiciones_diseno
+    condiciones_fluido = condiciones_diseno.condiciones_fluido
+    especificaciones = bomba.especificaciones_bomba
+    construccion = bomba.detalles_construccion
+    motor = bomba.detalles_motor
+
+    worksheet.write(f'A{num}', 'Tag', identificacion)
+    worksheet.write(f'B{num}', 'Complejo', identificacion)
+    worksheet.write(f'C{num}', 'Planta', identificacion)
+    worksheet.write(f'D{num}', 'Tipo', identificacion)
+    worksheet.write(f'E{num}', 'Fabricante', identificacion)
+    worksheet.write(f'F{num}', 'Modelo', identificacion)
+    worksheet.write(f'G{num}', 'Descripción', identificacion)
+    worksheet.write(f'H{num}', f'Capacidad ({condiciones_diseno.capacidad_unidad})', condiciones_diseno_estilo)
+    worksheet.write(f'I{num}', f'Presión Succión ({condiciones_diseno.presion_unidad})', condiciones_diseno_estilo)
+    worksheet.write(f'J{num}', f'Presión Descarga ({condiciones_diseno.presion_unidad})', condiciones_diseno_estilo)
+    worksheet.write(f'K{num}', f'Presión Diferencial ({condiciones_diseno.presion_unidad})', condiciones_diseno_estilo)
+    worksheet.write(f'L{num}', f'NPSHa ({condiciones_diseno.npsha_unidad})', condiciones_diseno_estilo)
+    worksheet.write(f'M{num}', f'Fluido', condiciones_fluido_estilo)
+    worksheet.write(f'N{num}', f'Temp. Operación ({condiciones_fluido.temperatura_unidad})', condiciones_fluido_estilo)
+    worksheet.write(f'O{num}', f'Presión Vapor ({condiciones_fluido.presion_vapor_unidad})', condiciones_fluido_estilo)
+    worksheet.write(f'P{num}', f'Temp. Presión Vapor ({condiciones_fluido.temperatura_unidad})', condiciones_fluido_estilo)
+    worksheet.write(f'Q{num}', f'Densidad ({condiciones_fluido.densidad_unidad if condiciones_fluido.densidad_unidad else "RELATIVA"})', condiciones_fluido_estilo)
+    worksheet.write(f'R{num}', f'Viscosidad ({condiciones_fluido.viscosidad_unidad})', condiciones_fluido_estilo)
+    worksheet.write(f'S{num}', f'¿Corrosivo/Erosivo?', condiciones_fluido_estilo)
+    worksheet.write(f'T{num}', f'Peligroso', condiciones_fluido_estilo)
+    worksheet.write(f'U{num}', f'Inflamable', condiciones_fluido_estilo)
+    worksheet.write(f'V{num}', f'Concentración H2S ({condiciones_fluido.concentracion_unidad})', condiciones_fluido_estilo)
+    worksheet.write(f'W{num}', f'Concentración Cloro ({condiciones_fluido.concentracion_unidad})', condiciones_fluido_estilo)
+    worksheet.write(f'X{num}', f'Número de Curva', especificaciones_estilo)
+    worksheet.write(f'Y{num}', f'Velocidad (RPM)', especificaciones_estilo)
+    worksheet.write(f'Z{num}', f'Potencia Máxima ({especificaciones.potencia_unidad})', especificaciones_estilo)
+    worksheet.write(f'AA{num}', f'Eficiencia (%)', especificaciones_estilo)
+    worksheet.write(f'AB{num}',  f'NPSHr ({especificaciones.npshr_unidad})', especificaciones_estilo)
+    worksheet.write(f'AC{num}', f'Cabezal Total ({especificaciones.cabezal_unidad})', especificaciones_estilo)
+    worksheet.write(f'AD{num}', f'Diámetro Interno Succión ({especificaciones.id_unidad})', especificaciones_estilo)
+    worksheet.write(f'AE{num}', f'Diámetro Interno Descarga ({especificaciones.id_unidad})', especificaciones_estilo)
+    worksheet.write(f'AF{num}', f'Número de Etapas', especificaciones_estilo)
+    worksheet.write(f'AG{num}', f'Conexión Succión', construccion_estilo)
+    worksheet.write(f'AH{num}', f'Tamaño Rating Succión', construccion_estilo)
+    worksheet.write(f'AI{num}', f'Conexión Descarga', construccion_estilo)
+    worksheet.write(f'AJ{num}', f'Tamaño Rating Descarga', construccion_estilo)
+    worksheet.write(f'AK{num}', f'Carcasa Dividida', construccion_estilo)
+    worksheet.write(f'AL{num}', f'Modelo', construccion_estilo)
+    worksheet.write(f'AM{num}', f'Fabricante de Sello', construccion_estilo)
+    worksheet.write(f'AN{num}', f'Tipo', construccion_estilo)
+    worksheet.write(f'AO{num}', f'Tipo de Carcasa 1', construccion_estilo)
+    worksheet.write(f'AP{num}', f'Tipo de Carcasa 2', construccion_estilo)
+    worksheet.write(f'AQ{num}', f'Potencia ({motor.potencia_motor_unidad})', motor_estilo)
+    worksheet.write(f'AR{num}', f'Velocidad (RPM)', motor_estilo)
+    worksheet.write(f'AS{num}', f'Factor de Servicio', motor_estilo)
+    worksheet.write(f'AT{num}', f'Posición', motor_estilo)
+    worksheet.write(f'AU{num}', f'Voltaje ({motor.voltaje_unidad})', motor_estilo)
+    worksheet.write(f'AV{num}', f'Fases', motor_estilo)
+    worksheet.write(f'AW{num}', f'Frecuencia ({motor.frecuencia_unidad})', motor_estilo)
+    worksheet.write(f'AX{num}', f'Aislamiento', motor_estilo)
+    worksheet.write(f'AY{num}', f'Método Arranque', motor_estilo)
+
+    num += 1
+
+    worksheet.write(f'A{num}', bomba.tag, bordered)
+    worksheet.write(f'B{num}', bomba.planta.complejo.nombre, bordered)
+    worksheet.write(f'C{num}', bomba.planta.nombre, bordered)
+    worksheet.write(f'D{num}', bomba.tipo_bomba.nombre, bordered)
+    worksheet.write(f'E{num}', bomba.fabricante, bordered)
+    worksheet.write(f'F{num}', bomba.modelo, bordered)
+    worksheet.write(f'G{num}', bomba.descripcion, bordered)
+    worksheet.write(f'H{num}', f'{condiciones_diseno.capacidad if condiciones_diseno.capacidad else ""}', bordered)
+    worksheet.write(f'I{num}', f'{condiciones_diseno.presion_succion if condiciones_diseno.presion_succion else ""}', bordered)
+    worksheet.write(f'J{num}', f'{condiciones_diseno.presion_descarga if condiciones_diseno.presion_descarga else ""}', bordered)
+    worksheet.write(f'K{num}', f'{condiciones_diseno.presion_diferencial if condiciones_diseno.presion_diferencial else ""}', bordered)
+    worksheet.write(f'L{num}', f'{condiciones_diseno.npsha if condiciones_diseno.npsha else ""}', bordered)
+    worksheet.write(f'M{num}', f'{condiciones_fluido.fluido if condiciones_fluido.fluido else condiciones_fluido.nombre_fluido}', bordered)
+    worksheet.write(f'N{num}', f'{condiciones_fluido.temperatura_operacion if condiciones_fluido.temperatura_operacion else ""}', bordered)
+    worksheet.write(f'O{num}', f'{condiciones_fluido.presion_vapor if condiciones_fluido.presion_vapor else ""}', bordered)
+    worksheet.write(f'P{num}', f'{condiciones_fluido.temperatura_presion_vapor if condiciones_fluido.temperatura_presion_vapor else ""}', bordered)
+    worksheet.write(f'Q{num}', f'{condiciones_fluido.densidad if condiciones_fluido.densidad else ""}', bordered)
+    worksheet.write(f'R{num}', f'{condiciones_fluido.viscosidad if condiciones_fluido.viscosidad else ""}', bordered)
+    worksheet.write(f'S{num}', f'{condiciones_fluido.corrosividad_largo()}', bordered)
+    worksheet.write(f'T{num}', f'{condiciones_fluido.peligroso_largo()}', bordered)
+    worksheet.write(f'U{num}', f'{condiciones_fluido.inflamable_largo()}', bordered)
+    worksheet.write(f'V{num}', f'{condiciones_fluido.concentracion_h2s if condiciones_fluido.concentracion_h2s else ""}', bordered)
+    worksheet.write(f'W{num}', f'{condiciones_fluido.concentracion_cloro if condiciones_fluido.concentracion_cloro else ""}', bordered)
+    worksheet.write(f'X{num}', f'{especificaciones.numero_curva if especificaciones.numero_curva else ""}', bordered)
+    worksheet.write(f'Y{num}', f'{especificaciones.velocidad if especificaciones.velocidad else ""}', bordered)
+    worksheet.write(f'Z{num}', f'{especificaciones.potencia_maxima if especificaciones.potencia_maxima else ""}', bordered)
+    worksheet.write(f'AA{num}', f'{especificaciones.eficiencia if especificaciones.eficiencia else ""}', bordered)
+    worksheet.write(f'AB{num}', f'{especificaciones.npshr if especificaciones.npshr else ""}', bordered)
+    worksheet.write(f'AC{num}', f'{especificaciones.cabezal_total if especificaciones.cabezal_total else ""}', bordered)
+    worksheet.write(f'AD{num}', f'{especificaciones.succion_id if especificaciones.succion_id else ""}', bordered)
+    worksheet.write(f'AE{num}', f'{especificaciones.descarga_id if especificaciones.descarga_id else ""}', bordered)
+    worksheet.write(f'AF{num}', f'{especificaciones.numero_etapas if especificaciones.numero_etapas else ""}', bordered)
+    worksheet.write(f'AG{num}', f'{construccion.conexion_succion if construccion.conexion_succion else ""}', bordered)
+    worksheet.write(f'AH{num}', f'{construccion.tamano_rating_succion if construccion.tamano_rating_succion else ""}', bordered)
+    worksheet.write(f'AI{num}', f'{construccion.conexion_descarga if construccion.conexion_descarga else ""}', bordered)
+    worksheet.write(f'AJ{num}', f'{construccion.tamano_rating_descarga if construccion.tamano_rating_descarga else ""}', bordered)
+    worksheet.write(f'AK{num}', f'{construccion.carcasa_dividida if construccion.carcasa_dividida else ""}', bordered)
+    worksheet.write(f'AL{num}', f'{construccion.modelo_construccion if construccion.modelo_construccion else ""}', bordered)
+    worksheet.write(f'AM{num}', f'{construccion.fabricante_sello if construccion.fabricante_sello else ""}', bordered)
+    worksheet.write(f'AN{num}', f'{construccion.tipo if construccion.tipo else ""}', bordered)
+    worksheet.write(f'AO{num}', f'{construccion.tipo_carcasa1 if construccion.tipo_carcasa1 else ""}', bordered)
+    worksheet.write(f'AP{num}', f'{construccion.tipo_carcasa2 if construccion.tipo_carcasa2 else ""}', bordered)
+    worksheet.write(f'AQ{num}', f'{motor.potencia_motor if motor.potencia_motor else ""}', bordered)
+    worksheet.write(f'AR{num}', f'{motor.velocidad_motor if motor.velocidad_motor else ""}', bordered)
+    worksheet.write(f'AS{num}', f'{motor.factor_de_servicio if motor.factor_de_servicio else ""}', bordered)
+    worksheet.write(f'AT{num}', f'{motor.posicion_largo() if motor.posicion_largo else ""}', bordered)
+    worksheet.write(f'AU{num}', f'{motor.voltaje if motor.voltaje else ""}', bordered)
+    worksheet.write(f'AV{num}', f'{motor.fases if motor.fases else ""}', bordered)
+    worksheet.write(f'AW{num}', f'{motor.frecuencia if motor.frecuencia else ""}', bordered)
+    worksheet.write(f'AX{num}', f'{motor.aislamiento if motor.aislamiento else ""}', bordered)
+    worksheet.write(f'AY{num}', f'{motor.arranque if motor.arranque else ""}', bordered)
+
+    worksheet.write(f"E{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
+    worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)
+    workbook.close()
+    
+    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
+
+    fecha = datetime.datetime.now()
+    response['Content-Disposition'] = f'attachment; filename="ficha_tecnica_bomba_{bomba.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
+
+    
+    return response
+
 def historico_evaluaciones_bombas(object_list, request):
     '''
     Resumen:

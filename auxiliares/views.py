@@ -28,7 +28,7 @@ from calculos.unidades import transformar_unidades_presion, transformar_unidades
 from calculos.utils import fluido_existe, registrar_fluido
 from .evaluacion import evaluacion_bomba
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import reporte_bombas, historico_evaluaciones_bombas
+from reportes.xlsx import reporte_bombas, historico_evaluaciones_bombas, ficha_tecnica_bomba_centrifuga
 
 # Create your views here.
 
@@ -239,6 +239,8 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
             bomba = Bombas.objects.get(pk = request.POST.get('ficha'))
             if(request.POST.get('tipo') == 'pdf'):
                 return generar_pdf(request,bomba, f"Ficha Técnica de la Bomba {bomba.tag}", "ficha_tecnica_bomba_centrifuga")
+            if(request.POST.get('tipo') == 'xlsx'):
+                return ficha_tecnica_bomba_centrifuga(bomba, request)
             
         if(request.POST.get('instalacion')):
             bomba = Bombas.objects.get(pk = request.POST.get('instalacion'))
