@@ -1366,6 +1366,8 @@ def detalle_evaluacion_bomba(evaluacion):
     story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.first_name}"))
     story.append(Paragraph(f"<b>Tag del Equipo:</b> {bomba.tag}"))
     story.append(Paragraph(f"<b>ID de la Evaluación:</b> {evaluacion.id}"))
+
+    story.append(Spacer(0,10))
     story.append(Paragraph("Datos de Entrada de la Evaluación", ParagraphStyle('', alignment=1)))
 
     table = [
@@ -1426,6 +1428,7 @@ def detalle_evaluacion_bomba(evaluacion):
     story.append(table)
 
     # TABLA DE RESULTADOS
+    story.append(Spacer(0,10))
     story.append(Paragraph("Resultados de la Evaluación", ParagraphStyle('', alignment=1)))
 
     table = [
@@ -1481,6 +1484,7 @@ def detalle_evaluacion_bomba(evaluacion):
     story.append(table)
 
     # TABLA DE PÉRDIDAS
+    story.append(Spacer(0,10))
     story.append(Paragraph("Resumen de Pérdidas", ParagraphStyle('', alignment=1)))
 
     table = [
@@ -1521,6 +1525,67 @@ def detalle_evaluacion_bomba(evaluacion):
     )
 
     table = Table(table)
+    table.setStyle(estilo)
+    story.append(table)
+
+    # TABLA DE FLUJO/VELOCIDAD SUCCIÓN
+    story.append(Spacer(0,10))
+    story.append(Paragraph("Flujos y Velocidades de la Succión", ParagraphStyle('', alignment=1)))
+
+    header = [
+        Paragraph('TRAMO', centrar_parrafo),
+        Paragraph('DIÁM. INTERNO', centrar_parrafo),
+        Paragraph('LONGITUD TOTAL', centrar_parrafo),
+        Paragraph('MATERIAL', centrar_parrafo),
+        Paragraph('VELOCIDAD', centrar_parrafo),
+        Paragraph('FLUJO', centrar_parrafo),
+    ]
+
+    table = []
+
+    for i,tramo in enumerate(salida_succion.datos_tramos_seccion.all()):
+        tuberia = tramo.tramo
+        table.append([
+            Paragraph(f'{i+1}', centrar_parrafo),
+            Paragraph(f'{tuberia.diametro_tuberia} {tuberia.diametro_tuberia_unidad}', centrar_parrafo),
+            Paragraph(f'{tuberia.longitud_tuberia} {tuberia.longitud_tuberia_unidad}', centrar_parrafo),
+            Paragraph(f'{tuberia.material_tuberia}', centrar_parrafo),
+            Paragraph(f'{round(tramo.velocidad, 4)} m/s', centrar_parrafo),
+            Paragraph(f'{tramo.flujo_largo()}', centrar_parrafo),
+        ])
+
+    estilo = TableStyle(
+        [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),  
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),  
+
+            ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+            ('BACKGROUND', (0, 0), (0, -1), sombreado)
+        ]
+    )
+
+    table = Table([header, *table], colWidths=[0.8*inch, 1*inch, 1*inch, 2*inch, 1*inch, 1*inch])
+    table.setStyle(estilo)
+    story.append(table)
+
+    # TABLA DE FLUJO/VELOCIDAD DESCARGA
+    story.append(Spacer(0,10))
+    table = []
+
+    story.append(Paragraph("Flujos y Velocidades de la Descarga", ParagraphStyle('', alignment=1)))
+
+    for i,tramo in enumerate(salida_descarga.datos_tramos_seccion.all()):
+        tuberia = tramo.tramo
+        table.append([
+            Paragraph(f'{i+1}', centrar_parrafo),
+            Paragraph(f'{tuberia.diametro_tuberia} {tuberia.diametro_tuberia_unidad}', centrar_parrafo),
+            Paragraph(f'{tuberia.longitud_tuberia} {tuberia.longitud_tuberia_unidad}', centrar_parrafo),
+            Paragraph(f'{tuberia.material_tuberia}', centrar_parrafo),
+            Paragraph(f'{round(tramo.velocidad, 4)} m/s', centrar_parrafo),
+            Paragraph(f'{tramo.flujo_largo()}', centrar_parrafo),
+        ])
+
+    table = Table([header, *table], colWidths=[0.8*inch, 1*inch, 1*inch, 2*inch, 1*inch, 1*inch])
     table.setStyle(estilo)
     story.append(table)
 

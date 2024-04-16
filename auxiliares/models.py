@@ -54,6 +54,12 @@ CARCASA_DIVIDIDA = (
     ('R', 'Radial')
 )
 
+TIPO_FLUJO = (
+    ('T', 'Turbulento'),
+    ('R', 'Transitorio'),
+    ('L', 'Laminar'),
+)
+
 # MODELOS DE BOMBAS
 
 class MaterialTuberia(models.Model):
@@ -689,10 +695,13 @@ class SalidaTramosEvaluacionBomba(models.Model):
 
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     tramo = models.ForeignKey(TuberiaInstalacionBomba, on_delete=models.CASCADE, related_name="tramos_entrada")
-    flujo = models.CharField(max_length=1, choices=(('T','Turbulento'), ('L', 'Laminar'), ('R', 'Transitorio')))
+    flujo = models.CharField(max_length=1, choices=TIPO_FLUJO)
     velocidad = models.FloatField() # m/s
 
     salida = models.ForeignKey(SalidaSeccionesEvaluacionBomba, on_delete=models.PROTECT, related_name="datos_tramos_seccion")
+
+    def flujo_largo(self):
+        return conseguir_largo(TIPO_FLUJO, self.flujo)
 
 # MODELOS DE VENTILADORES
 
