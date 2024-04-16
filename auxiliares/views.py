@@ -28,7 +28,7 @@ from calculos.unidades import transformar_unidades_presion, transformar_unidades
 from calculos.utils import fluido_existe, registrar_fluido
 from .evaluacion import evaluacion_bomba
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import reporte_bombas
+from reportes.xlsx import reporte_bombas, historico_evaluaciones_bombas
 
 # Create your views here.
 
@@ -792,7 +792,9 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion, CargarBombaMixin):
 
         if(request.POST.get('tipo') == 'pdf'):
             return generar_pdf(request, self.get_queryset(), f"Evaluaciones de la Bomba {self.get_bomba().tag}", "evaluaciones_bombas")
-        
+        elif(request.POST.get('tipo') == 'xlsx'):
+            return historico_evaluaciones_bombas(self.get_queryset(), request)
+
         if(request.POST.get('detalle')):
             return generar_pdf(request, EvaluacionBomba.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Bomba", "detalle_evaluacion_bomba")
 

@@ -492,6 +492,102 @@ def reporte_intercambiadores(object_list, request):
     return response
 
 # REPORTES DE BOMBAS CENTRÍFUGAS
+def historico_evaluaciones_bombas(object_list, request):
+    '''
+    Resumen:
+        Función que genera el histórico XLSX de evaluaciones realizadas a una bomba filtradas de acuerdo a lo establecido en el request.
+    '''
+    excel_io = BytesIO()
+    workbook = xlsxwriter.Workbook(excel_io)    
+    worksheet = workbook.add_worksheet()
+
+    bomba = object_list[0].equipo
+    
+    worksheet.set_column('B:B', 20)
+    worksheet.set_column('C:C', 20)
+    worksheet.set_column('D:D', 20)
+    worksheet.set_column('E:E', 40)
+
+    bold = workbook.add_format({'bold': True})
+    bold_bordered = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'yellow'})
+    center_bordered = workbook.add_format({'border': 1})
+    bordered = workbook.add_format({'border': 1})
+    fecha =  workbook.add_format({'border': 1})
+
+    fecha.set_align('right')
+    bold_bordered.set_align('vcenter')
+    center_bordered.set_align('vcenter')
+    bold_bordered.set_align('center')
+    center_bordered.set_align('center')
+
+    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.write('C1', 'Reporte de Histórico de Evaluaciones', bold)
+    worksheet.insert_image(0, 4, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+
+    worksheet.write('A5', 'Filtros', bold_bordered)
+    worksheet.write('B5', 'Desde', bold_bordered)
+    worksheet.write('C5', 'Hasta', bold_bordered)
+    worksheet.write('D5', 'Usuario', bold_bordered)
+    worksheet.write('E5', 'Nombre', bold_bordered)
+    worksheet.write('F5', 'Equipo', bold_bordered)
+
+    worksheet.write('B6', request.GET.get('desde', ''), center_bordered)
+    worksheet.write('C6', Planta.objects.get(pk=request.GET.get('hasta')).nombre if request.GET.get('hasta') else '', center_bordered)
+    worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('usuario')).nombre if request.GET.get('usuario') else '', center_bordered)
+    worksheet.write('E6', request.GET.get('nombre', ''), center_bordered)
+    worksheet.write('F6', bomba.tag.upper(), center_bordered)
+    num = 8
+
+    worksheet.write(f'A{num}', '#', bold_bordered)
+    worksheet.write(f'B{num}', 'Fecha', bold_bordered)
+    worksheet.write(f'C{num}', "Eficiencia (%)", bold_bordered)
+    worksheet.write(f'D{num}', "Potencia Calculada (%)", bold_bordered)
+    worksheet.write(f"E{num}", f"Unidad Potencia", bold_bordered)
+    worksheet.write(f'F{num}', "Cabezal Total", bold_bordered)
+    worksheet.write(f'G{num}', "Unidad Cabezal", bold_bordered)
+    worksheet.write(f"H{num}", f"Velocidad Específica (RPM)", bold_bordered)
+    worksheet.write(f"I{num}", f"NPSHa", bold_bordered)
+    worksheet.write(f"J{num}", f"Unidad NPSHa", bold_bordered)
+    worksheet.write(f"K{num}", f"Cavita", bold_bordered)
+
+    for i,evaluacion in enumerate(object_list):
+        salida = evaluacion.salida
+        entrada = evaluacion.entrada
+        eficiencia = salida.eficiencia
+        potencia = salida.potencia
+        potencia_unidad = salida.potencia_unidad.simbolo
+        cabezal_total = salida.cabezal_total
+        cabezal_total_unidad = salida.cabezal_total_unidad.simbolo
+        velocidad_especifica = salida.velocidad
+        npsha = salida.npsha
+        npsha_unidad = entrada.npshr_unidad.simbolo
+        cavita = salida.cavita
+        fecha_ev = evaluacion.fecha.strftime('%d/%m/%Y %H:%M')
+
+        num += 1
+        worksheet.write(f'A{num}', i+1, center_bordered)
+        worksheet.write(f'B{num}', fecha_ev, center_bordered)
+        worksheet.write_number(f'C{num}', eficiencia, center_bordered)
+        worksheet.write_number(f'D{num}', potencia, center_bordered)
+        worksheet.write(f'E{num}', potencia_unidad, bordered)
+        worksheet.write_number(f'F{num}', cabezal_total, bordered)
+        worksheet.write(f'G{num}', cabezal_total_unidad, bordered)
+        worksheet.write_number(f'H{num}', velocidad_especifica, bordered)
+        worksheet.write_number(f'I{num}', npsha, bordered)
+        worksheet.write(f'J{num}', npsha_unidad, bordered)
+        worksheet.write(f'K{num}', cavita, bordered)
+
+    worksheet.write(f"J{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
+    worksheet.write(f"J{num+2}", "Generado por " + request.user.get_full_name(), fecha)
+    workbook.close()
+        
+    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
+    fecha = datetime.datetime.now()
+    response['Content-Disposition'] = f'attachment; filename="evaluaciones_bomba_{bomba.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
+
+
+    return response
+
 def reporte_bombas(request, object_list):
     '''
     Resumen:
