@@ -201,6 +201,9 @@ def generar_historia(request, reporte, object_list):
     
     if reporte == 'detalle_evaluacion_bomba':
         return detalle_evaluacion_bomba(object_list)
+    
+    if reporte == 'ficha_tecnica_bomba_centrifuga':
+        return ficha_tecnica_bomba_centrifuga(object_list)
 
 def detalle_evaluacion(evaluacion):
     '''
@@ -496,77 +499,12 @@ def reporte_evaluacion(request, object_list):
         sub = "Evaluaciones"
 
     # Generación de Gráficas históricas. Todas las magnitudes deben encontrarse en la misma unidad.
-    grafica1 = BytesIO()
-    fig, ax = plt.subplots(nrows=1, ncols=1)
-    ax.plot(fechas, eficiencias)
-    ax.set_xlabel(sub)
-    ax.set_ylabel("Eficiencia")
-    ax.set_title("Eficiencia (%)")   
-    fig.savefig(grafica1, format='jpeg')
-    plt.close(fig)
-
-    story.append(Spacer(0,7))
-    story.append(Image(grafica1, width=5*inch, height=2.5*inch))
-
-    grafica2 = BytesIO()
-    fig, ax = plt.subplots(nrows=1, ncols=1)
-    ax.plot(fechas, efectividades)
-    ax.set_xlabel(sub)
-    ax.set_ylabel("Efectividad")
-    ax.set_title("Efectividad (%)")   
-    fig.savefig(grafica2, format='jpeg')
-    plt.close(fig)
-
-    story.append(Spacer(0,7))
-    story.append(Image(grafica2, width=5*inch, height=2.5*inch))
-
-    grafica3 = BytesIO()
-    fig, ax = plt.subplots(nrows=1, ncols=1)
-    ax.plot(fechas, us)
-    ax.set_xlabel(sub)
-    ax.set_ylabel("U")
-    ax.set_title(f"U ({propiedades.u_unidad})")   
-    fig.savefig(grafica3, format='jpeg')
-    plt.close(fig)
-
-    story.append(Spacer(0,7))
-    story.append(Image(grafica3, width=5*inch, height=2.5*inch))
-
-    grafica4 = BytesIO()
-    fig, ax = plt.subplots(nrows=1, ncols=1)    
-    ax.plot(fechas, ensuciamientos)
-    ax.set_xlabel(sub)
-    ax.set_ylabel("Ensuciamiento")
-    ax.set_title(f"Ensuciamiento ({propiedades.ensuciamiento_unidad})")   
-    fig.savefig(grafica4, format='jpeg')
-    plt.close(fig)
-
-    story.append(Spacer(0,7))
-    story.append(Image(grafica4, width=5*inch, height=2.5*inch))
-
-    grafica5 = BytesIO()
-    fig, ax = plt.subplots(nrows=1, ncols=1)    
-    ax.plot(fechas, caidas_carcasa)
-    ax.set_xlabel(sub)
-    ax.set_ylabel("Caída Pres. Carcasa")
-    ax.set_title(f"Caída Pres. Carcasa ({propiedades.ensuciamiento_unidad})")   
-    fig.savefig(grafica5, format='jpeg')
-    plt.close(fig)
-
-    story.append(Spacer(0,7))
-    story.append(Image(grafica5, width=5*inch, height=2.5*inch))
-
-    grafica6 = BytesIO()
-    fig, ax = plt.subplots(nrows=1, ncols=1)    
-    ax.plot(fechas, caidas_tubo)
-    ax.set_xlabel(sub)
-    ax.set_ylabel("Caídas Pres. TuboT")
-    ax.set_title(f"Caídas Pres. Tubo ({propiedades.ensuciamiento_unidad})")   
-    fig.savefig(grafica6, format='jpeg')
-    plt.close(fig)
-
-    story.append(Spacer(0,7))
-    story.append(Image(grafica6, width=5*inch, height=2.5*inch))
+    story, grafica1 = anadir_grafica(story, eficiencias, fechas, sub, "Eficiencia", "Eficiencia (%)")
+    story, grafica2 = anadir_grafica(story, efectividades, fechas, sub, "Efectividad", "Efectividad (%)")
+    story, grafica3 = anadir_grafica(story, us, fechas, sub, "U", f"U ({propiedades.u_unidad})")
+    story, grafica4 = anadir_grafica(story, ensuciamientos, fechas, sub, "Ensuciamiento", f"Ensuciamiento ({propiedades.ensuciamiento_unidad})")
+    story, grafica5 = anadir_grafica(story, caidas_carcasa, fechas, sub, "Caída Pres. Carcasa", f"Caída Pres. Carcasa ({condicion_carcasa.unidad_presion})")
+    story, grafica6 = anadir_grafica(story, caidas_tubo, fechas, sub, "Caída Pres. Tubo", f"Caída Pres. Tubo ({condicion_carcasa.unidad_presion})")
 
     return [story, [grafica1, grafica2, grafica3, grafica4, grafica5, grafica6]]
 
@@ -1237,7 +1175,6 @@ def reporte_bombas(request, object_list):
         Esta función genera la historia de elementos a utilizar en el reporte de bombas centrífugas.
         No devuelve archivos.
     '''
-    print(request, object_list)
     story = []
     story.append(Spacer(0,60))
 
@@ -1590,3 +1527,242 @@ def detalle_evaluacion_bomba(evaluacion):
     story.append(table)
 
     return [story, []]
+
+def ficha_tecnica_bomba_centrifuga(bomba):
+    '''
+    Resumen:
+        Esta función genera la historia de elementos a utilizar en el reporte de ficha técnica de bomba centrífuga.
+        No devuelve archivos.
+    '''
+    story = []
+    story.append(Spacer(0,65))
+
+    condiciones_diseno = bomba.condiciones_diseno
+    condiciones_fluido = condiciones_diseno.condiciones_fluido
+    especificaciones = bomba.especificaciones_bomba
+    construccion = bomba.detalles_construccion
+    motor = bomba.detalles_motor
+    presion_unidad = condiciones_diseno.presion_unidad.simbolo
+    temperatura_unidad = condiciones_fluido.temperatura_unidad.simbolo
+    concentracion_unidad = condiciones_fluido.concentracion_unidad
+
+    # Primera Tabla: Datos Generales
+    table = [
+        [
+            Paragraph("Tag", centrar_parrafo), 
+            Paragraph(f"{bomba.tag}", centrar_parrafo), 
+            Paragraph("Planta", centrar_parrafo),
+            Paragraph(f"{bomba.planta.nombre}", centrar_parrafo)
+        ],
+        [
+            Paragraph("Fabricante", centrar_parrafo), 
+            Paragraph(f"{bomba.fabricante}", centrar_parrafo),
+            Paragraph("Modelo", centrar_parrafo), 
+            Paragraph(f"{bomba.modelo if bomba.modelo else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph("Tipo", centrar_parrafo), 
+            Paragraph(f"{bomba.tipo_bomba if bomba.tipo_bomba else '-'}", centrar_parrafo),             
+            Paragraph("Descripción", centrar_parrafo), 
+            Paragraph(f"{bomba.descripcion if bomba.descripcion else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph("CONDICIONES DE DISEÑO", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Capacidad ({condiciones_diseno.capacidad_unidad if condiciones_diseno.capacidad_unidad else '-'})", centrar_parrafo),
+            Paragraph(f"{condiciones_diseno.capacidad if condiciones_diseno.capacidad else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Presión Succión ({presion_unidad})", centrar_parrafo),
+            Paragraph(f"{condiciones_diseno.presion_succion if condiciones_diseno.presion_succion else '-'}", centrar_parrafo),
+            Paragraph(f"Presión Descarga ({presion_unidad})", centrar_parrafo),
+            Paragraph(f"{condiciones_diseno.presion_descarga if condiciones_diseno.presion_descarga else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Presión Diferencial ({presion_unidad})", centrar_parrafo),
+            Paragraph(f"{condiciones_diseno.presion_diferencial if condiciones_diseno.presion_diferencial else '-'}", centrar_parrafo),
+            Paragraph(f"NPSHa ({condiciones_diseno.npsha_unidad if condiciones_diseno.npsha_unidad else '-'})", centrar_parrafo),
+            Paragraph(f"{condiciones_diseno.npsha if condiciones_diseno.npsha else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Condiciones de Diseño del Fluido", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Fluido", centrar_parrafo),
+            Paragraph(f"{condiciones_fluido.fluido if condiciones_fluido.fluido else condiciones_fluido.nombre_fluido}", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Temp. Operación ({temperatura_unidad})", centrar_parrafo),
+            Paragraph(f"{condiciones_fluido.temperatura_operacion if condiciones_fluido.temperatura_operacion else '-'}", centrar_parrafo),
+            Paragraph(f"Presión Vapor ({condiciones_fluido.presion_vapor_unidad if condiciones_fluido.presion_vapor_unidad else '-'})", centrar_parrafo),
+            Paragraph(f"{condiciones_fluido.presion_vapor if condiciones_fluido.presion_vapor else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Temp. Presión Vapor ({temperatura_unidad})", centrar_parrafo),
+            Paragraph(f"{condiciones_fluido.temperatura_presion_vapor if condiciones_fluido.temperatura_presion_vapor else '-'}", centrar_parrafo),
+            Paragraph(f"Densidad ({condiciones_fluido.densidad if condiciones_fluido.densidad else '-'})", centrar_parrafo),
+            Paragraph(f"{condiciones_fluido.densidad if condiciones_fluido.densidad else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Viscosidad ({condiciones_fluido.viscosidad_unidad if condiciones_fluido.viscosidad_unidad else '-'})", centrar_parrafo),
+            Paragraph(f"{condiciones_fluido.viscosidad if condiciones_fluido.viscosidad else '-'}", centrar_parrafo),
+            Paragraph(f"¿Corrosivo/Erosivo?", centrar_parrafo),
+            Paragraph(f"{condiciones_fluido.corrosividad_largo()}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Peligroso", centrar_parrafo),
+            Paragraph(f"{condiciones_fluido.peligroso_largo()}", centrar_parrafo),
+            Paragraph(f"Inflamable", centrar_parrafo),
+            Paragraph(f"{condiciones_fluido.inflamable_largo()}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Concentración H2S ({concentracion_unidad})", centrar_parrafo),
+            Paragraph(f"{condiciones_fluido.concentracion_h2s if condiciones_fluido.concentracion_h2s else '-'}", centrar_parrafo),
+            Paragraph(f"Concentración Cloro ({concentracion_unidad})", centrar_parrafo),
+            Paragraph(f"{condiciones_fluido.concentracion_cloro if condiciones_fluido.concentracion_cloro else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Especificaciones Técnicas", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Número de Curva", centrar_parrafo),
+            Paragraph(f"{especificaciones.numero_curva if especificaciones.numero_curva else '-'}", centrar_parrafo),
+            Paragraph(f"Velocidad (RPM)", centrar_parrafo),
+            Paragraph(f"{especificaciones.velocidad if especificaciones.velocidad else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Potencia Máxima ({especificaciones.potencia_unidad if especificaciones.potencia_unidad else '-'})", centrar_parrafo),
+            Paragraph(f"{especificaciones.potencia_maxima if especificaciones.potencia_maxima else '-'}", centrar_parrafo),
+            Paragraph(f"Eficiencia (%)", centrar_parrafo),
+            Paragraph(f"{especificaciones.eficiencia if especificaciones.eficiencia else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"NPSHr ({especificaciones.npshr_unidad if especificaciones.npshr_unidad else '-'})", centrar_parrafo),
+            Paragraph(f"{especificaciones.npshr if especificaciones.npshr else '-'}", centrar_parrafo),
+            Paragraph(f"Cabezal Total ({especificaciones.cabezal_unidad if especificaciones.cabezal_unidad else '-'})", centrar_parrafo),
+            Paragraph(f"{especificaciones.cabezal_total if especificaciones.cabezal_total else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"ID Succión ({especificaciones.id_unidad if especificaciones.id_unidad else '-'})", centrar_parrafo),
+            Paragraph(f"{especificaciones.succion_id if especificaciones.succion_id else '-'}", centrar_parrafo),
+            Paragraph(f"ID Descarga ({especificaciones.id_unidad if especificaciones.id_unidad else '-'})", centrar_parrafo),
+            Paragraph(f"{especificaciones.descarga_id if especificaciones.descarga_id else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Número de Etapas", centrar_parrafo),
+            Paragraph(f"{especificaciones.numero_etapas if especificaciones.numero_etapas else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"DETALLES DE CONSTRUCCIÓN", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Conexión Succión", centrar_parrafo),
+            Paragraph(f"{construccion.conexion_succion if construccion.conexion_succion else '-'}", centrar_parrafo),
+            Paragraph(f"Tamaño Rating", centrar_parrafo),
+            Paragraph(f"{construccion.tamano_rating_succion if construccion.tamano_rating_succion else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Conexión Descarga", centrar_parrafo),
+            Paragraph(f"{construccion.conexion_descarga if construccion.conexion_descarga else '-'}", centrar_parrafo),
+            Paragraph(f"Tamaño Rating Descarga", centrar_parrafo),
+            Paragraph(f"{construccion.tamano_rating_descarga if construccion.tamano_rating_descarga else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Carcasa Dividida", centrar_parrafo),
+            Paragraph(f"{construccion.carcasa_dividida_largo() if construccion.carcasa_dividida else '-'}", centrar_parrafo),
+            Paragraph(f"Modelo", centrar_parrafo),
+            Paragraph(f"{construccion.modelo_construccion if construccion.modelo_construccion else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Fabricante de Sello", centrar_parrafo),
+            Paragraph(f"{construccion.fabricante_sello if construccion.fabricante_sello else '-'}", centrar_parrafo),
+            Paragraph(f"Tipo", centrar_parrafo),
+            Paragraph(f"{construccion.tipo if construccion.tipo else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Tipo de Carcasa", centrar_parrafo),
+            Paragraph(f"{construccion.tipo_carcasa1}/{construccion.tipo_carcasa2}" if construccion.tipo_carcasa2 else f'{construccion.tipo_carcasa1}' if construccion.tipo_carcasa1 else '-', centrar_parrafo)
+        ],
+        [
+            Paragraph(f"DETALLES DE MOTOR", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Potencia ({motor.potencia_motor_unidad})", centrar_parrafo),
+            Paragraph(f"{motor.potencia_motor if motor.potencia_motor else '-'}", centrar_parrafo),
+            Paragraph(f"Velocidad (RPM)", centrar_parrafo),
+            Paragraph(f"{motor.velocidad_motor if motor.velocidad_motor else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Factor de Servicio", centrar_parrafo),
+            Paragraph(f"{motor.factor_de_servicio if motor.factor_de_servicio else '-'}", centrar_parrafo),
+            Paragraph(f"Posición", centrar_parrafo),
+            Paragraph(f"{motor.posicion_largo() if motor.posicion else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Voltaje ({motor.voltaje_unidad if motor.voltaje_unidad else '-'})", centrar_parrafo),
+            Paragraph(f"{motor.voltaje if motor.voltaje else '-'}", centrar_parrafo),
+            Paragraph(f"Fase", centrar_parrafo),
+            Paragraph(f"{motor.fases if motor.fases else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Frecuencia ({motor.frecuencia_unidad if motor.frecuencia_unidad else '-'})", centrar_parrafo),
+            Paragraph(f"{motor.frecuencia if motor.frecuencia else '-'}", centrar_parrafo),
+            Paragraph(f"Aislamiento", centrar_parrafo),
+            Paragraph(f"{motor.aislamiento if motor.aislamiento else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Método de Arranque", centrar_parrafo),
+            Paragraph(f"{motor.arranque if motor.arranque else '-'}", centrar_parrafo)
+        ]
+    ]
+    estilo = TableStyle(
+        [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+
+            ('BACKGROUND', (0, 0), (0, -1), sombreado),
+
+            ('BACKGROUND', (2, 0), (2, 2), sombreado),
+            ('BACKGROUND', (2, 5), (2, 6), sombreado),
+            ('BACKGROUND', (2, 9), (2, 13), sombreado),
+            ('BACKGROUND', (2, 15), (2, 18), sombreado),
+            ('BACKGROUND', (2, 21), (2, 24), sombreado),
+            ('BACKGROUND', (2, 27), (2, 30), sombreado),
+
+            ('BACKGROUND', (0, 3), (-1, 3), sombreado),
+            ('BACKGROUND', (0, 7), (-1, 7), sombreado),
+            ('BACKGROUND', (0, 14), (-1, 14), sombreado),
+            ('BACKGROUND', (0, 20), (-1, 20), sombreado),
+            ('BACKGROUND', (0, 26), (-1, 26), sombreado),
+
+            ('SPAN', (0, 3), (-1, 3)),
+            ('SPAN', (1, 4), (-1, 4)),
+            ('SPAN', (0, 7), (-1, 7)),
+            ('SPAN', (1, 8), (-1, 8)),
+            ('SPAN', (0, 14), (-1, 14)),
+            ('SPAN', (1, 19), (-1, 19)),
+            ('SPAN', (0, 20), (-1, 20)),
+            ('SPAN', (1, 25), (-1, 25)),
+            ('SPAN', (0, 26), (-1, 26)),
+            ('SPAN', (1, 31), (-1, 31)),
+
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE')
+        ]
+    )
+
+    table = Table(table)
+    table.setStyle(estilo)
+    story.append(table)
+
+    story.append(Paragraph(f"Bomba registrada por {bomba.creado_por.get_full_name()} el día {bomba.creado_al.strftime('%d/%m/%Y %H:%M:%S')}.", centrar_parrafo))
+
+    if(bomba.editado_al):
+        story.append(Paragraph(f"Bomba editada por {bomba.editado_por.get_full_name()} el día {bomba.editado_al.strftime('%d/%m/%Y %H:%M:%S')}.", centrar_parrafo))
+
+    if(construccion.tipo):
+        story.append(Image(f'static/img/equipos_aux/bombas/{construccion.tipo}.jpg', width=6*inch, height=3*inch))
+
+    if(bomba.grafica):
+        story.append(Image(f'media/{bomba.grafica}', width=6*inch, height=4*inch))
+
+    return [story, None]

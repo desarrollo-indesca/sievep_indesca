@@ -234,6 +234,11 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def post(self, request, *args, **kwargs):
+        if(request.POST.get('ficha')):
+            bomba = Bombas.objects.get(pk = request.POST.get('ficha'))
+            if(request.POST.get('tipo') == 'pdf'):
+                return generar_pdf(request,bomba, f"Ficha Técnica de la Bomba {bomba.tag}", "ficha_tecnica_bomba_centrifuga")
+            
         if(request.POST.get('tipo') == 'pdf'):
             return generar_pdf(request, self.get_queryset(), 'Reporte de Bombas Centrífugas', 'bombas')
 
