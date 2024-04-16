@@ -161,7 +161,7 @@ def generar_pdf(request,object_list,titulo,reporte):
           
     response = HttpResponse(content_type='application/pdf')
     fecha = datetime.datetime.now()
-    response['Content-Disposition'] = f'attachment; filename="{reporte}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.hour}.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="{reporte}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.pdf"'
 
     response.write(buff.getvalue())
     buff.close()

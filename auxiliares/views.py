@@ -28,6 +28,7 @@ from calculos.unidades import transformar_unidades_presion, transformar_unidades
 from calculos.utils import fluido_existe, registrar_fluido
 from .evaluacion import evaluacion_bomba
 from reportes.pdfs import generar_pdf
+from reportes.xlsx import reporte_bombas
 
 # Create your views here.
 
@@ -246,6 +247,9 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
 
         if(request.POST.get('tipo') == 'pdf'):
             return generar_pdf(request, self.get_queryset(), 'Reporte de Bombas Centrífugas', 'bombas')
+        
+        if(request.POST.get('tipo') == 'xlsx'):
+            return reporte_bombas(request, self.get_queryset())
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:        
         if(request.GET.get('page')):

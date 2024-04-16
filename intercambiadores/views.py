@@ -988,7 +988,7 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ConsultaIntercambiador):
         elif(request.POST.get('tipo') == 'xlsx'):
             response = reporte_intercambiadores(self.get_queryset(), request)
             fecha = datetime.datetime.now()
-            response['Content-Disposition'] = f'attachment; filename="reporte_tubo_carcasa_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.hour}.xlsx"'
+            response['Content-Disposition'] = f'attachment; filename="reporte_tubo_carcasa_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
             return response
         elif(request.POST.get('pdf')):
             intercambiador = PropiedadesTuboCarcasa.objects.get(pk=request.POST['pdf']).intercambiador
@@ -1090,7 +1090,7 @@ class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
         else:
             response = reporte_intercambiadores(self.get_queryset(), request)
             fecha = datetime.datetime.now()
-            response['Content-Disposition'] = f'attachment; filename="reporte_doble_tubo_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.hour}.xlsx"'
+            response['Content-Disposition'] = f'attachment; filename="reporte_doble_tubo_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
             return response
             
     def get_context_data(self, **kwargs):
@@ -1919,7 +1919,7 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
             elif(request.POST['tipo'] == 'xlsx'):
                 response = historico_evaluaciones(self.get_queryset(), request)
                 fecha = datetime.datetime.now()
-                response['Content-Disposition'] = f'attachment; filename="reporte_evaluaciones_{intercambiador.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.hour}.xlsx"'
+                response['Content-Disposition'] = f'attachment; filename="reporte_evaluaciones_{intercambiador.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
                 return response
             
         if(request.user.is_superuser): # Lógica de "Eliminación"
@@ -2341,7 +2341,7 @@ class FichaTecnicaTuboCarcasa(LoginRequiredMixin, View):
             elif(request.GET['tipo'] == 'xlsx'):
                 response = ficha_tecnica_tubo_carcasa_xlsx(intercambiador, request)
                 fecha = datetime.datetime.now()
-                response['Content-Disposition'] = f'attachment; filename="datos_ficha_tecnica_{intercambiador.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.hour}.xlsx"'
+                response['Content-Disposition'] = f'attachment; filename="datos_ficha_tecnica_{intercambiador.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
                 return response
         except Exception as e:
             print(str(e))
@@ -2366,7 +2366,7 @@ class FichaTecnicaDobleTubo(LoginRequiredMixin, View):
             elif(request.GET['tipo'] == 'xlsx'):
                 response = ficha_tecnica_doble_tubo_xlsx(intercambiador, request)
                 fecha = datetime.datetime.now()
-                response['Content-Disposition'] = f'attachment; filename="datos_ficha_tecnica_{intercambiador.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.hour}.xlsx"'
+                response['Content-Disposition'] = f'attachment; filename="datos_ficha_tecnica_{intercambiador.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
                 return response
         except Exception as e:
             print(str(e))
