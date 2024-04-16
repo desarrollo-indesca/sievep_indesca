@@ -239,6 +239,11 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
             if(request.POST.get('tipo') == 'pdf'):
                 return generar_pdf(request,bomba, f"Ficha Técnica de la Bomba {bomba.tag}", "ficha_tecnica_bomba_centrifuga")
             
+        if(request.POST.get('instalacion')):
+            bomba = Bombas.objects.get(pk = request.POST.get('instalacion'))
+            if(request.POST.get('tipo') == 'pdf'):
+                return generar_pdf(request,bomba, f"Ficha de Instalación de la Bomba {bomba.tag}", "ficha_instalacion_bomba_centrifuga")
+
         if(request.POST.get('tipo') == 'pdf'):
             return generar_pdf(request, self.get_queryset(), 'Reporte de Bombas Centrífugas', 'bombas')
 

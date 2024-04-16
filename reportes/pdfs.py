@@ -204,6 +204,9 @@ def generar_historia(request, reporte, object_list):
     
     if reporte == 'ficha_tecnica_bomba_centrifuga':
         return ficha_tecnica_bomba_centrifuga(object_list)
+    
+    if reporte == "ficha_instalacion_bomba_centrifuga":
+        return ficha_instalacion_bomba_centrifuga(object_list)
 
 def detalle_evaluacion(evaluacion):
     '''
@@ -1169,6 +1172,126 @@ def ficha_tecnica_doble_tubo(object_list):
 
 # REPORTES DE BOMBAS
 
+def tabla_tramo(i, tramo, story):
+    '''
+    Resumen:
+        Función interna utilizada para la generación de la tabla de accesorios por tramos.
+        Se utiliza en el reporte de ficha de insalación.
+    '''
+    table = [
+            [
+                Paragraph('# TRAMO', centrar_parrafo),
+                Paragraph('DIÁMETRO INTERNO', centrar_parrafo),
+                Paragraph('LONGITUD TOTAL', centrar_parrafo),
+                Paragraph('MATERIAL DE LA TUBERÍA', centrar_parrafo),
+            ],
+            [
+                Paragraph(f'{i+1}', centrar_parrafo),
+                Paragraph(f'{tramo.diametro_tuberia} {tramo.diametro_tuberia_unidad}', centrar_parrafo),
+                Paragraph(f'{tramo.longitud_tuberia} {tramo.longitud_tuberia_unidad}', centrar_parrafo),
+                Paragraph(f'{tramo.material_tuberia}', centrar_parrafo),
+            ], 
+            [
+                Paragraph("VÁLVULAS", centrar_parrafo)
+            ],
+            [
+                Paragraph("Compuertas Abiertas", centrar_parrafo),
+                Paragraph(f"{tramo.numero_valvulas_compuerta if tramo.numero_valvulas_compuerta else '-'}", centrar_parrafo),
+                Paragraph("Compuertas a 1/2", centrar_parrafo),
+                Paragraph(f"{tramo.numero_valvulas_compuerta_abierta_1_2 if tramo.numero_valvulas_compuerta_abierta_1_2 else '-'}", centrar_parrafo),                
+            ],
+            [
+                Paragraph("Compuertas a 3/4", centrar_parrafo),
+                Paragraph(f"{tramo.numero_valvulas_compuerta_abierta_3_4 if tramo.numero_valvulas_compuerta_abierta_3_4 else '-'}", centrar_parrafo),
+                Paragraph("Compuertas a 1/4", centrar_parrafo),
+                Paragraph(f"{tramo.numero_valvulas_compuerta_abierta_1_4 if tramo.numero_valvulas_compuerta_abierta_1_4 else '-'}", centrar_parrafo),                
+            ],
+            [
+                Paragraph("Mariposa 2\"-8\"", centrar_parrafo),
+                Paragraph(f"{tramo.numero_valvulas_mariposa_2_8 if tramo.numero_valvulas_mariposa_2_8 else '-'}", centrar_parrafo),
+                Paragraph("Mariposa 10\"-14\"", centrar_parrafo),
+                Paragraph(f"{tramo.numero_valvulas_mariposa_10_14 if tramo.numero_valvulas_mariposa_10_14 else '-'}", centrar_parrafo),                
+            ],
+            [
+                Paragraph("Mariposa 16\"-24\"", centrar_parrafo),
+                Paragraph(f"{tramo.numero_valvulas_mariposa_16_24 if tramo.numero_valvulas_mariposa_16_24 else '-'}", centrar_parrafo),
+                Paragraph("Check Giratoria", centrar_parrafo),
+                Paragraph(f"{tramo.numero_valvula_giratoria if tramo.numero_valvula_giratoria else '-'}", centrar_parrafo),                
+            ],
+            [
+                Paragraph("Check Bola", centrar_parrafo),
+                Paragraph(f"{tramo.numero_valvula_bola if tramo.numero_valvula_bola else '-'}", centrar_parrafo),
+                Paragraph("Check Vástago", centrar_parrafo),
+                Paragraph(f"{tramo.numero_valvula_vastago if tramo.numero_valvula_vastago else '-'}", centrar_parrafo),                
+            ],
+            [
+                Paragraph("Check Bisagra", centrar_parrafo),
+                Paragraph(f"{tramo.numero_valvula_bisagra if tramo.numero_valvula_bisagra else '-'}", centrar_parrafo),
+                Paragraph("De Globo", centrar_parrafo),
+                Paragraph(f"{tramo.numero_valvula_globo if tramo.numero_valvula_globo else '-'}", centrar_parrafo),                
+            ],
+            [
+                Paragraph("De Ángulo", centrar_parrafo),
+                Paragraph(f"{tramo.numero_valvula_angulo if tramo.numero_valvula_angulo else '-'}", centrar_parrafo),
+            ],
+            [
+                Paragraph("CODOS", centrar_parrafo)
+            ],
+            [
+                Paragraph("Codos a 90°", centrar_parrafo),
+                Paragraph(f"{tramo.numero_codos_90 if tramo.numero_codos_90 else '-'}", centrar_parrafo),
+                Paragraph("Codos  a 90° RL", centrar_parrafo),
+                Paragraph(f"{tramo.numero_codos_90_rl if tramo.numero_codos_90_rl else '-'}", centrar_parrafo),                
+            ],
+            [
+                Paragraph("Codos a 90° Roscado", centrar_parrafo),
+                Paragraph(f"{tramo.numero_codos_90_ros if tramo.numero_codos_90_ros else '-'}", centrar_parrafo),
+                Paragraph("Codos a 45°", centrar_parrafo),
+                Paragraph(f"{tramo.numero_codos_45 if tramo.numero_codos_45 else '-'}", centrar_parrafo),                
+            ],
+            [
+                Paragraph("Codos a 45° Roscados", centrar_parrafo),
+                Paragraph(f"{tramo.numero_codos_45_ros if tramo.numero_codos_45_ros else '-'}", centrar_parrafo),
+                Paragraph("Codos a 180°", centrar_parrafo),
+                Paragraph(f"{tramo.numero_codos_180 if tramo.numero_codos_180 else '-'}", centrar_parrafo),                
+            ],
+            [
+                Paragraph("CONEXIONES T", centrar_parrafo)
+            ],
+            [
+                Paragraph("Conexiones T Directo", centrar_parrafo),
+                Paragraph(f"{tramo.conexiones_t_directo if tramo.conexiones_t_directo else '-'}", centrar_parrafo),
+                Paragraph("Conexiones T Ramal", centrar_parrafo),
+                Paragraph(f"{tramo.conexiones_t_ramal if tramo.conexiones_t_ramal else '-'}", centrar_parrafo),                
+            ],
+        ]
+
+    table = Table(table, colWidths=[1.5*inch, 2*inch, 1.5*inch, 2*inch])
+    table.setStyle([
+            ('BACKGROUND', (0,0), (0,-1), sombreado),
+            ('BACKGROUND', (2,3), (2,8), sombreado),
+            ('BACKGROUND', (2,11), (2,13), sombreado),
+            ('BACKGROUND', (2,15), (2,15), sombreado),
+
+            ('BACKGROUND', (0,2), (-1,2), sombreado),
+            ('BACKGROUND', (0,10), (-1,10), sombreado),
+            ('BACKGROUND', (1,14), (-1,14), sombreado),
+
+            ('BACKGROUND', (0,0), (-1,0), sombreado),
+
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.black),
+
+            ('SPAN', (0,2), (-1,2)),
+            ('SPAN', (1,9), (-1,9)),
+            ('SPAN', (0,10), (-1,10)),
+            ('SPAN', (0,14), (-1,14)),
+    ])
+    story.append(table)
+    story.append(Spacer(0,10))
+
+    return story
+
 def reporte_bombas(request, object_list):
     '''
     Resumen:
@@ -1532,7 +1655,7 @@ def ficha_tecnica_bomba_centrifuga(bomba):
     '''
     Resumen:
         Esta función genera la historia de elementos a utilizar en el reporte de ficha técnica de bomba centrífuga.
-        No devuelve archivos.
+        A veces devuelve archivos dependiendo de la disponibilidad de gráfica y tipo de construcción.
     '''
     story = []
     story.append(Spacer(0,65))
@@ -1766,3 +1889,54 @@ def ficha_tecnica_bomba_centrifuga(bomba):
         story.append(Image(f'media/{bomba.grafica}', width=6*inch, height=4*inch))
 
     return [story, None]
+
+def ficha_instalacion_bomba_centrifuga(bomba):
+    '''
+    Resumen:
+        Función que genera el reporte de ficha de instalación de una bomba centrífuga.
+        No devuelve archivos.
+    '''
+    instalacion_succion = bomba.instalacion_succion
+    instalacion_descarga = bomba.instalacion_descarga
+    tramos_succion = instalacion_succion.tuberias.all()
+    tramos_descarga = instalacion_descarga.tuberias.all()
+
+    table = [
+        [
+            Paragraph(''),
+            Paragraph('SUCCIÓN', centrar_parrafo),
+            Paragraph('DESCARGA', centrar_parrafo)
+        ],
+        [
+            Paragraph(f'ELEVACIÓN ({instalacion_succion.elevacion_unidad})', centrar_parrafo),
+            Paragraph(f'{instalacion_succion.elevacion if instalacion_succion.elevacion else "-"}', centrar_parrafo),
+            Paragraph(f'{instalacion_descarga.elevacion if instalacion_descarga.elevacion else "-"}', centrar_parrafo),
+        ],
+    ]
+
+    table = Table(table)
+    table.setStyle([
+        ('BACKGROUND', (0,0), (0,-1), sombreado),
+        ('BACKGROUND', (0,0), (-1,0), sombreado),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.black)
+    ])
+    story = [Spacer(0,60), table]
+
+    if(tramos_succion):
+        story.append(Paragraph("TRAMOS Y ACCESORIOS DE LA <b>SUCCIÓN</b>", centrar_parrafo))
+
+        for i,tramo in enumerate(tramos_succion):
+            story = tabla_tramo(i,tramo, story)
+    else:
+        story.append(Paragraph("NO HAY TRAMOS DE TUBERÍAS REGISTRADOS EN LA SUCCIÓN.", centrar_parrafo))
+
+    if(tramos_descarga):
+        story.append(Paragraph("TRAMOS Y ACCESORIOS DE LA <b>DESCARGA</b>", centrar_parrafo))
+
+        for i,tramo in enumerate(tramos_descarga):
+            story = tabla_tramo(i,tramo, story)
+    else:
+        story.append(Paragraph("NO HAY TRAMOS DE TUBERÍAS REGISTRADOS EN LA DESCARGA.", centrar_parrafo))
+
+    return [story,[]]
