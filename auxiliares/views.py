@@ -171,6 +171,25 @@ class ConsultaEvaluacion(ListView, LoginRequiredMixin):
 
         return new_context
     
+class ReportesFichasBombasMixin():
+    def reporte_ficha(self, request):
+        if(request.POST.get('ficha')):
+            bomba = Bombas.objects.get(pk = request.POST.get('ficha'))
+            if(request.POST.get('tipo') == 'pdf'):
+                return generar_pdf(request,bomba, f"Ficha Técnica de la Bomba {bomba.tag}", "ficha_tecnica_bomba_centrifuga")
+            if(request.POST.get('tipo') == 'xlsx'):
+                return ficha_tecnica_bomba_centrifuga(bomba, request)
+            
+        if(request.POST.get('instalacion')):
+            bomba = Bombas.objects.get(pk = request.POST.get('instalacion'))
+            if(request.POST.get('tipo') == 'pdf'):
+                return generar_pdf(request,bomba, f"Ficha de Instalación de la Bomba {bomba.tag}", "ficha_instalacion_bomba_centrifuga")
+            
+            if(request.POST.get('tipo') == 'xlsx'):
+                return ficha_instalacion_bomba_centrifuga(bomba,request)
+            
+        return None
+
 # VISTAS DE BOMBAS
 
 class CargarBombaMixin():
@@ -215,7 +234,7 @@ class CargarBombaMixin():
 
         return bomba[0]
 
-class ConsultaBombas(LoginRequiredMixin, ListView):
+class ConsultaBombas(ListView, LoginRequiredMixin, ReportesFichasBombasMixin):
     """
     Resumen:
         Vista para la consulta general de las bombas centrífugas (primer equipo auxiliar)
@@ -235,20 +254,9 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def post(self, request, *args, **kwargs):
-        if(request.POST.get('ficha')):
-            bomba = Bombas.objects.get(pk = request.POST.get('ficha'))
-            if(request.POST.get('tipo') == 'pdf'):
-                return generar_pdf(request,bomba, f"Ficha Técnica de la Bomba {bomba.tag}", "ficha_tecnica_bomba_centrifuga")
-            if(request.POST.get('tipo') == 'xlsx'):
-                return ficha_tecnica_bomba_centrifuga(bomba, request)
-            
-        if(request.POST.get('instalacion')):
-            bomba = Bombas.objects.get(pk = request.POST.get('instalacion'))
-            if(request.POST.get('tipo') == 'pdf'):
-                return generar_pdf(request,bomba, f"Ficha de Instalación de la Bomba {bomba.tag}", "ficha_instalacion_bomba_centrifuga")
-            
-            if(request.POST.get('tipo') == 'xlsx'):
-                return ficha_instalacion_bomba_centrifuga(bomba,request)
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha):
+            return reporte_ficha
 
         if(request.POST.get('tipo') == 'pdf'):
             return generar_pdf(request, self.get_queryset(), 'Reporte de Bombas Centrífugas', 'bombas')
@@ -760,7 +768,7 @@ class CreacionInstalacionBomba(View, CargarBombaMixin, SuperUserRequiredMixin):
     def get(self, request, **kwargs):
         return render(request, self.template_name, context=self.get_context())
 
-class ConsultaEvaluacionBomba(ConsultaEvaluacion, CargarBombaMixin):
+class ConsultaEvaluacionBomba(ConsultaEvaluacion, CargarBombaMixin, ReportesFichasBombasMixin):
     """
     Resumen:
         Vista para la creación o registro de nuevas bombas centrífugas.
@@ -794,6 +802,10 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion, CargarBombaMixin):
             messages.success(request, "Evaluación eliminada exitosamente.")
         elif(request.POST.get('evaluacion') and not request.user.is_superuser):
             messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
+
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha):
+            return reporte_ficha
 
         if(request.POST.get('tipo') == 'pdf'):
             return generar_pdf(request, self.get_queryset(), f"Evaluaciones de la Bomba {self.get_bomba().tag}", "evaluaciones_bombas")
@@ -1053,7 +1065,7 @@ class CalcularResultados(View, LoginRequiredMixin):
 
         return res
 
-class CreacionEvaluacionBomba(View, LoginRequiredMixin, CargarBombaMixin):
+class CreacionEvaluacionBomba(View, LoginRequiredMixin, CargarBombaMixin, ReportesFichasBombasMixin):
     """
     Resumen:
         Vista de la creación de una evaluación de una bomba.
@@ -1065,6 +1077,9 @@ class CreacionEvaluacionBomba(View, LoginRequiredMixin, CargarBombaMixin):
         get(self, request) -> HttpResponse
             Renderiza la plantilla de la vista cuando se recibe una solicitud HTTP GET.
     """
+
+    def post(self, request, *args, **kwargs):
+        return self.reporte_ficha(request)
 
     def get_context_data(self):
         bomba = self.get_bomba()
