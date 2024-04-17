@@ -626,7 +626,7 @@ def ficha_instalacion_bomba_centrifuga(bomba, request):
     response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
 
     fecha = datetime.datetime.now()
-    response['Content-Disposition'] = f'attachment; filename="ficha_tecnica_bomba_{bomba.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
+    response['Content-Disposition'] = f'attachment; filename="ficha_instalacion_bomba_{bomba.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
 
     return response
 
