@@ -83,8 +83,22 @@ document.body.addEventListener('htmx:beforeRequest', function(evt) {
     const body = document.getElementsByTagName('body')[0]
     body.style.opacity = 0.25;
 
-    if(document.getElementById('id_calculo_propiedades').value === 'F')
+    if(evt.target.name === "form" && Number($('#id_presion_succion').val()) > Number($('#id_presion_descarga').val())){
+        evt.preventDefault();
+        alert("La presión de succión no puede ser mayor que la presión de la descarga. Verifique los datos.");
+        body.style.opacity = 1.0;
         return;
+    }
+
+    if(document.getElementById('id_calculo_propiedades').value === 'F'){
+        if($('#submit').val() === 'almacenar'){
+            evt.detail.xhr.target = document.getElementsByTagName('form')[0];
+            if(!confirm("¿Está seguro que desea almacenar esta evaluación?")){
+                evt.preventDefault();
+                body.style.opacity = 1.0;
+            }
+        }
+    }
     else{
         $('#id_temperatura_operacion').removeAttr('disabled');
         $('#id_temperatura_unidad').removeAttr('disabled');
@@ -92,14 +106,6 @@ document.body.addEventListener('htmx:beforeRequest', function(evt) {
         $('#id_presion_succion').removeAttr('disabled');
         $('#id_presion_vapor_unidad').removeAttr('disabled');
         $('#id_viscosidad_unidad').removeAttr('disabled');
-    }
-
-    if(evt.target.name === "form" && Number($('#id_presion_succion').val()) > Number($('#id_presion_descarga').val())){
-        console.log( $('#id_presion_succion').val(),  $('#id_presion_descarga').val());
-        evt.preventDefault();
-        alert("La presión de succión no puede ser mayor que la presión de la descarga. Verifique los datos.");
-        body.style.opacity = 1.0;
-        return;
     }
 
     if(document.getElementById('id_calculo_propiedades').value == 'M' || 
@@ -119,11 +125,16 @@ document.body.addEventListener('htmx:beforeRequest', function(evt) {
         body.style.opacity = 1.0;
     }
 
+    console.log(evt.target.name);
+    console.log($('#submit').val());
+
     if(evt.target.name === 'form'){
         if($('#submit').val() === 'almacenar'){
             evt.detail.xhr.target = document.getElementsByTagName('form')[0];
-            if(!confirm("¿Está seguro que desea almacenar esta evaluación?"))
+            if(!confirm("¿Está seguro que desea almacenar esta evaluación?")){
                 evt.preventDefault();
+                body.style.opacity = 1.0;
+            }
         }        
         else{
             evt.detail.xhr.target = document.getElementById('resultados');
@@ -132,7 +143,7 @@ document.body.addEventListener('htmx:beforeRequest', function(evt) {
 });
 
 document.body.addEventListener('htmx:afterRequest', function(evt) {
-    if(evt.detail.failed || document.getElementById('id_viscosidad').value == '' || document.getElementById('id_presion_vapor').value == '' || document.getElementById('id_densidad').value == ''){
+    if(evt.detail.failed ||$('#id_viscosidad').val() == '' ||$('#id_presion_vapor').val() == '' ||$('#id_densidad').val() == ''){
         alert("Ha ocurrido un error al momento de obtener la información solicitada. Verifique que los datos están completos y son consistentes.");
         $('#id_viscosidad').val("");
         $('#id_presion_vapor').val("");
