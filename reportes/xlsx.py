@@ -492,6 +492,144 @@ def reporte_intercambiadores(object_list, request):
     return response
 
 # REPORTES DE BOMBAS CENTRÍFUGAS
+def ficha_instalacion_bomba_centrifuga(bomba, request):
+    '''
+    Resumen:
+        Función que genera los datos de ficha de instalación en formato XLSX de una bomba centrífuga.
+    '''
+
+    def anadir_header_tuberias(worksheet, num, estilo):
+        worksheet.write(f"A{num}", "# Tramo", estilo)
+        worksheet.write(f"B{num}", "Longitud Total", estilo)
+        worksheet.write(f"C{num}", "Longitud Unidad", estilo)
+        worksheet.write(f"D{num}", "Diámetro Interno", estilo)  
+        worksheet.write(f"E{num}", "Diámetro Unidad", estilo)
+        worksheet.write(f"F{num}", "Material", estilo)
+        worksheet.write(f"G{num}", "Codos 90°", estilo)    
+        worksheet.write(f"H{num}", "Codos 90° Radio Largo", estilo)    
+        worksheet.write(f"I{num}", "Codos 90° Roscados", estilo)    
+        worksheet.write(f"J{num}", "Codos 45°", estilo)    
+        worksheet.write(f"K{num}", "Codos 45° Roscados", estilo)
+        worksheet.write(f"L{num}", "Codos 180°", estilo)    
+        worksheet.write(f"M{num}", "Válvulas de Compuerta Abiertas", estilo)    
+        worksheet.write(f"N{num}", "Válvulas de Compuertas a 3/4", estilo)    
+        worksheet.write(f"O{num}", "Válvulas de Compuertas a 1/2", estilo)    
+        worksheet.write(f"P{num}", "Válvulas de Compuertas a 1/4", estilo)    
+        worksheet.write(f"Q{num}", "Válvulas Mariposa 2\"-8\"", estilo)
+        worksheet.write(f"R{num}", "Válvulas Mariposa 10\"-14\"", estilo)
+        worksheet.write(f"S{num}", "Válvulas Mariposa 16\"-24\"", estilo)
+        worksheet.write(f"T{num}", "Válvulas Check Giratorias", estilo)
+        worksheet.write(f"U{num}", "Válvulas Check Bola", estilo)
+        worksheet.write(f"V{num}", "Válvulas Disco Bisagra", estilo)
+        worksheet.write(f"W{num}", "Válvulas Disco Vástago", estilo)
+        worksheet.write(f"X{num}", "Válvulas Globo", estilo)
+        worksheet.write(f"Y{num}", "Válvulas Ángulo", estilo)
+        worksheet.write(f"Z{num}", "Conexiones T Flujo Directo", estilo)
+        worksheet.write(f"AA{num}", "Conexiones T Flujo Ramal", estilo)
+
+        num += 1
+
+        return(worksheet, num)
+    
+    def anadir_datos_tuberias(worksheet, num, i, tramo, estilo):
+        worksheet.write(f"A{num}", i, estilo)
+        worksheet.write(f"B{num}", tramo.longitud_tuberia, estilo)
+        worksheet.write(f"C{num}", tramo.longitud_tuberia_unidad.simbolo, estilo)
+        worksheet.write(f"D{num}", tramo.diametro_tuberia, estilo)  
+        worksheet.write(f"E{num}", tramo.diametro_tuberia_unidad.simbolo, estilo)
+        worksheet.write(f"F{num}", tramo.material_tuberia.nombre, estilo)
+        worksheet.write(f"G{num}", tramo.numero_codos_90, estilo)    
+        worksheet.write(f"H{num}", tramo.numero_codos_90_rl, estilo)    
+        worksheet.write(f"I{num}", tramo.numero_codos_90_ros, estilo)    
+        worksheet.write(f"J{num}", tramo.numero_codos_45, estilo)    
+        worksheet.write(f"K{num}", tramo.numero_codos_45_ros, estilo)
+        worksheet.write(f"L{num}", tramo.numero_codos_180, estilo)    
+        worksheet.write(f"M{num}", tramo.numero_valvulas_compuerta, estilo)    
+        worksheet.write(f"N{num}", tramo.numero_valvulas_compuerta_abierta_3_4, estilo)    
+        worksheet.write(f"O{num}", tramo.numero_valvulas_compuerta_abierta_1_2, estilo)    
+        worksheet.write(f"P{num}", tramo.numero_valvulas_compuerta_abierta_1_4, estilo)    
+        worksheet.write(f"Q{num}", tramo.numero_valvulas_mariposa_2_8, estilo)
+        worksheet.write(f"R{num}", tramo.numero_valvulas_mariposa_10_14, estilo)
+        worksheet.write(f"S{num}", tramo.numero_valvulas_mariposa_16_24, estilo)
+        worksheet.write(f"T{num}", tramo.numero_valvula_giratoria, estilo)
+        worksheet.write(f"U{num}", tramo.numero_valvula_bola, estilo)
+        worksheet.write(f"V{num}", tramo.numero_valvula_bisagra, estilo)
+        worksheet.write(f"W{num}", tramo.numero_valvula_vastago, estilo)
+        worksheet.write(f"X{num}", tramo.numero_valvula_globo, estilo)
+        worksheet.write(f"Y{num}", tramo.numero_valvula_angulo, estilo)
+        worksheet.write(f"Z{num}", tramo.conexiones_t_directo, estilo)
+        worksheet.write(f"AA{num}", tramo.conexiones_t_ramal, estilo)
+
+        num += 2
+
+        return worksheet
+
+    excel_io = BytesIO()
+    workbook = xlsxwriter.Workbook(excel_io)
+    
+    worksheet = workbook.add_worksheet()
+
+    bold = workbook.add_format({'bold': True})
+    header = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'yellow'})
+    center_bordered = workbook.add_format({'border': 1})
+    bordered = workbook.add_format({'border': 1})
+    fecha =  workbook.add_format({'border': 1})
+
+    fecha.set_align('right')
+    header.set_align('vcenter')
+    center_bordered.set_align('vcenter')
+    header.set_align('center')
+    center_bordered.set_align('center')
+
+    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.write('C1', f'Ficha Instalación Bomba Centrífuga {bomba.tag}', bold)
+    worksheet.insert_image(0, 7, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+
+    num = 6
+
+    instalacion_succion = bomba.instalacion_succion
+    instalacion_descarga = bomba.instalacion_descarga
+
+    worksheet.write(f'A{num}', 'Tag', header)
+    worksheet.write(f'B{num}', 'Elevación Succión', header)
+    worksheet.write(f'C{num}', 'Elevación Descarga', header)
+    worksheet.write(f'D{num}', 'Unidad Elevación', header)
+    
+    num += 1
+
+    worksheet.write(f'A{num}', bomba.tag, bordered)
+    worksheet.write(f'B{num}', instalacion_succion.elevacion, bordered)
+    worksheet.write(f'C{num}', instalacion_descarga.elevacion, bordered)
+    worksheet.write(f'D{num}', instalacion_succion.elevacion_unidad.simbolo, bordered)
+
+    num += 2
+
+    worksheet,num = anadir_header_tuberias(worksheet, num, header)
+    for i,tramo in enumerate(instalacion_succion.tuberias.all()):
+        worksheet = anadir_datos_tuberias(worksheet, num, i, tramo, center_bordered)
+        num += 1
+
+    num += 2
+
+    worksheet,num = anadir_header_tuberias(worksheet, num, header)
+    for i,tramo in enumerate(instalacion_descarga.tuberias.all()):
+        worksheet = anadir_datos_tuberias(worksheet, num, i, tramo, center_bordered)
+        num += 1
+
+    worksheet.write(f"E{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
+    worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)
+
+    # Leyenda
+
+    workbook.close()
+    
+    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
+
+    fecha = datetime.datetime.now()
+    response['Content-Disposition'] = f'attachment; filename="ficha_tecnica_bomba_{bomba.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
+
+    return response
+
 def ficha_tecnica_bomba_centrifuga(bomba, request):
     '''
     Resumen:
@@ -558,7 +696,7 @@ def ficha_tecnica_bomba_centrifuga(bomba, request):
     worksheet.write(f'Y{num}', f'Velocidad (RPM)', especificaciones_estilo)
     worksheet.write(f'Z{num}', f'Potencia Máxima ({especificaciones.potencia_unidad})', especificaciones_estilo)
     worksheet.write(f'AA{num}', f'Eficiencia (%)', especificaciones_estilo)
-    worksheet.write(f'AB{num}',  f'NPSHr ({especificaciones.npshr_unidad})', especificaciones_estilo)
+    worksheet.write(f'AB{num}', f'NPSHr ({especificaciones.npshr_unidad})', especificaciones_estilo)
     worksheet.write(f'AC{num}', f'Cabezal Total ({especificaciones.cabezal_unidad})', especificaciones_estilo)
     worksheet.write(f'AD{num}', f'Diámetro Interno Succión ({especificaciones.id_unidad})', especificaciones_estilo)
     worksheet.write(f'AE{num}', f'Diámetro Interno Descarga ({especificaciones.id_unidad})', especificaciones_estilo)
@@ -639,6 +777,16 @@ def ficha_tecnica_bomba_centrifuga(bomba, request):
 
     worksheet.write(f"E{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
     worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)
+
+    # Leyenda
+
+    worksheet.write(f"A{num+1}", "Datos de Identificación", identificacion)
+    worksheet.write(f"A{num+2}", "Condiciones de Diseño", condiciones_diseno_estilo)
+    worksheet.write(f"A{num+3}", "Condiciones del Fluido", condiciones_fluido_estilo)
+    worksheet.write(f"A{num+4}", "Especificaciones de la Bomba", especificaciones_estilo)
+    worksheet.write(f"A{num+5}", "Especificaciones de Construcción", construccion_estilo)
+    worksheet.write(f"A{num+6}", "Especificaciones del Motor", motor_estilo)
+
     workbook.close()
     
     response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
@@ -646,7 +794,6 @@ def ficha_tecnica_bomba_centrifuga(bomba, request):
     fecha = datetime.datetime.now()
     response['Content-Disposition'] = f'attachment; filename="ficha_tecnica_bomba_{bomba.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
 
-    
     return response
 
 def historico_evaluaciones_bombas(object_list, request):
