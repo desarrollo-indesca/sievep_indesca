@@ -23,6 +23,17 @@ def conseguir_largo(tupla : tuple, valor : str) -> str:
     return None
 
 def fluido_existe(cas: str):
+    '''
+    Resumen:
+        Función para comprobar si un fluido existe mediante su código CAS.
+    
+    Parámetros:
+        cas : str -> Código CAS del fluido
+
+    Devuelve:
+        dict -> Devuelve el nombre del fluido y el estado (1 = no existe en la BDD pero sí en Thermo, 2 = Ya existe en la BDD, 3 = No encontrado ni en BDD ni en Thermo)
+    '''
+
     if(Fluido.objects.filter(cas = cas).exists()):
         estado = 2 # Encontrado en la BDD
         fluido = Fluido.objects.get(cas = cas).nombre
@@ -44,7 +55,18 @@ def fluido_existe(cas: str):
     }
 
 def registrar_fluido(cas: str, nombre: str):
-    fluido = Fluido.objects.get_or_create(cas = cas, nombre = nombre)[0]
+    '''
+    Resumen:
+        Función para registrar un fluido por código CAS.
+    
+    Parámetros:
+        cas : str -> Código CAS del fluido
+        nombre: str -> Nombre con el que registrar el fluido.
+
+    Devuelve:
+        dict -> Diccionario con la llave 'id', que contiene la primary key del fluido
+    '''
+    fluido = Fluido.objects.get_or_create(cas = cas, nombre = nombre.upper())[0]
 
     return {
         "id": fluido.pk

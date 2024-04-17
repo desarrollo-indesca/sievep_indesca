@@ -3,6 +3,11 @@ from intercambiadores.models import Complejo
 from auxiliares.models import *
 
 class FormConUnidades(forms.ModelForm):
+    '''
+    Resumen:
+        Los forms que heredan de este form, pueden filtrar las unidades que requieran.
+        Por ejemplo, un campo llamado "diametro" requerirá unidades de longitud ('L'). 
+    '''
     def limpiar_campos_unidades(self):
         pass
      

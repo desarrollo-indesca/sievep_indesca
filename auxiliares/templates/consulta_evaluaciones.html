@@ -58,7 +58,7 @@
 
 {% block opciones %}
 <div>
-  <form method="post">
+  <form method="post" name="reporte">
     {% csrf_token %}
     {% if object_list %}
     <button name="tipo" value="pdf" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Reporte PDF</button>
@@ -107,7 +107,7 @@
   });
 
   $('form[method="POST"]').submit(e => {
-    if(!confirm("¿Está seguro que desea eliminar esta evaluación? La única forma de reincorporar la misma es contactando al administrador de la base de datos."))
+    if(e.target.name !== 'reporte' && !confirm("¿Está seguro que desea eliminar esta evaluación? La única forma de reincorporar la misma es contactando al administrador de la base de datos."))
       return false;
   })
 </script>

@@ -27,6 +27,8 @@ from calculos.termodinamicos import calcular_densidad, calcular_presion_vapor, c
 from calculos.unidades import transformar_unidades_presion, transformar_unidades_flujo_volumetrico, transformar_unidades_potencia, transformar_unidades_longitud, transformar_unidades_temperatura, transformar_unidades_densidad, transformar_unidades_viscosidad
 from calculos.utils import fluido_existe, registrar_fluido
 from .evaluacion import evaluacion_bomba
+from reportes.pdfs import generar_pdf
+from reportes.xlsx import reporte_bombas, historico_evaluaciones_bombas, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga
 
 # Create your views here.
 
@@ -169,6 +171,25 @@ class ConsultaEvaluacion(ListView, LoginRequiredMixin):
 
         return new_context
     
+class ReportesFichasBombasMixin():
+    def reporte_ficha(self, request):
+        if(request.POST.get('ficha')):
+            bomba = Bombas.objects.get(pk = request.POST.get('ficha'))
+            if(request.POST.get('tipo') == 'pdf'):
+                return generar_pdf(request,bomba, f"Ficha Técnica de la Bomba {bomba.tag}", "ficha_tecnica_bomba_centrifuga")
+            if(request.POST.get('tipo') == 'xlsx'):
+                return ficha_tecnica_bomba_centrifuga(bomba, request)
+            
+        if(request.POST.get('instalacion')):
+            bomba = Bombas.objects.get(pk = request.POST.get('instalacion'))
+            if(request.POST.get('tipo') == 'pdf'):
+                return generar_pdf(request,bomba, f"Ficha de Instalación de la Bomba {bomba.tag}", "ficha_instalacion_bomba_centrifuga")
+            
+            if(request.POST.get('tipo') == 'xlsx'):
+                return ficha_instalacion_bomba_centrifuga(bomba,request)
+            
+        return None
+
 # VISTAS DE BOMBAS
 
 class CargarBombaMixin():
@@ -213,7 +234,7 @@ class CargarBombaMixin():
 
         return bomba[0]
 
-class ConsultaBombas(LoginRequiredMixin, ListView):
+class ConsultaBombas(ListView, LoginRequiredMixin, ReportesFichasBombasMixin):
     """
     Resumen:
         Vista para la consulta general de las bombas centrífugas (primer equipo auxiliar)
@@ -232,7 +253,18 @@ class ConsultaBombas(LoginRequiredMixin, ListView):
     template_name = 'bombas/consulta.html'
     paginate_by = 10
 
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+    def post(self, request, *args, **kwargs):
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha):
+            return reporte_ficha
+
+        if(request.POST.get('tipo') == 'pdf'):
+            return generar_pdf(request, self.get_queryset(), 'Reporte de Bombas Centrífugas', 'bombas')
+        
+        if(request.POST.get('tipo') == 'xlsx'):
+            return reporte_bombas(request, self.get_queryset())
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:        
         if(request.GET.get('page')):
             request.session['pagina_consulta'] = request.GET['page']
         else:
@@ -736,7 +768,7 @@ class CreacionInstalacionBomba(View, CargarBombaMixin, SuperUserRequiredMixin):
     def get(self, request, **kwargs):
         return render(request, self.template_name, context=self.get_context())
 
-class ConsultaEvaluacionBomba(ConsultaEvaluacion, CargarBombaMixin):
+class ConsultaEvaluacionBomba(ConsultaEvaluacion, CargarBombaMixin, ReportesFichasBombasMixin):
     """
     Resumen:
         Vista para la creación o registro de nuevas bombas centrífugas.
@@ -763,13 +795,25 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion, CargarBombaMixin):
     clase_equipo = " la Bomba"
 
     def post(self, request, **kwargs):
-        if(request.user.is_superuser): # Lógica de "Eliminación"
+        if(request.user.is_superuser and request.POST.get('evaluacion')): # Lógica de "Eliminación"
             evaluacion = EvaluacionBomba.objects.get(pk=request.POST['evaluacion'])
             evaluacion.activo = False
             evaluacion.save()
             messages.success(request, "Evaluación eliminada exitosamente.")
-        else:
+        elif(request.POST.get('evaluacion') and not request.user.is_superuser):
             messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
+
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha):
+            return reporte_ficha
+
+        if(request.POST.get('tipo') == 'pdf'):
+            return generar_pdf(request, self.get_queryset(), f"Evaluaciones de la Bomba {self.get_bomba().tag}", "evaluaciones_bombas")
+        elif(request.POST.get('tipo') == 'xlsx'):
+            return historico_evaluaciones_bombas(self.get_queryset(), request)
+
+        if(request.POST.get('detalle')):
+            return generar_pdf(request, EvaluacionBomba.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Bomba", "detalle_evaluacion_bomba")
 
         return self.get(request, **kwargs)
     
@@ -1021,7 +1065,7 @@ class CalcularResultados(View, LoginRequiredMixin):
 
         return res
 
-class CreacionEvaluacionBomba(View, LoginRequiredMixin, CargarBombaMixin):
+class CreacionEvaluacionBomba(View, LoginRequiredMixin, CargarBombaMixin, ReportesFichasBombasMixin):
     """
     Resumen:
         Vista de la creación de una evaluación de una bomba.
@@ -1033,6 +1077,9 @@ class CreacionEvaluacionBomba(View, LoginRequiredMixin, CargarBombaMixin):
         get(self, request) -> HttpResponse
             Renderiza la plantilla de la vista cuando se recibe una solicitud HTTP GET.
     """
+
+    def post(self, request, *args, **kwargs):
+        return self.reporte_ficha(request)
 
     def get_context_data(self):
         bomba = self.get_bomba()
@@ -1085,6 +1132,16 @@ class GenerarGrafica(View, LoginRequiredMixin):
         if(request.GET.get('nombre')):
             evaluaciones = evaluaciones.filter(nombre__icontains = request.GET.get('nombre'))
         
-        evaluaciones = evaluaciones.values('fecha','salida__eficiencia','salida__cabezal_total','salida__npsha')
+        res = []
 
-        return JsonResponse(list(evaluaciones)[:15], safe=False)
+        for value in evaluaciones:
+            salida = value.salida
+            res.append({
+                'fecha': value.fecha.__str__(),
+                'salida__eficiencia': salida.eficiencia,
+                'salida__cabezal_total': transformar_unidades_longitud([salida.cabezal_total], salida.cabezal_total_unidad.pk, bomba.especificaciones_bomba.cabezal_unidad.pk),
+                'salida__npsha': transformar_unidades_longitud([salida.npsha], value.entrada.npshr_unidad.pk, bomba.condiciones_diseno.npsha_unidad.pk),
+            })
+            
+
+        return JsonResponse(res[:15], safe=False)
