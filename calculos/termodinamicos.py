@@ -203,6 +203,7 @@ def calcular_viscosidad(cas: str, t: float, p: float = 101325) -> (float, bool):
     """
     Resumen:
         Esta función calculará la viscosidad dinámica de un fluido según su temperatura y presión. En fase Líquido.
+        Si no se detecta la fase líquido se asume como saturado.
 
     Parámetros:
         cas: str -> CAS del fluido
@@ -242,6 +243,7 @@ def calcular_densidad(cas: str, t: float, p: float = 101325) -> float:
     """
     Resumen:
         Esta función calculará la densidad de un fluido según su temperatura y presión. En fase líquido.
+        Si no se detecta la fase líquido se asume como saturado.
 
     Parámetros:
         cas: str -> CAS del fluido
@@ -271,6 +273,7 @@ def calcular_densidad_relativa(cas: str, t: float, p: float = 101325) -> float:
     """
     Resumen:
         Esta función calculará la densidad de un fluido según su temperatura y presión.
+        Si no se detecta la fase líquido se asume como saturado.
 
     Parámetros:
         cas: str -> CAS del fluido
