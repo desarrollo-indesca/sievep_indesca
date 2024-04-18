@@ -98,6 +98,7 @@ document.body.addEventListener('htmx:beforeRequest', function(evt) {
                 body.style.opacity = 1.0;
             }
         }
+        return;
     }
     else{
         $('#id_temperatura_operacion').removeAttr('disabled');
