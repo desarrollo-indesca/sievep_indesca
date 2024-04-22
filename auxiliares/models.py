@@ -704,6 +704,126 @@ class SalidaTramosEvaluacionBomba(models.Model):
         return conseguir_largo(TIPO_FLUJO, self.flujo)
 
 # MODELOS DE VENTILADORES
+class TipoVentilador(models.Model):
+    nombre = models.CharField(max_length=45, unique=True)
+
+class CondicionesTrabajoVentilador(models.Model):
+    caudal_volumetrico = models.FloatField()
+    caudal_volumetrico_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_caudal_volumetrico_unidad")
+
+    presion_entrada = models.FloatField()
+    presion_salida = models.FloatField()
+    presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_presion_unidad")
+
+    velocidad_funcionamiento = models.FloatField()
+    velocidad_funcionamiento_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_velocidad_funcionamiento_unidad")
+
+    temperatura = models.FloatField()
+    temperatura_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_temperatura_unidad")
+
+    densidad = models.FloatField()
+    densidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_densidad_unidad")
+
+    potencia_freno = models.FloatField()
+    potencia_freno_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_potencia_freno_unidad")
+
+    eficiencia = models.FloatField()
+    tipo_condicion = models.CharField(max_length=1, choices=[('P', 'Principal'), ('A', 'Adicional')])
+    calculo_densidad = models.CharField(max_length=1, choices=CALCULO_PROPIEDADES)
+
+    class Meta:
+        db_table = "ventiladores_condicionestrabajo"
+
+class CondicionesGeneralesVentilador(models.Model):
+    presion_barometrica = models.FloatField()
+    presion_barometrica_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionesgenerales_presion_barometrica_unidad")
+
+    temp_ambiente = models.FloatField()
+    temp_ambiente_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionesgenerales_temp_ambiente_unidad")
+
+    velocidad_diseno = models.FloatField()
+    velocidad_diseno_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionesgenerales_velocidad_diseno_unidad")
+
+    temp_diseno = models.FloatField(null = True)
+    presion_diseno = models.FloatField(null = True)
+
+    class Meta:
+        db_table = "ventiladores_condicionesgenerales"
+
+class EspecificacionesVentilador(models.Model):
+    espesor = models.FloatField(null = True)
+    espesor_caja = models.FloatField(null = True)
+    espesor_unidad =  models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="especificacionesventilador_velocidad_diseno_unidad")
+
+    sello = models.CharField(max_length=45, null = True)
+    lubricante =  models.CharField(max_length=45, null = True)
+    refrigerante = models.CharField(max_length=45, null = True)
+    diametro = models.CharField(max_length=45, null = True)
+    acceso_aire = models.CharField(max_length=45, null = True)
+
+    class Meta:
+        db_table = "ventiladores_especificacionesventilador"
+
+class Ventilador(models.Model):
+    planta = models.ForeignKey(Planta, on_delete=models.PROTECT, related_name="planta_ventilador")
+    tag = models.CharField(max_length=20, unique=True)
+    descripcion = models.CharField(max_length=100)
+    fabricante = models.CharField(max_length=45)
+    modelo = models.CharField(max_length=45, null = True)
+    tipo_ventilador = models.ForeignKey(TipoVentilador, on_delete=models.PROTECT)
+    condiciones_trabajo = models.ForeignKey(CondicionesTrabajoVentilador, on_delete=models.PROTECT)
+    condiciones_diseno =  models.ForeignKey(CondicionesDisenoBomba, on_delete=models.PROTECT)
+    especificaciones =  models.ForeignKey(EspecificacionesVentilador, on_delete=models.PROTECT)
+    
+    creado_al = models.DateTimeField(auto_created=True)
+    editado_al = models.DateTimeField(null = True)
+
+    creado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="ventilador_creado_por")
+    editado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, null = True, related_name="ventilador_editado_por")
+
+    class Meta:
+        db_table = "ventiladores_ventilador"
+
+# Modelos de Evaluación
+class EntradaEvaluacionVentilador(models.Model):
+    presion_entrada = models.FloatField()
+    presion_salida = models.FloatField()
+    presion_salida_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_presion_salida_unidad")
+    
+    flujo = models.FloatField()
+    flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_flujo_unidad")
+    
+    temperatura_operacion = models.FloatField()
+    temperatura_operacion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_temperatura_operacion_unidad")
+
+    potencia_ventilador = models.FloatField()
+    potencia_ventilador_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_potencia_ventilador_unidad")
+
+    densidad_ficha = models.FloatField()
+    densidad_evaluacion = models.FloatField()
+    densidad_evaluacion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_densidad_evaluacion_unidad")
+
+    class Meta:
+        db_table = "ventiladores_entradaevaluacion"
+
+class SalidaEvaluacionVentilador(models.Model):
+    potencia_calculada = models.FloatField()
+    eficiencia = models.FloatField()
+    relacion_densidad = models.FloatField()
+
+    class Meta:
+        db_table = "ventiladores_salidaevaluacion"
+
+class EvaluacionVentilador(models.Model):
+    ventilador = models.ForeignKey(Ventilador, on_delete=models.PROTECT)
+    fecha = models.DateTimeField(auto_created=True)
+    creado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="evaluacionventilador_creado_por")
+    entrada = models.ForeignKey(EntradaEvaluacionVentilador, on_delete=models.PROTECT)
+    salida = models.ForeignKey(SalidaEvaluacionVentilador, on_delete=models.PROTECT)
+    visible = models.BooleanField()
+
+    class Meta:
+        db_table = "ventiladores_evaluacion"
 
 # MODELOS DE PRECALENTADOR DE AGUA
 
