@@ -730,8 +730,7 @@ class CondicionesTrabajoVentilador(models.Model):
     potencia_freno = models.FloatField()
     potencia_freno_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_potencia_freno_unidad")
 
-    eficiencia = models.FloatField()
-    tipo_condicion = models.CharField(max_length=1, choices=[('P', 'Principal'), ('A', 'Adicional')])
+    eficiencia = models.FloatField(null=True)
     calculo_densidad = models.CharField(max_length=1, choices=CALCULO_PROPIEDADES)
 
     class Meta:
@@ -762,6 +761,7 @@ class EspecificacionesVentilador(models.Model):
     lubricante =  models.CharField(max_length=45, null = True)
     refrigerante = models.CharField(max_length=45, null = True)
     diametro = models.CharField(max_length=45, null = True)
+    motor = models.CharField(max_length=45, null = True)
     acceso_aire = models.CharField(max_length=45, null = True)
 
     class Meta:
@@ -774,11 +774,12 @@ class Ventilador(models.Model):
     fabricante = models.CharField(max_length=45)
     modelo = models.CharField(max_length=45, null = True)
     tipo_ventilador = models.ForeignKey(TipoVentilador, on_delete=models.PROTECT)
-    condiciones_trabajo = models.ForeignKey(CondicionesTrabajoVentilador, on_delete=models.PROTECT)
-    condiciones_diseno =  models.ForeignKey(CondicionesDisenoBomba, on_delete=models.PROTECT)
-    especificaciones =  models.ForeignKey(EspecificacionesVentilador, on_delete=models.PROTECT)
+    condiciones_trabajo = models.ForeignKey(CondicionesTrabajoVentilador, on_delete=models.PROTECT, related_name="condicion_trabajo_principal_ventilador")
+    condiciones_adicionales = models.ForeignKey(CondicionesTrabajoVentilador, on_delete=models.PROTECT, related_name="condicion_trabajo_adicional_ventilador")
+    condiciones_generales =  models.OneToOneField(CondicionesGeneralesVentilador, on_delete=models.PROTECT)
+    especificaciones =  models.OneToOneField(EspecificacionesVentilador, on_delete=models.PROTECT)
     
-    creado_al = models.DateTimeField(auto_created=True)
+    creado_al = models.DateTimeField(auto_now=True)
     editado_al = models.DateTimeField(null = True)
 
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="ventilador_creado_por")
