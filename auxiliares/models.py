@@ -707,6 +707,9 @@ class SalidaTramosEvaluacionBomba(models.Model):
 class TipoVentilador(models.Model):
     nombre = models.CharField(max_length=45, unique=True)
 
+    class Meta:
+        db_table = "ventiladores_tipoventilador"
+
 class CondicionesTrabajoVentilador(models.Model):
     caudal_volumetrico = models.FloatField()
     caudal_volumetrico_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_caudal_volumetrico_unidad")
@@ -786,6 +789,7 @@ class Ventilador(models.Model):
 
 # Modelos de Evaluación
 class EntradaEvaluacionVentilador(models.Model):
+    id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     presion_entrada = models.FloatField()
     presion_salida = models.FloatField()
     presion_salida_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_presion_salida_unidad")
@@ -807,6 +811,7 @@ class EntradaEvaluacionVentilador(models.Model):
         db_table = "ventiladores_entradaevaluacion"
 
 class SalidaEvaluacionVentilador(models.Model):
+    id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     potencia_calculada = models.FloatField()
     eficiencia = models.FloatField()
     relacion_densidad = models.FloatField()
@@ -815,6 +820,7 @@ class SalidaEvaluacionVentilador(models.Model):
         db_table = "ventiladores_salidaevaluacion"
 
 class EvaluacionVentilador(models.Model):
+    id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     ventilador = models.ForeignKey(Ventilador, on_delete=models.PROTECT)
     fecha = models.DateTimeField(auto_created=True)
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="evaluacionventilador_creado_por")
