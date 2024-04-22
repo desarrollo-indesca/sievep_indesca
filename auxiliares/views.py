@@ -1145,3 +1145,92 @@ class GenerarGrafica(View, LoginRequiredMixin):
             
 
         return JsonResponse(res[:15], safe=False)
+    
+## Vistas de Ventiladores
+
+class ConsultaVentiladores(LoginRequiredMixin, ListView):
+    model = Ventilador
+    template_name = 'ventiladores/consulta.html'
+    paginate_by = 10
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:        
+        if(request.GET.get('page')):
+            request.session['pagina_consulta'] = request.GET['page']
+        else:
+            request.session['pagina_consulta'] = 1
+        
+        request.session['tag_consulta'] = request.GET.get('tag') if request.GET.get('tag') else ''
+        request.session['descripcion_consulta'] = request.GET.get('descripcion') if request.GET.get('descripcion') else ''
+        request.session['complejo_consulta'] = request.GET.get('complejo') if request.GET.get('complejo') else ''
+        request.session['planta_consulta'] = request.GET.get('planta') if request.GET.get('planta') else ''
+        
+        return super().get(request, *args, **kwargs)
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["titulo"] = "SIEVEP - Consulta de Ventiladores"
+        context['complejos'] = Complejo.objects.all()
+
+        if(self.request.GET.get('complejo')):
+            context['plantas'] = Planta.objects.filter(complejo= self.request.GET.get('complejo'))
+
+        context['tag'] = self.request.GET.get('tag', '')
+        context['descripcion'] = self.request.GET.get('descripcion', '')
+        context['complejox'] = self.request.GET.get('complejo')
+        context['plantax'] = self.request.GET.get('planta')
+
+        if(context['complejox']):
+            context['complejox'] = int(context['complejox'])
+        
+        if(context['plantax']):
+            context['plantax'] = int(context['plantax'])
+
+        context['link_creacion'] = 'creacion_bomba'
+
+        return context
+    
+    def get_queryset(self):
+        tag = self.request.GET.get('tag', '')
+        descripcion = self.request.GET.get('descripcion', '')
+        complejo = self.request.GET.get('complejo', '')
+        planta = self.request.GET.get('planta', '')
+
+        new_context = None
+
+        if(planta != '' and complejo != ''):
+            new_context = self.model.objects.filter(
+                planta__pk=planta
+            )
+        elif(complejo != ''):
+            new_context = new_context.filter(
+                planta__complejo__pk=complejo
+            ) if new_context else self.model.objects.filter(
+                planta__complejo__pk=complejo
+            )
+
+        if(not(new_context is None)):
+            new_context = new_context.filter(
+                descripcion__icontains = descripcion,
+                tag__icontains = tag
+            )
+        else:
+            new_context = self.model.objects.filter(
+                descripcion__icontains = descripcion,
+                tag__icontains = tag
+            )
+
+        new_context = new_context.select_related('tipo_ventilador','condiciones_trabajo','condiciones_adicionales','condiciones_generales','especificaciones')
+        new_context = new_context.prefetch_related(
+            'especificaciones__espesor_unidad', 'condiciones_generales__presion_barometrica_unidad',
+            'condiciones_generales__temp_ambiente_unidad', 'condiciones_generales__velocidad_diseno_unidad',
+
+            'condiciones_trabajo__flujo_unidad', 'condiciones_trabajo__presion_unidad', 
+            'condiciones_trabajo__velocidad_funcionamiento_unidad', 'condiciones_trabajo__temperatura_unidad',
+            'condiciones_trabajo__densidad_unidad', 'condiciones_trabajo__potencia_freno_unidad', 
+
+            'condiciones_adicionales__flujo_unidad', 'condiciones_adicionales__presion_unidad', 
+            'condiciones_adicionales__velocidad_funcionamiento_unidad', 'condiciones_adicionales__temperatura_unidad',
+            'condiciones_adicionales__densidad_unidad', 'condiciones_adicionales__potencia_freno_unidad' 
+        )
+
+        return new_context

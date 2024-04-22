@@ -19,4 +19,5 @@ urlpatterns = [
     path('bombas/evaluar/<int:pk>/historico/', GenerarGrafica.as_view(), name='generar_historico_bomba'),
 
     # URLs de VENTILADORES
+    path('ventiladores/', ConsultaVentiladores.as_view(), name="consulta_ventiladores"),
 ]

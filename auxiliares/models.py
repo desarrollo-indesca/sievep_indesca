@@ -712,6 +712,9 @@ class SalidaTramosEvaluacionBomba(models.Model):
 class TipoVentilador(models.Model):
     nombre = models.CharField(max_length=45, unique=True)
 
+    def __str__(self) -> str:
+        return self.nombre.upper()
+
     class Meta:
         db_table = "ventiladores_tipoventilador"
 
