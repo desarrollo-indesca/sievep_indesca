@@ -43,8 +43,9 @@ class Command(BaseCommand):
                     print("ESPECIFICACIONES CREADAS")
 
                     condiciones_trabajo = CondicionesTrabajoVentilador.objects.create(
-                        caudal_volumetrico = fan['caudal_volumetrico'],
-                        caudal_volumetrico_unidad = Unidades.objects.get(pk = 50),
+                        flujo = fan['caudal_volumetrico'] if fan['caudal_volumetrico'] != '' else fan['tasa_flujo_masico'],
+                        flujo_unidad = Unidades.objects.get(pk = 50) if fan['caudal_volumetrico'] != '' else  Unidades.objects.get(pk = 10),
+                        tipo_flujo = 'V' if fan['caudal_volumetrico'] != '' else 'M',
                         presion_entrada = float(fan['presion_entrada'])/1000,
                         presion_salida = float(fan['presion_salida'])/1000,
                         presion_unidad = Unidades.objects.get(pk = 26),
@@ -61,24 +62,28 @@ class Command(BaseCommand):
 
                     print("CONDICIONES DE TRABAJO CREADAS")
 
-                    condiciones_adicionales = CondicionesTrabajoVentilador.objects.create(
-                        caudal_volumetrico = fan['caudal_volumetrico_adicional'],
-                        caudal_volumetrico_unidad = Unidades.objects.get(pk = 50),
-                        presion_entrada = float(fan['presion_entrada_adicional'])/1000,
-                        presion_salida = float(fan['presion_salida_adicional'])/1000,
-                        presion_unidad = Unidades.objects.get(pk = 26),
-                        velocidad_funcionamiento = fan['velocidad_funcionamiento_adicional'],
-                        velocidad_funcionamiento_unidad = Unidades.objects.get(pk = 51),
-                        temperatura = fan['temperatura_adicional'],
-                        temperatura_unidad = Unidades.objects.get(pk = 1),
-                        densidad = fan['densidad_adicional'],
-                        densidad_unidad = Unidades.objects.get(pk = 43),
-                        potencia_freno = fan['potencia_freno_adicional'],
-                        potencia_freno_unidad = Unidades.objects.get(pk = 53),
-                        calculo_densidad = 'M'
-                    )
+                    try:
+                        condiciones_adicionales = CondicionesTrabajoVentilador.objects.create(
+                            flujo = fan['caudal_volumetrico_adicional'],
+                            tipo_flujo = 'V',
+                            flujo_unidad = Unidades.objects.get(pk = 50),
+                            presion_entrada = float(fan['presion_entrada_adicional'])/1000,
+                            presion_salida = float(fan['presion_salida_adicional'])/1000,
+                            presion_unidad = Unidades.objects.get(pk = 26),
+                            velocidad_funcionamiento = fan['velocidad_funcionamiento_adicional'],
+                            velocidad_funcionamiento_unidad = Unidades.objects.get(pk = 51),
+                            temperatura = fan['temperatura_adicional'],
+                            temperatura_unidad = Unidades.objects.get(pk = 1),
+                            densidad = fan['densidad_adicional'],
+                            densidad_unidad = Unidades.objects.get(pk = 43),
+                            potencia_freno = fan['potencia_freno_adicional'],
+                            potencia_freno_unidad = Unidades.objects.get(pk = 53),
+                            calculo_densidad = 'M'
+                        )
 
-                    print("CONDICIONES ADICIONALES CREADAS")
+                        print("CONDICIONES ADICIONALES CREADAS")
+                    except:
+                        print("NO SE PUDIERON CREAR LAS CONDICIONES ADICIONALES!!!!!!!!!!!!!!!!!")
 
                     condiciones_generales = CondicionesGeneralesVentilador.objects.create(
                         presion_barometrica = float(fan['presion_barometrica'])/1000,

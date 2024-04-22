@@ -60,6 +60,11 @@ TIPO_FLUJO = (
     ('L', 'Laminar'),
 )
 
+TIPO_FLUJO_CAUDAL = (
+    ('M','Másico'),
+    ('V','Volumétrico')
+)
+
 # MODELOS DE BOMBAS
 
 class MaterialTuberia(models.Model):
@@ -711,8 +716,9 @@ class TipoVentilador(models.Model):
         db_table = "ventiladores_tipoventilador"
 
 class CondicionesTrabajoVentilador(models.Model):
-    caudal_volumetrico = models.FloatField()
-    caudal_volumetrico_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_caudal_volumetrico_unidad")
+    flujo = models.FloatField()
+    tipo_flujo = models.CharField(max_length=1, choices=TIPO_FLUJO_CAUDAL, default='V')
+    flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_caudal_volumetrico_unidad", null = True)
 
     presion_entrada = models.FloatField()
     presion_salida = models.FloatField()
@@ -796,6 +802,7 @@ class EntradaEvaluacionVentilador(models.Model):
     presion_salida_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_presion_salida_unidad")
     
     flujo = models.FloatField()
+    tipo_flujo = models.CharField(max_length=1, choices=TIPO_FLUJO_CAUDAL, default='V')
     flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_flujo_unidad")
     
     temperatura_operacion = models.FloatField()

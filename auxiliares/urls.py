@@ -16,5 +16,7 @@ urlpatterns = [
     path('bombas/evaluar/<int:pk>/', CreacionEvaluacionBomba.as_view(), name = "crear_evaluacion_bomba"),
 
     path('bombas/evaluar/resultados/<int:pk>/', CalcularResultados.as_view(), name = "resultados_evaluacion_bombas"),
-    path('bombas/evaluar/<int:pk>/historico/', GenerarGrafica.as_view(), name='generar_historico_bomba')
+    path('bombas/evaluar/<int:pk>/historico/', GenerarGrafica.as_view(), name='generar_historico_bomba'),
+
+    # URLs de VENTILADORES
 ]
