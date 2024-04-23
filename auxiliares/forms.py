@@ -267,15 +267,13 @@ class CondicionesTrabajoVentiladorForm(FormConUnidades):
         self.fields['densidad_unidad'].queryset = Unidades.objects.filter(tipo = 'D')
 
         self.fields['potencia_freno_unidad'].empty_label = None
-        self.fields['potencia_freno_unidad'].queryset = Unidades.objects.filter(tipo = 'P')
+        self.fields['potencia_freno_unidad'].queryset = Unidades.objects.filter(tipo = 'B')
 
         self.fields['temperatura_unidad'].empty_label = None
         self.fields['temperatura_unidad'].queryset = Unidades.objects.filter(tipo = 'T')
 
         self.fields['velocidad_funcionamiento_unidad'].empty_label = None
         self.fields['velocidad_funcionamiento_unidad'].queryset = Unidades.objects.filter(tipo = 'O')
-
-        self.fields['calculo_densidad'].empty_label = None
 
     class Meta:
         model = CondicionesTrabajoVentilador
