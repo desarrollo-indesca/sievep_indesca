@@ -56,21 +56,22 @@
                     {% with temp_unidad=condiciones_generales.temp_ambiente_unidad.simbolo %}
                     <tr>
                         <th class="table-dark">Presión Barométrica ({{presion_unidad}})</th>
-                        <td colspan="3">{{condiciones_generales.presion_barometrica}}</td>                        
+                        <td colspan="3">{{condiciones_generales.presion_barometrica|floatformat:6|default_if_none:'-'}}</td>                        
                     </tr>
                     <tr>
                       <th class="table-dark">Temp. Ambiente ({{temp_unidad}})</th>
-                      <td>{{condiciones_generales.temp_ambiente}}</td>
+                      <td>{{condiciones_generales.temp_ambiente|floatformat:2|default_if_none:'-'}}</td>
                       <th class="table-dark">Velocidad de Diseño ({{condiciones_generales.velocidad_diseno_unidad}})</th>
-                      <td>{{condiciones_generales.velocidad_diseno}}</td>
+                      <td>{{condiciones_generales.velocidad_diseno|floatformat:4|default_if_none:'-'}}</td>
                     </tr>
 
                     <tr>
                         <th class="table-dark">Temp. Diseño ({{temp_unidad}})</th>
-                        <td>{{condiciones_generales.temp_diseno}}</td>
+                        <td>{{condiciones_generales.temp_diseno|floatformat:4|default_if_none:'-'}}</td>
                         <th class="table-dark">Presión Diseño ({{presion_unidad}})</th>
-                        <td>{{condiciones_generales.presion_diseno}}</td>
+                        <td>{{condiciones_generales.presion_diseno|floatformat:6|default_if_none:'-'}}</td>
                     </tr>
+                    {% endwith %}
                     {% endwith %}
                     {% endwith %}
 
@@ -87,28 +88,28 @@
                             Flujo {% if condiciones_trabajo.tipo_flujo == 'M' %}Másico{% else %}Volumétrico{% endif %}
                         </th>
                         <td colspan="3">
-                            {{condiciones_trabajo.flujo}}
+                            {{condiciones_trabajo.flujo|floatformat:6}}
                         </td>
                     </tr>
                     {% with presion_unidad=condiciones_trabajo.presion_unidad.simbolo %}
                     <tr>
                       <th class="table-dark">Presión Entrada ({{presion_unidad}})</th>
-                      <td>{{condiciones_trabajo.presion_entrada}}</td>
+                      <td>{{condiciones_trabajo.presion_entrada|floatformat:6|default_if_none:'-'}}</td>
                       <th class="table-dark">Presión Salida ({{presion_unidad}})</th>
-                      <td>{{condiciones_trabajo.presion_salida}}</td>
+                      <td>{{condiciones_trabajo.presion_salida|floatformat:6|default_if_none:'-'}}</td>
                     </tr>
                     {% endwith %}
                     <tr>
                       <th class="table-dark">Veloc. Func. ({{condiciones_trabajo.velocidad_funcionamiento_unidad}})</th>
-                      <td>{{condiciones_trabajo.velocidad_funcionamiento}}</td>
+                      <td>{{condiciones_trabajo.velocidad_funcionamiento|floatformat:6|default_if_none:'-'}}</td>
                       <th class="table-dark">Temperatura ({{condiciones_trabajo.temperatura_unidad}})</th>
-                      <td>{{condiciones_trabajo.temperatura}}</td>
+                      <td>{{condiciones_trabajo.temperatura|floatformat:6|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark">Densidad ({{condiciones_trabajo.densidad_unidad}})</th>
-                      <td>{{condiciones_trabajo.densidad}}</td>
+                      <td>{{condiciones_trabajo.densidad|floatformat:6|default_if_none:'-'}}</td>
                       <th class="table-dark">Potencia de Freno ({{condiciones_trabajo.potencia_freno_unidad}})</th>
-                      <td>{{condiciones_trabajo.potencia_freno}}</td>
+                      <td>{{condiciones_trabajo.potencia_freno|floatformat:6|default_if_none:'-'}}</td>
                     </tr>
                     {% endwith %}
 
@@ -125,28 +126,28 @@
                             Flujo {% if condiciones_adicionales.tipo_flujo == 'M' %}Másico{% else %}Volumétrico{% endif %}
                         </th>
                         <td colspan="3">
-                            {{condiciones_adicionales.flujo}}
+                            {{condiciones_adicionales.flujo|floatformat:6|default_if_none:'-'}}
                         </td>
                     </tr>
                     {% with presion_unidad=condiciones_adicionales.presion_unidad.simbolo %}
                     <tr>
                       <th class="table-dark">Presión Entrada ({{presion_unidad}})</th>
-                      <td>{{condiciones_adicionales.presion_entrada}}</td>
+                      <td>{{condiciones_adicionales.presion_entrada|floatformat:6|default_if_none:'-'}}</td>
                       <th class="table-dark">Presión Salida ({{presion_unidad}})</th>
-                      <td>{{condiciones_adicionales.presion_salida}}</td>
+                      <td>{{condiciones_adicionales.presion_salida|floatformat:6|default_if_none:'-'}}</td>
                     </tr>
                     {% endwith %}
                     <tr>
                       <th class="table-dark">Veloc. Func. ({{condiciones_adicionales.velocidad_funcionamiento_unidad}})</th>
-                      <td>{{condiciones_adicionales.velocidad_funcionamiento}}</td>
+                      <td>{{condiciones_adicionales.velocidad_funcionamiento|floatformat:6|default_if_none:'-'}}</td>
                       <th class="table-dark">Temperatura ({{condiciones_adicionales.temperatura_unidad}})</th>
-                      <td>{{condiciones_adicionales.temperatura}}</td>
+                      <td>{{condiciones_adicionales.temperatura|floatformat:6|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark">Densidad ({{condiciones_adicionales.densidad_unidad}})</th>
-                      <td>{{condiciones_adicionales.densidad}}</td>
+                      <td>{{condiciones_adicionales.densidad|floatformat:6|default_if_none:'-'}}</td>
                       <th class="table-dark">Potencia de Freno ({{condiciones_adicionales.potencia_freno_unidad}})</th>
-                      <td>{{condiciones_adicionales.potencia_freno}}</td>
+                      <td>{{condiciones_adicionales.potencia_freno|floatformat:6|default_if_none:'-'}}</td>
                     </tr>
                     {% endwith %}
 
@@ -161,9 +162,9 @@
                     {% with espesor_unidad=especificaciones.espesor_unidad %}
                     <tr>
                         <th class="table-dark">Espesor Carcasa ({{espesor_unidad}})</th>
-                        <td>{{especificaciones.espesor}}</td>
+                        <td>{{especificaciones.espesor|floatformat:4|default_if_none:'-'}}</td>
                         <th class="table-dark">Espesor Caja Entrada ({{espesor_unidad}})</th>
-                        <td>{{especificaciones.espesor_caja}}</td>
+                        <td>{{especificaciones.espesor_caja|floatformat:4|default_if_none:'-'}}</td>
                     </tr>
                     {% endwith %}
                     <tr>
@@ -179,24 +180,12 @@
                         <td>{{especificaciones.diametro}}</td>
                     </tr>
                     <tr>
-                        <th class="table-dark">Frecuencia ({{ventilador.detalles_motor.frecuencia_unidad|default_if_none:'-'}})</th>
-                        <td>{{ventilador.detalles_motor.frecuencia|default_if_none:'-'}}</td>
-                        <th class="table-dark">Aislamiento</th>
-                        <td>{{ventilador.detalles_motor.aislamiento_largo|default_if_none:'-'}}</td>
+                        <th class="table-dark">Motor</th>
+                        <td>{{especificaciones.motor}}</td>
+                        <th class="table-dark">Acceso Aire</th>
+                        <td>{{especificaciones.acceso_aire}}</td>
                     </tr>
                     {% endwith %}
-                    <tr>
-                        <th class="table-dark" colspan="1">Método de Arranque</th>
-                        <td colspan="3">{{ventilador.detalles_motor.arranque|default_if_none:'-'}}</td>
-                    </tr>
-                    <tr>
-                      <td colspan="6">Creado por el usuario <b>{{ventilador.condiciones_diseno.creado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{ventilador.creado_al|default_if_none:'-'}}</b>.</td>
-                    </tr>
-                    {% if ventilador.editado_al %}
-                    <tr>
-                      <td colspan="6">Editado por <b>{{ventilador.editado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{ventilador.editado_al|default_if_none:'-'}}</b>.</td>
-                    </tr>
-                    {% endif %}
                   </tbody>
                 </table>
               </div>
