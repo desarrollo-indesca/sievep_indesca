@@ -106,7 +106,7 @@
         <div class="col-4">
             {{form_especificaciones.sello.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.sello min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.selloclass="form-control" %}
             </div>
             <small>{{form_especificaciones.sello.errors}}</small>
         </div>
@@ -114,7 +114,7 @@
         <div class="col-3">
             {{form_especificaciones.lubricante.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.lubricante min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.lubricanteclass="form-control" %}
             </div>
             <small>{{form_especificaciones.lubricante.errors}}</small>
         </div>
@@ -122,7 +122,7 @@
         <div class="col-3">
             {{form_especificaciones.refrigerante.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.refrigerante min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.refrigeranteclass="form-control" %}
             </div>
             <small>{{form_especificaciones.refrigerante.errors}}</small>
         </div>
@@ -130,7 +130,7 @@
         <div class="col-3">
             {{form_especificaciones.diametro.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.diametro min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.diametroclass="form-control" %}
             </div>
             <small>{{form_especificaciones.diametro.errors}}</small>
         </div>
@@ -138,7 +138,7 @@
         <div class="col-3">
             {{form_especificaciones.motor.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.motor min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.motorclass="form-control" %}
             </div>
             <small>{{form_especificaciones.motor.errors}}</small>
         </div>
@@ -146,7 +146,7 @@
         <div class="col-4">
             {{form_especificaciones.acceso_aire.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.acceso_aire min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.acceso_aireclass="form-control" %}
             </div>
             <small>{{form_especificaciones.acceso_aire.errors}}</small>
         </div>
@@ -198,8 +198,8 @@
             <div class="col-4">
                 {{form_condiciones_generales.velocidad_diseno.label_tag}}
                 <div class="input-group mb-1">
-                    {% render_field form_condiciones_generales.velocidad_diseno min="0.0001" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
-                    {% render_field form_condiciones_generales.velocidad_diseno_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                    {% render_field form_condiciones_generales.velocidad_diseno min="0.0001" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
+                    {% render_field form_condiciones_generales.velocidad_diseno_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
                 </div>
                 <small>{{form_condiciones_generales.velocidad_diseno.errors}}</small>
             </div>
@@ -232,8 +232,8 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.flujo.label_tag}}*
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.flujo min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_flujo, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
-                        {% render_field form_condiciones_trabajo.flujo_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_flujo, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                        {% render_field form_condiciones_trabajo.flujo min="0.000001" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
+                        {% render_field form_condiciones_trabajo.flujo_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
                     </div>
                     <small>{{form_condiciones_trabajo.flujo.errors}}</small>
                 </div>
@@ -241,8 +241,8 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.presion_entrada.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.presion_entrada min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_presion_entrada, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
-                        {% render_field form_condiciones_trabajo.presion_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_presion_entrada, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                        {% render_field form_condiciones_trabajo.presion_entrada class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
+                        {% render_field form_condiciones_trabajo.presion_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
                     </div>
                     <small>{{form_condiciones_trabajo.presion_entrada.errors}}</small>
                 </div>
@@ -250,8 +250,8 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.presion_salida.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.presion_salida min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_presion_salida, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
-                        {% render_field form_condiciones_trabajo.presion_unidad disabled="disabled" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_presion_salida, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                        {% render_field form_condiciones_trabajo.presion_salida class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
+                        {% render_field form_condiciones_trabajo.presion_unidad disabled="disabled" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
                     </div>
                     <small>{{form_condiciones_trabajo.presion_salida.errors}}</small>
                 </div>
@@ -268,8 +268,8 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.temperatura.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.temperatura min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
-                        {% render_field form_condiciones_trabajo.temperatura_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                        {% render_field form_condiciones_trabajo.temperatura min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
+                        {% render_field form_condiciones_trabajo.temperatura_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
                     </div>
                     <small>{{form_condiciones_trabajo.temperatura.errors}}</small>
                 </div>
@@ -277,7 +277,7 @@
                 <div class="col-2">
                     {{form_condiciones_trabajo.calculo_densidad.label_tag}}
                     <div class="input-group mb-1">
-                        <select name="calculo_densidad" hx-include="#id_calculo_densidad_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_calculo_densidad, #id_calculo_densidad_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" hx-indicator="#spinner" hx-trigger="keyup delay:1s" hx-get="/auxiliares/bombas/datos_fluido/" hx-swap="none" class="form-select" min="-273.15" required="" id="id_calculo_densidad">
+                        <select name="calculo_densidad" hx-indicator="#spinner" hx-trigger="keyup delay:1s" hx-get="/auxiliares/bombas/datos_fluido/" hx-swap="none" class="form-select" min="-273.15" required="" id="id_calculo_densidad">
                             <option value="M">Manual</option>
                             <option value="A" selected="">Automático</option>  
                         </select>
@@ -288,8 +288,8 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.densidad.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.densidad disabled="disabled" min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_densidad_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_densidad, #id_densidad_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
-                        {% render_field form_condiciones_trabajo.densidad_unidad disabled="disabled" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_densidad_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_densidad, #id_densidad_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                        {% render_field form_condiciones_trabajo.densidad disabled="disabled" min="0.000001" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
+                        {% render_field form_condiciones_trabajo.densidad_unidad disabled="disabled" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
                     </div>
                     <small>{{form_condiciones_trabajo.densidad.errors}}</small>
                 </div>
@@ -297,8 +297,8 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.velocidad_funcionamiento.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.velocidad_funcionamiento class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_velocidad_funcionamiento, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
-                        {% render_field form_condiciones_trabajo.velocidad_funcionamiento_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_velocidad_funcionamiento, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                        {% render_field form_condiciones_trabajo.velocidad_funcionamiento min="0.000001" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
+                        {% render_field form_condiciones_trabajo.velocidad_funcionamiento_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
                     </div>
                     <small>{{form_condiciones_trabajo.velocidad_funcionamiento.errors}}</small>
                 </div>
@@ -306,8 +306,8 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.potencia_freno.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.potencia_freno min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_potencia_freno_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_potencia_freno, #id_potencia_freno_unidad, #id_viscosidad_unidad, #id_potencia_freno_unidad, #id_presion_vapor_unidad" %}
-                        {% render_field form_condiciones_trabajo.potencia_freno_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_potencia_freno_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_potencia_freno, #id_potencia_freno_unidad, #id_viscosidad_unidad, #id_potencia_freno_unidad, #id_presion_vapor_unidad" %}
+                        {% render_field form_condiciones_trabajo.potencia_freno min="0.000001" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
+                        {% render_field form_condiciones_trabajo.potencia_freno_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
                     </div>
                     <small>{{form_condiciones_trabajo.potencia_freno.errors}}</small>
                 </div>
@@ -315,8 +315,8 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.potencia.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.potencia min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_potencia_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_potencia, #id_potencia_unidad, #id_viscosidad_unidad, #id_potencia_unidad, #id_presion_vapor_unidad" %}
-                        {% render_field form_condiciones_trabajo.potencia_freno_unidad disabled="disabled" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_potencia_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_potencia, #id_potencia_unidad, #id_viscosidad_unidad, #id_potencia_unidad, #id_presion_vapor_unidad" %}
+                        {% render_field form_condiciones_trabajo.potencia min="0.000001" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
+                        {% render_field form_condiciones_trabajo.potencia_freno_unidad disabled="disabled" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
                     </div>
                     <small>{{form_condiciones_trabajo.potencia.errors}}</small>
                 </div>
@@ -331,8 +331,8 @@
                 <div class="col-4">
                     {{form_condiciones_adicionales.flujo.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_adicionales.flujo min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_flujo, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
-                        {% render_field form_condiciones_adicionales.flujo_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_flujo, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                        {% render_field form_condiciones_adicionales.flujo min="0.000001" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
+                        {% render_field form_condiciones_adicionales.flujo_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
                     </div>
                     <small>{{form_condiciones_adicionales.flujo.errors}}</small>
                 </div>
@@ -340,8 +340,8 @@
                 <div class="col-4">
                     {{form_condiciones_adicionales.presion_entrada.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_adicionales.presion_entrada min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_presion_entrada, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
-                        {% render_field form_condiciones_adicionales.presion_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_presion_entrada, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                        {% render_field form_condiciones_adicionales.presion_entrada class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
+                        {% render_field form_condiciones_adicionales.presion_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
                     </div>
                     <small>{{form_condiciones_adicionales.presion_entrada.errors}}</small>
                 </div>
@@ -349,8 +349,8 @@
                 <div class="col-4">
                     {{form_condiciones_adicionales.presion_salida.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_adicionales.presion_salida min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_presion_salida, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
-                        {% render_field form_condiciones_adicionales.presion_unidad disabled="disabled" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_presion_salida, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                        {% render_field form_condiciones_adicionales.presion_salida class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
+                        {% render_field form_condiciones_adicionales.presion_unidad disabled="disabled" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
                     </div>
                     <small>{{form_condiciones_adicionales.presion_salida.errors}}</small>
                 </div>
@@ -367,8 +367,8 @@
                 <div class="col-4">
                     {{form_condiciones_adicionales.temperatura.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_adicionales.temperatura min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
-                        {% render_field form_condiciones_adicionales.temperatura_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                        {% render_field form_condiciones_adicionales.temperatura min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
+                        {% render_field form_condiciones_adicionales.temperatura_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
                     </div>
                     <small>{{form_condiciones_adicionales.temperatura.errors}}</small>
                 </div>
@@ -376,7 +376,7 @@
                 <div class="col-2">
                     {{form_condiciones_adicionales.calculo_densidad.label_tag}}
                     <div class="input-group mb-1">
-                        <select name="adicional-calculo_densidad" hx-include="#id_calculo_densidad_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_calculo_densidad, #id_calculo_densidad_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" hx-indicator="#spinner" hx-trigger="keyup delay:1s" hx-get="/auxiliares/bombas/datos_fluido/" hx-swap="none" class="form-select" min="-273.15" required="" id="id_adicional-calculo_densidad">
+                        <select name="adicional-calculo_densidad" hx-indicator="#spinner" hx-trigger="keyup delay:1s" hx-get="/auxiliares/bombas/datos_fluido/" hx-swap="none" class="form-select" min="-273.15" required="" id="id_adicional-calculo_densidad">
                             <option value="M">Manual</option>
                             <option value="A" selected="">Automático</option>  
                         </select>
@@ -387,8 +387,8 @@
                 <div class="col-4">
                     {{form_condiciones_adicionales.densidad.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_adicionales.densidad disabled="disabled" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_densidad_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_densidad, #id_densidad_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
-                        {% render_field form_condiciones_adicionales.densidad_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_densidad_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_densidad, #id_densidad_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                        {% render_field form_condiciones_adicionales.densidad min="0.000001" disabled="disabled" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
+                        {% render_field form_condiciones_adicionales.densidad_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
                     </div>
                     <small>{{form_condiciones_adicionales.densidad.errors}}</small>
                 </div>
@@ -396,8 +396,8 @@
                 <div class="col-4">
                     {{form_condiciones_adicionales.velocidad_funcionamiento.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_adicionales.velocidad_funcionamiento class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_velocidad_funcionamiento, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
-                        {% render_field form_condiciones_adicionales.velocidad_funcionamiento_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_velocidad_funcionamiento, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                        {% render_field form_condiciones_adicionales.velocidad_funcionamiento min="0.000001" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
+                        {% render_field form_condiciones_adicionales.velocidad_funcionamiento_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
                     </div>
                     <small>{{form_condiciones_adicionales.velocidad_funcionamiento.errors}}</small>
                 </div>
@@ -405,8 +405,8 @@
                 <div class="col-4">
                     {{form_condiciones_adicionales.potencia_freno.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_adicionales.potencia_freno min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_potencia_freno_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_potencia_freno, #id_potencia_freno_unidad, #id_viscosidad_unidad, #id_potencia_freno_unidad, #id_presion_vapor_unidad" %}
-                        {% render_field form_condiciones_adicionales.potencia_freno_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_potencia_freno_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_potencia_freno, #id_potencia_freno_unidad, #id_viscosidad_unidad, #id_potencia_freno_unidad, #id_presion_vapor_unidad" %}
+                        {% render_field form_condiciones_adicionales.potencia_freno min="0.000001" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
+                        {% render_field form_condiciones_adicionales.potencia_freno_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
                     </div>
                     <small>{{form_condiciones_adicionales.potencia_freno.errors}}</small>
                 </div>
@@ -414,8 +414,8 @@
                 <div class="col-4">
                     {{form_condiciones_adicionales.potencia.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_adicionales.potencia min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_potencia_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_potencia, #id_potencia_unidad, #id_viscosidad_unidad, #id_potencia_unidad, #id_presion_vapor_unidad" %}
-                        {% render_field form_condiciones_adicionales.potencia_freno_unidad disabled="disabled" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_potencia_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_potencia, #id_potencia_unidad, #id_viscosidad_unidad, #id_potencia_unidad, #id_presion_vapor_unidad" %}
+                        {% render_field form_condiciones_adicionales.potencia min="0.000001" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
+                        {% render_field form_condiciones_adicionales.potencia_freno_unidad disabled="disabled" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
                     </div>
                     <small>{{form_condiciones_adicionales.potencia.errors}}</small>
                 </div>
@@ -429,7 +429,7 @@
 </form>
 
 {% if edicion %}
-<div class="hidden" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="load" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad">
+<div class="hidden" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="load" hx-indicator="#spinner">
 </div>
 {% endif %}
 
