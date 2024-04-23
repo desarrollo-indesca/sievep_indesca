@@ -723,20 +723,21 @@ class CondicionesTrabajoVentilador(models.Model):
     tipo_flujo = models.CharField(max_length=1, choices=TIPO_FLUJO_CAUDAL, default='V')
     flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_caudal_volumetrico_unidad", null = True)
 
-    presion_entrada = models.FloatField()
-    presion_salida = models.FloatField()
+    presion_entrada = models.FloatField(null = True)
+    presion_salida = models.FloatField(null = True)
     presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_presion_unidad")
 
-    velocidad_funcionamiento = models.FloatField()
+    velocidad_funcionamiento = models.FloatField(null = True)
     velocidad_funcionamiento_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_velocidad_funcionamiento_unidad")
 
-    temperatura = models.FloatField()
+    temperatura = models.FloatField(null = True)
     temperatura_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_temperatura_unidad")
 
-    densidad = models.FloatField()
+    densidad = models.FloatField(null = True)
     densidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_densidad_unidad")
 
-    potencia_freno = models.FloatField()
+    potencia_freno = models.FloatField(null = True)
+    potencia = models.FloatField(null = True)
     potencia_freno_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_potencia_freno_unidad")
 
     eficiencia = models.FloatField(null=True)
@@ -746,13 +747,13 @@ class CondicionesTrabajoVentilador(models.Model):
         db_table = "ventiladores_condicionestrabajo"
 
 class CondicionesGeneralesVentilador(models.Model):
-    presion_barometrica = models.FloatField()
+    presion_barometrica = models.FloatField(null = True)
     presion_barometrica_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionesgenerales_presion_barometrica_unidad")
 
-    temp_ambiente = models.FloatField()
+    temp_ambiente = models.FloatField(null = True)
     temp_ambiente_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionesgenerales_temp_ambiente_unidad")
 
-    velocidad_diseno = models.FloatField()
+    velocidad_diseno = models.FloatField(null = True)
     velocidad_diseno_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionesgenerales_velocidad_diseno_unidad")
 
     temp_diseno = models.FloatField(null = True)
@@ -773,18 +774,24 @@ class EspecificacionesVentilador(models.Model):
     motor = models.CharField(max_length=45, null = True)
     acceso_aire = models.CharField(max_length=45, null = True)
 
+    potencia_motor = models.FloatField(null = True)
+    potencia_motor_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="especificacionesventilador_potencia_motor_unidad")
+    
+    velocidad_motor = models.FloatField(null = True)
+    velocidad_motor_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="especificacionesventilador_velocidad_motor_unidad")
+
     class Meta:
         db_table = "ventiladores_especificacionesventilador"
 
 class Ventilador(models.Model):
     planta = models.ForeignKey(Planta, on_delete=models.PROTECT, related_name="planta_ventilador")
     tag = models.CharField(max_length=20, unique=True)
-    descripcion = models.CharField(max_length=100)
-    fabricante = models.CharField(max_length=45)
+    descripcion = models.CharField(max_length=100, null = True)
+    fabricante = models.CharField(max_length=45, null = True)
     modelo = models.CharField(max_length=45, null = True)
     tipo_ventilador = models.ForeignKey(TipoVentilador, on_delete=models.PROTECT)
     condiciones_trabajo = models.ForeignKey(CondicionesTrabajoVentilador, on_delete=models.PROTECT, related_name="condicion_trabajo_principal_ventilador")
-    condiciones_adicionales = models.ForeignKey(CondicionesTrabajoVentilador, on_delete=models.PROTECT, related_name="condicion_trabajo_adicional_ventilador")
+    condiciones_adicionales = models.ForeignKey(CondicionesTrabajoVentilador, null = True, on_delete=models.PROTECT, related_name="condicion_trabajo_adicional_ventilador")
     condiciones_generales =  models.OneToOneField(CondicionesGeneralesVentilador, on_delete=models.PROTECT)
     especificaciones =  models.OneToOneField(EspecificacionesVentilador, on_delete=models.PROTECT)
     
