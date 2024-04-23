@@ -20,4 +20,5 @@ urlpatterns = [
 
     # URLs de VENTILADORES
     path('ventiladores/', ConsultaVentiladores.as_view(), name="consulta_ventiladores"),
+    path('ventiladores/creacion/', CreacionVentilador.as_view(), name="creacion_ventilador"),
 ]

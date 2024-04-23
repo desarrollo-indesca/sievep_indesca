@@ -213,3 +213,70 @@ class EntradaEvaluacionBombaForm(FormConUnidades):
 
 EspecificacionesInstalacionFormSet = forms.modelformset_factory(EspecificacionesInstalacion, form=EspecificacionesInstalacionForm, min_num=2, max_num=2)
 TuberiaFormSet = forms.modelformset_factory(TuberiaInstalacionBomba, form=TuberiaInstalacionBombaForm, min_num=1, extra=0)
+
+# FORMS DE VENTILADORES
+
+class VentiladorForm(forms.ModelForm):
+    complejo = forms.ModelChoiceField(queryset=Complejo.objects.all(), initial=1)
+
+    class Meta:
+        model = Ventilador
+        exclude = ('id','condiciones_trabajo','condiciones_adicionales',
+                   'condiciones_generales','especificaciones', 'creado_al','editado_al',
+                   'creado_por','editado_por')
+        
+class EspecificacionesVentiladorForm(FormConUnidades):
+    def limpiar_campos_unidades(self):
+        self.fields['espesor_unidad'].empty_label = None
+        self.fields['espesor_unidad'].queryset = Unidades.objects.filter(tipo = 'L')
+
+        self.fields['potencia_motor_unidad'].empty_label = None
+        self.fields['potencia_motor_unidad'].queryset = Unidades.objects.filter(tipo = 'B')
+        
+        self.fields['velocidad_motor_unidad'].empty_label = None
+        self.fields['velocidad_motor_unidad'].queryset = Unidades.objects.filter(tipo = 'O')
+
+    class Meta:
+        model = EspecificacionesVentilador
+        exclude = ('id',)
+
+class CondicionesGeneralesVentiladorForm(FormConUnidades):
+    def limpiar_campos_unidades(self):
+        self.fields['presion_barometrica_unidad'].empty_label = None
+        self.fields['presion_barometrica_unidad'].queryset = Unidades.objects.filter(tipo = 'P')
+
+        self.fields['temp_ambiente_unidad'].empty_label = None
+        self.fields['temp_ambiente_unidad'].queryset = Unidades.objects.filter(tipo = 'T')
+        
+        self.fields['velocidad_diseno_unidad'].empty_label = None
+        self.fields['velocidad_diseno_unidad'].queryset = Unidades.objects.filter(tipo = 'O')
+
+    class Meta:
+        model = CondicionesGeneralesVentilador
+        exclude = ('id',)
+
+class CondicionesTrabajoVentiladorForm(FormConUnidades):
+    def limpiar_campos_unidades(self):
+        self.fields['flujo_unidad'].empty_label = None
+        self.fields['flujo_unidad'].queryset = Unidades.objects.filter(tipo__in = ['F','K']).order_by('tipo')
+
+        self.fields['presion_unidad'].empty_label = None
+        self.fields['presion_unidad'].queryset = Unidades.objects.filter(tipo = 'P')
+        
+        self.fields['densidad_unidad'].empty_label = None
+        self.fields['densidad_unidad'].queryset = Unidades.objects.filter(tipo = 'D')
+
+        self.fields['potencia_freno_unidad'].empty_label = None
+        self.fields['potencia_freno_unidad'].queryset = Unidades.objects.filter(tipo = 'P')
+
+        self.fields['temperatura_unidad'].empty_label = None
+        self.fields['temperatura_unidad'].queryset = Unidades.objects.filter(tipo = 'T')
+
+        self.fields['velocidad_funcionamiento_unidad'].empty_label = None
+        self.fields['velocidad_funcionamiento_unidad'].queryset = Unidades.objects.filter(tipo = 'O')
+
+        self.fields['calculo_densidad'].empty_label = None
+
+    class Meta:
+        model = CondicionesTrabajoVentilador
+        exclude = ('id','eficiencia','tipo_flujo')

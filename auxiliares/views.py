@@ -1185,7 +1185,7 @@ class ConsultaVentiladores(LoginRequiredMixin, ListView):
         if(context['plantax']):
             context['plantax'] = int(context['plantax'])
 
-        context['link_creacion'] = 'creacion_bomba'
+        context['link_creacion'] = 'creacion_ventilador'
 
         return context
     
@@ -1234,3 +1234,79 @@ class ConsultaVentiladores(LoginRequiredMixin, ListView):
         )
 
         return new_context
+    
+class CreacionVentilador(SuperUserRequiredMixin, View):
+    """
+    Resumen:
+        Vista para la creación o registro de nuevos ventiladores.
+        Solo puede ser accedido por superusuarios.
+
+    Atributos:
+        success_message: str -> Mensaje a ser enviado al usuario al registrar exitosamente una bomba.
+        titulo: str -> Título de la vista
+    
+    Métodos:
+        get_context(self) -> dict
+            Crea instancias de los formularios a ser utilizados y define el título de la vista.
+
+        get(self, request, **kwargs) -> HttpResponse
+            Renderiza el formulario con la plantilla correspondiente.
+
+        almacenar_datos(self, form_bomba, form_detalles_motor, form_condiciones_fluido,
+                            form_detalles_construccion, form_condiciones_diseno, 
+                            form_especificaciones) -> HttpResponse
+
+            Valida y almacena los datos de acuerdo a la lógica requerida para el almacenamiento de bombas por medio de los formularios.
+            Si hay errores se levantará una Exception.
+
+        post(self) -> HttpResponse
+            Envía el request a los formularios y envía la respuesta al cliente.
+    """
+
+    success_message = "El nuevo ventilador ha sido registrado exitosamente."
+    titulo = 'SIEVEP - Creación de Ventiladores'
+    template_name = 'ventiladores/creacion.html'
+
+    def get_context(self):
+        return {
+            'form_equipo': VentiladorForm(), 
+            'form_especificaciones': EspecificacionesVentiladorForm(), 
+            'form_condiciones_generales': CondicionesGeneralesVentiladorForm(),
+            'form_condiciones_trabajo': CondicionesTrabajoVentiladorForm(),
+            'form_condiciones_adicionales': CondicionesTrabajoVentiladorForm(prefix="adicional"),
+            'titulo': self.titulo
+        }
+
+    def get(self, request, **kwargs):
+        return render(request, self.template_name, self.get_context())
+    
+    def almacenar_datos(self):
+        
+        valid = True # Inicialmente se considera válido
+        
+        with transaction.atomic():
+            pass
+    
+    def post(self, request):
+        form_bomba = BombaForm(request.POST, request.FILES)
+        form_especificaciones = EspecificacionesBombaForm(request.POST)
+        form_detalles_motor = DetallesMotorBombaForm(request.POST)
+        form_detalles_construccion = DetallesConstruccionBombaForm(request.POST)
+
+        form_condiciones_diseno = CondicionesDisenoBombaForm(request.POST)
+        form_condiciones_fluido = CondicionFluidoBombaForm(request.POST)
+
+        try:
+            return self.almacenar_datos(form_bomba, form_detalles_motor, form_condiciones_fluido,
+                                form_detalles_construccion, form_condiciones_diseno, form_especificaciones)
+        except Exception as e:
+            return render(request, self.template_name, context={
+                'form_bomba': form_bomba, 
+                'form_especificaciones': form_especificaciones,
+                'form_detalles_construccion': form_detalles_construccion, 
+                'form_detalles_motor': form_detalles_motor,
+                'form_condiciones_diseno': form_condiciones_diseno,
+                'form_condiciones_fluido': form_condiciones_fluido,
+                'edicion': True,
+                'titulo': self.titulo
+            })
