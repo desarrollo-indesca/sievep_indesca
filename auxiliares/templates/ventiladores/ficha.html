@@ -135,7 +135,7 @@
                         <th class="table-dark">
                             Flujo {% if condiciones_adicionales.tipo_flujo == 'M' %}Másico{% else %}Volumétrico{% endif %}
                         </th>
-                        <td colspan="3">
+                        <td>
                             {{condiciones_adicionales.flujo|default_if_none:'-'}}
                         </td>
                     </tr>
@@ -210,9 +210,8 @@
           </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-secondary" data-bs-target="#modal_instalacion{{ventilador.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Especificaciones de Instalación</button>
           {% if request.user.is_superuser %}
-          <a href="{% url 'edicion_bomba' pk=ventilador.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+          <a href="{% url 'edicion_ventilador' pk=ventilador.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
           {% endif %}
 
           <form method="post">

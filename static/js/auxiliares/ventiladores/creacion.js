@@ -72,7 +72,7 @@ function anadir_listeners_dropboxes() {
 
 const anadir_listeners_htmx = () => {
     document.body.addEventListener('htmx:beforeRequest', function(evt) {
-        const body = document.getElementsByTagName('body')[0]
+        const body = document.getElementsByTagName('body')[0];
         body.style.opacity = 0.25;
         
         if(evt.target.id.indexOf('adicional-') === -1) // Condiciones de Trabajo
@@ -127,7 +127,7 @@ document.body.addEventListener('htmx:afterRequest', function(evt) {
 
 $('#submit').click(e => {
     if(!confirm("¿Está seguro que desea realizar esta acción?"))
-        evt.preventDefault();
+        e.preventDefault();
 })
 
 anadir_listeners_htmx();

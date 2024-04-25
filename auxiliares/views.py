@@ -1269,7 +1269,7 @@ class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
             presion = float(presion_entrada)
             presion_unidad = int(request.get('presion_unidad'))
 
-            return transformar_unidades_presion([presion], presion_unidad)[0]
+            return transformar_unidades_presion([presion], presion_unidad)[0] + 101325
         
         if(adicional):
             presion_condicion = request.get('adicional-presion_entrada')
@@ -1277,32 +1277,16 @@ class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
                 presion = float(presion_condicion)
                 presion_unidad = int(request.get('adicional-presion_unidad'))
 
-                return transformar_unidades_presion([presion], presion_unidad)[0]
+                return transformar_unidades_presion([presion], presion_unidad)[0] + 101325
 
             return None
-
-
-        presion_entrada = request.get('presion_entrada')
-        if(presion_entrada and presion_entrada != ''):
-            presion = float(presion_entrada)
-            presion_unidad = int(request.get('presion_unidad'))
-
-            return transformar_unidades_presion([presion], presion_unidad)[0]
-        
-        
-        presion_entrada = request.get('presion_entrada')
-        if(presion_entrada and presion_entrada != ''):
-            presion = float(presion_entrada)
-            presion_unidad = int(request.get('presion_unidad'))
-
-            return transformar_unidades_presion([presion], presion_unidad)[0]
         
         presion_diseno = request.get('presion_diseno')
         if(presion_diseno and presion_diseno != ''):
             presion = float(presion_diseno)
             presion_unidad = int(request.get('presion_barometrica_unidad'))
 
-            return transformar_unidades_presion([presion], presion_unidad)[0]
+            return transformar_unidades_presion([presion + 101325], presion_unidad)[0]
         
         return None
             
@@ -1312,11 +1296,12 @@ class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
 
         densidad = calcular_densidad_aire(temperatura, presion)
         densidad_unidad = int(request.get('densidad_unidad', request.get('adicional-densidad_unidad')))
-        
-        return transformar_unidades_densidad([densidad], 30, densidad_unidad)[0]
+        print(densidad)
+        return round(transformar_unidades_densidad([densidad], 30, densidad_unidad)[0], 6)
 
     def get(self, request):
-        adicional =  bool(request.GET.get('adicional'))
+        print(request.GET)
+        adicional =  request.GET.get('adicional') != None
         densidad = round(self.obtener_densidad(request.GET, adicional), 6)
 
         return render(request, 'ventiladores/partials/propiedades.html', {'densidad': densidad, 'adicional': adicional})
@@ -1431,6 +1416,60 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
         try:
             return self.almacenar_datos(form_equipo, form_condiciones_generales,
                                 form_condiciones_trabajo, form_condiciones_adicionales, form_especificaciones)
+        except Exception as e:
+            print(form_equipo.errors)
+            print(form_especificaciones.errors)
+            print(form_condiciones_generales.errors)
+            print(form_condiciones_trabajo.errors)
+            print(form_condiciones_adicionales.errors)
+
+            print(str(e))
+
+            return render(request, self.template_name, context={
+                'form_equipo': form_equipo, 
+                'form_especificaciones': form_especificaciones,
+                'form_condiciones_trabajo': form_condiciones_trabajo, 
+                'form_condiciones_adicionales': form_condiciones_adicionales,
+                'form_condiciones_generales': form_condiciones_generales,
+                'titulo': self.titulo
+            })
+
+class EdicionVentilador(CreacionVentilador):
+    success_message = "Se han guardado los cambios exitosamente."
+    template_name = 'ventiladores/creacion.html'
+    
+    def get_context(self):
+        ventilador = Ventilador.objects.get(pk = self.kwargs['pk'])
+
+        return {
+            'form_equipo': VentiladorForm(instance = ventilador), 
+            'form_especificaciones': EspecificacionesVentiladorForm(instance = ventilador.especificaciones), 
+            'form_condiciones_generales': CondicionesGeneralesVentiladorForm(instance = ventilador.condiciones_generales), 
+            'form_condiciones_trabajo': CondicionesTrabajoVentiladorForm(instance = ventilador.condiciones_trabajo),
+            'form_condiciones_adicionales': CondicionesTrabajoVentiladorForm(instance = ventilador.condiciones_adicionales, prefix="adicional"),
+            'titulo': f'SIEVEP - Edición del Ventilador {ventilador.tag}',
+            'edicion': True
+        }
+    
+    def post(self, request, pk):
+        ventilador = Ventilador.objects.get(pk = self.kwargs['pk'])
+
+        form_equipo = VentiladorForm(request.POST, instance=ventilador)
+        form_especificaciones = EspecificacionesVentiladorForm(request.POST, instance = ventilador.especificaciones)
+        form_condiciones_generales = CondicionesGeneralesVentiladorForm(request.POST, instance = ventilador.condiciones_generales)
+        form_condiciones_trabajo = CondicionesTrabajoVentiladorForm(request.POST, instance = ventilador.condiciones_trabajo)
+        form_condiciones_adicionales = CondicionesTrabajoVentiladorForm(request.POST, instance = ventilador.condiciones_adicionales, prefix="adicional")
+
+        try: # Almacenamiento
+            res = self.almacenar_datos(form_equipo, form_condiciones_generales, form_condiciones_trabajo,
+                                form_condiciones_adicionales, form_especificaciones)
+            
+            ventilador.editado_al = datetime.datetime.now()
+            ventilador.editado_por = self.request.user
+            ventilador.save()
+
+            return res
+        
         except Exception as e:
             print(form_equipo.errors)
             print(form_especificaciones.errors)

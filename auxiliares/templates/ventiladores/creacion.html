@@ -297,8 +297,8 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.velocidad_funcionamiento.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.velocidad_funcionamiento min="0.000001" class="form-control" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
-                        {% render_field form_condiciones_trabajo.velocidad_funcionamiento_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
+                        {% render_field form_condiciones_trabajo.velocidad_funcionamiento min="0.000001" class="form-control" %}
+                        {% render_field form_condiciones_trabajo.velocidad_funcionamiento_unidad class="form-select" %}
                     </div>
                     <small>{{form_condiciones_trabajo.velocidad_funcionamiento.errors}}</small>
                 </div>
@@ -306,8 +306,8 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.potencia_freno.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.potencia_freno min="0.000001" class="form-control" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
-                        {% render_field form_condiciones_trabajo.potencia_freno_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
+                        {% render_field form_condiciones_trabajo.potencia_freno min="0.000001" class="form-control" %}
+                        {% render_field form_condiciones_trabajo.potencia_freno_unidad class="form-select" %}
                     </div>
                     <small>{{form_condiciones_trabajo.potencia_freno.errors}}</small>
                 </div>
@@ -315,8 +315,8 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.potencia.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.potencia min="0.000001" class="form-control" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" %}
-                        {% render_field form_condiciones_trabajo.potencia_freno_unidad disabled="disabled" class="form-select" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" %}
+                        {% render_field form_condiciones_trabajo.potencia min="0.000001" class="form-control" %}
+                        {% render_field form_condiciones_trabajo.potencia_freno_unidad disabled="disabled" class="form-select" %}
                     </div>
                     <small>{{form_condiciones_trabajo.potencia.errors}}</small>
                 </div>
@@ -429,11 +429,6 @@
                 <button id="submit" type="submit" class="btn btn-danger" {% if not edicion %} disabled {% endif %}>Enviar Formulario</button>
             </div>
 </form>
-
-{% if edicion %}
-<div class="hidden" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="load" hx-indicator="#spinner">
-</div>
-{% endif %}
 
 <div id="spinner" class="htmx-indicator indicator-style">
     <div class="spinner-grow text-danger" style="width: 6rem; height: 6rem;">

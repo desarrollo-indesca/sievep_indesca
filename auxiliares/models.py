@@ -719,7 +719,7 @@ class TipoVentilador(models.Model):
         db_table = "ventiladores_tipoventilador"
 
 class CondicionesTrabajoVentilador(models.Model):
-    flujo = models.FloatField()
+    flujo = models.FloatField(null = True, blank = True)
     tipo_flujo = models.CharField(max_length=1, choices=TIPO_FLUJO_CAUDAL, default='V')
     flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_caudal_volumetrico_unidad", null = True)
 
@@ -730,7 +730,7 @@ class CondicionesTrabajoVentilador(models.Model):
     velocidad_funcionamiento = models.FloatField(null = True, blank = True, verbose_name="Velocidad de Funcionamiento")
     velocidad_funcionamiento_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_velocidad_funcionamiento_unidad")
 
-    temperatura = models.FloatField(null = True)
+    temperatura = models.FloatField(null = True, blank = True)
     temperatura_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_temperatura_unidad")
 
     densidad = models.FloatField(null = True, blank = True)
