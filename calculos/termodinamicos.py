@@ -264,6 +264,24 @@ def calcular_densidad(cas: str, t: float, p: float = 101325) -> float:
 
     return (rho, flag)
 
+def calcular_densidad_aire(t: float, p: float = 101325) -> float:
+    """
+    Resumen:
+        Esta función calculará la densidad del aire.
+        Esta función utiliza CoolProp.
+
+    Parámetros:
+        t: float -> Temperatura (K)
+        p: float -> Presión (Pa)
+
+    Devuelve:
+        (float) -> Densidad del aire en las condiciones presentadas. 
+    """
+    print(t, p)
+    rho = CP.PropsSI('D', 'T', t, 'P', p, 'air')
+
+    return rho
+
 def obtener_densidad_liquido_saturado(quimico, t):
     psat = quimico.Psat
     quimico.calculate(t, psat + 10)

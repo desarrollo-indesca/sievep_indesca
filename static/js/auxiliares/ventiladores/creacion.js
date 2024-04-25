@@ -75,20 +75,13 @@ const anadir_listeners_htmx = () => {
         const body = document.getElementsByTagName('body')[0]
         body.style.opacity = 0.25;
 
-        if(document.getElementById('id_calculo_propiedades').value === 'M' || 
-            document.getElementById('id_temperatura_presion_vapor').value === '' ||
-            document.getElementById('id_fluido').value === '' ||
-            isNaN(Number(document.getElementById('id_fluido').value)) ||
-            document.getElementById('id_temperatura_operacion').value === '' ||
-            document.getElementById('id_presion_succion').value === ''
+        if(document.getElementById('id_calculo_densidad').value === 'M' || 
+            document.getElementById('id_temperatura').value === '' && document.getElementById('id_temp_diseno').value === '' ||
+            document.getElementById('id_presion_entrada').value === '' && document.getElementById('id_presion_diseno').value === '' 
         ){
             evt.preventDefault();
-            if(document.getElementById('id_calculo_propiedades').value === 'M'){
-                $('#id_viscosidad').removeAttr('disabled');
-                $('#id_presion_vapor').removeAttr('disabled');
+            if(document.getElementById('id_calculo_densidad').value === 'M')
                 $('#id_densidad').removeAttr('disabled');
-                $('#aviso').html('');
-            }            
             body.style.opacity = 1.0;
         }  else
             $('button[type=submit]').attr('disabled', 'disabled');
@@ -96,12 +89,9 @@ const anadir_listeners_htmx = () => {
 
     document.body.addEventListener('htmx:afterRequest', function(evt) {
         if(evt.detail.failed){
-            alert("Ha ocurrido un error al momento de llevar a cabo los cálculos de las propiedades termodinámicas. Verifique que los datos corresponden a la fase líquida del fluido ingresado y no sobrepase la temperatura crítica.");
+            alert("Ha ocurrido un error al momento de llevar a cabo los cálculos de la densidad del aire.");
             $('button[type=submit]').attr('disabled', 'disabled');
-            $('#id_viscosidad').val("");
-            $('#id_presion_vapor').val("");
             $('#id_densidad').val("");
-            $('#aviso').html('');
             document.body.style.opacity = 1.0;
         }
         else

@@ -23,7 +23,7 @@ from usuarios.views import SuperUserRequiredMixin
 from auxiliares.models import *
 from auxiliares.forms import *
 from intercambiadores.models import Complejo, Planta
-from calculos.termodinamicos import calcular_densidad, calcular_presion_vapor, calcular_viscosidad, calcular_densidad_relativa
+from calculos.termodinamicos import calcular_densidad, calcular_densidad_aire, calcular_presion_vapor, calcular_viscosidad, calcular_densidad_relativa
 from calculos.unidades import transformar_unidades_presion, transformar_unidades_flujo_volumetrico, transformar_unidades_potencia, transformar_unidades_longitud, transformar_unidades_temperatura, transformar_unidades_densidad, transformar_unidades_viscosidad
 from calculos.utils import fluido_existe, registrar_fluido
 from .evaluacion import evaluacion_bomba
@@ -1235,6 +1235,81 @@ class ConsultaVentiladores(LoginRequiredMixin, ListView):
 
         return new_context
     
+class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
+    def obtener_temperatura(self):
+        request = self.request.GET
+
+        if('adicional-temperatura' in request.keys()):
+            temperatura_condicion = request.get('adicional-temperatura')
+            if(temperatura_condicion and temperatura_condicion != ''):
+                temperatura = float(temperatura_condicion)
+                temperatura_unidad = int(request.get('adicional-temperatura_unidad'))
+
+                return transformar_unidades_temperatura([temperatura], temperatura_unidad)[0]
+
+            return None
+
+        temperatura_condicion = request.get('temperatura')
+        if(temperatura_condicion and temperatura_condicion != ''):
+            temperatura = float(temperatura_condicion)
+            temperatura_unidad = int(request.get('temperatura_unidad'))
+
+            return transformar_unidades_temperatura([temperatura], temperatura_unidad)[0]
+        
+        temperatura_diseno = request.get('temp_diseno')
+        print(temperatura_diseno)
+        if(temperatura_diseno and temperatura_diseno != ''):
+            temperatura = float(temperatura_diseno)
+            temperatura_unidad = int(request.get('temp_ambiente_unidad'))
+
+            return transformar_unidades_temperatura([temperatura], temperatura_unidad)[0]
+        
+        return None
+    
+    def obtener_presion(self):
+        request = self.request.GET
+
+        if('adicional-presion' in request.keys()):
+            presion_condicion = request.get('adicional-presion')
+            if(presion_condicion and presion_condicion != ''):
+                presion = float(presion_condicion)
+                presion_unidad = int(request.get('adicional-presion_unidad'))
+
+                return transformar_unidades_presion([presion], presion_unidad)[0]
+
+            return None
+
+        presion_entrada = request.get('presion_entrada')
+        if(presion_entrada and presion_entrada != ''):
+            presion = float(presion_entrada)
+            presion_unidad = int(request.get('presion_unidad'))
+
+            return transformar_unidades_presion([presion], presion_unidad)[0]
+        
+        presion_diseno = request.get('presion_diseno')
+        if(presion_diseno and presion_diseno != ''):
+            presion = float(presion_diseno)
+            presion_unidad = int(request.get('presion_barometrica_unidad'))
+
+            return transformar_unidades_presion([presion], presion_unidad)[0]
+        
+        return None
+            
+    def obtener_densidad(self, temperatura, presion):
+        densidad = calcular_densidad_aire(temperatura, presion)
+        densidad_unidad = int(self.request.GET.get('densidad_unidad'))
+        return transformar_unidades_densidad([densidad], 30, densidad_unidad)[0]
+
+    def get(self, request):
+        temperatura = self.obtener_temperatura()
+        presion = self.obtener_presion()
+        densidad = round(self.obtener_densidad(temperatura, presion), 6)
+
+        print(request.GET)
+        print(presion, temperatura)
+
+        return render(request, 'ventiladores/partials/propiedades.html', {'densidad': densidad, 'adicional': bool(request.GET.get('adicional'))})
+
 class CreacionVentilador(SuperUserRequiredMixin, View):
     """
     Resumen:
