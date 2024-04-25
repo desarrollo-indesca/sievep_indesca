@@ -133,11 +133,13 @@
                     </tr>
                     <tr>
                         <th class="table-dark">
-                            Flujo {% if condiciones_adicionales.tipo_flujo == 'M' %}Másico{% else %}Volumétrico{% endif %}
+                          Flujo {% if condiciones_adicionales.tipo_flujo == 'M' %}Másico{% else %}Volumétrico{% endif %} ({{condiciones_adicionales.flujo_unidad}})
                         </th>
                         <td>
-                            {{condiciones_adicionales.flujo|default_if_none:'-'}}
+                          {{condiciones_adicionales.flujo|default_if_none:'-'}}
                         </td>
+                        <th class="table-dark">Densidad ({{condiciones_adicionales.densidad_unidad}})</th>
+                        <td>{{condiciones_adicionales.densidad|default_if_none:'-'}}</td>
                     </tr>
                     {% with presion_unidad=condiciones_adicionales.presion_unidad.simbolo %}
                     <tr>
@@ -154,10 +156,12 @@
                       <td>{{condiciones_adicionales.temperatura|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
-                      <th class="table-dark">Densidad ({{condiciones_adicionales.densidad_unidad}})</th>
-                      <td>{{condiciones_adicionales.densidad|default_if_none:'-'}}</td>
-                      <th class="table-dark">Potencia de Freno ({{condiciones_adicionales.potencia_freno_unidad}})</th>
+                      {% with potencia_unidad=condiciones_adicionales.potencia_freno_unidad.simbolo %}
+                      <th class="table-dark">Potencia Ventilador ({{potencia_unidad}})</th>
+                      <td>{{condiciones_adicionales.potencia|default_if_none:'-'}}</td>
+                      <th class="table-dark">Potencia de Freno ({{potencia_unidad}})</th>
                       <td>{{condiciones_adicionales.potencia_freno|default_if_none:'-'}}</td>
+                      {% endwith %}
                     </tr>
                     {% endif %}
                     {% endwith %}

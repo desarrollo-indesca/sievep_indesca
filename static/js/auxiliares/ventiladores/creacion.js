@@ -87,7 +87,6 @@ const anadir_listeners_htmx = () => {
                 }
                     
                 body.style.opacity = 1.0;
-                return;
             }  else
                 $('button[type=submit]').attr('disabled', 'disabled');
         else // Condiciones Adicionales
@@ -100,7 +99,6 @@ const anadir_listeners_htmx = () => {
                     $('button[type=submit]').removeAttr('disabled');                    
                 }
                 body.style.opacity = 1.0;
-                return;
             }  else
                 $('button[type=submit]').attr('disabled', 'disabled');            
     });
