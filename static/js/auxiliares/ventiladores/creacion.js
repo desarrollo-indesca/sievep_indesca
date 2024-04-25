@@ -74,24 +74,46 @@ const anadir_listeners_htmx = () => {
     document.body.addEventListener('htmx:beforeRequest', function(evt) {
         const body = document.getElementsByTagName('body')[0]
         body.style.opacity = 0.25;
-
-        if(document.getElementById('id_calculo_densidad').value === 'M' || 
-            document.getElementById('id_temperatura').value === '' && document.getElementById('id_temp_diseno').value === '' ||
-            document.getElementById('id_presion_entrada').value === '' && document.getElementById('id_presion_diseno').value === '' 
-        ){
-            evt.preventDefault();
-            if(document.getElementById('id_calculo_densidad').value === 'M')
-                $('#id_densidad').removeAttr('disabled');
-            body.style.opacity = 1.0;
-        }  else
-            $('button[type=submit]').attr('disabled', 'disabled');
+        
+        if(evt.target.id.indexOf('adicional-') === -1) // Condiciones de Trabajo
+            if(document.getElementById('id_calculo_densidad').value === 'M' || 
+                document.getElementById('id_temperatura').value === '' && document.getElementById('id_temp_diseno').value === '' ||
+                document.getElementById('id_presion_entrada').value === '' && document.getElementById('id_presion_diseno').value === '' 
+            ){
+                evt.preventDefault();
+                if(document.getElementById('id_calculo_densidad').value === 'M'){
+                    $('#id_densidad').removeAttr('disabled');
+                    $('button[type=submit]').removeAttr('disabled');
+                }
+                    
+                body.style.opacity = 1.0;
+                return;
+            }  else
+                $('button[type=submit]').attr('disabled', 'disabled');
+        else // Condiciones Adicionales
+            if(document.getElementById('id_adicional-calculo_densidad').value === 'M' || 
+            document.getElementById('id_adicional-temperatura').value === '' ||
+            document.getElementById('id_adicional-presion_entrada').value === ''){
+                evt.preventDefault();
+                if(document.getElementById('id_adicional-calculo_densidad').value === 'M'){
+                    $('#id_adicional-densidad').removeAttr('disabled');
+                    $('button[type=submit]').removeAttr('disabled');                    
+                }
+                body.style.opacity = 1.0;
+                return;
+            }  else
+                $('button[type=submit]').attr('disabled', 'disabled');            
     });
 
     document.body.addEventListener('htmx:afterRequest', function(evt) {
         if(evt.detail.failed){
             alert("Ha ocurrido un error al momento de llevar a cabo los cálculos de la densidad del aire.");
             $('button[type=submit]').attr('disabled', 'disabled');
-            $('#id_densidad').val("");
+
+            if(evt.target.id.indexOf('adicional-') === -1)
+                $('#id_densidad').val("");
+            else
+                $('#id_adicional-densidad').val("");
             document.body.style.opacity = 1.0;
         }
         else

@@ -1269,8 +1269,8 @@ class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
     def obtener_presion(self):
         request = self.request.GET
 
-        if('adicional-presion' in request.keys()):
-            presion_condicion = request.get('adicional-presion')
+        if('adicional-presion_entrada' in request.keys()):
+            presion_condicion = request.get('adicional-presion_entrada')
             if(presion_condicion and presion_condicion != ''):
                 presion = float(presion_condicion)
                 presion_unidad = int(request.get('adicional-presion_unidad'))
@@ -1297,15 +1297,16 @@ class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
             
     def obtener_densidad(self, temperatura, presion):
         densidad = calcular_densidad_aire(temperatura, presion)
-        densidad_unidad = int(self.request.GET.get('densidad_unidad'))
+        densidad_unidad = int(self.request.GET.get('densidad_unidad', self.request.GET.get('adicional-densidad_unidad')))
         return transformar_unidades_densidad([densidad], 30, densidad_unidad)[0]
 
     def get(self, request):
+        print("===============")
+        print(request.GET)
         temperatura = self.obtener_temperatura()
         presion = self.obtener_presion()
         densidad = round(self.obtener_densidad(temperatura, presion), 6)
 
-        print(request.GET)
         print(presion, temperatura)
 
         return render(request, 'ventiladores/partials/propiedades.html', {'densidad': densidad, 'adicional': bool(request.GET.get('adicional'))})
