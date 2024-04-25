@@ -214,14 +214,14 @@
         </div>
         <div class="modal-footer">
             {% if request.user.is_superuser %}
-            <form method="post" hx-confirm="¿Está seguro que desea eliminar esta evaluación">
+            <form method="post" hx-confirm="¿Está seguro que desea eliminar esta evaluación?">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-danger">ELIMINAR EVALUACIÓN</button>
                 <input type="hidden" name="evaluacion" value="{{evaluacion.pk}}">
             </form>
             {%endif%}
 
-            <form method="post">
+            <form method="post" name="reporte">
                 {% csrf_token %}
                 <button type="submit" name="detalle" value="{{evaluacion.pk}}" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>
             </form>

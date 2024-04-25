@@ -16,9 +16,13 @@
                     <tr>
                       <th class="table-dark">Tag</th>
                       <td><span id="tag_ficha">{{ventilador.tag|default_if_none:'-'}}</span></td>
-                      <td colspan="2" rowspan="5" style="background-color: lightgray;">
+                      <td colspan="2" rowspan="6" style="background-color: lightgray;">
                         <img src="/static/img/equipos_aux/ventilador.png" style="max-width: 100%;" alt="">
                       </td>
+                    </tr>
+                    <tr>
+                      <th class="table-dark">Complejo</th>
+                      <td>{{ventilador.planta.complejo|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark">Planta</th>

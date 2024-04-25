@@ -803,6 +803,7 @@ class Ventilador(models.Model):
 
     class Meta:
         db_table = "ventiladores_ventilador"
+        ordering = ('tag',)
 
 # Modelos de Evaluación
 class EntradaEvaluacionVentilador(models.Model):
