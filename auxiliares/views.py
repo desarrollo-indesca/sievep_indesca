@@ -1300,7 +1300,6 @@ class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
         return round(transformar_unidades_densidad([densidad], 30, densidad_unidad)[0], 6)
 
     def get(self, request):
-        print(request.GET)
         adicional =  request.GET.get('adicional') != None
         densidad = round(self.obtener_densidad(request.GET, adicional), 6)
 
