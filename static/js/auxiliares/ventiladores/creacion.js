@@ -132,3 +132,6 @@ $('#submit').click(e => {
 
 anadir_listeners_htmx();
 anadir_listeners_dropboxes();
+
+$('#id_temperatura').change();
+$('#id_adicional-temperatura').change();
