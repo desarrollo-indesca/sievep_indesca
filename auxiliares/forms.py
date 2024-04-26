@@ -1,6 +1,7 @@
 from django import forms
 from intercambiadores.models import Complejo
 from auxiliares.models import *
+from calculos.unidades import transformar_unidades_presion
 
 class FormConUnidades(forms.ModelForm):
     '''
@@ -256,6 +257,46 @@ class CondicionesGeneralesVentiladorForm(FormConUnidades):
         exclude = ('id',)
 
 class CondicionesTrabajoVentiladorForm(FormConUnidades):
+    def clean_presion_entrada(self):
+        prefix = self.prefix + '-' if self.prefix else ''
+        presion_entrada = self.data[f'{prefix}presion_entrada']
+        
+        if(presion_entrada != ''):
+            presion_unidad = int(self.data[f'{prefix}presion_unidad'])
+            presion_entrada_calculada = transformar_unidades_presion([float(presion_entrada)], presion_unidad)[0]
+
+            if(presion_entrada_calculada < -101325):
+                raise forms.ValidationError("La presión no puede ser menor a la temperatura atmosférica negativa.")
+        
+        return float(presion_entrada) if presion_entrada != '' else None
+            
+    def clean_presion_salida(self):
+        prefix = self.prefix + '-' if self.prefix else ''
+        presion_salida = self.data[f'{prefix}presion_salida']
+        
+        if(presion_salida != ''):
+            presion_unidad = int(self.data[f'{prefix}presion_unidad'])
+            presion_salida_calculada = transformar_unidades_presion([float(presion_salida)], presion_unidad)[0]
+
+            if(presion_salida_calculada < -101325):
+                raise forms.ValidationError("La presión no puede ser menor a la temperatura atmosférica negativa.")
+            
+        return float(presion_salida) if presion_salida != '' else None
+
+    def clean_densidad(self):
+        densidad = self.data.get('densidad')
+        if(self.prefix != 'adicional'):
+            calculo_densidad = self.data['calculo_densidad']
+            presion_entrada = self.data['presion_entrada']
+            presion_diseno = self.data['presion_diseno']
+            temperatura_diseno = self.data['temp_diseno']
+            temperatura = self.data['temperatura']
+
+            if(calculo_densidad == 'A' and (presion_entrada == '' and presion_diseno == '' or temperatura == '' and temperatura_diseno == '')):
+                raise forms.ValidationError("No se pudo calcular la densidad. Revise presión y temperatura.")
+
+        return float(densidad) if densidad else None
+
     def limpiar_campos_unidades(self):
         self.fields['flujo_unidad'].empty_label = None
         self.fields['flujo_unidad'].queryset = Unidades.objects.filter(tipo__in = ['F','K']).order_by('tipo')
