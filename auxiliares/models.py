@@ -805,23 +805,23 @@ class Ventilador(models.Model):
 # Modelos de Evaluación
 class EntradaEvaluacionVentilador(models.Model):
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
-    presion_entrada = models.FloatField()
-    presion_salida = models.FloatField()
+    presion_entrada = models.FloatField(verbose_name="Presión Entrada")
+    presion_salida = models.FloatField(verbose_name="Presión Salida")
     presion_salida_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_presion_salida_unidad")
     
     flujo = models.FloatField()
     tipo_flujo = models.CharField(max_length=1, choices=TIPO_FLUJO_CAUDAL, default='V')
     flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_flujo_unidad")
     
-    temperatura_operacion = models.FloatField()
+    temperatura_operacion = models.FloatField(verbose_name="Temperatura de Operación")
     temperatura_operacion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_temperatura_operacion_unidad")
 
-    potencia_ventilador = models.FloatField()
+    potencia_ventilador = models.FloatField(verbose_name="Potencia del Ventilador")
     potencia_ventilador_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_potencia_ventilador_unidad")
 
     densidad_ficha = models.FloatField()
     densidad_ficha_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_densidad_ficha_unidad")
-    densidad_evaluacion = models.FloatField()
+    densidad_evaluacion = models.FloatField(verbose_name="Densidad Calculada")
     densidad_evaluacion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_densidad_evaluacion_unidad")
 
     class Meta:

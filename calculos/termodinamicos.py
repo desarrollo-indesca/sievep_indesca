@@ -275,7 +275,7 @@ def calcular_densidad_aire(t: float, p: float = 101325) -> float:
         p: float -> Presión (Pa)
 
     Devuelve:
-        (float) -> Densidad del aire en las condiciones presentadas. 
+        (float) -> Densidad del aire en las condiciones presentadas (Kg/m3). 
     """
     print(t, p)
     rho = CP.PropsSI('D', 'T', t, 'P', p, 'air')

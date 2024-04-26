@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load l10n %}
+{% load widget_tweaks %}
+
+{% block head %}
+<script src="/static/js/htmx.min.js"></script>
+
+<style>
+    small{
+        color: #e31e24;
+        font-weight: bold;
+    }
+
+    .indicator-style {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        z-index: 1000;
+        margin-left: -50px;
+        margin-top: -50px;
+    }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<form id="form" method="post" name="form" enctype="multipart/form-data" hx-indicator="#spinner" hx-swap="none" >
+    <div class="row">
+        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_ventiladores' %}">↶ Regresar</a></div>
+        <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Nueva Evaluación Ventilador {{ventilador.tag}}</h3></div>
+        <div class="col-md-3 col-lg-2"><button type="button" class="btn btn-success" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{ventilador.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button></div>
+    </div>
+            
+    <hr>
+
+    <div class="row">
+        <div class="col-12">
+            {{form_evaluacion.nombre.label_tag}}*
+            {% render_field form_evaluacion.nombre class="form-control" %}
+        </div>
+
+        <div class="col-6 border-end border-dark">
+            <div class="row">
+                <div class="mt-3 col-6">
+                    {{form_entrada_evaluacion.presion_entrada.label_tag}}*
+                    <div class="input-group">
+                        {% render_field form_entrada_evaluacion.presion_entrada class="form-control" %}
+                        {% render_field form_entrada_evaluacion.presion_salida_unidad class="form-select" %}
+                    </div>
+                </div>
+                <div class="mt-3 col-6">
+                    {{form_entrada_evaluacion.presion_salida.label_tag}}*
+                    <div class="input-group">
+                        {% render_field form_entrada_evaluacion.presion_salida class="form-control" %}
+                        {% render_field form_entrada_evaluacion.presion_salida_unidad class="form-select" disabled="disabled" %}
+                    </div>
+                </div>
+
+                <div class="mt-3 col-12">
+                    {{form_entrada_evaluacion.temperatura_operacion.label_tag}}*
+                    <div class="input-group">
+                        {% render_field form_entrada_evaluacion.temperatura_operacion class="form-control" %}
+                        {% render_field form_entrada_evaluacion.temperatura_operacion_unidad class="form-select" %}
+                    </div>
+                </div>
+
+                <div class="mt-3 col-12">
+                    {{form_entrada_evaluacion.densidad_evaluacion.label_tag}}*
+                    <div class="input-group">
+                        {% render_field form_entrada_evaluacion.densidad_evaluacion class="form-control" disabled="disabled" %}
+                        {% render_field form_entrada_evaluacion.densidad_evaluacion_unidad class="form-select" %}
+                    </div>
+                </div>
+
+                <div class="mt-3 col-12">
+                    {{form_entrada_evaluacion.flujo.label_tag}}*
+                    <div class="input-group">
+                        {% render_field form_entrada_evaluacion.flujo class="form-control" %}
+                        {% render_field form_entrada_evaluacion.flujo_unidad class="form-select" %}
+                    </div>
+                </div>
+
+                <div class="mt-3 col-12">
+                    {{form_entrada_evaluacion.potencia_ventilador.label_tag}}*
+                    <div class="input-group">
+                        {% render_field form_entrada_evaluacion.potencia_ventilador class="form-control" %}
+                        {% render_field form_entrada_evaluacion.potencia_ventilador_unidad class="form-select" %}
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3 col-12 d-flex justify-content-center">
+                <button id="submit" name="submit" value="calcular" type="submit" class="btn btn-danger" disabled>Calcular Resultados</button>
+            </div>
+        </div>
+
+        <div class="col-6">
+            
+        </div>
+    </div>
+
+    
+</form>
+
+<div id="spinner" class="htmx-indicator indicator-style">
+    <div class="spinner-grow text-danger" style="width: 6rem; height: 6rem;">
+    </div>
+</div>
+
+{% include 'ventiladores/ficha.html' %}
+{% endblock %}
+
+{% block extra_javascript %}
+<script src="/static/js/auxiliares/ventiladores/evaluacion.js"></script>
+{% endblock %}

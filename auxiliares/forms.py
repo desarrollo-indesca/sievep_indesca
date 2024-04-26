@@ -299,16 +299,13 @@ class CondicionesTrabajoVentiladorForm(FormConUnidades):
 
     def limpiar_campos_unidades(self):
         self.fields['flujo_unidad'].empty_label = None
-        self.fields['flujo_unidad'].queryset = Unidades.objects.filter(tipo__in = ['F','K']).order_by('tipo')
+        self.fields['flujo_unidad'].queryset = Unidades.objects.filter(tipo__in = ['F','K']).order_by('-tipo')
 
         self.fields['presion_unidad'].empty_label = None
         self.fields['presion_unidad'].queryset = Unidades.objects.filter(tipo = 'P')
         
         self.fields['densidad_unidad'].empty_label = None
         self.fields['densidad_unidad'].queryset = Unidades.objects.filter(tipo = 'D')
-
-        self.fields['potencia_freno_unidad'].empty_label = None
-        self.fields['potencia_freno_unidad'].queryset = Unidades.objects.filter(tipo = 'B')
 
         self.fields['temperatura_unidad'].empty_label = None
         self.fields['temperatura_unidad'].queryset = Unidades.objects.filter(tipo = 'T')
@@ -328,7 +325,7 @@ class EvaluacionVentiladorForm(forms.ModelForm):
 class EntradaEvaluacionVentiladorForm(FormConUnidades):
     def limpiar_campos_unidades(self):
         self.fields['flujo_unidad'].empty_label = None
-        self.fields['flujo_unidad'].queryset = Unidades.objects.filter(tipo__in = ['F','K']).order_by('tipo')
+        self.fields['flujo_unidad'].queryset = Unidades.objects.filter(tipo__in = ['F','K']).order_by('-tipo')
 
         self.fields['presion_salida_unidad'].empty_label = None
         self.fields['presion_salida_unidad'].queryset = Unidades.objects.filter(tipo = 'P')
@@ -339,8 +336,8 @@ class EntradaEvaluacionVentiladorForm(FormConUnidades):
         self.fields['temperatura_operacion_unidad'].empty_label = None
         self.fields['temperatura_operacion_unidad'].queryset = Unidades.objects.filter(tipo = 'T')
 
-        self.fields['potencia_ventilador'].empty_label = None
-        self.fields['potencia_ventilador'].queryset = Unidades.objects.filter(tipo = 'O')
+        self.fields['potencia_ventilador_unidad'].empty_label = None
+        self.fields['potencia_ventilador_unidad'].queryset = Unidades.objects.filter(tipo = 'B')
         
     class Meta:
         model = EntradaEvaluacionVentilador
