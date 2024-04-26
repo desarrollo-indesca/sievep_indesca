@@ -1277,6 +1277,16 @@ class ConsultaVentiladores(LoginRequiredMixin, ListView):
     
 class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
     def obtener_temperatura(self, request, adicional):
+        if(request.get('evaluacion') == '1'):
+            temperatura_condicion = request.get('temperatura_operacion')
+            if(temperatura_condicion and temperatura_condicion != ''):
+                temperatura = float(temperatura_condicion)
+                temperatura_unidad = int(request.get('temperatura_operacion_unidad'))
+
+                return transformar_unidades_temperatura([temperatura], temperatura_unidad)[0]
+
+            return None
+        
         temperatura_condicion = request.get('temperatura')
         if(temperatura_condicion and temperatura_condicion != ''):
             temperatura = float(temperatura_condicion)
@@ -1304,6 +1314,16 @@ class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
         return None
     
     def obtener_presion(self, request, adicional):
+        if(request.get('evaluacion') == '1'):
+            presion_condicion = request.get('presion_entrada')
+            if(presion_condicion and presion_condicion != ''):
+                presion = float(presion_condicion)
+                presion_unidad = int(request.get('presion_salida_unidad'))
+
+                return transformar_unidades_presion([presion], presion_unidad)[0] + 101325
+
+            return None
+        
         presion_entrada = request.get('presion_entrada')
         if(presion_entrada and presion_entrada != ''):
             presion = float(presion_entrada)
@@ -1335,15 +1355,14 @@ class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
         presion = self.obtener_presion(request, adicional)
 
         densidad = calcular_densidad_aire(temperatura, presion)
-        densidad_unidad = int(request.get('densidad_unidad', request.get('adicional-densidad_unidad')))
-        print(densidad)
+        densidad_unidad = int(request.get('densidad_unidad', request.get('adicional-densidad_unidad', request.get('densidad_evaluacion_unidad'))))
         return round(transformar_unidades_densidad([densidad], 30, densidad_unidad)[0], 6)
 
     def get(self, request):
         adicional =  request.GET.get('adicional') != None
         densidad = round(self.obtener_densidad(request.GET, adicional), 6)
 
-        return render(request, 'ventiladores/partials/propiedades.html', {'densidad': densidad, 'adicional': adicional})
+        return render(request, 'ventiladores/partials/propiedades.html', {'densidad': densidad, 'adicional': adicional, 'evaluacion': request.GET.get('evaluacion')})
 
 class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
     """
