@@ -319,3 +319,29 @@ class CondicionesTrabajoVentiladorForm(FormConUnidades):
     class Meta:
         model = CondicionesTrabajoVentilador
         exclude = ('id','eficiencia','tipo_flujo')
+
+class EvaluacionVentiladorForm(forms.ModelForm):
+    class Meta:
+        model = EvaluacionVentilador
+        fields = ('nombre',)
+
+class EntradaEvaluacionVentiladorForm(FormConUnidades):
+    def limpiar_campos_unidades(self):
+        self.fields['flujo_unidad'].empty_label = None
+        self.fields['flujo_unidad'].queryset = Unidades.objects.filter(tipo__in = ['F','K']).order_by('tipo')
+
+        self.fields['presion_salida_unidad'].empty_label = None
+        self.fields['presion_salida_unidad'].queryset = Unidades.objects.filter(tipo = 'P')
+        
+        self.fields['densidad_evaluacion_unidad'].empty_label = None
+        self.fields['densidad_evaluacion_unidad'].queryset = Unidades.objects.filter(tipo = 'D')
+
+        self.fields['temperatura_operacion_unidad'].empty_label = None
+        self.fields['temperatura_operacion_unidad'].queryset = Unidades.objects.filter(tipo = 'T')
+
+        self.fields['potencia_ventilador'].empty_label = None
+        self.fields['potencia_ventilador'].queryset = Unidades.objects.filter(tipo = 'O')
+        
+    class Meta:
+        model = EntradaEvaluacionVentilador
+        exclude = ('id','tipo_flujo','densidad_ficha')

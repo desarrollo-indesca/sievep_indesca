@@ -1175,6 +1175,21 @@ class GenerarGrafica(View, LoginRequiredMixin):
         return JsonResponse(res[:15], safe=False)
     
 ## Vistas de Ventiladores
+class ObtenerVentiladorMixin():
+    def get_ventilador(self):
+        ventilador = Ventilador.objects.filter(pk = self.kwargs.get('pk'))
+
+        return ventilador.select_related('tipo_ventilador','condiciones_trabajo','condiciones_adicionales','condiciones_generales','especificaciones', 'planta', 
+            'planta__complejo', 'creado_por', 'editado_por', 'especificaciones__espesor_unidad', 
+            'especificaciones__potencia_motor_unidad', 'especificaciones__velocidad_motor_unidad', 
+            'condiciones_generales__temp_ambiente_unidad', 'condiciones_generales__velocidad_diseno_unidad', 
+            'condiciones_trabajo__flujo_unidad', 'condiciones_trabajo__presion_unidad', 'condiciones_generales__presion_barometrica_unidad',
+            'condiciones_trabajo__velocidad_funcionamiento_unidad', 'condiciones_trabajo__temperatura_unidad',
+            'condiciones_trabajo__densidad_unidad', 'condiciones_trabajo__potencia_freno_unidad', 
+            'condiciones_adicionales__flujo_unidad', 'condiciones_adicionales__presion_unidad', 
+            'condiciones_adicionales__velocidad_funcionamiento_unidad', 'condiciones_adicionales__temperatura_unidad',
+            'condiciones_adicionales__densidad_unidad', 'condiciones_adicionales__potencia_freno_unidad'
+        )[0]
 
 class ConsultaVentiladores(LoginRequiredMixin, ListView):
     model = Ventilador
@@ -1513,3 +1528,98 @@ class EdicionVentilador(CreacionVentilador):
                 'edicion': True,
                 'titulo': self.titulo
             })
+        
+# Evaluaciones de Ventilador
+class ConsultaEvaluacionVentilador(ConsultaEvaluacion, ObtenerVentiladorMixin):
+    """
+    Resumen:
+        Vista para la consulta de evaluaciones de VENTILADORES.
+        Hereda de ConsultaEvaluacion para el ahorro de trabajo en términos de consulta.
+
+    Atributos:
+        model: EvaluacionBomba -> Modelo de la vista
+        model_equipment -> Modelo del equipo
+        clase_equipo -> Complemento del título de la vista
+    
+    Métodos:
+        get_context_data(self) -> dict
+            Añade al contexto original el equipo.
+
+        get_queryset(self) -> QuerySet
+            Hace el prefetching correspondiente al queryset de las evaluaciones
+
+        post(self) -> HttpResponse
+            Contiene la lógica de eliminación (ocultación) de una evaluación.
+    """
+    model = EvaluacionVentilador
+    model_equipment = Ventilador
+    clase_equipo = "l Ventilador"
+    tipo = 'ventilador'
+
+    def post(self, request, **kwargs):
+        if(request.user.is_superuser and request.POST.get('evaluacion')): # Lógica de "Eliminación"
+            evaluacion = EvaluacionBomba.objects.get(pk=request.POST['evaluacion'])
+            evaluacion.activo = False
+            evaluacion.save()
+            messages.success(request, "Evaluación eliminada exitosamente.")
+        elif(request.POST.get('evaluacion') and not request.user.is_superuser):
+            messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
+
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha):
+            return reporte_ficha
+
+        if(request.POST.get('tipo') == 'pdf'):
+            return generar_pdf(request, self.get_queryset(), f"Evaluaciones del Ventilador {self.get_bomba().tag}", "evaluaciones_ventilador")
+        elif(request.POST.get('tipo') == 'xlsx'):
+            return historico_evaluaciones_bombas(self.get_queryset(), request)
+
+        if(request.POST.get('detalle')):
+            return generar_pdf(request, EvaluacionBomba.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Ventilador", "detalle_evaluacion_ventilador")
+
+        return self.get(request, **kwargs)
+    
+    def get_queryset(self):
+        new_context = super().get_queryset()
+
+        new_context = new_context.select_related(
+            'entrada', 'entrada__presion_salida_unidad', 'entrada__flujo_unidad', 
+            'entrada__temperatura_operacion_unidad', 'entrada__potencia_ventilador_unidad', 
+            'entrada__densidad_evaluacion_unidad', 'salida', 'salida__potencia_calculada_unidad', 
+            'creado_por', 'equipo'
+        )
+
+        return new_context
+
+    def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
+        context = super().get_context_data(**kwargs)
+        context['equipo'] = self.get_ventilador()
+        context['tipo'] = self.tipo
+
+        return context
+
+class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMixin):
+    """
+    Resumen:
+        Vista de la creación de una evaluación de un ventilador.
+    
+    Métodos:
+        
+        get(self, request) -> HttpResponse
+            Renderiza la plantilla de la vista cuando se recibe una solicitud HTTP GET.
+    """
+
+    def get_context_data(self):
+        ventilador = self.get_ventilador()       
+
+        context = {
+            'ventilador': ventilador,
+            'form_evaluacion': EvaluacionVentiladorForm(),
+            'form_entrada_evaluacion': EntradaEvaluacionVentiladorForm(),
+            'titulo': "Evaluación de Bomba"
+        }
+
+        return context
+    
+    def get(self, request, pk):
+        return render(request, 'ventiladores/evaluacion.html', self.get_context_data())

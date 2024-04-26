@@ -23,4 +23,6 @@ urlpatterns = [
     path('ventiladores/creacion/', CreacionVentilador.as_view(), name="creacion_ventilador"),
     path('ventiladores/edicion/<int:pk>/', EdicionVentilador.as_view(), name="edicion_ventilador"),
     path('ventiladores/datos_fluido/', CalculoPropiedadesVentilador.as_view(), name="datos_fluido_ventilador"),
+    path('ventiladores/evaluaciones/<int:pk>/', ConsultaEvaluacionVentilador.as_view(), name = "evaluaciones_ventilador"),
+    path('ventiladores/evaluar/<int:pk>/', CreacionEvaluacionVentilador.as_view(), name='crear_evaluacion_ventilador'),
 ]

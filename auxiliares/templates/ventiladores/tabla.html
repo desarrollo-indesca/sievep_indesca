@@ -14,7 +14,7 @@
     <td>{{ventilador.planta.complejo}}</td>
     <td>{{ventilador.descripcion}}</td>
     <td>
-      <a class="btn btn-danger" href="#"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
+      <a class="btn btn-danger" href="{% url 'evaluaciones_ventilador' pk=ventilador.pk %}"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
     </td>
     <td>
       {% include 'ventiladores/ficha.html' %}
