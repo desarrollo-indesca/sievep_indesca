@@ -206,7 +206,15 @@
                       <th class="table-dark">Velocidad Motor ({{especificaciones.velocidad_motor_unidad}})</th>
                       <td>{{especificaciones.velocidad_motor|default_if_none:'-'}}</td>
                   </tr>
-                    {% endwith %}
+                  <tr>
+                    <td colspan="6">Creado por el usuario <b>{{ventilador.condiciones_diseno.creado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{ventilador.creado_al|default_if_none:'-'}}</b>.</td>
+                  </tr>
+                  {% if ventilador.editado_al %}
+                  <tr>
+                    <td colspan="6">Editado por <b>{{ventilador.editado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{ventilador.editado_al|default_if_none:'-'}}</b>.</td>
+                  </tr>
+                  {% endif %}
+                  {% endwith %}
                   </tbody>
                 </table>
               </div>

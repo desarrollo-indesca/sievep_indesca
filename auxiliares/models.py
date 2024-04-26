@@ -486,7 +486,7 @@ class TuberiaInstalacionBomba(models.Model):
     numero_codos_90 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos a 90°")
     numero_codos_90_rl = models.PositiveIntegerField(null = True, blank = True, verbose_name="Codos 90° Radio Largo")
     numero_codos_90_ros = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos Rosc. 90°")
-    numero_codos_45 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos a 45")
+    numero_codos_45 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos a 45°")
     numero_codos_45_ros = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. Codos Rosc. 45°")
     numero_codos_180 = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Codos a 180°")
     conexiones_t_directo = models.PositiveIntegerField(null = True, blank = True, verbose_name="Conexiones T Flujo Directo")
@@ -577,8 +577,8 @@ class EntradaEvaluacionBomba(models.Model):
     densidad_unidad = models.ForeignKey(Unidades,  null=True, blank = True, on_delete = models.PROTECT, related_name="densidad_unidad_evaluacionbomba")
     
     viscosidad = models.FloatField(models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)]))
-    
     viscosidad_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="viscosidad_unidad_evaluacionbomba")
+    
     presion_vapor = models.FloatField(models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)]))
     presion_vapor_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="presion_vapor_unidad_evaluacionbomba")
 
@@ -653,12 +653,6 @@ class EvaluacionBomba(models.Model):
     entrada = models.ForeignKey(EntradaEvaluacionBomba, on_delete = models.PROTECT, related_name = "entrada_evaluacion_evaluacionbomba")
     salida = models.ForeignKey(SalidaEvaluacionBombaGeneral, on_delete= models.PROTECT)
 
-    def salida_succion(self):
-        return self.salida_secciones_evaluacionbomba.get(lado = 'S')
-    
-    def salida_descarga(self):
-        return self.salida_secciones_evaluacionbomba.get(lado = 'D')
-
     class Meta:
         ordering = ('-fecha',)
 
@@ -683,6 +677,9 @@ class SalidaSeccionesEvaluacionBomba(models.Model):
     perdida_carga_accesorios = models.FloatField(null = True)
     perdida_carga_total = models.FloatField()
     evaluacion = models.ForeignKey(EvaluacionBomba, on_delete = models.PROTECT, related_name="salida_secciones_evaluacionbomba")
+
+    class Meta:
+        ordering = ('-lado',)
 
 class SalidaTramosEvaluacionBomba(models.Model):
     '''

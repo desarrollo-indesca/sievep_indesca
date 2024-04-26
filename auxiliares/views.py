@@ -12,6 +12,7 @@ from typing import Any
 import datetime
 
 from django.db import transaction
+from django.db.models import Prefetch
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
@@ -208,29 +209,34 @@ class CargarBombaMixin():
         bomba = Bombas.objects.filter(pk = self.kwargs['pk'])
 
         if(prefetch):
-            bomba = bomba.select_related('instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba','detalles_construccion','condiciones_diseno')
-            bomba = bomba.prefetch_related(
-                'instalacion_succion__elevacion_unidad', 'condiciones_diseno__capacidad_unidad', 
-                'instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad',
+            bomba = bomba.select_related(
+            'instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba',
+            'detalles_construccion','condiciones_diseno', 'condiciones_diseno__condiciones_fluido',
 
-                'condiciones_diseno__presion_unidad', 'condiciones_diseno__npsha_unidad', 
-                
-                'condiciones_diseno__condiciones_fluido', 'condiciones_diseno__condiciones_fluido__temperatura_unidad',
-                'condiciones_diseno__condiciones_fluido__presion_vapor_unidad', 'condiciones_diseno__condiciones_fluido__viscosidad_unidad',
-                'condiciones_diseno__condiciones_fluido__concentracion_unidad', 'condiciones_diseno__condiciones_fluido__fluido',
+            'condiciones_diseno__presion_unidad', 'condiciones_diseno__npsha_unidad', 'condiciones_diseno__capacidad_unidad',
 
-                'especificaciones_bomba__velocidad_unidad', 'especificaciones_bomba__potencia_unidad',
-                'especificaciones_bomba__npshr_unidad', 'especificaciones_bomba__cabezal_unidad',
-                'especificaciones_bomba__id_unidad',
+            'condiciones_diseno__condiciones_fluido__temperatura_unidad', 'condiciones_diseno__condiciones_fluido__densidad_unidad',
+            'condiciones_diseno__condiciones_fluido__presion_vapor_unidad', 'condiciones_diseno__condiciones_fluido__viscosidad_unidad',
+            'condiciones_diseno__condiciones_fluido__concentracion_unidad', 'condiciones_diseno__condiciones_fluido__fluido',
+            'instalacion_succion__elevacion_unidad', 'instalacion_succion__usuario',
+            'instalacion_descarga__elevacion_unidad', 'instalacion_descarga__usuario',
 
-                'detalles_construccion__tipo_carcasa1', 'detalles_construccion__tipo_carcasa2',
-                'detalles_construccion__tipo',
+            'especificaciones_bomba__velocidad_unidad', 'especificaciones_bomba__potencia_unidad',
+            'especificaciones_bomba__npshr_unidad', 'especificaciones_bomba__cabezal_unidad',
+            'especificaciones_bomba__id_unidad',
 
-                'detalles_motor__potencia_motor_unidad','detalles_motor__velocidad_motor_unidad',
-                'detalles_motor__voltaje_unidad', 'detalles_motor__velocidad_motor_unidad',
+            'detalles_construccion__tipo_carcasa1', 'detalles_construccion__tipo_carcasa2',
+            'detalles_construccion__tipo',
 
-                'planta__complejo',
+            'detalles_motor__potencia_motor_unidad','detalles_motor__velocidad_motor_unidad',
+            'detalles_motor__voltaje_unidad', 'detalles_motor__frecuencia_unidad',
+
+            'planta__complejo',
             )
+            bomba = bomba.prefetch_related(
+                'instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad', 'instalacion_succion__tuberias__longitud_tuberia_unidad', 'instalacion_succion__tuberias__material_tuberia',
+                'instalacion_descarga__tuberias', 'instalacion_descarga__tuberias__diametro_tuberia_unidad', 'instalacion_descarga__tuberias__longitud_tuberia_unidad', 'instalacion_descarga__tuberias__material_tuberia'
+            )            
 
         return bomba[0]
 
@@ -330,16 +336,17 @@ class ConsultaBombas(ListView, LoginRequiredMixin, ReportesFichasBombasMixin):
                 tag__icontains = tag
             )
 
-        new_context = new_context.select_related('instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba','detalles_construccion','condiciones_diseno')
-        new_context = new_context.prefetch_related(
-            'instalacion_succion__elevacion_unidad', 'condiciones_diseno__capacidad_unidad', 
-            'instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad',
+        new_context = new_context.select_related(
+            'instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba',
+            'detalles_construccion','condiciones_diseno', 'condiciones_diseno__condiciones_fluido',
 
-            'condiciones_diseno__presion_unidad', 'condiciones_diseno__npsha_unidad', 
-            
-            'condiciones_diseno__condiciones_fluido', 'condiciones_diseno__condiciones_fluido__temperatura_unidad',
+            'condiciones_diseno__presion_unidad', 'condiciones_diseno__npsha_unidad', 'condiciones_diseno__capacidad_unidad',
+
+            'condiciones_diseno__condiciones_fluido__temperatura_unidad', 'condiciones_diseno__condiciones_fluido__densidad_unidad',
             'condiciones_diseno__condiciones_fluido__presion_vapor_unidad', 'condiciones_diseno__condiciones_fluido__viscosidad_unidad',
             'condiciones_diseno__condiciones_fluido__concentracion_unidad', 'condiciones_diseno__condiciones_fluido__fluido',
+            'instalacion_succion__elevacion_unidad', 'instalacion_succion__usuario',
+            'instalacion_descarga__elevacion_unidad', 'instalacion_descarga__usuario',
 
             'especificaciones_bomba__velocidad_unidad', 'especificaciones_bomba__potencia_unidad',
             'especificaciones_bomba__npshr_unidad', 'especificaciones_bomba__cabezal_unidad',
@@ -349,9 +356,13 @@ class ConsultaBombas(ListView, LoginRequiredMixin, ReportesFichasBombasMixin):
             'detalles_construccion__tipo',
 
             'detalles_motor__potencia_motor_unidad','detalles_motor__velocidad_motor_unidad',
-            'detalles_motor__voltaje_unidad', 'detalles_motor__velocidad_motor_unidad',
+            'detalles_motor__voltaje_unidad', 'detalles_motor__frecuencia_unidad',
 
             'planta__complejo',
+            )
+        new_context = new_context.prefetch_related(
+            'instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad', 'instalacion_succion__tuberias__longitud_tuberia_unidad', 'instalacion_succion__tuberias__material_tuberia',
+            'instalacion_descarga__tuberias', 'instalacion_descarga__tuberias__diametro_tuberia_unidad', 'instalacion_descarga__tuberias__longitud_tuberia_unidad', 'instalacion_descarga__tuberias__material_tuberia'
         )
 
         return new_context
@@ -818,19 +829,36 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion, CargarBombaMixin, ReportesFich
         return self.get(request, **kwargs)
     
     def get_queryset(self):
-        new_context = super().get_queryset().filter()
+        new_context = super().get_queryset()
 
-        new_context = new_context.select_related('instalacion_succion', 'instalacion_descarga', 'creado_por', 'entrada', 'salida')
-        new_context = new_context.prefetch_related('instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad',
-                                                   'instalacion_succion__tuberias__longitud_tuberia_unidad', 'instalacion_succion__tuberias__material_tuberia',
-                                                   'entrada__presion_unidad', 'entrada__altura_unidad',
-                                                   'entrada__flujo_unidad', 'salida_secciones_evaluacionbomba__datos_tramos_seccion',
-                                                   'entrada__temperatura_unidad', 'entrada__potencia_unidad', 'salida__velocidad_unidad',
-                                                   'entrada__npshr_unidad', 'entrada__densidad_unidad', 'salida__potencia_unidad',
-                                                   'entrada__viscosidad_unidad', 'entrada__presion_vapor_unidad', 'salida_secciones_evaluacionbomba',
-                                                   'salida__cabezal_total_unidad', 'salida_secciones_evaluacionbomba__datos_tramos_seccion', 'salida_secciones_evaluacionbomba__datos_tramos_seccion__tramo',
-                                                   'salida_secciones_evaluacionbomba__datos_tramos_seccion__tramo__diametro_tuberia_unidad', 'salida_secciones_evaluacionbomba__datos_tramos_seccion__tramo__longitud_tuberia_unidad',
-                                                   'salida_secciones_evaluacionbomba__datos_tramos_seccion__tramo__material_tuberia')
+        new_context = new_context.select_related(
+            'instalacion_succion', 'instalacion_descarga', 'creado_por', 'entrada', 'salida', 'equipo',
+
+            'instalacion_succion__elevacion_unidad', 'instalacion_descarga__elevacion_unidad',
+
+            'entrada__presion_unidad', 'entrada__altura_unidad',
+            'entrada__flujo_unidad', 'entrada__velocidad_unidad',
+            'entrada__temperatura_unidad', 'entrada__potencia_unidad', 
+            'entrada__npshr_unidad', 'entrada__densidad_unidad', 
+            'entrada__viscosidad_unidad', 'entrada__presion_vapor_unidad',
+            'entrada__fluido',
+
+            'salida__velocidad_unidad', 'salida__potencia_unidad',            
+            'salida__cabezal_total_unidad',            
+        )
+        new_context = new_context.prefetch_related(
+            Prefetch('salida_secciones_evaluacionbomba',
+                queryset=SalidaSeccionesEvaluacionBomba.objects.prefetch_related(
+                    Prefetch('datos_tramos_seccion',
+                        queryset=SalidaTramosEvaluacionBomba.objects.prefetch_related(
+                            Prefetch(
+                                'tramo',
+                                queryset=TuberiaInstalacionBomba.objects.select_related('diametro_tuberia_unidad','longitud_tuberia_unidad','material_tuberia')
+                            )
+                        ))
+                )
+            )
+        )
 
         return new_context
 
@@ -1219,19 +1247,16 @@ class ConsultaVentiladores(LoginRequiredMixin, ListView):
                 tag__icontains = tag
             )
 
-        new_context = new_context.select_related('tipo_ventilador','condiciones_trabajo','condiciones_adicionales','condiciones_generales','especificaciones')
-        new_context = new_context.prefetch_related(
-            'especificaciones__espesor_unidad', 'condiciones_generales__presion_barometrica_unidad',
-            'condiciones_generales__temp_ambiente_unidad', 'condiciones_generales__velocidad_diseno_unidad',
-
-            'condiciones_trabajo__flujo_unidad', 'condiciones_trabajo__presion_unidad', 
-            'condiciones_trabajo__velocidad_funcionamiento_unidad', 'condiciones_trabajo__temperatura_unidad',
-            'condiciones_trabajo__densidad_unidad', 'condiciones_trabajo__potencia_freno_unidad', 
-
-            'condiciones_adicionales__flujo_unidad', 'condiciones_adicionales__presion_unidad', 
-            'condiciones_adicionales__velocidad_funcionamiento_unidad', 'condiciones_adicionales__temperatura_unidad',
-            'condiciones_adicionales__densidad_unidad', 'condiciones_adicionales__potencia_freno_unidad' 
-        )
+        new_context = new_context.select_related('tipo_ventilador','condiciones_trabajo','condiciones_adicionales','condiciones_generales','especificaciones', 'planta', 
+                                                 'planta__complejo', 'creado_por', 'editado_por', 'especificaciones__espesor_unidad', 
+                                                 'especificaciones__potencia_motor_unidad', 'especificaciones__velocidad_motor_unidad', 
+                                                 'condiciones_generales__temp_ambiente_unidad', 'condiciones_generales__velocidad_diseno_unidad', 
+                                                 'condiciones_trabajo__flujo_unidad', 'condiciones_trabajo__presion_unidad', 'condiciones_generales__presion_barometrica_unidad',
+                                                 'condiciones_trabajo__velocidad_funcionamiento_unidad', 'condiciones_trabajo__temperatura_unidad',
+                                                 'condiciones_trabajo__densidad_unidad', 'condiciones_trabajo__potencia_freno_unidad', 
+                                                 'condiciones_adicionales__flujo_unidad', 'condiciones_adicionales__presion_unidad', 
+                                                 'condiciones_adicionales__velocidad_funcionamiento_unidad', 'condiciones_adicionales__temperatura_unidad',
+                                                 'condiciones_adicionales__densidad_unidad', 'condiciones_adicionales__potencia_freno_unidad' )
 
         return new_context
     

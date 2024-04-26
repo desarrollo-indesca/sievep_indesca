@@ -106,14 +106,16 @@
                         </tr>
                         <tr>
                             <th class="table-dark text-center">NPSHa / NPSHr</th>
-                            <td class="text-center">{{salida.npsha|floatformat:4}} {{entrada.npshr_unidad}}</td>
+                            {% with npshr_unidad=entrada.npshr_unidad %}
+                            <td class="text-center">{{salida.npsha|floatformat:4}} {{npshr_unidad}}</td>
                             <td class="text-center">
                                 {% if entrada.npshr %}
-                                {{entrada.npshr}} {{entrada.npshr_unidad}}
+                                {{entrada.npshr}} {{npshr_unidad}}
                                 {%else%}
                                 -
                                 {% endif %}         
                             </td>
+                            {% endwith %}
                         </tr>
                         <tr>
                             <th class="table-dark text-center">La bomba cavita</th>
@@ -130,8 +132,9 @@
                     </tbody>
                 </table>
             </div>
-            {% with salida_succion=evaluacion.salida_succion %}
-            {% with salida_descarga=evaluacion.salida_descarga %}
+            {% with salida_secciones=evaluacion.salida_secciones_evaluacionbomba %}
+            {% with salida_succion=salida_secciones.first %}
+            {% with salida_descarga=salida_secciones.last %}
             <div class="col-12 mt-2">
                 <table class="table">
                     <thead>
@@ -204,6 +207,7 @@
             <div class="col-xl-6 col-xs-12">
                 {% include 'bombas/partials/tabla_velocidad_lado.html' with tramos=salida_descarga.datos_tramos_seccion color="info" lado="descarga" %}
             </div>
+            {% endwith %}
             {% endwith %}
             {% endwith %}
           </div>
