@@ -819,9 +819,9 @@ class EntradaEvaluacionVentilador(models.Model):
     potencia_ventilador = models.FloatField(verbose_name="Potencia del Ventilador")
     potencia_ventilador_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_potencia_ventilador_unidad")
 
-    densidad_ficha = models.FloatField()
-    densidad_ficha_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_densidad_ficha_unidad")
-    densidad_evaluacion = models.FloatField(verbose_name="Densidad Calculada")
+    densidad_ficha = models.FloatField(null=True)
+    densidad_ficha_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_densidad_ficha_unidad", null = True)
+    densidad_evaluacion = models.FloatField(verbose_name="Densidad Calculada", blank = True)
     densidad_evaluacion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_densidad_evaluacion_unidad")
 
     class Meta:
@@ -841,11 +841,11 @@ class EvaluacionVentilador(models.Model):
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     equipo = models.ForeignKey(Ventilador, on_delete=models.PROTECT)
     nombre = models.CharField(max_length=50)
-    fecha = models.DateTimeField(auto_created=True)
+    fecha = models.DateTimeField(auto_now=True)
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="evaluacionventilador_creado_por")
     entrada = models.ForeignKey(EntradaEvaluacionVentilador, on_delete=models.PROTECT)
     salida = models.ForeignKey(SalidaEvaluacionVentilador, on_delete=models.PROTECT)
-    activo = models.BooleanField()
+    activo = models.BooleanField(default=True)
 
     class Meta:
         db_table = "ventiladores_evaluacion"

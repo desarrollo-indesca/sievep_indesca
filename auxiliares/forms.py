@@ -341,4 +341,4 @@ class EntradaEvaluacionVentiladorForm(FormConUnidades):
         
     class Meta:
         model = EntradaEvaluacionVentilador
-        exclude = ('id','tipo_flujo','densidad_ficha')
+        exclude = ('id','tipo_flujo','densidad_ficha', 'densidad_ficha_unidad')

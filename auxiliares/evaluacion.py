@@ -549,5 +549,6 @@ def evaluar_ventilador(presion_entrada: float, presion_salida: float, flujo: flo
     return {
         'relacion_densidad': round(relacion_densidad, 6),
         'potencia_calculada': round(potencia_calculada, 4),
-        'eficiencia': round(eficiencia, 2)
+        'eficiencia': round(eficiencia, 2),
+        'densidad_calculada': round(densidad_calculada, 6)
     }

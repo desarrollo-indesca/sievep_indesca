@@ -1644,8 +1644,14 @@ class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
         return render(request, 'ventiladores/evaluacion.html', self.get_context_data())
     
 class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerVentiladorMixin):
-    def post(self, request, pk):
-        condiciones_trabajo = self.get_ventilador().condiciones_trabajo
+    def calcular(self, request):
+        res = self.obtener_resultados(request)
+        return render(request, 'ventiladores/partials/resultados.html', context={'res': res, 'unidad_potencia': Unidades.objects.get(pk = res['potencia_ventilador_unidad'])})
+
+    def obtener_resultados(self, request):
+        ventilador = self.get_ventilador()
+        condiciones_trabajo = ventilador.condiciones_trabajo
+
         # Obtener data del request
         densidad_ficha_unidad = condiciones_trabajo.densidad_unidad.pk
         temperatura_operacion_unidad = int(request.POST.get('temperatura_operacion_unidad'))
@@ -1678,6 +1684,62 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
 
         # Transformar unidades de internacional a salida (ficha)
         res['potencia_calculada'] = transformar_unidades_presion([res['potencia_calculada']], 33, potencia_ventilador_unidad)[0]
-        
-        # Salida
-        return render(request, 'ventiladores/partials/resultados.html', context={'res': res, 'unidad_potencia': Unidades.objects.get(pk = potencia_ventilador_unidad)})
+        res['potencia_ventilador_unidad'] = potencia_ventilador_unidad
+
+        res['ventilador'] = ventilador
+
+        return res
+
+    def almacenar(self, request):
+        try:
+            res = self.obtener_resultados(request)
+            ventilador = self.get_ventilador()
+            condiciones_trabajo = ventilador.condiciones_trabajo
+
+            with transaction.atomic():
+                evaluacion = EvaluacionVentiladorForm(request.POST)
+                entrada_evaluacion = EntradaEvaluacionVentiladorForm(request.POST)
+
+                valido = True and entrada_evaluacion.is_valid()                        
+                if(valido):
+                    densidad_unidad = Unidades.objects.get(pk = request.POST.get('densidad_evaluacion_unidad'))
+                    densidad = transformar_unidades_densidad([res['densidad_calculada']], 30, densidad_unidad.pk)[0]
+                    entrada_evaluacion.instance.densidad_evaluacion = densidad
+                    entrada_evaluacion.instance.densidad_unidad = densidad_unidad
+                    entrada_evaluacion.instance.densidad_ficha = condiciones_trabajo.densidad
+                    entrada_evaluacion.instance.densidad_ficha_unidad = condiciones_trabajo.densidad_unidad
+                    entrada_evaluacion.save()
+                else:
+                    print(entrada_evaluacion.errors)
+
+                valido = valido and evaluacion.is_valid()    
+                if(valido):
+                    salida_evaluacion = SalidaEvaluacionVentilador(
+                        potencia_calculada = res['potencia_calculada'],
+                        potencia_calculada_unidad = Unidades.objects.get(pk=res['potencia_ventilador_unidad']),
+                        eficiencia = res['eficiencia'],
+                        relacion_densidad = res['relacion_densidad']
+                    )
+                    salida_evaluacion.save()
+
+                    evaluacion.instance.creado_por = request.user
+                    evaluacion.instance.equipo = Ventilador.objects.get(pk=self.kwargs['pk'])
+                    evaluacion.instance.entrada = entrada_evaluacion.instance
+                    evaluacion.instance.salida = salida_evaluacion
+                    evaluacion.save()
+                else:
+                    print(evaluacion.errors)
+                
+                if(not valido):
+                    raise Exception("Ocurrió un error al validar los datos")
+                
+                return render(request, 'bombas/partials/carga_lograda.html', {'ventilador': ventilador})
+        except Exception as e:
+            print(str(e))
+            return render(request, 'bombas/partials/carga_fallida.html', {'ventilador': ventilador})
+
+    def post(self, request, pk):
+        if(request.POST['submit'] == 'almacenar'):
+            return self.almacenar(request)
+        else:
+            return self.calcular(request)
