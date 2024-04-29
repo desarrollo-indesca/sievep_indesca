@@ -538,8 +538,6 @@ def evaluar_ventilador(presion_entrada: float, presion_salida: float, flujo: flo
     densidad_calculada = calcular_densidad_aire(temperatura_operacion, presion_entrada + 101325)
     relacion_densidad = calcular_relacion_densidad(densidad_ficha, densidad_calculada)
 
-    print(densidad_calculada, relacion_densidad)
-
     if(tipo_flujo == 'M'):
         flujo = flujo * densidad_calculada
 
@@ -550,5 +548,6 @@ def evaluar_ventilador(presion_entrada: float, presion_salida: float, flujo: flo
         'relacion_densidad': round(relacion_densidad, 6),
         'potencia_calculada': round(potencia_calculada, 4),
         'eficiencia': round(eficiencia, 2),
-        'densidad_calculada': round(densidad_calculada, 6)
+        'densidad_calculada': round(densidad_calculada, 6),
+        'tipo_flujo': tipo_flujo
     }
