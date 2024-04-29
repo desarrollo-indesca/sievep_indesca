@@ -517,8 +517,8 @@ def calcular_potencia_ventilador(presion_entrada: float, presion_salida: float, 
     
     return flujo * (presion_salida - presion_entrada) * relacion_densidad
 
-def evaluar_ventilador(presion_entrada: float, presion_salida: float, flujo: float,
-                       temperatura_operacion: float, potencia_real: float, densidad_ficha: float = None) -> float:
+def evaluar_ventilador(presion_entrada: float, presion_salida: float, flujo: float, tipo_flujo: str,
+                        temperatura_operacion: float, potencia_real: float, densidad_ficha: float = None) -> float:
     '''
     Resumen:
         Función para evaluar un ventilador de acuerdo a los datos dados.
@@ -534,9 +534,15 @@ def evaluar_ventilador(presion_entrada: float, presion_salida: float, flujo: flo
     Devuelve:
         float -> Coeficiente de relación entre las densidades
     '''
-
-    densidad_calculada = calcular_densidad_aire(presion_entrada, temperatura_operacion)
+   
+    densidad_calculada = calcular_densidad_aire(temperatura_operacion, presion_entrada + 101325)
     relacion_densidad = calcular_relacion_densidad(densidad_ficha, densidad_calculada)
+
+    print(densidad_calculada, relacion_densidad)
+
+    if(tipo_flujo == 'M'):
+        flujo = flujo * densidad_calculada
+
     potencia_calculada = calcular_potencia_ventilador(presion_entrada, presion_salida, relacion_densidad, flujo)
     eficiencia = calcular_eficiencia(potencia_real, potencia_calculada)
 

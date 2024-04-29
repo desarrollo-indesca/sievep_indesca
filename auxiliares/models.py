@@ -849,6 +849,7 @@ class EvaluacionVentilador(models.Model):
 
     class Meta:
         db_table = "ventiladores_evaluacion"
+        ordering = ('-fecha',)
 
 # MODELOS DE PRECALENTADOR DE AGUA
 

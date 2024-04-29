@@ -25,4 +25,5 @@ urlpatterns = [
     path('ventiladores/datos_fluido/', CalculoPropiedadesVentilador.as_view(), name="datos_fluido_ventilador"),
     path('ventiladores/evaluaciones/<int:pk>/', ConsultaEvaluacionVentilador.as_view(), name = "evaluaciones_ventilador"),
     path('ventiladores/evaluar/<int:pk>/', CreacionEvaluacionVentilador.as_view(), name='crear_evaluacion_ventilador'),
+    path('ventiladores/evaluar/<int:pk>/resultado/', CalcularResultadosVentilador.as_view(), name='resultados_evaluacion_ventilador')
 ]

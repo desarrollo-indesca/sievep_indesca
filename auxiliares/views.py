@@ -25,9 +25,9 @@ from auxiliares.models import *
 from auxiliares.forms import *
 from intercambiadores.models import Complejo, Planta
 from calculos.termodinamicos import calcular_densidad, calcular_densidad_aire, calcular_presion_vapor, calcular_viscosidad, calcular_densidad_relativa
-from calculos.unidades import transformar_unidades_presion, transformar_unidades_flujo_volumetrico, transformar_unidades_potencia, transformar_unidades_longitud, transformar_unidades_temperatura, transformar_unidades_densidad, transformar_unidades_viscosidad
+from calculos.unidades import *
 from calculos.utils import fluido_existe, registrar_fluido
-from .evaluacion import evaluacion_bomba
+from .evaluacion import evaluacion_bomba, evaluar_ventilador
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_bombas, historico_evaluaciones_bombas, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga
 
@@ -1642,3 +1642,42 @@ class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
     
     def get(self, request, pk):
         return render(request, 'ventiladores/evaluacion.html', self.get_context_data())
+    
+class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerVentiladorMixin):
+    def post(self, request, pk):
+        condiciones_trabajo = self.get_ventilador().condiciones_trabajo
+        # Obtener data del request
+        densidad_ficha_unidad = condiciones_trabajo.densidad_unidad.pk
+        temperatura_operacion_unidad = int(request.POST.get('temperatura_operacion_unidad'))
+        flujo_unidad = int(request.POST.get('flujo_unidad'))
+        tipo_flujo = 'M' if flujo_unidad in [6,10,18,19] else 'V'
+        potencia_ventilador_unidad = int(request.POST.get('potencia_ventilador_unidad'))
+        presion_salida_unidad = int(request.POST.get('presion_salida_unidad'))
+
+        presion_entrada = float(request.POST.get('presion_entrada'))
+        presion_salida = float(request.POST.get('presion_salida'))
+        temperatura_operacion = float(request.POST.get('temperatura_operacion'))
+        flujo = float(request.POST.get('flujo'))
+        potencia_ventilador = float(request.POST.get('potencia_ventilador'))
+        densidad_ficha = condiciones_trabajo.densidad
+
+        # Transformar unidades a internacional
+        presion_entrada, presion_salida = transformar_unidades_presion([presion_entrada, presion_salida], presion_salida_unidad)
+        temperatura_operacion = transformar_unidades_temperatura([temperatura_operacion], temperatura_operacion_unidad)[0]
+        potencia_ventilador = transformar_unidades_potencia([potencia_ventilador], potencia_ventilador_unidad)[0]
+        densidad_ficha = transformar_unidades_densidad([densidad_ficha], densidad_ficha_unidad)[0]
+
+        if(flujo_unidad in [6,10,18,19]):
+            flujo = transformar_unidades_flujo([flujo], flujo_unidad)[0]
+        else:
+            flujo = transformar_unidades_flujo_volumetrico([flujo], flujo_unidad)[0]
+
+        # Calcular Resultados
+        res = evaluar_ventilador(presion_entrada, presion_salida, flujo, tipo_flujo,
+                                 temperatura_operacion, potencia_ventilador, densidad_ficha)
+
+        # Transformar unidades de internacional a salida (ficha)
+        res['potencia_calculada'] = transformar_unidades_presion([res['potencia_calculada']], 33, potencia_ventilador_unidad)[0]
+        
+        # Salida
+        return render(request, 'ventiladores/partials/resultados.html', context={'res': res, 'unidad_potencia': Unidades.objects.get(pk = potencia_ventilador_unidad)})
