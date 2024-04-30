@@ -250,6 +250,9 @@ def generar_historia(request, reporte, object_list):
 
     if reporte == 'ficha_tecnica_ventilador':
         return ficha_tecnica_ventilador(object_list)
+    
+    if reporte == 'reporte_evaluaciones_ventilador':
+        return reporte_evaluaciones_ventilador(request, object_list)
 
 def detalle_evaluacion(evaluacion):
     '''
@@ -2141,4 +2144,84 @@ def ficha_tecnica_ventilador(ventilador):
     if(ventilador.editado_al):
         story.append(Paragraph(f"Bomba editada por {ventilador.editado_por.get_full_name()} el día {ventilador.editado_al.strftime('%d/%m/%Y %H:%M:%S')}.", centrar_parrafo))
 
+    return [story, None]
+
+def reporte_evaluaciones_ventilador(request, object_list):
+    '''
+    Resumen:
+        Esta función genera la historia de elementos a utilizar en el reporte de histórico de evaluaciones de un ventilador.
+        Devuelve además una lista de elementos de archivos que deben ser cerrados una vez se genere el reporte.
+    '''
+    story = []
+    story.append(Spacer(0,60))
+
+    ventilador = object_list[0].equipo
+    
+    # Condiciones de Filtrado
+    if(len(request.GET) >= 2 and (request.GET['desde'] or request.GET['hasta'] or request.GET['usuario'] or request.GET['nombre'])):
+        story.append(Paragraph("Datos de Filtrado", centrar_parrafo))
+        table = [[Paragraph("Desde", centrar_parrafo), Paragraph("Hasta", centrar_parrafo), Paragraph("Usuario", centrar_parrafo), Paragraph("Nombre Ev.", centrar_parrafo)]]
+        table.append([
+            Paragraph(request.GET.get('desde'), parrafo_tabla),
+            Paragraph(request.GET.get('hasta'), parrafo_tabla),
+            Paragraph(request.GET.get('usuario'), parrafo_tabla),
+            Paragraph(request.GET.get('nombre'), parrafo_tabla),
+        ])
+
+        table = Table(table)
+        table.setStyle(basicTableStyle)
+
+        story.append(table)
+        story.append(Spacer(0,7))
+    
+    potencia_unidad = ventilador.condiciones_trabajo.potencia_freno_unidad
+
+    # Primera tabla: Evaluaciones
+    table = [
+        [
+            Paragraph(f"Fecha", centrar_parrafo),
+            Paragraph(f"Potencia ({potencia_unidad})", centrar_parrafo),
+            Paragraph(f"Potencia Calculada ({potencia_unidad})", centrar_parrafo),
+            Paragraph(f"Eficiencia (%)", centrar_parrafo),
+        ]
+    ]
+
+    eficiencias = []
+    potencias = []
+    potencias_calculadas = []
+    fechas = []
+
+    object_list = object_list.order_by('fecha')
+    for x in object_list:
+        salida = x.salida
+        entrada = x.entrada
+        eficiencia = round(salida.eficiencia, 2)
+        potencia = round(transformar_unidades_potencia([entrada.potencia_ventilador], entrada.potencia_ventilador_unidad.pk, potencia_unidad.pk)[0], 4)
+        potencia_calculada = round(transformar_unidades_potencia([salida.potencia_calculada], salida.potencia_calculada_unidad.pk, potencia_unidad.pk)[0], 4)
+        fecha = x.fecha.strftime('%d/%m/%Y %H:%M')            
+
+        eficiencias.append(eficiencia)
+        potencias_calculadas.append(potencia_calculada)
+        potencias.append(potencia)
+        fechas.append(fecha)
+            
+        table.append([Paragraph(fecha, centrar_parrafo), Paragraph(str(potencia), centrar_parrafo), 
+                      Paragraph(str(potencia_calculada), centrar_parrafo), Paragraph(str(eficiencia), centrar_parrafo)])
+        
+    table = Table(table, colWidths=[1.8*inch, 1.8*inch, 1.8*inch, 1.8*inch])
+    table.setStyle(basicTableStyle)
+    story.append(table)
+
+    sub = "Fechas" # Subtítulo de las evaluaciones
+    if(len(fechas) >= 5):
+        fechas = list(range(1,len(fechas)+1))
+        sub = "Evaluaciones"
+
+    # Generación de Gráficas históricas. Todas las magnitudes deben encontrarse en la misma unidad.
+    if(len(object_list) > 1):
+        story, grafica1 = anadir_grafica(story, eficiencias, fechas, sub, "Eficiencia", "Eficiencias (%)")
+        story, grafica2 = anadir_grafica(story, [potencias, potencias_calculadas], fechas, sub, "Potencia y Potencia Calc.", f"Potencia y Potencia Calc. ({potencia_unidad})")
+
+        return [story, [grafica1, grafica2]]    
+    
     return [story, None]

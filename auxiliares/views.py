@@ -195,11 +195,11 @@ class ReportesFichasMixin():
     reporte_ficha_xlsx = lambda ventilador,request : '' # Definición Placeholder
     titulo_reporte_ficha = ""
     codigo_reporte_ficha = ""
-    model = None
+    model_ficha = None
 
     def reporte_ficha(self, request):
         if(request.POST.get('ficha')):
-            equipo = self.model.objects.get(pk = request.POST.get('ficha'))
+            equipo = self.model_ficha.objects.get(pk = request.POST.get('ficha'))
             if(request.POST.get('tipo') == 'pdf'):
                 return generar_pdf(request, equipo, self.titulo_reporte_ficha + " " + equipo.tag.upper(), self.codigo_reporte_ficha)
             if(request.POST.get('tipo') == 'xlsx'):
@@ -1209,6 +1209,7 @@ class ObtenerVentiladorMixin():
 
 class ConsultaVentiladores(LoginRequiredMixin, ListView, ReportesFichasMixin):
     model = Ventilador
+    model_ficha = Ventilador
     template_name = 'ventiladores/consulta.html'
     paginate_by = 10
     reporte_ficha_xlsx = None
@@ -1621,7 +1622,7 @@ class EdicionVentilador(CreacionVentilador):
             })
         
 # Evaluaciones de Ventilador
-class ConsultaEvaluacionVentilador(ConsultaEvaluacion, ObtenerVentiladorMixin):
+class ConsultaEvaluacionVentilador(ConsultaEvaluacion, ObtenerVentiladorMixin, ReportesFichasMixin):
     """
     Resumen:
         Vista para la consulta de evaluaciones de VENTILADORES.
@@ -1646,22 +1647,22 @@ class ConsultaEvaluacionVentilador(ConsultaEvaluacion, ObtenerVentiladorMixin):
     model_equipment = Ventilador
     clase_equipo = "l Ventilador"
     tipo = 'ventilador'
+    model_ficha = Ventilador
+    reporte_ficha_xlsx = None
+    titulo_reporte_ficha = "Ficha Técnica del Ventilador"
+    codigo_reporte_ficha = "ficha_tecnica_ventilador"
 
     def post(self, request, **kwargs):
         if(request.user.is_superuser and request.POST.get('evaluacion')): # Lógica de "Eliminación"
-            evaluacion = EvaluacionBomba.objects.get(pk=request.POST['evaluacion'])
+            evaluacion = EvaluacionVentilador.objects.get(pk=request.POST['evaluacion'])
             evaluacion.activo = False
             evaluacion.save()
             messages.success(request, "Evaluación eliminada exitosamente.")
         elif(request.POST.get('evaluacion') and not request.user.is_superuser):
             messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
 
-        reporte_ficha = self.reporte_ficha(request)
-        if(reporte_ficha):
-            return reporte_ficha
-
         if(request.POST.get('tipo') == 'pdf'):
-            return generar_pdf(request, self.get_queryset(), f"Evaluaciones del Ventilador {self.get_bomba().tag}", "evaluaciones_ventilador")
+            return generar_pdf(request, self.get_queryset(), f"Evaluaciones del Ventilador {self.get_ventilador().tag}", "reporte_evaluaciones_ventilador")
         elif(request.POST.get('tipo') == 'xlsx'):
             return historico_evaluaciones_bombas(self.get_queryset(), request)
 
