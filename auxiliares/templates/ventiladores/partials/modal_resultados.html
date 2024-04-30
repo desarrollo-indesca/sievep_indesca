@@ -80,17 +80,20 @@
                         <tr>
                             <th class="text-center table-dark">PARÁMETRO</th>
                             <th class="text-center table-dark">RESULTADO</th>
+                            <th class="text-center table-dark">FICHA</th>                            
                         </tr>
                     </thead>
             
                     <tbody>
                         <tr>
                             <th class="table-dark text-center">Eficiencia (%)</th>
-                            <td class="text-center">{{salida.eficiencia|floatformat:4}}</td>
+                            <td class="text-center">{{salida.eficiencia|floatformat:2}}</td>
+                            <td class="text-center">{{equipo.condiciones_trabajo.eficiencia|default_if_none:'-'}} <b>/</b> {{equipo.condiciones_adicionales.eficiencia|default_if_none:'-'}}</td>
                         </tr>
                         <tr>
-                            <th class="table-dark text-center">Potencia Calculada ({{salida.potencia_calculada_unidad}})</th>
-                            <td class="text-center">{{salida.potencia_calculada|floatformat:4}}</td>
+                            <th class="table-dark text-center">Potencia Calculada</th>
+                            <td class="text-center">{{salida.potencia_calculada|floatformat:4}} {{salida.potencia_calculada_unidad}}</td>
+                            <td class="text-center">{{equipo.condiciones_trabajo.potencia|default_if_none:'-'}} <b>/</b> {{equipo.condiciones_trabajo.potencia_freno|default_if_none:'-'}} {{equipo.condiciones_trabajo.potencia_freno_unidad}}</td>
                         </tr>
                     </tbody>
                 </table>

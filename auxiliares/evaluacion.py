@@ -534,7 +534,7 @@ def evaluar_ventilador(presion_entrada: float, presion_salida: float, flujo: flo
     Devuelve:
         float -> Coeficiente de relación entre las densidades
     '''
-   
+  
     densidad_calculada = calcular_densidad_aire(temperatura_operacion, presion_entrada + 101325)
     relacion_densidad = calcular_relacion_densidad(densidad_ficha, densidad_calculada)
 

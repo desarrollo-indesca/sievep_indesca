@@ -1461,7 +1461,28 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
                     form_condiciones_trabajo.instance.densidad = self.obtener_densidad(self.request.POST)
                 
                 if(form_condiciones_trabajo.instance.flujo_unidad.pk in [6,10,18,19]): # Unidades de FLUJO MÁSICO
-                   form_condiciones_trabajo.instance.tipo_flujo = 'M' 
+                   form_condiciones_trabajo.instance.tipo_flujo = 'M'
+
+                if(form_condiciones_trabajo.instance.densidad and form_condiciones_trabajo.instance.presion_entrada
+                    and form_condiciones_trabajo.instance.temperatura and form_condiciones_trabajo.instance.presion_salida
+                    and form_condiciones_trabajo.instance.flujo and (form_condiciones_trabajo.instance.potencia 
+                    or form_condiciones_trabajo.instance.potencia_freno)):
+
+                    instance = form_condiciones_trabajo.instance
+                    densidad = transformar_unidades_densidad([instance.densidad], instance.densidad_unidad.pk)[0]
+                    temperatura = transformar_unidades_temperatura([instance.temperatura], instance.temperatura_unidad.pk)[0]
+                    presion_entrada, presion_salida = transformar_unidades_presion([instance.presion_entrada, instance.presion_salida], form_condiciones_trabajo.instance.presion_unidad.pk)
+                    
+                    if(instance.tipo_flujo == 'M'):
+                        flujo = transformar_unidades_flujo([instance.flujo], instance.flujo_unidad.pk)[0]
+                    else:
+                        flujo = transformar_unidades_flujo_volumetrico([instance.flujo], instance.flujo_unidad.pk)[0]
+                    
+                    potencia_real = transformar_unidades_potencia([instance.potencia if instance.potencia else instance.potencia_freno], instance.potencia_freno_unidad.pk)[0]
+                    res = evaluar_ventilador(presion_entrada, presion_salida, flujo, instance.tipo_flujo, temperatura, potencia_real, densidad)
+                    form_condiciones_trabajo.instance.eficiencia = res['eficiencia']
+                else:
+                    form_condiciones_trabajo.instance.eficiencia = None
 
                 form_condiciones_trabajo.save()
 
@@ -1470,7 +1491,28 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
                     form_condiciones_adicionales.instance.densidad = self.obtener_densidad(self.request.POST, True)
                 
                 if(form_condiciones_adicionales.instance.flujo_unidad.pk in [6,10,18,19]): # Unidades de FLUJO MÁSICO
-                   form_condiciones_adicionales.instance.tipo_flujo = 'M' 
+                   form_condiciones_adicionales.instance.tipo_flujo = 'M'
+
+                if(form_condiciones_adicionales.instance.densidad and form_condiciones_adicionales.instance.presion_entrada
+                    and form_condiciones_adicionales.instance.temperatura and form_condiciones_adicionales.instance.presion_salida
+                    and form_condiciones_adicionales.instance.flujo and (form_condiciones_adicionales.instance.potencia 
+                    or form_condiciones_adicionales.instance.potencia_freno)):
+
+                    instance = form_condiciones_adicionales.instance
+                    densidad = transformar_unidades_densidad([instance.densidad], instance.densidad_unidad.pk)[0]
+                    temperatura = transformar_unidades_temperatura([instance.temperatura], instance.temperatura_unidad.pk)[0]
+                    presion_entrada, presion_salida = transformar_unidades_presion([instance.presion_entrada, instance.presion_salida], form_condiciones_adicionales.instance.presion_unidad.pk)
+                    
+                    if(instance.tipo_flujo == 'M'):
+                        flujo = transformar_unidades_flujo([instance.flujo], instance.flujo_unidad.pk)[0]
+                    else:
+                        flujo = transformar_unidades_flujo_volumetrico([instance.flujo], instance.flujo_unidad.pk)[0]
+                    
+                    potencia_real = transformar_unidades_potencia([instance.potencia if instance.potencia else instance.potencia_freno], instance.potencia_freno_unidad.pk)[0]
+                    res = evaluar_ventilador(presion_entrada, presion_salida, flujo, instance.tipo_flujo, temperatura, potencia_real, densidad)
+                    form_condiciones_adicionales.instance.eficiencia = res['eficiencia']
+                else:
+                    form_condiciones_adicionales.instance.eficiencia = None
 
                 form_condiciones_adicionales.save()
                 adicionales_creados = True
@@ -1713,7 +1755,7 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
                                  temperatura_operacion, potencia_ventilador, densidad_ficha)
 
         # Transformar unidades de internacional a salida (ficha)
-        res['potencia_calculada'] = transformar_unidades_presion([res['potencia_calculada']], 33, potencia_ventilador_unidad)[0]
+        res['potencia_calculada'] = transformar_unidades_potencia([res['potencia_calculada']], 49, potencia_ventilador_unidad)[0]
         res['potencia_ventilador_unidad'] = potencia_ventilador_unidad
 
         res['ventilador'] = ventilador

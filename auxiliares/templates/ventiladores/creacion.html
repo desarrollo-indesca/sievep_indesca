@@ -288,7 +288,7 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.densidad.label_tag}}*
                     <div class="input-group mb-1">
-                        {% if form_condiciones_trabajo.instance.calculo_densidad == 'M' %}
+                        {% if form_condiciones_trabajo.instance.calculo_densidad == 'M' or not form_condiciones_trabajo.instance %}
                         {% render_field form_condiciones_trabajo.densidad min="0.000001" class="form-control" %}
                         {% else %}
                         {% render_field form_condiciones_trabajo.densidad min="0.000001" disabled="disabled" class="form-control" %}
@@ -391,7 +391,7 @@
                 <div class="col-4">
                     {{form_condiciones_adicionales.densidad.label_tag}}*
                     <div class="input-group mb-1">
-                        {% if form_condiciones_adicionales.instance.calculo_densidad == 'M' %}
+                        {% if form_condiciones_adicionales.instance.calculo_densidad == 'M' or not form_condiciones_adicionales.instance %}
                         {% render_field form_condiciones_adicionales.densidad min="0.000001" class="form-control" %}
                         {% else %}
                         {% render_field form_condiciones_adicionales.densidad min="0.000001" disabled="disabled" class="form-control" %}
