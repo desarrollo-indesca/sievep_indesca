@@ -314,6 +314,9 @@ class CondicionesTrabajoVentiladorForm(FormConUnidades):
         self.fields['velocidad_funcionamiento_unidad'].empty_label = None
         self.fields['velocidad_funcionamiento_unidad'].queryset = UNIDADES_VELOCIDAD_ANGULAR
 
+        self.fields['potencia_freno_unidad'].empty_label = None
+        self.fields['potencia_freno_unidad'].queryset = UNIDADES_POTENCIA
+
     class Meta:
         model = CondicionesTrabajoVentilador
         exclude = ('id','eficiencia','tipo_flujo')
@@ -324,9 +327,6 @@ class EvaluacionVentiladorForm(forms.ModelForm):
         fields = ('nombre',)
 
 class EntradaEvaluacionVentiladorForm(FormConUnidades):
-    def clean_presion_entrada(self):
-        print(self.data)
-
     def limpiar_campos_unidades(self):
         self.fields['flujo_unidad'].empty_label = None
         self.fields['flujo_unidad'].queryset = UNIDADES_FLUJOS
@@ -342,9 +342,6 @@ class EntradaEvaluacionVentiladorForm(FormConUnidades):
 
         self.fields['potencia_ventilador_unidad'].empty_label = None
         self.fields['potencia_ventilador_unidad'].queryset = UNIDADES_POTENCIA
-
-        self.fields['potencia_freno_unidad'].empty_label = None
-        self.fields['potencia_freno_unidad'].queryset = UNIDADES_POTENCIA
         
     class Meta:
         model = EntradaEvaluacionVentilador

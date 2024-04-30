@@ -80,8 +80,13 @@
     <button type="button" class="btn btn-secondary" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{equipo.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button>
     <button type="button" class="btn btn-warning" style="color: black;" data-bs-toggle="modal" data-bs-target="#grafica_historica"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Mostrar gráfica histórico">&nbsp;Gráfica Histórica</button>
   </form>
+  {% if tipo == 'ventilador' %}
+  {% include 'ventiladores/partials/historico.html' with equipo=equipo %}
+  {% include 'ventiladores/ficha.html' with ventilador=equipo %}
+  {% else %}
   {% include 'bombas/partials/historico.html' with bomba=equipo %}
   {% include 'bombas/ficha.html' with bomba=equipo %}
+  {% endif %}
 </div>
 <footer aria-label="Page navigation example">
   <ul class="pagination">

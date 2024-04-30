@@ -1743,3 +1743,34 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
             return self.almacenar(request)
         else:
             return self.calcular(request)
+        
+class GenerarGraficaVentilador(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        ventilador = Ventilador.objects.get(pk=pk)
+        evaluaciones = EvaluacionVentilador.objects.filter(activo = True, equipo = ventilador).order_by('fecha')
+        
+        if(request.GET.get('desde')):
+            evaluaciones = evaluaciones.filter(fecha__gte = request.GET.get('desde'))
+
+        if(request.GET.get('hasta')):
+            evaluaciones = evaluaciones.filter(fecha__lte = request.GET.get('hasta'))
+
+        if(request.GET.get('usuario')):
+            evaluaciones = evaluaciones.filter(creado_por__first_name__icontains = request.GET.get('hasta'))
+
+        if(request.GET.get('nombre')):
+            evaluaciones = evaluaciones.filter(nombre__icontains = request.GET.get('nombre'))
+        
+        res = []
+
+        for evaluacion in evaluaciones:
+            salida = evaluacion.salida
+            entrada = evaluacion.entrada
+            res.append({
+                'fecha': evaluacion.fecha.__str__(),
+                'salida__eficiencia': salida.eficiencia,
+                'salida__potencia_calculada': transformar_unidades_longitud([salida.potencia_calculada], salida.potencia_calculada_unidad.pk, ventilador.condiciones_trabajo.potencia_freno_unidad.pk)[0],
+                'salida__potencia': transformar_unidades_longitud([entrada.potencia_ventilador], evaluacion.entrada.potencia_ventilador_unidad.pk, ventilador.condiciones_trabajo.potencia_freno_unidad.pk)[0],
+            })
+
+        return JsonResponse(res[:15], safe=False)
