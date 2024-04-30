@@ -52,7 +52,7 @@
                 <div class="mt-3 col-6">
                     {{form_entrada_evaluacion.presion_salida.label_tag}}*
                     <div class="input-group">
-                        {% render_field form_entrada_evaluacion.presion_salida class="form-control" %}
+                        {% render_field form_entrada_evaluacion.presion_salida class="form-control" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-swap="none" hx-include=".parametros-propiedades" %}
                         {% render_field form_entrada_evaluacion.presion_salida_unidad class="form-select" disabled="disabled" %}
                     </div>
                 </div>

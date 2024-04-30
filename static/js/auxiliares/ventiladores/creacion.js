@@ -124,6 +124,18 @@ document.body.addEventListener('htmx:afterRequest', function(evt) {
 });
 
 $('#submit').click(e => {
+    if($('#id_presion_entrada').val() !== '' && $('#id_presion_salida').val() !== '' && Number($('#id_presion_entrada').val()) > Number($('#id_presion_salida').val())){
+        alert("La presión de entrada debe ser menor o igual a la presión de salida (Condiciones de Trabajo).");
+        e.preventDefault();
+        return;
+    }
+
+    if($('#id_adicional-presion_entrada').val() !== '' && $('#id_adicional-presion_salida').val() !== '' && Number($('#id_adicional-presion_entrada').val()) > Number($('#id_adicional-presion_salida').val())){
+        alert("La presión de entrada debe ser menor o igual a la presión de salida (Condiciones Adicionales).");
+        e.preventDefault();
+        return;
+    } 
+
     if(!confirm("¿Está seguro que desea realizar esta acción?"))
         e.preventDefault();
 })

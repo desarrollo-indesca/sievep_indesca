@@ -29,7 +29,6 @@
                     </thead>
             
                     <tbody>
-                        
                         <tr>
                             <th class="table-dark text-center">Fluido</th>
                             <td class="text-center" colspan="2">Aire</td>
@@ -58,7 +57,7 @@
                             <th class="table-dark text-center">Densidad Calculada/Comparación</th>
                             <td class="text-center">
                                 {{entrada.densidad_evaluacion|floatformat:4}} {{entrada.densidad_evaluacion_unidad}}
-                                &nbsp;&nbsp; <b>/</b>&nbsp;&nbsp;
+                                &nbsp;&nbsp;<b>/</b>&nbsp;&nbsp;
                                 
                                 {% if entrada.densidad_ficha %}
                                 {{entrada.densidad_ficha}} {{entrada.densidad_ficha_unidad}}
