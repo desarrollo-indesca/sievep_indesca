@@ -9,6 +9,78 @@ from calculos.unidades import transformar_unidades_presion, transformar_unidades
 # Aquí irán los reportes en formato Excel
 alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
+def reporte_equipos(request, object_list, titulo: str, nombre: str):
+    '''
+    Resumen:
+        Función que genera un reporte los datos generales de un equipo (filtradas o no) en formato XLSX.
+    '''
+    excel_io = BytesIO()
+    workbook = xlsxwriter.Workbook(excel_io)
+    
+    worksheet = workbook.add_worksheet()
+
+    worksheet.set_column('B:B', 20)
+    worksheet.set_column('C:C', 20)
+    worksheet.set_column('D:D', 20)
+    worksheet.set_column('E:E', 40)
+
+    bold = workbook.add_format({'bold': True})
+    bold_bordered = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'yellow'})
+    center_bordered = workbook.add_format({'border': 1})
+    bordered = workbook.add_format({'border': 1})
+    fecha =  workbook.add_format({'border': 1})
+
+    fecha.set_align('right')
+    bold_bordered.set_align('vcenter')
+    center_bordered.set_align('vcenter')
+    bold_bordered.set_align('center')
+    center_bordered.set_align('center')
+
+    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.write('C1', titulo.title(), bold)
+    worksheet.insert_image(0, 4, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+
+    num = 6
+    if(len(request.GET)):
+        worksheet.write('A5', 'Filtros', bold_bordered)
+        worksheet.write('B5', 'Tag', bold_bordered)
+        worksheet.write('C5', 'Planta', bold_bordered)
+        worksheet.write('D5', 'Complejo', bold_bordered)
+        worksheet.write('E5', 'Servicio', bold_bordered)
+
+        worksheet.write('B6', request.GET.get('tag', ''), center_bordered)
+        worksheet.write('C6', Planta.objects.get(pk=request.GET.get('planta')).nombre if request.GET.get('planta') else '', center_bordered)
+        worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('complejo')).nombre if request.GET.get('complejo') else '', center_bordered)
+        worksheet.write('E6', request.GET.get('servicio', request.GET.get('descripcion')), center_bordered)
+        num = 8
+
+    worksheet.write(f'A{num}', '#', bold_bordered)
+    worksheet.write(f'B{num}', 'Tag', bold_bordered)
+    worksheet.write(f'C{num}', 'Planta', bold_bordered)
+    worksheet.write(f'D{num}', 'Complejo', bold_bordered)
+    worksheet.write(f'E{num}', 'Descripción/Servicio', bold_bordered)
+
+    for i,equipo in enumerate(object_list):
+        num += 1
+        worksheet.write_number(f'A{num}', i+1, center_bordered)
+        worksheet.write(f'B{num}', equipo.tag, center_bordered)
+        worksheet.write(f'C{num}', equipo.planta.nombre, center_bordered)
+        worksheet.write(f'D{num}', equipo.planta.complejo.nombre, center_bordered)
+        worksheet.write(f'E{num}', equipo.descripcion, bordered)
+    
+    worksheet.write(f"E{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
+    worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)
+    workbook.close()
+    
+    return enviar_response(nombre, excel_io, fecha)
+
+def enviar_response(nombre, archivo, fecha):
+    response = HttpResponse(content_type='application/ms-excel', content=archivo.getvalue())
+    fecha = datetime.datetime.now()
+    response['Content-Disposition'] = f'attachment; filename="{nombre}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
+    
+    return response
+
 # REPORTES DE INTERCAMBIADORES
 
 def historico_evaluaciones(object_list, request):
@@ -97,9 +169,7 @@ def historico_evaluaciones(object_list, request):
     worksheet.write(f"J{num+2}", "Generado por " + request.user.get_full_name(), fecha)
     workbook.close()
         
-    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
-    
-    return response
+    return enviar_response(f'historico_evaluaciones_intercambiador_{intercambiador.tag}', excel_io, fecha)
 
 def ficha_tecnica_tubo_carcasa_xlsx(intercambiador, request):
     '''
@@ -256,9 +326,7 @@ def ficha_tecnica_tubo_carcasa_xlsx(intercambiador, request):
     worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)
     workbook.close()
     
-    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
-    
-    return response
+    return enviar_response(f'ficha_tecnica_tubo_carcasa_{intercambiador.tag}', excel_io, fecha)
 
 def ficha_tecnica_doble_tubo_xlsx(intercambiador, request):
     '''
@@ -417,9 +485,7 @@ def ficha_tecnica_doble_tubo_xlsx(intercambiador, request):
     worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)
     workbook.close()
     
-    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
-    
-    return response
+    return enviar_response(f'intercambiador_doble_tubo_ficha_tecnica_{intercambiador.tag}', excel_io, fecha)
 
 def reporte_intercambiadores(object_list, request):
     '''
@@ -487,9 +553,7 @@ def reporte_intercambiadores(object_list, request):
     worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)
     workbook.close()
     
-    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
-    
-    return response
+    return enviar_response(f'intercambiadores_{intercambiador.tag}', excel_io, fecha)
 
 # REPORTES DE BOMBAS CENTRÍFUGAS
 def ficha_instalacion_bomba_centrifuga(bomba, request):
@@ -619,16 +683,9 @@ def ficha_instalacion_bomba_centrifuga(bomba, request):
     worksheet.write(f"E{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
     worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)
 
-    # Leyenda
-
     workbook.close()
     
-    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
-
-    fecha = datetime.datetime.now()
-    response['Content-Disposition'] = f'attachment; filename="ficha_instalacion_bomba_{bomba.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
-
-    return response
+    return enviar_response(f'ficha_instalacion_bomba_centrifuga_{bomba.tag}', excel_io, fecha)
 
 def ficha_tecnica_bomba_centrifuga(bomba, request):
     '''
@@ -788,13 +845,8 @@ def ficha_tecnica_bomba_centrifuga(bomba, request):
     worksheet.write(f"A{num+6}", "Especificaciones del Motor", motor_estilo)
 
     workbook.close()
-    
-    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
 
-    fecha = datetime.datetime.now()
-    response['Content-Disposition'] = f'attachment; filename="ficha_tecnica_bomba_{bomba.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
-
-    return response
+    return enviar_response(f'ficha_tecnica_bomba_centrifuga_{bomba.tag}', excel_io, fecha)
 
 def historico_evaluaciones_bombas(object_list, request):
     '''
@@ -885,78 +937,6 @@ def historico_evaluaciones_bombas(object_list, request):
     worksheet.write(f"J{num+2}", "Generado por " + request.user.get_full_name(), fecha)
     workbook.close()
         
-    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
-    fecha = datetime.datetime.now()
-    response['Content-Disposition'] = f'attachment; filename="evaluaciones_bomba_{bomba.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
+    return enviar_response('historico_evaluaciones_bombas', excel_io, fecha)
 
-
-    return response
-
-def reporte_bombas(request, object_list):
-    '''
-    Resumen:
-        Función que genera los datos generales de bombas (filtradas o no) en formato XLSX.
-    '''
-    excel_io = BytesIO()
-    workbook = xlsxwriter.Workbook(excel_io)
-    
-    worksheet = workbook.add_worksheet()
-
-    worksheet.set_column('B:B', 20)
-    worksheet.set_column('C:C', 20)
-    worksheet.set_column('D:D', 20)
-    worksheet.set_column('E:E', 40)
-
-    bold = workbook.add_format({'bold': True})
-    bold_bordered = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'yellow'})
-    center_bordered = workbook.add_format({'border': 1})
-    bordered = workbook.add_format({'border': 1})
-    fecha =  workbook.add_format({'border': 1})
-
-    fecha.set_align('right')
-    bold_bordered.set_align('vcenter')
-    center_bordered.set_align('vcenter')
-    bold_bordered.set_align('center')
-    center_bordered.set_align('center')
-
-    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
-    worksheet.write('C1', f'Reporte de Bombas Centrífugas', bold)
-    worksheet.insert_image(0, 4, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
-
-    num = 6
-    if(len(request.GET)):
-        worksheet.write('A5', 'Filtros', bold_bordered)
-        worksheet.write('B5', 'Tag', bold_bordered)
-        worksheet.write('C5', 'Planta', bold_bordered)
-        worksheet.write('D5', 'Complejo', bold_bordered)
-        worksheet.write('E5', 'Servicio', bold_bordered)
-
-        worksheet.write('B6', request.GET.get('tag', ''), center_bordered)
-        worksheet.write('C6', Planta.objects.get(pk=request.GET.get('planta')).nombre if request.GET.get('planta') else '', center_bordered)
-        worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('complejo')).nombre if request.GET.get('complejo') else '', center_bordered)
-        worksheet.write('E6', request.GET.get('servicio', ''), center_bordered)
-        num = 8
-
-    worksheet.write(f'A{num}', '#', bold_bordered)
-    worksheet.write(f'B{num}', 'Tag', bold_bordered)
-    worksheet.write(f'C{num}', 'Planta', bold_bordered)
-    worksheet.write(f'D{num}', 'Complejo', bold_bordered)
-    worksheet.write(f'E{num}', 'Descripción', bold_bordered)
-
-    for i,bomba in enumerate(object_list):
-        num += 1
-        worksheet.write_number(f'A{num}', i+1, center_bordered)
-        worksheet.write(f'B{num}', bomba.tag, center_bordered)
-        worksheet.write(f'C{num}', bomba.planta.nombre, center_bordered)
-        worksheet.write(f'D{num}', bomba.planta.complejo.nombre, center_bordered)
-        worksheet.write(f'E{num}', bomba.descripcion, bordered)
-    
-    worksheet.write(f"E{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
-    worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)
-    workbook.close()
-    
-    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
-    fecha = datetime.datetime.now()
-    response['Content-Disposition'] = f'attachment; filename="bombas_centrifugas_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
-    
-    return response
+# REPORTE DE VENTILADORES

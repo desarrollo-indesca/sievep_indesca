@@ -29,7 +29,7 @@ from calculos.unidades import *
 from calculos.utils import fluido_existe, registrar_fluido
 from .evaluacion import evaluacion_bomba, evaluar_ventilador
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import reporte_bombas, historico_evaluaciones_bombas, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga
+from reportes.xlsx import reporte_equipos, historico_evaluaciones_bombas, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga
 
 # Create your views here.
 
@@ -190,6 +190,22 @@ class ReportesFichasBombasMixin():
                 return ficha_instalacion_bomba_centrifuga(bomba,request)
             
         return None
+    
+class ReportesFichasMixin():
+    reporte_ficha_xlsx = lambda ventilador,request : '' # Definición Placeholder
+    titulo_reporte_ficha = ""
+    codigo_reporte_ficha = ""
+    model = None
+
+    def reporte_ficha(self, request):
+        if(request.POST.get('ficha')):
+            equipo = self.model.objects.get(pk = request.POST.get('ficha'))
+            if(request.POST.get('tipo') == 'pdf'):
+                return generar_pdf(request, equipo, self.titulo_reporte_ficha + " " + equipo.tag.upper(), self.codigo_reporte_ficha)
+            if(request.POST.get('tipo') == 'xlsx'):
+                return self.reporte_ficha_xlsx(equipo, request)
+            
+        return None
 
 # VISTAS DE BOMBAS
 
@@ -268,7 +284,7 @@ class ConsultaBombas(ListView, LoginRequiredMixin, ReportesFichasBombasMixin):
             return generar_pdf(request, self.get_queryset(), 'Reporte de Bombas Centrífugas', 'bombas')
         
         if(request.POST.get('tipo') == 'xlsx'):
-            return reporte_bombas(request, self.get_queryset())
+            return reporte_equipos(request, self.get_queryset(), 'Listado de Bombas Centrífugas', 'listado_bombas')
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:        
         if(request.GET.get('page')):
@@ -1191,10 +1207,24 @@ class ObtenerVentiladorMixin():
             'condiciones_adicionales__densidad_unidad', 'condiciones_adicionales__potencia_freno_unidad'
         )[0]
 
-class ConsultaVentiladores(LoginRequiredMixin, ListView):
+class ConsultaVentiladores(LoginRequiredMixin, ListView, ReportesFichasMixin):
     model = Ventilador
     template_name = 'ventiladores/consulta.html'
     paginate_by = 10
+    reporte_ficha_xlsx = None
+    titulo_reporte_ficha = "Ficha Técnica del Ventilador"
+    codigo_reporte_ficha = "ficha_tecnica_ventilador"
+
+    def post(self, request, *args, **kwargs):
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha):
+            return reporte_ficha
+
+        if(request.POST.get('tipo') == 'pdf'):
+            return generar_pdf(request, self.get_queryset(), 'Reporte de Ventiladores de Calderas', 'ventiladores')
+        
+        if(request.POST.get('tipo') == 'xlsx'):
+            return reporte_equipos(request, self.get_queryset(), 'Listado de Ventiladores de Calderas', 'listado_ventiladores')
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:        
         if(request.GET.get('page')):

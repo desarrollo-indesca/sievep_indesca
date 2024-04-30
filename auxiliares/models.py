@@ -653,6 +653,12 @@ class EvaluacionBomba(models.Model):
     entrada = models.ForeignKey(EntradaEvaluacionBomba, on_delete = models.PROTECT, related_name = "entrada_evaluacion_evaluacionbomba")
     salida = models.ForeignKey(SalidaEvaluacionBombaGeneral, on_delete= models.PROTECT)
 
+    def salida_succion(self):
+        return self.salida_secciones_evaluacionbomba.get(lado = 'S')
+    
+    def salida_descarga(self):
+        return self.salida_secciones_evaluacionbomba.get(lado = 'D')
+
     class Meta:
         ordering = ('-fecha',)
 
