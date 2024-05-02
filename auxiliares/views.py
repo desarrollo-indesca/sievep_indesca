@@ -29,7 +29,7 @@ from calculos.unidades import *
 from calculos.utils import fluido_existe, registrar_fluido
 from .evaluacion import evaluacion_bomba, evaluar_ventilador
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import reporte_equipos, historico_evaluaciones_bombas, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga
+from reportes.xlsx import reporte_equipos, historico_evaluaciones_bombas, historico_evaluaciones_ventiladores, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga
 
 # Create your views here.
 
@@ -1668,7 +1668,7 @@ class ConsultaEvaluacionVentilador(ConsultaEvaluacion, ObtenerVentiladorMixin, R
         if(request.POST.get('tipo') == 'pdf'):
             return generar_pdf(request, self.get_queryset(), f"Evaluaciones del Ventilador {self.get_ventilador().tag}", "reporte_evaluaciones_ventilador")
         elif(request.POST.get('tipo') == 'xlsx'):
-            return historico_evaluaciones_bombas(self.get_queryset(), request)
+            return historico_evaluaciones_ventiladores(self.get_queryset(), request)
 
         if(request.POST.get('detalle')):
             return generar_pdf(request, EvaluacionVentilador.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Ventilador", "detalle_evaluacion_ventilador")
