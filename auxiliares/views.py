@@ -207,6 +207,22 @@ class ReportesFichasMixin():
             
         return None
 
+class FiltrarEvaluacionesMixin():
+    def filtrar(self, request, evaluaciones):
+        if(request.GET.get('desde')):
+            evaluaciones = evaluaciones.filter(fecha__gte = request.GET.get('desde'))
+
+        if(request.GET.get('hasta')):
+            evaluaciones = evaluaciones.filter(fecha__lte = request.GET.get('hasta'))
+
+        if(request.GET.get('usuario')):
+            evaluaciones = evaluaciones.filter(creado_por__first_name__icontains = request.GET.get('hasta'))
+
+        if(request.GET.get('nombre')):
+            evaluaciones = evaluaciones.filter(nombre__icontains = request.GET.get('nombre'))
+
+        return evaluaciones
+    
 # VISTAS DE BOMBAS
 
 class CargarBombaMixin():
@@ -256,7 +272,7 @@ class CargarBombaMixin():
 
         return bomba[0]
 
-class ConsultaBombas(ListView, LoginRequiredMixin, ReportesFichasBombasMixin):
+class ConsultaBombas(LoginRequiredMixin, ListView, ReportesFichasBombasMixin):
     """
     Resumen:
         Vista para la consulta general de las bombas centrífugas (primer equipo auxiliar)
@@ -383,7 +399,7 @@ class ConsultaBombas(ListView, LoginRequiredMixin, ReportesFichasBombasMixin):
 
         return new_context
 
-class CreacionBomba(View, SuperUserRequiredMixin):
+class CreacionBomba(SuperUserRequiredMixin, View):
     """
     Resumen:
         Vista para la creación o registro de nuevas bombas centrífugas.
@@ -535,7 +551,7 @@ class CreacionBomba(View, SuperUserRequiredMixin):
                 'titulo': self.titulo
             })
         
-class ObtencionDatosFluidosBomba(View, LoginRequiredMixin):
+class ObtencionDatosFluidosBomba(LoginRequiredMixin, View):
     """
     Resumen:
         Vista HTMX para obtener las propiedades termodinámicas calculadas de forma automática.
@@ -616,7 +632,7 @@ class ObtencionDatosFluidosBomba(View, LoginRequiredMixin):
 
         return render(request, 'bombas/partials/fluido_bomba.html', propiedades)
 
-class EdicionBomba(CreacionBomba, CargarBombaMixin):
+class EdicionBomba(CargarBombaMixin, CreacionBomba):
     """
     Resumen:
         Vista para la creación o registro de nuevas bombas centrífugas.
@@ -689,7 +705,7 @@ class EdicionBomba(CreacionBomba, CargarBombaMixin):
                 'titulo': self.titulo
             })
         
-class CreacionInstalacionBomba(View, CargarBombaMixin, SuperUserRequiredMixin):
+class CreacionInstalacionBomba(SuperUserRequiredMixin, View, CargarBombaMixin):
     """
     Resumen:
         Vista para la creación de nuevas especificaciones de instalación para una bomba.
@@ -884,7 +900,7 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion, CargarBombaMixin, ReportesFich
 
         return context
 
-class CalcularResultados(View, LoginRequiredMixin):
+class CalcularResultados(LoginRequiredMixin, View):
     """
     Resumen:
         Vista HTMX que calcula los resultados de una evaluación de una bomba.
@@ -1109,7 +1125,7 @@ class CalcularResultados(View, LoginRequiredMixin):
 
         return res
 
-class CreacionEvaluacionBomba(View, LoginRequiredMixin, CargarBombaMixin, ReportesFichasBombasMixin):
+class CreacionEvaluacionBomba(LoginRequiredMixin, View, CargarBombaMixin, ReportesFichasBombasMixin):
     """
     Resumen:
         Vista de la creación de una evaluación de una bomba.
@@ -1151,7 +1167,7 @@ class CreacionEvaluacionBomba(View, LoginRequiredMixin, CargarBombaMixin, Report
     def get(self, request, pk):
         return render(request, 'bombas/evaluacion.html', self.get_context_data())
     
-class GenerarGrafica(View, LoginRequiredMixin):
+class GenerarGrafica(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
     """
     Resumen:
         Vista AJAX que envía los datos necesarios para la gráfica histórica de evaluaciones de bombas.
@@ -1164,17 +1180,7 @@ class GenerarGrafica(View, LoginRequiredMixin):
         bomba = Bombas.objects.get(pk=pk)
         evaluaciones = EvaluacionBomba.objects.filter(activo = True, equipo = bomba).order_by('fecha')
         
-        if(request.GET.get('desde')):
-            evaluaciones = evaluaciones.filter(fecha__gte = request.GET.get('desde'))
-
-        if(request.GET.get('hasta')):
-            evaluaciones = evaluaciones.filter(fecha__lte = request.GET.get('hasta'))
-
-        if(request.GET.get('usuario')):
-            evaluaciones = evaluaciones.filter(creado_por__first_name__icontains = request.GET.get('hasta'))
-
-        if(request.GET.get('nombre')):
-            evaluaciones = evaluaciones.filter(nombre__icontains = request.GET.get('nombre'))
+        evaluaciones = self.filtrar(request, evaluaciones)
         
         res = []
 
@@ -1192,6 +1198,14 @@ class GenerarGrafica(View, LoginRequiredMixin):
     
 ## Vistas de Ventiladores
 class ObtenerVentiladorMixin():
+    '''
+    Resumen:
+        Mixin para obtener un ventilador de la base de datos junto a todos sus datos adicionales.
+
+    Métodos:
+        get_ventilador(self) -> QuerySet[1]
+            Obtiene un ventilador en un queryset con todo el prefetching necesario por cuestiones de eficiencia.
+    '''
     def get_ventilador(self):
         ventilador = Ventilador.objects.filter(pk = self.kwargs.get('pk'))
 
@@ -1207,24 +1221,62 @@ class ObtenerVentiladorMixin():
             'condiciones_adicionales__densidad_unidad', 'condiciones_adicionales__potencia_freno_unidad'
         )[0]
 
-class ConsultaVentiladores(LoginRequiredMixin, ListView, ReportesFichasMixin):
-    model = Ventilador
+class ReportesFichasVentiladoresMixin(ReportesFichasMixin):
+    '''
+    Resumen:
+        Mixin para la generación de reportes de fichas en las vistas en las que es conveniente colocar.
+
+    Atributos:
+        model_ficha: Model -> Modelo del cual se extraerá la ficha
+        reporte_ficha_xlsx: callable -> FUNCIÓN que generará la ficha deseada en formato XLSX
+        titulo_reporte_ficha: str -> Título que se desea tenga el reporte PDF
+        codigo_reporte_ficha: str -> Código único del reporte PDF para su generación
+    '''
     model_ficha = Ventilador
-    template_name = 'ventiladores/consulta.html'
-    paginate_by = 10
     reporte_ficha_xlsx = ficha_tecnica_ventilador
     titulo_reporte_ficha = "Ficha Técnica del Ventilador"
     codigo_reporte_ficha = "ficha_tecnica_ventilador"
 
+class ConsultaVentiladores(LoginRequiredMixin, ListView, ReportesFichasVentiladoresMixin):
+    '''
+    Resumen:
+        Vista para la consulta de ventiladores.
+        Hereda de ListView.
+        Pueden acceder usuarios que hayan iniciado sesión.
+        Se puede generar una ficha a través de esta vista.
+
+    Atributos:
+        model: Model -> Modelo del cual se extraerán los elementos de la lista.
+        template_name: str -> Plantilla a renderizar
+        paginate_by: str -> Número de elementos a mostrar a a la vez
+
+    Métodos:
+        post(self, request, *args, **kwargs) -> HttpResponse
+            Se utiliza para la generación de reportes de ficha o de ventiladores.
+
+        get(self, request, *args, **kwargs) -> HttpResponse
+            Se renderiza la página en su página y filtrado correcto.
+
+        get_context_data(self, **kwargs) -> dict
+            Genera el contexto necesario en la vista para la renderización de la plantilla
+
+        get_queryset(self) -> QuerySet
+            Obtiene el QuerySet de la lista de acuerdo al modelo del atributo.
+            Hace el filtrado correspondiente y prefetching necesario para reducir las queries.
+    '''
+    model = Ventilador
+    template_name = 'ventiladores/consulta.html'
+    paginate_by = 10
+
     def post(self, request, *args, **kwargs):
         reporte_ficha = self.reporte_ficha(request)
-        if(reporte_ficha):
+        if(reporte_ficha): # Si se está deseando generar un reporte de ficha, se genera
             return reporte_ficha
 
-        if(request.POST.get('tipo') == 'pdf'):
+        if(request.POST.get('tipo') == 'pdf'): # Reporte de ventiladores en PDF
             return generar_pdf(request, self.get_queryset(), 'Reporte de Ventiladores de Calderas', 'ventiladores')
         
-        if(request.POST.get('tipo') == 'xlsx'):
+        if(request.POST.get('tipo') == 'xlsx'): # reporte de ventiladores en XLSX
             return reporte_equipos(request, self.get_queryset(), 'Listado de Ventiladores de Calderas', 'listado_ventiladores')
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:        
@@ -1307,8 +1359,27 @@ class ConsultaVentiladores(LoginRequiredMixin, ListView, ReportesFichasMixin):
         return new_context
     
 class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
+    '''
+    Resumen:
+        Vista para generar las densidades del aire necesarias.
+        Hereda de View.
+        Pueden acceder usuarios que hayan iniciado sesión.
+
+    Métodos:
+        obtener_temperatura(self, request, adicional) -> float or None
+            Obtiene la temperatura en la request de acuerdo a los requerimientos del cálculo y la lleva a unidades del SI.
+
+        obtener_presion(self, request, adicional) -> float or None
+            Obtiene la presión en la request de acuerdo a los requerimientos del cálculo y la lleva a unidades del SI. Siempre añade 1atm=101325Pa.
+
+        obtener_densidad(self, request, adicional = False) -> float or None
+            Obtiene la densidad con la lógica adecuada para obtener la presión y la temperatura.
+
+        get(self, request) -> HttpResponse
+            Renderiza la plantilla de propiedades una vez obtenidos los datos.
+    '''
     def obtener_temperatura(self, request, adicional):
-        if(request.get('evaluacion') == '1'):
+        if(request.get('evaluacion') == '1'): # Lógica cuando se calcula en una evaluación
             temperatura_condicion = request.get('temperatura_operacion')
             if(temperatura_condicion and temperatura_condicion != ''):
                 temperatura = float(temperatura_condicion)
@@ -1318,14 +1389,7 @@ class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
 
             return None
         
-        temperatura_condicion = request.get('temperatura')
-        if(temperatura_condicion and temperatura_condicion != ''):
-            temperatura = float(temperatura_condicion)
-            temperatura_unidad = int(request.get('temperatura_unidad'))
-
-            return transformar_unidades_temperatura([temperatura], temperatura_unidad)[0]
-        
-        if(adicional):
+        if(adicional): # Lógica cuando es para condiciones adicionales
             temperatura_condicion = request.get('adicional-temperatura')
             if(temperatura_condicion and temperatura_condicion != ''):
                 temperatura = float(temperatura_condicion)
@@ -1334,9 +1398,16 @@ class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
                 return transformar_unidades_temperatura([temperatura], temperatura_unidad)[0]
 
             return None
+
+        temperatura_condicion = request.get('temperatura')
+        if(temperatura_condicion and temperatura_condicion != ''): # Lógica en condiciones de trabajo si está definida la temperatura
+            temperatura = float(temperatura_condicion)
+            temperatura_unidad = int(request.get('temperatura_unidad'))
+
+            return transformar_unidades_temperatura([temperatura], temperatura_unidad)[0]
         
         temperatura_diseno = request.get('temp_diseno')
-        if(temperatura_diseno and temperatura_diseno != ''):
+        if(temperatura_diseno and temperatura_diseno != ''): # Lógica en condiciones de trabajo si está definida la temperatura de diseño
             temperatura = float(temperatura_diseno)
             temperatura_unidad = int(request.get('temp_ambiente_unidad'))
 
@@ -1345,7 +1416,7 @@ class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
         return None
     
     def obtener_presion(self, request, adicional):
-        if(request.get('evaluacion') == '1'):
+        if(request.get('evaluacion') == '1'): # Lógica cuando se calcula en una evaluación
             presion_condicion = request.get('presion_entrada')
             if(presion_condicion and presion_condicion != ''):
                 presion = float(presion_condicion)
@@ -1355,14 +1426,7 @@ class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
 
             return None
         
-        presion_entrada = request.get('presion_entrada')
-        if(presion_entrada and presion_entrada != ''):
-            presion = float(presion_entrada)
-            presion_unidad = int(request.get('presion_unidad'))
-
-            return transformar_unidades_presion([presion], presion_unidad)[0] + 101325
-        
-        if(adicional):
+        if(adicional):  # Lógica cuando es para condiciones adicionales
             presion_condicion = request.get('adicional-presion_entrada')
             if(presion_condicion and presion_condicion != ''):
                 presion = float(presion_condicion)
@@ -1372,12 +1436,19 @@ class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
 
             return None
         
+        presion_entrada = request.get('presion_entrada')
+        if(presion_entrada and presion_entrada != ''): # Lógica en condiciones de trabajo si está definida la presión
+            presion = float(presion_entrada)
+            presion_unidad = int(request.get('presion_unidad'))
+
+            return transformar_unidades_presion([presion], presion_unidad)[0] + 101325
+        
         presion_diseno = request.get('presion_diseno')
-        if(presion_diseno and presion_diseno != ''):
+        if(presion_diseno and presion_diseno != ''): # Lógica en condiciones de trabajo si está definida la presión de diseño
             presion = float(presion_diseno)
             presion_unidad = int(request.get('presion_barometrica_unidad'))
 
-            return transformar_unidades_presion([presion + 101325], presion_unidad)[0]
+            return transformar_unidades_presion([presion], presion_unidad)[0] + 101325
         
         return None
             
@@ -1567,6 +1638,10 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
             })
 
 class EdicionVentilador(CreacionVentilador):
+    '''
+    Resumen:
+        Vista para la edición de un ventilador. Sigue la misma lógica que la creación pero envía un contexto con las instancias previas. 
+    '''
     success_message = "Se han guardado los cambios exitosamente."
     template_name = 'ventiladores/creacion.html'
     
@@ -1621,36 +1696,35 @@ class EdicionVentilador(CreacionVentilador):
                 'titulo': self.titulo
             })
         
-# Evaluaciones de Ventilador
-class ConsultaEvaluacionVentilador(ConsultaEvaluacion, ObtenerVentiladorMixin, ReportesFichasMixin):
+# Evaluaciones de Ventiladores
+
+class ConsultaEvaluacionVentilador(ConsultaEvaluacion, ObtenerVentiladorMixin, ReportesFichasVentiladoresMixin):
     """
     Resumen:
-        Vista para la consulta de evaluaciones de VENTILADORES.
+        Vista para la consulta de evaluaciones de Ventiladores de Calderas.
         Hereda de ConsultaEvaluacion para el ahorro de trabajo en términos de consulta.
+        Utiliza los Mixin para obtener ventiladores y de generación de reportes de fichas de ventiladores.
 
     Atributos:
         model: EvaluacionBomba -> Modelo de la vista
         model_equipment -> Modelo del equipo
         clase_equipo -> Complemento del título de la vista
+        tipo -> Tipo de equipo. Necesario para la renderización correcta de nombres y links.
     
     Métodos:
         get_context_data(self) -> dict
             Añade al contexto original el equipo.
 
         get_queryset(self) -> QuerySet
-            Hace el prefetching correspondiente al queryset de las evaluaciones
+            Hace el prefetching correspondiente al queryset de las evaluaciones.
 
         post(self) -> HttpResponse
-            Contiene la lógica de eliminación (ocultación) de una evaluación.
+            Contiene la lógica de eliminación (ocultación) de una evaluación y de generación de reportes.
     """
     model = EvaluacionVentilador
     model_equipment = Ventilador
     clase_equipo = "l Ventilador"
     tipo = 'ventilador'
-    model_ficha = Ventilador
-    reporte_ficha_xlsx = ficha_tecnica_ventilador
-    titulo_reporte_ficha = "Ficha Técnica del Ventilador"
-    codigo_reporte_ficha = "ficha_tecnica_ventilador"
 
     def post(self, request, **kwargs):
         reporte_ficha = self.reporte_ficha(request)
@@ -1694,26 +1768,27 @@ class ConsultaEvaluacionVentilador(ConsultaEvaluacion, ObtenerVentiladorMixin, R
 
         return context
 
-class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMixin, ReportesFichasMixin):
+class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMixin, ReportesFichasVentiladoresMixin):
     """
     Resumen:
         Vista de la creación de una evaluación de un ventilador.
     
-    Métodos:
-        
+    Métodos:        
         get(self, request) -> HttpResponse
             Renderiza la plantilla de la vista cuando se recibe una solicitud HTTP GET.
+
+        post(self, request, **kwargs) -> HttpResponse
+            Genera el reporte de ficha.
+
+        get_context_data(self) -> dict
+            Inicializa los formularios respectivos.
     """
-    model_ficha = Ventilador
-    reporte_ficha_xlsx = ficha_tecnica_ventilador
-    titulo_reporte_ficha = "Ficha Técnica del Ventilador"
-    codigo_reporte_ficha = "ficha_tecnica_ventilador"
 
     def post(self, request, **kwargs):
         reporte_ficha = self.reporte_ficha(request)
         if(reporte_ficha):
             return reporte_ficha
-
+    
     def get_context_data(self):
         ventilador = self.get_ventilador()       
 
@@ -1730,6 +1805,24 @@ class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
         return render(request, 'ventiladores/evaluacion.html', self.get_context_data())
     
 class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerVentiladorMixin):
+    """
+    Resumen:
+        Vista para el cálculo de resultados de evaluaciones de Ventiladores de Calderas y del almacenamiento de los mismos.
+        Utiliza los Mixin para obtener ventiladores y de acceso por autenticación.
+    
+    Métodos:
+        calcular(self, request) -> HttpResponse
+            Obtiene los resultados y renderiza la plantilla de resultados.
+
+        obtener_resultados(self) -> HttpResponse
+            Contiene la lógica de obtención de data, transformación de unidades y cálculo de resultados.
+        
+        almacenar(self) -> QuerySet
+            Contiene la lógica de almacenamiento y transformación de unidades para el almacenamiento de la evaluación y sus resultados.
+
+        post(self) -> HttpResponse
+            Contiene la lógica para redirigir a almacenar o calcular los resultados de acuerdo al request.
+    """
     def calcular(self, request):
         res = self.obtener_resultados(request)
         return render(request, 'ventiladores/partials/resultados.html', context={'res': res, 'unidad_potencia': Unidades.objects.get(pk = res['potencia_ventilador_unidad'])})
@@ -1830,22 +1923,21 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
         else:
             return self.calcular(request)
         
-class GenerarGraficaVentilador(LoginRequiredMixin, View):
+class GenerarGraficaVentilador(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
+    """
+    Resumen:
+        Vista AJAX que envía los datos necesarios para la gráfica histórica de evaluaciones de ventiladores.
+    
+    Métodos:
+        get(self, request, pk) -> JsonResponse
+            Obtiene los datos y envía el Json correspondiente de respuesta
+    """
+
     def get(self, request, pk):
         ventilador = Ventilador.objects.get(pk=pk)
         evaluaciones = EvaluacionVentilador.objects.filter(activo = True, equipo = ventilador).order_by('fecha')
-        
-        if(request.GET.get('desde')):
-            evaluaciones = evaluaciones.filter(fecha__gte = request.GET.get('desde'))
 
-        if(request.GET.get('hasta')):
-            evaluaciones = evaluaciones.filter(fecha__lte = request.GET.get('hasta'))
-
-        if(request.GET.get('usuario')):
-            evaluaciones = evaluaciones.filter(creado_por__first_name__icontains = request.GET.get('hasta'))
-
-        if(request.GET.get('nombre')):
-            evaluaciones = evaluaciones.filter(nombre__icontains = request.GET.get('nombre'))
+        evaluaciones = self.filtrar(request, evaluaciones)
         
         res = []
 
