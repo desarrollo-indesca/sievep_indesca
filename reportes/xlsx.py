@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from io import BytesIO
 from intercambiadores.models import Planta, Complejo
 from simulaciones_pequiven.settings import BASE_DIR
-from calculos.unidades import transformar_unidades_presion, transformar_unidades_area, transformar_unidades_u, transformar_unidades_ensuciamiento
+from calculos.unidades import *
 
 # Aquí irán los reportes en formato Excel
 alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -992,22 +992,149 @@ def historico_evaluaciones_ventiladores(object_list, request):
     worksheet.write(f'D{num}', "Potencia Calculada", bold_bordered)
     worksheet.write(f"E{num}", f"Unidad Potencia", bold_bordered)
 
+    potencia_unidad = ventilador.condiciones_trabajo.potencia_freno_unidad
+
     for i,evaluacion in enumerate(object_list):
         salida = evaluacion.salida
         eficiencia = salida.eficiencia
-        potencia = salida.potencia_calculada
-        potencia_unidad = salida.potencia_calculada_unidad.simbolo
+        
+        potencia_calculada = round(transformar_unidades_potencia([salida.potencia_calculada], salida.potencia_calculada_unidad.pk, potencia_unidad.pk)[0], 4)
+        potencia_unidad = salida.potencia_calculada_unidad
         fecha_ev = evaluacion.fecha.strftime('%d/%m/%Y %H:%M')
 
         num += 1
         worksheet.write(f'A{num}', i+1, center_bordered)
         worksheet.write(f'B{num}', fecha_ev, center_bordered)
         worksheet.write_number(f'C{num}', eficiencia, center_bordered)
-        worksheet.write_number(f'D{num}', potencia, center_bordered)
-        worksheet.write(f'E{num}', potencia_unidad, bordered)
+        worksheet.write_number(f'D{num}', potencia_calculada, center_bordered)
+        worksheet.write(f'E{num}', potencia_unidad.simbolo, bordered)
 
     worksheet.write(f"J{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
     worksheet.write(f"J{num+2}", "Generado por " + request.user.get_full_name(), fecha)
     workbook.close()
         
     return enviar_response('historico_evaluaciones_ventiladores', excel_io, fecha)
+
+def ficha_tecnica_ventilador(_, ventilador, request):
+    '''
+    Resumen:
+        Función que genera los datos de ficha técnica en formato XLSX de un intercambiador tubo/carcasa.
+    '''
+    excel_io = BytesIO()
+    workbook = xlsxwriter.Workbook(excel_io)
+    
+    worksheet = workbook.add_worksheet()
+
+    bold = workbook.add_format({'bold': True})
+    identificacion = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'yellow'})
+    condiciones_diseno_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'red'})
+    condiciones_fluido_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'cyan'})
+    especificaciones_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'green'})
+    construccion_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'purple'})
+    motor_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'gray'})
+    center_bordered = workbook.add_format({'border': 1})
+    bordered = workbook.add_format({'border': 1})
+    fecha =  workbook.add_format({'border': 1})
+
+    fecha.set_align('right')
+    identificacion.set_align('vcenter')
+    center_bordered.set_align('vcenter')
+    identificacion.set_align('center')
+    center_bordered.set_align('center')
+
+    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.write('C1', f'Ficha Técnica Bomba Centrífuga {ventilador.tag}', bold)
+    worksheet.insert_image(0, 7, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+
+    num = 6
+
+    condiciones_adicionales = ventilador.condiciones_adicionales
+    condiciones_trabajo = ventilador.condiciones_trabajo
+    condiciones_generales = ventilador.condiciones_generales
+    especificaciones = ventilador.especificaciones
+
+    worksheet.write(f'A{num}', 'Tag', identificacion)
+    worksheet.write(f'B{num}', 'Complejo', identificacion)
+    worksheet.write(f'C{num}', 'Planta', identificacion)
+    worksheet.write(f'D{num}', 'Tipo', identificacion)
+    worksheet.write(f'E{num}', 'Fabricante', identificacion)
+    worksheet.write(f'F{num}', 'Modelo', identificacion)
+    worksheet.write(f'G{num}', 'Descripción', identificacion)
+    worksheet.write(f'H{num}', f'Presión Barométrica ({condiciones_generales.presion_barometrica_unidad})', condiciones_diseno_estilo)
+    worksheet.write(f'I{num}', f'Temp. Ambiente ({condiciones_generales.temp_ambiente_unidad})', condiciones_diseno_estilo)
+    worksheet.write(f'J{num}', f'Velocidad de Diseño ({condiciones_generales.velocidad_diseno_unidad})', condiciones_diseno_estilo)
+    worksheet.write(f'K{num}', f'Temperatura de Diseño ({condiciones_generales.temp_ambiente_unidad})', condiciones_diseno_estilo)
+    worksheet.write(f'L{num}', f'Presión de Diseño ({condiciones_generales.presion_barometrica_unidad})', condiciones_diseno_estilo)
+    worksheet.write(f'M{num}', f'Flujo ({condiciones_trabajo.flujo_unidad})', condiciones_fluido_estilo)
+    worksheet.write(f'N{num}', f'Densidad ({condiciones_trabajo.densidad_unidad})', condiciones_fluido_estilo)
+    worksheet.write(f'O{num}', f'Presión Entrada ({condiciones_trabajo.presion_unidad})', condiciones_fluido_estilo)
+    worksheet.write(f'P{num}', f'Presión Salida ({condiciones_trabajo.presion_unidad})', condiciones_fluido_estilo)
+    worksheet.write(f'Q{num}', f'Veloc. Func. ({condiciones_trabajo.velocidad_funcionamiento_unidad})', condiciones_fluido_estilo)
+    worksheet.write(f'R{num}', f'Temperatura ({condiciones_trabajo.temperatura_unidad})', condiciones_fluido_estilo)
+    worksheet.write(f'S{num}', f'Potencia Ventilador ({condiciones_trabajo.potencia_freno_unidad})', condiciones_fluido_estilo)
+    worksheet.write(f'T{num}', f'Potencia de Freno ({condiciones_trabajo.potencia_freno_unidad})', condiciones_fluido_estilo)
+    worksheet.write(f'U{num}', f'Flujo ({condiciones_adicionales.flujo_unidad})', especificaciones_estilo)
+    worksheet.write(f'V{num}', f'Densidad ({condiciones_adicionales.densidad_unidad})', especificaciones_estilo)
+    worksheet.write(f'W{num}', f'Presión Entrada ({condiciones_adicionales.presion_unidad})', especificaciones_estilo)
+    worksheet.write(f'X{num}', f'Presión Salida ({condiciones_adicionales.presion_unidad})', especificaciones_estilo)
+    worksheet.write(f'Y{num}', f'Veloc. Func. ({condiciones_adicionales.velocidad_funcionamiento_unidad})', especificaciones_estilo)
+    worksheet.write(f'Z{num}', f'Temperatura ({condiciones_adicionales.temperatura_unidad})', especificaciones_estilo)
+    worksheet.write(f'AA{num}', f'Potencia Ventilador ({condiciones_adicionales.potencia_freno_unidad})', especificaciones_estilo)
+    worksheet.write(f'AB{num}', f'Potencia de Freno ({condiciones_adicionales.potencia_freno_unidad})', especificaciones_estilo)
+    worksheet.write(f'AC{num}', f'Espesor Carcasa ({especificaciones.espesor_unidad})', construccion_estilo)
+    worksheet.write(f'AD{num}', f'Espesor Caja Entrada ({especificaciones.espesor_unidad})', construccion_estilo)
+    worksheet.write(f'AE{num}', f'Sello del Eje', construccion_estilo)
+    worksheet.write(f'AF{num}', f'Lubricante', construccion_estilo)
+    worksheet.write(f'AG{num}', f'Refrigerante', construccion_estilo)
+    worksheet.write(f'AH{num}', f'Diámetro', construccion_estilo)
+    worksheet.write(f'AI{num}', f'Motor', construccion_estilo)
+    worksheet.write(f'AJ{num}', f'Acceso de Aire', construccion_estilo)
+    worksheet.write(f'AK{num}', f'Potencia Motor ({especificaciones.potencia_motor_unidad})', construccion_estilo)
+    worksheet.write(f'AL{num}', f'Velocidad Motor ({especificaciones.velocidad_motor_unidad})', construccion_estilo)
+
+    num += 1
+    
+    worksheet.write(f'A{num}', ventilador.tag, identificacion)
+    worksheet.write(f'B{num}', ventilador.planta.complejo.nombre, identificacion)
+    worksheet.write(f'C{num}', ventilador.planta.nombre, identificacion)
+    worksheet.write(f'D{num}', ventilador.tipo_ventilador.nombre, identificacion)
+    worksheet.write(f'E{num}', ventilador.fabricante, identificacion)
+    worksheet.write(f'F{num}', ventilador.modelo, identificacion)
+    worksheet.write(f'G{num}', ventilador.descripcion, identificacion)
+    worksheet.write(f'H{num}', condiciones_generales.presion_barometrica, condiciones_diseno_estilo)
+    worksheet.write(f'I{num}', condiciones_generales.temp_ambiente, condiciones_diseno_estilo)
+    worksheet.write(f'J{num}', condiciones_generales.velocidad_diseno, condiciones_diseno_estilo)
+    worksheet.write(f'K{num}', condiciones_generales.temp_diseno, condiciones_diseno_estilo)
+    worksheet.write(f'L{num}', condiciones_generales.presion_diseno, condiciones_diseno_estilo)
+    worksheet.write(f'M{num}', condiciones_trabajo.flujo, condiciones_fluido_estilo)
+    worksheet.write(f'N{num}', condiciones_trabajo.densidad, condiciones_fluido_estilo)
+    worksheet.write(f'O{num}', condiciones_trabajo.presion_entrada, condiciones_fluido_estilo)
+    worksheet.write(f'P{num}', condiciones_trabajo.presion_salida, condiciones_fluido_estilo)
+    worksheet.write(f'Q{num}', condiciones_trabajo.velocidad_funcionamiento, condiciones_fluido_estilo)
+    worksheet.write(f'R{num}', condiciones_trabajo.temperatura, condiciones_fluido_estilo)
+    worksheet.write(f'S{num}', condiciones_trabajo.potencia, condiciones_fluido_estilo)
+    worksheet.write(f'T{num}', condiciones_trabajo.potencia_freno, condiciones_fluido_estilo)
+    worksheet.write(f'U{num}', condiciones_adicionales.flujo, condiciones_fluido_estilo)
+    worksheet.write(f'V{num}', condiciones_adicionales.densidad, condiciones_fluido_estilo)
+    worksheet.write(f'W{num}', condiciones_adicionales.presion_entrada, condiciones_fluido_estilo)
+    worksheet.write(f'X{num}', condiciones_adicionales.presion_salida, condiciones_fluido_estilo)
+    worksheet.write(f'Y{num}', condiciones_adicionales.velocidad_funcionamiento, condiciones_fluido_estilo)
+    worksheet.write(f'Z{num}', condiciones_adicionales.temperatura, condiciones_fluido_estilo)
+    worksheet.write(f'AA{num}', condiciones_adicionales.potencia, condiciones_fluido_estilo)
+    worksheet.write(f'AB{num}', condiciones_adicionales.potencia_freno, condiciones_fluido_estilo)
+    worksheet.write(f'AC{num}', especificaciones.espesor, construccion_estilo)
+    worksheet.write(f'AD{num}', especificaciones.espesor_caja, construccion_estilo)
+    worksheet.write(f'AE{num}', especificaciones.sello, construccion_estilo)
+    worksheet.write(f'AF{num}', especificaciones.lubricante, construccion_estilo)
+    worksheet.write(f'AG{num}', especificaciones.refrigerante, construccion_estilo)
+    worksheet.write(f'AH{num}', especificaciones.diametro, construccion_estilo)
+    worksheet.write(f'AI{num}', especificaciones.motor, construccion_estilo)
+    worksheet.write(f'AJ{num}', especificaciones.acceso_aire, construccion_estilo)
+    worksheet.write(f'AK{num}', especificaciones.potencia_motor, construccion_estilo)
+    worksheet.write(f'AL{num}', especificaciones.velocidad_motor, construccion_estilo)
+
+    worksheet.write(f"J{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
+    worksheet.write(f"J{num+2}", "Generado por " + request.user.get_full_name(), fecha)
+    workbook.close()
+        
+    return enviar_response(f'ficha_tecnica_ventilador_{ventilador.tag}', excel_io, fecha)

@@ -29,7 +29,7 @@ from calculos.unidades import *
 from calculos.utils import fluido_existe, registrar_fluido
 from .evaluacion import evaluacion_bomba, evaluar_ventilador
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import reporte_equipos, historico_evaluaciones_bombas, historico_evaluaciones_ventiladores, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga
+from reportes.xlsx import reporte_equipos, ficha_tecnica_ventilador, historico_evaluaciones_bombas, historico_evaluaciones_ventiladores, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga
 
 # Create your views here.
 
@@ -1212,7 +1212,7 @@ class ConsultaVentiladores(LoginRequiredMixin, ListView, ReportesFichasMixin):
     model_ficha = Ventilador
     template_name = 'ventiladores/consulta.html'
     paginate_by = 10
-    reporte_ficha_xlsx = None
+    reporte_ficha_xlsx = ficha_tecnica_ventilador
     titulo_reporte_ficha = "Ficha Técnica del Ventilador"
     codigo_reporte_ficha = "ficha_tecnica_ventilador"
 
@@ -1648,7 +1648,7 @@ class ConsultaEvaluacionVentilador(ConsultaEvaluacion, ObtenerVentiladorMixin, R
     clase_equipo = "l Ventilador"
     tipo = 'ventilador'
     model_ficha = Ventilador
-    reporte_ficha_xlsx = None
+    reporte_ficha_xlsx = ficha_tecnica_ventilador
     titulo_reporte_ficha = "Ficha Técnica del Ventilador"
     codigo_reporte_ficha = "ficha_tecnica_ventilador"
 
@@ -1694,7 +1694,7 @@ class ConsultaEvaluacionVentilador(ConsultaEvaluacion, ObtenerVentiladorMixin, R
 
         return context
 
-class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMixin):
+class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMixin, ReportesFichasMixin):
     """
     Resumen:
         Vista de la creación de una evaluación de un ventilador.
@@ -1704,6 +1704,15 @@ class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
         get(self, request) -> HttpResponse
             Renderiza la plantilla de la vista cuando se recibe una solicitud HTTP GET.
     """
+    model_ficha = Ventilador
+    reporte_ficha_xlsx = ficha_tecnica_ventilador
+    titulo_reporte_ficha = "Ficha Técnica del Ventilador"
+    codigo_reporte_ficha = "ficha_tecnica_ventilador"
+
+    def post(self, request, **kwargs):
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha):
+            return reporte_ficha
 
     def get_context_data(self):
         ventilador = self.get_ventilador()       
