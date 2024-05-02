@@ -713,6 +713,13 @@ class SalidaTramosEvaluacionBomba(models.Model):
 
 ## MODELOS DE VENTILADORES
 class TipoVentilador(models.Model):
+    '''
+    Resumen:
+        Modelo de registro de tipos de ventilador.
+
+    Atributos:
+       nombre: str -> Nombre único del tipo
+    '''
     nombre = models.CharField(max_length=45, unique=True)
 
     def __str__(self) -> str:
@@ -722,6 +729,29 @@ class TipoVentilador(models.Model):
         db_table = "ventiladores_tipoventilador"
 
 class CondicionesTrabajoVentilador(models.Model):
+    '''
+    Resumen:
+        Modelo de registro de condiciones de trabajo (o adicionales) del ventilador.
+
+    Atributos:
+       flujo: float -> Flujo circulante
+        tipo_flujo: str(1) -> Tipo de flujo Másico (M) o volumétrico (V)
+        flujo_unidad: Unidad -> Unidad del flujo (K o F)
+        presion_entrada: float -> Presión de entrada* 
+        presion_salida: float -> Presión de salida* 
+        presion_unidad: Unidad -> Unidad de las presiones (P)
+        velocidad_funcionamiento: float -> Velocidad de funcionamiento del ventilador
+        velocidad_funcionamiento_unidad: Unidad -> Unidad de velocidad angular de funcionamiento (O)
+        temperatura: float -> Temperatura de la condición 
+        temperatura_unidad: Unidad -> Unidad de la temperatura (T)
+        densidad: float -> Densidad del aire en las condiciones
+        densidad_unidad: Unidad -> Unidad de la densidad del aire (D)
+        potencia_freno: float -> Potencia de freno del ventilador
+        potencia: float -> Potencia del ventilador en funcionamiento
+        potencia_freno_unidad: Unidad -> Unidad de Potencia del ventilador (B)
+        eficiencia: float -> Eficiencia del ventilador en las condiciones dadas. No siempre es computable para su almacenamiento.
+        calculo_densidad: str(1) -> 'M' para ingreso manual del usuario, 'A' para cálculo automático
+    '''
     flujo = models.FloatField(null = True, blank = True, validators=[MinValueValidator(0.000001)])
     tipo_flujo = models.CharField(max_length=1, choices=TIPO_FLUJO_CAUDAL, default='V')
     flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_caudal_volumetrico_unidad", null = True)
@@ -750,6 +780,21 @@ class CondicionesTrabajoVentilador(models.Model):
         db_table = "ventiladores_condicionestrabajo"
 
 class CondicionesGeneralesVentilador(models.Model):
+    '''
+    Resumen:
+        Modelo de registro de condiciones generales del ventilador.
+
+    Atributos:
+        presion_barometrica: float -> Presión barométrica que afecta al ventilador
+        presion_barometrica_unidad: Unidad -> Unidad de presión (P)
+        temp_ambiente: float -> Temperatura de ambiente del ventilador 
+        temp_ambiente_unidad: Unidad -> Unidad de temperatura (T)
+        velocidad_diseno: float -> Velocidad de diseño 
+        velocidad_diseno_unidad: Unidad -> Unidad de la velocidad angular de diseño (O)
+        temp_diseno: float -> Temperatura de diseño. Se utiliza para cálculo automático de densidad si no hay otras temperaturas definidas.
+        presion_diseno: float -> Presión de diseño. Se utiliza para cálculo automático de densidad si no hay otras presiones definidas.
+    '''
+
     presion_barometrica = models.FloatField(null = True, blank = True, verbose_name="Presión Barométrica", validators=[MinValueValidator(0.000001)])
     presion_barometrica_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionesgenerales_presion_barometrica_unidad")
 
@@ -766,6 +811,25 @@ class CondicionesGeneralesVentilador(models.Model):
         db_table = "ventiladores_condicionesgenerales"
 
 class EspecificacionesVentilador(models.Model):
+    '''
+    Resumen:
+        Modelo de registro de las especificaciones técnicas del ventilador.
+
+    Atributos:
+        espesor: float -> Espesor de la carcasa
+        espesor_caja: float -> Espesor de la caja de entrada
+        espesor_unidad: Unidad -> Unidad de longitud
+        sello: str -> Sello del eje
+        lubricante: str -> Lubricante del ventilador
+        refrigerante: str -> Refrigerante del ventilador
+        diametro: str -> Diámetro del ventilador
+        motor: str -> Descripción del motor
+        acceso_aire: str -> Acceso de aire del ventilador
+        potencia_motor: float -> Potencia del motor
+        potencia_motor_unidad: Unidad -> Unidad de potencia del motor (B)
+        velocidad_motor: float -> Velocidad del motor
+        velocidad_motor_unidad: Unidad -> Unidad de velocidad angular (O)
+    '''
     espesor = models.FloatField(null = True, blank = True, verbose_name="Espesor de Carcasa", validators=[MinValueValidator(0.000001)])
     espesor_caja = models.FloatField(null = True, blank = True,  verbose_name="Espesor de Caja de Entrada", validators=[MinValueValidator(0.000001)])
     espesor_unidad =  models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="especificacionesventilador_velocidad_diseno_unidad")
@@ -787,6 +851,27 @@ class EspecificacionesVentilador(models.Model):
         db_table = "ventiladores_especificacionesventilador"
 
 class Ventilador(models.Model):
+    '''
+    Resumen:
+        Modelo de registro de ventiladores.
+
+    Atributos:
+        planta: Planta -> Planta donde se encuentra el ventilador
+        tag: str -> Tag único del ventilador
+        descripcion: str -> Descripción del ventilador (funciones, roles...)
+        fabricante: str -> Fabricante del ventilador
+        modelo: str -> Modelo del ventilador
+        tipo_ventilador: TipoVentilador -> Tipo de ventilador
+        condiciones_trabajo: CondicionesTrabajoVentilador -> Condiciones de trabajo del ventilador
+        condiciones_adicionales: CondicionesTrabajoVentilador -> Condiciones adicionales (máximas, alternativas, mínimas...) del ventilador si hay
+        condiciones_generales: CondicionesGeneralesVentilador -> Condiciones generales del ventilador
+        especificaciones: EspecificacionesVentilador -> Especificaciones técnicas del ventilador
+        creado_al: datetime.datetime -> Fecha de creación
+        editado_al: datetime.datetime -> Fecha de última edición
+        creado_por: Usuario -> Usuario que creó el ventilador
+        editado_por: Usuario -> Usuario que editó por última vez
+    '''
+
     planta = models.ForeignKey(Planta, on_delete=models.PROTECT, related_name="planta_ventilador")
     tag = models.CharField(max_length=20, unique=True)
     descripcion = models.CharField(max_length=100, verbose_name="Descripción")
@@ -810,6 +895,28 @@ class Ventilador(models.Model):
 
 # Modelos de Evaluación
 class EntradaEvaluacionVentilador(models.Model):
+    '''
+    Resumen:
+        Modelo de registro de los datos de entrada de una evaluación de ventilador.
+
+    Atributos:
+        id: UUID -> UUID de la entrada
+        presion_entrada: float -> Presión de entrada
+        presion_salida: float -> Presión de salida
+        presion_salida_unidad: Unidad -> Unidad de presión (P) 
+        flujo: float -> Flujo circulante por el ventilador
+        tipo_flujo: str(1) -> Flujo másico (M) o volumétrico (V) que circula por el ventilador
+        flujo_unidad: Unidad -> Unidad de Flujo másico (F) o volumétrico (K)
+        temperatura_operacion: float -> Temperatura de operación de la eval.
+        temperatura_operacion_unidad: Unidad -> Unidad de temperatura (T) 
+        potencia_ventilador: float -> Potencia del ventilador durante la evaluación
+        potencia_ventilador_unidad: Unidad -> Unidad de Potencia (P)
+        densidad_ficha: float -> Densidad en ficha según condiciones (si hay)
+        densidad_ficha_unidad: Unidad -> Unidad de la densidad registrada en ficha (D) 
+        densidad_evaluacion: float -> Densidad calculada 
+        densidad_evaluacion_unidad: float -> Unidad de densidad (D)
+    '''
+
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     presion_entrada = models.FloatField(verbose_name="Presión Entrada")
     presion_salida = models.FloatField(verbose_name="Presión Salida")
@@ -834,6 +941,18 @@ class EntradaEvaluacionVentilador(models.Model):
         db_table = "ventiladores_entradaevaluacion"
 
 class SalidaEvaluacionVentilador(models.Model):
+    '''
+    Resumen:
+        Modelo de registro de los datos de salida o resultados de la evaluación.
+
+    Atributos:
+        id: UUID -> UUID de la evaluación
+        potencia_calculada: float -> Potencia calculada en la evaluación
+        potencia_calculada_unidad: Unidad -> Unidad de la potencia (B) 
+        eficiencia: float ->  Porcentaje de Eficiencia
+        relacion_densidad: float ->  Relación de las densidades (densidad_calculada/densidad_ficha)
+    '''
+
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     potencia_calculada = models.FloatField()
     potencia_calculada_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="salidaevaluacionventilador_potencia_calculada_unidad")
@@ -844,6 +963,20 @@ class SalidaEvaluacionVentilador(models.Model):
         db_table = "ventiladores_salidaevaluacion"
 
 class EvaluacionVentilador(models.Model):
+    '''
+    Resumen:
+        Modelo central de registro de las evaluaciones de un ventilador.
+
+    Atributos:
+        id: UUID -> UUID de la evaluación
+        equipo: Ventilador -> Ventilador evaluado.
+        nombre: str -> Nombre de la evaluación.
+        fecha: datetime.datetime -> Fecha de la evaluación
+        creado_por: Usuario -> Usuario que creó la evaluación
+        entrada: EntradaEvaluacionVentilador -> Datos de entrada de la evaluación
+        salida: SalidaEvaluacionVentilador -> Datos de salida de la evaluación
+        activo: bool -> Booleano que identifica si la evaluación es visible o no.
+    '''
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     equipo = models.ForeignKey(Ventilador, on_delete=models.PROTECT)
     nombre = models.CharField(max_length=50)

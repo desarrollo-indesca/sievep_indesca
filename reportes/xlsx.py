@@ -1018,7 +1018,7 @@ def historico_evaluaciones_ventiladores(object_list, request):
 def ficha_tecnica_ventilador(_, ventilador, request):
     '''
     Resumen:
-        Función que genera los datos de ficha técnica en formato XLSX de un intercambiador tubo/carcasa.
+        Función que genera los datos de ficha técnica en formato XLSX de un ventilador de caldera.
     '''
     excel_io = BytesIO()
     workbook = xlsxwriter.Workbook(excel_io)

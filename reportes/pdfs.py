@@ -2232,7 +2232,7 @@ def detalle_evaluacion_ventilador(evaluacion):
     '''
     Resumen:
         Esta función genera la historia de elementos a utilizar en el reporte de detalle de evaluación de un ventilador.
-        Envía un archivo para cerrar.
+        No envía archivos para cerrar.
     '''
     story = [Spacer(0,70)]
     ventilador = evaluacion.equipo
