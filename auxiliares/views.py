@@ -1530,7 +1530,14 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
             valido = valido and form_condiciones_trabajo.is_valid()
             if(valido):
                 if(form_condiciones_trabajo.instance.calculo_densidad == 'A'):
-                    form_condiciones_trabajo.instance.densidad = self.obtener_densidad(self.request.POST)
+                    try:
+                        form_condiciones_trabajo.instance.densidad = self.obtener_densidad(self.request.POST, True)
+                    except:
+                        form_condiciones_trabajo.instance.densidad = None
+                else:
+                    form_condiciones_trabajo.instance.densidad = self.request.POST.get('adicional-densidad')
+                    if(form_condiciones_trabajo.instance.densidad == ''):
+                        form_condiciones_trabajo.instance.densidad = None
                 
                 if(form_condiciones_trabajo.instance.flujo_unidad.pk in [6,10,18,19]): # Unidades de FLUJO MÁSICO
                    form_condiciones_trabajo.instance.tipo_flujo = 'M'
@@ -1560,8 +1567,15 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
 
             if(form_condiciones_adicionales.is_valid()):
                 if(form_condiciones_adicionales.instance.calculo_densidad == 'A'):
-                    form_condiciones_adicionales.instance.densidad = self.obtener_densidad(self.request.POST, True)
-                
+                    try:
+                        form_condiciones_adicionales.instance.densidad = self.obtener_densidad(self.request.POST, True)
+                    except:
+                        form_condiciones_adicionales.instance.densidad = None
+                else:
+                    form_condiciones_adicionales.instance.densidad = self.request.POST.get('adicional-densidad')
+                    if(form_condiciones_adicionales.instance.densidad == ''):
+                        form_condiciones_adicionales.instance.densidad = None
+
                 if(form_condiciones_adicionales.instance.flujo_unidad.pk in [6,10,18,19]): # Unidades de FLUJO MÁSICO
                    form_condiciones_adicionales.instance.tipo_flujo = 'M'
 
@@ -1604,7 +1618,7 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
             if(not adicionales_creados):
                 messages.warning(self.request, "¡Ventilador registrado exitosamente! Sin embargo no se añadieron condiciones adicionales.")
             else:
-                messages.success(self.request, "¡Ventilador registrado exitosamente!")
+                messages.success(self.request, self.success_message)
 
             return redirect('/auxiliares/ventiladores/')
     

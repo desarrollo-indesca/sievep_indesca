@@ -267,7 +267,7 @@ class CondicionesTrabajoVentiladorForm(FormConUnidades):
             presion_entrada_calculada = transformar_unidades_presion([float(presion_entrada)], presion_unidad)[0]
 
             if(presion_entrada_calculada < -101325):
-                raise forms.ValidationError("La presión no puede ser menor a la temperatura atmosférica negativa.")
+                raise forms.ValidationError("La presión no puede ser menor a la presión atmosférica negativa.")
         
         return float(presion_entrada) if presion_entrada != '' else None
             
@@ -280,23 +280,9 @@ class CondicionesTrabajoVentiladorForm(FormConUnidades):
             presion_salida_calculada = transformar_unidades_presion([float(presion_salida)], presion_unidad)[0]
 
             if(presion_salida_calculada < -101325):
-                raise forms.ValidationError("La presión no puede ser menor a la temperatura atmosférica negativa.")
+                raise forms.ValidationError("La presión no puede ser menor a la presión atmosférica negativa.")
             
         return float(presion_salida) if presion_salida != '' else None
-
-    def clean_densidad(self):
-        densidad = self.data.get('densidad')
-        if(self.prefix != 'adicional'):
-            calculo_densidad = self.data['calculo_densidad']
-            presion_entrada = self.data['presion_entrada']
-            presion_diseno = self.data['presion_diseno']
-            temperatura_diseno = self.data['temp_diseno']
-            temperatura = self.data['temperatura']
-
-            if(calculo_densidad == 'A' and (presion_entrada == '' and presion_diseno == '' or temperatura == '' and temperatura_diseno == '')):
-                raise forms.ValidationError("No se pudo calcular la densidad. Revise presión y temperatura.")
-
-        return float(densidad) if densidad else None
 
     def limpiar_campos_unidades(self):
         self.fields['flujo_unidad'].empty_label = None
