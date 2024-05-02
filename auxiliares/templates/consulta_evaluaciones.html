@@ -125,7 +125,7 @@
   });
 
   $('form[method="POST"]').submit(e => {
-    if(e.target.name !== 'reporte' && e.target.name !== 'detalle' && !confirm("¿Está seguro que desea eliminar esta evaluación? La única forma de reincorporar la misma es contactando al administrador de la base de datos."))
+    if(e.target.name !== "ficha_form" && e.target.name !== 'reporte' && e.target.name !== 'detalle' && !confirm("¿Está seguro que desea eliminar esta evaluación? La única forma de reincorporar la misma es contactando al administrador de la base de datos."))
       return false;
   })
 </script>

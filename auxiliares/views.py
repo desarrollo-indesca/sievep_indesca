@@ -1653,6 +1653,10 @@ class ConsultaEvaluacionVentilador(ConsultaEvaluacion, ObtenerVentiladorMixin, R
     codigo_reporte_ficha = "ficha_tecnica_ventilador"
 
     def post(self, request, **kwargs):
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha):
+            return reporte_ficha
+            
         if(request.user.is_superuser and request.POST.get('evaluacion')): # Lógica de "Eliminación"
             evaluacion = EvaluacionVentilador.objects.get(pk=request.POST['evaluacion'])
             evaluacion.activo = False
@@ -1667,7 +1671,7 @@ class ConsultaEvaluacionVentilador(ConsultaEvaluacion, ObtenerVentiladorMixin, R
             return historico_evaluaciones_bombas(self.get_queryset(), request)
 
         if(request.POST.get('detalle')):
-            return generar_pdf(request, EvaluacionBomba.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Ventilador", "detalle_evaluacion_ventilador")
+            return generar_pdf(request, EvaluacionVentilador.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Ventilador", "detalle_evaluacion_ventilador")
 
         return self.get(request, **kwargs)
     

@@ -253,6 +253,9 @@ def generar_historia(request, reporte, object_list):
     
     if reporte == 'reporte_evaluaciones_ventilador':
         return reporte_evaluaciones_ventilador(request, object_list)
+    
+    if reporte == 'detalle_evaluacion_ventilador':
+        return detalle_evaluacion_ventilador(object_list)
 
 def detalle_evaluacion(evaluacion):
     '''
@@ -1217,7 +1220,6 @@ def ficha_tecnica_doble_tubo(object_list):
     return [story, None]
 
 # REPORTES DE BOMBAS
-
 def tabla_tramo(i, tramo, story):
     '''
     Resumen:
@@ -2225,3 +2227,105 @@ def reporte_evaluaciones_ventilador(request, object_list):
         return [story, [grafica1, grafica2]]    
     
     return [story, None]
+
+def detalle_evaluacion_ventilador(evaluacion):
+    '''
+    Resumen:
+        Esta función genera la historia de elementos a utilizar en el reporte de detalle de evaluación de un ventilador.
+        Envía un archivo para cerrar.
+    '''
+    story = [Spacer(0,70)]
+    ventilador = evaluacion.equipo
+    condiciones_trabajo = ventilador.condiciones_trabajo
+    condiciones_adicionales = ventilador.condiciones_adicionales
+    entrada = evaluacion.entrada
+    salida = evaluacion.salida
+
+    # TABLA DE DATOS DE ENTRADA
+    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.first_name}"))
+    story.append(Paragraph(f"<b>Tag del Equipo:</b> {ventilador.tag}"))
+    story.append(Paragraph(f"<b>ID de la Evaluación:</b> {evaluacion.id}"))
+
+    story.append(Spacer(0,10))
+    story.append(Paragraph("Datos de Entrada de la Evaluación", ParagraphStyle('', alignment=1)))
+
+    table = [
+        [
+            Paragraph("PARÁMETRO", centrar_parrafo),
+            Paragraph("VALOR", centrar_parrafo)
+        ],
+        [
+            'Fluido',
+            Paragraph(f"Aire", centrar_parrafo)
+        ],
+        [
+            f'Presión Entrada ({entrada.presion_salida_unidad})', 
+            Paragraph(f"{entrada.presion_entrada}", centrar_parrafo)
+        ],
+        [
+            f'Presión Salida ({entrada.presion_salida_unidad})', 
+            Paragraph(f"{entrada.presion_salida}", centrar_parrafo)
+        ],
+        [
+            f'Temperatura Operación ({entrada.temperatura_operacion_unidad})',
+            Paragraph(f"{entrada.temperatura_operacion}", centrar_parrafo)
+        ],        
+        [
+            f'Flujo ({entrada.flujo})',
+            Paragraph(f"{entrada.flujo}", centrar_parrafo),
+        ],
+        [
+            f'Potencia ({entrada.potencia_ventilador_unidad})',
+            Paragraph(f"{entrada.potencia_ventilador}", centrar_parrafo)
+        ]
+    ]
+
+    estilo = TableStyle(
+        [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),           
+
+            ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+            ('BACKGROUND', (0, 0), (0, -1), sombreado),
+        ]
+    )
+
+    table = Table(table)
+    table.setStyle(estilo)
+    story.append(table)
+
+    # TABLA DE RESULTADOS
+    story.append(Spacer(0,10))
+    story.append(Paragraph("Resultados de la Evaluación", ParagraphStyle('', alignment=1)))
+
+    table = [
+        [
+            Paragraph("RESULTADO", centrar_parrafo),
+            Paragraph("EVALUACIÓN", centrar_parrafo),
+            Paragraph(f"FICHA", centrar_parrafo)
+        ],
+        [
+            f'Eficiencia',
+            Paragraph(f"{round(salida.eficiencia, 2)} %", centrar_parrafo),
+            Paragraph(f"{str(condiciones_trabajo.eficiencia) + '%' if condiciones_trabajo.eficiencia else '-'} <b>/</b> {str(condiciones_adicionales.eficiencia) + '%' if condiciones_adicionales.eficiencia else '-'}", centrar_parrafo)
+        ],
+        [
+            f'Potencia Calculada', 
+            Paragraph(f"{round(salida.potencia_calculada, 4)} {salida.potencia_calculada_unidad}", centrar_parrafo),
+            Paragraph(f"{round(condiciones_trabajo.potencia, 4) if condiciones_trabajo.potencia else '-'} {condiciones_trabajo.potencia_freno_unidad} <b>/</b> {round(condiciones_trabajo.potencia_freno, 4) if condiciones_trabajo.potencia_freno else '-'} {condiciones_trabajo.potencia_freno_unidad}", centrar_parrafo)
+        ]
+    ]
+
+    estilo = TableStyle(
+        [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),  
+
+            ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+            ('BACKGROUND', (0, 0), (0, -1), sombreado),
+        ]
+    )
+
+    table = Table(table)
+    table.setStyle(estilo)
+    story.append(table)
+
+    return [story, []]

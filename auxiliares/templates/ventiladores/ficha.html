@@ -4,7 +4,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
       <div class="modal-content text-dark">
         <div class="modal-header">
-          <h5 class="modal-title" id="ficha_{{ventilador.pk|default_if_none:'-'}}Label">Ficha Técnica Bomba Centrífuga ({{ventilador.tag|default_if_none:'-'}})</h5>
+          <h5 class="modal-title" id="ficha_{{ventilador.pk|default_if_none:'-'}}Label">Ficha Técnica Ventilador ({{ventilador.tag|default_if_none:'-'}})</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body text-start small">
@@ -226,7 +226,7 @@
           <a href="{% url 'edicion_ventilador' pk=ventilador.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
           {% endif %}
 
-          <form method="post">
+          <form method="post" name="ficha_form">
             {% csrf_token %}
             <input type="hidden" name="ficha" value="{{ventilador.pk}}">
             <button name="tipo" value="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>
