@@ -4,11 +4,20 @@
 
 {% block encabezado %}
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="
-    {% url 'consulta_bombas' %}?page={{request.session.pagina_consulta}}&tag={{request.session.tag_consulta}}&servicio={{request.session.servicio_consulta}}&complejo={{request.session.complejo_consulta}}&planta={{request.session.planta_consulta}}
+    {% if tipo == 'ventilador' %}{% url 'consulta_ventiladores' %}{% else %}{% url 'consulta_bombas' %}{% endif %}
+?page={{request.session.pagina_consulta}}&tag={{request.session.tag_consulta}}&servicio={{request.session.servicio_consulta}}&complejo={{request.session.complejo_consulta}}&planta={{request.session.planta_consulta}}
   ">↶ Regresar</a></div>
   <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Evaluaciones de{{clase_equipo}} {{equipo.tag}}</h3></div>
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
-    <a class="btn d-block btn-success" href="{% url 'crear_evaluacion_bomba' pk=equipo.pk %}">+ Nueva</a> &nbsp;
+    <a class="btn d-block btn-success" 
+    href="
+      {% if tipo == 'ventilador' %}
+      {% url 'crear_evaluacion_ventilador' pk=equipo.pk %}
+      {% else %}
+      {% url 'crear_evaluacion_bomba' pk=equipo.pk %}
+      {% endif %}
+      "
+    >+ Nueva</a> &nbsp;
   </div>
 
   <script>
@@ -49,7 +58,11 @@
 </thead>
 <tbody class="text-center">
   {% if object_list.count %}
-  {% include 'bombas/partials/tabla_evaluaciones.html' %}
+    {% if tipo == 'ventilador' %}
+    {% include 'ventiladores/partials/tabla_evaluaciones.html' %}
+    {% else %}
+    {% include 'bombas/partials/tabla_evaluaciones.html' %}
+    {% endif %}
   {% else %}
   <td colspan="7">No se encontraron evaluaciones para este equipo con los datos proporcionados.</td>
   {% endif %}
@@ -67,8 +80,13 @@
     <button type="button" class="btn btn-secondary" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{equipo.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button>
     <button type="button" class="btn btn-warning" style="color: black;" data-bs-toggle="modal" data-bs-target="#grafica_historica"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Mostrar gráfica histórico">&nbsp;Gráfica Histórica</button>
   </form>
+  {% if tipo == 'ventilador' %}
+  {% include 'ventiladores/partials/historico.html' with equipo=equipo %}
+  {% include 'ventiladores/ficha.html' with ventilador=equipo %}
+  {% else %}
   {% include 'bombas/partials/historico.html' with bomba=equipo %}
   {% include 'bombas/ficha.html' with bomba=equipo %}
+  {% endif %}
 </div>
 <footer aria-label="Page navigation example">
   <ul class="pagination">
@@ -107,7 +125,7 @@
   });
 
   $('form[method="POST"]').submit(e => {
-    if(e.target.name !== 'reporte' && !confirm("¿Está seguro que desea eliminar esta evaluación? La única forma de reincorporar la misma es contactando al administrador de la base de datos."))
+    if(e.target.name !== "ficha_form" && e.target.name !== 'reporte' && e.target.name !== 'detalle' && !confirm("¿Está seguro que desea eliminar esta evaluación? La única forma de reincorporar la misma es contactando al administrador de la base de datos."))
       return false;
   })
 </script>

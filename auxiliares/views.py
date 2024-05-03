@@ -12,6 +12,7 @@ from typing import Any
 import datetime
 
 from django.db import transaction
+from django.db.models import Prefetch
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
@@ -23,12 +24,12 @@ from usuarios.views import SuperUserRequiredMixin
 from auxiliares.models import *
 from auxiliares.forms import *
 from intercambiadores.models import Complejo, Planta
-from calculos.termodinamicos import calcular_densidad, calcular_presion_vapor, calcular_viscosidad, calcular_densidad_relativa
-from calculos.unidades import transformar_unidades_presion, transformar_unidades_flujo_volumetrico, transformar_unidades_potencia, transformar_unidades_longitud, transformar_unidades_temperatura, transformar_unidades_densidad, transformar_unidades_viscosidad
+from calculos.termodinamicos import calcular_densidad, calcular_densidad_aire, calcular_presion_vapor, calcular_viscosidad, calcular_densidad_relativa
+from calculos.unidades import *
 from calculos.utils import fluido_existe, registrar_fluido
-from .evaluacion import evaluacion_bomba
+from .evaluacion import evaluacion_bomba, evaluar_ventilador
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import reporte_bombas, historico_evaluaciones_bombas, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga
+from reportes.xlsx import reporte_equipos, ficha_tecnica_ventilador, historico_evaluaciones_bombas, historico_evaluaciones_ventiladores, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga
 
 # Create your views here.
 
@@ -189,7 +190,39 @@ class ReportesFichasBombasMixin():
                 return ficha_instalacion_bomba_centrifuga(bomba,request)
             
         return None
+    
+class ReportesFichasMixin():
+    reporte_ficha_xlsx = lambda ventilador,request : '' # Definición Placeholder
+    titulo_reporte_ficha = ""
+    codigo_reporte_ficha = ""
+    model_ficha = None
 
+    def reporte_ficha(self, request):
+        if(request.POST.get('ficha')):
+            equipo = self.model_ficha.objects.get(pk = request.POST.get('ficha'))
+            if(request.POST.get('tipo') == 'pdf'):
+                return generar_pdf(request, equipo, self.titulo_reporte_ficha + " " + equipo.tag.upper(), self.codigo_reporte_ficha)
+            if(request.POST.get('tipo') == 'xlsx'):
+                return self.reporte_ficha_xlsx(equipo, request)
+            
+        return None
+
+class FiltrarEvaluacionesMixin():
+    def filtrar(self, request, evaluaciones):
+        if(request.GET.get('desde')):
+            evaluaciones = evaluaciones.filter(fecha__gte = request.GET.get('desde'))
+
+        if(request.GET.get('hasta')):
+            evaluaciones = evaluaciones.filter(fecha__lte = request.GET.get('hasta'))
+
+        if(request.GET.get('usuario')):
+            evaluaciones = evaluaciones.filter(creado_por__first_name__icontains = request.GET.get('hasta'))
+
+        if(request.GET.get('nombre')):
+            evaluaciones = evaluaciones.filter(nombre__icontains = request.GET.get('nombre'))
+
+        return evaluaciones
+    
 # VISTAS DE BOMBAS
 
 class CargarBombaMixin():
@@ -208,33 +241,38 @@ class CargarBombaMixin():
         bomba = Bombas.objects.filter(pk = self.kwargs['pk'])
 
         if(prefetch):
-            bomba = bomba.select_related('instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba','detalles_construccion','condiciones_diseno')
-            bomba = bomba.prefetch_related(
-                'instalacion_succion__elevacion_unidad', 'condiciones_diseno__capacidad_unidad', 
-                'instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad',
+            bomba = bomba.select_related(
+            'instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba',
+            'detalles_construccion','condiciones_diseno', 'condiciones_diseno__condiciones_fluido',
 
-                'condiciones_diseno__presion_unidad', 'condiciones_diseno__npsha_unidad', 
-                
-                'condiciones_diseno__condiciones_fluido', 'condiciones_diseno__condiciones_fluido__temperatura_unidad',
-                'condiciones_diseno__condiciones_fluido__presion_vapor_unidad', 'condiciones_diseno__condiciones_fluido__viscosidad_unidad',
-                'condiciones_diseno__condiciones_fluido__concentracion_unidad', 'condiciones_diseno__condiciones_fluido__fluido',
+            'condiciones_diseno__presion_unidad', 'condiciones_diseno__npsha_unidad', 'condiciones_diseno__capacidad_unidad',
 
-                'especificaciones_bomba__velocidad_unidad', 'especificaciones_bomba__potencia_unidad',
-                'especificaciones_bomba__npshr_unidad', 'especificaciones_bomba__cabezal_unidad',
-                'especificaciones_bomba__id_unidad',
+            'condiciones_diseno__condiciones_fluido__temperatura_unidad', 'condiciones_diseno__condiciones_fluido__densidad_unidad',
+            'condiciones_diseno__condiciones_fluido__presion_vapor_unidad', 'condiciones_diseno__condiciones_fluido__viscosidad_unidad',
+            'condiciones_diseno__condiciones_fluido__concentracion_unidad', 'condiciones_diseno__condiciones_fluido__fluido',
+            'instalacion_succion__elevacion_unidad', 'instalacion_succion__usuario',
+            'instalacion_descarga__elevacion_unidad', 'instalacion_descarga__usuario',
 
-                'detalles_construccion__tipo_carcasa1', 'detalles_construccion__tipo_carcasa2',
-                'detalles_construccion__tipo',
+            'especificaciones_bomba__velocidad_unidad', 'especificaciones_bomba__potencia_unidad',
+            'especificaciones_bomba__npshr_unidad', 'especificaciones_bomba__cabezal_unidad',
+            'especificaciones_bomba__id_unidad',
 
-                'detalles_motor__potencia_motor_unidad','detalles_motor__velocidad_motor_unidad',
-                'detalles_motor__voltaje_unidad', 'detalles_motor__velocidad_motor_unidad',
+            'detalles_construccion__tipo_carcasa1', 'detalles_construccion__tipo_carcasa2',
+            'detalles_construccion__tipo',
 
-                'planta__complejo',
+            'detalles_motor__potencia_motor_unidad','detalles_motor__velocidad_motor_unidad',
+            'detalles_motor__voltaje_unidad', 'detalles_motor__frecuencia_unidad',
+
+            'planta__complejo',
             )
+            bomba = bomba.prefetch_related(
+                'instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad', 'instalacion_succion__tuberias__longitud_tuberia_unidad', 'instalacion_succion__tuberias__material_tuberia',
+                'instalacion_descarga__tuberias', 'instalacion_descarga__tuberias__diametro_tuberia_unidad', 'instalacion_descarga__tuberias__longitud_tuberia_unidad', 'instalacion_descarga__tuberias__material_tuberia'
+            )            
 
         return bomba[0]
 
-class ConsultaBombas(ListView, LoginRequiredMixin, ReportesFichasBombasMixin):
+class ConsultaBombas(LoginRequiredMixin, ListView, ReportesFichasBombasMixin):
     """
     Resumen:
         Vista para la consulta general de las bombas centrífugas (primer equipo auxiliar)
@@ -262,7 +300,7 @@ class ConsultaBombas(ListView, LoginRequiredMixin, ReportesFichasBombasMixin):
             return generar_pdf(request, self.get_queryset(), 'Reporte de Bombas Centrífugas', 'bombas')
         
         if(request.POST.get('tipo') == 'xlsx'):
-            return reporte_bombas(request, self.get_queryset())
+            return reporte_equipos(request, self.get_queryset(), 'Listado de Bombas Centrífugas', 'listado_bombas')
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:        
         if(request.GET.get('page')):
@@ -330,16 +368,17 @@ class ConsultaBombas(ListView, LoginRequiredMixin, ReportesFichasBombasMixin):
                 tag__icontains = tag
             )
 
-        new_context = new_context.select_related('instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba','detalles_construccion','condiciones_diseno')
-        new_context = new_context.prefetch_related(
-            'instalacion_succion__elevacion_unidad', 'condiciones_diseno__capacidad_unidad', 
-            'instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad',
+        new_context = new_context.select_related(
+            'instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba',
+            'detalles_construccion','condiciones_diseno', 'condiciones_diseno__condiciones_fluido',
 
-            'condiciones_diseno__presion_unidad', 'condiciones_diseno__npsha_unidad', 
-            
-            'condiciones_diseno__condiciones_fluido', 'condiciones_diseno__condiciones_fluido__temperatura_unidad',
+            'condiciones_diseno__presion_unidad', 'condiciones_diseno__npsha_unidad', 'condiciones_diseno__capacidad_unidad',
+
+            'condiciones_diseno__condiciones_fluido__temperatura_unidad', 'condiciones_diseno__condiciones_fluido__densidad_unidad',
             'condiciones_diseno__condiciones_fluido__presion_vapor_unidad', 'condiciones_diseno__condiciones_fluido__viscosidad_unidad',
             'condiciones_diseno__condiciones_fluido__concentracion_unidad', 'condiciones_diseno__condiciones_fluido__fluido',
+            'instalacion_succion__elevacion_unidad', 'instalacion_succion__usuario',
+            'instalacion_descarga__elevacion_unidad', 'instalacion_descarga__usuario',
 
             'especificaciones_bomba__velocidad_unidad', 'especificaciones_bomba__potencia_unidad',
             'especificaciones_bomba__npshr_unidad', 'especificaciones_bomba__cabezal_unidad',
@@ -349,14 +388,18 @@ class ConsultaBombas(ListView, LoginRequiredMixin, ReportesFichasBombasMixin):
             'detalles_construccion__tipo',
 
             'detalles_motor__potencia_motor_unidad','detalles_motor__velocidad_motor_unidad',
-            'detalles_motor__voltaje_unidad', 'detalles_motor__velocidad_motor_unidad',
+            'detalles_motor__voltaje_unidad', 'detalles_motor__frecuencia_unidad',
 
             'planta__complejo',
+            )
+        new_context = new_context.prefetch_related(
+            'instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad', 'instalacion_succion__tuberias__longitud_tuberia_unidad', 'instalacion_succion__tuberias__material_tuberia',
+            'instalacion_descarga__tuberias', 'instalacion_descarga__tuberias__diametro_tuberia_unidad', 'instalacion_descarga__tuberias__longitud_tuberia_unidad', 'instalacion_descarga__tuberias__material_tuberia'
         )
 
         return new_context
 
-class CreacionBomba(View, SuperUserRequiredMixin):
+class CreacionBomba(SuperUserRequiredMixin, View):
     """
     Resumen:
         Vista para la creación o registro de nuevas bombas centrífugas.
@@ -508,7 +551,7 @@ class CreacionBomba(View, SuperUserRequiredMixin):
                 'titulo': self.titulo
             })
         
-class ObtencionDatosFluidosBomba(View, LoginRequiredMixin):
+class ObtencionDatosFluidosBomba(LoginRequiredMixin, View):
     """
     Resumen:
         Vista HTMX para obtener las propiedades termodinámicas calculadas de forma automática.
@@ -589,7 +632,7 @@ class ObtencionDatosFluidosBomba(View, LoginRequiredMixin):
 
         return render(request, 'bombas/partials/fluido_bomba.html', propiedades)
 
-class EdicionBomba(CreacionBomba, CargarBombaMixin):
+class EdicionBomba(CargarBombaMixin, CreacionBomba):
     """
     Resumen:
         Vista para la creación o registro de nuevas bombas centrífugas.
@@ -662,7 +705,7 @@ class EdicionBomba(CreacionBomba, CargarBombaMixin):
                 'titulo': self.titulo
             })
         
-class CreacionInstalacionBomba(View, CargarBombaMixin, SuperUserRequiredMixin):
+class CreacionInstalacionBomba(SuperUserRequiredMixin, View, CargarBombaMixin):
     """
     Resumen:
         Vista para la creación de nuevas especificaciones de instalación para una bomba.
@@ -818,19 +861,36 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion, CargarBombaMixin, ReportesFich
         return self.get(request, **kwargs)
     
     def get_queryset(self):
-        new_context = super().get_queryset().filter()
+        new_context = super().get_queryset()
 
-        new_context = new_context.select_related('instalacion_succion', 'instalacion_descarga', 'creado_por', 'entrada', 'salida')
-        new_context = new_context.prefetch_related('instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad',
-                                                   'instalacion_succion__tuberias__longitud_tuberia_unidad', 'instalacion_succion__tuberias__material_tuberia',
-                                                   'entrada__presion_unidad', 'entrada__altura_unidad',
-                                                   'entrada__flujo_unidad', 'salida_secciones_evaluacionbomba__datos_tramos_seccion',
-                                                   'entrada__temperatura_unidad', 'entrada__potencia_unidad', 'salida__velocidad_unidad',
-                                                   'entrada__npshr_unidad', 'entrada__densidad_unidad', 'salida__potencia_unidad',
-                                                   'entrada__viscosidad_unidad', 'entrada__presion_vapor_unidad', 'salida_secciones_evaluacionbomba',
-                                                   'salida__cabezal_total_unidad', 'salida_secciones_evaluacionbomba__datos_tramos_seccion', 'salida_secciones_evaluacionbomba__datos_tramos_seccion__tramo',
-                                                   'salida_secciones_evaluacionbomba__datos_tramos_seccion__tramo__diametro_tuberia_unidad', 'salida_secciones_evaluacionbomba__datos_tramos_seccion__tramo__longitud_tuberia_unidad',
-                                                   'salida_secciones_evaluacionbomba__datos_tramos_seccion__tramo__material_tuberia')
+        new_context = new_context.select_related(
+            'instalacion_succion', 'instalacion_descarga', 'creado_por', 'entrada', 'salida', 'equipo',
+
+            'instalacion_succion__elevacion_unidad', 'instalacion_descarga__elevacion_unidad',
+
+            'entrada__presion_unidad', 'entrada__altura_unidad',
+            'entrada__flujo_unidad', 'entrada__velocidad_unidad',
+            'entrada__temperatura_unidad', 'entrada__potencia_unidad', 
+            'entrada__npshr_unidad', 'entrada__densidad_unidad', 
+            'entrada__viscosidad_unidad', 'entrada__presion_vapor_unidad',
+            'entrada__fluido',
+
+            'salida__velocidad_unidad', 'salida__potencia_unidad',            
+            'salida__cabezal_total_unidad',            
+        )
+        new_context = new_context.prefetch_related(
+            Prefetch('salida_secciones_evaluacionbomba',
+                queryset=SalidaSeccionesEvaluacionBomba.objects.prefetch_related(
+                    Prefetch('datos_tramos_seccion',
+                        queryset=SalidaTramosEvaluacionBomba.objects.prefetch_related(
+                            Prefetch(
+                                'tramo',
+                                queryset=TuberiaInstalacionBomba.objects.select_related('diametro_tuberia_unidad','longitud_tuberia_unidad','material_tuberia')
+                            )
+                        ))
+                )
+            )
+        )
 
         return new_context
 
@@ -840,7 +900,7 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion, CargarBombaMixin, ReportesFich
 
         return context
 
-class CalcularResultados(View, LoginRequiredMixin):
+class CalcularResultados(LoginRequiredMixin, View):
     """
     Resumen:
         Vista HTMX que calcula los resultados de una evaluación de una bomba.
@@ -1065,7 +1125,7 @@ class CalcularResultados(View, LoginRequiredMixin):
 
         return res
 
-class CreacionEvaluacionBomba(View, LoginRequiredMixin, CargarBombaMixin, ReportesFichasBombasMixin):
+class CreacionEvaluacionBomba(LoginRequiredMixin, View, CargarBombaMixin, ReportesFichasBombasMixin):
     """
     Resumen:
         Vista de la creación de una evaluación de una bomba.
@@ -1107,7 +1167,7 @@ class CreacionEvaluacionBomba(View, LoginRequiredMixin, CargarBombaMixin, Report
     def get(self, request, pk):
         return render(request, 'bombas/evaluacion.html', self.get_context_data())
     
-class GenerarGrafica(View, LoginRequiredMixin):
+class GenerarGrafica(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
     """
     Resumen:
         Vista AJAX que envía los datos necesarios para la gráfica histórica de evaluaciones de bombas.
@@ -1120,17 +1180,7 @@ class GenerarGrafica(View, LoginRequiredMixin):
         bomba = Bombas.objects.get(pk=pk)
         evaluaciones = EvaluacionBomba.objects.filter(activo = True, equipo = bomba).order_by('fecha')
         
-        if(request.GET.get('desde')):
-            evaluaciones = evaluaciones.filter(fecha__gte = request.GET.get('desde'))
-
-        if(request.GET.get('hasta')):
-            evaluaciones = evaluaciones.filter(fecha__lte = request.GET.get('hasta'))
-
-        if(request.GET.get('usuario')):
-            evaluaciones = evaluaciones.filter(creado_por__first_name__icontains = request.GET.get('hasta'))
-
-        if(request.GET.get('nombre')):
-            evaluaciones = evaluaciones.filter(nombre__icontains = request.GET.get('nombre'))
+        evaluaciones = self.filtrar(request, evaluaciones)
         
         res = []
 
@@ -1143,5 +1193,782 @@ class GenerarGrafica(View, LoginRequiredMixin):
                 'salida__npsha': transformar_unidades_longitud([salida.npsha], value.entrada.npshr_unidad.pk, bomba.condiciones_diseno.npsha_unidad.pk),
             })
             
+
+        return JsonResponse(res[:15], safe=False)
+    
+## Vistas de Ventiladores
+class ObtenerVentiladorMixin():
+    '''
+    Resumen:
+        Mixin para obtener un ventilador de la base de datos junto a todos sus datos adicionales.
+
+    Métodos:
+        get_ventilador(self) -> QuerySet[1]
+            Obtiene un ventilador en un queryset con todo el prefetching necesario por cuestiones de eficiencia.
+    '''
+    def get_ventilador(self):
+        ventilador = Ventilador.objects.filter(pk = self.kwargs.get('pk'))
+
+        return ventilador.select_related('tipo_ventilador','condiciones_trabajo','condiciones_adicionales','condiciones_generales','especificaciones', 'planta', 
+            'planta__complejo', 'creado_por', 'editado_por', 'especificaciones__espesor_unidad', 
+            'especificaciones__potencia_motor_unidad', 'especificaciones__velocidad_motor_unidad', 
+            'condiciones_generales__temp_ambiente_unidad', 'condiciones_generales__velocidad_diseno_unidad', 
+            'condiciones_trabajo__flujo_unidad', 'condiciones_trabajo__presion_unidad', 'condiciones_generales__presion_barometrica_unidad',
+            'condiciones_trabajo__velocidad_funcionamiento_unidad', 'condiciones_trabajo__temperatura_unidad',
+            'condiciones_trabajo__densidad_unidad', 'condiciones_trabajo__potencia_freno_unidad', 
+            'condiciones_adicionales__flujo_unidad', 'condiciones_adicionales__presion_unidad', 
+            'condiciones_adicionales__velocidad_funcionamiento_unidad', 'condiciones_adicionales__temperatura_unidad',
+            'condiciones_adicionales__densidad_unidad', 'condiciones_adicionales__potencia_freno_unidad'
+        )[0]
+
+class ReportesFichasVentiladoresMixin(ReportesFichasMixin):
+    '''
+    Resumen:
+        Mixin para la generación de reportes de fichas en las vistas en las que es conveniente colocar.
+
+    Atributos:
+        model_ficha: Model -> Modelo del cual se extraerá la ficha
+        reporte_ficha_xlsx: callable -> FUNCIÓN que generará la ficha deseada en formato XLSX
+        titulo_reporte_ficha: str -> Título que se desea tenga el reporte PDF
+        codigo_reporte_ficha: str -> Código único del reporte PDF para su generación
+    '''
+    model_ficha = Ventilador
+    reporte_ficha_xlsx = ficha_tecnica_ventilador
+    titulo_reporte_ficha = "Ficha Técnica del Ventilador"
+    codigo_reporte_ficha = "ficha_tecnica_ventilador"
+
+class ConsultaVentiladores(LoginRequiredMixin, ListView, ReportesFichasVentiladoresMixin):
+    '''
+    Resumen:
+        Vista para la consulta de ventiladores.
+        Hereda de ListView.
+        Pueden acceder usuarios que hayan iniciado sesión.
+        Se puede generar una ficha a través de esta vista.
+
+    Atributos:
+        model: Model -> Modelo del cual se extraerán los elementos de la lista.
+        template_name: str -> Plantilla a renderizar
+        paginate_by: str -> Número de elementos a mostrar a a la vez
+
+    Métodos:
+        post(self, request, *args, **kwargs) -> HttpResponse
+            Se utiliza para la generación de reportes de ficha o de ventiladores.
+
+        get(self, request, *args, **kwargs) -> HttpResponse
+            Se renderiza la página en su página y filtrado correcto.
+
+        get_context_data(self, **kwargs) -> dict
+            Genera el contexto necesario en la vista para la renderización de la plantilla
+
+        get_queryset(self) -> QuerySet
+            Obtiene el QuerySet de la lista de acuerdo al modelo del atributo.
+            Hace el filtrado correspondiente y prefetching necesario para reducir las queries.
+    '''
+    model = Ventilador
+    template_name = 'ventiladores/consulta.html'
+    paginate_by = 10
+
+    def post(self, request, *args, **kwargs):
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha): # Si se está deseando generar un reporte de ficha, se genera
+            return reporte_ficha
+
+        if(request.POST.get('tipo') == 'pdf'): # Reporte de ventiladores en PDF
+            return generar_pdf(request, self.get_queryset(), 'Reporte de Ventiladores de Calderas', 'ventiladores')
+        
+        if(request.POST.get('tipo') == 'xlsx'): # reporte de ventiladores en XLSX
+            return reporte_equipos(request, self.get_queryset(), 'Listado de Ventiladores de Calderas', 'listado_ventiladores')
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:        
+        if(request.GET.get('page')):
+            request.session['pagina_consulta'] = request.GET['page']
+        else:
+            request.session['pagina_consulta'] = 1
+        
+        request.session['tag_consulta'] = request.GET.get('tag') if request.GET.get('tag') else ''
+        request.session['descripcion_consulta'] = request.GET.get('descripcion') if request.GET.get('descripcion') else ''
+        request.session['complejo_consulta'] = request.GET.get('complejo') if request.GET.get('complejo') else ''
+        request.session['planta_consulta'] = request.GET.get('planta') if request.GET.get('planta') else ''
+        
+        return super().get(request, *args, **kwargs)
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["titulo"] = "SIEVEP - Consulta de Ventiladores"
+        context['complejos'] = Complejo.objects.all()
+
+        if(self.request.GET.get('complejo')):
+            context['plantas'] = Planta.objects.filter(complejo= self.request.GET.get('complejo'))
+
+        context['tag'] = self.request.GET.get('tag', '')
+        context['descripcion'] = self.request.GET.get('descripcion', '')
+        context['complejox'] = self.request.GET.get('complejo')
+        context['plantax'] = self.request.GET.get('planta')
+
+        if(context['complejox']):
+            context['complejox'] = int(context['complejox'])
+        
+        if(context['plantax']):
+            context['plantax'] = int(context['plantax'])
+
+        context['link_creacion'] = 'creacion_ventilador'
+
+        return context
+    
+    def get_queryset(self):
+        tag = self.request.GET.get('tag', '')
+        descripcion = self.request.GET.get('descripcion', '')
+        complejo = self.request.GET.get('complejo', '')
+        planta = self.request.GET.get('planta', '')
+
+        new_context = None
+
+        if(planta != '' and complejo != ''):
+            new_context = self.model.objects.filter(
+                planta__pk=planta
+            )
+        elif(complejo != ''):
+            new_context = new_context.filter(
+                planta__complejo__pk=complejo
+            ) if new_context else self.model.objects.filter(
+                planta__complejo__pk=complejo
+            )
+
+        if(not(new_context is None)):
+            new_context = new_context.filter(
+                descripcion__icontains = descripcion,
+                tag__icontains = tag
+            )
+        else:
+            new_context = self.model.objects.filter(
+                descripcion__icontains = descripcion,
+                tag__icontains = tag
+            )
+
+        new_context = new_context.select_related('tipo_ventilador','condiciones_trabajo','condiciones_adicionales','condiciones_generales','especificaciones', 'planta', 
+                                                 'planta__complejo', 'creado_por', 'editado_por', 'especificaciones__espesor_unidad', 
+                                                 'especificaciones__potencia_motor_unidad', 'especificaciones__velocidad_motor_unidad', 
+                                                 'condiciones_generales__temp_ambiente_unidad', 'condiciones_generales__velocidad_diseno_unidad', 
+                                                 'condiciones_trabajo__flujo_unidad', 'condiciones_trabajo__presion_unidad', 'condiciones_generales__presion_barometrica_unidad',
+                                                 'condiciones_trabajo__velocidad_funcionamiento_unidad', 'condiciones_trabajo__temperatura_unidad',
+                                                 'condiciones_trabajo__densidad_unidad', 'condiciones_trabajo__potencia_freno_unidad', 
+                                                 'condiciones_adicionales__flujo_unidad', 'condiciones_adicionales__presion_unidad', 
+                                                 'condiciones_adicionales__velocidad_funcionamiento_unidad', 'condiciones_adicionales__temperatura_unidad',
+                                                 'condiciones_adicionales__densidad_unidad', 'condiciones_adicionales__potencia_freno_unidad' )
+
+        return new_context
+    
+class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
+    '''
+    Resumen:
+        Vista para generar las densidades del aire necesarias.
+        Hereda de View.
+        Pueden acceder usuarios que hayan iniciado sesión.
+
+    Métodos:
+        obtener_temperatura(self, request, adicional) -> float or None
+            Obtiene la temperatura en la request de acuerdo a los requerimientos del cálculo y la lleva a unidades del SI.
+
+        obtener_presion(self, request, adicional) -> float or None
+            Obtiene la presión en la request de acuerdo a los requerimientos del cálculo y la lleva a unidades del SI. Siempre añade 1atm=101325Pa.
+
+        obtener_densidad(self, request, adicional = False) -> float or None
+            Obtiene la densidad con la lógica adecuada para obtener la presión y la temperatura.
+
+        get(self, request) -> HttpResponse
+            Renderiza la plantilla de propiedades una vez obtenidos los datos.
+    '''
+    def obtener_temperatura(self, request, adicional):
+        if(request.get('evaluacion') == '1'): # Lógica cuando se calcula en una evaluación
+            temperatura_condicion = request.get('temperatura_operacion')
+            if(temperatura_condicion and temperatura_condicion != ''):
+                temperatura = float(temperatura_condicion)
+                temperatura_unidad = int(request.get('temperatura_operacion_unidad'))
+
+                return transformar_unidades_temperatura([temperatura], temperatura_unidad)[0]
+
+            return None
+        
+        if(adicional): # Lógica cuando es para condiciones adicionales
+            temperatura_condicion = request.get('adicional-temperatura')
+            if(temperatura_condicion and temperatura_condicion != ''):
+                temperatura = float(temperatura_condicion)
+                temperatura_unidad = int(request.get('adicional-temperatura_unidad'))
+
+                return transformar_unidades_temperatura([temperatura], temperatura_unidad)[0]
+
+            return None
+
+        temperatura_condicion = request.get('temperatura')
+        if(temperatura_condicion and temperatura_condicion != ''): # Lógica en condiciones de trabajo si está definida la temperatura
+            temperatura = float(temperatura_condicion)
+            temperatura_unidad = int(request.get('temperatura_unidad'))
+
+            return transformar_unidades_temperatura([temperatura], temperatura_unidad)[0]
+        
+        temperatura_diseno = request.get('temp_diseno')
+        if(temperatura_diseno and temperatura_diseno != ''): # Lógica en condiciones de trabajo si está definida la temperatura de diseño
+            temperatura = float(temperatura_diseno)
+            temperatura_unidad = int(request.get('temp_ambiente_unidad'))
+
+            return transformar_unidades_temperatura([temperatura], temperatura_unidad)[0]
+        
+        return None
+    
+    def obtener_presion(self, request, adicional):
+        if(request.get('evaluacion') == '1'): # Lógica cuando se calcula en una evaluación
+            presion_condicion = request.get('presion_entrada')
+            if(presion_condicion and presion_condicion != ''):
+                presion = float(presion_condicion)
+                presion_unidad = int(request.get('presion_salida_unidad'))
+
+                return transformar_unidades_presion([presion], presion_unidad)[0] + 101325
+
+            return None
+        
+        if(adicional):  # Lógica cuando es para condiciones adicionales
+            presion_condicion = request.get('adicional-presion_entrada')
+            if(presion_condicion and presion_condicion != ''):
+                presion = float(presion_condicion)
+                presion_unidad = int(request.get('adicional-presion_unidad'))
+
+                return transformar_unidades_presion([presion], presion_unidad)[0] + 101325
+
+            return None
+        
+        presion_entrada = request.get('presion_entrada')
+        if(presion_entrada and presion_entrada != ''): # Lógica en condiciones de trabajo si está definida la presión
+            presion = float(presion_entrada)
+            presion_unidad = int(request.get('presion_unidad'))
+
+            return transformar_unidades_presion([presion], presion_unidad)[0] + 101325
+        
+        presion_diseno = request.get('presion_diseno')
+        if(presion_diseno and presion_diseno != ''): # Lógica en condiciones de trabajo si está definida la presión de diseño
+            presion = float(presion_diseno)
+            presion_unidad = int(request.get('presion_barometrica_unidad'))
+
+            return transformar_unidades_presion([presion], presion_unidad)[0] + 101325
+        
+        return None
+            
+    def obtener_densidad(self, request, adicional = False):
+        temperatura = self.obtener_temperatura(request, adicional)
+        presion = self.obtener_presion(request, adicional)
+
+        print(request)        
+        print("*************************")
+        print(temperatura, presion, adicional)
+        print("*************************")
+
+        densidad = calcular_densidad_aire(temperatura, presion)
+        densidad_unidad = int(request.get('densidad_unidad', request.get('adicional-densidad_unidad', request.get('densidad_evaluacion_unidad'))))
+        return round(transformar_unidades_densidad([densidad], 30, densidad_unidad)[0], 6)
+
+    def get(self, request):
+        print(self.request.GET)
+        adicional =  request.GET.get('adicional') != None
+        densidad = round(self.obtener_densidad(request.GET, adicional), 6)
+
+        return render(request, 'ventiladores/partials/propiedades.html', {'densidad': densidad, 'adicional': adicional, 'evaluacion': request.GET.get('evaluacion')})
+
+class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
+    """
+    Resumen:
+        Vista para la creación o registro de nuevos ventiladores.
+        Solo puede ser accedido por superusuarios.
+
+    Atributos:
+        success_message: str -> Mensaje a ser enviado al usuario al registrar exitosamente una bomba.
+        titulo: str -> Título de la vista
+    
+    Métodos:
+        get_context(self) -> dict
+            Crea instancias de los formularios a ser utilizados y define el título de la vista.
+
+        get(self, request, **kwargs) -> HttpResponse
+            Renderiza el formulario con la plantilla correspondiente.
+
+        almacenar_datos(self, form_bomba, form_detalles_motor, form_condiciones_fluido,
+                            form_detalles_construccion, form_condiciones_diseno, 
+                            form_especificaciones) -> HttpResponse
+
+            Valida y almacena los datos de acuerdo a la lógica requerida para el almacenamiento de bombas por medio de los formularios.
+            Si hay errores se levantará una Exception.
+
+        post(self) -> HttpResponse
+            Envía el request a los formularios y envía la respuesta al cliente.
+    """
+
+    success_message = "El nuevo ventilador ha sido registrado exitosamente."
+    titulo = 'SIEVEP - Creación de Ventiladores'
+    template_name = 'ventiladores/creacion.html'
+
+    def get_context(self):
+        return {
+            'form_equipo': VentiladorForm(), 
+            'form_especificaciones': EspecificacionesVentiladorForm(), 
+            'form_condiciones_generales': CondicionesGeneralesVentiladorForm(),
+            'form_condiciones_trabajo': CondicionesTrabajoVentiladorForm(),
+            'form_condiciones_adicionales': CondicionesTrabajoVentiladorForm(prefix="adicional"),
+            'titulo': self.titulo
+        }
+
+    def get(self, request, **kwargs):
+        return render(request, self.template_name, self.get_context())
+    
+    def almacenar_datos(self, form_equipo, form_condiciones_generales,
+                            form_condiciones_trabajo, form_condiciones_adicionales, 
+                            form_especificaciones):
+        
+        adicionales_creados = False
+        valido = True
+                       
+        with transaction.atomic():
+            valido = valido and form_especificaciones.is_valid()
+            if(valido):
+                form_especificaciones.save()
+
+            valido = valido and form_condiciones_generales.is_valid()
+            if(valido):
+                form_condiciones_generales.save()
+
+            valido = valido and form_condiciones_trabajo.is_valid()
+            if(valido):
+                if(form_condiciones_trabajo.instance.calculo_densidad == 'A'):
+                    try:
+                        form_condiciones_trabajo.instance.densidad = self.obtener_densidad(self.request.POST)
+                    except:
+                        form_condiciones_trabajo.instance.densidad = None
+                else:
+                    form_condiciones_trabajo.instance.densidad = self.request.POST.get('adicional-densidad')
+                    if(form_condiciones_trabajo.instance.densidad == ''):
+                        form_condiciones_trabajo.instance.densidad = None
+                
+                if(form_condiciones_trabajo.instance.flujo_unidad.pk in [6,10,18,19]): # Unidades de FLUJO MÁSICO
+                   form_condiciones_trabajo.instance.tipo_flujo = 'M'
+
+                if(form_condiciones_trabajo.instance.densidad and form_condiciones_trabajo.instance.presion_entrada
+                    and form_condiciones_trabajo.instance.temperatura and form_condiciones_trabajo.instance.presion_salida
+                    and form_condiciones_trabajo.instance.flujo and (form_condiciones_trabajo.instance.potencia 
+                    or form_condiciones_trabajo.instance.potencia_freno)):
+
+                    instance = form_condiciones_trabajo.instance
+                    densidad = transformar_unidades_densidad([instance.densidad], instance.densidad_unidad.pk)[0]
+                    temperatura = transformar_unidades_temperatura([instance.temperatura], instance.temperatura_unidad.pk)[0]
+                    presion_entrada, presion_salida = transformar_unidades_presion([instance.presion_entrada, instance.presion_salida], form_condiciones_trabajo.instance.presion_unidad.pk)
+                    
+                    if(instance.tipo_flujo == 'M'):
+                        flujo = transformar_unidades_flujo([instance.flujo], instance.flujo_unidad.pk)[0]
+                    else:
+                        flujo = transformar_unidades_flujo_volumetrico([instance.flujo], instance.flujo_unidad.pk)[0]
+                    
+                    potencia_real = transformar_unidades_potencia([instance.potencia if instance.potencia else instance.potencia_freno], instance.potencia_freno_unidad.pk)[0]
+                    res = evaluar_ventilador(presion_entrada, presion_salida, flujo, instance.tipo_flujo, temperatura, potencia_real, densidad)
+                    form_condiciones_trabajo.instance.eficiencia = res['eficiencia']
+                else:
+                    form_condiciones_trabajo.instance.eficiencia = None
+
+                form_condiciones_trabajo.save()
+
+            if(form_condiciones_adicionales.is_valid()):
+                if(form_condiciones_adicionales.instance.calculo_densidad == 'A'):
+                    try:
+                        form_condiciones_adicionales.instance.densidad = self.obtener_densidad(self.request.POST, True)
+                    except:
+                        form_condiciones_adicionales.instance.densidad = None
+                else:
+                    form_condiciones_adicionales.instance.densidad = self.request.POST.get('adicional-densidad')
+                    if(form_condiciones_adicionales.instance.densidad == ''):
+                        form_condiciones_adicionales.instance.densidad = None
+
+                if(form_condiciones_adicionales.instance.flujo_unidad.pk in [6,10,18,19]): # Unidades de FLUJO MÁSICO
+                   form_condiciones_adicionales.instance.tipo_flujo = 'M'
+
+                if(form_condiciones_adicionales.instance.densidad and form_condiciones_adicionales.instance.presion_entrada
+                    and form_condiciones_adicionales.instance.temperatura and form_condiciones_adicionales.instance.presion_salida
+                    and form_condiciones_adicionales.instance.flujo and (form_condiciones_adicionales.instance.potencia 
+                    or form_condiciones_adicionales.instance.potencia_freno)):
+
+                    instance = form_condiciones_adicionales.instance
+                    densidad = transformar_unidades_densidad([instance.densidad], instance.densidad_unidad.pk)[0]
+                    temperatura = transformar_unidades_temperatura([instance.temperatura], instance.temperatura_unidad.pk)[0]
+                    presion_entrada, presion_salida = transformar_unidades_presion([instance.presion_entrada, instance.presion_salida], form_condiciones_adicionales.instance.presion_unidad.pk)
+                    
+                    if(instance.tipo_flujo == 'M'):
+                        flujo = transformar_unidades_flujo([instance.flujo], instance.flujo_unidad.pk)[0]
+                    else:
+                        flujo = transformar_unidades_flujo_volumetrico([instance.flujo], instance.flujo_unidad.pk)[0]
+                    
+                    potencia_real = transformar_unidades_potencia([instance.potencia if instance.potencia else instance.potencia_freno], instance.potencia_freno_unidad.pk)[0]
+                    res = evaluar_ventilador(presion_entrada, presion_salida, flujo, instance.tipo_flujo, temperatura, potencia_real, densidad)
+                    form_condiciones_adicionales.instance.eficiencia = res['eficiencia']
+                else:
+                    form_condiciones_adicionales.instance.eficiencia = None
+
+                form_condiciones_adicionales.save()
+                adicionales_creados = True
+
+            valido = valido and form_equipo.is_valid()
+            if(valido):
+                form_equipo.instance.creado_por = self.request.user
+                form_equipo.instance.condiciones_trabajo = form_condiciones_trabajo.instance
+                form_equipo.instance.condiciones_generales = form_condiciones_generales.instance
+                form_equipo.instance.especificaciones = form_especificaciones.instance
+                form_equipo.instance.condiciones_adicionales = form_condiciones_adicionales.instance if adicionales_creados else None
+                form_equipo.save()
+
+        if(not valido):
+            raise Exception("Existen errores de validación en uno o más formularios.")
+        else:
+            if(not adicionales_creados):
+                messages.warning(self.request, "¡Ventilador registrado exitosamente! Sin embargo no se añadieron condiciones adicionales.")
+            else:
+                messages.success(self.request, self.success_message)
+
+            return redirect('/auxiliares/ventiladores/')
+    
+    def post(self, request):
+        form_equipo = VentiladorForm(request.POST)
+        form_especificaciones = EspecificacionesVentiladorForm(request.POST)
+        form_condiciones_generales = CondicionesGeneralesVentiladorForm(request.POST)
+        form_condiciones_trabajo = CondicionesTrabajoVentiladorForm(request.POST)
+        form_condiciones_adicionales = CondicionesTrabajoVentiladorForm(request.POST, prefix="adicional")
+
+        try:
+            return self.almacenar_datos(form_equipo, form_condiciones_generales,
+                                form_condiciones_trabajo, form_condiciones_adicionales, form_especificaciones)
+        except Exception as e:
+            print(form_equipo.errors)
+            print(form_especificaciones.errors)
+            print(form_condiciones_generales.errors)
+            print(form_condiciones_trabajo.errors)
+            print(form_condiciones_adicionales.errors)
+
+            print(str(e))
+
+            return render(request, self.template_name, context={
+                'form_equipo': form_equipo, 
+                'form_especificaciones': form_especificaciones,
+                'form_condiciones_trabajo': form_condiciones_trabajo, 
+                'form_condiciones_adicionales': form_condiciones_adicionales,
+                'form_condiciones_generales': form_condiciones_generales,
+                'recarga': True,
+                'titulo': self.titulo
+            })
+
+class EdicionVentilador(CreacionVentilador):
+    '''
+    Resumen:
+        Vista para la edición de un ventilador. Sigue la misma lógica que la creación pero envía un contexto con las instancias previas. 
+    '''
+    success_message = "Se han guardado los cambios exitosamente."
+    template_name = 'ventiladores/creacion.html'
+    
+    def get_context(self):
+        ventilador = Ventilador.objects.get(pk = self.kwargs['pk'])
+
+        return {
+            'form_equipo': VentiladorForm(instance = ventilador), 
+            'form_especificaciones': EspecificacionesVentiladorForm(instance = ventilador.especificaciones), 
+            'form_condiciones_generales': CondicionesGeneralesVentiladorForm(instance = ventilador.condiciones_generales), 
+            'form_condiciones_trabajo': CondicionesTrabajoVentiladorForm(instance = ventilador.condiciones_trabajo),
+            'form_condiciones_adicionales': CondicionesTrabajoVentiladorForm(instance = ventilador.condiciones_adicionales, prefix="adicional"),
+            'titulo': f'SIEVEP - Edición del Ventilador {ventilador.tag}',
+            'edicion': True
+        }
+    
+    def post(self, request, pk):
+        ventilador = Ventilador.objects.get(pk = self.kwargs['pk'])
+
+        form_equipo = VentiladorForm(request.POST, instance=ventilador)
+        form_especificaciones = EspecificacionesVentiladorForm(request.POST, instance = ventilador.especificaciones)
+        form_condiciones_generales = CondicionesGeneralesVentiladorForm(request.POST, instance = ventilador.condiciones_generales)
+        form_condiciones_trabajo = CondicionesTrabajoVentiladorForm(request.POST, instance = ventilador.condiciones_trabajo)
+        form_condiciones_adicionales = CondicionesTrabajoVentiladorForm(request.POST, instance = ventilador.condiciones_adicionales, prefix="adicional")
+
+        try: # Almacenamiento
+            res = self.almacenar_datos(form_equipo, form_condiciones_generales, form_condiciones_trabajo,
+                                form_condiciones_adicionales, form_especificaciones)
+            
+            ventilador.editado_al = datetime.datetime.now()
+            ventilador.editado_por = self.request.user
+            ventilador.save()
+
+            return res
+        
+        except Exception as e:
+            print(form_equipo.errors)
+            print(form_especificaciones.errors)
+            print(form_condiciones_generales.errors)
+            print(form_condiciones_trabajo.errors)
+            print(form_condiciones_adicionales.errors)
+
+            print(str(e))
+
+            return render(request, self.template_name, context={
+                'form_equipo': form_equipo, 
+                'form_especificaciones': form_especificaciones,
+                'form_condiciones_trabajo': form_condiciones_trabajo, 
+                'form_condiciones_adicionales': form_condiciones_adicionales,
+                'form_condiciones_generales': form_condiciones_generales,
+                'edicion': True,
+                'titulo': self.titulo
+            })
+        
+# Evaluaciones de Ventiladores
+
+class ConsultaEvaluacionVentilador(ConsultaEvaluacion, ObtenerVentiladorMixin, ReportesFichasVentiladoresMixin):
+    """
+    Resumen:
+        Vista para la consulta de evaluaciones de Ventiladores de Calderas.
+        Hereda de ConsultaEvaluacion para el ahorro de trabajo en términos de consulta.
+        Utiliza los Mixin para obtener ventiladores y de generación de reportes de fichas de ventiladores.
+
+    Atributos:
+        model: EvaluacionBomba -> Modelo de la vista
+        model_equipment -> Modelo del equipo
+        clase_equipo -> Complemento del título de la vista
+        tipo -> Tipo de equipo. Necesario para la renderización correcta de nombres y links.
+    
+    Métodos:
+        get_context_data(self) -> dict
+            Añade al contexto original el equipo.
+
+        get_queryset(self) -> QuerySet
+            Hace el prefetching correspondiente al queryset de las evaluaciones.
+
+        post(self) -> HttpResponse
+            Contiene la lógica de eliminación (ocultación) de una evaluación y de generación de reportes.
+    """
+    model = EvaluacionVentilador
+    model_equipment = Ventilador
+    clase_equipo = "l Ventilador"
+    tipo = 'ventilador'
+
+    def post(self, request, **kwargs):
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha):
+            return reporte_ficha
+            
+        if(request.user.is_superuser and request.POST.get('evaluacion')): # Lógica de "Eliminación"
+            evaluacion = EvaluacionVentilador.objects.get(pk=request.POST['evaluacion'])
+            evaluacion.activo = False
+            evaluacion.save()
+            messages.success(request, "Evaluación eliminada exitosamente.")
+        elif(request.POST.get('evaluacion') and not request.user.is_superuser):
+            messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
+
+        if(request.POST.get('tipo') == 'pdf'):
+            return generar_pdf(request, self.get_queryset(), f"Evaluaciones del Ventilador {self.get_ventilador().tag}", "reporte_evaluaciones_ventilador")
+        elif(request.POST.get('tipo') == 'xlsx'):
+            return historico_evaluaciones_ventiladores(self.get_queryset(), request)
+
+        if(request.POST.get('detalle')):
+            return generar_pdf(request, EvaluacionVentilador.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Ventilador", "detalle_evaluacion_ventilador")
+
+        return self.get(request, **kwargs)
+    
+    def get_queryset(self):
+        new_context = super().get_queryset()
+
+        new_context = new_context.select_related(
+            'entrada', 'entrada__presion_salida_unidad', 'entrada__flujo_unidad', 
+            'entrada__temperatura_operacion_unidad', 'entrada__potencia_ventilador_unidad', 
+            'entrada__densidad_evaluacion_unidad', 'salida', 'salida__potencia_calculada_unidad', 
+            'creado_por', 'equipo'
+        )
+
+        return new_context
+
+    def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
+        context = super().get_context_data(**kwargs)
+        context['equipo'] = self.get_ventilador()
+        context['tipo'] = self.tipo
+
+        return context
+
+class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMixin, ReportesFichasVentiladoresMixin):
+    """
+    Resumen:
+        Vista de la creación de una evaluación de un ventilador.
+    
+    Métodos:        
+        get(self, request) -> HttpResponse
+            Renderiza la plantilla de la vista cuando se recibe una solicitud HTTP GET.
+
+        post(self, request, **kwargs) -> HttpResponse
+            Genera el reporte de ficha.
+
+        get_context_data(self) -> dict
+            Inicializa los formularios respectivos.
+    """
+
+    def post(self, request, **kwargs):
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha):
+            return reporte_ficha
+    
+    def get_context_data(self):
+        ventilador = self.get_ventilador()       
+
+        context = {
+            'ventilador': ventilador,
+            'form_evaluacion': EvaluacionVentiladorForm(),
+            'form_entrada_evaluacion': EntradaEvaluacionVentiladorForm(),
+            'titulo': "Evaluación de Bomba"
+        }
+
+        return context
+    
+    def get(self, request, pk):
+        return render(request, 'ventiladores/evaluacion.html', self.get_context_data())
+    
+class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerVentiladorMixin):
+    """
+    Resumen:
+        Vista para el cálculo de resultados de evaluaciones de Ventiladores de Calderas y del almacenamiento de los mismos.
+        Utiliza los Mixin para obtener ventiladores y de acceso por autenticación.
+    
+    Métodos:
+        calcular(self, request) -> HttpResponse
+            Obtiene los resultados y renderiza la plantilla de resultados.
+
+        obtener_resultados(self) -> HttpResponse
+            Contiene la lógica de obtención de data, transformación de unidades y cálculo de resultados.
+        
+        almacenar(self) -> QuerySet
+            Contiene la lógica de almacenamiento y transformación de unidades para el almacenamiento de la evaluación y sus resultados.
+
+        post(self) -> HttpResponse
+            Contiene la lógica para redirigir a almacenar o calcular los resultados de acuerdo al request.
+    """
+    def calcular(self, request):
+        res = self.obtener_resultados(request)
+        return render(request, 'ventiladores/partials/resultados.html', context={'res': res, 'unidad_potencia': Unidades.objects.get(pk = res['potencia_ventilador_unidad'])})
+
+    def obtener_resultados(self, request):
+        ventilador = self.get_ventilador()
+        condiciones_trabajo = ventilador.condiciones_trabajo
+
+        # Obtener data del request
+        densidad_ficha_unidad = condiciones_trabajo.densidad_unidad.pk
+        temperatura_operacion_unidad = int(request.POST.get('temperatura_operacion_unidad'))
+        flujo_unidad = int(request.POST.get('flujo_unidad'))
+        tipo_flujo = 'M' if flujo_unidad in [6,10,18,19] else 'V'
+        potencia_ventilador_unidad = int(request.POST.get('potencia_ventilador_unidad'))
+        presion_salida_unidad = int(request.POST.get('presion_salida_unidad'))
+
+        presion_entrada = float(request.POST.get('presion_entrada'))
+        presion_salida = float(request.POST.get('presion_salida'))
+        temperatura_operacion = float(request.POST.get('temperatura_operacion'))
+        flujo = float(request.POST.get('flujo'))
+        potencia_ventilador = float(request.POST.get('potencia_ventilador'))
+        densidad_ficha = condiciones_trabajo.densidad
+
+        # Transformar unidades a internacional
+        presion_entrada, presion_salida = transformar_unidades_presion([presion_entrada, presion_salida], presion_salida_unidad)
+        temperatura_operacion = transformar_unidades_temperatura([temperatura_operacion], temperatura_operacion_unidad)[0]
+        potencia_ventilador = transformar_unidades_potencia([potencia_ventilador], potencia_ventilador_unidad)[0]
+        densidad_ficha = transformar_unidades_densidad([densidad_ficha], densidad_ficha_unidad)[0]
+
+        if(flujo_unidad in [6,10,18,19]):
+            flujo = transformar_unidades_flujo([flujo], flujo_unidad)[0]
+        else:
+            flujo = transformar_unidades_flujo_volumetrico([flujo], flujo_unidad)[0]
+
+        # Calcular Resultados
+        res = evaluar_ventilador(presion_entrada, presion_salida, flujo, tipo_flujo,
+                                 temperatura_operacion, potencia_ventilador, densidad_ficha)
+
+        # Transformar unidades de internacional a salida (ficha)
+        res['potencia_calculada'] = transformar_unidades_potencia([res['potencia_calculada']], 49, potencia_ventilador_unidad)[0]
+        res['potencia_ventilador_unidad'] = potencia_ventilador_unidad
+
+        res['ventilador'] = ventilador
+
+        return res
+
+    def almacenar(self, request):
+        try:
+            res = self.obtener_resultados(request)
+            ventilador = self.get_ventilador()
+            condiciones_trabajo = ventilador.condiciones_trabajo
+
+            with transaction.atomic():
+                evaluacion = EvaluacionVentiladorForm(request.POST)
+                entrada_evaluacion = EntradaEvaluacionVentiladorForm(request.POST)
+
+                valido = True and entrada_evaluacion.is_valid()                        
+                if(valido):
+                    densidad_unidad = Unidades.objects.get(pk = request.POST.get('densidad_evaluacion_unidad'))
+                    densidad = transformar_unidades_densidad([res['densidad_calculada']], 30, densidad_unidad.pk)[0]
+                    entrada_evaluacion.instance.densidad_evaluacion = densidad
+                    entrada_evaluacion.instance.densidad_unidad = densidad_unidad
+                    entrada_evaluacion.instance.densidad_ficha = condiciones_trabajo.densidad
+                    entrada_evaluacion.instance.densidad_ficha_unidad = condiciones_trabajo.densidad_unidad
+                    entrada_evaluacion.save()
+                else:
+                    print(entrada_evaluacion.errors)
+
+                valido = valido and evaluacion.is_valid()    
+                if(valido):
+                    salida_evaluacion = SalidaEvaluacionVentilador(
+                        potencia_calculada = res['potencia_calculada'],
+                        potencia_calculada_unidad = Unidades.objects.get(pk=res['potencia_ventilador_unidad']),
+                        eficiencia = res['eficiencia'],
+                        relacion_densidad = res['relacion_densidad']
+                    )
+                    salida_evaluacion.save()
+
+                    evaluacion.instance.creado_por = request.user
+                    evaluacion.instance.equipo = Ventilador.objects.get(pk=self.kwargs['pk'])
+                    evaluacion.instance.entrada = entrada_evaluacion.instance
+                    evaluacion.instance.salida = salida_evaluacion
+                    evaluacion.save()
+                else:
+                    print(evaluacion.errors)
+                
+                if(not valido):
+                    raise Exception("Ocurrió un error al validar los datos")
+                
+                return render(request, 'bombas/partials/carga_lograda.html', {'ventilador': ventilador})
+        except Exception as e:
+            print(str(e))
+            return render(request, 'bombas/partials/carga_fallida.html', {'ventilador': ventilador})
+
+    def post(self, request, pk):
+        if(request.POST['submit'] == 'almacenar'):
+            return self.almacenar(request)
+        else:
+            return self.calcular(request)
+        
+class GenerarGraficaVentilador(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
+    """
+    Resumen:
+        Vista AJAX que envía los datos necesarios para la gráfica histórica de evaluaciones de ventiladores.
+    
+    Métodos:
+        get(self, request, pk) -> JsonResponse
+            Obtiene los datos y envía el Json correspondiente de respuesta
+    """
+
+    def get(self, request, pk):
+        ventilador = Ventilador.objects.get(pk=pk)
+        evaluaciones = EvaluacionVentilador.objects.filter(activo = True, equipo = ventilador).order_by('fecha')
+
+        evaluaciones = self.filtrar(request, evaluaciones)
+        
+        res = []
+
+        for evaluacion in evaluaciones:
+            salida = evaluacion.salida
+            entrada = evaluacion.entrada
+            res.append({
+                'fecha': evaluacion.fecha.__str__(),
+                'salida__eficiencia': salida.eficiencia,
+                'salida__potencia_calculada': transformar_unidades_longitud([salida.potencia_calculada], salida.potencia_calculada_unidad.pk, ventilador.condiciones_trabajo.potencia_freno_unidad.pk)[0],
+                'salida__potencia': transformar_unidades_longitud([entrada.potencia_ventilador], evaluacion.entrada.potencia_ventilador_unidad.pk, ventilador.condiciones_trabajo.potencia_freno_unidad.pk)[0],
+            })
 
         return JsonResponse(res[:15], safe=False)

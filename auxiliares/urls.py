@@ -16,5 +16,15 @@ urlpatterns = [
     path('bombas/evaluar/<int:pk>/', CreacionEvaluacionBomba.as_view(), name = "crear_evaluacion_bomba"),
 
     path('bombas/evaluar/resultados/<int:pk>/', CalcularResultados.as_view(), name = "resultados_evaluacion_bombas"),
-    path('bombas/evaluar/<int:pk>/historico/', GenerarGrafica.as_view(), name='generar_historico_bomba')
+    path('bombas/evaluar/<int:pk>/historico/', GenerarGrafica.as_view(), name='generar_historico_bomba'),
+
+    # URLs de VENTILADORES
+    path('ventiladores/', ConsultaVentiladores.as_view(), name="consulta_ventiladores"),
+    path('ventiladores/creacion/', CreacionVentilador.as_view(), name="creacion_ventilador"),
+    path('ventiladores/edicion/<int:pk>/', EdicionVentilador.as_view(), name="edicion_ventilador"),
+    path('ventiladores/datos_fluido/', CalculoPropiedadesVentilador.as_view(), name="datos_fluido_ventilador"),
+    path('ventiladores/evaluaciones/<int:pk>/', ConsultaEvaluacionVentilador.as_view(), name = "evaluaciones_ventilador"),
+    path('ventiladores/evaluar/<int:pk>/', CreacionEvaluacionVentilador.as_view(), name='crear_evaluacion_ventilador'),
+    path('ventiladores/evaluar/<int:pk>/resultado/', CalcularResultadosVentilador.as_view(), name='resultados_evaluacion_ventilador'),
+    path('ventiladores/evaluaciones/<int:pk>/historico/', GenerarGraficaVentilador.as_view(), name='generar_historico_ventilador'),
 ]

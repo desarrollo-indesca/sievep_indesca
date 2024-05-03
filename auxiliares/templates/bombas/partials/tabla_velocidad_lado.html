@@ -17,11 +17,12 @@
             <th class="table-dark text-center">TIPO DE FLUJO</th>
         </tr>
         {% for tramo in tramos.all %}
+        {% with datos_tramo=tramo.tramo %}
         <tr>
             <th class="text-center">{{forloop.counter}}</th>
-            <td class="text-center">{{tramo.tramo.diametro_tuberia|floatformat:2}} {{tramo.tramo.diametro_tuberia_unidad}}</td>
-            <td class="text-center">{{tramo.tramo.longitud_tuberia|floatformat:2}} {{tramo.tramo.longitud_tuberia_unidad}}</td>
-            <td class="text-center"><small>{{tramo.tramo.material_tuberia}}</small></td>
+            <td class="text-center">{{datos_tramo.diametro_tuberia|floatformat:2}} {{datos_tramo.diametro_tuberia_unidad}}</td>
+            <td class="text-center">{{datos_tramo.longitud_tuberia|floatformat:2}} {{datos_tramo.longitud_tuberia_unidad}}</td>
+            <td class="text-center"><small>{{datos_tramo.material_tuberia}}</small></td>
             <td class="text-center">{{tramo.velocidad|floatformat:2}} m/s</td>
             <td class="text-center {% if tramo.flujo == 'T' %}table-danger{% elif tramo.flujo == 'L' %}table-success{%else%}table-warning{%endif%}">
                 {% if tramo.flujo == 'T' %}
@@ -33,6 +34,7 @@
                 {% endif %}
             </td>
         </tr>
+        {% endwith %}
         {% empty %}
         <tr>
             <td colspan="6" class="text-center">

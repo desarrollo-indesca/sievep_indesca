@@ -294,7 +294,19 @@ def transformar_unidades_potencia(args: list, unidad: int, unidad_salida: int = 
     '''
 
     def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
-        return ur.horsepower if unidad == 40 else ur.watt
+        return ur.horsepower if unidad == 40 else ur.kilowatt if unidad == 53 else ur.watt
+
+    actualizadas = []
+    unidad_salida = obtener_unidad(unidad_salida)
+    unidad = obtener_unidad(unidad)
+    
+    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
+
+    return actualizadas
+
+def transformar_unidades_frecuencia_angular(args: list, unidad: int, unidad_salida: int):
+    def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
+        return ur.radian / ur.second if unidad == 52 else ur.rpm
 
     actualizadas = []
     unidad_salida = obtener_unidad(unidad_salida)
