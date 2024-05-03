@@ -135,4 +135,8 @@
 
 {% block extra_javascript %}
 <script src="/static/js/auxiliares/ventiladores/evaluacion.js"></script>
+
+<script>
+    $('select[name="presion_salida_unidad"]').html($('select[name="presion_salida_unidad"]').html().replaceAll('</option>', 'G</option>'));
+</script>
 {% endblock %}

@@ -1448,18 +1448,13 @@ class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
             presion = float(presion_diseno)
             presion_unidad = int(request.get('presion_barometrica_unidad'))
 
-            return transformar_unidades_presion([presion], presion_unidad)[0] + 101325
+            return transformar_unidades_presion([presion], presion_unidad)[0]
         
         return None
             
     def obtener_densidad(self, request, adicional = False):
         temperatura = self.obtener_temperatura(request, adicional)
         presion = self.obtener_presion(request, adicional)
-
-        print(request)        
-        print("*************************")
-        print(temperatura, presion, adicional)
-        print("*************************")
 
         densidad = calcular_densidad_aire(temperatura, presion)
         densidad_unidad = int(request.get('densidad_unidad', request.get('adicional-densidad_unidad', request.get('densidad_evaluacion_unidad'))))
