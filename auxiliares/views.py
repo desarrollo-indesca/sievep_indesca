@@ -1456,11 +1456,17 @@ class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
         temperatura = self.obtener_temperatura(request, adicional)
         presion = self.obtener_presion(request, adicional)
 
+        print(request)        
+        print("*************************")
+        print(temperatura, presion, adicional)
+        print("*************************")
+
         densidad = calcular_densidad_aire(temperatura, presion)
         densidad_unidad = int(request.get('densidad_unidad', request.get('adicional-densidad_unidad', request.get('densidad_evaluacion_unidad'))))
         return round(transformar_unidades_densidad([densidad], 30, densidad_unidad)[0], 6)
 
     def get(self, request):
+        print(self.request.GET)
         adicional =  request.GET.get('adicional') != None
         densidad = round(self.obtener_densidad(request.GET, adicional), 6)
 
@@ -1531,7 +1537,7 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
             if(valido):
                 if(form_condiciones_trabajo.instance.calculo_densidad == 'A'):
                     try:
-                        form_condiciones_trabajo.instance.densidad = self.obtener_densidad(self.request.POST, True)
+                        form_condiciones_trabajo.instance.densidad = self.obtener_densidad(self.request.POST)
                     except:
                         form_condiciones_trabajo.instance.densidad = None
                 else:

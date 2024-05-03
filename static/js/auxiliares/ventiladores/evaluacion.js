@@ -77,7 +77,31 @@ document.body.addEventListener('htmx:afterRequest', function(evt) {
 });
 
 $('input, select').change((e) => {
-    $('#resultados').html("");
+    $('#resultados').html(`
+    <table class="table table-responsive table-bordered text-center">
+        <tbody>
+            <tr>
+                <th colspan="2" class="table-dark w-50">
+                    Resultados de la Evaluación
+                </th>
+            </tr>
+            <tr>
+                <th class="table-dark w-50">
+                    Eficiencia de la Bomba
+                </th>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <th class="table-dark w-50">
+                    Potencia Calculada
+                </th>
+                <td>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+`);
 })
 
 listeners_cambio();

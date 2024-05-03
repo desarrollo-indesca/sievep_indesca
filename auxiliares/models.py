@@ -883,7 +883,7 @@ class Ventilador(models.Model):
     condiciones_generales =  models.OneToOneField(CondicionesGeneralesVentilador, on_delete=models.PROTECT)
     especificaciones =  models.OneToOneField(EspecificacionesVentilador, on_delete=models.PROTECT)
     
-    creado_al = models.DateTimeField(auto_now=True)
+    creado_al = models.DateTimeField(auto_now_add=True)
     editado_al = models.DateTimeField(null = True)
 
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="ventilador_creado_por")
