@@ -4,10 +4,82 @@ from django.http import HttpResponse
 from io import BytesIO
 from intercambiadores.models import Planta, Complejo
 from simulaciones_pequiven.settings import BASE_DIR
-from calculos.unidades import transformar_unidades_presion, transformar_unidades_area, transformar_unidades_u, transformar_unidades_ensuciamiento
+from calculos.unidades import *
 
 # Aquí irán los reportes en formato Excel
 alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+def reporte_equipos(request, object_list, titulo: str, nombre: str):
+    '''
+    Resumen:
+        Función que genera un reporte los datos generales de un equipo (filtradas o no) en formato XLSX.
+    '''
+    excel_io = BytesIO()
+    workbook = xlsxwriter.Workbook(excel_io)
+    
+    worksheet = workbook.add_worksheet()
+
+    worksheet.set_column('B:B', 20)
+    worksheet.set_column('C:C', 20)
+    worksheet.set_column('D:D', 20)
+    worksheet.set_column('E:E', 40)
+
+    bold = workbook.add_format({'bold': True})
+    bold_bordered = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'yellow'})
+    center_bordered = workbook.add_format({'border': 1})
+    bordered = workbook.add_format({'border': 1})
+    fecha =  workbook.add_format({'border': 1})
+
+    fecha.set_align('right')
+    bold_bordered.set_align('vcenter')
+    center_bordered.set_align('vcenter')
+    bold_bordered.set_align('center')
+    center_bordered.set_align('center')
+
+    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.write('C1', titulo.title(), bold)
+    worksheet.insert_image(0, 4, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+
+    num = 6
+    if(len(request.GET)):
+        worksheet.write('A5', 'Filtros', bold_bordered)
+        worksheet.write('B5', 'Tag', bold_bordered)
+        worksheet.write('C5', 'Planta', bold_bordered)
+        worksheet.write('D5', 'Complejo', bold_bordered)
+        worksheet.write('E5', 'Servicio', bold_bordered)
+
+        worksheet.write('B6', request.GET.get('tag', ''), center_bordered)
+        worksheet.write('C6', Planta.objects.get(pk=request.GET.get('planta')).nombre if request.GET.get('planta') else '', center_bordered)
+        worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('complejo')).nombre if request.GET.get('complejo') else '', center_bordered)
+        worksheet.write('E6', request.GET.get('servicio', request.GET.get('descripcion')), center_bordered)
+        num = 8
+
+    worksheet.write(f'A{num}', '#', bold_bordered)
+    worksheet.write(f'B{num}', 'Tag', bold_bordered)
+    worksheet.write(f'C{num}', 'Planta', bold_bordered)
+    worksheet.write(f'D{num}', 'Complejo', bold_bordered)
+    worksheet.write(f'E{num}', 'Descripción/Servicio', bold_bordered)
+
+    for i,equipo in enumerate(object_list):
+        num += 1
+        worksheet.write_number(f'A{num}', i+1, center_bordered)
+        worksheet.write(f'B{num}', equipo.tag, center_bordered)
+        worksheet.write(f'C{num}', equipo.planta.nombre, center_bordered)
+        worksheet.write(f'D{num}', equipo.planta.complejo.nombre, center_bordered)
+        worksheet.write(f'E{num}', equipo.descripcion, bordered)
+    
+    worksheet.write(f"E{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
+    worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)
+    workbook.close()
+    
+    return enviar_response(nombre, excel_io, fecha)
+
+def enviar_response(nombre, archivo, fecha):
+    response = HttpResponse(content_type='application/ms-excel', content=archivo.getvalue())
+    fecha = datetime.datetime.now()
+    response['Content-Disposition'] = f'attachment; filename="{nombre}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
+    
+    return response
 
 # REPORTES DE INTERCAMBIADORES
 
@@ -97,9 +169,7 @@ def historico_evaluaciones(object_list, request):
     worksheet.write(f"J{num+2}", "Generado por " + request.user.get_full_name(), fecha)
     workbook.close()
         
-    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
-    
-    return response
+    return enviar_response(f'historico_evaluaciones_intercambiador_{intercambiador.tag}', excel_io, fecha)
 
 def ficha_tecnica_tubo_carcasa_xlsx(intercambiador, request):
     '''
@@ -256,9 +326,7 @@ def ficha_tecnica_tubo_carcasa_xlsx(intercambiador, request):
     worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)
     workbook.close()
     
-    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
-    
-    return response
+    return enviar_response(f'ficha_tecnica_tubo_carcasa_{intercambiador.tag}', excel_io, fecha)
 
 def ficha_tecnica_doble_tubo_xlsx(intercambiador, request):
     '''
@@ -417,9 +485,7 @@ def ficha_tecnica_doble_tubo_xlsx(intercambiador, request):
     worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)
     workbook.close()
     
-    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
-    
-    return response
+    return enviar_response(f'intercambiador_doble_tubo_ficha_tecnica_{intercambiador.tag}', excel_io, fecha)
 
 def reporte_intercambiadores(object_list, request):
     '''
@@ -487,9 +553,7 @@ def reporte_intercambiadores(object_list, request):
     worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)
     workbook.close()
     
-    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
-    
-    return response
+    return enviar_response(f'intercambiadores_{intercambiador.tag}', excel_io, fecha)
 
 # REPORTES DE BOMBAS CENTRÍFUGAS
 def ficha_instalacion_bomba_centrifuga(bomba, request):
@@ -619,16 +683,9 @@ def ficha_instalacion_bomba_centrifuga(bomba, request):
     worksheet.write(f"E{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
     worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)
 
-    # Leyenda
-
     workbook.close()
     
-    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
-
-    fecha = datetime.datetime.now()
-    response['Content-Disposition'] = f'attachment; filename="ficha_instalacion_bomba_{bomba.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
-
-    return response
+    return enviar_response(f'ficha_instalacion_bomba_centrifuga_{bomba.tag}', excel_io, fecha)
 
 def ficha_tecnica_bomba_centrifuga(bomba, request):
     '''
@@ -788,13 +845,8 @@ def ficha_tecnica_bomba_centrifuga(bomba, request):
     worksheet.write(f"A{num+6}", "Especificaciones del Motor", motor_estilo)
 
     workbook.close()
-    
-    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
 
-    fecha = datetime.datetime.now()
-    response['Content-Disposition'] = f'attachment; filename="ficha_tecnica_bomba_{bomba.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
-
-    return response
+    return enviar_response(f'ficha_tecnica_bomba_centrifuga_{bomba.tag}', excel_io, fecha)
 
 def historico_evaluaciones_bombas(object_list, request):
     '''
@@ -885,23 +937,20 @@ def historico_evaluaciones_bombas(object_list, request):
     worksheet.write(f"J{num+2}", "Generado por " + request.user.get_full_name(), fecha)
     workbook.close()
         
-    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
-    fecha = datetime.datetime.now()
-    response['Content-Disposition'] = f'attachment; filename="evaluaciones_bomba_{bomba.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
+    return enviar_response('historico_evaluaciones_bombas', excel_io, fecha)
 
-
-    return response
-
-def reporte_bombas(request, object_list):
+# REPORTE DE VENTILADORES
+def historico_evaluaciones_ventiladores(object_list, request):
     '''
     Resumen:
-        Función que genera los datos generales de bombas (filtradas o no) en formato XLSX.
+        Función que genera el histórico XLSX de evaluaciones realizadas a un ventilador filtradas de acuerdo a lo establecido en el request.
     '''
     excel_io = BytesIO()
-    workbook = xlsxwriter.Workbook(excel_io)
-    
+    workbook = xlsxwriter.Workbook(excel_io)    
     worksheet = workbook.add_worksheet()
 
+    ventilador = object_list[0].equipo
+    
     worksheet.set_column('B:B', 20)
     worksheet.set_column('C:C', 20)
     worksheet.set_column('D:D', 20)
@@ -920,43 +969,170 @@ def reporte_bombas(request, object_list):
     center_bordered.set_align('center')
 
     worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
-    worksheet.write('C1', f'Reporte de Bombas Centrífugas', bold)
+    worksheet.write('C1', 'Reporte de Histórico de Evaluaciones', bold)
     worksheet.insert_image(0, 4, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
 
-    num = 6
-    if(len(request.GET)):
-        worksheet.write('A5', 'Filtros', bold_bordered)
-        worksheet.write('B5', 'Tag', bold_bordered)
-        worksheet.write('C5', 'Planta', bold_bordered)
-        worksheet.write('D5', 'Complejo', bold_bordered)
-        worksheet.write('E5', 'Servicio', bold_bordered)
+    worksheet.write('A5', 'Filtros', bold_bordered)
+    worksheet.write('B5', 'Desde', bold_bordered)
+    worksheet.write('C5', 'Hasta', bold_bordered)
+    worksheet.write('D5', 'Usuario', bold_bordered)
+    worksheet.write('E5', 'Nombre', bold_bordered)
+    worksheet.write('F5', 'Equipo', bold_bordered)
 
-        worksheet.write('B6', request.GET.get('tag', ''), center_bordered)
-        worksheet.write('C6', Planta.objects.get(pk=request.GET.get('planta')).nombre if request.GET.get('planta') else '', center_bordered)
-        worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('complejo')).nombre if request.GET.get('complejo') else '', center_bordered)
-        worksheet.write('E6', request.GET.get('servicio', ''), center_bordered)
-        num = 8
+    worksheet.write('B6', request.GET.get('desde', ''), center_bordered)
+    worksheet.write('C6', Planta.objects.get(pk=request.GET.get('hasta')).nombre if request.GET.get('hasta') else '', center_bordered)
+    worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('usuario')).nombre if request.GET.get('usuario') else '', center_bordered)
+    worksheet.write('E6', request.GET.get('nombre', ''), center_bordered)
+    worksheet.write('F6', ventilador.tag.upper(), center_bordered)
+    num = 8
 
     worksheet.write(f'A{num}', '#', bold_bordered)
-    worksheet.write(f'B{num}', 'Tag', bold_bordered)
-    worksheet.write(f'C{num}', 'Planta', bold_bordered)
-    worksheet.write(f'D{num}', 'Complejo', bold_bordered)
-    worksheet.write(f'E{num}', 'Descripción', bold_bordered)
+    worksheet.write(f'B{num}', 'Fecha', bold_bordered)
+    worksheet.write(f'C{num}', "Eficiencia (%)", bold_bordered)
+    worksheet.write(f'D{num}', "Potencia Calculada", bold_bordered)
+    worksheet.write(f"E{num}", f"Unidad Potencia", bold_bordered)
 
-    for i,bomba in enumerate(object_list):
+    potencia_unidad = ventilador.condiciones_trabajo.potencia_freno_unidad
+
+    for i,evaluacion in enumerate(object_list):
+        salida = evaluacion.salida
+        eficiencia = salida.eficiencia
+        
+        potencia_calculada = round(transformar_unidades_potencia([salida.potencia_calculada], salida.potencia_calculada_unidad.pk, potencia_unidad.pk)[0], 4)
+        potencia_unidad = salida.potencia_calculada_unidad
+        fecha_ev = evaluacion.fecha.strftime('%d/%m/%Y %H:%M')
+
         num += 1
-        worksheet.write_number(f'A{num}', i+1, center_bordered)
-        worksheet.write(f'B{num}', bomba.tag, center_bordered)
-        worksheet.write(f'C{num}', bomba.planta.nombre, center_bordered)
-        worksheet.write(f'D{num}', bomba.planta.complejo.nombre, center_bordered)
-        worksheet.write(f'E{num}', bomba.descripcion, bordered)
-    
-    worksheet.write(f"E{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
-    worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)
+        worksheet.write(f'A{num}', i+1, center_bordered)
+        worksheet.write(f'B{num}', fecha_ev, center_bordered)
+        worksheet.write_number(f'C{num}', eficiencia, center_bordered)
+        worksheet.write_number(f'D{num}', potencia_calculada, center_bordered)
+        worksheet.write(f'E{num}', potencia_unidad.simbolo, bordered)
+
+    worksheet.write(f"J{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
+    worksheet.write(f"J{num+2}", "Generado por " + request.user.get_full_name(), fecha)
     workbook.close()
+        
+    return enviar_response('historico_evaluaciones_ventiladores', excel_io, fecha)
+
+def ficha_tecnica_ventilador(_, ventilador, request):
+    '''
+    Resumen:
+        Función que genera los datos de ficha técnica en formato XLSX de un ventilador de caldera.
+    '''
+    excel_io = BytesIO()
+    workbook = xlsxwriter.Workbook(excel_io)
     
-    response = HttpResponse(content_type='application/ms-excel', content=excel_io.getvalue())
-    fecha = datetime.datetime.now()
-    response['Content-Disposition'] = f'attachment; filename="bombas_centrifugas_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
+    worksheet = workbook.add_worksheet()
+
+    bold = workbook.add_format({'bold': True})
+    identificacion = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'yellow'})
+    condiciones_generales_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'red'})
+    condiciones_trabajo_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'cyan'})
+    condiciones_adicionales_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'green'})
+    especificaciones_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'purple'})
+    center_bordered = workbook.add_format({'border': 1})
+    fecha =  workbook.add_format({'border': 1})
+
+    fecha.set_align('right')
+    identificacion.set_align('vcenter')
+    center_bordered.set_align('vcenter')
+    identificacion.set_align('center')
+    center_bordered.set_align('center')
+
+    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.write('C1', f'Ficha Técnica Ventilador {ventilador.tag}', bold)
+    worksheet.insert_image(0, 7, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+
+    num = 6
+
+    condiciones_adicionales = ventilador.condiciones_adicionales
+    condiciones_trabajo = ventilador.condiciones_trabajo
+    condiciones_generales = ventilador.condiciones_generales
+    especificaciones = ventilador.especificaciones
+
+    worksheet.write(f'A{num}', 'Tag', identificacion)
+    worksheet.write(f'B{num}', 'Complejo', identificacion)
+    worksheet.write(f'C{num}', 'Planta', identificacion)
+    worksheet.write(f'D{num}', 'Tipo', identificacion)
+    worksheet.write(f'E{num}', 'Fabricante', identificacion)
+    worksheet.write(f'F{num}', 'Modelo', identificacion)
+    worksheet.write(f'G{num}', 'Descripción', identificacion)
+    worksheet.write(f'H{num}', f'Presión Barométrica ({condiciones_generales.presion_barometrica_unidad})', condiciones_generales_estilo)
+    worksheet.write(f'I{num}', f'Temp. Ambiente ({condiciones_generales.temp_ambiente_unidad})', condiciones_generales_estilo)
+    worksheet.write(f'J{num}', f'Velocidad de Diseño ({condiciones_generales.velocidad_diseno_unidad})', condiciones_generales_estilo)
+    worksheet.write(f'K{num}', f'Temperatura de Diseño ({condiciones_generales.temp_ambiente_unidad})', condiciones_generales_estilo)
+    worksheet.write(f'L{num}', f'Presión de Diseño ({condiciones_generales.presion_barometrica_unidad})', condiciones_generales_estilo)
+    worksheet.write(f'M{num}', f'Flujo ({condiciones_trabajo.flujo_unidad})', condiciones_trabajo_estilo)
+    worksheet.write(f'N{num}', f'Densidad ({condiciones_trabajo.densidad_unidad})', condiciones_trabajo_estilo)
+    worksheet.write(f'O{num}', f'Presión Entrada ({condiciones_trabajo.presion_unidad})', condiciones_trabajo_estilo)
+    worksheet.write(f'P{num}', f'Presión Salida ({condiciones_trabajo.presion_unidad})', condiciones_trabajo_estilo)
+    worksheet.write(f'Q{num}', f'Veloc. Func. ({condiciones_trabajo.velocidad_funcionamiento_unidad})', condiciones_trabajo_estilo)
+    worksheet.write(f'R{num}', f'Temperatura ({condiciones_trabajo.temperatura_unidad})', condiciones_trabajo_estilo)
+    worksheet.write(f'S{num}', f'Potencia Ventilador ({condiciones_trabajo.potencia_freno_unidad})', condiciones_trabajo_estilo)
+    worksheet.write(f'T{num}', f'Potencia de Freno ({condiciones_trabajo.potencia_freno_unidad})', condiciones_trabajo_estilo)
+    worksheet.write(f'U{num}', f'Flujo ({condiciones_adicionales.flujo_unidad})', condiciones_adicionales_estilo)
+    worksheet.write(f'V{num}', f'Densidad ({condiciones_adicionales.densidad_unidad})', condiciones_adicionales_estilo)
+    worksheet.write(f'W{num}', f'Presión Entrada ({condiciones_adicionales.presion_unidad})', condiciones_adicionales_estilo)
+    worksheet.write(f'X{num}', f'Presión Salida ({condiciones_adicionales.presion_unidad})', condiciones_adicionales_estilo)
+    worksheet.write(f'Y{num}', f'Veloc. Func. ({condiciones_adicionales.velocidad_funcionamiento_unidad})', condiciones_adicionales_estilo)
+    worksheet.write(f'Z{num}', f'Temperatura ({condiciones_adicionales.temperatura_unidad})', condiciones_adicionales_estilo)
+    worksheet.write(f'AA{num}', f'Potencia Ventilador ({condiciones_adicionales.potencia_freno_unidad})', condiciones_adicionales_estilo)
+    worksheet.write(f'AB{num}', f'Potencia de Freno ({condiciones_adicionales.potencia_freno_unidad})', condiciones_adicionales_estilo)
+    worksheet.write(f'AC{num}', f'Espesor Carcasa ({especificaciones.espesor_unidad})', especificaciones_estilo)
+    worksheet.write(f'AD{num}', f'Espesor Caja Entrada ({especificaciones.espesor_unidad})', especificaciones_estilo)
+    worksheet.write(f'AE{num}', f'Sello del Eje', especificaciones_estilo)
+    worksheet.write(f'AF{num}', f'Lubricante', especificaciones_estilo)
+    worksheet.write(f'AG{num}', f'Refrigerante', especificaciones_estilo)
+    worksheet.write(f'AH{num}', f'Diámetro', especificaciones_estilo)
+    worksheet.write(f'AI{num}', f'Motor', especificaciones_estilo)
+    worksheet.write(f'AJ{num}', f'Acceso de Aire', especificaciones_estilo)
+    worksheet.write(f'AK{num}', f'Potencia Motor ({especificaciones.potencia_motor_unidad})', especificaciones_estilo)
+    worksheet.write(f'AL{num}', f'Velocidad Motor ({especificaciones.velocidad_motor_unidad})', especificaciones_estilo)
+
+    num += 1
     
-    return response
+    worksheet.write(f'A{num}', ventilador.tag, identificacion)
+    worksheet.write(f'B{num}', ventilador.planta.complejo.nombre, identificacion)
+    worksheet.write(f'C{num}', ventilador.planta.nombre, identificacion)
+    worksheet.write(f'D{num}', ventilador.tipo_ventilador.nombre, identificacion)
+    worksheet.write(f'E{num}', ventilador.fabricante, identificacion)
+    worksheet.write(f'F{num}', ventilador.modelo, identificacion)
+    worksheet.write(f'G{num}', ventilador.descripcion, identificacion)
+    worksheet.write(f'H{num}', condiciones_generales.presion_barometrica, condiciones_generales_estilo)
+    worksheet.write(f'I{num}', condiciones_generales.temp_ambiente, condiciones_generales_estilo)
+    worksheet.write(f'J{num}', condiciones_generales.velocidad_diseno, condiciones_generales_estilo)
+    worksheet.write(f'K{num}', condiciones_generales.temp_diseno, condiciones_generales_estilo)
+    worksheet.write(f'L{num}', condiciones_generales.presion_diseno, condiciones_generales_estilo)
+    worksheet.write(f'M{num}', condiciones_trabajo.flujo, condiciones_trabajo_estilo)
+    worksheet.write(f'N{num}', condiciones_trabajo.densidad, condiciones_trabajo_estilo)
+    worksheet.write(f'O{num}', condiciones_trabajo.presion_entrada, condiciones_trabajo_estilo)
+    worksheet.write(f'P{num}', condiciones_trabajo.presion_salida, condiciones_trabajo_estilo)
+    worksheet.write(f'Q{num}', condiciones_trabajo.velocidad_funcionamiento, condiciones_trabajo_estilo)
+    worksheet.write(f'R{num}', condiciones_trabajo.temperatura, condiciones_trabajo_estilo)
+    worksheet.write(f'S{num}', condiciones_trabajo.potencia, condiciones_trabajo_estilo)
+    worksheet.write(f'T{num}', condiciones_trabajo.potencia_freno, condiciones_trabajo_estilo)
+    worksheet.write(f'U{num}', condiciones_adicionales.flujo, condiciones_adicionales_estilo)
+    worksheet.write(f'V{num}', condiciones_adicionales.densidad, condiciones_adicionales_estilo)
+    worksheet.write(f'W{num}', condiciones_adicionales.presion_entrada, condiciones_adicionales_estilo)
+    worksheet.write(f'X{num}', condiciones_adicionales.presion_salida, condiciones_adicionales_estilo)
+    worksheet.write(f'Y{num}', condiciones_adicionales.velocidad_funcionamiento, condiciones_adicionales_estilo)
+    worksheet.write(f'Z{num}', condiciones_adicionales.temperatura, condiciones_adicionales_estilo)
+    worksheet.write(f'AA{num}', condiciones_adicionales.potencia, condiciones_adicionales_estilo)
+    worksheet.write(f'AB{num}', condiciones_adicionales.potencia_freno, condiciones_adicionales_estilo)
+    worksheet.write(f'AC{num}', especificaciones.espesor, especificaciones_estilo)
+    worksheet.write(f'AD{num}', especificaciones.espesor_caja, especificaciones_estilo)
+    worksheet.write(f'AE{num}', especificaciones.sello, especificaciones_estilo)
+    worksheet.write(f'AF{num}', especificaciones.lubricante, especificaciones_estilo)
+    worksheet.write(f'AG{num}', especificaciones.refrigerante, especificaciones_estilo)
+    worksheet.write(f'AH{num}', especificaciones.diametro, especificaciones_estilo)
+    worksheet.write(f'AI{num}', especificaciones.motor, especificaciones_estilo)
+    worksheet.write(f'AJ{num}', especificaciones.acceso_aire, especificaciones_estilo)
+    worksheet.write(f'AK{num}', especificaciones.potencia_motor, especificaciones_estilo)
+    worksheet.write(f'AL{num}', especificaciones.velocidad_motor, especificaciones_estilo)
+
+    worksheet.write(f"J{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
+    worksheet.write(f"J{num+2}", "Generado por " + request.user.get_full_name(), fecha)
+    workbook.close()
+        
+    return enviar_response(f'ficha_tecnica_ventilador_{ventilador.tag}', excel_io, fecha)

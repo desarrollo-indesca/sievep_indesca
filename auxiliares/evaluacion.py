@@ -1,8 +1,22 @@
 import math
 from calculos.unidades import transformar_unidades_longitud, transformar_unidades_viscosidad, transformar_unidades_densidad, transformar_unidades_presion, transformar_unidades_flujo_volumetrico
-from calculos.termodinamicos import DENSIDAD_DEL_AGUA_LIQUIDA_A_5C,calcular_densidad, calcular_presion_vapor, calcular_viscosidad
+from calculos.termodinamicos import DENSIDAD_DEL_AGUA_LIQUIDA_A_5C,calcular_densidad, calcular_densidad_aire, calcular_presion_vapor, calcular_viscosidad
 
 GRAVEDAD = 9.81
+
+def calcular_eficiencia(potencia_real: float, potencia_calculada: float):
+    '''
+    Resumen:
+        Función para el cálculo de la eficiencia.
+
+    Parámetros:
+        potencia_real: float (W) -> Potencia real del equipo
+        potencia_calculada: float (W) ->Potencia real del equipo
+
+    Devuelve:
+        float (%) -> Porcentaje de eficiencia del equipo 
+    '''
+    return potencia_calculada/potencia_real*100
 
 def calcular_areas(tramos, id):
     '''
@@ -458,7 +472,7 @@ def evaluacion_bomba(bomba, velocidad, temp_operacion, presion_succion, presion_
 
     cabezal = calcular_cabezal(densidad, presion_descarga, presion_succion, altura_succion, altura_descarga, flujo, sum(areas_descarga), sum(areas_succion), htotal)   
     potencia_calculada = cabezal*densidad*GRAVEDAD*flujo
-    eficiencia = potencia_calculada/potencia*100
+    eficiencia = calcular_eficiencia(potencia, potencia_calculada)
     ns = calcular_ns(velocidad, flujo, cabezal)
     
     npsha = presion_succion/(densidad*GRAVEDAD) + altura_succion - presion_vapor/(densidad*GRAVEDAD) - h_total_succion
@@ -470,3 +484,70 @@ def evaluacion_bomba(bomba, velocidad, temp_operacion, presion_succion, presion_
                                 h_total_succion, h_descarga_tuberia, h_descarga_acc, h_total_descarga)
 
     return res
+
+## EVALUACIONES DE VENTILADORES
+def calcular_relacion_densidad(densidad_ficha: float, densidad_calculada: float):
+    '''
+    Resumen:
+        Función para el cálculo de la relación de densidad para la evaluación del ventilador.
+
+    Parámetros:
+        densidad_ficha: float (Kg/m3) -> Densidad del aire por ficha. De no tenerse se asume el coeficiente en 1.
+        densidad_calculada: float (Kg/m3) -> Densidad del aire calculada
+
+    Devuelve:
+        float -> Coeficiente de relación entre las densidades
+    '''
+    return densidad_ficha/densidad_calculada if densidad_ficha else 1.0
+
+def calcular_potencia_ventilador(presion_entrada: float, presion_salida: float, relacion_densidad: float, flujo: float):
+    '''
+    Resumen:
+        Función para el cálculo de la potencia del ventilador.
+
+    Parámetros:
+        presion_entrada: float (Pa) -> Presión de entrada
+        presion_salida: float (Pa) -> Presión de salida
+        relacion_densidad: float -> Relación de densidad
+        flujo: float (m3/s) -> Flujo VOLUMÉTRICO que circula a través del ventilador
+
+    Devuelve:
+        float (W) -> Potencia calculada 
+    '''
+    
+    return flujo * (presion_salida - presion_entrada) * relacion_densidad
+
+def evaluar_ventilador(presion_entrada: float, presion_salida: float, flujo: float, tipo_flujo: str,
+                        temperatura_operacion: float, potencia_real: float, densidad_ficha: float = None) -> float:
+    '''
+    Resumen:
+        Función para evaluar un ventilador de acuerdo a los datos dados.
+
+    Parámetros:
+        presion_entrada: float (Pa) -> Presión de entrada (evaluación)
+        presion_salida: float (Pa) -> Presión de salida (evaluación)
+        flujo: float (m3/s) -> Flujo volumétrico que circula a través del ventilador (evaluación)
+        temperatura_operacion: float (K) -> Temperatura de Operación (evaluación)
+        potencia_real: float (W) -> Potencia real del ventilador (evaluación)
+        densidad_ficha: float (Kg/m3) -> Densidad volumétrica especificada en ficha. No es obligatorio.
+
+    Devuelve:
+        float -> Coeficiente de relación entre las densidades
+    '''
+  
+    densidad_calculada = calcular_densidad_aire(temperatura_operacion, presion_entrada + 101325)
+    relacion_densidad = calcular_relacion_densidad(densidad_ficha, densidad_calculada)
+
+    if(tipo_flujo == 'M'):
+        flujo = flujo * densidad_calculada
+
+    potencia_calculada = calcular_potencia_ventilador(presion_entrada, presion_salida, relacion_densidad, flujo)
+    eficiencia = calcular_eficiencia(potencia_real, potencia_calculada)
+
+    return {
+        'relacion_densidad': round(relacion_densidad, 6),
+        'potencia_calculada': round(potencia_calculada, 4),
+        'eficiencia': round(eficiencia, 2),
+        'densidad_calculada': round(densidad_calculada, 6),
+        'tipo_flujo': tipo_flujo
+    }
