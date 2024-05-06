@@ -29,6 +29,7 @@ urlpatterns = [
 
     path('intercambiadores/', include('intercambiadores.urls')),
     path('auxiliares/', include('auxiliares.urls')),
+    path('turbinas/', include('turbinas.urls')),
 
     path('usuarios/', include('usuarios.urls')),
     path('', include('pwa.urls')),

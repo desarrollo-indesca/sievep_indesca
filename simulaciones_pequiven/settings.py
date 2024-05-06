@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'intercambiadores',
     'auxiliares',
+    'turbinas',
     'usuarios',
     'static',
     'pwa',
