@@ -1810,7 +1810,13 @@ class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
         context = {
             'ventilador': ventilador,
             'form_evaluacion': EvaluacionVentiladorForm(),
-            'form_entrada_evaluacion': EntradaEvaluacionVentiladorForm(),
+            'form_entrada_evaluacion': EntradaEvaluacionVentiladorForm({
+                'potencia_ventilador': ventilador.condiciones_trabajo.potencia if ventilador.condiciones_trabajo.potencia else ventilador.condiciones_trabajo.potencia_freno,
+                'potencia_ventilador_unidad': ventilador.condiciones_trabajo.potencia_freno_unidad,
+                'presion_salida_unidad': ventilador.condiciones_trabajo.presion_unidad,
+                'presion_entrada': ventilador.condiciones_trabajo.presion_entrada,
+                'presion_salida': ventilador.condiciones_trabajo.presion_salida,
+            }),
             'titulo': "Evaluación de Bomba"
         }
 
