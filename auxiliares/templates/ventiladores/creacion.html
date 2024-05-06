@@ -472,4 +472,8 @@
 </script>
 {% endif %}
 
+<script>
+    $('select[name="presion_unidad"]').html($('select[name="presion_unidad"]').html().replaceAll('</option>', 'G</option>'));
+</script>
+
 {% endblock %}

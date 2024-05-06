@@ -100,9 +100,9 @@
                     </tr>
                     {% with presion_unidad=condiciones_trabajo.presion_unidad.simbolo %}
                     <tr>
-                      <th class="table-dark">Presión Entrada ({{presion_unidad}})</th>
+                      <th class="table-dark">Presión Entrada ({{presion_unidad}}G)</th>
                       <td>{{condiciones_trabajo.presion_entrada|default_if_none:'-'}}</td>
-                      <th class="table-dark">Presión Salida ({{presion_unidad}})</th>
+                      <th class="table-dark">Presión Salida ({{presion_unidad}}G)</th>
                       <td>{{condiciones_trabajo.presion_salida|default_if_none:'-'}}</td>
                     </tr>
                     {% endwith %}
@@ -143,9 +143,9 @@
                     </tr>
                     {% with presion_unidad=condiciones_adicionales.presion_unidad.simbolo %}
                     <tr>
-                      <th class="table-dark">Presión Entrada ({{presion_unidad}})</th>
+                      <th class="table-dark">Presión Entrada ({{presion_unidad}}G)</th>
                       <td>{{condiciones_adicionales.presion_entrada|default_if_none:'-'}}</td>
-                      <th class="table-dark">Presión Salida ({{presion_unidad}})</th>
+                      <th class="table-dark">Presión Salida ({{presion_unidad}}G)</th>
                       <td>{{condiciones_adicionales.presion_salida|default_if_none:'-'}}</td>
                     </tr>
                     {% endwith %}

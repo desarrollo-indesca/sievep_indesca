@@ -1066,7 +1066,7 @@ def ficha_tecnica_ventilador(_, ventilador, request):
     worksheet.write(f'M{num}', f'Flujo ({condiciones_trabajo.flujo_unidad})', condiciones_trabajo_estilo)
     worksheet.write(f'N{num}', f'Densidad ({condiciones_trabajo.densidad_unidad})', condiciones_trabajo_estilo)
     worksheet.write(f'O{num}', f'Presión Entrada ({condiciones_trabajo.presion_unidad})', condiciones_trabajo_estilo)
-    worksheet.write(f'P{num}', f'Presión Salida ({condiciones_trabajo.presion_unidad})', condiciones_trabajo_estilo)
+    worksheet.write(f'P{num}', f'Presión Salida ({condiciones_trabajo.presion_unidad}G)', condiciones_trabajo_estilo)
     worksheet.write(f'Q{num}', f'Veloc. Func. ({condiciones_trabajo.velocidad_funcionamiento_unidad})', condiciones_trabajo_estilo)
     worksheet.write(f'R{num}', f'Temperatura ({condiciones_trabajo.temperatura_unidad})', condiciones_trabajo_estilo)
     worksheet.write(f'S{num}', f'Potencia Ventilador ({condiciones_trabajo.potencia_freno_unidad})', condiciones_trabajo_estilo)
@@ -1074,7 +1074,7 @@ def ficha_tecnica_ventilador(_, ventilador, request):
     worksheet.write(f'U{num}', f'Flujo ({condiciones_adicionales.flujo_unidad})', condiciones_adicionales_estilo)
     worksheet.write(f'V{num}', f'Densidad ({condiciones_adicionales.densidad_unidad})', condiciones_adicionales_estilo)
     worksheet.write(f'W{num}', f'Presión Entrada ({condiciones_adicionales.presion_unidad})', condiciones_adicionales_estilo)
-    worksheet.write(f'X{num}', f'Presión Salida ({condiciones_adicionales.presion_unidad})', condiciones_adicionales_estilo)
+    worksheet.write(f'X{num}', f'Presión Salida ({condiciones_adicionales.presion_unidad}G)', condiciones_adicionales_estilo)
     worksheet.write(f'Y{num}', f'Veloc. Func. ({condiciones_adicionales.velocidad_funcionamiento_unidad})', condiciones_adicionales_estilo)
     worksheet.write(f'Z{num}', f'Temperatura ({condiciones_adicionales.temperatura_unidad})', condiciones_adicionales_estilo)
     worksheet.write(f'AA{num}', f'Potencia Ventilador ({condiciones_adicionales.potencia_freno_unidad})', condiciones_adicionales_estilo)
@@ -1133,6 +1133,11 @@ def ficha_tecnica_ventilador(_, ventilador, request):
 
     worksheet.write(f"J{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
     worksheet.write(f"J{num+2}", "Generado por " + request.user.get_full_name(), fecha)
+
+    worksheet.write(f"A{num+2}", "Datos de Identificación", identificacion)
+    worksheet.write(f"A{num+3}", "Condiciones de Trabajo", condiciones_trabajo_estilo)
+    worksheet.write(f"A{num+4}", "Condiciones Adicionales", condiciones_adicionales_estilo)
+    worksheet.write(f"A{num+5}", "Especificaciones del Ventilador", especificaciones_estilo)
     workbook.close()
         
     return enviar_response(f'ficha_tecnica_ventilador_{ventilador.tag}', excel_io, fecha)
