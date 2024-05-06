@@ -21,11 +21,12 @@ class DatosCorrientes(models.Model):
 
 class Corriente(models.Model):
     numero_corriente = models.CharField('Número Corriente', max_length=10)
-    
-    flujo = models.FloatField()
-    entalpia = models.FloatField()
-    presion = models.FloatField()
-    temperatura = models.FloatField()
+    descripcion_corriente = models.CharField('Descripción de la Corriente', max_length=50)
+
+    flujo = models.FloatField(validators=[MinValueValidator(0.00001)])
+    entalpia = models.FloatField(validators=[MinValueValidator(0.00001)])
+    presion = models.FloatField(validators=[MinValueValidator(0.00001)])
+    temperatura = models.FloatField(validators=[MinValueValidator(-273.15)])
 
     fase = models.CharField(max_length=1, choices=FASES_CORRIENTES)
     entrada = models.BooleanField()

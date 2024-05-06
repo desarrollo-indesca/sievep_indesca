@@ -38,8 +38,8 @@ def transformar_unidades_flujo(args: list, unidad: int, unidad_salida: int = 10)
         list -> Lista de valores transformados a la unidad de salida
     '''
     actualizadas = []
-    unidad_salida = ur.kilogram/ur.second if unidad_salida == 10 else ur.kilogram/ur.hour if unidad_salida == 6 else ur.pound/ur.second if unidad_salida == 18 else ur.pound/ur.hour
-    unidad = ur.kilogram/ur.second if unidad == 10 else ur.kilogram/ur.hour if unidad == 6 else ur.pound/ur.second if unidad == 18 else ur.pound/ur.hour
+    unidad_salida = ur.kilogram/ur.second if unidad_salida == 10 else ur.kilogram/ur.hour if unidad_salida == 6 else ur.pound/ur.second if unidad_salida == 18 else ur.tonne/ur.hour if unidad_salida == 54 else ur.pound/ur.hour
+    unidad = ur.kilogram/ur.second if unidad == 10 else ur.kilogram/ur.hour if unidad == 6 else ur.pound/ur.second if unidad == 18 else ur.tonne/ur.hour if unidad == 54 else ur.pound/ur.hour
 
     actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
@@ -294,7 +294,7 @@ def transformar_unidades_potencia(args: list, unidad: int, unidad_salida: int = 
     '''
 
     def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
-        return ur.horsepower if unidad == 40 else ur.kilowatt if unidad == 53 else ur.watt
+        return ur.horsepower if unidad == 40 else ur.megawatt if unidad == 61 else ur.kilowatt if unidad == 53 else ur.watt
 
     actualizadas = []
     unidad_salida = obtener_unidad(unidad_salida)
@@ -307,6 +307,18 @@ def transformar_unidades_potencia(args: list, unidad: int, unidad_salida: int = 
 def transformar_unidades_frecuencia_angular(args: list, unidad: int, unidad_salida: int):
     def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
         return ur.radian / ur.second if unidad == 52 else ur.rpm
+
+    actualizadas = []
+    unidad_salida = obtener_unidad(unidad_salida)
+    unidad = obtener_unidad(unidad)
+    
+    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
+
+    return actualizadas
+
+def transformar_unidades_entalpia_masica(args: list, unidad: int, unidad_salida: int = 60):
+    def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
+        return ur.BTU_it/ur.pound if unidad == 55 else ur.kilocalorie/ur.kilogram if unidad == 56 else ur.joule/ur.kilogram
 
     actualizadas = []
     unidad_salida = obtener_unidad(unidad_salida)
