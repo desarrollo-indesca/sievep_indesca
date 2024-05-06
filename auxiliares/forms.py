@@ -243,6 +243,16 @@ class EspecificacionesVentiladorForm(FormConUnidades):
         exclude = ('id',)
 
 class CondicionesGeneralesVentiladorForm(FormConUnidades):
+    def clean_presion_diseno(self):
+        presion_diseno = self.data['presion_diseno']
+
+        if(not presion_diseno or presion_diseno == ''):
+            return None
+        elif(float(presion_diseno) <= 0):
+            return forms.ValidationError("La presión de diseño es absoluta y debe ser mayor a 0.")
+        
+        return float(presion_diseno)
+
     def limpiar_campos_unidades(self):
         self.fields['presion_barometrica_unidad'].empty_label = None
         self.fields['presion_barometrica_unidad'].queryset = UNIDADES_PRESION

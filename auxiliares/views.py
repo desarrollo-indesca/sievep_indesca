@@ -1448,18 +1448,13 @@ class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
             presion = float(presion_diseno)
             presion_unidad = int(request.get('presion_barometrica_unidad'))
 
-            return transformar_unidades_presion([presion], presion_unidad)[0] + 101325
+            return transformar_unidades_presion([presion], presion_unidad)[0]
         
         return None
             
     def obtener_densidad(self, request, adicional = False):
         temperatura = self.obtener_temperatura(request, adicional)
         presion = self.obtener_presion(request, adicional)
-
-        print(request)        
-        print("*************************")
-        print(temperatura, presion, adicional)
-        print("*************************")
 
         densidad = calcular_densidad_aire(temperatura, presion)
         densidad_unidad = int(request.get('densidad_unidad', request.get('adicional-densidad_unidad', request.get('densidad_evaluacion_unidad'))))
@@ -1815,7 +1810,13 @@ class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
         context = {
             'ventilador': ventilador,
             'form_evaluacion': EvaluacionVentiladorForm(),
-            'form_entrada_evaluacion': EntradaEvaluacionVentiladorForm(),
+            'form_entrada_evaluacion': EntradaEvaluacionVentiladorForm({
+                'potencia_ventilador': ventilador.condiciones_trabajo.potencia if ventilador.condiciones_trabajo.potencia else ventilador.condiciones_trabajo.potencia_freno,
+                'potencia_ventilador_unidad': ventilador.condiciones_trabajo.potencia_freno_unidad,
+                'presion_salida_unidad': ventilador.condiciones_trabajo.presion_unidad,
+                'presion_entrada': ventilador.condiciones_trabajo.presion_entrada,
+                'presion_salida': ventilador.condiciones_trabajo.presion_salida,
+            }),
             'titulo': "Evaluación de Bomba"
         }
 
