@@ -49,7 +49,7 @@ class GeneradorElectrico(models.Model):
     velocidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="velocidad_unidad_generador")
     
     corriente_electrica = models.FloatField('Corriente Eléctrica', validators=[MinValueValidator(0.000001)])
-    corriente_electrica = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="corriente_electrica_generador")
+    corriente_electrica_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="corriente_electrica_generador")
 
     voltaje = models.FloatField(validators=[MinValueValidator(0.000001)])
     voltaje_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="voltaje_unidad_generador")   
@@ -63,10 +63,10 @@ class EspecificacionesTurbinaVapor(models.Model):
     velocidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="velocidad_unidad_turbinavapor")
 
     presion_entrada = models.FloatField(validators=[MinValueValidator(0.000001)]) # MANOMÉTRICA
-    presion_entrada = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="presion_entrada_turbinavapor")
+    presion_entrada_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="presion_entrada_turbinavapor")
 
     temperatura_entrada = models.FloatField(validators=[MinValueValidator(0.000001)])
-    temperatura_entrada = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="temperatura_entrada_turbinavapor")
+    temperatura_entrada_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="temperatura_entrada_turbinavapor")
 
     contra_presion = models.FloatField(validators=[MinValueValidator(0.000001)]) # ABSOLUTA
     contra_presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="contra_presion_unidad_turbinavapor")
@@ -87,7 +87,7 @@ class TurbinaVapor(models.Model):
     datos_corrientes = models.OneToOneField(DatosCorrientes, on_delete=models.PROTECT)
 
     # Datos de trazabilidad
-    creado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="turbina_creada_por")
+    creado_por = models.ForeignKey(get_user_model(), default=1, on_delete=models.PROTECT, related_name="turbina_creada_por")
     editado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, null = True, related_name="turbina_editada_por")
     creado_al = models.DateTimeField(auto_now_add=True)
     editado_al = models.DateTimeField(null = True)
