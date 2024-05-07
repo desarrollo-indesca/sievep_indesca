@@ -108,6 +108,15 @@
                       <td>{{generador_electrico.voltaje}}</td>
                     </tr>
                     {% endwith %}
+                    
+                  <tr>
+                    <td colspan="6">Creado por el usuario <b>{{turbina.condiciones_diseno.creado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{turbina.creado_al|default_if_none:'-'}}</b>.</td>
+                  </tr>
+                  {% if turbina.editado_al %}
+                  <tr>
+                    <td colspan="6">Editado por <b>{{turbina.editado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{turbina.editado_al|default_if_none:'-'}}</b>.</td>
+                  </tr>
+                  {% endif %}
                   </tbody>
                 </table>
 
