@@ -30,7 +30,7 @@ class Corriente(models.Model):
 
     fase = models.CharField(max_length=1, choices=FASES_CORRIENTES)
     entrada = models.BooleanField()
-    datos_corriente = models.ForeignKey(DatosCorrientes, on_delete=models.PROTECT)
+    datos_corriente = models.ForeignKey(DatosCorrientes, on_delete=models.PROTECT, related_name="corrientes")
 
 class GeneradorElectrico(models.Model):
     polos = models.PositiveSmallIntegerField()
