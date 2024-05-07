@@ -1818,10 +1818,10 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
                 if(not valido):
                     raise Exception("Ocurrió un error al validar los datos")
                 
-                return render(request, 'bombas/partials/carga_lograda.html', {'ventilador': ventilador})
+                return render(request, 'ventiladores/partials/carga_lograda.html', {'ventilador': ventilador})
         except Exception as e:
             print(str(e))
-            return render(request, 'bombas/partials/carga_fallida.html', {'ventilador': ventilador})
+            return render(request, 'ventiladores/partials/carga_fallida.html', {'ventilador': ventilador})
 
     def post(self, request, pk):
         if(request.POST['submit'] == 'almacenar'):

@@ -139,6 +139,8 @@ class ConsultaTurbinasVapor(LoginRequiredMixin, ListView, ReportesFichasTurbinas
             'generador_electrico__corriente_electrica_unidad',
             'generador_electrico__voltaje_unidad',
             
+            'planta', 'planta__complejo',
+            
             'especificaciones', 
             'especificaciones__potencia_unidad',
             'especificaciones__velocidad_unidad',

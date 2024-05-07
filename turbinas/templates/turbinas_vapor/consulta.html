@@ -3,7 +3,7 @@
 {% load templatetags %}
 
 {% block encabezado %}
-  <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'seleccion_equipo' %}">↶ Regresar</a></div>
+  <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'bienvenida' %}">↶ Regresar</a></div>
   <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Turbinas de Vapor</h3></div>
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
     {% if request.user.is_superuser and link_creacion %}
