@@ -25,7 +25,7 @@ class Corriente(models.Model):
 
     flujo = models.FloatField(validators=[MinValueValidator(0.00001)])
     entalpia = models.FloatField(validators=[MinValueValidator(0.00001)])
-    presion = models.FloatField(validators=[MinValueValidator(0.00001)])
+    presion = models.FloatField(validators=[MinValueValidator(0.00001)], null= True)
     temperatura = models.FloatField(validators=[MinValueValidator(-273.15)])
 
     fase = models.CharField(max_length=1, choices=FASES_CORRIENTES)
