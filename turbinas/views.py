@@ -1,4 +1,5 @@
 from typing import Any
+import datetime
 from django.db import transaction
 from django.db.models import Prefetch
 from django.shortcuts import render, redirect
@@ -17,6 +18,39 @@ from .models import *
 from .forms import *
 
 # Create your views here.
+class ObtenerTurbinVaporMixin():
+    def get_turbina(self):
+        turbina = TurbinaVapor.objects.filter(pk=self.kwargs['pk']).select_related(
+            'generador_electrico', 
+            'generador_electrico__ciclos_unidad',
+            'generador_electrico__potencia_real_unidad',
+            'generador_electrico__potencia_aparente_unidad',
+            'generador_electrico__velocidad_unidad',
+            'generador_electrico__corriente_electrica_unidad',
+            'generador_electrico__voltaje_unidad',
+            
+            'planta', 'planta__complejo',
+            
+            'especificaciones', 
+            'especificaciones__potencia_unidad',
+            'especificaciones__velocidad_unidad',
+            'especificaciones__presion_entrada_unidad',
+            'especificaciones__temperatura_entrada_unidad',
+            'especificaciones__contra_presion_unidad',
+            
+            'datos_corrientes',
+            'datos_corrientes__flujo_unidad',            
+            'datos_corrientes__entalpia_unidad',            
+            'datos_corrientes__presion_unidad',
+            'datos_corrientes__temperatura_unidad' 
+        )
+
+        turbina = turbina.prefetch_related(
+           'datos_corrientes__corrientes'
+        )
+
+        return turbina.first()
+
 class ReportesFichasTurbinasMixin(ReportesFichasMixin):
     model_ficha = TurbinaVapor
     reporte_ficha_xlsx = None
@@ -248,10 +282,16 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
             valid = valid and form_turbina.is_valid()
 
             if(valid):
-                form_turbina.instance.creado_por = self.request.user
+                
                 form_turbina.instance.generador_electrico = form_generador.instance
                 form_turbina.instance.especificaciones = form_especificaciones.instance
                 form_turbina.instance.datos_corrientes = form_datos_corrientes.instance
+
+                if(form_turbina.instance.pk):
+                    form_turbina.instance.editado_por = self.request.user
+                    form_turbina.instance.editado_al = datetime.datetime.now()
+                else:
+                    form_turbina.instance.creado_por = self.request.user
 
                 form_turbina.save()
             else:
@@ -280,4 +320,41 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
                 'form_generador': GeneradorElectricoForm(request.POST), 
                 'form_datos_corrientes': DatosCorrientesForm(request.POST),
                 'forms_corrientes': corrientes_formset(request.POST),
+            })
+
+class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinVaporMixin):
+    titulo = "Edición de Turbina de Vapor"
+    success_message = "La turbina ha sido editada exitosamente."
+
+    def get_context(self):
+        turbina = self.get_turbina()
+        return {
+            'form_turbina': TurbinaVaporForm(instance=turbina), 
+            'form_especificaciones': EspecificacionesTurbinaVaporForm(instance=turbina.especificaciones), 
+            'form_generador': GeneradorElectricoForm(instance=turbina.generador_electrico), 
+            'form_datos_corrientes': DatosCorrientesForm(instance=turbina.datos_corrientes),
+            'forms_corrientes': corrientes_formset(queryset=turbina.datos_corrientes.corrientes.all()),
+            'titulo': self.titulo
+        }
+
+    def post(self, request, pk):
+        turbina = self.get_turbina()
+
+        form_turbina = TurbinaVaporForm(request.POST, instance=turbina)
+        form_especificaciones = EspecificacionesTurbinaVaporForm(request.POST, instance=turbina.especificaciones)
+        form_generador = GeneradorElectricoForm(request.POST, instance=turbina.generador_electrico)
+        form_datos_corrientes = DatosCorrientesForm(request.POST, instance=turbina.datos_corrientes)
+        forms_corrientes = corrientes_formset(request.POST, queryset=turbina.datos_corrientes.corrientes.all())
+
+        try:
+            return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
+                                        form_datos_corrientes, forms_corrientes)
+        except Exception as e:
+            print(str(e))
+            return render(request, self.template_name, context={
+                'form_turbina': form_turbina, 
+                'form_especificaciones': form_especificaciones, 
+                'form_generador': form_generador, 
+                'form_datos_corrientes': form_datos_corrientes,
+                'forms_corrientes': forms_corrientes
             })
