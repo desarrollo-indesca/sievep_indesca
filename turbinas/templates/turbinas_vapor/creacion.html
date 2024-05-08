@@ -259,7 +259,7 @@
                     {% endfor %}
                     <tr class="form">
                         <td>
-                            {% render_field form.numero_corriente class="form-control" placeholder="Número de la Corriente" %}
+                            {% render_field form.numero_corriente class="form-control numero-corriente" placeholder="Número de la Corriente" %}
                         </td>
                         <td>
                             {% render_field form.descripcion_corriente class="form-control" placeholder="Descripción de la Corriente" %}
@@ -270,19 +270,19 @@
                             </div>
                         </td>
                         <td>
-                            {% render_field form.flujo class="form-control" placeholder="Flujo" %}
+                            {% render_field form.flujo class="form-control" placeholder="Flujo" required="required" %}
                         </td>
                         <td>
-                            {% render_field form.entalpia class="form-control" placeholder="Entalpía" %}
+                            {% render_field form.entalpia class="form-control" placeholder="Entalpía" required="required" %}
                         </td>
                         <td>
                             {% render_field form.presion class="form-control presion" placeholder="Presión" %}
                         </td>
                         <td>
-                            {% render_field form.temperatura class="form-control" placeholder="Temperatura" %}
+                            {% render_field form.temperatura class="form-control" placeholder="Temperatura" required="required" %}
                         </td>
                         <td>
-                            {% render_field form.fase class="form-select" placeholder="Fase" %}
+                            {% render_field form.fase class="form-select" placeholder="Fase" required="required" %}
                         </td>
                         <td>
                             {% if forloop.first %}
@@ -293,6 +293,7 @@
                         </td>
                     </tr>
                     {% endfor %}
+                    <small>{{forms_corrientes.errors}}</small>
                 </tbody>
             </table>
                 

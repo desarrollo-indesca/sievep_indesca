@@ -118,5 +118,11 @@ $('button[type=submit]').click( (e) => {
             e.preventDefault();
             alert("Debe haber una corriente de entrada.");
         }
+
+        const arrayNumeros = $('.numero-corriente').toArray().map(x => x.value);
+        if((new Set(arrayNumeros)).size !== arrayNumeros.length){
+            e.preventDefault();
+            alert("Los números de corrientes deben ser TODOS distintos.");
+        }
     }
 )

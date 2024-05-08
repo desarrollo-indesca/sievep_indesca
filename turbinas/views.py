@@ -204,31 +204,80 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
     def get(self, request, **kwargs):
         return render(request, self.template_name, self.get_context())
     
-    def almacenar_datos(self, form_bomba, form_detalles_motor, form_condiciones_fluido,
-                            form_detalles_construccion, form_condiciones_diseno, 
-                            form_especificaciones):
+    def almacenar_datos(self, form_turbina, form_especificaciones, form_generador,
+                            form_datos_corrientes, forms_corrientes):
         
         valid = True # Inicialmente se considera válido
         
         with transaction.atomic():
             valid = valid and form_especificaciones.is_valid() # Se valida el primer formulario
+
+            if(valid):
+                form_especificaciones.save()
+            else:
+                print(form_especificaciones.errors)
+            
+            valid = valid and form_generador.is_valid()
+
+            if(valid):
+                form_generador.save()
+            else:
+                print(form_generador.errors)
+
+            valid = valid and form_datos_corrientes.is_valid()
+
+            if(valid):
+                form_datos_corrientes.save()
+            else:
+                print(form_datos_corrientes.errors)
+
+            valid = valid and forms_corrientes.is_valid()
+
+            if(valid):
+                for form in forms_corrientes:
+                    valid = valid and form.is_valid()
+                    
+                    if(valid):
+                        form.instance.datos_corriente = form_datos_corrientes.instance
+                        form.save()
+                    else:
+                        print(form.errors)
+            else:
+                print(form_datos_corrientes.errors)
+
+            valid = valid and form_turbina.is_valid()
+
+            if(valid):
+                form_turbina.instance.creado_por = self.request.user
+                form_turbina.instance.generador_electrico = form_generador.instance
+                form_turbina.instance.especificaciones = form_especificaciones.instance
+                form_turbina.instance.datos_corrientes = form_datos_corrientes.instance
+
+                form_turbina.save()
+            else:
+                print(form_turbina.errors)
                 
             if(valid): # Si todos los formularios son válidos, se almacena la turbina
 
                 messages.success(self.request, self.success_message)
                 return redirect(f'/turbinas/vapor/')
-            else:
-                raise Exception("Ocurrió un error")
     
     def post(self, request):
-        form_turbina = TurbinaVaporForm(request.POST, request.FILES)
+        form_turbina = TurbinaVaporForm(request.POST)
         form_especificaciones = EspecificacionesTurbinaVaporForm(request.POST)
         form_generador = GeneradorElectricoForm(request.POST)
         form_datos_corrientes = DatosCorrientesForm(request.POST)
         forms_corrientes = corrientes_formset(request.POST)
 
         try:
-            return self.almacenar_datos()
+            return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
+                                        form_datos_corrientes, forms_corrientes)
         except Exception as e:
+            print(str(e))
             return render(request, self.template_name, context={
+                'form_turbina': TurbinaVaporForm(request.POST), 
+                'form_especificaciones': EspecificacionesTurbinaVaporForm(request.POST), 
+                'form_generador': GeneradorElectricoForm(request.POST), 
+                'form_datos_corrientes': DatosCorrientesForm(request.POST),
+                'forms_corrientes': corrientes_formset(request.POST),
             })

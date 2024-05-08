@@ -61,6 +61,14 @@ class GeneradorElectricoForm(FormConUnidades):
         exclude = ('id',)
 
 class CorrienteForm(forms.ModelForm):
+    def clean_presion(self):
+        print(self.cleaned_data)
+
+        if(self.cleaned_data.get('presion') == '' and self.data['entrada'] == 'checked'):
+            return forms.ValidationError("La corriente en entrada debe llevar presión.")
+        
+        return self.cleaned_data.get('presion')
+
     class Meta:
         model = Corriente
         exclude = ('id', 'datos_corriente')

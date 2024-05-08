@@ -26,7 +26,7 @@ class Corriente(models.Model):
 
     flujo = models.FloatField(validators=[MinValueValidator(0.00001)])
     entalpia = models.FloatField(validators=[MinValueValidator(0.00001)])
-    presion = models.FloatField(validators=[MinValueValidator(0.00001)], null= True)
+    presion = models.FloatField(validators=[MinValueValidator(0.00001)], null= True, blank=True)
     temperatura = models.FloatField(validators=[MinValueValidator(-273.15)])
 
     fase = models.CharField(max_length=1, choices=FASES_CORRIENTES)
@@ -82,7 +82,7 @@ class TurbinaVapor(models.Model):
     tag = models.CharField(max_length=10, unique=True)
     descripcion = models.CharField('Descripción', max_length=100)
     fabricante = models.CharField(max_length=45)
-    modelo = models.CharField(max_length=45, null = True)
+    modelo = models.CharField(max_length=45, null = True, blank=True)
     planta = models.ForeignKey(Planta, on_delete=models.PROTECT)
 
     # Atributos de la Turbina de Vapor
