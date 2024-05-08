@@ -123,8 +123,8 @@
                 <table class="table table-bordered table-hover">
                     <thead>
                         <tr>
-                            <th class="table-dark text-center" colspan="6">
-                                FLUJOS CIRCULANTES POR LA TURBINA
+                            <th class="table-dark text-center" colspan="7">
+                                corrientes CIRCULANTES POR LA TURBINA
                             </th>                            
                         </tr>
                     </thead>
@@ -138,6 +138,7 @@
                             <th class="table-dark text-center">Entalpía ({{datos_corrientes.entalpia_unidad}})</th>
                             <th class="table-dark text-center">Presión ({{datos_corrientes.presion_unidad}})</th>
                             <th class="table-dark text-center">Temperatura ({{datos_corrientes.temperatura_unidad}})</th>
+                            <th class="table-dark text-center">Fase</th>
                         </tr>
                         {% for corriente in datos_corrientes.corrientes.all %}
                         <tr>
@@ -147,6 +148,7 @@
                             <td class="text-center">{{corriente.entalpia}}</td>
                             <td class="text-center">{{corriente.presion|default_if_none:'-'}}</td>
                             <td class="text-center">{{corriente.temperatura}}</td>
+                            <td class="text-center">{{corriente.fase_largo}}</td>
                         </tr>
                         {% endfor %}
 

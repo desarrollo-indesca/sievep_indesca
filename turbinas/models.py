@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 
 from intercambiadores.models import Unidades, Planta, Complejo
+from calculos.utils import conseguir_largo
 
 # Create your models here.
 
@@ -31,6 +32,9 @@ class Corriente(models.Model):
     fase = models.CharField(max_length=1, choices=FASES_CORRIENTES)
     entrada = models.BooleanField()
     datos_corriente = models.ForeignKey(DatosCorrientes, on_delete=models.PROTECT, related_name="corrientes")
+
+    def fase_largo(self):
+        return conseguir_largo(FASES_CORRIENTES, self.fase)
 
 class GeneradorElectrico(models.Model):
     polos = models.PositiveSmallIntegerField()
