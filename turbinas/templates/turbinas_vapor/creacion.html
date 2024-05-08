@@ -24,6 +24,8 @@
 
 {% block contenido %}
 <form method="post" enctype="multipart/form-data">
+    {{ forms_corrientes.management_form }}
+
     {% csrf_token %}
     <div class="row">
         <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center">
@@ -159,7 +161,7 @@
                 {{form_generador.voltaje.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_generador.voltaje min="0.0001" class="form-control" %}
-                    {% render_field form_generador.voltaje_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_voltaje_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
+                    {% render_field form_generador.voltaje_unidad class="form-select" %}
                 </div>
                 <small>{{form_generador.voltaje.errors}}</small>
             </div>
@@ -168,7 +170,7 @@
                 {{form_generador.potencia_real.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_generador.potencia_real min="0.0001" class="form-control" %}
-                    {% render_field form_generador.potencia_real_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_potencia_real_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
+                    {% render_field form_generador.potencia_real_unidad class="form-select" %}
                 </div>
                 <small>{{form_generador.potencia_real.errors}}</small>
             </div>
@@ -186,7 +188,7 @@
                 {{form_generador.ciclos.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_generador.ciclos min="0.0001" class="form-control" %}
-                    {% render_field form_generador.ciclos_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_ciclos_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
+                    {% render_field form_generador.ciclos_unidad class="form-select" %}
                 </div>
                 <small>{{form_generador.ciclos.errors}}</small>
             </div>
@@ -195,7 +197,7 @@
                 {{form_generador.corriente_electrica.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_generador.corriente_electrica min="0.0001" class="form-control" %}
-                    {% render_field form_generador.corriente_electrica_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_corriente_electrica_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
+                    {% render_field form_generador.corriente_electrica_unidad class="form-select" %}
                 </div>
                 <small>{{form_generador.corriente_electrica.errors}}</small>
             </div>
@@ -218,7 +220,7 @@
         </div>
 
             <table class="table">
-                <tbody>
+                <tbody id="forms-corrientes">
                     <tr>
                         <th class="text-center">#</th>
                         <th class="text-center">Descripción</th>
@@ -232,7 +234,7 @@
                     </tr>
 
                     <tr>
-                        <th class="text-center">Unidades</td>
+                        <th class="text-center">-</td>
                         <td class="text-center">-</td>
                         <td class="text-center">-</td>
                         <td class="text-center">
@@ -252,36 +254,41 @@
                     </tr>
 
                     {% for form in forms_corrientes %}
-                    <tr>
+                    {% for field in form.hidden_fields %}
+                        {{ field }}
+                    {% endfor %}
+                    <tr class="form">
                         <td>
-                            {% render_field form.numero_corriente class="form-control" %}
+                            {% render_field form.numero_corriente class="form-control" placeholder="Número de la Corriente" %}
                         </td>
                         <td>
-                            {% render_field form.descripcion_corriente class="form-control" %}
+                            {% render_field form.descripcion_corriente class="form-control" placeholder="Descripción de la Corriente" %}
                         </td>
                         <td>
-                            {% render_field form.entrada %}
+                            <div class="d-flex justify-content-center align-items-center h-100">
+                                {% render_field form.entrada class="form-check-input entrada" %}
+                            </div>
                         </td>
                         <td>
-                            {% render_field form.flujo class="form-control" %}
+                            {% render_field form.flujo class="form-control" placeholder="Flujo" %}
                         </td>
                         <td>
-                            {% render_field form.entalpia class="form-control" %}
+                            {% render_field form.entalpia class="form-control" placeholder="Entalpía" %}
                         </td>
                         <td>
-                            {% render_field form.presion class="form-control" %}
+                            {% render_field form.presion class="form-control presion" placeholder="Presión" %}
                         </td>
                         <td>
-                            {% render_field form.temperatura class="form-control" %}
+                            {% render_field form.temperatura class="form-control" placeholder="Temperatura" %}
                         </td>
                         <td>
-                            {% render_field form.fase class="form-select" %}
+                            {% render_field form.fase class="form-select" placeholder="Fase" %}
                         </td>
                         <td>
                             {% if forloop.first %}
-                            <a href="#" class="anadir w-100 btn btn-success">+</a>
+                            <a class="anadir w-100 btn btn-success">+</a>
                             {% else %}
-                            <a href="#" class="eliminar w-100 btn btn-danger">-</a>
+                            <a class="eliminar w-100 btn btn-danger">-</a>
                             {% endif %}
                         </td>
                     </tr>
@@ -296,19 +303,6 @@
             </div>
 </form>
 
-{% if edicion or recarga %}
-{% if form_condiciones_adicionales.instance.calculo_densidad == 'A' and form_condiciones_adicionales.instance.densidad %}
-<div class="hidden" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="load" hx-indicator="#spinner" hx-include="#id_adicional-temperatura, #id_adicional-temperatura_unidad, #id_adicional-presion_entrada, #id_adicional-presion_unidad, #id_adicional-densidad_unidad, #id_adicional, #id_adicional-calculo_densidad">
-</div>
-{% endif %}
-
-{% if form_condiciones_trabajo.instance.calculo_densidad == 'A' %}
-<div class="hidden" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="load" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad">
-</div>
-{% endif %}
-
-{% endif %}
-
 <div id="spinner" class="htmx-indicator indicator-style">
     <div class="spinner-grow text-danger" style="width: 6rem; height: 6rem;">
     </div>
@@ -316,19 +310,7 @@
 {% endblock %}
 
 {% block extra_javascript %}
-<script src="/static/js/auxiliares/ventiladores/creacion.js"></script>
-
-{% if form_condiciones_trabajo.instance.calculo_propiedades == 'M' %}
-<script>
-    $('#id_densidad').removeAttr('disabled');
-</script>
-{% endif %}
-
-{% if form_condiciones_adicionales.instance.calculo_propiedades == 'M' %}
-<script>
-    $('#id_adicional-densidad').removeAttr('disabled');
-</script>
-{% endif %}
+<script src="/static/js/turbinas/creacion.js"></script>
 
 <script>
     $('select[name="presion_unidad"]').html($('select[name="presion_unidad"]').html().replaceAll('</option>', 'g</option>'));

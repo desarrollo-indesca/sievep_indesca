@@ -30,7 +30,7 @@ class Corriente(models.Model):
     temperatura = models.FloatField(validators=[MinValueValidator(-273.15)])
 
     fase = models.CharField(max_length=1, choices=FASES_CORRIENTES)
-    entrada = models.BooleanField()
+    entrada = models.BooleanField(default=False)
     datos_corriente = models.ForeignKey(DatosCorrientes, on_delete=models.PROTECT, related_name="corrientes")
 
     def fase_largo(self):
@@ -43,10 +43,10 @@ class GeneradorElectrico(models.Model):
     ciclos = models.FloatField(validators=[MinValueValidator(0.0)])
     ciclos_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="ciclos_unidad_generador")
 
-    potencia_real = models.FloatField(validators=[MinValueValidator(0.000001)])
+    potencia_real = models.FloatField('Potencia Real', validators=[MinValueValidator(0.000001)])
     potencia_real_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="potencia_real_unidad_generador")
 
-    potencia_aparente = models.FloatField(validators=[MinValueValidator(0.000001)])
+    potencia_aparente = models.FloatField('Potencia Aparente', validators=[MinValueValidator(0.000001)])
     potencia_aparente_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="potencia_aparente_unidad_generador")
 
     velocidad = models.FloatField(validators=[MinValueValidator(0.000001)])
@@ -60,19 +60,19 @@ class GeneradorElectrico(models.Model):
 
 class EspecificacionesTurbinaVapor(models.Model):
     potencia = models.FloatField(validators=[MinValueValidator(0.000001)])
-    potencia_max = models.FloatField(validators=[MinValueValidator(0.000001)])
+    potencia_max = models.FloatField('Potencia Máxima', validators=[MinValueValidator(0.000001)])
     potencia_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="potencia_unidad_turbinavapor")
 
     velocidad = models.FloatField(validators=[MinValueValidator(0.000001)])
     velocidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="velocidad_unidad_turbinavapor")
 
-    presion_entrada = models.FloatField(validators=[MinValueValidator(0.000001)]) # MANOMÉTRICA
+    presion_entrada = models.FloatField('Presión de Entrada', validators=[MinValueValidator(0.000001)]) # MANOMÉTRICA
     presion_entrada_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="presion_entrada_turbinavapor")
 
-    temperatura_entrada = models.FloatField(validators=[MinValueValidator(0.000001)])
+    temperatura_entrada = models.FloatField('Temperatura de Entrada', validators=[MinValueValidator(0.000001)])
     temperatura_entrada_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="temperatura_entrada_turbinavapor")
 
-    contra_presion = models.FloatField(validators=[MinValueValidator(0.000001)]) # ABSOLUTA
+    contra_presion = models.FloatField('Contra Presión', validators=[MinValueValidator(0.000001)]) # ABSOLUTA
     contra_presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="contra_presion_unidad_turbinavapor")
 
     eficiencia = models.FloatField(null = True)
