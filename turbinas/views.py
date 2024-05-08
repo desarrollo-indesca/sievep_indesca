@@ -14,6 +14,7 @@ from calculos.unidades import *
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos
 from .models import *
+from .forms import *
 
 # Create your views here.
 class ReportesFichasTurbinasMixin(ReportesFichasMixin):
@@ -37,7 +38,7 @@ class ConsultaTurbinasVapor(LoginRequiredMixin, ListView, ReportesFichasTurbinas
 
     Métodos:
         post(self, request, *args, **kwargs) -> HttpResponse
-            Se utiliza para la generación de reportes de ficha o de ventiladores.
+            Se utiliza para la generación de reportes de ficha o de turbinas de vapor.
 
         get(self, request, *args, **kwargs) -> HttpResponse
             Se renderiza la página en su página y filtrado correcto.
@@ -58,10 +59,10 @@ class ConsultaTurbinasVapor(LoginRequiredMixin, ListView, ReportesFichasTurbinas
         if(reporte_ficha): # Si se está deseando generar un reporte de ficha, se genera
             return reporte_ficha
 
-        if(request.POST.get('tipo') == 'pdf'): # Reporte de ventiladores en PDF
+        if(request.POST.get('tipo') == 'pdf'): # Reporte de turbinas de vapor en PDF
             return generar_pdf(request, self.get_queryset(), 'Reporte de Turbinas de Vapor', 'turbinas_vapor')
         
-        if(request.POST.get('tipo') == 'xlsx'): # reporte de ventiladores en XLSX
+        if(request.POST.get('tipo') == 'xlsx'): # reporte de turbinas de vapor en XLSX
             return reporte_equipos(request, self.get_queryset(), 'Listado de Turbinas de Vapor', 'listado_ventiladores')
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:        
@@ -96,7 +97,7 @@ class ConsultaTurbinasVapor(LoginRequiredMixin, ListView, ReportesFichasTurbinas
         if(context['plantax']):
             context['plantax'] = int(context['plantax'])
 
-        context['link_creacion'] = 'creacion_ventilador'
+        context['link_creacion'] = 'creacion_turbina_vapor'
 
         return context
     
@@ -160,3 +161,74 @@ class ConsultaTurbinasVapor(LoginRequiredMixin, ListView, ReportesFichasTurbinas
         )
 
         return new_context
+    
+class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
+    """
+    Resumen:
+        Vista para la creación o registro de nuevas turbinas de vapor.
+        Solo puede ser accedido por superusuarios.
+
+    Atributos:
+        success_message: str -> Mensaje a ser enviado al usuario al registrar exitosamente una turbina.
+        titulo: str -> Título de la vista
+    
+    Métodos:
+        get_context(self) -> dict
+            Crea instancias de los formularios a ser utilizados y define el título de la vista.
+
+        get(self, request, **kwargs) -> HttpResponse
+            Renderiza el formulario con la plantilla correspondiente.
+
+        almacenar_datos(self) -> HttpResponse
+            Valida y almacena los datos de acuerdo a la lógica requerida para el almacenamiento de bombas por medio de los formularios.
+            Si hay errores se levantará una Exception.
+
+        post(self) -> HttpResponse
+            Envía el request a los formularios y envía la respuesta al cliente.
+    """
+
+    success_message = "La nueva turbina de vapor ha sido registrada exitosamente."
+    titulo = 'SIEVEP - Creación de Turbina de Vapor'
+    template_name = 'turbinas_vapor/creacion.html'
+
+    def get_context(self):
+        return {
+            'form_turbina': TurbinaVaporForm(), 
+            'form_especificaciones': EspecificacionesTurbinaVaporForm(), 
+            'form_generador': GeneradorElectricoForm(), 
+            'form_datos_corrientes': DatosCorrientesForm(),
+            'forms_corrientes': corrientes_formset(queryset=Corriente.objects.none()),
+            'titulo': self.titulo
+        }
+
+    def get(self, request, **kwargs):
+        return render(request, self.template_name, self.get_context())
+    
+    def almacenar_datos(self, form_bomba, form_detalles_motor, form_condiciones_fluido,
+                            form_detalles_construccion, form_condiciones_diseno, 
+                            form_especificaciones):
+        
+        valid = True # Inicialmente se considera válido
+        
+        with transaction.atomic():
+            valid = valid and form_especificaciones.is_valid() # Se valida el primer formulario
+                
+            if(valid): # Si todos los formularios son válidos, se almacena la turbina
+
+                messages.success(self.request, self.success_message)
+                return redirect(f'/turbinas/vapor/')
+            else:
+                raise Exception("Ocurrió un error")
+    
+    def post(self, request):
+        form_turbina = TurbinaVaporForm(request.POST, request.FILES)
+        form_especificaciones = EspecificacionesTurbinaVaporForm(request.POST)
+        form_generador = GeneradorElectricoForm(request.POST)
+        form_datos_corrientes = DatosCorrientesForm(request.POST)
+        forms_corrientes = corrientes_formset(request.POST)
+
+        try:
+            return self.almacenar_datos()
+        except Exception as e:
+            return render(request, self.template_name, context={
+            })

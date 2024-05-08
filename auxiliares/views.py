@@ -637,7 +637,6 @@ class CreacionInstalacionBomba(SuperUserRequiredMixin, View, CargarBombaMixin):
     
     def post(self, request, **kwargs):
         bomba = self.get_bomba()
-        print(request.POST)
 
         try:
             with transaction.atomic():
