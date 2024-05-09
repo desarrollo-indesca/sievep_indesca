@@ -26,6 +26,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', Bienvenida.as_view(), name='bienvenida'),
     path('logout/', CerrarSesion.as_view(), name='cerrar_sesion'),
+    path('plantas/', PlantasPorComplejo.as_view(), name="plantas_por_complejo"),
 
     path('intercambiadores/', include('intercambiadores.urls')),
     path('auxiliares/', include('auxiliares.urls')),

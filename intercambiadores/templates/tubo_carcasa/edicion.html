@@ -2,6 +2,10 @@
 {% load static %}
 {% load l10n %}
 
+{%  block head %}
+<script src="/static/js/htmx.min.js"></script>
+{% endblock %}
+
 {% block contenido %}
     {% with generales=intercambiador.intercambiador %}
     <form method="post" onsubmit="return validarForm(this);">
@@ -37,7 +41,7 @@
 
             <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="complejo">Complejo:</label>
-                <select required class="form-select" name="complejo" id="complejo" disabled>
+                <select required class="form-select" name="complejo" id="complejo" hx-get="/plantas/" hx-include="#id_complejo, #complejo" hx-trigger="change" hx-target="#planta" disabled>
                     {% for complejo in complejos %}
                     <option value="{{complejo.pk}}" {% if complejo.pk == generales.planta.complejo.pk %}selected{% endif %}>{{complejo}}</option>
                     {% endfor %}
@@ -822,6 +826,8 @@
     // {% if intercambiador.intercambiador.evaluaciones_visibles %}
     $(document).ready((e) => alert("ADVERTENCIA\nYa este intercambiador tiene evaluaciones registradas en la base de datos. Al realizar cambios en unidades o parámetros de diseño algunas comparaciones podrían no ser consistentes luego de los cambios."));
     // {% endif %}
+
+    $('#complejo').change();
 </script>
 <script src="{% static 'js/intercambiadores/cambio_fase.js' %}"></script>
 {% endblock %}

@@ -53,7 +53,7 @@
         </div>
         <div class="col-4">
             {{form_turbina.complejo.label_tag}}*
-            {% render_field form_turbina.complejo class="form-select" %}
+            {% render_field form_turbina.complejo class="form-select" hx-get="/plantas/" hx-include="#id_complejo, #complejo" hx-trigger="change" hx-target="#id_planta" hx-swap="none" %}
             <small>{{form_turbina.complejo.errors}}</small>
         </div>
         <div class="col-4">
@@ -308,6 +308,8 @@
     <div class="spinner-grow text-danger" style="width: 6rem; height: 6rem;">
     </div>
 </div>
+
+<div class="hidden" hx-get="/plantas/" id="id_complejo" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none"></div>
 {% endblock %}
 
 {% block extra_javascript %}

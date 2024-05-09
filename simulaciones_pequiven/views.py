@@ -1,4 +1,5 @@
 from typing import Any
+from intercambiadores.models import Planta
 
 from simulaciones_pequiven.settings import BASE_DIR
 from django.views import View
@@ -9,6 +10,7 @@ from django.http import HttpResponse
 from intercambiadores.models import Fluido, Unidades, TiposDeTubo, Tema, Intercambiador, PropiedadesTuboCarcasa, CondicionesIntercambiador
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
+from django.http import JsonResponse
 from django import template
 from django.utils.http import urlencode
 
@@ -455,3 +457,8 @@ class FiltrarEvaluacionesMixin():
             evaluaciones = evaluaciones.filter(nombre__icontains = request.GET.get('nombre'))
 
         return evaluaciones
+
+class PlantasPorComplejo(View):
+    def get(self, request):
+        plantas = Planta.objects.filter(complejo__pk = request.GET['complejo'])
+        return render(request, 'plantas.html', context={'plantas': plantas, 'planta_selec': int(request.GET['planta']) if request.GET.get('planta') else None}) 

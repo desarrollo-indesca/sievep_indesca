@@ -553,7 +553,7 @@ def reporte_intercambiadores(object_list, request):
     worksheet.write(f"E{num+2}", "Generado por " + request.user.get_full_name(), fecha)
     workbook.close()
     
-    return enviar_response(f'intercambiadores_{intercambiador.tag}', excel_io, fecha)
+    return enviar_response(f'intercambiadores_{datos.tag}', excel_io, fecha)
 
 # REPORTES DE BOMBAS CENTRÍFUGAS
 def ficha_instalacion_bomba_centrifuga(bomba, request):

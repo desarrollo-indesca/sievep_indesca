@@ -74,6 +74,11 @@ const anadir_listeners_htmx = () => {
     document.body.addEventListener('htmx:beforeRequest', function(evt) {
         const body = document.getElementsByTagName('body')[0];
         body.style.opacity = 0.25;
+
+        console.log("A");
+
+        if(evt.target.id == 'id_complejo')
+            return;
         
         if(evt.target.id.indexOf('adicional-') === -1) // Condiciones de Trabajo
             if(document.getElementById('id_calculo_densidad').value === 'M' || 
