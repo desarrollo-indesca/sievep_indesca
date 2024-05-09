@@ -11,7 +11,8 @@ FASES_CORRIENTES = (
     ('S','Saturado'),
     ('L','Líquido'),
     ('V','Vapor'),
-    ('O', 'Sólido')
+    ('O', 'Sólido'),
+    ('F', 'Fluido Supercrítico')
 )
 
 class DatosCorrientes(models.Model):
