@@ -116,7 +116,7 @@ class EntradaCorriente(models.Model):
     presion = models.FloatField()
     temperatura = models.FloatField(validators=[MinValueValidator(-273.15)])
     corriente = models.ForeignKey(Corriente, on_delete=models.PROTECT)
-    entrada = models.ForeignKey(EntradaEvaluacion, on_delete=models.PROTECT)
+    entrada = models.ForeignKey(EntradaEvaluacion, on_delete=models.PROTECT, related_name="entradas_corrientes")
 
 class SalidaEvaluacion(models.Model):
     eficiencia = models.FloatField()
@@ -129,7 +129,7 @@ class SalidaCorriente(models.Model):
     entalpia = models.FloatField()
     fase = models.CharField(max_length=1, choices=FASES_CORRIENTES)
     corriente = models.ForeignKey(Corriente, on_delete=models.PROTECT)
-    salida = models.ForeignKey(SalidaEvaluacion, on_delete=models.PROTECT)
+    salida = models.ForeignKey(SalidaEvaluacion, on_delete=models.PROTECT, related_name="salidas_corrientes")
 
 class Evaluacion(models.Model):
     equipo = models.ForeignKey(TurbinaVapor, on_delete=models.PROTECT)

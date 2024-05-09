@@ -1,5 +1,6 @@
 from typing import Any
 from intercambiadores.models import Planta
+from reportes.pdfs import generar_pdf
 
 from simulaciones_pequiven.settings import BASE_DIR
 from django.views import View

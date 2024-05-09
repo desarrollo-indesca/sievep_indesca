@@ -358,3 +358,76 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinVaporMixin):
                 'form_datos_corrientes': form_datos_corrientes,
                 'forms_corrientes': forms_corrientes
             })
+
+class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin, ReportesFichasTurbinasMixin):
+    """
+    Resumen:
+        Vista para la consulta de evaluaciones de Consulta de Evaluaciones de una Turbina de Vapor.
+        Hereda de ConsultaEvaluacion para el ahorro de trabajo en términos de consulta.
+        Utiliza los Mixin para obtener ventiladores y de generación de reportes de fichas de ventiladores.
+
+    Atributos:
+        model: EvaluacionBomba -> Modelo de la vista
+        model_equipment -> Modelo del equipo
+        clase_equipo -> Complemento del título de la vista
+        tipo -> Tipo de equipo. Necesario para la renderización correcta de nombres y links.
+    
+    Métodos:
+        get_context_data(self) -> dict
+            Añade al contexto original el equipo.
+
+        get_queryset(self) -> QuerySet
+            Hace el prefetching correspondiente al queryset de las evaluaciones.
+
+        post(self) -> HttpResponse
+            Contiene la lógica de eliminación (ocultación) de una evaluación y de generación de reportes.
+    """
+    model = Evaluacion
+    model_equipment = TurbinaVapor
+    clase_equipo = " la Turbina de Vapor"
+    tipo = 'turbina_vapor'
+
+    def post(self, request, **kwargs):
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha):
+            return reporte_ficha
+            
+        if(request.user.is_superuser and request.POST.get('evaluacion')): # Lógica de "Eliminación"
+            evaluacion = self.model.objects.get(pk=request.POST['evaluacion'])
+            evaluacion.activo = False
+            evaluacion.save()
+            messages.success(request, "Evaluación eliminada exitosamente.")
+        elif(request.POST.get('evaluacion') and not request.user.is_superuser):
+            messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
+
+        if(request.POST.get('tipo') == 'pdf'):
+            return generar_pdf(request, self.get_queryset(), f"Evaluaciones de la Turbina de Vapor {self.get_turbina().tag}", "reporte_evaluaciones_turbina_vapor")
+        elif(request.POST.get('tipo') == 'xlsx'):
+            return historico_evaluaciones_turbinas(self.get_queryset(), request)
+
+        if(request.POST.get('detalle')):
+            return generar_pdf(request, self.model.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Turbina de Vapor", "detalle_evaluacion_turbina_vapor")
+
+        return self.get(request, **kwargs)
+    
+    def get_queryset(self):
+        new_context = super().get_queryset()
+
+        new_context = new_context.select_related(
+            'creado_por', 'entrada', 'salida',
+            'entrada__flujo_entrada_unidad', 'entrada__potencia_real_unidad',
+            'entrada__presion_unidad', 'entrada__temperatura_unidad',
+        )
+
+        new_context = new_context.prefetch_related(
+            "entrada__entradas_corrientes", "salida__salidas_corrientes"
+        )
+
+        return new_context
+
+    def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
+        context = super().get_context_data(**kwargs)
+        context['equipo'] = self.get_turbina()
+        context['tipo'] = self.tipo
+
+        return context

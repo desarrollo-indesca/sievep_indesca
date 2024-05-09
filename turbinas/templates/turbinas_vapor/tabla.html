@@ -14,7 +14,7 @@
     <td>{{turbina.planta.complejo}}</td>
     <td>{{turbina.descripcion}}</td>
     <td>
-      <a class="btn btn-danger" href="#"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
+      <a class="btn btn-danger" href="{% url 'evaluaciones_turbina_vapor' pk=turbina.pk %}"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
     </td>
     <td>
         {% include 'turbinas_vapor/ficha.html' %}
