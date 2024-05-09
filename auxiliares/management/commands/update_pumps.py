@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 import csv
 
 class Command(BaseCommand):
-    help = "Carga las bombas de Servicios Industriales"
+    help = "Actualiza las bombas de Servicios Industriales"
 
     def clean_text(self, text) -> str:
         texto = text.strip().replace(",",".").replace("(", "").replace(")", "").replace("NO","")

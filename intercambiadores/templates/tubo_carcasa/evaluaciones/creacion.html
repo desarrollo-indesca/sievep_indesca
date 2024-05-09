@@ -479,6 +479,7 @@
         const unidad_presion_valor = $('#unidad_presion > option').toArray().filter(x => x.innerHTML === $('#unidad_presion_ficha').html().trim())[0].value;
         
         if(!$('#cp_ficha').is(':checked') && tipo_cp === 'A' && t1 && t2){
+            document.body.style.opacity = 0.5;
             if(lado === 'T' && $('#fluido_tubo').val()){
                 $('#cp_liquido_tubo').val('');
                 document.getElementById('cp_liquido_tubo').setAttribute('disabled', true);
@@ -507,6 +508,7 @@
                     lado: lado
                 },
                 success: (res) => {
+                    document.body.style.opacity = 1.0;
                     if(lado === 'T'){
                             if(res.cp_liquido){
                                 $('#cp_liquido_tubo').val(res.cp_liquido)
@@ -554,6 +556,7 @@
                     ajaxEvaluacion();                    
                 }, 
                 error: (res) => {
+                    document.body.style.opacity = 1.0;
                     console.log(res);
                     if(lado === 'T'){
                         $('#cp_gas_tubo').removeAttr('disabled');
@@ -780,6 +783,8 @@
             && $('#flujo_carcasa').val() !== '' && $('#flujo_tubo').val() !== '' && $('#no_tubos').val() !== '' && $('#caida_tubo').val() !== '' && $('#caida_carcasa').val() !== '' &&
             (($('#cp_gas_tubo').val() !== '' || $('#cp_liquido_tubo').val() !== '') && $('#cambio_fase_ficha_tubo').html() === 'S' || ($('#cp_gas_tubo').val() !== '' && $('#cp_liquido_tubo').val() !== ''))
             && (($('#cp_gas_carcasa').val() !== '' || $('#cp_liquido_carcasa').val() !== '') && $('#cambio_fase_ficha_carcasa').html() === 'S' || ($('#cp_gas_carcasa').val() !== ''&& $('#cp_liquido_carcasa').val() !== ''))){
+            
+            document.body.style.opacity = 0.5;
             $.ajax({
                 url: '/intercambiadores/evaluar/tubo_carcasa/{{intercambiador.intercambiador.pk}}/',
                 data: {
@@ -799,7 +804,7 @@
                     unidad_flujo: document.getElementById('unidad_flujo').value
                 },
                 success: (res) => {        
-                    console.log(res);
+                    document.body.style.opacity = 1.0;
                     if(res.lmtd === NaN)                      
                         vaciarCampos() 
                     else{
@@ -816,6 +821,7 @@
                 }, 
                 error: async (res) => {
                     console.log(res);
+                    document.body.style.opacity = 1.0;
 
                     if(mostrarAdvertencia){
                         mostrarAdvertencia = false;

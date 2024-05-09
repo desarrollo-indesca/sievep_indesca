@@ -277,7 +277,6 @@ def calcular_densidad_aire(t: float, p: float = 101325) -> float:
     Devuelve:
         (float) -> Densidad del aire en las condiciones presentadas (Kg/m3). 
     """
-    print(t, p)
     rho = CP.PropsSI('D', 'T', t, 'P', p, 'air')
 
     return rho
@@ -309,3 +308,66 @@ def calcular_densidad_relativa(cas: str, t: float, p: float = 101325) -> float:
         rho = obtener_densidad_liquido_saturado(quimico, t)
 
     return rho/DENSIDAD_DEL_AGUA_LIQUIDA_A_5C
+
+def calcular_entalpia_coolprop(t: float, p: float, fluido: str) -> float:
+    """
+    Resumen:
+        Esta función calculará la entalpía de un fluido registrado en CoolProp.
+        Esta función utiliza CoolProp a efectos de respetar al máximo el modelo desarrollado.
+
+    Parámetros:
+        t: float -> Temperatura (K)
+        p: float -> Presión (Pa)
+
+    Devuelve:
+        (float) -> Entalpía del fluido en las condiciones presentadas (J/Kg). Devolverá None si ocurre un error.
+    """
+    try:
+        if(p):
+            return CP.PropsSI('H', 'T', t, 'P', p, fluido)
+        else:
+            return CP.PropsSI('H','Q',0,'T',t,fluido)
+    except:
+        return None
+    
+def calcular_fase_coolprop(t: float, p: float, fluido: str) -> str:
+    """
+    Resumen:
+        Esta función determinará la fase de un fluido registrado en CoolProp.
+        Esta función utiliza CoolProp a efectos de respetar al máximo el modelo desarrollado.
+
+    Parámetros:
+        t: float -> Temperatura (K)
+        p: float -> Presión (Pa)
+
+    Devuelve:
+        (str) -> Fase del fluido en las condiciones presentadas. Devolverá None si ocurre un error.
+    """
+    try:
+        if(p):
+            return CP.PropsSI('P', 'T', t, 'P', p, fluido)
+        else:
+            return CP.PropsSI('P','Q',0,'T',t,fluido)
+    except:
+        return None
+    
+def definicion_fases_coolprop(fase: str) -> str:
+    """
+    Resumen:
+        Devuelve un código de la fase del fluido desde una fase de CoolProp.
+
+    Parámetros:
+        fase: str -> Fase en CoolProp.
+
+    Devuelve:
+        (str) -> Fase del fluido en las condiciones presentadas. Devolverá None si ocurre un error.
+    """
+
+    if('liquid' in fase): # Líquido
+        return "L"
+    elif("gas" in fase): # Vapor
+        return "V"
+    elif(fase == "twophase"): # Saturación
+        return "S"
+    elif(fase == "supercritical"): # Fluido Supercrítico
+        return "F"
