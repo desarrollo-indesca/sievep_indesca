@@ -148,6 +148,11 @@ const anadir_listeners_htmx = () => {
         const body = document.getElementsByTagName('body')[0]
         body.style.opacity = 0.25;
 
+        if(evt.target.id === 'id_complejo'){
+            
+            return;
+        }
+
         if(document.getElementById('id_calculo_propiedades').value === 'M' || 
             document.getElementById('id_temperatura_presion_vapor').value === '' ||
             document.getElementById('id_fluido').value === '' ||

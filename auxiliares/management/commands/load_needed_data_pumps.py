@@ -3,7 +3,7 @@ from auxiliares.models import *
 from intercambiadores.models import Unidades, Planta, Complejo
 
 class Command(BaseCommand):
-    help = "Carga las bombas de Servicios Industriales"
+    help = "Carga los datos requeridos para las bombas de Servicios Industriales"
 
     def handle(self, *args, **options):
             # Creación de Servicios Industriales

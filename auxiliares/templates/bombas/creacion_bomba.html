@@ -51,7 +51,7 @@
         </div>
         <div class="col-3">
             <label for="id_complejo">{{form_bomba.complejo.label_tag}}</label>
-            {% render_field form_bomba.complejo class="form-control" %}
+            {% render_field form_bomba.complejo class="form-control" hx-get="/plantas/" hx-include="#id_complejo, #complejo" hx-trigger="change" hx-target="#id_planta" hx-swap="none" %}
             <small>{{form_bomba.complejo.errors}}</small>
         </div>
         <div class="col-3">
@@ -510,6 +510,8 @@
     <div class="spinner-grow text-danger" style="width: 6rem; height: 6rem;">
     </div>
 </div>
+
+<div class="hidden" hx-get="/plantas/" id="id_complejo" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none"></div>
 {% endblock %}
 
 {% block extra_javascript %}

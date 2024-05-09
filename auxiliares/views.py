@@ -19,6 +19,7 @@ from django.views import View
 from django.views.generic import ListView
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.contrib import messages
+from simulaciones_pequiven.views import ConsultaEvaluacion, ReportesFichasMixin, FiltrarEvaluacionesMixin
 
 from usuarios.views import SuperUserRequiredMixin
 from auxiliares.models import *
@@ -88,90 +89,6 @@ class RegistrarFluidoCAS(View, SuperUserRequiredMixin):
     def get(self, request):
         return JsonResponse(registrar_fluido(request.GET.get('cas'), request.GET.get('nombre')))
     
-class ConsultaEvaluacion(ListView, LoginRequiredMixin):
-    """
-    Resumen:
-        Vista ABSTRACTA de consulta de evaluación de distintos equipos.
-        Solo puede ser accedida por usuarios que hayan iniciado sesión.
-
-    Atributos:
-        model: models.Model -> Modelo de evaluación del equipo auxiliar.
-        model_equipment: models.Model -> Modelo del equipo propiamente dicho. Se utiliza para la renderización de la ficha técnica del equipo.
-        clase_equipo: str -> Tipo de equipo. Necesario para la renderización del título de la pantalla.
-        template_name: str -> Ruta de la plantilla HTML a utilizar. 
-        paginate_by: str -> Número de elementos a paginar. El default es 10.
-        titulo: str -> Título de la vista.
-    
-    Métodos:
-        get_context_data(self, request) -> dict
-            self
-            request: HttpRequest -> Solicitud de HTTP
-
-            Obtiene los parámetros pasados para la carga de datos en la vista.
-
-        get_queryset(self) -> QuerySet
-    """
-
-    model = None
-    model_equipment = None
-    clase_equipo = ""
-    template_name = 'consulta_evaluaciones.html'
-    paginate_by = 10
-    titulo = "SIEVEP - Consulta de Evaluaciones"
-
-    def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
-        context = super().get_context_data(**kwargs)
-        context["titulo"] = self.titulo
-
-        # Consulta para obtener el equipo
-        equipo = self.model_equipment.objects.filter(pk=self.kwargs['pk'])
-        
-        context['equipo'] = equipo
-
-        # Obtención de data pasada vía request
-        context['nombre'] = self.request.GET.get('nombre', '')
-        context['desde'] = self.request.GET.get('desde', '')
-        context['hasta'] = self.request.GET.get('hasta')
-        context['usuario'] = self.request.GET.get('usuario','')
-
-        # Complemento del título
-        context['clase_equipo'] = self.clase_equipo
-
-        return context
-    
-    def get_queryset(self):
-        # Consulta de las evaluaciones activas del equipo
-        new_context = self.model.objects.filter(equipo__pk=self.kwargs['pk'], activo=True)
-
-        # Obtención de los parámetros pasados vía request
-        desde = self.request.GET.get('desde', '')
-        hasta = self.request.GET.get('hasta', '')
-        usuario = self.request.GET.get('usuario', '')
-        nombre = self.request.GET.get('nombre', '')
-
-        # Lógica de filtrado según valor del parámetro
-        if(desde != ''):
-            new_context = new_context.filter(
-                fecha__gte = desde
-            )
-
-        if(hasta != ''):
-            new_context = new_context.filter(
-                fecha__lte=hasta
-            )
-
-        if(usuario != ''):
-            new_context = new_context.filter(
-                usuario__first_name__icontains = usuario
-            )
-
-        if(nombre != ''):
-            new_context = new_context.filter(
-                nombre__icontains = nombre
-            )
-
-        return new_context
-    
 class ReportesFichasBombasMixin():
     def reporte_ficha(self, request):
         if(request.POST.get('ficha')):
@@ -190,38 +107,6 @@ class ReportesFichasBombasMixin():
                 return ficha_instalacion_bomba_centrifuga(bomba,request)
             
         return None
-    
-class ReportesFichasMixin():
-    reporte_ficha_xlsx = lambda ventilador,request : '' # Definición Placeholder
-    titulo_reporte_ficha = ""
-    codigo_reporte_ficha = ""
-    model_ficha = None
-
-    def reporte_ficha(self, request):
-        if(request.POST.get('ficha')):
-            equipo = self.model_ficha.objects.get(pk = request.POST.get('ficha'))
-            if(request.POST.get('tipo') == 'pdf'):
-                return generar_pdf(request, equipo, self.titulo_reporte_ficha + " " + equipo.tag.upper(), self.codigo_reporte_ficha)
-            if(request.POST.get('tipo') == 'xlsx'):
-                return self.reporte_ficha_xlsx(equipo, request)
-            
-        return None
-
-class FiltrarEvaluacionesMixin():
-    def filtrar(self, request, evaluaciones):
-        if(request.GET.get('desde')):
-            evaluaciones = evaluaciones.filter(fecha__gte = request.GET.get('desde'))
-
-        if(request.GET.get('hasta')):
-            evaluaciones = evaluaciones.filter(fecha__lte = request.GET.get('hasta'))
-
-        if(request.GET.get('usuario')):
-            evaluaciones = evaluaciones.filter(creado_por__first_name__icontains = request.GET.get('hasta'))
-
-        if(request.GET.get('nombre')):
-            evaluaciones = evaluaciones.filter(nombre__icontains = request.GET.get('nombre'))
-
-        return evaluaciones
     
 # VISTAS DE BOMBAS
 
@@ -752,7 +637,6 @@ class CreacionInstalacionBomba(SuperUserRequiredMixin, View, CargarBombaMixin):
     
     def post(self, request, **kwargs):
         bomba = self.get_bomba()
-        print(request.POST)
 
         try:
             with transaction.atomic():
@@ -1933,10 +1817,10 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
                 if(not valido):
                     raise Exception("Ocurrió un error al validar los datos")
                 
-                return render(request, 'bombas/partials/carga_lograda.html', {'ventilador': ventilador})
+                return render(request, 'ventiladores/partials/carga_lograda.html', {'ventilador': ventilador})
         except Exception as e:
             print(str(e))
-            return render(request, 'bombas/partials/carga_fallida.html', {'ventilador': ventilador})
+            return render(request, 'ventiladores/partials/carga_fallida.html', {'ventilador': ventilador})
 
     def post(self, request, pk):
         if(request.POST['submit'] == 'almacenar'):

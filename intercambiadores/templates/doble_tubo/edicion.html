@@ -2,6 +2,10 @@
 {% load static %}
 {% load l10n %}
 
+{%  block head %}
+<script src="/static/js/htmx.min.js"></script>
+{% endblock %}
+
 {% block contenido %}
     <form method="post" onsubmit="return validarForm(this);">
         {% csrf_token %}
@@ -817,6 +821,8 @@
     // {% if intercambiador.intercambiador.evaluaciones_visibles %}
     $(document).ready((e) => alert("ADVERTENCIA\nYa este intercambiador tiene evaluaciones registradas en la base de datos. Al realizar cambios en unidades o parámetros de diseño algunas comparaciones podrían no ser consistentes luego de los cambios."));
     // {% endif %}
+
+    $('#complejo').change();
 </script>
 <script src="{% static 'js/intercambiadores/cambio_fase.js' %}"></script>
 {% endblock %}

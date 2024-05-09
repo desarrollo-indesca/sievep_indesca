@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{%  block head %}
+<script src="/static/js/htmx.min.js"></script>
+{% endblock %}
+
 {% block contenido %}
     <form method="post" onsubmit="return validarForm(this);">
         {% csrf_token %}
@@ -31,7 +35,7 @@
 
             <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="complejo">Complejo:</label>
-                <select required class="form-select" name="complejo" id="complejo">
+                <select required class="form-select" name="complejo" id="complejo" hx-get="/plantas/" hx-include="#id_complejo, #complejo" hx-trigger="change" hx-target="#planta" hx-swap="none">
                     {% for complejo in complejos %}
                     <option value="{{complejo.pk}}" {% if previo.complejo == complejo.pk|slugify %}selected{% endif %}>{{complejo}}</option>
                     {% endfor %}
@@ -1019,6 +1023,8 @@
 <script src="{% static 'js/intercambiadores/ajaxCP.js' %}"></script>
 <script>
     {% include 'scripts/validaciones_flujo.js' %}
+
+    $('#complejo').change();
 </script>
 <script src="{% static 'js/intercambiadores/cambio_fase.js' %}"></script>
 {% endblock %}

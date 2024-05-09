@@ -200,6 +200,7 @@ function ajaxCP(t1,t2,fluido, lado = 'T'){
     if(lado === 'T' && $('#cambio_fase_tubo').val() !== '-' && $('#tipo_cp_tubo').val() === 'A' 
     || lado === 'C' && $('#cambio_fase_carcasa').val() !== '-' && $('#tipo_cp_carcasa').val() === 'A'){
         let cambio_fase = lado === 'C' ? $('#cambio_fase_carcasa').val() : $('#cambio_fase_tubo').val();
+        document.body.style.opacity = 0.5;
         $.ajax({
             url: '/intercambiadores/calcular_cp/',
             data: {
@@ -217,6 +218,7 @@ function ajaxCP(t1,t2,fluido, lado = 'T'){
                 flujo_liquido_out: lado === 'C' ? $('#flujo_liquido_out_carcasa').val() : $('#flujo_liquido_out_tubo').val()
             },
             success: (res) => {
+                document.body.style.opacity = 1.0;
                 if(lado === 'T'){
                     if(cambio_fase !== '-' && res.cp !== '' && $('#cambio_fase_carcasa').val() !== '-')
                         $('button[type="submit"]').removeAttr('disabled');
@@ -255,6 +257,7 @@ function ajaxCP(t1,t2,fluido, lado = 'T'){
                 }
             }, 
             error: (res) => {
+                document.body.style.opacity = 1.0;
                 $('button[type="submit"]').attr('disabled', true);
             }
         });
@@ -582,6 +585,7 @@ const validarForm = (e) => {
 function ajaxValidacion(lado = 'C'){
     let mensaje = "";
     let q = 0;
+    document.body.style.opacity = 0.5;
     $.ajax({
         url: '/intercambiadores/validar_cdf_existente/',
         async: false,
@@ -607,12 +611,14 @@ function ajaxValidacion(lado = 'C'){
             hvap: lado === 'T' ? $('#hvap_tubo').val() : $('#hvap_carcasa').val()
         },
         success: (res) => {
+            document.body.style.opacity = 1;
             q = res.calorcalc;
             if(res.codigo == 400){
                 mensaje += res.mensaje;
             }
         },
         error: (res) => {
+            document.body.style.opacity = 1;
             console.log(res);
             funciono = false;
             mensaje += `Ocurrió un error al validar los datos ingresados del lado de${lado === 'T' ? 'l tubo' : ' la carcasa'}.\n`;

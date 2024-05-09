@@ -6,7 +6,7 @@ from auxiliares.models import Ventilador, TipoVentilador, EspecificacionesVentil
 from intercambiadores.models import Unidades, Planta, Complejo
 
 class Command(BaseCommand):
-    help = "Carga las bombas de Servicios Industriales"
+    help = "Carga los ventiladores de servicios industriales"
 
     def handle(self, *args, **options):
             # Creación de Servicios Industriales

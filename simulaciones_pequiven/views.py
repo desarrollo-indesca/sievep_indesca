@@ -1,11 +1,17 @@
+from typing import Any
+from intercambiadores.models import Planta
+from reportes.pdfs import generar_pdf
+
 from simulaciones_pequiven.settings import BASE_DIR
 from django.views import View
+from django.views.generic import ListView
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout, login, get_user_model
 from django.http import HttpResponse
 from intercambiadores.models import Fluido, Unidades, TiposDeTubo, Tema, Intercambiador, PropiedadesTuboCarcasa, CondicionesIntercambiador
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
+from django.http import JsonResponse
 from django import template
 from django.utils.http import urlencode
 
@@ -336,3 +342,124 @@ class ComponerFluidos(View):
                     )
         
         return HttpResponse("Listo")
+    
+class ConsultaEvaluacion(ListView, LoginRequiredMixin):
+    """
+    Resumen:
+        Vista ABSTRACTA de consulta de evaluación de distintos equipos.
+        Solo puede ser accedida por usuarios que hayan iniciado sesión.
+
+    Atributos:
+        model: models.Model -> Modelo de evaluación del equipo auxiliar.
+        model_equipment: models.Model -> Modelo del equipo propiamente dicho. Se utiliza para la renderización de la ficha técnica del equipo.
+        clase_equipo: str -> Tipo de equipo. Necesario para la renderización del título de la pantalla.
+        template_name: str -> Ruta de la plantilla HTML a utilizar. 
+        paginate_by: str -> Número de elementos a paginar. El default es 10.
+        titulo: str -> Título de la vista.
+    
+    Métodos:
+        get_context_data(self, request) -> dict
+            self
+            request: HttpRequest -> Solicitud de HTTP
+
+            Obtiene los parámetros pasados para la carga de datos en la vista.
+
+        get_queryset(self) -> QuerySet
+    """
+
+    model = None
+    model_equipment = None
+    clase_equipo = ""
+    template_name = 'consulta_evaluaciones.html'
+    paginate_by = 10
+    titulo = "SIEVEP - Consulta de Evaluaciones"
+
+    def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
+        context = super().get_context_data(**kwargs)
+        context["titulo"] = self.titulo
+
+        # Consulta para obtener el equipo
+        equipo = self.model_equipment.objects.filter(pk=self.kwargs['pk'])
+        
+        context['equipo'] = equipo
+
+        # Obtención de data pasada vía request
+        context['nombre'] = self.request.GET.get('nombre', '')
+        context['desde'] = self.request.GET.get('desde', '')
+        context['hasta'] = self.request.GET.get('hasta')
+        context['usuario'] = self.request.GET.get('usuario','')
+
+        # Complemento del título
+        context['clase_equipo'] = self.clase_equipo
+
+        return context
+    
+    def get_queryset(self):
+        # Consulta de las evaluaciones activas del equipo
+        new_context = self.model.objects.filter(equipo__pk=self.kwargs['pk'], activo=True)
+
+        # Obtención de los parámetros pasados vía request
+        desde = self.request.GET.get('desde', '')
+        hasta = self.request.GET.get('hasta', '')
+        usuario = self.request.GET.get('usuario', '')
+        nombre = self.request.GET.get('nombre', '')
+
+        # Lógica de filtrado según valor del parámetro
+        if(desde != ''):
+            new_context = new_context.filter(
+                fecha__gte = desde
+            )
+
+        if(hasta != ''):
+            new_context = new_context.filter(
+                fecha__lte=hasta
+            )
+
+        if(usuario != ''):
+            new_context = new_context.filter(
+                usuario__first_name__icontains = usuario
+            )
+
+        if(nombre != ''):
+            new_context = new_context.filter(
+                nombre__icontains = nombre
+            )
+
+        return new_context
+    
+class ReportesFichasMixin():
+    reporte_ficha_xlsx = lambda ventilador,request : '' # Definición Placeholder
+    titulo_reporte_ficha = ""
+    codigo_reporte_ficha = ""
+    model_ficha = None
+
+    def reporte_ficha(self, request):
+        if(request.POST.get('ficha')):
+            equipo = self.model_ficha.objects.get(pk = request.POST.get('ficha'))
+            if(request.POST.get('tipo') == 'pdf'):
+                return generar_pdf(request, equipo, self.titulo_reporte_ficha + " " + equipo.tag.upper(), self.codigo_reporte_ficha)
+            if(request.POST.get('tipo') == 'xlsx'):
+                return self.reporte_ficha_xlsx(equipo, request)
+            
+        return None
+
+class FiltrarEvaluacionesMixin():
+    def filtrar(self, request, evaluaciones):
+        if(request.GET.get('desde')):
+            evaluaciones = evaluaciones.filter(fecha__gte = request.GET.get('desde'))
+
+        if(request.GET.get('hasta')):
+            evaluaciones = evaluaciones.filter(fecha__lte = request.GET.get('hasta'))
+
+        if(request.GET.get('usuario')):
+            evaluaciones = evaluaciones.filter(creado_por__first_name__icontains = request.GET.get('hasta'))
+
+        if(request.GET.get('nombre')):
+            evaluaciones = evaluaciones.filter(nombre__icontains = request.GET.get('nombre'))
+
+        return evaluaciones
+
+class PlantasPorComplejo(View):
+    def get(self, request):
+        plantas = Planta.objects.filter(complejo__pk = request.GET['complejo'])
+        return render(request, 'plantas.html', context={'plantas': plantas, 'planta_selec': int(request.GET['planta']) if request.GET.get('planta') else None}) 
