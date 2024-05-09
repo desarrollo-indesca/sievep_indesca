@@ -260,29 +260,37 @@
                     <tr class="form">
                         <td>
                             {% render_field form.numero_corriente class="form-control numero-corriente" placeholder="Número de la Corriente" %}
+                            <small>{{form.numero_corriente.errors}}</small>
                         </td>
                         <td>
                             {% render_field form.descripcion_corriente class="form-control" placeholder="Descripción de la Corriente" %}
+                            <small>{{form.descripcion_corriente.errors}}</small>
                         </td>
                         <td>
                             <div class="d-flex justify-content-center align-items-center h-100">
                                 {% render_field form.entrada class="form-check-input entrada" %}
                             </div>
+                            <small>{{form.entrada.errors}}</small>
                         </td>
                         <td>
                             {% render_field form.flujo class="form-control" placeholder="Flujo" required="required" %}
+                            <small>{{form.flujo.errors}}</small>
                         </td>
                         <td>
                             {% render_field form.entalpia class="form-control" placeholder="Entalpía" required="required" %}
+                            <small>{{form.entalpia.errors}}</small>
                         </td>
                         <td>
                             {% render_field form.presion class="form-control presion" placeholder="Presión" %}
+                            <small>{{form.presion.errors}}</small>
                         </td>
                         <td>
                             {% render_field form.temperatura class="form-control" placeholder="Temperatura" required="required" %}
+                            <small>{{form.temperatura.errors}}</small>
                         </td>
                         <td>
                             {% render_field form.fase class="form-select" placeholder="Fase" required="required" %}
+                            <small>{{form.fase.errors}}</small>
                         </td>
                         <td>
                             {% if forloop.first %}
@@ -293,7 +301,6 @@
                         </td>
                     </tr>
                     {% endfor %}
-                    <small>{{forms_corrientes.errors}}</small>
                 </tbody>
             </table>
                 
@@ -317,6 +324,8 @@
 
 <script>
     $('select[name="presion_unidad"]').html($('select[name="presion_unidad"]').html().replaceAll('</option>', 'g</option>'));
+
+    $('.entrada').change()
 </script>
 
 {% endblock %}

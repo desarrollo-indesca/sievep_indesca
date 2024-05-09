@@ -117,12 +117,28 @@ $('button[type=submit]').click( (e) => {
         } else if(entradas === 0){
             e.preventDefault();
             alert("Debe haber una corriente de entrada.");
+            return false;
         }
 
         const arrayNumeros = $('.numero-corriente').toArray().map(x => x.value);
         if((new Set(arrayNumeros)).size !== arrayNumeros.length){
             e.preventDefault();
             alert("Los números de corrientes deben ser TODOS distintos.");
+        }
+        
+        if(entradas === 1){
+            const entrada = $('.entrada').toArray().filter(x => $(`#${x.id}`).is(':checked'))[0];
+            const number = entrada.name.replaceAll('form','').replaceAll('-','').replaceAll(/[a-zA-Z]+/g, '');
+            console.log(number);
+            if($(`input[name="form-${number}-presion"]`).val() === ""){
+                e.preventDefault();
+                alert("La corriente de entrada no puede ser la misma que la de salida.");
+            }
+
+            if($(`select[name="form-${number}-fase"]`).val() != 'V'){
+                e.preventDefault();
+                alert("La turbina solo puede tener vapor en la corriente de entrada.");
+            }
         }
     }
 )

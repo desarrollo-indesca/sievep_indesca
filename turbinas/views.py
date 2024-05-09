@@ -301,6 +301,8 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
 
                 messages.success(self.request, self.success_message)
                 return redirect(f'/turbinas/vapor/')
+            else:
+                raise Exception("Ocurrió un error de validación.")
     
     def post(self, request):
         form_turbina = TurbinaVaporForm(request.POST)

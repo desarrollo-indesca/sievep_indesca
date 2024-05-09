@@ -19,6 +19,10 @@ class FormConUnidades(forms.ModelForm):
 
 class BombaForm(forms.ModelForm):
     complejo = forms.ModelChoiceField(queryset=Complejo.objects.all(), initial=1)
+
+    def clean_tag(self):
+        return self.data['tag'].upper().strip()
+    
     class Meta:
         model = Bombas
         fields = [
@@ -220,6 +224,9 @@ TuberiaFormSet = forms.modelformset_factory(TuberiaInstalacionBomba, form=Tuberi
 
 class VentiladorForm(forms.ModelForm):
     complejo = forms.ModelChoiceField(queryset=Complejo.objects.all(), initial=1)
+
+    def clean_tag(self):
+        return self.data['tag'].upper().strip()
 
     class Meta:
         model = Ventilador

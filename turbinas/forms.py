@@ -6,6 +6,9 @@ from auxiliares.forms import FormConUnidades
 
 class TurbinaVaporForm(forms.ModelForm):
     complejo = forms.ModelChoiceField(queryset=Complejo.objects.all(), initial=1)
+
+    def clean_tag(self):
+        return self.data['tag'].upper().strip()
     
     class Meta:
         model = TurbinaVapor
@@ -62,8 +65,6 @@ class GeneradorElectricoForm(FormConUnidades):
 
 class CorrienteForm(forms.ModelForm):
     def clean_presion(self):
-        print(self.cleaned_data)
-
         if(self.cleaned_data.get('presion') == '' and self.data['entrada'] == 'checked'):
             return forms.ValidationError("La corriente en entrada debe llevar presión.")
         
