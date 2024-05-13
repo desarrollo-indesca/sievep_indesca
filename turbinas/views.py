@@ -536,7 +536,7 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
         temperaturas = transformar_unidades_temperatura(temperaturas, temperatura_unidad)
         potencia_real = transformar_unidades_potencia([potencia_real], potencia_real_unidad)[0]
 
-        if(flujo_entrada_unidad in [6,10,18,19,54]):
+        if(flujo_entrada_unidad in PK_UNIDADES_FLUJO_MASICO):
             flujo_entrada = transformar_unidades_flujo([flujo_entrada], flujo_entrada_unidad)[0]
         else:
             flujo_entrada = transformar_unidades_flujo_volumetrico([flujo_entrada], flujo_entrada_unidad)[0]
@@ -558,7 +558,7 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
         for i in range(len(res['corrientes'])):
             res['corrientes'][i]['entalpia'] = transformar_unidades_entalpia_masica([res['corrientes'][i]['entalpia']], 60, turbina.datos_corrientes.entalpia_unidad.pk)[0]
             
-            if(flujo_entrada_unidad in [6,10,18,19,54]):
+            if(flujo_entrada_unidad in PK_UNIDADES_FLUJO_MASICO):
                 res['corrientes'][i]['flujo'] = transformar_unidades_flujo([res['corrientes'][i]['flujo']], 10, flujo_entrada_unidad)[0]
             else:
                 res['corrientes'][i]['flujo'] = transformar_unidades_flujo_volumetrico([res['corrientes'][i]['flujo']], 42, flujo_entrada_unidad)[0]
@@ -569,10 +569,24 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
 
     def almacenar(self, request):
         try:
-            pass
+            res = self.obtener_resultados(request)
+            valid = True
+            turbina = self.get_turbina()
+
+            form_evaluacion = EvaluacionesForm(request.POST)
+            form_entrada = EntradaEvaluacionForm(request.POST)
+            formset_corrientes = forms.modelformset_factory(EntradaCorriente, form=EntradaCorrienteForm, exclude=("id",), min_num = turbina.datos_corrientes.corrientes.count())
 
             with transaction.atomic():
-                pass
+                valid = valid and form_entrada.is_valid()
+
+                if(valid):
+                    form_entrada.save()
+                else:
+                    print(form_entrada.errors)
+
+                # TODO finalizar el almacenamiento
+
         except Exception as e:
             print(str(e))
             return render(request, 'turbinas_vapor/partials/carga_fallida.html')
