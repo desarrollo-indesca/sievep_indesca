@@ -25,7 +25,7 @@
 {% endblock %}
 
 {% block contenido %}
-<form id="form" method="post" name="form" hx-indicator="#spinner" hx-swap="none" hx-post="/auxiliares/turbinas/evaluar/{{turbina.pk}}/resultado/">
+<form id="form" method="post" name="form" hx-post="{% url 'evaluar_turbina_vapor' pk=turbina.pk %}" hx-trigger="submit" hx-swap="none" hx-indicator="#spinner">
     {% csrf_token %}
     {{formset_entrada_corriente.formset.management_form}}
     <div class="row">
@@ -109,19 +109,19 @@
                             {% if not form.corriente.presion %}
                             {% render_field form.form.presion class="form-control" placeholder="Presión no req. (saturado)" disabled="disabled" %}
                             {% else %}
-                            {% render_field form.form.presion class="form-control" placeholder="Presión" required="required" %}
+                            {% render_field form.form.presion class="form-control" placeholder="Presión" required="required" min="0.0001" %}
                             {% endif %}                            
                             <small>{{form.form.presion.errors}}</small>
                         </td>
                         <td>
-                            {% render_field form.form.temperatura class="form-control temperatura" placeholder="Temperatura" %}
+                            {% render_field form.form.temperatura class="form-control temperatura" placeholder="Temperatura" min="-273.15" %}
                             <small>{{form.form.temperatura.errors}}</small>
                         </td>
-                        <td id="form-{{forloop.counter}}-flujo">
+                        <td class="resultado" id="form-{{forloop.counter}}-flujo">
                         </td>
-                        <td id="form-{{forloop.counter}}-entalpia">
+                        <td class="resultado" id="form-{{forloop.counter}}-entalpia">
                         </td>
-                        <td id="form-{{forloop.counter}}-fase">
+                        <td class="resultado" id="form-{{forloop.counter}}-fase">
                         </td>
                     </tr>
                     {% endfor %}
@@ -129,13 +129,12 @@
             </table>
         </div>
 
-        <div id="resultados">
+        <div id="resultados" class="resultado">
 
         </div>
 
         <div class="d-flex w-100 justify-content-center mb-3">
-            <button id="submit" type="submit" name="submit" value="calcular" class="btn btn-danger"
-                hx-post="{% url 'evaluar_turbina_vapor' pk=turbina.pk %}" hx-trigger="click" hx-swap="none" hx-indicator="#spinner">
+            <button id="submit" type="submit" name="submit" value="calcular" class="btn btn-danger">
                 Calcular Resultados
             </button>
         </div>
@@ -152,9 +151,6 @@
 {% endblock %}
 
 {% block extra_javascript %}
-<script src="/static/js/auxiliares/turbinas/evaluacion.js"></script>
+<script src="/static/js/turbinas/vapor/evaluacion.js"></script>
 
-<script>
-    $('select[name="presion_salida_unidad"]').html($('select[name="presion_salida_unidad"]').html().replaceAll('</option>', 'g</option>'));
-</script>
 {% endblock %}

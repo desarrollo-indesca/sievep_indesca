@@ -517,7 +517,6 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
     """
     def calcular(self, request):
         res = self.obtener_resultados(request)
-        print("AAAAAAAAAAAAAAAA")
         return render(request, 'turbinas_vapor/partials/resultados.html', context={'res': res})
 
     def obtener_resultados(self, request):
@@ -553,6 +552,17 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
         res = evaluar_turbina(flujo_entrada, potencia_real, corrientes, datos_corrientes.corrientes.values())
 
         # Transformar unidades de internacional a salida (ficha)
+        res['potencia_calculada'] = transformar_unidades_potencia([res['potencia_calculada']], 49, potencia_real_unidad)[0]
+
+        for i in range(len(res['corrientes'])):
+            res['corrientes'][i]['entalpia'] = transformar_unidades_entalpia_masica([res['corrientes'][i]['entalpia']], 60, turbina.datos_corrientes.entalpia_unidad.pk)[0]
+            
+            if(flujo_entrada_unidad in [6,10,18,19,54]):
+                res['corrientes'][i]['flujo'] = transformar_unidades_flujo([res['corrientes'][i]['flujo']], 10, flujo_entrada_unidad)[0]
+            else:
+                res['corrientes'][i]['flujo'] = transformar_unidades_flujo_volumetrico([res['corrientes'][i]['flujo']], 42, flujo_entrada_unidad)[0]
+
+        print(res)
 
         return res
 
@@ -564,7 +574,7 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
                 pass
         except Exception as e:
             print(str(e))
-            return render(request, 'turbinas_vapor/partials/carga_fallida.html', {'ventilador': ventilador})
+            return render(request, 'turbinas_vapor/partials/carga_fallida.html')
 
     def post(self, request, pk):
         if(request.POST['submit'] == 'almacenar'):

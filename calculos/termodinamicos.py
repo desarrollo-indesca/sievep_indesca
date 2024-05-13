@@ -366,9 +366,9 @@ def calcular_fase_coolprop(t: float, p: float, fluido: str) -> str:
     """
     try:
         if(p):
-            return CP.PropsSI('Phase', 'T', t, 'P', p, fluido)
+            return CP.PhaseSI('T', t, 'P', p, fluido)
         else:
-            return CP.PropsSI('Phase','Q',0,'T',t,fluido)
+            return CP.PhaseSI('Q',0,'T',t,fluido)
     except:
         return None
     
@@ -385,10 +385,10 @@ def definicion_fases_coolprop(fase: str) -> str:
     """
 
     if('liquid' in fase): # Líquido
-        return "L"
+        return ("L", "Líquido")
     elif("gas" in fase): # Vapor
-        return "V"
+        return ("V", "Vapor")
     elif(fase == "twophase"): # Saturación
-        return "S"
+        return ("S", "Saturado")
     elif(fase == "supercritical"): # Fluido Supercrítico
-        return "F"
+        return ("F", "Fluido Supercrítico")

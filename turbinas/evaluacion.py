@@ -2,7 +2,7 @@
 Funciones contenedoras de la lógica de evaluación de turbinas.
 '''
 
-from calculos.termodinamicos import calcular_entalpia_coolprop, calcular_fase_coolprop
+from calculos.termodinamicos import calcular_entalpia_coolprop, calcular_fase_coolprop, definicion_fases_coolprop
 from auxiliares.evaluacion import calcular_eficiencia
 
 def determinar_flujos_corrientes(corrientes, corrientes_diseno, flujo_entrada) -> list:
@@ -17,7 +17,7 @@ def determinar_propiedades_corrientes(corrientes):
     for i,_ in enumerate(corrientes):
         presion,temperatura = corrientes[i]['presion'],corrientes[i]['temperatura'] 
         corrientes[i]['entalpia'] = calcular_entalpia_coolprop(temperatura, presion, 'water')
-        corrientes[i]['fase'] = calcular_fase_coolprop(temperatura, presion, 'water')
+        corrientes[i]['fase'] = definicion_fases_coolprop(calcular_fase_coolprop(temperatura, presion, 'water'))
 
     return corrientes
 
