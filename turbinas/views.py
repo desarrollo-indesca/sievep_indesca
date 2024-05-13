@@ -364,9 +364,9 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinVaporMixin):
 class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin, ReportesFichasTurbinasMixin):
     """
     Resumen:
-        Vista para la consulta de evaluaciones de Consulta de Evaluaciones de una Turbina de Vapor.
+        Vista para la Consulta de Evaluaciones de una Turbina de Vapor.
         Hereda de ConsultaEvaluacion para el ahorro de trabajo en términos de consulta.
-        Utiliza los Mixin para obtener ventiladores y de generación de reportes de fichas de ventiladores.
+        Utiliza los Mixin para obtener turbinas y de generación de reportes de fichas de turbinas.
 
     Atributos:
         model: EvaluacionBomba -> Modelo de la vista
@@ -388,6 +388,7 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin
     model_equipment = TurbinaVapor
     clase_equipo = " la Turbina de Vapor"
     tipo = 'turbina_vapor'
+    template_name = 'turbinas_vapor/consulta_evaluaciones.html'
 
     def post(self, request, **kwargs):
         reporte_ficha = self.reporte_ficha(request)
@@ -433,3 +434,62 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin
         context['tipo'] = self.tipo
 
         return context
+
+class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTurbinasMixin, ObtenerTurbinVaporMixin):
+    """
+    Resumen:
+        Vista de la creación de una evaluación de un turbina de vapor.
+    
+    Métodos:        
+        get(self, request) -> HttpResponse
+            Renderiza la plantilla de la vista cuando se recibe una solicitud HTTP GET.
+
+        post(self, request, **kwargs) -> HttpResponse
+            Genera el reporte de ficha.
+
+        get_context_data(self) -> dict
+            Inicializa los formularios respectivos.
+    """
+
+    def post(self, request, **kwargs):
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha):
+            return reporte_ficha
+    
+    def get_context_data(self):
+        turbina = self.get_turbina()       
+
+        context = {
+            'turbina': turbina,
+            'form_evaluacion': EvaluacionesForm(),
+            'form_entrada_evaluacion': EntradaEvaluacionForm({
+                'potencia_real': turbina.especificaciones.potencia if turbina.especificaciones.potencia else None,
+                'potencia_real_unidad': turbina.especificaciones.potencia_unidad,
+                'flujo_entrada_unidad': turbina.datos_corrientes.flujo_unidad if turbina.datos_corrientes.flujo_unidad else turbina.datos_corrientes.flujo_unidad,
+                'presion_unidad': turbina.datos_corrientes.presion_unidad,
+                'temperatura_unidad': turbina.datos_corrientes.temperatura_unidad
+            }),
+            'formset_entrada_corriente': self.generar_formset_entrada_corrientes(turbina),
+            'titulo': "Evaluación de Turbina de Vapor"
+        }
+
+        return context
+    
+    def generar_formset_entrada_corrientes(self, turbina):
+        formset = forms.modelformset_factory(EntradaCorriente, form=EntradaCorrienteForm, exclude=("id",), min_num = turbina.datos_corrientes.corrientes.count())
+        lista = []
+        corrientes = turbina.datos_corrientes.corrientes.all()
+
+        for x in range(corrientes.count()):
+            lista.append({
+                'form': EntradaCorrienteForm(prefix=f"form-{x}"),
+                'corriente': corrientes[x]
+            })
+        
+        return {
+            'formset': formset,
+            'form_list': lista
+        } 
+    
+    def get(self, request, pk):
+        return render(request, 'turbinas_vapor/evaluacion.html', self.get_context_data())

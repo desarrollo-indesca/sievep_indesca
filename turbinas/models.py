@@ -36,6 +36,9 @@ class Corriente(models.Model):
 
     def fase_largo(self):
         return conseguir_largo(FASES_CORRIENTES, self.fase)
+    
+    class Meta:
+        ordering = ('-entrada', 'numero_corriente')
 
 class GeneradorElectrico(models.Model):
     polos = models.PositiveSmallIntegerField()

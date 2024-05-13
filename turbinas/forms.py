@@ -97,7 +97,7 @@ corrientes_formset = forms.modelformset_factory(
 )
 
 class EntradaEvaluacionForm(FormConUnidades):
-    def limpiar_unidades(self):
+    def limpiar_campos_unidades(self):
         self.fields['flujo_entrada_unidad'].empty_label = None
         self.fields['flujo_entrada_unidad'].queryset = UNIDADES_FLUJOS
 
@@ -117,7 +117,7 @@ class EntradaEvaluacionForm(FormConUnidades):
 class EntradaCorrienteForm(forms.ModelForm):
     class Meta:
         model = EntradaCorriente
-        exclude = ('id', 'entrada')
+        exclude = ('id', 'entrada', 'corriente')
 
 class EvaluacionesForm(forms.ModelForm):
     class Meta:
