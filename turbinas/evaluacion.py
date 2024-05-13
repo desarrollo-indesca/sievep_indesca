@@ -6,7 +6,7 @@ from calculos.termodinamicos import calcular_entalpia_coolprop, calcular_fase_co
 from auxiliares.evaluacion import calcular_eficiencia
 
 def determinar_flujos_corrientes(corrientes, corrientes_diseno, flujo_entrada) -> list:
-    flujo_entrada_diseno = filter(lambda x : x['entrada'], corrientes_diseno)[0]['flujo']
+    flujo_entrada_diseno = next(filter(lambda x : x['entrada'], corrientes_diseno))['flujo']
 
     for i,_ in enumerate(corrientes):
         corrientes[i]['flujo'] = corrientes_diseno[i]['flujo']/flujo_entrada_diseno*flujo_entrada
@@ -22,7 +22,7 @@ def determinar_propiedades_corrientes(corrientes):
     return corrientes
 
 def calcular_balance_energia_entrada(corrientes_actualizadas):
-    corriente_entrada = filter(lambda x : x['entrada'], corrientes_actualizadas)[0]
+    corriente_entrada = next(filter(lambda x : x['entrada'], corrientes_actualizadas))
     return corriente_entrada['entalpia']*corriente_entrada['flujo']
 
 def calcular_balance_energia_salida(corrientes_actualizadas):
@@ -40,7 +40,8 @@ def evaluar_turbina(flujo_entrada: float, potencia: float, corrientes: list, cor
     h_salida = calcular_balance_energia_salida(corrientes_actualizadas)
 
     # Cálculo de potencia
-    eficiencia = calcular_eficiencia(h_salida, potencia)
+    potencia_calculada = h_entrada - h_salida
+    eficiencia = calcular_eficiencia(potencia_calculada, potencia)
 
     return {
         "eficiencia": eficiencia,

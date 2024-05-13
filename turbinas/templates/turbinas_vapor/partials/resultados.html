@@ -1,0 +1,32 @@
+<table>
+    {% for corriente in res.corrientes %}
+    <td hx-swap-oob="true" id="form-{{forloop.counter}}-flujo">
+        {{corriente.flujo|floatformat:4}}
+    </td>
+    <td hx-swap-oob="true" id="form-{{forloop.counter}}-entalpia">
+        {{corriente.entalpia|floatformat:4}}
+    </td>
+    <td hx-swap-oob="true" id="form-{{forloop.counter}}-fase">
+        {{corriente.fase|floatformat:4}}
+    </td>
+    {% endfor %}
+</table>
+
+<table hx-swap-oob="true" id="resultados" class="table table-hover">
+    <thead>
+        <tr class="table-dark">
+            <th colspan="2" class="text-center">Resultados de la Evaluación</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th class="table-dark">Eficiencia (%)</th>
+            <td>{{res.eficiencia}}</td>
+        </tr>
+
+        <tr>
+            <th class="table-dark">Potencia Calculada</th>
+            <td>{{res.potencia_calculada}}</td>
+        </tr>
+    </tbody>
+</table>

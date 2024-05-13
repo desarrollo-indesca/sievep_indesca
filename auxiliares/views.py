@@ -1424,7 +1424,7 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
                     if(form_condiciones_trabajo.instance.densidad == ''):
                         form_condiciones_trabajo.instance.densidad = None
                 
-                if(form_condiciones_trabajo.instance.flujo_unidad.pk in [6,10,18,19]): # Unidades de FLUJO MÁSICO
+                if(form_condiciones_trabajo.instance.flujo_unidad.pk in [6,10,18,19,54]): # Unidades de FLUJO MÁSICO
                    form_condiciones_trabajo.instance.tipo_flujo = 'M'
 
                 if(form_condiciones_trabajo.instance.densidad and form_condiciones_trabajo.instance.presion_entrada
@@ -1461,7 +1461,7 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
                     if(form_condiciones_adicionales.instance.densidad == ''):
                         form_condiciones_adicionales.instance.densidad = None
 
-                if(form_condiciones_adicionales.instance.flujo_unidad.pk in [6,10,18,19]): # Unidades de FLUJO MÁSICO
+                if(form_condiciones_adicionales.instance.flujo_unidad.pk in [6,10,18,19,54]): # Unidades de FLUJO MÁSICO
                    form_condiciones_adicionales.instance.tipo_flujo = 'M'
 
                 if(form_condiciones_adicionales.instance.densidad and form_condiciones_adicionales.instance.presion_entrada
@@ -1740,7 +1740,7 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
         densidad_ficha_unidad = condiciones_trabajo.densidad_unidad.pk
         temperatura_operacion_unidad = int(request.POST.get('temperatura_operacion_unidad'))
         flujo_unidad = int(request.POST.get('flujo_unidad'))
-        tipo_flujo = 'M' if flujo_unidad in [6,10,18,19] else 'V'
+        tipo_flujo = 'M' if flujo_unidad in [6,10,18,19,54] else 'V'
         potencia_ventilador_unidad = int(request.POST.get('potencia_ventilador_unidad'))
         presion_salida_unidad = int(request.POST.get('presion_salida_unidad'))
 
@@ -1757,7 +1757,7 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
         potencia_ventilador = transformar_unidades_potencia([potencia_ventilador], potencia_ventilador_unidad)[0]
         densidad_ficha = transformar_unidades_densidad([densidad_ficha], densidad_ficha_unidad)[0]
 
-        if(flujo_unidad in [6,10,18,19]):
+        if(flujo_unidad in [6,10,18,19,54]):
             flujo = transformar_unidades_flujo([flujo], flujo_unidad)[0]
         else:
             flujo = transformar_unidades_flujo_volumetrico([flujo], flujo_unidad)[0]

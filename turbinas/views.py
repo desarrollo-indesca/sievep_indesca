@@ -12,6 +12,7 @@ from simulaciones_pequiven.views import ConsultaEvaluacion, ReportesFichasMixin,
 
 from usuarios.views import SuperUserRequiredMixin
 from calculos.unidades import *
+from .evaluacion import evaluar_turbina
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos
 from .models import *
@@ -493,3 +494,81 @@ class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTur
     
     def get(self, request, pk):
         return render(request, 'turbinas_vapor/evaluacion.html', self.get_context_data())
+
+    
+class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporMixin):
+    """
+    Resumen:
+        Vista para el cálculo de resultados de evaluaciones de Turbinas de Vapor y su almacenamiento.
+        Utiliza los Mixin para obtener ventiladores y de acceso por autenticación.
+    
+    Métodos:
+        calcular(self, request) -> HttpResponse
+            Obtiene los resultados y renderiza la plantilla de resultados.
+
+        obtener_resultados(self) -> HttpResponse
+            Contiene la lógica de obtención de data, transformación de unidades y cálculo de resultados.
+        
+        almacenar(self) -> QuerySet
+            Contiene la lógica de almacenamiento y transformación de unidades para el almacenamiento de la evaluación y sus resultados.
+
+        post(self) -> HttpResponse
+            Contiene la lógica para redirigir a almacenar o calcular los resultados de acuerdo al request.
+    """
+    def calcular(self, request):
+        res = self.obtener_resultados(request)
+        print("AAAAAAAAAAAAAAAA")
+        return render(request, 'turbinas_vapor/partials/resultados.html', context={'res': res})
+
+    def obtener_resultados(self, request):
+        turbina = self.get_turbina()
+        datos_corrientes = turbina.datos_corrientes
+
+        # Obtener data del request
+        flujo_entrada, flujo_entrada_unidad = float(request.POST.get('flujo_entrada')), int(request.POST.get('flujo_entrada_unidad'))
+        potencia_real, potencia_real_unidad = float(request.POST.get('potencia_real')), int(request.POST.get('potencia_real_unidad'))
+        temperatura_unidad, presion_unidad = int(request.POST.get('temperatura_unidad')),int(request.POST.get('presion_unidad'))
+        temperaturas = [float(request.POST.get(f'form-{i}-temperatura')) for i in range(datos_corrientes.corrientes.count())]
+        presiones = [float(request.POST.get(f'form-{i}-presion')) for i in range(datos_corrientes.corrientes.count() - 1)]
+
+        # Transformar unidades a internacional
+        presiones = transformar_unidades_presion(presiones, presion_unidad)
+        temperaturas = transformar_unidades_temperatura(temperaturas, temperatura_unidad)
+        potencia_real = transformar_unidades_potencia([potencia_real], potencia_real_unidad)[0]
+
+        if(flujo_entrada_unidad in [6,10,18,19,54]):
+            flujo_entrada = transformar_unidades_flujo([flujo_entrada], flujo_entrada_unidad)[0]
+        else:
+            flujo_entrada = transformar_unidades_flujo_volumetrico([flujo_entrada], flujo_entrada_unidad)[0]
+
+        # Calcular Resultados
+        corrientes = []
+        for x in range(len(temperaturas)):
+            corrientes.append({
+                'presion': presiones[x] if x < len(temperaturas) - 1 else None,
+                'temperatura': temperaturas[x],
+                'entrada': datos_corrientes.corrientes.all()[x]
+            })
+
+        res = evaluar_turbina(flujo_entrada, potencia_real, corrientes, datos_corrientes.corrientes.values())
+
+        # Transformar unidades de internacional a salida (ficha)
+
+        return res
+
+    def almacenar(self, request):
+        try:
+            pass
+
+            with transaction.atomic():
+                pass
+        except Exception as e:
+            print(str(e))
+            return render(request, 'turbinas_vapor/partials/carga_fallida.html', {'ventilador': ventilador})
+
+    def post(self, request, pk):
+        if(request.POST['submit'] == 'almacenar'):
+            return self.almacenar(request)
+        else:
+            return self.calcular(request)
+  
