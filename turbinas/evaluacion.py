@@ -19,6 +19,9 @@ def determinar_propiedades_corrientes(corrientes):
         corrientes[i]['entalpia'] = calcular_entalpia_coolprop(temperatura, presion, 'water')
         corrientes[i]['fase'] = definicion_fases_coolprop(calcular_fase_coolprop(temperatura, presion, 'water'))
 
+        if(not corrientes[i]['entalpia'] or not corrientes[i]['fase']):
+            raise Exception("No se pudo calcular la entalpía y/o fase de una corriente.")
+
     return corrientes
 
 def calcular_balance_energia_entrada(corrientes_actualizadas):
@@ -45,6 +48,6 @@ def evaluar_turbina(flujo_entrada: float, potencia: float, corrientes: list, cor
 
     return {
         "eficiencia": eficiencia,
-        "potencia_calculada": h_salida,
+        "potencia_calculada": potencia_calculada,
         "corrientes": corrientes_actualizadas
     }

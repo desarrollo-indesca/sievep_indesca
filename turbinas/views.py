@@ -522,6 +522,7 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
     def obtener_resultados(self, request):
         turbina = self.get_turbina()
         datos_corrientes = turbina.datos_corrientes
+        corrientes_diseno =  datos_corrientes.corrientes.all()
 
         # Obtener data del request
         flujo_entrada, flujo_entrada_unidad = float(request.POST.get('flujo_entrada')), int(request.POST.get('flujo_entrada_unidad'))
@@ -546,10 +547,10 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
             corrientes.append({
                 'presion': presiones[x] if x < len(temperaturas) - 1 else None,
                 'temperatura': temperaturas[x],
-                'entrada': datos_corrientes.corrientes.all()[x]
+                'entrada': corrientes_diseno[x].entrada
             })
 
-        res = evaluar_turbina(flujo_entrada, potencia_real, corrientes, datos_corrientes.corrientes.values())
+        res = evaluar_turbina(flujo_entrada, potencia_real, corrientes, corrientes_diseno.values())
 
         # Transformar unidades de internacional a salida (ficha)
         res['potencia_calculada'] = transformar_unidades_potencia([res['potencia_calculada']], 49, potencia_real_unidad)[0]
@@ -562,7 +563,7 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
             else:
                 res['corrientes'][i]['flujo'] = transformar_unidades_flujo_volumetrico([res['corrientes'][i]['flujo']], 42, flujo_entrada_unidad)[0]
 
-        print(res)
+        res['potencia_unidad'] = Unidades.objects.get(pk =  potencia_real_unidad)
 
         return res
 
