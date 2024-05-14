@@ -421,11 +421,13 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin
             'creado_por', 'entrada', 'salida',
             'entrada__flujo_entrada_unidad', 'entrada__potencia_real_unidad',
             'entrada__presion_unidad', 'entrada__temperatura_unidad',
+            'salida__entalpia_unidad'
         )
 
         new_context = new_context.prefetch_related(
-            "corrientes_evaluacion", "corrientes_evaluacion__entrada",
-            "corrientes_evaluacion__salida", "corrientes_evaluacion__salida",
+            Prefetch('corrientes_evaluacion', queryset=CorrienteEvaluacion.objects.select_related(
+                'entrada', 'salida', 'corriente'
+            ))
         )
 
         return new_context
@@ -478,7 +480,7 @@ class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTur
         return context
     
     def generar_formset_entrada_corrientes(self, turbina):
-        formset = forms.modelformset_factory(EntradaCorriente, fields="__all__", extra=6, max_num=turbina.datos_corrientes.corrientes.count(), min_num=turbina.datos_corrientes.corrientes.count())
+        formset = forms.modelformset_factory(EntradaCorriente, fields="__all__", max_num=turbina.datos_corrientes.corrientes.count(), min_num=turbina.datos_corrientes.corrientes.count())
         lista = []
         corrientes = turbina.datos_corrientes.corrientes.all()
 
@@ -489,7 +491,7 @@ class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTur
             })
         
         return {
-            'formset': formset,
+            'formset': formset(queryset=EntradaCorriente.objects.none()),
             'form_list': lista
         } 
     
