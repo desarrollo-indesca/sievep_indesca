@@ -117,13 +117,6 @@ class EntradaEvaluacion(models.Model):
     presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="presion_unidad_entrada_evaluacion_turbina")
     temperatura_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="temperatura_unidad_entrada_evaluacion")
 
-class EntradaCorriente(models.Model):
-    id = models.UUIDField(primary_key=True, default = uuid.uuid4)
-    presion = models.FloatField(validators=[MinValueValidator(0)], null=True, blank=True)
-    temperatura = models.FloatField(validators=[MinValueValidator(-273.15)])
-    corriente = models.ForeignKey(Corriente, on_delete=models.PROTECT)
-    entrada = models.ForeignKey(EntradaEvaluacion, on_delete=models.PROTECT, related_name="entradas_corrientes")
-
 class SalidaEvaluacion(models.Model):
     id = models.UUIDField(primary_key=True, default = uuid.uuid4)
     eficiencia = models.FloatField()
@@ -131,13 +124,19 @@ class SalidaEvaluacion(models.Model):
 
     entalpia_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT)
 
+class EntradaCorriente(models.Model):
+    id = models.UUIDField(primary_key=True, default = uuid.uuid4)
+    presion = models.FloatField(validators=[MinValueValidator(0)], null=True, blank=True)
+    temperatura = models.FloatField(validators=[MinValueValidator(-273.15)])
+
 class SalidaCorriente(models.Model):
     id = models.UUIDField(primary_key=True, default = uuid.uuid4)
     flujo = models.FloatField()
     entalpia = models.FloatField()
     fase = models.CharField(max_length=1, choices=FASES_CORRIENTES)
-    corriente = models.ForeignKey(Corriente, on_delete=models.PROTECT)
-    salida = models.ForeignKey(SalidaEvaluacion, on_delete=models.PROTECT, related_name="salidas_corrientes")
+
+    def fase_largo(self):
+        return conseguir_largo(FASES_CORRIENTES, self.fase)
 
 class Evaluacion(models.Model):
     id = models.UUIDField(primary_key=True, default = uuid.uuid4)
@@ -153,3 +152,9 @@ class Evaluacion(models.Model):
 
     class Meta:
         ordering = ('-fecha',)
+
+class CorrienteEvaluacion(models.Model):
+    corriente = models.ForeignKey(Corriente, on_delete=models.PROTECT)
+    entrada = models.OneToOneField(EntradaCorriente, on_delete=models.PROTECT)
+    salida = models.OneToOneField(SalidaCorriente, on_delete=models.PROTECT)
+    evaluacion = models.ForeignKey(Evaluacion, on_delete=models.PROTECT, related_name="corrientes_evaluacion")

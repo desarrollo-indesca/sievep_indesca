@@ -90,7 +90,7 @@ class DatosCorrientesForm(FormConUnidades):
 
     class Meta:
         model = DatosCorrientes
-        exclude = ('id',)
+        fields = '__all__'
     
 corrientes_formset = forms.modelformset_factory(
     Corriente, form=CorrienteForm, extra=0, can_delete=True, min_num=2, exclude=('id','datos_corriente')
@@ -117,7 +117,7 @@ class EntradaEvaluacionForm(FormConUnidades):
 class EntradaCorrienteForm(forms.ModelForm):
     class Meta:
         model = EntradaCorriente
-        exclude = ('id', 'entrada', 'corriente')
+        fields = '__all__'
 
 class EvaluacionesForm(forms.ModelForm):
     class Meta:

@@ -424,7 +424,8 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin
         )
 
         new_context = new_context.prefetch_related(
-            "entrada__entradas_corrientes", "salida__salidas_corrientes"
+            "corrientes_evaluacion", "corrientes_evaluacion__entrada",
+            "corrientes_evaluacion__salida", "corrientes_evaluacion__salida",
         )
 
         return new_context
@@ -477,7 +478,7 @@ class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTur
         return context
     
     def generar_formset_entrada_corrientes(self, turbina):
-        formset = forms.modelformset_factory(EntradaCorriente, form=EntradaCorrienteForm, exclude=("id",), extra=0, max_num= turbina.datos_corrientes.corrientes.count())
+        formset = forms.modelformset_factory(EntradaCorriente, fields="__all__", extra=6, max_num=turbina.datos_corrientes.corrientes.count(), min_num=turbina.datos_corrientes.corrientes.count())
         lista = []
         corrientes = turbina.datos_corrientes.corrientes.all()
 
@@ -578,6 +579,7 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
             form_entrada = EntradaEvaluacionForm(request.POST)
             formset_corrientes = forms.modelformset_factory(EntradaCorriente, form=EntradaCorrienteForm, extra=0, max_num = turbina.datos_corrientes.corrientes.count())
             formset_corrientes = formset_corrientes(request.POST)
+            entradas_corrientes = []
 
             with transaction.atomic():
                 valid = valid and form_entrada.is_valid()
@@ -591,10 +593,8 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
 
                 if(valid):
                     for i,form in enumerate(formset_corrientes):
-                        print(form)
-                        form.instance.corriente = corrientes_diseno[i]
-                        form.instance.entrada = form_entrada.instance
                         form.save()
+                        entradas_corrientes.append(form.instance)
                 else:
                     print(formset_corrientes.errors)
 
@@ -609,22 +609,34 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
                         eficiencia = res['eficiencia'],
                         potencia_calculada = res['potencia_calculada'],
                         entalpia_unidad = turbina.datos_corrientes.entalpia_unidad
-                    )
-
-                    corrientes = []
-
-                    for i,corriente in enumerate(res['corrientes']):
-                        corrientes.append(SalidaCorriente(
-                            flujo = corriente['flujo'],
-                            entalpia = corriente['entalpia'],
-                            fase = corriente['fase'][0],
-                            corriente = corrientes_diseno[i],
-                            salida = form_evaluacion.instance.salida
-                        ))
+                    )                      
 
                     form_evaluacion.save()
+
+                    salidas_corrientes = []
+                    for corriente in res['corrientes']:
+                        salidas_corrientes.append(SalidaCorriente(
+                            flujo = corriente['flujo'],
+                            entalpia = corriente['entalpia'],
+                            fase = corriente['fase'][0]
+                        ))
+                    
+                    salidas_corrientes = SalidaCorriente.objects.bulk_create(salidas_corrientes)
+                    corrientes = []
+
+                    for i in range(len(salidas_corrientes)):
+                        corrientes.append(CorrienteEvaluacion(
+                            corriente = corrientes_diseno[i],
+                            entrada = entradas_corrientes[i],
+                            salida = salidas_corrientes[i],
+                            evaluacion = form_evaluacion.instance                            
+                        ))
+
+                    CorrienteEvaluacion.objects.bulk_create(corrientes)
+                    
                 else:
                     print(form_evaluacion.errors)
+                    return render(request, 'turbinas_vapor/partials/carga_fallida.html', {'turbina': turbina})
 
                 return render(request, 'turbinas_vapor/partials/carga_lograda.html', {'turbina': turbina})
 
@@ -637,4 +649,3 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
             return self.almacenar(request)
         else:
             return self.calcular(request)
-  
