@@ -1853,8 +1853,8 @@ class GenerarGraficaVentilador(LoginRequiredMixin, View, FiltrarEvaluacionesMixi
             res.append({
                 'fecha': evaluacion.fecha.__str__(),
                 'salida__eficiencia': salida.eficiencia,
-                'salida__potencia_calculada': transformar_unidades_longitud([salida.potencia_calculada], salida.potencia_calculada_unidad.pk, ventilador.condiciones_trabajo.potencia_freno_unidad.pk)[0],
-                'salida__potencia': transformar_unidades_longitud([entrada.potencia_ventilador], evaluacion.entrada.potencia_ventilador_unidad.pk, ventilador.condiciones_trabajo.potencia_freno_unidad.pk)[0],
+                'salida__potencia_calculada': transformar_unidades_potencia([salida.potencia_calculada], salida.potencia_calculada_unidad.pk, ventilador.condiciones_trabajo.potencia_freno_unidad.pk)[0],
+                'salida__potencia': transformar_unidades_potencia([entrada.potencia_ventilador], evaluacion.entrada.potencia_ventilador_unidad.pk, ventilador.condiciones_trabajo.potencia_freno_unidad.pk)[0],
             })
 
         return JsonResponse(res[:15], safe=False)

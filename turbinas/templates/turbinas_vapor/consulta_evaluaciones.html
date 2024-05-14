@@ -73,6 +73,7 @@
     <button type="button" class="btn btn-warning" style="color: black;" data-bs-toggle="modal" data-bs-target="#grafica_historica"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Mostrar gráfica histórico">&nbsp;Gráfica Histórica</button>
   </form>
   {% include 'turbinas_vapor/ficha.html' with turbina=equipo %}
+  {% include 'turbinas_vapor/partials/historico.html' %}
 </div>
 <footer aria-label="Page navigation example">
   <ul class="pagination">

@@ -649,3 +649,34 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
             return self.almacenar(request)
         else:
             return self.calcular(request)
+
+
+class GenerarGraficaTurbina(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
+    """
+    Resumen:
+        Vista AJAX que envía los datos necesarios para la gráfica histórica de evaluaciones de turbinas de vapor.
+    
+    Métodos:
+        get(self, request, pk) -> JsonResponse
+            Obtiene los datos y envía el Json correspondiente de respuesta
+    """
+
+    def get(self, request, pk):
+        turbina = TurbinaVapor.objects.get(pk=pk)
+        evaluaciones = Evaluacion.objects.filter(activo = True, equipo = turbina).order_by('fecha')
+
+        evaluaciones = self.filtrar(request, evaluaciones)
+        
+        res = []
+
+        for evaluacion in evaluaciones:
+            salida = evaluacion.salida
+            entrada = evaluacion.entrada
+            res.append({
+                'fecha': evaluacion.fecha.__str__(),
+                'salida__eficiencia': salida.eficiencia,
+                'salida__potencia_calculada': transformar_unidades_potencia([salida.potencia_calculada], evaluacion.entrada.potencia_real_unidad.pk, turbina.especificaciones.potencia_unidad.pk)[0],
+                'salida__potencia': transformar_unidades_potencia([entrada.potencia_real], evaluacion.entrada.potencia_real_unidad.pk, turbina.especificaciones.potencia_unidad.pk)[0],
+            })
+
+        return JsonResponse(res[:15], safe=False)
