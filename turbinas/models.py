@@ -2,8 +2,9 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 
-from intercambiadores.models import Unidades, Planta, Complejo
+from intercambiadores.models import Unidades, Planta
 from calculos.utils import conseguir_largo
+import uuid
 
 # Create your models here.
 
@@ -106,6 +107,7 @@ class TurbinaVapor(models.Model):
 ## Modelos de Evaluación
 
 class EntradaEvaluacion(models.Model):
+    id = models.UUIDField(primary_key=True, default = uuid.uuid4)
     flujo_entrada = models.FloatField(validators=[MinValueValidator(0.00001)])
     flujo_entrada_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="flujo_entrada_unidad_entradaevaluacion")
     potencia_real = models.FloatField(validators=[MinValueValidator(0.00001)])
@@ -116,18 +118,21 @@ class EntradaEvaluacion(models.Model):
     temperatura_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="temperatura_unidad_entrada_evaluacion")
 
 class EntradaCorriente(models.Model):
-    presion = models.FloatField()
+    id = models.UUIDField(primary_key=True, default = uuid.uuid4)
+    presion = models.FloatField(validators=[MinValueValidator(0)], null=True, blank=True)
     temperatura = models.FloatField(validators=[MinValueValidator(-273.15)])
     corriente = models.ForeignKey(Corriente, on_delete=models.PROTECT)
     entrada = models.ForeignKey(EntradaEvaluacion, on_delete=models.PROTECT, related_name="entradas_corrientes")
 
 class SalidaEvaluacion(models.Model):
+    id = models.UUIDField(primary_key=True, default = uuid.uuid4)
     eficiencia = models.FloatField()
     potencia_calculada = models.FloatField()
 
     entalpia_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT)
 
 class SalidaCorriente(models.Model):
+    id = models.UUIDField(primary_key=True, default = uuid.uuid4)
     flujo = models.FloatField()
     entalpia = models.FloatField()
     fase = models.CharField(max_length=1, choices=FASES_CORRIENTES)
@@ -135,6 +140,7 @@ class SalidaCorriente(models.Model):
     salida = models.ForeignKey(SalidaEvaluacion, on_delete=models.PROTECT, related_name="salidas_corrientes")
 
 class Evaluacion(models.Model):
+    id = models.UUIDField(primary_key=True, default = uuid.uuid4)
     equipo = models.ForeignKey(TurbinaVapor, on_delete=models.PROTECT)
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT)
 

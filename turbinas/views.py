@@ -477,7 +477,7 @@ class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTur
         return context
     
     def generar_formset_entrada_corrientes(self, turbina):
-        formset = forms.modelformset_factory(EntradaCorriente, form=EntradaCorrienteForm, exclude=("id",), min_num = turbina.datos_corrientes.corrientes.count())
+        formset = forms.modelformset_factory(EntradaCorriente, form=EntradaCorrienteForm, exclude=("id",), extra=0, max_num= turbina.datos_corrientes.corrientes.count())
         lista = []
         corrientes = turbina.datos_corrientes.corrientes.all()
 
@@ -572,10 +572,12 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
             res = self.obtener_resultados(request)
             valid = True
             turbina = self.get_turbina()
+            corrientes_diseno = turbina.datos_corrientes.corrientes.all()
 
             form_evaluacion = EvaluacionesForm(request.POST)
             form_entrada = EntradaEvaluacionForm(request.POST)
-            formset_corrientes = forms.modelformset_factory(EntradaCorriente, form=EntradaCorrienteForm, exclude=("id",), min_num = turbina.datos_corrientes.corrientes.count())
+            formset_corrientes = forms.modelformset_factory(EntradaCorriente, form=EntradaCorrienteForm, extra=0, max_num = turbina.datos_corrientes.corrientes.count())
+            formset_corrientes = formset_corrientes(request.POST)
 
             with transaction.atomic():
                 valid = valid and form_entrada.is_valid()
@@ -585,11 +587,50 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
                 else:
                     print(form_entrada.errors)
 
-                # TODO finalizar el almacenamiento
+                valid = valid and formset_corrientes.is_valid()
+
+                if(valid):
+                    for i,form in enumerate(formset_corrientes):
+                        print(form)
+                        form.instance.corriente = corrientes_diseno[i]
+                        form.instance.entrada = form_entrada.instance
+                        form.save()
+                else:
+                    print(formset_corrientes.errors)
+
+                valid = valid and form_evaluacion.is_valid()
+
+                if(valid):
+                    form_evaluacion.instance.equipo = turbina
+                    form_evaluacion.instance.creado_por = request.user
+                    form_evaluacion.instance.entrada = form_entrada.instance
+
+                    form_evaluacion.instance.salida = SalidaEvaluacion.objects.create(
+                        eficiencia = res['eficiencia'],
+                        potencia_calculada = res['potencia_calculada'],
+                        entalpia_unidad = turbina.datos_corrientes.entalpia_unidad
+                    )
+
+                    corrientes = []
+
+                    for i,corriente in enumerate(res['corrientes']):
+                        corrientes.append(SalidaCorriente(
+                            flujo = corriente['flujo'],
+                            entalpia = corriente['entalpia'],
+                            fase = corriente['fase'][0],
+                            corriente = corrientes_diseno[i],
+                            salida = form_evaluacion.instance.salida
+                        ))
+
+                    form_evaluacion.save()
+                else:
+                    print(form_evaluacion.errors)
+
+                return render(request, 'turbinas_vapor/partials/carga_lograda.html', {'turbina': turbina})
 
         except Exception as e:
             print(str(e))
-            return render(request, 'turbinas_vapor/partials/carga_fallida.html')
+            return render(request, 'turbinas_vapor/partials/carga_fallida.html', {'turbina': turbina})
 
     def post(self, request, pk):
         if(request.POST['submit'] == 'almacenar'):

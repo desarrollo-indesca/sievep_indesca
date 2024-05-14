@@ -109,7 +109,7 @@
                             {% if not form.corriente.presion %}
                             {% render_field form.form.presion class="form-control" placeholder="Presión no req. (saturado)" disabled="disabled" %}
                             {% else %}
-                            {% render_field form.form.presion class="form-control" placeholder="Presión" required="required" min="0.0001" %}
+                            {% render_field form.form.presion class="form-control" placeholder="Presión" required="required" min="0" %}
                             {% endif %}                            
                             <small>{{form.form.presion.errors}}</small>
                         </td>
