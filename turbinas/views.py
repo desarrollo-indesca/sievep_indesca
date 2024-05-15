@@ -20,6 +20,10 @@ from .forms import *
 
 # Create your views here.
 class ObtenerTurbinVaporMixin():
+    '''
+    Resumen:
+        Mixin para ejecutar la consulta de turbinas completa.
+    '''
     def get_turbina(self):
         turbina = TurbinaVapor.objects.filter(pk=self.kwargs['pk']).select_related(
             'generador_electrico', 
@@ -53,6 +57,10 @@ class ObtenerTurbinVaporMixin():
         return turbina.first()
 
 class ReportesFichasTurbinasMixin(ReportesFichasMixin):
+    '''
+    Resumen:
+        Mixin para que los reportes de ficha técnica estén disponibles en todas las vistas donde esté disponible para así evitar repetir código.
+    '''
     model_ficha = TurbinaVapor
     reporte_ficha_xlsx = None
     titulo_reporte_ficha = "Ficha Técnica de la Turbina"
@@ -205,14 +213,15 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
 
     Atributos:
         success_message: str -> Mensaje a ser enviado al usuario al registrar exitosamente una turbina.
-        titulo: str -> Título de la vista
+        titulo: str -> Título de la vista.
+        template_name: str -> Plantilla a renderizar.
     
     Métodos:
         get_context(self) -> dict
             Crea instancias de los formularios a ser utilizados y define el título de la vista.
 
         get(self, request, **kwargs) -> HttpResponse
-            Renderiza el formulario con la plantilla correspondiente.
+            Renderiza el formulario con la plantilla y contexto correspondiente.
 
         almacenar_datos(self) -> HttpResponse
             Valida y almacena los datos de acuerdo a la lógica requerida para el almacenamiento de bombas por medio de los formularios.
@@ -252,21 +261,21 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
             else:
                 print(form_especificaciones.errors)
             
-            valid = valid and form_generador.is_valid()
+            valid = valid and form_generador.is_valid() # Segundo formulario
 
             if(valid):
                 form_generador.save()
             else:
                 print(form_generador.errors)
 
-            valid = valid and form_datos_corrientes.is_valid()
+            valid = valid and form_datos_corrientes.is_valid() # Tercer formulario
 
             if(valid):
                 form_datos_corrientes.save()
             else:
                 print(form_datos_corrientes.errors)
 
-            valid = valid and forms_corrientes.is_valid()
+            valid = valid and forms_corrientes.is_valid() # Formset de corrientes
 
             if(valid):
                 for form in forms_corrientes:
@@ -280,10 +289,9 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
             else:
                 print(form_datos_corrientes.errors)
 
-            valid = valid and form_turbina.is_valid()
+            valid = valid and form_turbina.is_valid() # Form de turbinas
 
-            if(valid):
-                
+            if(valid):                
                 form_turbina.instance.generador_electrico = form_generador.instance
                 form_turbina.instance.especificaciones = form_especificaciones.instance
                 form_turbina.instance.datos_corrientes = form_datos_corrientes.instance
@@ -318,14 +326,37 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
         except Exception as e:
             print(str(e))
             return render(request, self.template_name, context={
-                'form_turbina': TurbinaVaporForm(request.POST), 
-                'form_especificaciones': EspecificacionesTurbinaVaporForm(request.POST), 
-                'form_generador': GeneradorElectricoForm(request.POST), 
-                'form_datos_corrientes': DatosCorrientesForm(request.POST),
-                'forms_corrientes': corrientes_formset(request.POST),
+                'form_turbina': form_turbina, 
+                'form_especificaciones': form_especificaciones,
+                'form_generador': form_generador, 
+                'form_datos_corrientes': form_datos_corrientes,
+                'forms_corrientes': forms_corrientes,
             })
 
 class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinVaporMixin):
+    """
+    Resumen:
+        Vista para la edición de turbinas de vapor.
+        Solo puede ser accedido por superusuarios.
+
+    Atributos:
+        success_message: str -> Mensaje a ser enviado al usuario al editar exitosamente una turbina.
+        titulo: str -> Título de la vista.
+    
+    Métodos:
+        get_context(self) -> dict
+            Crea instancias de los formularios a ser utilizados y define el título de la vista.
+
+        get(self, request, **kwargs) -> HttpResponse
+            Renderiza el formulario con la plantilla y contexto correspondiente.
+
+        post(self, request, pk) -> HttpResponse
+            Valida y almacena los datos de acuerdo a la lógica requerida para el almacenamiento de bombas por medio de los formularios.
+            Si hay errores se levantará una Exception y se retornará el formulario con los errores renderizados.
+
+        post(self) -> HttpResponse
+            Envía el request a los formularios y envía la respuesta al cliente.
+    """
     titulo = "Edición de Turbina de Vapor"
     success_message = "La turbina ha sido editada exitosamente."
 
@@ -366,7 +397,7 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin
     """
     Resumen:
         Vista para la Consulta de Evaluaciones de una Turbina de Vapor.
-        Hereda de ConsultaEvaluacion para el ahorro de trabajo en términos de consulta.
+        Hereda de ConsultaEvaluacion para el ahorro de trabajo en repetición de código.
         Utiliza los Mixin para obtener turbinas y de generación de reportes de fichas de turbinas.
 
     Atributos:
@@ -377,10 +408,10 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin
     
     Métodos:
         get_context_data(self) -> dict
-            Añade al contexto original el equipo.
+            Añade al contexto original el equipo y su tipo.
 
         get_queryset(self) -> QuerySet
-            Hace el prefetching correspondiente al queryset de las evaluaciones.
+            Hace el prefetching correspondiente al queryset de las evaluaciones para optimización de consultas.
 
         post(self) -> HttpResponse
             Contiene la lógica de eliminación (ocultación) de una evaluación y de generación de reportes.
@@ -442,17 +473,20 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin
 class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTurbinasMixin, ObtenerTurbinVaporMixin):
     """
     Resumen:
-        Vista de la creación de una evaluación de un turbina de vapor.
+        Vista de la creación de una evaluación de una turbina de vapor.
     
     Métodos:        
         get(self, request) -> HttpResponse
-            Renderiza la plantilla de la vista cuando se recibe una solicitud HTTP GET.
+            Renderiza la plantilla de la vista cuando se recibe una solicitud HTTP GET con su respectivo contexto.
 
         post(self, request, **kwargs) -> HttpResponse
-            Genera el reporte de ficha.
+            Genera el reporte de ficha (único disponible).
 
         get_context_data(self) -> dict
-            Inicializa los formularios respectivos.
+            Inicializa los formularios respectivos con los datos precargados correspondientes.
+
+        def generar_formset_entrada_corrientes(self, turbina) -> dict
+            Genera el formset de datos de entrada de corrientes de acuerdo a las corrientes existentes en la base de datos.
     """
 
     def post(self, request, **kwargs):
@@ -497,7 +531,6 @@ class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTur
     
     def get(self, request, pk):
         return render(request, 'turbinas_vapor/evaluacion.html', self.get_context_data())
-
     
 class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporMixin):
     """
@@ -510,7 +543,7 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
             Obtiene los resultados y renderiza la plantilla de resultados.
 
         obtener_resultados(self) -> HttpResponse
-            Contiene la lógica de obtención de data, transformación de unidades y cálculo de resultados.
+            Contiene la lógica de obtención de data, transformación de unidades, cálculo de resultados y reconversión a unidades de salida.
         
         almacenar(self) -> QuerySet
             Contiene la lógica de almacenamiento y transformación de unidades para el almacenamiento de la evaluación y sus resultados.
@@ -584,26 +617,27 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
             entradas_corrientes = []
 
             with transaction.atomic():
-                valid = valid and form_entrada.is_valid()
+                valid = valid and form_entrada.is_valid() # Primer form validado
 
                 if(valid):
                     form_entrada.save()
                 else:
                     print(form_entrada.errors)
 
-                valid = valid and formset_corrientes.is_valid()
+                valid = valid and formset_corrientes.is_valid() # Formset de datos de entrada de corrientes
 
                 if(valid):
-                    for i,form in enumerate(formset_corrientes):
-                        form.save()
-                        entradas_corrientes.append(form.instance)
+                    for i,form in enumerate(formset_corrientes): # Iterar por cada uno
+                        form.save() # Almacenarlo
+                        entradas_corrientes.append(form.instance) # Guardar la instancia en una lista temporal
                 else:
                     print(formset_corrientes.errors)
 
-                valid = valid and form_evaluacion.is_valid()
+                valid = valid and form_evaluacion.is_valid() # Segundo form validado
 
                 if(valid):
-                    form_evaluacion.instance.equipo = turbina
+                    # Añadido de datos faltantes a la instancia de evaluación
+                    form_evaluacion.instance.equipo = turbina 
                     form_evaluacion.instance.creado_por = request.user
                     form_evaluacion.instance.entrada = form_entrada.instance
 
@@ -613,20 +647,20 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
                         entalpia_unidad = turbina.datos_corrientes.entalpia_unidad
                     )                      
 
-                    form_evaluacion.save()
+                    form_evaluacion.save() # Almacenamiento de la evaluación
 
                     salidas_corrientes = []
-                    for corriente in res['corrientes']:
+                    for corriente in res['corrientes']: # Almacenamiento de los datos de cada salida de cada corriente
                         salidas_corrientes.append(SalidaCorriente(
                             flujo = corriente['flujo'],
                             entalpia = corriente['entalpia'],
-                            fase = corriente['fase'][0]
+                            fase = corriente['fase'][0] # 0 = clave
                         ))
                     
                     salidas_corrientes = SalidaCorriente.objects.bulk_create(salidas_corrientes)
                     corrientes = []
 
-                    for i in range(len(salidas_corrientes)):
+                    for i in range(len(salidas_corrientes)): # Almacenamiento de los datos de cada corriente
                         corrientes.append(CorrienteEvaluacion(
                             corriente = corrientes_diseno[i],
                             entrada = entradas_corrientes[i],
@@ -652,11 +686,11 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
         else:
             return self.calcular(request)
 
-
 class GenerarGraficaTurbina(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
     """
     Resumen:
         Vista AJAX que envía los datos necesarios para la gráfica histórica de evaluaciones de turbinas de vapor.
+        Transforma a las unidades en el diseño.
     
     Métodos:
         get(self, request, pk) -> JsonResponse
