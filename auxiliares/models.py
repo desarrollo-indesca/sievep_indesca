@@ -92,6 +92,7 @@ class MaterialTuberia(models.Model):
     
     class Meta:
         ordering = ('nombre',)
+        db_table = 'bombas_materialtuberia'
 
 class TipoCarcasaBomba(models.Model):
     '''
@@ -111,6 +112,9 @@ class TipoCarcasaBomba(models.Model):
 
     def __str__(self) -> str:
         return self.nombre.upper()
+    
+    class Meta:
+        db_table = 'bombas_tipocarcasa'
 
 class TipoBombaConstruccion(models.Model):
     '''
@@ -129,6 +133,9 @@ class TipoBombaConstruccion(models.Model):
 
     def __str__(self) -> str:
         return self.nombre.upper()
+    
+    class Meta:
+        db_table = "bombas_tipobombaconstruccion"
 
 class DetallesConstruccionBomba(models.Model):
     '''
@@ -166,6 +173,9 @@ class DetallesConstruccionBomba(models.Model):
 
     def carcasa_dividida_largo(self):
         return conseguir_largo(CARCASA_DIVIDIDA, self.carcasa_dividida)
+    
+    class Meta:
+        db_table = "bombas_detallesconstruccion"
 
 class TipoBomba(models.Model):
     '''
@@ -185,6 +195,9 @@ class TipoBomba(models.Model):
 
     def __str__(self) -> str:
         return self.nombre.upper()
+    
+    class Meta:
+        db_table = "bombas_tipo"
 
 class DetallesMotorBomba(models.Model):
     '''
@@ -234,6 +247,9 @@ class DetallesMotorBomba(models.Model):
     
     def aislamiento_largo(self):
         return conseguir_largo(AISLAMIENTO, self.aislamiento)
+    
+    class Meta:
+        db_table = "bombas_detallesmotor"
 
 class EspecificacionesBomba(models.Model):
     '''
@@ -274,6 +290,9 @@ class EspecificacionesBomba(models.Model):
     succion_id = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name = "Diámetro Interno Succión")
     descarga_id = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name = "Diámetro Interno Descarga")
     id_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="id_unidad_especificacionesbomba")
+
+    class Meta:
+        db_table = "bombas_especificacionesbomba"
 
 class CondicionFluidoBomba(models.Model):
     '''
@@ -339,6 +358,9 @@ class CondicionFluidoBomba(models.Model):
     
     def inflamable_largo(self):
         return conseguir_largo(SI_NO_DESC, self.inflamable)
+    
+    class Meta:
+        db_table = "bombas_condicionfluido"
 
 class CondicionesDisenoBomba(models.Model):
     '''
@@ -368,6 +390,9 @@ class CondicionesDisenoBomba(models.Model):
     npsha_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="npsha_unidad_condicionesdisenobomba")
     condiciones_fluido = models.OneToOneField(CondicionFluidoBomba, on_delete=models.CASCADE)
 
+    class Meta:
+        db_table = "bombas_condiciondiseno"
+
 class EspecificacionesInstalacion(models.Model):
     '''
     Resumen:
@@ -392,6 +417,9 @@ class EspecificacionesInstalacion(models.Model):
 
     fecha = models.DateTimeField(auto_now = True)
     usuario = models.ForeignKey(get_user_model(), default = 1, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "bombas_especificacionesinstalacion"
 
 class Bombas(models.Model):
     '''
@@ -441,6 +469,7 @@ class Bombas(models.Model):
     
     class Meta:
         ordering = ('tag',)
+        db_table = "bombas_bomba"
 
 class TuberiaInstalacionBomba(models.Model):
     '''
@@ -512,6 +541,9 @@ class TuberiaInstalacionBomba(models.Model):
     # ACCESORIOS
     numero_valvula_globo = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Globo")
     numero_valvula_angulo = models.PositiveIntegerField(null = True, blank = True, verbose_name="Núm. de Vál. Ángulo")
+
+    class Meta:
+        db_table = "bombas_tuberiainstalacion"
 
 # Evaluación de Bombas
 
@@ -587,6 +619,9 @@ class EntradaEvaluacionBomba(models.Model):
     
     calculo_propiedades = models.CharField(max_length = 1, default = "M", choices=CALCULO_PROPIEDADES_EVALUACION, verbose_name = "Cálculo de Propiedades")
 
+    class Meta:
+        db_table = "bombas_evaluacion_entrada"
+
 class SalidaEvaluacionBombaGeneral(models.Model):
     '''
     Resumen:
@@ -618,6 +653,9 @@ class SalidaEvaluacionBombaGeneral(models.Model):
 
     def cavitacion(self):
         return 'Sí' if self.cavita else 'No' if not self.cavita else 'Desconocido'
+    
+    class Meta:
+        db_table = "bombas_evaluacion_salida"
     
 class EvaluacionBomba(models.Model):
     '''
@@ -661,6 +699,7 @@ class EvaluacionBomba(models.Model):
 
     class Meta:
         ordering = ('-fecha',)
+        db_table = "bombas_evaluacion"
 
 class SalidaSeccionesEvaluacionBomba(models.Model):
     '''
@@ -686,6 +725,7 @@ class SalidaSeccionesEvaluacionBomba(models.Model):
 
     class Meta:
         ordering = ('-lado',)
+        db_table = "bombas_evaluacion_salidasecciones"
 
 class SalidaTramosEvaluacionBomba(models.Model):
     '''
@@ -710,6 +750,9 @@ class SalidaTramosEvaluacionBomba(models.Model):
 
     def flujo_largo(self):
         return conseguir_largo(TIPO_FLUJO, self.flujo)
+    
+    class Meta:
+        db_table = "bombas_evaluacion_salidatramos"
 
 ## MODELOS DE VENTILADORES
 class TipoVentilador(models.Model):
@@ -938,7 +981,7 @@ class EntradaEvaluacionVentilador(models.Model):
     densidad_evaluacion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_densidad_evaluacion_unidad")
 
     class Meta:
-        db_table = "ventiladores_entradaevaluacion"
+        db_table = "ventiladores_evaluacion_entrada"
 
 class SalidaEvaluacionVentilador(models.Model):
     '''
@@ -960,7 +1003,7 @@ class SalidaEvaluacionVentilador(models.Model):
     relacion_densidad = models.FloatField()
 
     class Meta:
-        db_table = "ventiladores_salidaevaluacion"
+        db_table = "ventiladores_evaluacion_salida"
 
 class EvaluacionVentilador(models.Model):
     '''

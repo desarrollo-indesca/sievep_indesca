@@ -22,6 +22,9 @@ class DatosCorrientes(models.Model):
     presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="presion_unidad_corriente")
     temperatura_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="temperatura_unidad_corriente")
 
+    class Meta:
+        db_table = "turbinas_vapor_datoscorrientes"
+
 class Corriente(models.Model):
     numero_corriente = models.CharField('Número Corriente', max_length=10)
     descripcion_corriente = models.CharField('Descripción de la Corriente', max_length=50)
@@ -63,6 +66,9 @@ class GeneradorElectrico(models.Model):
     voltaje = models.FloatField(validators=[MinValueValidator(0.000001)])
     voltaje_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="voltaje_unidad_generador")   
 
+    class Meta:
+        db_table = "turbinas_vapor_generadorelectrico"
+
 class EspecificacionesTurbinaVapor(models.Model):
     potencia = models.FloatField(validators=[MinValueValidator(0.000001)])
     potencia_max = models.FloatField('Potencia Máxima', validators=[MinValueValidator(0.000001)])
@@ -81,6 +87,9 @@ class EspecificacionesTurbinaVapor(models.Model):
     contra_presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="contra_presion_unidad_turbinavapor")
 
     eficiencia = models.FloatField(null = True)
+
+    class Meta:
+        db_table = "turbinas_vapor_gespecificaciones"
 
 class TurbinaVapor(models.Model):
     # Identificación de la turbina
@@ -103,6 +112,7 @@ class TurbinaVapor(models.Model):
 
     class Meta:
         ordering = ('tag',)
+        db_table = "turbinas_vapor_turbinavapor"
 
 ## Modelos de Evaluación
 
@@ -117,17 +127,25 @@ class EntradaEvaluacion(models.Model):
     presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="presion_unidad_entrada_evaluacion_turbina")
     temperatura_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="temperatura_unidad_entrada_evaluacion")
 
+    class Meta:
+        db_table = "turbinas_vapor_evaluacion_entrada"
+
 class SalidaEvaluacion(models.Model):
     id = models.UUIDField(primary_key=True, default = uuid.uuid4)
     eficiencia = models.FloatField()
     potencia_calculada = models.FloatField()
-
     entalpia_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT)
+
+    class Meta:
+        db_table = "turbinas_vapor_evaluacion_salida"
 
 class EntradaCorriente(models.Model):
     id = models.UUIDField(primary_key=True, default = uuid.uuid4)
     presion = models.FloatField(validators=[MinValueValidator(0)], null=True, blank=True)
     temperatura = models.FloatField(validators=[MinValueValidator(-273.15)])
+
+    class Meta:
+        db_table = "turbinas_vapor_evaluacion_entradacorriente"
 
 class SalidaCorriente(models.Model):
     id = models.UUIDField(primary_key=True, default = uuid.uuid4)
@@ -137,6 +155,9 @@ class SalidaCorriente(models.Model):
 
     def fase_largo(self):
         return conseguir_largo(FASES_CORRIENTES, self.fase)
+    
+    class Meta:
+        db_table = "turbinas_vapor_evaluacion_salidacorriente"
 
 class Evaluacion(models.Model):
     id = models.UUIDField(primary_key=True, default = uuid.uuid4)
@@ -152,9 +173,13 @@ class Evaluacion(models.Model):
 
     class Meta:
         ordering = ('-fecha',)
+        db_table = "turbinas_vapor_evaluacion"
 
 class CorrienteEvaluacion(models.Model):
     corriente = models.ForeignKey(Corriente, on_delete=models.PROTECT)
     entrada = models.OneToOneField(EntradaCorriente, on_delete=models.PROTECT)
     salida = models.OneToOneField(SalidaCorriente, on_delete=models.PROTECT)
     evaluacion = models.ForeignKey(Evaluacion, on_delete=models.PROTECT, related_name="corrientes_evaluacion")
+
+    class Meta:
+        db_table = "turbinas_vapor_evaluacion_corriente"
