@@ -303,6 +303,32 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
                     form_turbina.instance.creado_por = self.request.user
 
                 form_turbina.save()
+
+                flujo_unidad = form_datos_corrientes.instance.flujo_unidad.pk
+                flujo_entrada = transformar_unidades_flujo([form_datos_corrientes.instance.corrientes.first().flujo], flujo_unidad)[0]
+                potencia_real = transformar_unidades_potencia([form_especificaciones.instance.potencia], form_especificaciones.instance.potencia_unidad.pk)[0]
+                corrientes = form_datos_corrientes.instance.corrientes.all().values('presion','temperatura','flujo','entrada')
+
+                presiones_corrientes = transformar_unidades_presion([x['presion'] for x in corrientes], form_datos_corrientes.instance.presion_unidad.pk)
+                temperaturas_corrientes = transformar_unidades_temperatura([x['temperatura'] for x in corrientes], form_datos_corrientes.instance.temperatura_unidad.pk)
+                
+                if(flujo_unidad in PK_UNIDADES_FLUJO_MASICO):
+                    flujos_corrientes = transformar_unidades_flujo([x['flujo'] for x in corrientes], flujo_unidad)
+                    volumetrico = False
+                else:
+                    flujos_corrientes = transformar_unidades_flujo_volumetrico([x['flujo'] for x in corrientes], flujo_unidad)
+                    volumetrico = True
+
+                for i in range(len(corrientes)):
+                    corrientes[i]['presion'] = presiones_corrientes[i]
+                    corrientes[i]['temperatura'] = temperaturas_corrientes[i]
+                    corrientes[i]['flujo'] = flujos_corrientes[i]                    
+
+                res = evaluar_turbina(flujo_entrada, potencia_real, corrientes, corrientes, volumetrico)
+
+                form_especificaciones.instance.eficiencia = res['eficiencia']
+                form_especificaciones.save()
+                
             else:
                 print(form_turbina.errors)
                 
@@ -378,20 +404,11 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinVaporMixin):
         form_especificaciones = EspecificacionesTurbinaVaporForm(request.POST, instance=turbina.especificaciones)
         form_generador = GeneradorElectricoForm(request.POST, instance=turbina.generador_electrico)
         form_datos_corrientes = DatosCorrientesForm(request.POST, instance=turbina.datos_corrientes)
-        forms_corrientes = corrientes_formset(request.POST, queryset=turbina.datos_corrientes.corrientes.all())
+        forms_corrientes = corrientes_formset(request.POST)
 
-        try:
-            return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
+        return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
                                         form_datos_corrientes, forms_corrientes)
-        except Exception as e:
-            print(str(e))
-            return render(request, self.template_name, context={
-                'form_turbina': form_turbina, 
-                'form_especificaciones': form_especificaciones, 
-                'form_generador': form_generador, 
-                'form_datos_corrientes': form_datos_corrientes,
-                'forms_corrientes': forms_corrientes
-            })
+        
 
 class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin, ReportesFichasTurbinasMixin):
     """
@@ -574,8 +591,10 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
 
         if(flujo_entrada_unidad in PK_UNIDADES_FLUJO_MASICO):
             flujo_entrada = transformar_unidades_flujo([flujo_entrada], flujo_entrada_unidad)[0]
+            volumetrico = True
         else:
             flujo_entrada = transformar_unidades_flujo_volumetrico([flujo_entrada], flujo_entrada_unidad)[0]
+            volumetrico = False
 
         # Calcular Resultados
         corrientes = []
@@ -586,7 +605,7 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
                 'entrada': corrientes_diseno[x].entrada
             })
 
-        res = evaluar_turbina(flujo_entrada, potencia_real, corrientes, corrientes_diseno.values())
+        res = evaluar_turbina(flujo_entrada, potencia_real, corrientes, corrientes_diseno.values(), volumetrico)
 
         # Transformar unidades de internacional a salida (ficha)
         res['potencia_calculada'] = transformar_unidades_potencia([res['potencia_calculada']], 49, potencia_real_unidad)[0]

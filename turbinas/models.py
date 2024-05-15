@@ -48,7 +48,7 @@ class Corriente(models.Model):
        presion: FloatField ->  Presión bajo la que está la corriente / Si es salida no se requiere
        temperatura: FloatField -> Temperatura bajo la que está la corriente
        fase: CharField(1) -> Fase en la que se encuentra la corriente
-       entrada: BooleanField -> Es entrada / No es enntrada
+       entrada: BooleanField -> Es entrada / No es entrada
        datos_corriente: DatosCorrientes -> Datos asociados con la corriente
     """
     numero_corriente = models.CharField('Número Corriente', max_length=10)

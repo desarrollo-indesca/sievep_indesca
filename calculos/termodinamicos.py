@@ -320,7 +320,7 @@ def calcular_entalpia_coolprop(t: float, p: float, fluido: str) -> float:
         p: float -> Presión (Pa)
 
     Devuelve:
-        (float) -> Entalpía del fluido en las condiciones presentadas (J/Kg). Devolverá None si ocurre un error.
+        (float) -> Entalpía del fluido en las condiciones presentadas (kJ/Kg). Devolverá None si ocurre un error.
     """
     try:
         if(p):
