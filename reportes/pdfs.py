@@ -220,6 +220,9 @@ def generar_historia(request, reporte, object_list):
     
     if reporte == 'ficha_tecnica_turbina_vapor':
         return ficha_tecnica_turbina_vapor(object_list)
+    
+    if reporte == 'reporte_evaluaciones_turbinas_vapor':
+        return reporte_evaluaciones_turbinas_vapor(object_list, request)
 
 # GENERALES
 def reporte_equipos(request, object_list):
@@ -2225,10 +2228,14 @@ def reporte_evaluaciones_ventilador(request, object_list):
         fechas = list(range(1,len(fechas)+1))
         sub = "Evaluaciones"
 
+    tablas = []
+    for i in range(len(potencias)):
+        tablas.append([potencias[i], potencias_calculadas[i]])
+
     # Generación de Gráficas históricas. Todas las magnitudes deben encontrarse en la misma unidad.
     if(len(object_list) > 1):
         story, grafica1 = anadir_grafica(story, eficiencias, fechas, sub, "Eficiencia", "Eficiencias (%)")
-        story, grafica2 = anadir_grafica(story, [potencias, potencias_calculadas], fechas, sub, "Potencia y Potencia Calc.", f"Potencia y Potencia Calc. ({potencia_unidad})")
+        story, grafica2 = anadir_grafica(story, tablas, fechas, sub, "Potencia y Potencia Calc.", f"Potencia y Potencia Calc. ({potencia_unidad})")
 
         return [story, [grafica1, grafica2]]    
     
@@ -2382,7 +2389,7 @@ def detalle_evaluacion_turbina_vapor(evaluacion):
         ]
     )
 
-    table = Table(table)
+    table = Table(table, colWidths=(3.6*inch, 3.6*inch))
     table.setStyle(estilo)
     story.append(table)
 
@@ -2408,7 +2415,7 @@ def detalle_evaluacion_turbina_vapor(evaluacion):
         ]
     ]
 
-    table = Table(table)
+    table = Table(table, colWidths=(2.4*inch, 2.4*inch, 2.4*inch))
     table.setStyle(estilo)
     story.append(table)
 
@@ -2437,7 +2444,7 @@ def detalle_evaluacion_turbina_vapor(evaluacion):
             Paragraph(f"{corriente.salida.fase_largo()}", centrar_parrafo),
         ])
 
-    table = Table(table)
+    table = Table(table, colWidths=(0.4*inch, 2*inch, 1*inch, 1*inch, 1*inch, 1*inch, 0.8*inch))
     table.setStyle(estilo)
     story.append(table)
 
@@ -2558,4 +2565,89 @@ def ficha_tecnica_turbina_vapor(turbina):
     if(turbina.editado_al):
         story.append(Paragraph(f"Turbina editada por {turbina.editado_por.get_full_name()} el día {turbina.editado_al.strftime('%d/%m/%Y %H:%M:%S')}.", centrar_parrafo))
 
+    return [story, None]
+
+def reporte_evaluaciones_turbinas_vapor(object_list, request):
+    '''
+    Resumen:
+        Esta función genera la historia de elementos a utilizar en el reporte de histórico de evaluaciones de una turbina de vapor.
+        Devuelve además una lista de elementos de archivos que deben ser cerrados una vez se genere el reporte.
+    '''
+    story = []
+    story.append(Spacer(0,60))
+
+    turbina = object_list[0].equipo
+    
+    # Condiciones de Filtrado
+    if(len(request.GET) >= 2 and (request.GET['desde'] or request.GET['hasta'] or request.GET['usuario'] or request.GET['nombre'])):
+        story.append(Paragraph("Datos de Filtrado", centrar_parrafo))
+        table = [[Paragraph("Desde", centrar_parrafo), Paragraph("Hasta", centrar_parrafo), Paragraph("Usuario", centrar_parrafo), Paragraph("Nombre Ev.", centrar_parrafo)]]
+        table.append([
+            Paragraph(request.GET.get('desde'), parrafo_tabla),
+            Paragraph(request.GET.get('hasta'), parrafo_tabla),
+            Paragraph(request.GET.get('usuario'), parrafo_tabla),
+            Paragraph(request.GET.get('nombre'), parrafo_tabla),
+        ])
+
+        table = Table(table)
+        table.setStyle(basicTableStyle)
+
+        story.append(table)
+        story.append(Spacer(0,7))
+    
+    potencia_unidad = turbina.generador_electrico.potencia_real_unidad
+
+    # Primera tabla: Evaluaciones
+    table = [
+        [
+            Paragraph(f"Fecha", centrar_parrafo),
+            Paragraph(f"Potencia ({potencia_unidad})", centrar_parrafo),
+            Paragraph(f"Potencia Calculada ({potencia_unidad})", centrar_parrafo),
+            Paragraph(f"Eficiencia (%)", centrar_parrafo),
+        ]
+    ]
+
+    eficiencias = []
+    potencias = []
+    potencias_calculadas = []
+    fechas = []
+
+    object_list = object_list.order_by('fecha')
+    for x in object_list:
+        salida = x.salida
+        entrada = x.entrada
+        eficiencia = salida.eficiencia
+        potencia, potencia_calculada = transformar_unidades_potencia([entrada.potencia_real, salida.potencia_calculada], entrada.potencia_real_unidad.pk, potencia_unidad.pk)
+        print(entrada.potencia_real)
+        
+        fecha = x.fecha.strftime('%d/%m/%Y %H:%M')            
+
+        eficiencias.append(eficiencia)
+        potencias_calculadas.append(potencia_calculada)
+        potencias.append(potencia)
+        fechas.append(fecha)
+            
+        table.append([Paragraph(fecha, centrar_parrafo), Paragraph(str(round(potencia, 4)), centrar_parrafo), 
+                      Paragraph(str(round(potencia_calculada, 4)), centrar_parrafo), Paragraph(str(round(eficiencia, 2)), centrar_parrafo)])
+        
+    table = Table(table, colWidths=[1.8*inch, 1.8*inch, 1.8*inch, 1.8*inch])
+    table.setStyle(basicTableStyle)
+    story.append(table)
+
+    tablas = []
+    for i in range(len(potencias)):
+        tablas.append([potencias[i], potencias_calculadas[i]])
+
+    sub = "Fechas" # Subtítulo de las evaluaciones
+    if(len(fechas) >= 5):
+        fechas = list(range(1,len(fechas)+1))
+        sub = "Evaluaciones"
+
+    # Generación de Gráficas históricas. Todas las magnitudes deben encontrarse en la misma unidad.
+    if(len(object_list) > 1):
+        story, grafica1 = anadir_grafica(story, eficiencias, fechas, sub, "Eficiencia", "Eficiencias (%)")
+        story, grafica2 = anadir_grafica(story, tablas, fechas, sub, "Potencia y Potencia Calc.", f"Potencia y Potencia Calc. ({potencia_unidad})")
+
+        return [story, [grafica1, grafica2]]    
+    
     return [story, None]

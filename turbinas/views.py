@@ -452,7 +452,7 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin
             messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
 
         if(request.POST.get('tipo') == 'pdf'):
-            return generar_pdf(request, self.get_queryset(), f"Evaluaciones de la Turbina de Vapor {self.get_turbina().tag}", "detalle_evaluacion_turbina_vapor")
+            return generar_pdf(request, self.get_queryset(), f"Evaluaciones de la Turbina de Vapor {self.get_turbina().tag}", "reporte_evaluaciones_turbinas_vapor")
         elif(request.POST.get('tipo') == 'xlsx'):
             return historico_evaluaciones_turbinas(self.get_queryset(), request)
 
