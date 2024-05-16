@@ -271,6 +271,7 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
             valid = valid and form_datos_corrientes.is_valid() # Tercer formulario
 
             if(valid):
+                form_datos_corrientes.instance.id = None
                 form_datos_corrientes.save()
             else:
                 print(form_datos_corrientes.errors)
@@ -279,8 +280,7 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
 
             if(valid):
                 for form in forms_corrientes:
-                    valid = valid and form.is_valid()
-                    
+                    valid = valid and form.is_valid()                    
                     if(valid):
                         form.instance.datos_corriente = form_datos_corrientes.instance
                         form.save()
@@ -306,7 +306,7 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
 
                 flujo_unidad = form_datos_corrientes.instance.flujo_unidad.pk
                 flujo_entrada = transformar_unidades_flujo([form_datos_corrientes.instance.corrientes.first().flujo], flujo_unidad)[0]
-                potencia_real = transformar_unidades_potencia([form_especificaciones.instance.potencia], form_especificaciones.instance.potencia_unidad.pk)[0]
+                potencia_real = transformar_unidades_potencia([form_generador.instance.potencia_real], form_generador.instance.potencia_real_unidad.pk)[0]
                 corrientes = form_datos_corrientes.instance.corrientes.all().values('presion','temperatura','flujo','entrada')
 
                 presiones_corrientes = transformar_unidades_presion([x['presion'] for x in corrientes], form_datos_corrientes.instance.presion_unidad.pk)
@@ -403,13 +403,12 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinVaporMixin):
         form_turbina = TurbinaVaporForm(request.POST, instance=turbina)
         form_especificaciones = EspecificacionesTurbinaVaporForm(request.POST, instance=turbina.especificaciones)
         form_generador = GeneradorElectricoForm(request.POST, instance=turbina.generador_electrico)
-        form_datos_corrientes = DatosCorrientesForm(request.POST, instance=turbina.datos_corrientes)
+        form_datos_corrientes = DatosCorrientesForm(request.POST)
         forms_corrientes = corrientes_formset(request.POST)
 
         return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
                                         form_datos_corrientes, forms_corrientes)
         
-
 class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin, ReportesFichasTurbinasMixin):
     """
     Resumen:
@@ -518,8 +517,8 @@ class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTur
             'turbina': turbina,
             'form_evaluacion': EvaluacionesForm(),
             'form_entrada_evaluacion': EntradaEvaluacionForm({
-                'potencia_real': turbina.especificaciones.potencia if turbina.especificaciones.potencia else None,
-                'potencia_real_unidad': turbina.especificaciones.potencia_unidad,
+                'potencia_real': turbina.generador_electrico.potencia_real if turbina.generador_electrico.potencia_real else None,
+                'potencia_real_unidad': turbina.generador_electrico.potencia_real_unidad,
                 'flujo_entrada_unidad': turbina.datos_corrientes.flujo_unidad if turbina.datos_corrientes.flujo_unidad else turbina.datos_corrientes.flujo_unidad,
                 'presion_unidad': turbina.datos_corrientes.presion_unidad,
                 'temperatura_unidad': turbina.datos_corrientes.temperatura_unidad
@@ -591,10 +590,10 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporM
 
         if(flujo_entrada_unidad in PK_UNIDADES_FLUJO_MASICO):
             flujo_entrada = transformar_unidades_flujo([flujo_entrada], flujo_entrada_unidad)[0]
-            volumetrico = True
+            volumetrico = False
         else:
             flujo_entrada = transformar_unidades_flujo_volumetrico([flujo_entrada], flujo_entrada_unidad)[0]
-            volumetrico = False
+            volumetrico = True
 
         # Calcular Resultados
         corrientes = []

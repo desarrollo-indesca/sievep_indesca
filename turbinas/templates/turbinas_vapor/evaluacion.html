@@ -95,7 +95,6 @@
                     </tr>
 
                     {% for form in formset_entrada_corriente.form_list %}
-                    {% render_field form.form.id hidden="hidden" %}
                     <tr class="form {% if form.corriente.entrada %}table-success{%endif%}">
                         <td class="text-center">
                             {{form.corriente.numero_corriente}}{% if form.corriente.entrada %}*{%endif%}

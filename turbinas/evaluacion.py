@@ -50,20 +50,20 @@ def determinar_propiedades_corrientes(corrientes: list, volumetrico: bool = Fals
 
     return corrientes
 
-def calcular_balance_energia_entrada(corrientes_actualizadas):
+def calcular_balance_energia_entrada(corrientes_actualizadas: list, volumetrico: bool = False) -> float:
     """
     Resumen:
         Función para obtener el balance de energía de entrada de las corrientes.
 
     Parámetros:
-        corrientes_actualizadas: list -> Lista de las corrientes con su entalpia (kJ/Kg) y flujo (Kg/s o m3/s) y densidad (Kg/m3) si es necesario
+        corrientes_actualizadas: list -> Lista de las corrientes con su entalpia (J/Kg) y flujo (Kg/s o m3/s) y densidad (Kg/m3) si es necesario
 
     Salida:
-        float -> Balance de energía de entrada (kJ/s)
+        float -> Balance de energía de entrada (J/s -> W)
     """
 
     corriente_entrada = next(filter(lambda x : x['entrada'], corrientes_actualizadas))
-    return corriente_entrada['entalpia']*corriente_entrada['flujo']
+    return corriente_entrada['entalpia']*corriente_entrada['flujo'] if not volumetrico else corriente_entrada['entalpia']*corriente_entrada['flujo']*corriente_entrada['densidad'] 
 
 def calcular_balance_energia_salida(corrientes_actualizadas: list, volumetrico: bool = False) -> float:
     """
@@ -71,11 +71,11 @@ def calcular_balance_energia_salida(corrientes_actualizadas: list, volumetrico: 
         Función para obtener el balance de energía de salida de las corrientes.
 
     Parámetros:
-        corrientes_actualizadas: list -> Lista de las corrientes con su entalpia (kJ/Kg) y flujo (Kg/s o m3/s) y densidad (Kg/m3) si es necesario
+        corrientes_actualizadas: list -> Lista de las corrientes con su entalpia (J/Kg) y flujo (Kg/s o m3/s) y densidad (Kg/m3) si es necesario
         volumetrico: bool -> Indica si el flujo es volumétrico
 
     Salida:
-        float -> Balance de energía de salida (kJ/s)
+        float -> Balance de energía de salida (J/s -> W)
     """
 
     return sum([x['entalpia']*x['flujo'] if not volumetrico else x['entalpia']*x['flujo']*x['densidad'] for x in corrientes_actualizadas if not x['entrada']])
@@ -87,7 +87,7 @@ def evaluar_turbina(flujo_entrada: float, potencia: float, corrientes: list, cor
 
     Parámetros:
         flujo_entrada: float -> Flujo de entrada a la turbina (Kg/s o m3/s)
-        potencia: float -> Potencia real de la turbina (W)
+        potencia: float -> Potencia real del generador (W)
         corrientes: list -> Lista de las corrientes con diccionarios 'presion' (Pa) y 'temperatura' (K)
         corrientes_diseno: list -> Lista de las corrientes de diseño con diccionarios con sus flujos en una misma unidad.
         volumetrico: bool -> Indica si el flujo es volumétrico en las corrientes de entrada
@@ -100,11 +100,11 @@ def evaluar_turbina(flujo_entrada: float, potencia: float, corrientes: list, cor
     corrientes_actualizadas = determinar_flujos_corrientes(corrientes, corrientes_diseno, flujo_entrada)
     
     # Determinar la entalpía y fase de cada corriente e integrarlas
-    corrientes_actualizadas = determinar_propiedades_corrientes(corrientes_actualizadas)
+    corrientes_actualizadas = determinar_propiedades_corrientes(corrientes_actualizadas, volumetrico)
 
     # Balances de energía
-    h_entrada = calcular_balance_energia_entrada(corrientes_actualizadas)
-    h_salida = calcular_balance_energia_salida(corrientes_actualizadas)
+    h_entrada = calcular_balance_energia_entrada(corrientes_actualizadas, volumetrico)
+    h_salida = calcular_balance_energia_salida(corrientes_actualizadas, volumetrico)
 
     # Cálculo de potencia
     potencia_calculada = h_entrada - h_salida

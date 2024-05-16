@@ -333,3 +333,4 @@ class CorrienteEvaluacion(models.Model):
 
     class Meta:
         db_table = "turbinas_vapor_evaluacion_corriente"
+        ordering = ('-corriente__entrada', 'corriente__numero_corriente')

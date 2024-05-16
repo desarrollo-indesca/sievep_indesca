@@ -49,7 +49,7 @@
                     <tbody>
                         <tr>
                             <th class="table-dark text-center">Eficiencia (%)</th>
-                            <td class="text-center">{{salida.eficiencia|floatformat:4}}</td>
+                            <td class="text-center"><b>Calculada:</b> {{salida.eficiencia|floatformat:4}} / <b>Diseño:</b> {{equipo.especificaciones.eficiencia|floatformat:4}}</td>
                         </tr>
                         <tr>
                             <th class="table-dark text-center">Potencia Calculada ({{entrada.potencia_real_unidad}})</th>
@@ -81,7 +81,7 @@
                         {% for corriente in evaluacion.corrientes_evaluacion.all %}
                         {% with entrada_corriente=corriente.entrada %}
                         {% with salida_corriente=corriente.salida %}
-                        <tr class="{% if corriente.corriente.entrada %}table-success{%endif%}">
+                        <tr class="{% if corriente.corriente.entrada %}table-success{% elif not corriente.corriente.presion %}table-warning{%endif%}">
                             <th class="table-dark text-center">{{corriente.corriente.numero_corriente}}{% if corriente.corriente.entrada %}*{%endif%}</th>
                             <td class="text-center">{{corriente.corriente.descripcion_corriente}}</td>
                             <td class="text-center">

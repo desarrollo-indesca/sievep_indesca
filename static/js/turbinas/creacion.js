@@ -106,24 +106,28 @@ $('button[type=submit]').click( (e) => {
         if(presiones > 1){
             e.preventDefault();
             alert("Debe existir solo una presión en las corrientes que esté vacía.")
+            return;
         } else if(presiones < 1){
             e.preventDefault();
             alert("Debe haber una presión vacía a efectos de determinar la corriente de salida.")
+            return;
         }
 
         if(entradas > 1){
             e.preventDefault();
             alert("Solo puede haber una corriente de entrada.");
+            return;
         } else if(entradas === 0){
             e.preventDefault();
             alert("Debe haber una corriente de entrada.");
-            return false;
+            return;
         }
 
         const arrayNumeros = $('.numero-corriente').toArray().map(x => x.value);
         if((new Set(arrayNumeros)).size !== arrayNumeros.length){
             e.preventDefault();
             alert("Los números de corrientes deben ser TODOS distintos.");
+            return;
         }
         
         if(entradas === 1){
@@ -133,12 +137,18 @@ $('button[type=submit]').click( (e) => {
             if($(`input[name="form-${number}-presion"]`).val() === ""){
                 e.preventDefault();
                 alert("La corriente de entrada no puede ser la misma que la de salida.");
+                return;
             }
 
             if($(`select[name="form-${number}-fase"]`).val() != 'V'){
                 e.preventDefault();
                 alert("La turbina solo puede tener vapor en la corriente de entrada.");
+                return;
             }
         }
     }
 )
+
+$('form').submit(e => {
+    $('#submit').attr('disabled','disabled');
+})
