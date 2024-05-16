@@ -14,7 +14,7 @@ from usuarios.views import SuperUserRequiredMixin
 from calculos.unidades import *
 from .evaluacion import evaluar_turbina
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import reporte_equipos
+from reportes.xlsx import reporte_equipos, historico_evaluaciones_turbinas_vapor
 from .models import *
 from .forms import *
 
@@ -454,7 +454,7 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin
         if(request.POST.get('tipo') == 'pdf'):
             return generar_pdf(request, self.get_queryset(), f"Evaluaciones de la Turbina de Vapor {self.get_turbina().tag}", "reporte_evaluaciones_turbinas_vapor")
         elif(request.POST.get('tipo') == 'xlsx'):
-            return historico_evaluaciones_turbinas(self.get_queryset(), request)
+            return historico_evaluaciones_turbinas_vapor(self.get_queryset(), request)
 
         if(request.POST.get('detalle')):
             return generar_pdf(request, self.model.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Turbina de Vapor", "detalle_evaluacion_turbina_vapor")
@@ -720,6 +720,7 @@ class GenerarGraficaTurbina(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
         evaluaciones = Evaluacion.objects.filter(activo = True, equipo = turbina).order_by('fecha')
 
         evaluaciones = self.filtrar(request, evaluaciones)
+        potencia_unidad = turbina.generador_electrico.potencia_real_unidad.pk
         
         res = []
 
@@ -729,8 +730,8 @@ class GenerarGraficaTurbina(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
             res.append({
                 'fecha': evaluacion.fecha.__str__(),
                 'salida__eficiencia': salida.eficiencia,
-                'salida__potencia_calculada': transformar_unidades_potencia([salida.potencia_calculada], evaluacion.entrada.potencia_real_unidad.pk, turbina.especificaciones.potencia_unidad.pk)[0],
-                'salida__potencia': transformar_unidades_potencia([entrada.potencia_real], evaluacion.entrada.potencia_real_unidad.pk, turbina.especificaciones.potencia_unidad.pk)[0],
+                'salida__potencia_calculada': transformar_unidades_potencia([salida.potencia_calculada], evaluacion.entrada.potencia_real_unidad.pk, potencia_unidad)[0],
+                'salida__potencia': transformar_unidades_potencia([entrada.potencia_real], evaluacion.entrada.potencia_real_unidad.pk, potencia_unidad)[0],
             })
 
         return JsonResponse(res[:15], safe=False)
