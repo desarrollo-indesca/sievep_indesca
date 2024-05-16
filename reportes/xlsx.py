@@ -1212,3 +1212,100 @@ def historico_evaluaciones_turbinas_vapor(object_list, request):
         
     return enviar_response('historico_evaluaciones_turbinas_vapor', excel_io, fecha)
 
+def ficha_tecnica_turbina_vapor(_, turbina, request):
+    '''
+    Resumen:
+        Función que genera los datos de ficha técnica en formato XLSX de una Turbina de Vapor.
+    '''
+    excel_io = BytesIO()
+    workbook = xlsxwriter.Workbook(excel_io)
+    
+    worksheet = workbook.add_worksheet()
+
+    bold = workbook.add_format({'bold': True})
+    identificacion = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'yellow'})
+    especificaciones_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'red'})
+    corrientes_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'cyan'})
+    center_bordered = workbook.add_format({'border': 1})
+    fecha =  workbook.add_format({'border': 1})
+
+    fecha.set_align('right')
+    identificacion.set_align('vcenter')
+    center_bordered.set_align('vcenter')
+    identificacion.set_align('center')
+    center_bordered.set_align('center')
+
+    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.write('C1', f'Ficha Técnica Turbina de Vapor {turbina.tag}', bold)
+    worksheet.insert_image(0, 7, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+
+    num = 6
+
+    especificaciones = turbina.especificaciones
+
+    worksheet.write(f'A{num}', 'Tag', identificacion)
+    worksheet.write(f'B{num}', 'Complejo', identificacion)
+    worksheet.write(f'C{num}', 'Planta', identificacion)
+    worksheet.write(f'D{num}', 'Fabricante', identificacion)
+    worksheet.write(f'E{num}', 'Modelo', identificacion)
+    worksheet.write(f'F{num}', 'Descripción', identificacion)
+    worksheet.write(f'G{num}', f'Potencia ({especificaciones.potencia_unidad})', especificaciones_estilo)
+    worksheet.write(f'H{num}', f'Potencia Máxima ({especificaciones.potencia_unidad})', especificaciones_estilo)
+    worksheet.write(f'I{num}', f'Velocidad ({especificaciones.velocidad_unidad})', especificaciones_estilo)
+    worksheet.write(f'J{num}', f'Presión de Entrada ({especificaciones.presion_entrada_unidad}g)', especificaciones_estilo)
+    worksheet.write(f'K{num}', f'Temperatura de Entrada ({especificaciones.temperatura_entrada_unidad})', especificaciones_estilo)
+    worksheet.write(f'L{num}', f'Contra Presión ({especificaciones.contra_presion_unidad})', especificaciones_estilo)
+
+    num += 1
+    
+    worksheet.write(f'A{num}', turbina.tag, center_bordered)
+    worksheet.write(f'B{num}', turbina.planta.complejo.nombre, center_bordered)
+    worksheet.write(f'C{num}', turbina.planta.nombre, center_bordered)
+    worksheet.write(f'D{num}', turbina.fabricante, center_bordered)
+    worksheet.write(f'E{num}', turbina.modelo, center_bordered)
+    worksheet.write(f'F{num}', turbina.descripcion, center_bordered)
+    worksheet.write(f'G{num}', especificaciones.potencia, center_bordered)
+    worksheet.write(f'H{num}', especificaciones.potencia_max, center_bordered)
+    worksheet.write(f'I{num}', especificaciones.velocidad, center_bordered)
+    worksheet.write(f'J{num}', especificaciones.presion_entrada, center_bordered)
+    worksheet.write(f'K{num}', especificaciones.temperatura_entrada, center_bordered)
+    worksheet.write(f'L{num}', especificaciones.contra_presion, center_bordered)
+
+    num += 2
+    worksheet.write(f'A{num}', "Datos de las Corrientes Circulantes por la Turbina", corrientes_estilo)
+
+    num += 1
+    datos_corrientes = turbina.datos_corrientes
+    flujo_unidad = datos_corrientes.flujo_unidad
+    entalpia_unidad = datos_corrientes.entalpia_unidad
+    presion_unidad = datos_corrientes.presion_unidad
+    temperatura_unidad = datos_corrientes.temperatura_unidad
+
+    worksheet.write(f'A{num}', "# Corriente", corrientes_estilo)
+    worksheet.write(f'B{num}', "Descripción", corrientes_estilo)
+    worksheet.write(f'C{num}', f"Flujo ({flujo_unidad})", corrientes_estilo)
+    worksheet.write(f'D{num}', f"Entalpía ({entalpia_unidad})", corrientes_estilo)
+    worksheet.write(f'E{num}', f"Presión ({presion_unidad}g)", corrientes_estilo)
+    worksheet.write(f'F{num}', f"Temperatura ({temperatura_unidad})", corrientes_estilo)
+    worksheet.write(f'G{num}', "Fase", corrientes_estilo)
+
+    for corriente in datos_corrientes.corrientes.all():
+        num += 1
+        
+        worksheet.write(f'A{num}', corriente.numero_corriente, center_bordered)
+        worksheet.write(f'B{num}', corriente.descripcion_corriente, center_bordered)
+        worksheet.write(f'C{num}', corriente.flujo, center_bordered)
+        worksheet.write(f'D{num}', corriente.entalpia, center_bordered)
+        worksheet.write(f'E{num}', corriente.presion, center_bordered)
+        worksheet.write(f'F{num}', corriente.temperatura, center_bordered)
+        worksheet.write(f'G{num}', corriente.fase_largo(), center_bordered)
+
+    worksheet.write(f"J{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
+    worksheet.write(f"J{num+2}", "Generado por " + request.user.get_full_name(), fecha)
+
+    worksheet.write(f"A{num+2}", "Datos de Identificación", identificacion)
+    worksheet.write(f"A{num+3}", "Especificaciones", especificaciones_estilo)
+    worksheet.write(f"A{num+4}", "Corrientes", corrientes_estilo)
+    workbook.close()
+        
+    return enviar_response(f'ficha_tecnica_turbina_vapor_{turbina.tag}', excel_io, fecha)

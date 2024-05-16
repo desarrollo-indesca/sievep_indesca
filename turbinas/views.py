@@ -14,7 +14,7 @@ from usuarios.views import SuperUserRequiredMixin
 from calculos.unidades import *
 from .evaluacion import evaluar_turbina
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import reporte_equipos, historico_evaluaciones_turbinas_vapor
+from reportes.xlsx import reporte_equipos, historico_evaluaciones_turbinas_vapor, ficha_tecnica_turbina_vapor
 from .models import *
 from .forms import *
 
@@ -62,7 +62,7 @@ class ReportesFichasTurbinasVaporMixin(ReportesFichasMixin):
         Mixin para que los reportes de ficha técnica estén disponibles en todas las vistas donde esté disponible para así evitar repetir código.
     '''
     model_ficha = TurbinaVapor
-    reporte_ficha_xlsx = None
+    reporte_ficha_xlsx = ficha_tecnica_turbina_vapor
     titulo_reporte_ficha = "Ficha Técnica de la Turbina de Vapor"
     codigo_reporte_ficha = "ficha_tecnica_turbina_vapor"
 
