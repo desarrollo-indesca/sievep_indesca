@@ -152,7 +152,7 @@ class EspecificacionesTurbinaVapor(models.Model):
     eficiencia = models.FloatField(null = True)
 
     class Meta:
-        db_table = "turbinas_vapor_gespecificaciones"
+        db_table = "turbinas_vapor_especificaciones"
 
 class TurbinaVapor(models.Model):
     """
@@ -232,7 +232,7 @@ class SalidaEvaluacion(models.Model):
     Atributos:
         id: UUIDField -> UUID del objeto
         eficiencia: FloatField -> Eficiencia calculada en la evaluación
-        potencia_calculada: FloatField -> Potencial calculada en la evaluación
+        potencia_calculada: FloatField -> Potencial calculada en la evaluación. La unidad es la misma de la potencia de entrada.
         entalpia_unidad: Unidad (n) -> Unidad de la entalpía dada como salida en las corrientes. Tomará la que se encuentre en el diseño.
     """
     id = models.UUIDField(primary_key=True, default = uuid.uuid4)

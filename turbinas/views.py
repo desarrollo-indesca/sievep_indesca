@@ -56,17 +56,17 @@ class ObtenerTurbinVaporMixin():
 
         return turbina.first()
 
-class ReportesFichasTurbinasMixin(ReportesFichasMixin):
+class ReportesFichasTurbinasVaporMixin(ReportesFichasMixin):
     '''
     Resumen:
         Mixin para que los reportes de ficha técnica estén disponibles en todas las vistas donde esté disponible para así evitar repetir código.
     '''
     model_ficha = TurbinaVapor
     reporte_ficha_xlsx = None
-    titulo_reporte_ficha = "Ficha Técnica de la Turbina"
+    titulo_reporte_ficha = "Ficha Técnica de la Turbina de Vapor"
     codigo_reporte_ficha = "ficha_tecnica_turbina_vapor"
 
-class ConsultaTurbinasVapor(LoginRequiredMixin, ListView, ReportesFichasTurbinasMixin):
+class ConsultaTurbinasVapor(LoginRequiredMixin, ListView, ReportesFichasTurbinasVaporMixin):
     '''
     Resumen:
         Vista para la consulta de las turbinas de vapor.
@@ -106,7 +106,7 @@ class ConsultaTurbinasVapor(LoginRequiredMixin, ListView, ReportesFichasTurbinas
             return generar_pdf(request, self.get_queryset(), 'Reporte de Turbinas de Vapor', 'turbinas_vapor')
         
         if(request.POST.get('tipo') == 'xlsx'): # reporte de turbinas de vapor en XLSX
-            return reporte_equipos(request, self.get_queryset(), 'Listado de Turbinas de Vapor', 'listado_ventiladores')
+            return reporte_equipos(request, self.get_queryset(), 'Listado de Turbinas de Vapor', 'listado_turbinas_vapor')
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:        
         if(request.GET.get('page')):
@@ -409,7 +409,7 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinVaporMixin):
         return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
                                         form_datos_corrientes, forms_corrientes)
         
-class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin, ReportesFichasTurbinasMixin):
+class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin, ReportesFichasTurbinasVaporMixin):
     """
     Resumen:
         Vista para la Consulta de Evaluaciones de una Turbina de Vapor.
@@ -452,7 +452,7 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin
             messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
 
         if(request.POST.get('tipo') == 'pdf'):
-            return generar_pdf(request, self.get_queryset(), f"Evaluaciones de la Turbina de Vapor {self.get_turbina().tag}", "reporte_evaluaciones_turbina_vapor")
+            return generar_pdf(request, self.get_queryset(), f"Evaluaciones de la Turbina de Vapor {self.get_turbina().tag}", "detalle_evaluacion_turbina_vapor")
         elif(request.POST.get('tipo') == 'xlsx'):
             return historico_evaluaciones_turbinas(self.get_queryset(), request)
 
@@ -486,7 +486,7 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin
 
         return context
 
-class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTurbinasMixin, ObtenerTurbinVaporMixin):
+class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTurbinasVaporMixin, ObtenerTurbinVaporMixin):
     """
     Resumen:
         Vista de la creación de una evaluación de una turbina de vapor.

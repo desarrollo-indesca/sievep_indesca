@@ -170,48 +170,6 @@ def generar_pdf(request,object_list,titulo,reporte):
 
     return response
 
-# GENERALES
-def reporte_equipos(request, object_list):
-    '''
-    Resumen:
-        Esta función genera la historia de elementos a utilizar en un reporte de un tipo de equipos.
-        No devuelve archivos.
-    '''
-    story = []
-    story.append(Spacer(0,60))
-
-    if(len(request.GET) >= 2 and (request.GET['tag'] or request.GET.get('descripcion', request.GET.get('servicio')) or request.GET.get('planta') or request.GET.get('complejo'))):
-        story.append(Paragraph("Datos de Filtrado", centrar_parrafo))
-        table = [[Paragraph("Tag", centrar_parrafo), Paragraph("Descripción", centrar_parrafo), Paragraph("Planta", centrar_parrafo), Paragraph("Complejo", centrar_parrafo)]]
-        table.append([
-            Paragraph(request.GET['tag'], parrafo_tabla),
-            Paragraph(request.GET.get('descripcion', request.GET.get('servicio')), parrafo_tabla),
-            Paragraph(Planta.objects.get(pk=request.GET.get('planta')).nombre if request.GET.get('planta') else '', parrafo_tabla),
-            Paragraph(Complejo.objects.get(pk=request.GET.get('complejo')).nombre if request.GET.get('complejo') else '', parrafo_tabla),
-        ])
-
-        table = Table(table)
-        table.setStyle(basicTableStyle)
-
-        story.append(table)
-        story.append(Spacer(0,7))
-
-    table = [[Paragraph("#", centrar_parrafo), Paragraph("Tag", centrar_parrafo), Paragraph("Descripción", centrar_parrafo),Paragraph("Planta", centrar_parrafo)]]
-    for n,x in enumerate(object_list):
-        table.append([
-            Paragraph(str(n+1), numero_tabla),
-            Paragraph(x.tag, parrafo_tabla),
-            Paragraph(x.descripcion, parrafo_tabla),
-            Paragraph(x.planta.nombre.upper(), parrafo_tabla)
-        ])
-        
-    table = Table(table, colWidths=[0.5*inch, 1.5*inch, 3.2*inch,1.8*inch])
-    table.setStyle(basicTableStyle)
-    story.append(table)
-    return [story, None]
-
-# REPORTES DE INTERCAMBIADORES
-
 def generar_historia(request, reporte, object_list):
     '''
     Resumen:
@@ -256,6 +214,54 @@ def generar_historia(request, reporte, object_list):
     
     if reporte == 'detalle_evaluacion_ventilador':
         return detalle_evaluacion_ventilador(object_list)
+    
+    if reporte == 'detalle_evaluacion_turbina_vapor':
+        return detalle_evaluacion_turbina_vapor(object_list)
+    
+    if reporte == 'ficha_tecnica_turbina_vapor':
+        return ficha_tecnica_turbina_vapor(object_list)
+
+# GENERALES
+def reporte_equipos(request, object_list):
+    '''
+    Resumen:
+        Esta función genera la historia de elementos a utilizar en un reporte de un tipo de equipos.
+        No devuelve archivos.
+    '''
+    story = []
+    story.append(Spacer(0,60))
+
+    if(len(request.GET) >= 2 and (request.GET['tag'] or request.GET.get('descripcion', request.GET.get('servicio')) or request.GET.get('planta') or request.GET.get('complejo'))):
+        story.append(Paragraph("Datos de Filtrado", centrar_parrafo))
+        table = [[Paragraph("Tag", centrar_parrafo), Paragraph("Descripción", centrar_parrafo), Paragraph("Planta", centrar_parrafo), Paragraph("Complejo", centrar_parrafo)]]
+        table.append([
+            Paragraph(request.GET['tag'], parrafo_tabla),
+            Paragraph(request.GET.get('descripcion', request.GET.get('servicio')), parrafo_tabla),
+            Paragraph(Planta.objects.get(pk=request.GET.get('planta')).nombre if request.GET.get('planta') else '', parrafo_tabla),
+            Paragraph(Complejo.objects.get(pk=request.GET.get('complejo')).nombre if request.GET.get('complejo') else '', parrafo_tabla),
+        ])
+
+        table = Table(table)
+        table.setStyle(basicTableStyle)
+
+        story.append(table)
+        story.append(Spacer(0,7))
+
+    table = [[Paragraph("#", centrar_parrafo), Paragraph("Tag", centrar_parrafo), Paragraph("Descripción", centrar_parrafo),Paragraph("Planta", centrar_parrafo)]]
+    for n,x in enumerate(object_list):
+        table.append([
+            Paragraph(str(n+1), numero_tabla),
+            Paragraph(x.tag, parrafo_tabla),
+            Paragraph(x.descripcion, parrafo_tabla),
+            Paragraph(x.planta.nombre.upper(), parrafo_tabla)
+        ])
+        
+    table = Table(table, colWidths=[0.5*inch, 1.5*inch, 3.2*inch,1.8*inch])
+    table.setStyle(basicTableStyle)
+    story.append(table)
+    return [story, None]
+
+# REPORTES DE INTERCAMBIADORES
 
 def detalle_evaluacion(evaluacion):
     '''
@@ -2329,3 +2335,227 @@ def detalle_evaluacion_ventilador(evaluacion):
     story.append(table)
 
     return [story, []]
+
+## REPORTES DE TURBINAS DE VAPOR
+
+def detalle_evaluacion_turbina_vapor(evaluacion):
+    '''
+    Resumen:
+        Esta función genera la historia de elementos a utilizar en el reporte de detalle de evaluación de una turbina de vapor.
+        No envía archivos para cerrar.
+    '''
+    story = [Spacer(0,70)]
+    turbina = evaluacion.equipo
+    entrada = evaluacion.entrada
+    salida = evaluacion.salida
+
+    # TABLA DE DATOS DE ENTRADA
+    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.first_name}"))
+    story.append(Paragraph(f"<b>Tag del Equipo:</b> {turbina.tag}"))
+    story.append(Paragraph(f"<b>ID de la Evaluación:</b> {evaluacion.id}"))
+
+    story.append(Spacer(0,10))
+    story.append(Paragraph("Datos de Entrada Generales de la Evaluación", ParagraphStyle('', alignment=1)))
+
+    table = [
+        [
+            Paragraph("PARÁMETRO", centrar_parrafo),
+            Paragraph("VALOR", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Flujo de Entrada ({entrada.flujo_entrada_unidad})", centrar_parrafo),
+            Paragraph(f"{round(entrada.flujo_entrada,4)}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f'Potencia Real ({entrada.potencia_real_unidad})', centrar_parrafo), 
+            Paragraph(f"{entrada.potencia_real}", centrar_parrafo)
+        ]
+    ]
+
+    estilo = TableStyle(
+        [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),  
+
+            ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+            ('BACKGROUND', (0, 0), (0, -1), sombreado),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE')
+        ]
+    )
+
+    table = Table(table)
+    table.setStyle(estilo)
+    story.append(table)
+
+    # TABLA DE RESULTADOS
+    story.append(Spacer(0,10))
+    story.append(Paragraph("Resultados Generales de la Evaluación", ParagraphStyle('', alignment=1)))
+
+    table = [
+        [
+            Paragraph("RESULTADO", centrar_parrafo),
+            Paragraph("EVALUACIÓN", centrar_parrafo),
+            Paragraph("DISEÑO", centrar_parrafo)
+        ],
+        [
+            Paragraph(f'Eficiencia', centrar_parrafo),
+            Paragraph(f"{round(salida.eficiencia, 2)} %", centrar_parrafo),
+            Paragraph(f"{str(round(turbina.especificaciones.eficiencia, 2)) + '%' if turbina.especificaciones.eficiencia else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f'Potencia Calculada', centrar_parrafo),
+            Paragraph(f"{round(salida.potencia_calculada, 4)} {entrada.potencia_real_unidad}", centrar_parrafo),
+            Paragraph(f"-", centrar_parrafo)
+        ]
+    ]
+
+    table = Table(table)
+    table.setStyle(estilo)
+    story.append(table)
+
+    story.append(Spacer(0,10))
+    story.append(Paragraph("Resultados por Corriente", ParagraphStyle('', alignment=1)))
+
+    corrientes = evaluacion.corrientes_evaluacion.select_related('entrada','salida','corriente')
+    table = [[
+        Paragraph("#", centrar_parrafo),
+        Paragraph("Descripción", centrar_parrafo),
+        Paragraph(f"Presión ({entrada.presion_unidad})", centrar_parrafo),
+        Paragraph(f"Temperatura ({entrada.temperatura_unidad})", centrar_parrafo),
+        Paragraph(f"Flujo ({entrada.flujo_entrada_unidad})", centrar_parrafo),
+        Paragraph(f"Entalpía ({salida.entalpia_unidad})", centrar_parrafo),
+        Paragraph("Fase", centrar_parrafo)
+    ]]
+
+    for corriente in corrientes:
+        table.append([
+            Paragraph(corriente.corriente.numero_corriente, centrar_parrafo),
+            Paragraph(corriente.corriente.descripcion_corriente, centrar_parrafo),
+            Paragraph(f"{round(corriente.entrada.presion, 4) if corriente.entrada.presion else '-'}", centrar_parrafo),
+            Paragraph(f"{round(corriente.entrada.temperatura, 4)}", centrar_parrafo),
+            Paragraph(f"{round(corriente.salida.flujo, 4)}", centrar_parrafo),
+            Paragraph(f"{round(corriente.salida.entalpia, 4)}", centrar_parrafo),
+            Paragraph(f"{corriente.salida.fase_largo()}", centrar_parrafo),
+        ])
+
+    table = Table(table)
+    table.setStyle(estilo)
+    story.append(table)
+
+    return [story, []]
+
+def ficha_tecnica_turbina_vapor(turbina):
+    '''
+    Resumen:
+        Esta función genera la historia de elementos a utilizar en el reporte de ficha técnica de turbina de vapor.
+    '''
+    story = []
+    story.append(Spacer(0,150))
+
+    especificaciones = turbina.especificaciones
+    datos_corrientes = turbina.datos_corrientes    
+
+    # Primera Tabla: Datos Generales y Especificaciones
+    table = [
+        [
+            Paragraph("Tag", centrar_parrafo), 
+            Paragraph(f"{turbina.tag}", centrar_parrafo), 
+            Paragraph("Planta", centrar_parrafo),
+            Paragraph(f"{turbina.planta.nombre}", centrar_parrafo)
+        ],
+        [
+            Paragraph("Fabricante", centrar_parrafo), 
+            Paragraph(f"{turbina.fabricante}", centrar_parrafo),
+            Paragraph("Modelo", centrar_parrafo), 
+            Paragraph(f"{turbina.modelo if turbina.modelo else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph("Descripción", centrar_parrafo), 
+            Paragraph(f"{turbina.descripcion}", centrar_parrafo)
+        ],
+        [
+            Paragraph("ESPECIFICACIONES TÉCNICAS", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Potencia ({especificaciones.potencia_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.potencia if especificaciones.potencia else '-'}", centrar_parrafo),
+            Paragraph(f"Potencia Máx. ({especificaciones.potencia_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.potencia_max if especificaciones.potencia_max else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Velocidad ({especificaciones.velocidad_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.velocidad if especificaciones.velocidad else '-'}", centrar_parrafo),
+            Paragraph(f"Presión de entrada ({especificaciones.presion_entrada_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.presion_entrada if especificaciones.presion_entrada else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Temperatura de Entrada ({especificaciones.temperatura_entrada_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.temperatura_entrada if especificaciones.temperatura_entrada else '-'}", centrar_parrafo),
+            Paragraph(f"Contra Presión ({especificaciones.contra_presion_unidad if especificaciones.contra_presion_unidad else '-'})", centrar_parrafo),
+            Paragraph(f"{especificaciones.contra_presion if especificaciones.contra_presion else '-'}", centrar_parrafo)
+        ],
+    ]
+
+    estilo = TableStyle(
+        [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+
+            ('BACKGROUND', (0, 0), (0, -1), sombreado),
+            ('BACKGROUND', (2, 0), (2, 1), sombreado),
+            ('BACKGROUND', (0, 3), (-1, 3), sombreado),
+
+            ('SPAN', (0, 3), (-1,3)),
+            ('SPAN', (1, 2), (-1,2)),
+
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE')
+        ]
+    )
+
+    table = Table(table, colWidths=(1.8*inch, 1.8*inch, 1.8*inch, 1.8*inch))
+    table.setStyle(estilo)
+    story.append(table)
+
+    table = [[
+        Paragraph("Corrientes Circulante por la Turbina", centrar_parrafo)
+    ], [
+        Paragraph("#", centrar_parrafo),
+        Paragraph("Descripción", centrar_parrafo),
+        Paragraph(f"Flujo ({datos_corrientes.flujo_unidad})", centrar_parrafo),
+        Paragraph(f"Entalpía ({datos_corrientes.entalpia_unidad})", centrar_parrafo),
+        Paragraph(f"Presión ({datos_corrientes.presion_unidad})", centrar_parrafo),
+        Paragraph(f"Temperatura ({datos_corrientes.temperatura_unidad})", centrar_parrafo),
+        Paragraph(f"Fase", centrar_parrafo),
+    ]]
+
+    for corriente in turbina.datos_corrientes.corrientes.all():
+        table.append([
+            Paragraph(corriente.numero_corriente, centrar_parrafo),
+            Paragraph(corriente.descripcion_corriente, centrar_parrafo),
+            Paragraph(str(corriente.flujo), centrar_parrafo),
+            Paragraph(str(corriente.entalpia), centrar_parrafo),
+            Paragraph(str(corriente.presion) if corriente.presion else '-', centrar_parrafo),
+            Paragraph(str(corriente.temperatura), centrar_parrafo),
+            Paragraph(corriente.fase_largo(), centrar_parrafo),
+        ])
+
+    estilo = TableStyle(
+        [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+
+            ('BACKGROUND', (0, 0), (-1, 1), sombreado),
+
+            ('SPAN', (0, 0), (-1,0)),
+
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE')
+        ]
+    )
+
+    table = Table(table, colWidths=(0.4*inch, 2*inch, 1*inch, 1*inch, 1*inch, 1*inch, 0.8*inch))
+    table.setStyle(estilo)
+    story.append(table)
+
+    story.append(Paragraph(f"Turbina registrada por {turbina.creado_por.get_full_name()} el día {turbina.creado_al.strftime('%d/%m/%Y %H:%M:%S')}.", centrar_parrafo))
+
+    if(turbina.editado_al):
+        story.append(Paragraph(f"Turbina editada por {turbina.editado_por.get_full_name()} el día {turbina.editado_al.strftime('%d/%m/%Y %H:%M:%S')}.", centrar_parrafo))
+
+    return [story, None]
