@@ -268,12 +268,21 @@
                         </td>
                         <td>
                             <div class="d-flex justify-content-center align-items-center h-100">
+                                {% if form.instance %}
+                                {% if form.instance.entrada %}
                                 {% render_field form.entrada class="form-check-input entrada" %}
+                                {% else %}
+                                {% render_field form.entrada class="form-check-input entrada" %}
+                                {% endif %}
+                                {% else %}
+                                {% render_field form.entrada class="form-check-input entrada" %}
+                                {% endif %}
+
                             </div>
                             <small>{{form.entrada.errors}}</small>
                         </td>
                         <td>
-                            {% render_field form.flujo class="form-control" placeholder="Flujo" required="required" %}
+                            {% render_field form.flujo class="form-control flujo" placeholder="Flujo" required="required" %}
                             <small>{{form.flujo.errors}}</small>
                         </td>
                         <td>
@@ -322,10 +331,12 @@
 {% block extra_javascript %}
 <script src="/static/js/turbinas/creacion.js"></script>
 
+{% if form_turbina.instance.tag %}
 <script>
     $('select[name="presion_unidad"]').html($('select[name="presion_unidad"]').html().replaceAll('</option>', 'g</option>'));
 
     $('.entrada').change()
 </script>
+{% endif %}
 
 {% endblock %}

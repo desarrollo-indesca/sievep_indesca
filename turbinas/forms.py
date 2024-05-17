@@ -33,7 +33,7 @@ class EspecificacionesTurbinaVaporForm(FormConUnidades):
         self.fields['temperatura_entrada_unidad'].queryset = UNIDADES_TEMPERATURA
 
         self.fields['contra_presion_unidad'].empty_label = None
-        self.fields['contra_presion_unidad'].queryset = UNIDADES_TEMPERATURA
+        self.fields['contra_presion_unidad'].queryset = UNIDADES_PRESION
 
     class Meta:
         model = EspecificacionesTurbinaVapor
