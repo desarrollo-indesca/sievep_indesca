@@ -6,9 +6,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.views.generic import ListView
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.contrib import messages
-from simulaciones_pequiven.views import ConsultaEvaluacion, ReportesFichasMixin, FiltrarEvaluacionesMixin
+from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion, ReportesFichasMixin, FiltrarEvaluacionesMixin
 
 from usuarios.views import SuperUserRequiredMixin
 from calculos.unidades import *
@@ -19,13 +19,18 @@ from .models import *
 from .forms import *
 
 # Create your views here.
-class ObtenerTurbinVaporMixin():
+class ObtenerTurbinaVaporMixin():
     '''
     Resumen:
         Mixin para ejecutar la consulta de turbinas completa.
     '''
-    def get_turbina(self):
-        turbina = TurbinaVapor.objects.filter(pk=self.kwargs['pk']).select_related(
+    def get_turbina(self, turbina_q = None):
+        if(not turbina_q):
+            turbina = TurbinaVapor.objects.filter(pk=self.kwargs['pk'])
+        else:
+            turbina = turbina_q
+
+        turbina.select_related(
             'generador_electrico', 
             'generador_electrico__ciclos_unidad',
             'generador_electrico__potencia_real_unidad',
@@ -54,7 +59,7 @@ class ObtenerTurbinVaporMixin():
            'datos_corrientes__corrientes'
         )
 
-        return turbina.first()
+        return turbina[0] if not turbina_q else turbina
 
 class ReportesFichasTurbinasVaporMixin(ReportesFichasMixin):
     '''
@@ -66,7 +71,7 @@ class ReportesFichasTurbinasVaporMixin(ReportesFichasMixin):
     titulo_reporte_ficha = "Ficha Técnica de la Turbina de Vapor"
     codigo_reporte_ficha = "ficha_tecnica_turbina_vapor"
 
-class ConsultaTurbinasVapor(LoginRequiredMixin, ListView, ReportesFichasTurbinasVaporMixin):
+class ConsultaTurbinasVapor(FiltradoSimpleMixin, ObtenerTurbinaVaporMixin, LoginRequiredMixin, ListView, ReportesFichasTurbinasVaporMixin):
     '''
     Resumen:
         Vista para la consulta de las turbinas de vapor.
@@ -96,6 +101,7 @@ class ConsultaTurbinasVapor(LoginRequiredMixin, ListView, ReportesFichasTurbinas
     model = TurbinaVapor
     template_name = 'turbinas_vapor/consulta.html'
     paginate_by = 10
+    titulo = "SIEVEP - Consulta de Turbinas de Vapor"
 
     def post(self, request, *args, **kwargs):
         reporte_ficha = self.reporte_ficha(request)
@@ -107,42 +113,6 @@ class ConsultaTurbinasVapor(LoginRequiredMixin, ListView, ReportesFichasTurbinas
         
         if(request.POST.get('tipo') == 'xlsx'): # reporte de turbinas de vapor en XLSX
             return reporte_equipos(request, self.get_queryset(), 'Listado de Turbinas de Vapor', 'listado_turbinas_vapor')
-
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:        
-        if(request.GET.get('page')):
-            request.session['pagina_consulta'] = request.GET['page']
-        else:
-            request.session['pagina_consulta'] = 1
-        
-        request.session['tag_consulta'] = request.GET.get('tag') if request.GET.get('tag') else ''
-        request.session['descripcion_consulta'] = request.GET.get('descripcion') if request.GET.get('descripcion') else ''
-        request.session['complejo_consulta'] = request.GET.get('complejo') if request.GET.get('complejo') else ''
-        request.session['planta_consulta'] = request.GET.get('planta') if request.GET.get('planta') else ''
-        
-        return super().get(request, *args, **kwargs)
-        
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["titulo"] = "SIEVEP - Consulta de Turbinas de Vapor"
-        context['complejos'] = Complejo.objects.all()
-
-        if(self.request.GET.get('complejo')):
-            context['plantas'] = Planta.objects.filter(complejo= self.request.GET.get('complejo'))
-
-        context['tag'] = self.request.GET.get('tag', '')
-        context['descripcion'] = self.request.GET.get('descripcion', '')
-        context['complejox'] = self.request.GET.get('complejo')
-        context['plantax'] = self.request.GET.get('planta')
-
-        if(context['complejox']):
-            context['complejox'] = int(context['complejox'])
-        
-        if(context['plantax']):
-            context['plantax'] = int(context['plantax'])
-
-        context['link_creacion'] = 'creacion_turbina_vapor'
-
-        return context
     
     def get_queryset(self):
         tag = self.request.GET.get('tag', '')
@@ -174,34 +144,7 @@ class ConsultaTurbinasVapor(LoginRequiredMixin, ListView, ReportesFichasTurbinas
                 tag__icontains = tag
             )
 
-        new_context = new_context.select_related(
-            'generador_electrico', 
-            'generador_electrico__ciclos_unidad',
-            'generador_electrico__potencia_real_unidad',
-            'generador_electrico__potencia_aparente_unidad',
-            'generador_electrico__velocidad_unidad',
-            'generador_electrico__corriente_electrica_unidad',
-            'generador_electrico__voltaje_unidad',
-            
-            'planta', 'planta__complejo',
-            
-            'especificaciones', 
-            'especificaciones__potencia_unidad',
-            'especificaciones__velocidad_unidad',
-            'especificaciones__presion_entrada_unidad',
-            'especificaciones__temperatura_entrada_unidad',
-            'especificaciones__contra_presion_unidad',
-            
-            'datos_corrientes',
-            'datos_corrientes__flujo_unidad',            
-            'datos_corrientes__entalpia_unidad',            
-            'datos_corrientes__presion_unidad',
-            'datos_corrientes__temperatura_unidad' 
-        )
-
-        new_context = new_context.prefetch_related(
-           'datos_corrientes__corrientes'
-        )
+        new_context = self.get_turbina(new_context)
 
         return new_context
     
@@ -359,7 +302,7 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
                 'forms_corrientes': forms_corrientes,
             })
 
-class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinVaporMixin):
+class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
     """
     Resumen:
         Vista para la edición de turbinas de vapor.
@@ -409,7 +352,7 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinVaporMixin):
         return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
                                         form_datos_corrientes, forms_corrientes)
         
-class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin, ReportesFichasTurbinasVaporMixin):
+class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinaVaporMixin, ReportesFichasTurbinasVaporMixin):
     """
     Resumen:
         Vista para la Consulta de Evaluaciones de una Turbina de Vapor.
@@ -486,7 +429,7 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin
 
         return context
 
-class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTurbinasVaporMixin, ObtenerTurbinVaporMixin):
+class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTurbinasVaporMixin, ObtenerTurbinaVaporMixin):
     """
     Resumen:
         Vista de la creación de una evaluación de una turbina de vapor.
@@ -548,7 +491,7 @@ class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTur
     def get(self, request, pk):
         return render(request, 'turbinas_vapor/evaluacion.html', self.get_context_data())
     
-class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinVaporMixin):
+class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinaVaporMixin):
     """
     Resumen:
         Vista para el cálculo de resultados de evaluaciones de Turbinas de Vapor y su almacenamiento.
