@@ -32,7 +32,7 @@
             <a class="btn d-block btn-secondary" href="{% url 'consulta_turbinas_vapor' %}">↶ Regresar</a>
         </div>
         <div class="col-md-6 col-lg-8">
-            {% if not edicion %}
+            {% if not form_turbina.instance.pk %}
             <h3 class="text-center" style="color: #e31e24;">Registro de Nueva Turbina de Vapor</h3>
             {% else %}
             <h3 class="text-center" style="color: #e31e24;">Edición de Turbina de Vapor</h3>

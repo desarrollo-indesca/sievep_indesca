@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load widget_tweaks %}
 
 {% block head %}
  <link rel="stylesheet" href="{% static 'css/bienvenida/index.css' %}">
@@ -29,13 +30,13 @@
         <form method="post" class="row">
             {% csrf_token %}
             <div class="col-12 d-flex flex-column g-2">
-                <label class="text-start" for="email">Correo Electrónico:</label>
-                <input type="email" name="email" id="email" class="form-control w-100" required>
+                <label class="text-start" for="email">Usuario:</label>
+                {% render_field form.username class="form-control" %}
             </div>
     
             <div class="col-12 d-flex flex-column g-2">
                 <label class="text-start" for="password">Contraseña:</label>
-                <input type="password" name="password" id="password" class="form-control w-100" required>
+                {% render_field form.password class="form-control" %}
             </div>
     
             <div class="col-12 d-flex justify-content-center mt-3">

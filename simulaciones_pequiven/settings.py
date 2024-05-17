@@ -15,7 +15,46 @@ A nivel de código el proyecto se llama 'simulaciones_pequiven' hasta que se dec
 """
 
 from pathlib import Path
-import os
+import ldap, os
+from django_auth_ldap.config import LDAPSearch
+
+AUTH_LDAP_GLOBAL_OPTIONS = {
+    ldap.OPT_X_TLS_REQUIRE_CERT: True,
+    ldap.OPT_X_TLS_DEMAND: True,
+    ldap.OPT_REFERRALS: 0,
+    ldap.OPT_X_TLS_CACERTFILE: '/etc/ssl/certs/mycertfile.pem'
+}
+AUTH_LDAP_SERVER_URI = 'ldap://172.20.30.135'
+AUTH_LDAP_BIND_DN = "CN=bind,CN=Users,DC=indesca,DC=local"
+AUTH_LDAP_BIND_PASSWORD = "indesca2024+"
+AUTH_LDAP_USER_SEARCH = LDAPSearch(
+            "dc=indesca,dc=local", ldap.SCOPE_SUBTREE, "sAMAccountName=%(user)s"
+            )
+
+AUTH_LDAP_USER_ATTR_MAP = {
+            "username": "sAMAccountName",
+                "first_name": "givenName",
+                    "last_name": "sn",
+                        "email": "mail",
+}
+from django_auth_ldap.config import ActiveDirectoryGroupType
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
+        "dc=indesca,dc=local", ldap.SCOPE_SUBTREE, "(objectCategory=Group)"
+    )
+
+AUTH_LDAP_GROUP_TYPE = ActiveDirectoryGroupType(name_attr="cn")
+AUTH_LDAP_USER_FLAGS_BY_GROUP = {
+    "is_superuser": "CN=django-admins,CN=Users,DC=INDESCA,DC=LOCAL",
+    "is_staff": "CN=django-admins,CN=Users,DC=INDESCA,DC=LOCAL",
+}
+AUTH_LDAP_FIND_GROUP_PERMS = True
+AUTH_LDAP_CACHE_GROUPS = True
+AUTH_LDAP_GROUP_CACHE_TIMEOUT = 1  # 1 hour cache
+
+AUTH_LDAP_MIRROR_GROUPS = True
+AUTHENTICATION_BACKENDS = [
+    'django_auth_ldap.backend.LDAPBackend',
+]
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

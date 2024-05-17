@@ -7,59 +7,44 @@ from django.views import View
 from django.views.generic import ListView
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout, login, get_user_model
+from django.contrib.auth.views import LoginView
 from django.http import HttpResponse
 from intercambiadores.models import Fluido, Unidades, TiposDeTubo, Tema, Intercambiador, PropiedadesTuboCarcasa, CondicionesIntercambiador, Complejo
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.http import HttpResponse, HttpRequest
-from django import template
-from django.utils.http import urlencode
+from django.contrib import messages
 
-register = template.Library()
+class Login(LoginView):
+    template_name = "usuarios/login.html"
+    next_page = "/"
+        
+    def post(self, request):
+        print(self.get_context_data())
+        try:
+            res = super().post(self, request)
+            print(res.status_code)
+            if(res.status_code == 403):
+                messages.warning(request, "Las credenciales ingresadas son inválidas.")
+            elif(res.status_code == 200):
+                messages.warning(request, "El usuario no fue encontrado.")
 
-@register.simple_tag(takes_context=True)
-def url_replace(context, **kwargs):
-    query = context['request'].GET.dict()
-    query.update(kwargs)
-    return urlencode(query)
+            return res
 
+        except Exception as e:
+            print(str(e))
+            return redirect('/')
+        
 class Bienvenida(View):
     context = {
         'titulo': "SIEVEP"
     }
-    
+
     def get(self, request):
         if(request.user.is_authenticated):
             return render(request, 'bienvenida.html', context=self.context)
         else:
-            return render(request, 'usuarios/login.html', context=self.context)
-        
-    def post(self, request):
-        username = request.POST["email"]
-        password = request.POST["password"]
-        UserModel = get_user_model()
-        user = None
-        try:
-            user = UserModel.objects.get(email=username)
-        except UserModel.DoesNotExist:
-            self.context['errores'] = 'Usuario no encontrado.'
-        else:
-            if user.check_password(password):
-                user = user
-            else:
-                user = None
-            
-        if user and user.is_active:
-            login(request, user)
-            if(self.context.get('errores')):
-                del(self.context['errores'])
-
-        elif(user and not user.is_active):
-            self.context['errores'] = 'Usuario inactivo.'            
-        else:
-            self.context['errores'] = 'Datos Incorrectos.'
-        
-        return redirect('/')
+            return redirect("login/")
         
 class CerrarSesion(LoginRequiredMixin, View):
     def get(self, request):
