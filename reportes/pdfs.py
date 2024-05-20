@@ -279,7 +279,7 @@ def detalle_evaluacion(evaluacion):
     condicion_tubo = propiedades.condicion_tubo() if intercambiador.tipo.pk == 1 else propiedades.condicion_interno()
 
     # Primera Tabla: Datos de Entrada
-    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.first_name}"))
+    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.get_full_nam()()}"))
     story.append(Paragraph(f"<b>Tag del Equipo:</b> {intercambiador.tag}"))
     story.append(Paragraph("Datos de Entrada de la Evaluación", ParagraphStyle('', alignment=1)))
 
@@ -1441,7 +1441,7 @@ def detalle_evaluacion_bomba(evaluacion):
     salida_succion,salida_descarga = evaluacion.salida_succion(), evaluacion.salida_descarga()
 
     # TABLA DE DATOS DE ENTRADA
-    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.first_name}"))
+    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.get_full_name()}"))
     story.append(Paragraph(f"<b>Tag del Equipo:</b> {bomba.tag}"))
     story.append(Paragraph(f"<b>ID de la Evaluación:</b> {evaluacion.id}"))
 
@@ -2255,7 +2255,7 @@ def detalle_evaluacion_ventilador(evaluacion):
     salida = evaluacion.salida
 
     # TABLA DE DATOS DE ENTRADA
-    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.first_name}"))
+    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.get_full_nam()}"))
     story.append(Paragraph(f"<b>Tag del Equipo:</b> {ventilador.tag}"))
     story.append(Paragraph(f"<b>ID de la Evaluación:</b> {evaluacion.id}"))
 
@@ -2357,7 +2357,7 @@ def detalle_evaluacion_turbina_vapor(evaluacion):
     salida = evaluacion.salida
 
     # TABLA DE DATOS DE ENTRADA
-    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.first_name}"))
+    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.get_full_nam()}"))
     story.append(Paragraph(f"<b>Tag del Equipo:</b> {turbina.tag}"))
     story.append(Paragraph(f"<b>ID de la Evaluación:</b> {evaluacion.id}"))
 
