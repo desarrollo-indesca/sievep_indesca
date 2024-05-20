@@ -21,9 +21,11 @@
 
     <div class="col-8 d-flex justify-content-center align-items-center flex-column">
         <h3>Inicio de Sesión</h3>
-        {% if errores %}
+        {% if messages %}
         <div class="alert alert-danger w-75" role="alert">
-            {{errores}}
+            {% for message in messages %}
+            {{message}}
+            {% endfor %}
         </div>
         {% endif %}
 

@@ -6,7 +6,7 @@ from simulaciones_pequiven.settings import BASE_DIR
 from django.views import View
 from django.views.generic import ListView
 from django.shortcuts import render, redirect
-from django.contrib.auth import logout, login, get_user_model
+from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView
 from django.http import HttpResponse
 from intercambiadores.models import Fluido, Unidades, TiposDeTubo, Tema, Intercambiador, PropiedadesTuboCarcasa, CondicionesIntercambiador, Complejo
@@ -18,16 +18,19 @@ from django.contrib import messages
 class Login(LoginView):
     template_name = "usuarios/login.html"
     next_page = "/"
+
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = "SIEVEP - Inicio de Sesión"
+        return context
         
     def post(self, request):
-        print(self.get_context_data())
         try:
             res = super().post(self, request)
-            print(res.status_code)
             if(res.status_code == 403):
                 messages.warning(request, "Las credenciales ingresadas son inválidas.")
             elif(res.status_code == 200):
-                messages.warning(request, "El usuario no fue encontrado.")
+                messages.warning(request, "El usuario no existe o no tiene los permisos requeridos para acceder al sistema.")
 
             return res
 
