@@ -3,6 +3,4 @@ Sistema Integrado de Evaluación de Equipos de Procesos. Software desarrollado p
 Solicitudes de Servicio asociadas al desarrollo: SS23147.
 Autores Individuales: Ing. Diego Faria, Ing. Edgar Salas, Ing. Fausto Rosales, Ing. Biaggi Zambrano, Ing. Ciro Nava.
 Años del desarrollo: 2023-2024.
-=======================================================
-Directorio de etiquetas de plantillas. Esta carpeta solo se usa para la numeración de filas en las consultas.
 '''

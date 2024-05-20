@@ -6,60 +6,48 @@ from simulaciones_pequiven.settings import BASE_DIR
 from django.views import View
 from django.views.generic import ListView
 from django.shortcuts import render, redirect
-from django.contrib.auth import logout, login, get_user_model
+from django.contrib.auth import logout
+from django.contrib.auth.views import LoginView
 from django.http import HttpResponse
-from intercambiadores.models import Fluido, Unidades, TiposDeTubo, Tema, Intercambiador, PropiedadesTuboCarcasa, CondicionesIntercambiador
+from intercambiadores.models import Fluido, Unidades, TiposDeTubo, Tema, Intercambiador, PropiedadesTuboCarcasa, CondicionesIntercambiador, Complejo
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.http import JsonResponse
-from django import template
-from django.utils.http import urlencode
+from django.http import HttpResponse, HttpRequest
+from django.contrib import messages
 
-register = template.Library()
+class Login(LoginView):
+    template_name = "usuarios/login.html"
+    next_page = "/"
 
-@register.simple_tag(takes_context=True)
-def url_replace(context, **kwargs):
-    query = context['request'].GET.dict()
-    query.update(kwargs)
-    return urlencode(query)
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = "SIEVEP - Inicio de Sesión"
+        return context
+        
+    def post(self, request):
+        try:
+            res = super().post(self, request)
+            if(res.status_code == 403):
+                messages.warning(request, "Las credenciales ingresadas son inválidas.")
+            elif(res.status_code == 200):
+                messages.warning(request, "El usuario no existe o no tiene los permisos requeridos para acceder al sistema.")
 
+            return res
+
+        except Exception as e:
+            print(str(e))
+            return redirect('/')
+        
 class Bienvenida(View):
     context = {
         'titulo': "SIEVEP"
     }
-    
+
     def get(self, request):
         if(request.user.is_authenticated):
             return render(request, 'bienvenida.html', context=self.context)
         else:
-            return render(request, 'usuarios/login.html', context=self.context)
-        
-    def post(self, request):
-        username = request.POST["email"]
-        password = request.POST["password"]
-        UserModel = get_user_model()
-        user = None
-        try:
-            user = UserModel.objects.get(email=username)
-        except UserModel.DoesNotExist:
-            self.context['errores'] = 'Usuario no encontrado.'
-        else:
-            if user.check_password(password):
-                user = user
-            else:
-                user = None
-            
-        if user and user.is_active:
-            login(request, user)
-            if(self.context.get('errores')):
-                del(self.context['errores'])
-
-        elif(user and not user.is_active):
-            self.context['errores'] = 'Usuario inactivo.'            
-        else:
-            self.context['errores'] = 'Datos Incorrectos.'
-        
-        return redirect('/')
+            return redirect("login/")
         
 class CerrarSesion(LoginRequiredMixin, View):
     def get(self, request):
@@ -463,3 +451,41 @@ class PlantasPorComplejo(View):
     def get(self, request):
         plantas = Planta.objects.filter(complejo__pk = request.GET['complejo'])
         return render(request, 'plantas.html', context={'plantas': plantas, 'planta_selec': int(request.GET['planta']) if request.GET.get('planta') else None}) 
+    
+class FiltradoSimpleMixin():
+    titulo = ""
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:        
+        if(request.GET.get('page')):
+            request.session['pagina_consulta'] = request.GET['page']
+        else:
+            request.session['pagina_consulta'] = 1
+        
+        request.session['tag_consulta'] = request.GET.get('tag') if request.GET.get('tag') else ''
+        request.session['descripcion_consulta'] = request.GET.get('descripcion') if request.GET.get('descripcion') else ''
+        request.session['complejo_consulta'] = request.GET.get('complejo') if request.GET.get('complejo') else ''
+        request.session['planta_consulta'] = request.GET.get('planta') if request.GET.get('planta') else ''
+        
+        return super().get(request, *args, **kwargs)
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["titulo"] = self.titulo
+        context['complejos'] = Complejo.objects.all()
+
+        if(self.request.GET.get('complejo')):
+            context['plantas'] = Planta.objects.filter(complejo= self.request.GET.get('complejo'))
+
+        context['tag'] = self.request.GET.get('tag', '')
+        context['descripcion'] = self.request.GET.get('descripcion', '')
+        context['complejox'] = self.request.GET.get('complejo')
+        context['plantax'] = self.request.GET.get('planta')
+
+        if(context['complejox']):
+            context['complejox'] = int(context['complejox'])
+        
+        if(context['plantax']):
+            context['plantax'] = int(context['plantax'])
+
+        context['link_creacion'] = 'creacion_turbina_vapor'
+
+        return context

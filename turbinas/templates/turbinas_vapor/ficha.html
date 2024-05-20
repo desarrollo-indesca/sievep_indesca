@@ -141,7 +141,7 @@
                             <th class="table-dark text-center">Fase</th>
                         </tr>
                         {% for corriente in datos_corrientes.corrientes.all %}
-                        <tr>
+                        <tr class="{% if corriente.entrada %}table-success{% elif not corriente.presion %}table-warning{% endif %}">
                             <th class="text-center">{{corriente.numero_corriente}}{% if corriente.entrada %}*{% endif %}</td>
                             <td class="text-center">{{corriente.descripcion_corriente}}</td>
                             <td class="text-center">{{corriente.flujo}}</td>

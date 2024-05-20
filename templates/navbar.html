@@ -21,14 +21,14 @@
             <a class="nav-link" href="{% url 'seleccion_equipo' %}">Equipos Auxiliares</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Turbinas de Vapor</a>
+            <a class="nav-link" href="{% url 'consulta_turbinas_vapor' %}">Turbinas de Vapor</a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle text-white" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               {{request.user.get_full_name}}
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              {% if request.user.is_superuser %}
+              {% if False %}
               <li><a class="dropdown-item" href="{% url 'consultar_usuarios' %}">Administrar Usuarios</a></li>
               {% endif %}
               <li><a class="dropdown-item" target="_blank" href="{% url 'manual' %}">Manual de Usuario</a></li>

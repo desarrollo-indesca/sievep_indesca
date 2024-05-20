@@ -1,0 +1,42 @@
+<table>
+    <tbody>
+        {% for corriente in res.corrientes %}
+        <tr>
+            <td class="resultado text-center" hx-swap-oob="true" id="form-{{forloop.counter}}-flujo">
+                {{corriente.flujo|floatformat:4}}
+            </td>
+            <td class="resultado text-center" hx-swap-oob="true" id="form-{{forloop.counter}}-entalpia">
+                {{corriente.entalpia|floatformat:4}}
+            </td>
+            <td class="resultado text-center" hx-swap-oob="true" id="form-{{forloop.counter}}-fase">
+                {{corriente.fase.1}}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div id="resultados" class="resultado" hx-swap-oob="true">
+    <table hx-swap-oob="true" class="table table-hover">
+        <thead>
+            <tr class="table-dark">
+                <th colspan="2" class="text-center">Resultados de la Evaluación</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th class="table-dark w-50">Eficiencia (%)</th>
+                <td class="w-50">{{res.eficiencia|floatformat:4}}</td>
+            </tr>
+    
+            <tr>
+                <th class="table-dark w-50">Potencia Calculada ({{res.potencia_unidad}})</th>
+                <td class="w-50">{{res.potencia_calculada|floatformat:4}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<button id="submit" type="submit" name="submit" value="almacenar" class="btn btn-danger" hx-swap-oob="true">
+    Almacenar Resultados
+</button>

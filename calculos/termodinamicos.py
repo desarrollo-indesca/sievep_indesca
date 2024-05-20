@@ -320,13 +320,34 @@ def calcular_entalpia_coolprop(t: float, p: float, fluido: str) -> float:
         p: float -> Presión (Pa)
 
     Devuelve:
-        (float) -> Entalpía del fluido en las condiciones presentadas (J/Kg). Devolverá None si ocurre un error.
+        (float) -> Entalpía del fluido en las condiciones presentadas (kJ/Kg). Devolverá None si ocurre un error.
     """
     try:
         if(p):
             return CP.PropsSI('H', 'T', t, 'P', p, fluido)
         else:
             return CP.PropsSI('H','Q',0,'T',t,fluido)
+    except:
+        return None
+    
+def calcular_densidad_coolprop(t: float, p: float, fluido: str) -> float:
+    """
+    Resumen:
+        Esta función calculará la densidad de un fluido registrado en CoolProp.
+        Esta función utiliza CoolProp a efectos de respetar al máximo el modelo desarrollado.
+
+    Parámetros:
+        t: float -> Temperatura (K)
+        p: float -> Presión (Pa)
+
+    Devuelve:
+        (float) -> Densidad del fluido en las condiciones presentadas (Kg/m3). Devolverá None si ocurre un error.
+    """
+    try:
+        if(p):
+            return CP.PropsSI('D', 'T', t, 'P', p, fluido)
+        else:
+            return CP.PropsSI('D','Q',0,'T',t,fluido)
     except:
         return None
     
@@ -345,9 +366,9 @@ def calcular_fase_coolprop(t: float, p: float, fluido: str) -> str:
     """
     try:
         if(p):
-            return CP.PropsSI('P', 'T', t, 'P', p, fluido)
+            return CP.PhaseSI('T', t, 'P', p, fluido)
         else:
-            return CP.PropsSI('P','Q',0,'T',t,fluido)
+            return CP.PhaseSI('Q',0,'T',t,fluido)
     except:
         return None
     
@@ -364,10 +385,10 @@ def definicion_fases_coolprop(fase: str) -> str:
     """
 
     if('liquid' in fase): # Líquido
-        return "L"
+        return ("L", "Líquido")
     elif("gas" in fase): # Vapor
-        return "V"
+        return ("V", "Vapor")
     elif(fase == "twophase"): # Saturación
-        return "S"
+        return ("S", "Saturado")
     elif(fase == "supercritical"): # Fluido Supercrítico
-        return "F"
+        return ("F", "Fluido Supercrítico")

@@ -33,7 +33,7 @@ class EspecificacionesTurbinaVaporForm(FormConUnidades):
         self.fields['temperatura_entrada_unidad'].queryset = UNIDADES_TEMPERATURA
 
         self.fields['contra_presion_unidad'].empty_label = None
-        self.fields['contra_presion_unidad'].queryset = UNIDADES_TEMPERATURA
+        self.fields['contra_presion_unidad'].queryset = UNIDADES_PRESION
 
     class Meta:
         model = EspecificacionesTurbinaVapor
@@ -90,8 +90,36 @@ class DatosCorrientesForm(FormConUnidades):
 
     class Meta:
         model = DatosCorrientes
-        exclude = ('id',)
+        fields = '__all__'
     
 corrientes_formset = forms.modelformset_factory(
     Corriente, form=CorrienteForm, extra=0, can_delete=True, min_num=2, exclude=('id','datos_corriente')
 )
+
+class EntradaEvaluacionForm(FormConUnidades):
+    def limpiar_campos_unidades(self):
+        self.fields['flujo_entrada_unidad'].empty_label = None
+        self.fields['flujo_entrada_unidad'].queryset = UNIDADES_FLUJOS
+
+        self.fields['potencia_real_unidad'].empty_label = None
+        self.fields['potencia_real_unidad'].queryset = UNIDADES_POTENCIA
+
+        self.fields['presion_unidad'].empty_label = None
+        self.fields['presion_unidad'].queryset = UNIDADES_PRESION
+
+        self.fields['temperatura_unidad'].empty_label = None
+        self.fields['temperatura_unidad'].queryset = UNIDADES_TEMPERATURA
+
+    class Meta:
+        model = EntradaEvaluacion
+        exclude = ('id',)
+
+class EntradaCorrienteForm(forms.ModelForm):
+    class Meta:
+        model = EntradaCorriente
+        fields = '__all__'
+
+class EvaluacionesForm(forms.ModelForm):
+    class Meta:
+        model = Evaluacion
+        fields = ('nombre',)
