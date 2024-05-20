@@ -144,7 +144,7 @@ class TipoIntercambiador(models.Model):
     nombre = models.CharField(max_length=50)
 
     class Meta:
-        db_table = "tipo_intercambiador"
+        db_table = "intercambiadores_tipointercambiador"
 
 # Modelo de Tema de Equipo
 class Tema(models.Model):
@@ -168,7 +168,7 @@ class Tema(models.Model):
         return self.codigo.upper()
 
     class Meta:
-        db_table = "tema"
+        db_table = "intercambiadores_tema"
 
 # Específicos de Intercambiadores Tubo y Carcasa
 class Intercambiador(models.Model):
@@ -253,7 +253,7 @@ class Intercambiador(models.Model):
         return os.path.isfile(BASE_DIR.__str__() + f'\\static\\img\\temas\\intercambiadores\\tubo_carcasa\\{self.tema.codigo}.jpg')
 
     class Meta:
-        db_table = "intercambiador"
+        db_table = "intercambiadores_intercambiador"
 
 class TiposDeTubo(models.Model):
     '''
@@ -271,7 +271,7 @@ class TiposDeTubo(models.Model):
         return self.nombre.upper()
 
     class Meta:
-        db_table = "tipos_de_tubo"
+        db_table = "intercambiadores_tiposdetubo"
 
 class PropiedadesTuboCarcasa(models.Model):
     '''
@@ -421,7 +421,7 @@ class PropiedadesTuboCarcasa(models.Model):
                 return x[1]
 
     class Meta:
-        db_table = "intercambiador_tubo_carcasa"
+        db_table = "intercambiadores_intercambiadortubocarcasa"
         ordering = ('intercambiador__tag',)
 
 class PropiedadesDobleTubo(models.Model):
@@ -569,7 +569,7 @@ class PropiedadesDobleTubo(models.Model):
                 return x[1]
 
     class Meta:
-        db_table = "intercambiador_doble_tubo"
+        db_table = "intercambiadores_intercambiadordobletubo"
         ordering = ('intercambiador__tag',)
 
 class CondicionesIntercambiador(models.Model):
@@ -644,7 +644,7 @@ class CondicionesIntercambiador(models.Model):
                 return x[1]
 
     class Meta:
-        db_table = "condiciones_intercambiador"
+        db_table = "intercambiadores_condicionesintercambiador"
 
 # Modelo de Evaluaciones
 class EvaluacionesIntercambiador(models.Model):
@@ -755,5 +755,5 @@ class EvaluacionesIntercambiador(models.Model):
         return (self.temp_in_entrada + self.temp_in_salida)/2
 
     class Meta:
-        db_table = "evaluaciones_intercambiadores"
+        db_table = "intercambiadores_evaluaciones"
         ordering = ('-fecha',)

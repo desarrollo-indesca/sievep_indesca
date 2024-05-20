@@ -4,14 +4,15 @@ const cargarEventListeners = (anadirListeners = true) => {
     });
 
     $('.entrada').change(e => {
-        if($(`#${e.target.id}`).is(':checked'))
-            $('.entrada').toArray().filter(el => el !== e.target).map(el => {
-                $(el).attr('disabled','disabled');
-            });
-        else
-            $('.entrada').toArray().filter(el => el !== e.target).map(el => {
-                $(el).removeAttr('disabled');
-            });
+        $('.entrada').toArray().filter(el => !$(el).is(':checked')).map(el => {
+             $(el).attr('disabled','disabled');
+        });
+        $('.entrada').toArray().filter(el => $(el).is(':checked')).map(el => {
+            $(el).removeAttr('disabled');
+        });
+
+        if($('.entrada').toArray().filter(el => !$(el).is(':checked')).length == $('.entrada').toArray().length)
+            $('.entrada').removeAttr('disabled');
     });
     
     if(anadirListeners)
@@ -55,6 +56,7 @@ const eliminar = e => {
     e.target.parentElement.parentElement.remove();
     reindex();
     cargarEventListeners(false);
+    $('.entrada').change();
 };
     
 const anadir = e => {
@@ -93,6 +95,8 @@ const anadir = e => {
     $(`#id_${formPrefix}temperatura`).val("");
     $(`#id_${formPrefix}fase`).val("");
     $(`#id_${formPrefix}entrada`).removeAttr("checked");
+
+    $('.entrada').change();
 };
 
 cargarEventListeners();
@@ -106,39 +110,65 @@ $('button[type=submit]').click( (e) => {
         if(presiones > 1){
             e.preventDefault();
             alert("Debe existir solo una presión en las corrientes que esté vacía.")
+            return;
         } else if(presiones < 1){
             e.preventDefault();
             alert("Debe haber una presión vacía a efectos de determinar la corriente de salida.")
+            return;
         }
 
         if(entradas > 1){
             e.preventDefault();
             alert("Solo puede haber una corriente de entrada.");
+            return;
         } else if(entradas === 0){
             e.preventDefault();
             alert("Debe haber una corriente de entrada.");
-            return false;
+            return;
         }
 
         const arrayNumeros = $('.numero-corriente').toArray().map(x => x.value);
         if((new Set(arrayNumeros)).size !== arrayNumeros.length){
             e.preventDefault();
             alert("Los números de corrientes deben ser TODOS distintos.");
+            return;
         }
         
         if(entradas === 1){
             const entrada = $('.entrada').toArray().filter(x => $(`#${x.id}`).is(':checked'))[0];
             const number = entrada.name.replaceAll('form','').replaceAll('-','').replaceAll(/[a-zA-Z]+/g, '');
-            console.log(number);
             if($(`input[name="form-${number}-presion"]`).val() === ""){
                 e.preventDefault();
                 alert("La corriente de entrada no puede ser la misma que la de salida.");
+                return;
             }
 
             if($(`select[name="form-${number}-fase"]`).val() != 'V'){
                 e.preventDefault();
                 alert("La turbina solo puede tener vapor en la corriente de entrada.");
+                return;
+            }
+
+            const flujos = $('.flujo').toArray();
+            let flujo_sumas = 0;
+            let flujo_entrada = 0;
+
+            flujos.forEach(x => {
+                const number_form = x.name.replaceAll('form','').replaceAll('-','').replaceAll(/[a-zA-Z]+/g, '');
+                if(number_form === number)
+                    flujo_entrada = Number(x.value);
+                else
+                    flujo_sumas += Number(x.value);
+            });
+
+            if(flujo_entrada !== flujo_sumas){
+                e.preventDefault();
+                alert(`El flujo de entrada debe ser igual a las sumas de los demás flujos: ${flujo_entrada} es distinto de ${flujo_sumas}.`)
             }
         }
     }
 )
+
+$('form').submit(e => {
+    $('#submit').attr('disabled','disabled');
+})

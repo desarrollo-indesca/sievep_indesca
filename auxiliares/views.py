@@ -17,14 +17,14 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.views.generic import ListView
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.contrib import messages
-from simulaciones_pequiven.views import ConsultaEvaluacion, ReportesFichasMixin, FiltrarEvaluacionesMixin
+from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion, ReportesFichasMixin, FiltrarEvaluacionesMixin
+from simulaciones_pequiven.unidades import PK_UNIDADES_FLUJO_MASICO
 
 from usuarios.views import SuperUserRequiredMixin
 from auxiliares.models import *
 from auxiliares.forms import *
-from intercambiadores.models import Complejo, Planta
 from calculos.termodinamicos import calcular_densidad, calcular_densidad_aire, calcular_presion_vapor, calcular_viscosidad, calcular_densidad_relativa
 from calculos.unidades import *
 from calculos.utils import fluido_existe, registrar_fluido
@@ -116,14 +116,18 @@ class CargarBombaMixin():
         Mixin que debe ser utilizado cuando una vista utilice una bomba pero no sea el componente principal.
 
     Métodos:
-        get_bomba(self, prefetch) -> Bomba
+        get_bomba(self, prefetch, bomba_q) -> Bomba
             prefetch: bool -> Si se debe hacer prefectching o no
+            bomba_q -> Queryset al que aplicar el prefetching si aplica 
 
         Se hace una consulta a la BDD para obtener la bomba, y hace prefetching si es requerido.
     """
     
-    def get_bomba(self, prefetch = True):
-        bomba = Bombas.objects.filter(pk = self.kwargs['pk'])
+    def get_bomba(self, prefetch = True, bomba_q = None):
+        if(not bomba_q):
+            bomba = Bombas.objects.filter(pk = self.kwargs['pk'])
+        else:
+            bomba = bomba_q
 
         if(prefetch):
             bomba = bomba.select_related(
@@ -153,11 +157,14 @@ class CargarBombaMixin():
             bomba = bomba.prefetch_related(
                 'instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad', 'instalacion_succion__tuberias__longitud_tuberia_unidad', 'instalacion_succion__tuberias__material_tuberia',
                 'instalacion_descarga__tuberias', 'instalacion_descarga__tuberias__diametro_tuberia_unidad', 'instalacion_descarga__tuberias__longitud_tuberia_unidad', 'instalacion_descarga__tuberias__material_tuberia'
-            )            
+            )
+        
+        if(not bomba_q):
+            return bomba[0]
+        else:
+            return bomba
 
-        return bomba[0]
-
-class ConsultaBombas(LoginRequiredMixin, ListView, ReportesFichasBombasMixin):
+class ConsultaBombas(FiltradoSimpleMixin, CargarBombaMixin, LoginRequiredMixin, ListView, ReportesFichasBombasMixin):
     """
     Resumen:
         Vista para la consulta general de las bombas centrífugas (primer equipo auxiliar)
@@ -166,6 +173,15 @@ class ConsultaBombas(LoginRequiredMixin, ListView, ReportesFichasBombasMixin):
     Atributos:
         context: dict
             Contexto de la vista. Actualmente solo incluye el título predeterminado.
+
+        template_name: str
+            Dirección de la plantilla a renderizar.
+
+        paginate_by: int
+            Número de elementos a paginar.
+
+        titulo: str
+            Título a mostrar.
     
     Métodos:
         get(self, request)
@@ -175,6 +191,7 @@ class ConsultaBombas(LoginRequiredMixin, ListView, ReportesFichasBombasMixin):
     model = Bombas
     template_name = 'bombas/consulta.html'
     paginate_by = 10
+    titulo = "SIEVEP - Consulta de Bombas Centrífugas"
 
     def post(self, request, *args, **kwargs):
         reporte_ficha = self.reporte_ficha(request)
@@ -187,42 +204,6 @@ class ConsultaBombas(LoginRequiredMixin, ListView, ReportesFichasBombasMixin):
         if(request.POST.get('tipo') == 'xlsx'):
             return reporte_equipos(request, self.get_queryset(), 'Listado de Bombas Centrífugas', 'listado_bombas')
 
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:        
-        if(request.GET.get('page')):
-            request.session['pagina_consulta'] = request.GET['page']
-        else:
-            request.session['pagina_consulta'] = 1
-        
-        request.session['tag_consulta'] = request.GET.get('tag') if request.GET.get('tag') else ''
-        request.session['descripcion_consulta'] = request.GET.get('descripcion') if request.GET.get('descripcion') else ''
-        request.session['complejo_consulta'] = request.GET.get('complejo') if request.GET.get('complejo') else ''
-        request.session['planta_consulta'] = request.GET.get('planta') if request.GET.get('planta') else ''
-        
-        return super().get(request, *args, **kwargs)
-        
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["titulo"] = "SIEVEP - Consulta de Bombas Centrífugas"
-        context['complejos'] = Complejo.objects.all()
-
-        if(self.request.GET.get('complejo')):
-            context['plantas'] = Planta.objects.filter(complejo= self.request.GET.get('complejo'))
-
-        context['tag'] = self.request.GET.get('tag', '')
-        context['descripcion'] = self.request.GET.get('descripcion', '')
-        context['complejox'] = self.request.GET.get('complejo')
-        context['plantax'] = self.request.GET.get('planta')
-
-        if(context['complejox']):
-            context['complejox'] = int(context['complejox'])
-        
-        if(context['plantax']):
-            context['plantax'] = int(context['plantax'])
-
-        context['link_creacion'] = 'creacion_bomba'
-
-        return context
-    
     def get_queryset(self):
         tag = self.request.GET.get('tag', '')
         descripcion = self.request.GET.get('descripcion', '')
@@ -253,34 +234,7 @@ class ConsultaBombas(LoginRequiredMixin, ListView, ReportesFichasBombasMixin):
                 tag__icontains = tag
             )
 
-        new_context = new_context.select_related(
-            'instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba',
-            'detalles_construccion','condiciones_diseno', 'condiciones_diseno__condiciones_fluido',
-
-            'condiciones_diseno__presion_unidad', 'condiciones_diseno__npsha_unidad', 'condiciones_diseno__capacidad_unidad',
-
-            'condiciones_diseno__condiciones_fluido__temperatura_unidad', 'condiciones_diseno__condiciones_fluido__densidad_unidad',
-            'condiciones_diseno__condiciones_fluido__presion_vapor_unidad', 'condiciones_diseno__condiciones_fluido__viscosidad_unidad',
-            'condiciones_diseno__condiciones_fluido__concentracion_unidad', 'condiciones_diseno__condiciones_fluido__fluido',
-            'instalacion_succion__elevacion_unidad', 'instalacion_succion__usuario',
-            'instalacion_descarga__elevacion_unidad', 'instalacion_descarga__usuario',
-
-            'especificaciones_bomba__velocidad_unidad', 'especificaciones_bomba__potencia_unidad',
-            'especificaciones_bomba__npshr_unidad', 'especificaciones_bomba__cabezal_unidad',
-            'especificaciones_bomba__id_unidad',
-
-            'detalles_construccion__tipo_carcasa1', 'detalles_construccion__tipo_carcasa2',
-            'detalles_construccion__tipo',
-
-            'detalles_motor__potencia_motor_unidad','detalles_motor__velocidad_motor_unidad',
-            'detalles_motor__voltaje_unidad', 'detalles_motor__frecuencia_unidad',
-
-            'planta__complejo',
-            )
-        new_context = new_context.prefetch_related(
-            'instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad', 'instalacion_succion__tuberias__longitud_tuberia_unidad', 'instalacion_succion__tuberias__material_tuberia',
-            'instalacion_descarga__tuberias', 'instalacion_descarga__tuberias__diametro_tuberia_unidad', 'instalacion_descarga__tuberias__longitud_tuberia_unidad', 'instalacion_descarga__tuberias__material_tuberia'
-        )
+        new_context = self.get_bomba(True, new_context)
 
         return new_context
 
@@ -1089,11 +1043,15 @@ class ObtenerVentiladorMixin():
     Métodos:
         get_ventilador(self) -> QuerySet[1]
             Obtiene un ventilador en un queryset con todo el prefetching necesario por cuestiones de eficiencia.
+            El parámetro "ventilador_q" funciona para saber si la función se usará sobre ese QuerySet o no.
     '''
-    def get_ventilador(self):
-        ventilador = Ventilador.objects.filter(pk = self.kwargs.get('pk'))
+    def get_ventilador(self, ventilador_q = None):
+        if(not ventilador_q):
+            ventilador = Ventilador.objects.filter(pk = self.kwargs.get('pk'))
+        else:
+            ventilador = ventilador_q
 
-        return ventilador.select_related('tipo_ventilador','condiciones_trabajo','condiciones_adicionales','condiciones_generales','especificaciones', 'planta', 
+        ventilador = ventilador.select_related('tipo_ventilador','condiciones_trabajo','condiciones_adicionales','condiciones_generales','especificaciones', 'planta', 
             'planta__complejo', 'creado_por', 'editado_por', 'especificaciones__espesor_unidad', 
             'especificaciones__potencia_motor_unidad', 'especificaciones__velocidad_motor_unidad', 
             'condiciones_generales__temp_ambiente_unidad', 'condiciones_generales__velocidad_diseno_unidad', 
@@ -1103,7 +1061,12 @@ class ObtenerVentiladorMixin():
             'condiciones_adicionales__flujo_unidad', 'condiciones_adicionales__presion_unidad', 
             'condiciones_adicionales__velocidad_funcionamiento_unidad', 'condiciones_adicionales__temperatura_unidad',
             'condiciones_adicionales__densidad_unidad', 'condiciones_adicionales__potencia_freno_unidad'
-        )[0]
+        )
+
+        if(not ventilador_q):
+            return ventilador[0]
+        
+        return ventilador
 
 class ReportesFichasVentiladoresMixin(ReportesFichasMixin):
     '''
@@ -1121,7 +1084,7 @@ class ReportesFichasVentiladoresMixin(ReportesFichasMixin):
     titulo_reporte_ficha = "Ficha Técnica del Ventilador"
     codigo_reporte_ficha = "ficha_tecnica_ventilador"
 
-class ConsultaVentiladores(LoginRequiredMixin, ListView, ReportesFichasVentiladoresMixin):
+class ConsultaVentiladores(ObtenerVentiladorMixin, FiltradoSimpleMixin, LoginRequiredMixin, ListView, ReportesFichasVentiladoresMixin):
     '''
     Resumen:
         Vista para la consulta de ventiladores.
@@ -1163,42 +1126,6 @@ class ConsultaVentiladores(LoginRequiredMixin, ListView, ReportesFichasVentilado
         if(request.POST.get('tipo') == 'xlsx'): # reporte de ventiladores en XLSX
             return reporte_equipos(request, self.get_queryset(), 'Listado de Ventiladores de Calderas', 'listado_ventiladores')
 
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:        
-        if(request.GET.get('page')):
-            request.session['pagina_consulta'] = request.GET['page']
-        else:
-            request.session['pagina_consulta'] = 1
-        
-        request.session['tag_consulta'] = request.GET.get('tag') if request.GET.get('tag') else ''
-        request.session['descripcion_consulta'] = request.GET.get('descripcion') if request.GET.get('descripcion') else ''
-        request.session['complejo_consulta'] = request.GET.get('complejo') if request.GET.get('complejo') else ''
-        request.session['planta_consulta'] = request.GET.get('planta') if request.GET.get('planta') else ''
-        
-        return super().get(request, *args, **kwargs)
-        
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["titulo"] = "SIEVEP - Consulta de Ventiladores"
-        context['complejos'] = Complejo.objects.all()
-
-        if(self.request.GET.get('complejo')):
-            context['plantas'] = Planta.objects.filter(complejo= self.request.GET.get('complejo'))
-
-        context['tag'] = self.request.GET.get('tag', '')
-        context['descripcion'] = self.request.GET.get('descripcion', '')
-        context['complejox'] = self.request.GET.get('complejo')
-        context['plantax'] = self.request.GET.get('planta')
-
-        if(context['complejox']):
-            context['complejox'] = int(context['complejox'])
-        
-        if(context['plantax']):
-            context['plantax'] = int(context['plantax'])
-
-        context['link_creacion'] = 'creacion_ventilador'
-
-        return context
-    
     def get_queryset(self):
         tag = self.request.GET.get('tag', '')
         descripcion = self.request.GET.get('descripcion', '')
@@ -1229,16 +1156,7 @@ class ConsultaVentiladores(LoginRequiredMixin, ListView, ReportesFichasVentilado
                 tag__icontains = tag
             )
 
-        new_context = new_context.select_related('tipo_ventilador','condiciones_trabajo','condiciones_adicionales','condiciones_generales','especificaciones', 'planta', 
-                                                 'planta__complejo', 'creado_por', 'editado_por', 'especificaciones__espesor_unidad', 
-                                                 'especificaciones__potencia_motor_unidad', 'especificaciones__velocidad_motor_unidad', 
-                                                 'condiciones_generales__temp_ambiente_unidad', 'condiciones_generales__velocidad_diseno_unidad', 
-                                                 'condiciones_trabajo__flujo_unidad', 'condiciones_trabajo__presion_unidad', 'condiciones_generales__presion_barometrica_unidad',
-                                                 'condiciones_trabajo__velocidad_funcionamiento_unidad', 'condiciones_trabajo__temperatura_unidad',
-                                                 'condiciones_trabajo__densidad_unidad', 'condiciones_trabajo__potencia_freno_unidad', 
-                                                 'condiciones_adicionales__flujo_unidad', 'condiciones_adicionales__presion_unidad', 
-                                                 'condiciones_adicionales__velocidad_funcionamiento_unidad', 'condiciones_adicionales__temperatura_unidad',
-                                                 'condiciones_adicionales__densidad_unidad', 'condiciones_adicionales__potencia_freno_unidad' )
+        new_context = self.get_ventilador(new_context)
 
         return new_context
     
@@ -1424,7 +1342,7 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
                     if(form_condiciones_trabajo.instance.densidad == ''):
                         form_condiciones_trabajo.instance.densidad = None
                 
-                if(form_condiciones_trabajo.instance.flujo_unidad.pk in [6,10,18,19]): # Unidades de FLUJO MÁSICO
+                if(form_condiciones_trabajo.instance.flujo_unidad.pk in PK_UNIDADES_FLUJO_MASICO): # Unidades de FLUJO MÁSICO
                    form_condiciones_trabajo.instance.tipo_flujo = 'M'
 
                 if(form_condiciones_trabajo.instance.densidad and form_condiciones_trabajo.instance.presion_entrada
@@ -1461,7 +1379,7 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
                     if(form_condiciones_adicionales.instance.densidad == ''):
                         form_condiciones_adicionales.instance.densidad = None
 
-                if(form_condiciones_adicionales.instance.flujo_unidad.pk in [6,10,18,19]): # Unidades de FLUJO MÁSICO
+                if(form_condiciones_adicionales.instance.flujo_unidad.pk in PK_UNIDADES_FLUJO_MASICO): # Unidades de FLUJO MÁSICO
                    form_condiciones_adicionales.instance.tipo_flujo = 'M'
 
                 if(form_condiciones_adicionales.instance.densidad and form_condiciones_adicionales.instance.presion_entrada
@@ -1740,7 +1658,7 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
         densidad_ficha_unidad = condiciones_trabajo.densidad_unidad.pk
         temperatura_operacion_unidad = int(request.POST.get('temperatura_operacion_unidad'))
         flujo_unidad = int(request.POST.get('flujo_unidad'))
-        tipo_flujo = 'M' if flujo_unidad in [6,10,18,19] else 'V'
+        tipo_flujo = 'M' if flujo_unidad in PK_UNIDADES_FLUJO_MASICO else 'V'
         potencia_ventilador_unidad = int(request.POST.get('potencia_ventilador_unidad'))
         presion_salida_unidad = int(request.POST.get('presion_salida_unidad'))
 
@@ -1757,7 +1675,7 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
         potencia_ventilador = transformar_unidades_potencia([potencia_ventilador], potencia_ventilador_unidad)[0]
         densidad_ficha = transformar_unidades_densidad([densidad_ficha], densidad_ficha_unidad)[0]
 
-        if(flujo_unidad in [6,10,18,19]):
+        if(flujo_unidad in PK_UNIDADES_FLUJO_MASICO):
             flujo = transformar_unidades_flujo([flujo], flujo_unidad)[0]
         else:
             flujo = transformar_unidades_flujo_volumetrico([flujo], flujo_unidad)[0]
@@ -1852,8 +1770,8 @@ class GenerarGraficaVentilador(LoginRequiredMixin, View, FiltrarEvaluacionesMixi
             res.append({
                 'fecha': evaluacion.fecha.__str__(),
                 'salida__eficiencia': salida.eficiencia,
-                'salida__potencia_calculada': transformar_unidades_longitud([salida.potencia_calculada], salida.potencia_calculada_unidad.pk, ventilador.condiciones_trabajo.potencia_freno_unidad.pk)[0],
-                'salida__potencia': transformar_unidades_longitud([entrada.potencia_ventilador], evaluacion.entrada.potencia_ventilador_unidad.pk, ventilador.condiciones_trabajo.potencia_freno_unidad.pk)[0],
+                'salida__potencia_calculada': transformar_unidades_potencia([salida.potencia_calculada], salida.potencia_calculada_unidad.pk, ventilador.condiciones_trabajo.potencia_freno_unidad.pk)[0],
+                'salida__potencia': transformar_unidades_potencia([entrada.potencia_ventilador], evaluacion.entrada.potencia_ventilador_unidad.pk, ventilador.condiciones_trabajo.potencia_freno_unidad.pk)[0],
             })
 
         return JsonResponse(res[:15], safe=False)

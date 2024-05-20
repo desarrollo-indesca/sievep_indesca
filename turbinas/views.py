@@ -6,21 +6,31 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.views.generic import ListView
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.contrib import messages
-from simulaciones_pequiven.views import ConsultaEvaluacion, ReportesFichasMixin, FiltrarEvaluacionesMixin
+from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion, ReportesFichasMixin, FiltrarEvaluacionesMixin
 
 from usuarios.views import SuperUserRequiredMixin
 from calculos.unidades import *
+from .evaluacion import evaluar_turbina
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import reporte_equipos
+from reportes.xlsx import reporte_equipos, historico_evaluaciones_turbinas_vapor, ficha_tecnica_turbina_vapor
 from .models import *
 from .forms import *
 
 # Create your views here.
-class ObtenerTurbinVaporMixin():
-    def get_turbina(self):
-        turbina = TurbinaVapor.objects.filter(pk=self.kwargs['pk']).select_related(
+class ObtenerTurbinaVaporMixin():
+    '''
+    Resumen:
+        Mixin para ejecutar la consulta de turbinas completa.
+    '''
+    def get_turbina(self, turbina_q = None):
+        if(not turbina_q):
+            turbina = TurbinaVapor.objects.filter(pk=self.kwargs['pk'])
+        else:
+            turbina = turbina_q
+
+        turbina.select_related(
             'generador_electrico', 
             'generador_electrico__ciclos_unidad',
             'generador_electrico__potencia_real_unidad',
@@ -49,15 +59,19 @@ class ObtenerTurbinVaporMixin():
            'datos_corrientes__corrientes'
         )
 
-        return turbina.first()
+        return turbina[0] if not turbina_q else turbina
 
-class ReportesFichasTurbinasMixin(ReportesFichasMixin):
+class ReportesFichasTurbinasVaporMixin(ReportesFichasMixin):
+    '''
+    Resumen:
+        Mixin para que los reportes de ficha técnica estén disponibles en todas las vistas donde esté disponible para así evitar repetir código.
+    '''
     model_ficha = TurbinaVapor
-    reporte_ficha_xlsx = None
-    titulo_reporte_ficha = "Ficha Técnica de la Turbina"
+    reporte_ficha_xlsx = ficha_tecnica_turbina_vapor
+    titulo_reporte_ficha = "Ficha Técnica de la Turbina de Vapor"
     codigo_reporte_ficha = "ficha_tecnica_turbina_vapor"
 
-class ConsultaTurbinasVapor(LoginRequiredMixin, ListView, ReportesFichasTurbinasMixin):
+class ConsultaTurbinasVapor(FiltradoSimpleMixin, ObtenerTurbinaVaporMixin, LoginRequiredMixin, ListView, ReportesFichasTurbinasVaporMixin):
     '''
     Resumen:
         Vista para la consulta de las turbinas de vapor.
@@ -87,6 +101,7 @@ class ConsultaTurbinasVapor(LoginRequiredMixin, ListView, ReportesFichasTurbinas
     model = TurbinaVapor
     template_name = 'turbinas_vapor/consulta.html'
     paginate_by = 10
+    titulo = "SIEVEP - Consulta de Turbinas de Vapor"
 
     def post(self, request, *args, **kwargs):
         reporte_ficha = self.reporte_ficha(request)
@@ -97,43 +112,7 @@ class ConsultaTurbinasVapor(LoginRequiredMixin, ListView, ReportesFichasTurbinas
             return generar_pdf(request, self.get_queryset(), 'Reporte de Turbinas de Vapor', 'turbinas_vapor')
         
         if(request.POST.get('tipo') == 'xlsx'): # reporte de turbinas de vapor en XLSX
-            return reporte_equipos(request, self.get_queryset(), 'Listado de Turbinas de Vapor', 'listado_ventiladores')
-
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:        
-        if(request.GET.get('page')):
-            request.session['pagina_consulta'] = request.GET['page']
-        else:
-            request.session['pagina_consulta'] = 1
-        
-        request.session['tag_consulta'] = request.GET.get('tag') if request.GET.get('tag') else ''
-        request.session['descripcion_consulta'] = request.GET.get('descripcion') if request.GET.get('descripcion') else ''
-        request.session['complejo_consulta'] = request.GET.get('complejo') if request.GET.get('complejo') else ''
-        request.session['planta_consulta'] = request.GET.get('planta') if request.GET.get('planta') else ''
-        
-        return super().get(request, *args, **kwargs)
-        
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["titulo"] = "SIEVEP - Consulta de Turbinas de Vapor"
-        context['complejos'] = Complejo.objects.all()
-
-        if(self.request.GET.get('complejo')):
-            context['plantas'] = Planta.objects.filter(complejo= self.request.GET.get('complejo'))
-
-        context['tag'] = self.request.GET.get('tag', '')
-        context['descripcion'] = self.request.GET.get('descripcion', '')
-        context['complejox'] = self.request.GET.get('complejo')
-        context['plantax'] = self.request.GET.get('planta')
-
-        if(context['complejox']):
-            context['complejox'] = int(context['complejox'])
-        
-        if(context['plantax']):
-            context['plantax'] = int(context['plantax'])
-
-        context['link_creacion'] = 'creacion_turbina_vapor'
-
-        return context
+            return reporte_equipos(request, self.get_queryset(), 'Listado de Turbinas de Vapor', 'listado_turbinas_vapor')
     
     def get_queryset(self):
         tag = self.request.GET.get('tag', '')
@@ -165,34 +144,7 @@ class ConsultaTurbinasVapor(LoginRequiredMixin, ListView, ReportesFichasTurbinas
                 tag__icontains = tag
             )
 
-        new_context = new_context.select_related(
-            'generador_electrico', 
-            'generador_electrico__ciclos_unidad',
-            'generador_electrico__potencia_real_unidad',
-            'generador_electrico__potencia_aparente_unidad',
-            'generador_electrico__velocidad_unidad',
-            'generador_electrico__corriente_electrica_unidad',
-            'generador_electrico__voltaje_unidad',
-            
-            'planta', 'planta__complejo',
-            
-            'especificaciones', 
-            'especificaciones__potencia_unidad',
-            'especificaciones__velocidad_unidad',
-            'especificaciones__presion_entrada_unidad',
-            'especificaciones__temperatura_entrada_unidad',
-            'especificaciones__contra_presion_unidad',
-            
-            'datos_corrientes',
-            'datos_corrientes__flujo_unidad',            
-            'datos_corrientes__entalpia_unidad',            
-            'datos_corrientes__presion_unidad',
-            'datos_corrientes__temperatura_unidad' 
-        )
-
-        new_context = new_context.prefetch_related(
-           'datos_corrientes__corrientes'
-        )
+        new_context = self.get_turbina(new_context)
 
         return new_context
     
@@ -204,14 +156,15 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
 
     Atributos:
         success_message: str -> Mensaje a ser enviado al usuario al registrar exitosamente una turbina.
-        titulo: str -> Título de la vista
+        titulo: str -> Título de la vista.
+        template_name: str -> Plantilla a renderizar.
     
     Métodos:
         get_context(self) -> dict
             Crea instancias de los formularios a ser utilizados y define el título de la vista.
 
         get(self, request, **kwargs) -> HttpResponse
-            Renderiza el formulario con la plantilla correspondiente.
+            Renderiza el formulario con la plantilla y contexto correspondiente.
 
         almacenar_datos(self) -> HttpResponse
             Valida y almacena los datos de acuerdo a la lógica requerida para el almacenamiento de bombas por medio de los formularios.
@@ -251,26 +204,26 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
             else:
                 print(form_especificaciones.errors)
             
-            valid = valid and form_generador.is_valid()
+            valid = valid and form_generador.is_valid() # Segundo formulario
 
             if(valid):
                 form_generador.save()
             else:
                 print(form_generador.errors)
 
-            valid = valid and form_datos_corrientes.is_valid()
+            valid = valid and form_datos_corrientes.is_valid() # Tercer formulario
 
             if(valid):
+                form_datos_corrientes.instance.id = None
                 form_datos_corrientes.save()
             else:
                 print(form_datos_corrientes.errors)
 
-            valid = valid and forms_corrientes.is_valid()
+            valid = valid and forms_corrientes.is_valid() # Formset de corrientes
 
             if(valid):
                 for form in forms_corrientes:
-                    valid = valid and form.is_valid()
-                    
+                    valid = valid and form.is_valid()                    
                     if(valid):
                         form.instance.datos_corriente = form_datos_corrientes.instance
                         form.save()
@@ -279,10 +232,9 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
             else:
                 print(form_datos_corrientes.errors)
 
-            valid = valid and form_turbina.is_valid()
+            valid = valid and form_turbina.is_valid() # Form de turbinas
 
-            if(valid):
-                
+            if(valid):                
                 form_turbina.instance.generador_electrico = form_generador.instance
                 form_turbina.instance.especificaciones = form_especificaciones.instance
                 form_turbina.instance.datos_corrientes = form_datos_corrientes.instance
@@ -294,6 +246,32 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
                     form_turbina.instance.creado_por = self.request.user
 
                 form_turbina.save()
+
+                flujo_unidad = form_datos_corrientes.instance.flujo_unidad.pk
+                flujo_entrada = transformar_unidades_flujo([form_datos_corrientes.instance.corrientes.first().flujo], flujo_unidad)[0]
+                potencia_real = transformar_unidades_potencia([form_generador.instance.potencia_real], form_generador.instance.potencia_real_unidad.pk)[0]
+                corrientes = form_datos_corrientes.instance.corrientes.all().values('presion','temperatura','flujo','entrada')
+
+                presiones_corrientes = transformar_unidades_presion([x['presion'] for x in corrientes], form_datos_corrientes.instance.presion_unidad.pk)
+                temperaturas_corrientes = transformar_unidades_temperatura([x['temperatura'] for x in corrientes], form_datos_corrientes.instance.temperatura_unidad.pk)
+                
+                if(flujo_unidad in PK_UNIDADES_FLUJO_MASICO):
+                    flujos_corrientes = transformar_unidades_flujo([x['flujo'] for x in corrientes], flujo_unidad)
+                    volumetrico = False
+                else:
+                    flujos_corrientes = transformar_unidades_flujo_volumetrico([x['flujo'] for x in corrientes], flujo_unidad)
+                    volumetrico = True
+
+                for i in range(len(corrientes)):
+                    corrientes[i]['presion'] = presiones_corrientes[i]
+                    corrientes[i]['temperatura'] = temperaturas_corrientes[i]
+                    corrientes[i]['flujo'] = flujos_corrientes[i]                    
+
+                res = evaluar_turbina(flujo_entrada, potencia_real, corrientes, corrientes, volumetrico)
+
+                form_especificaciones.instance.eficiencia = res['eficiencia']
+                form_especificaciones.save()
+                
             else:
                 print(form_turbina.errors)
                 
@@ -317,14 +295,37 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
         except Exception as e:
             print(str(e))
             return render(request, self.template_name, context={
-                'form_turbina': TurbinaVaporForm(request.POST), 
-                'form_especificaciones': EspecificacionesTurbinaVaporForm(request.POST), 
-                'form_generador': GeneradorElectricoForm(request.POST), 
-                'form_datos_corrientes': DatosCorrientesForm(request.POST),
-                'forms_corrientes': corrientes_formset(request.POST),
+                'form_turbina': form_turbina, 
+                'form_especificaciones': form_especificaciones,
+                'form_generador': form_generador, 
+                'form_datos_corrientes': form_datos_corrientes,
+                'forms_corrientes': forms_corrientes,
             })
 
-class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinVaporMixin):
+class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
+    """
+    Resumen:
+        Vista para la edición de turbinas de vapor.
+        Solo puede ser accedido por superusuarios.
+
+    Atributos:
+        success_message: str -> Mensaje a ser enviado al usuario al editar exitosamente una turbina.
+        titulo: str -> Título de la vista.
+    
+    Métodos:
+        get_context(self) -> dict
+            Crea instancias de los formularios a ser utilizados y define el título de la vista.
+
+        get(self, request, **kwargs) -> HttpResponse
+            Renderiza el formulario con la plantilla y contexto correspondiente.
+
+        post(self, request, pk) -> HttpResponse
+            Valida y almacena los datos de acuerdo a la lógica requerida para el almacenamiento de bombas por medio de los formularios.
+            Si hay errores se levantará una Exception y se retornará el formulario con los errores renderizados.
+
+        post(self) -> HttpResponse
+            Envía el request a los formularios y envía la respuesta al cliente.
+    """
     titulo = "Edición de Turbina de Vapor"
     success_message = "La turbina ha sido editada exitosamente."
 
@@ -345,28 +346,18 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinVaporMixin):
         form_turbina = TurbinaVaporForm(request.POST, instance=turbina)
         form_especificaciones = EspecificacionesTurbinaVaporForm(request.POST, instance=turbina.especificaciones)
         form_generador = GeneradorElectricoForm(request.POST, instance=turbina.generador_electrico)
-        form_datos_corrientes = DatosCorrientesForm(request.POST, instance=turbina.datos_corrientes)
-        forms_corrientes = corrientes_formset(request.POST, queryset=turbina.datos_corrientes.corrientes.all())
+        form_datos_corrientes = DatosCorrientesForm(request.POST)
+        forms_corrientes = corrientes_formset(request.POST)
 
-        try:
-            return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
+        return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
                                         form_datos_corrientes, forms_corrientes)
-        except Exception as e:
-            print(str(e))
-            return render(request, self.template_name, context={
-                'form_turbina': form_turbina, 
-                'form_especificaciones': form_especificaciones, 
-                'form_generador': form_generador, 
-                'form_datos_corrientes': form_datos_corrientes,
-                'forms_corrientes': forms_corrientes
-            })
-
-class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin, ReportesFichasTurbinasMixin):
+        
+class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinaVaporMixin, ReportesFichasTurbinasVaporMixin):
     """
     Resumen:
-        Vista para la consulta de evaluaciones de Consulta de Evaluaciones de una Turbina de Vapor.
-        Hereda de ConsultaEvaluacion para el ahorro de trabajo en términos de consulta.
-        Utiliza los Mixin para obtener ventiladores y de generación de reportes de fichas de ventiladores.
+        Vista para la Consulta de Evaluaciones de una Turbina de Vapor.
+        Hereda de ConsultaEvaluacion para el ahorro de trabajo en repetición de código.
+        Utiliza los Mixin para obtener turbinas y de generación de reportes de fichas de turbinas.
 
     Atributos:
         model: EvaluacionBomba -> Modelo de la vista
@@ -376,10 +367,10 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin
     
     Métodos:
         get_context_data(self) -> dict
-            Añade al contexto original el equipo.
+            Añade al contexto original el equipo y su tipo.
 
         get_queryset(self) -> QuerySet
-            Hace el prefetching correspondiente al queryset de las evaluaciones.
+            Hace el prefetching correspondiente al queryset de las evaluaciones para optimización de consultas.
 
         post(self) -> HttpResponse
             Contiene la lógica de eliminación (ocultación) de una evaluación y de generación de reportes.
@@ -388,6 +379,7 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin
     model_equipment = TurbinaVapor
     clase_equipo = " la Turbina de Vapor"
     tipo = 'turbina_vapor'
+    template_name = 'turbinas_vapor/consulta_evaluaciones.html'
 
     def post(self, request, **kwargs):
         reporte_ficha = self.reporte_ficha(request)
@@ -403,9 +395,9 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin
             messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
 
         if(request.POST.get('tipo') == 'pdf'):
-            return generar_pdf(request, self.get_queryset(), f"Evaluaciones de la Turbina de Vapor {self.get_turbina().tag}", "reporte_evaluaciones_turbina_vapor")
+            return generar_pdf(request, self.get_queryset(), f"Evaluaciones de la Turbina de Vapor {self.get_turbina().tag}", "reporte_evaluaciones_turbinas_vapor")
         elif(request.POST.get('tipo') == 'xlsx'):
-            return historico_evaluaciones_turbinas(self.get_queryset(), request)
+            return historico_evaluaciones_turbinas_vapor(self.get_queryset(), request)
 
         if(request.POST.get('detalle')):
             return generar_pdf(request, self.model.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Turbina de Vapor", "detalle_evaluacion_turbina_vapor")
@@ -419,10 +411,13 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin
             'creado_por', 'entrada', 'salida',
             'entrada__flujo_entrada_unidad', 'entrada__potencia_real_unidad',
             'entrada__presion_unidad', 'entrada__temperatura_unidad',
+            'salida__entalpia_unidad'
         )
 
         new_context = new_context.prefetch_related(
-            "entrada__entradas_corrientes", "salida__salidas_corrientes"
+            Prefetch('corrientes_evaluacion', queryset=CorrienteEvaluacion.objects.select_related(
+                'entrada', 'salida', 'corriente'
+            ))
         )
 
         return new_context
@@ -433,3 +428,253 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinVaporMixin
         context['tipo'] = self.tipo
 
         return context
+
+class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTurbinasVaporMixin, ObtenerTurbinaVaporMixin):
+    """
+    Resumen:
+        Vista de la creación de una evaluación de una turbina de vapor.
+    
+    Métodos:        
+        get(self, request) -> HttpResponse
+            Renderiza la plantilla de la vista cuando se recibe una solicitud HTTP GET con su respectivo contexto.
+
+        post(self, request, **kwargs) -> HttpResponse
+            Genera el reporte de ficha (único disponible).
+
+        get_context_data(self) -> dict
+            Inicializa los formularios respectivos con los datos precargados correspondientes.
+
+        def generar_formset_entrada_corrientes(self, turbina) -> dict
+            Genera el formset de datos de entrada de corrientes de acuerdo a las corrientes existentes en la base de datos.
+    """
+
+    def post(self, request, **kwargs):
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha):
+            return reporte_ficha
+    
+    def get_context_data(self):
+        turbina = self.get_turbina()       
+
+        context = {
+            'turbina': turbina,
+            'form_evaluacion': EvaluacionesForm(),
+            'form_entrada_evaluacion': EntradaEvaluacionForm({
+                'potencia_real': turbina.generador_electrico.potencia_real if turbina.generador_electrico.potencia_real else None,
+                'potencia_real_unidad': turbina.generador_electrico.potencia_real_unidad,
+                'flujo_entrada_unidad': turbina.datos_corrientes.flujo_unidad if turbina.datos_corrientes.flujo_unidad else turbina.datos_corrientes.flujo_unidad,
+                'presion_unidad': turbina.datos_corrientes.presion_unidad,
+                'temperatura_unidad': turbina.datos_corrientes.temperatura_unidad
+            }),
+            'formset_entrada_corriente': self.generar_formset_entrada_corrientes(turbina),
+            'titulo': "Evaluación de Turbina de Vapor"
+        }
+
+        return context
+    
+    def generar_formset_entrada_corrientes(self, turbina):
+        formset = forms.modelformset_factory(EntradaCorriente, fields="__all__", max_num=turbina.datos_corrientes.corrientes.count(), min_num=turbina.datos_corrientes.corrientes.count())
+        lista = []
+        corrientes = turbina.datos_corrientes.corrientes.all()
+
+        for x in range(corrientes.count()):
+            lista.append({
+                'form': EntradaCorrienteForm(prefix=f"form-{x}"),
+                'corriente': corrientes[x]
+            })
+        
+        return {
+            'formset': formset(queryset=EntradaCorriente.objects.none()),
+            'form_list': lista
+        } 
+    
+    def get(self, request, pk):
+        return render(request, 'turbinas_vapor/evaluacion.html', self.get_context_data())
+    
+class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinaVaporMixin):
+    """
+    Resumen:
+        Vista para el cálculo de resultados de evaluaciones de Turbinas de Vapor y su almacenamiento.
+        Utiliza los Mixin para obtener ventiladores y de acceso por autenticación.
+    
+    Métodos:
+        calcular(self, request) -> HttpResponse
+            Obtiene los resultados y renderiza la plantilla de resultados.
+
+        obtener_resultados(self) -> HttpResponse
+            Contiene la lógica de obtención de data, transformación de unidades, cálculo de resultados y reconversión a unidades de salida.
+        
+        almacenar(self) -> QuerySet
+            Contiene la lógica de almacenamiento y transformación de unidades para el almacenamiento de la evaluación y sus resultados.
+
+        post(self) -> HttpResponse
+            Contiene la lógica para redirigir a almacenar o calcular los resultados de acuerdo al request.
+    """
+    def calcular(self, request):
+        res = self.obtener_resultados(request)
+        return render(request, 'turbinas_vapor/partials/resultados.html', context={'res': res})
+
+    def obtener_resultados(self, request):
+        turbina = self.get_turbina()
+        datos_corrientes = turbina.datos_corrientes
+        corrientes_diseno =  datos_corrientes.corrientes.all()
+
+        # Obtener data del request
+        flujo_entrada, flujo_entrada_unidad = float(request.POST.get('flujo_entrada')), int(request.POST.get('flujo_entrada_unidad'))
+        potencia_real, potencia_real_unidad = float(request.POST.get('potencia_real')), int(request.POST.get('potencia_real_unidad'))
+        temperatura_unidad, presion_unidad = int(request.POST.get('temperatura_unidad')),int(request.POST.get('presion_unidad'))
+        temperaturas = [float(request.POST.get(f'form-{i}-temperatura')) for i in range(datos_corrientes.corrientes.count())]
+        presiones = [float(request.POST.get(f'form-{i}-presion')) for i in range(datos_corrientes.corrientes.count() - 1)]
+
+        # Transformar unidades a internacional
+        presiones = transformar_unidades_presion(presiones, presion_unidad)
+        temperaturas = transformar_unidades_temperatura(temperaturas, temperatura_unidad)
+        potencia_real = transformar_unidades_potencia([potencia_real], potencia_real_unidad)[0]
+
+        if(flujo_entrada_unidad in PK_UNIDADES_FLUJO_MASICO):
+            flujo_entrada = transformar_unidades_flujo([flujo_entrada], flujo_entrada_unidad)[0]
+            volumetrico = False
+        else:
+            flujo_entrada = transformar_unidades_flujo_volumetrico([flujo_entrada], flujo_entrada_unidad)[0]
+            volumetrico = True
+
+        # Calcular Resultados
+        corrientes = []
+        for x in range(len(temperaturas)):
+            corrientes.append({
+                'presion': presiones[x] if x < len(temperaturas) - 1 else None,
+                'temperatura': temperaturas[x],
+                'entrada': corrientes_diseno[x].entrada
+            })
+
+        res = evaluar_turbina(flujo_entrada, potencia_real, corrientes, corrientes_diseno.values(), volumetrico)
+
+        # Transformar unidades de internacional a salida (ficha)
+        res['potencia_calculada'] = transformar_unidades_potencia([res['potencia_calculada']], 49, potencia_real_unidad)[0]
+
+        for i in range(len(res['corrientes'])):
+            res['corrientes'][i]['entalpia'] = transformar_unidades_entalpia_masica([res['corrientes'][i]['entalpia']], 60, turbina.datos_corrientes.entalpia_unidad.pk)[0]
+            
+            if(flujo_entrada_unidad in PK_UNIDADES_FLUJO_MASICO):
+                res['corrientes'][i]['flujo'] = transformar_unidades_flujo([res['corrientes'][i]['flujo']], 10, flujo_entrada_unidad)[0]
+            else:
+                res['corrientes'][i]['flujo'] = transformar_unidades_flujo_volumetrico([res['corrientes'][i]['flujo']], 42, flujo_entrada_unidad)[0]
+
+        res['potencia_unidad'] = Unidades.objects.get(pk =  potencia_real_unidad)
+
+        return res
+
+    def almacenar(self, request):
+        try:
+            res = self.obtener_resultados(request)
+            valid = True
+            turbina = self.get_turbina()
+            corrientes_diseno = turbina.datos_corrientes.corrientes.all()
+
+            form_evaluacion = EvaluacionesForm(request.POST)
+            form_entrada = EntradaEvaluacionForm(request.POST)
+            formset_corrientes = forms.modelformset_factory(EntradaCorriente, form=EntradaCorrienteForm, extra=0, max_num = turbina.datos_corrientes.corrientes.count())
+            formset_corrientes = formset_corrientes(request.POST)
+            entradas_corrientes = []
+
+            with transaction.atomic():
+                valid = valid and form_entrada.is_valid() # Primer form validado
+
+                if(valid):
+                    form_entrada.save()
+                else:
+                    print(form_entrada.errors)
+
+                valid = valid and formset_corrientes.is_valid() # Formset de datos de entrada de corrientes
+
+                if(valid):
+                    for i,form in enumerate(formset_corrientes): # Iterar por cada uno
+                        form.save() # Almacenarlo
+                        entradas_corrientes.append(form.instance) # Guardar la instancia en una lista temporal
+                else:
+                    print(formset_corrientes.errors)
+
+                valid = valid and form_evaluacion.is_valid() # Segundo form validado
+
+                if(valid):
+                    # Añadido de datos faltantes a la instancia de evaluación
+                    form_evaluacion.instance.equipo = turbina 
+                    form_evaluacion.instance.creado_por = request.user
+                    form_evaluacion.instance.entrada = form_entrada.instance
+
+                    form_evaluacion.instance.salida = SalidaEvaluacion.objects.create(
+                        eficiencia = res['eficiencia'],
+                        potencia_calculada = res['potencia_calculada'],
+                        entalpia_unidad = turbina.datos_corrientes.entalpia_unidad
+                    )                      
+
+                    form_evaluacion.save() # Almacenamiento de la evaluación
+
+                    salidas_corrientes = []
+                    for corriente in res['corrientes']: # Almacenamiento de los datos de cada salida de cada corriente
+                        salidas_corrientes.append(SalidaCorriente(
+                            flujo = corriente['flujo'],
+                            entalpia = corriente['entalpia'],
+                            fase = corriente['fase'][0] # 0 = clave
+                        ))
+                    
+                    salidas_corrientes = SalidaCorriente.objects.bulk_create(salidas_corrientes)
+                    corrientes = []
+
+                    for i in range(len(salidas_corrientes)): # Almacenamiento de los datos de cada corriente
+                        corrientes.append(CorrienteEvaluacion(
+                            corriente = corrientes_diseno[i],
+                            entrada = entradas_corrientes[i],
+                            salida = salidas_corrientes[i],
+                            evaluacion = form_evaluacion.instance                            
+                        ))
+
+                    CorrienteEvaluacion.objects.bulk_create(corrientes)
+                    
+                else:
+                    print(form_evaluacion.errors)
+                    return render(request, 'turbinas_vapor/partials/carga_fallida.html', {'turbina': turbina})
+
+                return render(request, 'turbinas_vapor/partials/carga_lograda.html', {'turbina': turbina})
+
+        except Exception as e:
+            print(str(e))
+            return render(request, 'turbinas_vapor/partials/carga_fallida.html', {'turbina': turbina})
+
+    def post(self, request, pk):
+        if(request.POST['submit'] == 'almacenar'):
+            return self.almacenar(request)
+        else:
+            return self.calcular(request)
+
+class GenerarGraficaTurbina(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
+    """
+    Resumen:
+        Vista AJAX que envía los datos necesarios para la gráfica histórica de evaluaciones de turbinas de vapor.
+        Transforma a las unidades en el diseño.
+    
+    Métodos:
+        get(self, request, pk) -> JsonResponse
+            Obtiene los datos y envía el Json correspondiente de respuesta
+    """
+
+    def get(self, request, pk):
+        turbina = TurbinaVapor.objects.get(pk=pk)
+        evaluaciones = Evaluacion.objects.filter(activo = True, equipo = turbina).order_by('fecha')
+
+        evaluaciones = self.filtrar(request, evaluaciones)
+        potencia_unidad = turbina.generador_electrico.potencia_real_unidad.pk
+        
+        res = []
+
+        for evaluacion in evaluaciones:
+            salida = evaluacion.salida
+            entrada = evaluacion.entrada
+            res.append({
+                'fecha': evaluacion.fecha.__str__(),
+                'salida__eficiencia': salida.eficiencia,
+                'salida__potencia_calculada': transformar_unidades_potencia([salida.potencia_calculada], evaluacion.entrada.potencia_real_unidad.pk, potencia_unidad)[0],
+                'salida__potencia': transformar_unidades_potencia([entrada.potencia_real], evaluacion.entrada.potencia_real_unidad.pk, potencia_unidad)[0],
+            })
+
+        return JsonResponse(res[:15], safe=False)
