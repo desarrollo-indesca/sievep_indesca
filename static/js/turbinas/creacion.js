@@ -105,7 +105,8 @@ $('button[type=submit]').click( (e) => {
         const presiones = $('.presion').toArray().filter(x => x.value === '').length;
         const entradas = $('.entrada').toArray().filter(x => $(`#${x.id}`).is(':checked')).length;
 
-        console.log(presiones, entradas);
+        if(!confirm("¿Está seguro que desea realizar esta acción?"))
+            evt.preventDefault();
         
         if(presiones > 1){
             e.preventDefault();

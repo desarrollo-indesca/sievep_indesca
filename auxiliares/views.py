@@ -1113,6 +1113,7 @@ class ConsultaVentiladores(ObtenerVentiladorMixin, FiltradoSimpleMixin, LoginReq
     '''
     model = Ventilador
     template_name = 'ventiladores/consulta.html'
+    titulo = "SIEVEP - Consulta de Ventiladores"
     paginate_by = 10
 
     def post(self, request, *args, **kwargs):
@@ -1361,7 +1362,7 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
                         flujo = transformar_unidades_flujo_volumetrico([instance.flujo], instance.flujo_unidad.pk)[0]
                     
                     potencia_real = transformar_unidades_potencia([instance.potencia if instance.potencia else instance.potencia_freno], instance.potencia_freno_unidad.pk)[0]
-                    res = evaluar_ventilador(presion_entrada, presion_salida, flujo, instance.tipo_flujo, temperatura, potencia_real, densidad)
+                    res = evaluar_ventilador(presion_entrada, presion_salida, flujo, instance.tipo_flujo, temperatura, potencia_real, float(densidad))
                     form_condiciones_trabajo.instance.eficiencia = res['eficiencia']
                 else:
                     form_condiciones_trabajo.instance.eficiencia = None
@@ -1398,7 +1399,7 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
                         flujo = transformar_unidades_flujo_volumetrico([instance.flujo], instance.flujo_unidad.pk)[0]
                     
                     potencia_real = transformar_unidades_potencia([instance.potencia if instance.potencia else instance.potencia_freno], instance.potencia_freno_unidad.pk)[0]
-                    res = evaluar_ventilador(presion_entrada, presion_salida, flujo, instance.tipo_flujo, temperatura, potencia_real, densidad)
+                    res = evaluar_ventilador(presion_entrada, presion_salida, flujo, instance.tipo_flujo, temperatura, potencia_real, float(densidad))
                     form_condiciones_adicionales.instance.eficiencia = res['eficiencia']
                 else:
                     form_condiciones_adicionales.instance.eficiencia = None

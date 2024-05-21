@@ -318,7 +318,7 @@ def transformar_unidades_frecuencia_angular(args: list, unidad: int, unidad_sali
 
 def transformar_unidades_entalpia_masica(args: list, unidad: int, unidad_salida: int = 60):
     def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
-        return ur.BTU_it/ur.pound if unidad == 55 else ur.kilocalorie/ur.kilogram if unidad == 56 else ur.joule/ur.kilogram
+        return ur.Btu_it/ur.pound if unidad == 55 else ur.kilocalorie/ur.kilogram if unidad == 56 else ur.joule/ur.kilogram
 
     actualizadas = []
     unidad_salida = obtener_unidad(unidad_salida)
