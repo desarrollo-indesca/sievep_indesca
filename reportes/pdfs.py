@@ -1721,7 +1721,7 @@ def ficha_tecnica_bomba_centrifuga(bomba):
             Paragraph(f"{condiciones_diseno.presion_descarga if condiciones_diseno.presion_descarga else '-'}", centrar_parrafo)
         ],
         [
-            Paragraph(f"Presión Diferencial ({presion_unidad})", centrar_parrafo),
+            Paragraph(f"Presión Dif. ({presion_unidad})", centrar_parrafo),
             Paragraph(f"{condiciones_diseno.presion_diferencial if condiciones_diseno.presion_diferencial else '-'}", centrar_parrafo),
             Paragraph(f"NPSHa ({condiciones_diseno.npsha_unidad if condiciones_diseno.npsha_unidad else '-'})", centrar_parrafo),
             Paragraph(f"{condiciones_diseno.npsha if condiciones_diseno.npsha else '-'}", centrar_parrafo)
@@ -1740,7 +1740,7 @@ def ficha_tecnica_bomba_centrifuga(bomba):
             Paragraph(f"{condiciones_fluido.presion_vapor if condiciones_fluido.presion_vapor else '-'}", centrar_parrafo)
         ],
         [
-            Paragraph(f"Temp. Presión Vapor ({temperatura_unidad})", centrar_parrafo),
+            Paragraph(f"Temp. P. Vapor ({temperatura_unidad})", centrar_parrafo),
             Paragraph(f"{condiciones_fluido.temperatura_presion_vapor if condiciones_fluido.temperatura_presion_vapor else '-'}", centrar_parrafo),
             Paragraph(f"Densidad ({condiciones_fluido.densidad if condiciones_fluido.densidad else '-'})", centrar_parrafo),
             Paragraph(f"{condiciones_fluido.densidad if condiciones_fluido.densidad else '-'}", centrar_parrafo)
@@ -1758,9 +1758,9 @@ def ficha_tecnica_bomba_centrifuga(bomba):
             Paragraph(f"{condiciones_fluido.inflamable_largo()}", centrar_parrafo)
         ],
         [
-            Paragraph(f"Concentración H2S ({concentracion_unidad})", centrar_parrafo),
+            Paragraph(f"Conc. H2S ({concentracion_unidad})", centrar_parrafo),
             Paragraph(f"{condiciones_fluido.concentracion_h2s if condiciones_fluido.concentracion_h2s else '-'}", centrar_parrafo),
-            Paragraph(f"Concentración Cloro ({concentracion_unidad})", centrar_parrafo),
+            Paragraph(f"Conc. Cloro ({concentracion_unidad})", centrar_parrafo),
             Paragraph(f"{condiciones_fluido.concentracion_cloro if condiciones_fluido.concentracion_cloro else '-'}", centrar_parrafo)
         ],
         [
