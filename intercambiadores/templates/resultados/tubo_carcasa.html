@@ -196,7 +196,7 @@
         </div>
 
         <div class="modal-footer">
-          <a href="reporte/detalle/{{evaluacion.pk}}/?tipo=pdf" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>
+          <a href="reporte/detalle/{{evaluacion.pk}}/?tipo=pdf" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>&nbsp;
           {% if request.user.is_superuser %}
           <form method="post">
             {% csrf_token %}
