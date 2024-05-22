@@ -459,7 +459,7 @@ class Bombas(models.Model):
     especificaciones_bomba = models.OneToOneField(EspecificacionesBomba, on_delete=models.CASCADE)
     detalles_construccion = models.OneToOneField(DetallesConstruccionBomba, on_delete=models.CASCADE)
     condiciones_diseno = models.OneToOneField(CondicionesDisenoBomba, on_delete=models.CASCADE)
-    grafica = models.ImageField(null = True, blank = True, upload_to=MEDIA_ROOT + '/auxiliares/bombas/', verbose_name = "Gráfica del Equipo")
+    grafica = models.ImageField(null = True, blank = True, upload_to='media/auxiliares/bombas/', verbose_name = "Gráfica del Equipo")
 
     instalacion_succion = models.ForeignKey(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_succion")
     instalacion_descarga = models.ForeignKey(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_descarga")
