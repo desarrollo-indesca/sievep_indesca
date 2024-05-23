@@ -2034,9 +2034,9 @@ def ficha_tecnica_ventilador(ventilador):
             Paragraph(f"{condiciones_trabajo.densidad if condiciones_trabajo.densidad else '-'}", centrar_parrafo)
         ],
         [
-            Paragraph(f"Presión Entrada ({temperatura_unidad})", centrar_parrafo),
+            Paragraph(f"Presión Entrada ({presion_unidad}g)", centrar_parrafo),
             Paragraph(f"{condiciones_trabajo.presion_entrada if condiciones_trabajo.presion_entrada else '-'}", centrar_parrafo),
-            Paragraph(f"Presión Salida ({presion_unidad}G)", centrar_parrafo),
+            Paragraph(f"Presión Salida ({presion_unidad}g)", centrar_parrafo),
             Paragraph(f"{condiciones_trabajo.presion_salida if condiciones_trabajo.presion_salida else '-'}", centrar_parrafo)
         ],
         [
@@ -2105,9 +2105,9 @@ def ficha_tecnica_ventilador(ventilador):
             Paragraph(f"{condiciones_adicionales.densidad if condiciones_adicionales.densidad else '-'}", centrar_parrafo)
         ],
         [
-            Paragraph(f"Presión Entrada ({temperatura_unidad})", centrar_parrafo),
+            Paragraph(f"Presión Entrada ({presion_unidad}g)", centrar_parrafo),
             Paragraph(f"{condiciones_adicionales.presion_entrada if condiciones_adicionales.presion_entrada else '-'}", centrar_parrafo),
-            Paragraph(f"Presión Salida ({presion_unidad}G)", centrar_parrafo),
+            Paragraph(f"Presión Salida ({presion_unidad}g)", centrar_parrafo),
             Paragraph(f"{condiciones_adicionales.presion_salida if condiciones_adicionales.presion_salida else '-'}", centrar_parrafo)
         ],
         [
@@ -2273,11 +2273,11 @@ def detalle_evaluacion_ventilador(evaluacion):
             Paragraph(f"Aire", centrar_parrafo)
         ],
         [
-            f'Presión Entrada ({entrada.presion_salida_unidad})', 
+            f'Presión Entrada ({entrada.presion_salida_unidad}g)', 
             Paragraph(f"{entrada.presion_entrada}", centrar_parrafo)
         ],
         [
-            f'Presión Salida ({entrada.presion_salida_unidad}G)', 
+            f'Presión Salida ({entrada.presion_salida_unidad}g)', 
             Paragraph(f"{entrada.presion_salida}", centrar_parrafo)
         ],
         [
