@@ -9,6 +9,9 @@ from calculos.unidades import *
 # Aquí irán los reportes en formato Excel
 alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
+LOGO_INDESCA = BASE_DIR.__str__() + '/static/img/icono_indesca.png'
+LOGO_PEQUIVEN =  BASE_DIR.__str__() + '/static/img/logo.png'
+
 def reporte_equipos(request, object_list, titulo: str, nombre: str):
     '''
     Resumen:
@@ -36,9 +39,9 @@ def reporte_equipos(request, object_list, titulo: str, nombre: str):
     bold_bordered.set_align('center')
     center_bordered.set_align('center')
 
-    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.insert_image(0, 0, LOGO_PEQUIVEN, {'x_scale': 0.25, 'y_scale': 0.25})
     worksheet.write('C1', titulo.title(), bold)
-    worksheet.insert_image(0, 4, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+    worksheet.insert_image(0, 4, LOGO_INDESCA, {'x_scale': 0.1, 'y_scale': 0.1})
 
     num = 6
     if(len(request.GET)):
@@ -113,9 +116,9 @@ def historico_evaluaciones(object_list, request):
     bold_bordered.set_align('center')
     center_bordered.set_align('center')
 
-    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.insert_image(0, 0, LOGO_PEQUIVEN, {'x_scale': 0.25, 'y_scale': 0.25})
     worksheet.write('C1', 'Reporte de Histórico de Evaluaciones', bold)
-    worksheet.insert_image(0, 4, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+    worksheet.insert_image(0, 4, LOGO_INDESCA, {'x_scale': 0.1, 'y_scale': 0.1})
 
     worksheet.write('A5', 'Filtros', bold_bordered)
     worksheet.write('B5', 'Desde', bold_bordered)
@@ -193,9 +196,9 @@ def ficha_tecnica_tubo_carcasa_xlsx(intercambiador, request):
     bold_bordered.set_align('center')
     center_bordered.set_align('center')
 
-    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.insert_image(0, 0,LOGO_PEQUIVEN, {'x_scale': 0.25, 'y_scale': 0.25})
     worksheet.write('C1', f'Ficha Técnica Intercambiador {intercambiador.tag}', bold)
-    worksheet.insert_image(0, 7, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+    worksheet.insert_image(0, 7, LOGO_INDESCA, {'x_scale': 0.1, 'y_scale': 0.1})
 
     num = 6
     propiedades = intercambiador.intercambiador()
@@ -350,9 +353,9 @@ def ficha_tecnica_doble_tubo_xlsx(intercambiador, request):
     bold_bordered.set_align('center')
     center_bordered.set_align('center')
 
-    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.insert_image(0, 0, LOGO_PEQUIVEN, {'x_scale': 0.25, 'y_scale': 0.25})
     worksheet.write('C1', f'Ficha Técnica Intercambiador {intercambiador.tag}', bold)
-    worksheet.insert_image(0, 7, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+    worksheet.insert_image(0, 7, LOGO_INDESCA, {'x_scale': 0.1, 'y_scale': 0.1})
 
     num = 6
     propiedades = intercambiador.intercambiador()
@@ -514,9 +517,9 @@ def reporte_intercambiadores(object_list, request):
     bold_bordered.set_align('center')
     center_bordered.set_align('center')
 
-    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.insert_image(0, 0, LOGO_PEQUIVEN, {'x_scale': 0.25, 'y_scale': 0.25})
     worksheet.write('C1', f'Reporte de Intercambiadores {"Tubo/Carcasa" if object_list[0].intercambiador.tipo.pk == 1 else "Doble Tubo"}', bold)
-    worksheet.insert_image(0, 4, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+    worksheet.insert_image(0, 4, LOGO_INDESCA, {'x_scale': 0.1, 'y_scale': 0.1})
 
     num = 6
     if(len(request.GET)):
@@ -645,9 +648,9 @@ def ficha_instalacion_bomba_centrifuga(bomba, request):
     header.set_align('center')
     center_bordered.set_align('center')
 
-    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.insert_image(0, 0, LOGO_PEQUIVEN, {'x_scale': 0.25, 'y_scale': 0.25})
     worksheet.write('C1', f'Ficha Instalación Bomba Centrífuga {bomba.tag}', bold)
-    worksheet.insert_image(0, 7, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+    worksheet.insert_image(0, 7, LOGO_INDESCA, {'x_scale': 0.1, 'y_scale': 0.1})
 
     num = 6
 
@@ -714,9 +717,9 @@ def ficha_tecnica_bomba_centrifuga(bomba, request):
     identificacion.set_align('center')
     center_bordered.set_align('center')
 
-    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.insert_image(0, 0, LOGO_PEQUIVEN, {'x_scale': 0.25, 'y_scale': 0.25})
     worksheet.write('C1', f'Ficha Técnica Bomba Centrífuga {bomba.tag}', bold)
-    worksheet.insert_image(0, 7, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+    worksheet.insert_image(0, 7, LOGO_INDESCA, {'x_scale': 0.1, 'y_scale': 0.1})
 
     num = 6
 
@@ -876,9 +879,9 @@ def historico_evaluaciones_bombas(object_list, request):
     bold_bordered.set_align('center')
     center_bordered.set_align('center')
 
-    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.insert_image(0, 0, LOGO_PEQUIVEN, {'x_scale': 0.25, 'y_scale': 0.25})
     worksheet.write('C1', 'Reporte de Histórico de Evaluaciones', bold)
-    worksheet.insert_image(0, 4, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+    worksheet.insert_image(0, 4, LOGO_INDESCA, {'x_scale': 0.1, 'y_scale': 0.1})
 
     worksheet.write('A5', 'Filtros', bold_bordered)
     worksheet.write('B5', 'Desde', bold_bordered)
@@ -968,9 +971,9 @@ def historico_evaluaciones_ventiladores(object_list, request):
     bold_bordered.set_align('center')
     center_bordered.set_align('center')
 
-    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.insert_image(0, 0, LOGO_PEQUIVEN, {'x_scale': 0.25, 'y_scale': 0.25})
     worksheet.write('C1', 'Reporte de Histórico de Evaluaciones', bold)
-    worksheet.insert_image(0, 4, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+    worksheet.insert_image(0, 4, LOGO_INDESCA, {'x_scale': 0.1, 'y_scale': 0.1})
 
     worksheet.write('A5', 'Filtros', bold_bordered)
     worksheet.write('B5', 'Desde', bold_bordered)
@@ -1038,9 +1041,9 @@ def ficha_tecnica_ventilador(_, ventilador, request):
     identificacion.set_align('center')
     center_bordered.set_align('center')
 
-    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.insert_image(0, 0, LOGO_PEQUIVEN, {'x_scale': 0.25, 'y_scale': 0.25})
     worksheet.write('C1', f'Ficha Técnica Ventilador {ventilador.tag}', bold)
-    worksheet.insert_image(0, 7, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+    worksheet.insert_image(0, 7, LOGO_INDESCA, {'x_scale': 0.1, 'y_scale': 0.1})
 
     num = 6
 
@@ -1168,9 +1171,9 @@ def historico_evaluaciones_turbinas_vapor(object_list, request):
     bold_bordered.set_align('center')
     center_bordered.set_align('center')
 
-    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.insert_image(0, 0, LOGO_PEQUIVEN, {'x_scale': 0.25, 'y_scale': 0.25})
     worksheet.write('C1', 'Reporte de Histórico de Evaluaciones', bold)
-    worksheet.insert_image(0, 4, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+    worksheet.insert_image(0, 4, LOGO_INDESCA, {'x_scale': 0.1, 'y_scale': 0.1})
 
     worksheet.write('A5', 'Filtros', bold_bordered)
     worksheet.write('B5', 'Desde', bold_bordered)
@@ -1235,9 +1238,9 @@ def ficha_tecnica_turbina_vapor(_, turbina, request):
     identificacion.set_align('center')
     center_bordered.set_align('center')
 
-    worksheet.insert_image(0, 0, BASE_DIR.__str__() + '\\static\\img\\logo.png', {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.insert_image(0, 0, LOGO_PEQUIVEN, {'x_scale': 0.25, 'y_scale': 0.25})
     worksheet.write('C1', f'Ficha Técnica Turbina de Vapor {turbina.tag}', bold)
-    worksheet.insert_image(0, 7, BASE_DIR.__str__() + '\\static\\img\\icono_indesca.png', {'x_scale': 0.1, 'y_scale': 0.1})
+    worksheet.insert_image(0, 7, LOGO_INDESCA, {'x_scale': 0.1, 'y_scale': 0.1})
 
     num = 6
 

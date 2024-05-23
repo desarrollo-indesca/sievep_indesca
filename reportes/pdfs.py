@@ -11,6 +11,7 @@ from intercambiadores.models import Planta, Complejo
 from calculos.unidades import *
 import matplotlib
 import matplotlib.pyplot as plt
+from simulaciones_pequiven.settings import BASE_DIR
 matplotlib.use('agg')
 
 # Aquí irán los reportes en formato PDF
@@ -89,11 +90,11 @@ def generar_pdf(request,object_list,titulo,reporte):
             color = colors.red
         )
         
-        i = Image('static/img/logo.png',width=55,height=55)
+        i = Image(f'{str(BASE_DIR)}/static/img/logo.png',width=55,height=55)
         i.wrapOn(canvas,width,height)
         i.drawOn(canvas,40,760)
 
-        i = Image('static/img/icono_indesca.png',width=55,height=55)
+        i = Image(f'{str(BASE_DIR)}/static/img/icono_indesca.png',width=55,height=55)
         i.wrapOn(canvas,width,height)
         i.drawOn(canvas,500,760)
 
@@ -279,7 +280,7 @@ def detalle_evaluacion(evaluacion):
     condicion_tubo = propiedades.condicion_tubo() if intercambiador.tipo.pk == 1 else propiedades.condicion_interno()
 
     # Primera Tabla: Datos de Entrada
-    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.get_full_nam()()}"))
+    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.get_full_name()}"))
     story.append(Paragraph(f"<b>Tag del Equipo:</b> {intercambiador.tag}"))
     story.append(Paragraph("Datos de Entrada de la Evaluación", ParagraphStyle('', alignment=1)))
 
@@ -1901,10 +1902,10 @@ def ficha_tecnica_bomba_centrifuga(bomba):
         story.append(Paragraph(f"Bomba editada por {bomba.editado_por.get_full_name()} el día {bomba.editado_al.strftime('%d/%m/%Y %H:%M:%S')}.", centrar_parrafo))
 
     if(construccion.tipo):
-        story.append(Image(f'static/img/equipos_aux/bombas/{construccion.tipo}.jpg', width=6*inch, height=3*inch))
+        story.append(Image(f'{str(BASE_DIR)}/static/img/equipos_aux/bombas/{construccion.tipo}.jpg', width=6*inch, height=3*inch))
 
     if(bomba.grafica):
-        story.append(Image(f'media/{bomba.grafica}', width=6*inch, height=4*inch))
+        story.append(Image(f'{str(BASE_DIR)}/media/{bomba.grafica}', width=6*inch, height=4*inch))
 
     return [story, None]
 
@@ -2255,7 +2256,7 @@ def detalle_evaluacion_ventilador(evaluacion):
     salida = evaluacion.salida
 
     # TABLA DE DATOS DE ENTRADA
-    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.get_full_nam()}"))
+    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.get_full_name()}"))
     story.append(Paragraph(f"<b>Tag del Equipo:</b> {ventilador.tag}"))
     story.append(Paragraph(f"<b>ID de la Evaluación:</b> {evaluacion.id}"))
 
@@ -2357,7 +2358,7 @@ def detalle_evaluacion_turbina_vapor(evaluacion):
     salida = evaluacion.salida
 
     # TABLA DE DATOS DE ENTRADA
-    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.get_full_nam()}"))
+    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.get_full_name()}"))
     story.append(Paragraph(f"<b>Tag del Equipo:</b> {turbina.tag}"))
     story.append(Paragraph(f"<b>ID de la Evaluación:</b> {evaluacion.id}"))
 
