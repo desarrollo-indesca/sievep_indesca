@@ -427,7 +427,7 @@ class Bombas(models.Model):
         Modelo principal de las bombas. Aquí se almacena la data de identificación y las referencias a otros datos.
 
     Atributos:
-        tag: str PK
+        tag: str UQ
         descripcion: str
         fabricante: str
         modelo: str

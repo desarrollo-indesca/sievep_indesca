@@ -125,7 +125,10 @@ class CargarBombaMixin():
     
     def get_bomba(self, prefetch = True, bomba_q = None):
         if(not bomba_q):
-            bomba = Bombas.objects.filter(pk = self.kwargs['pk'])
+            if(self.kwargs.get('pk')):
+                bomba = Bombas.objects.filter(pk = self.kwargs['pk'])
+            else:
+                bomba = Bombas.objects.none()
         else:
             bomba = bomba_q
 
@@ -160,7 +163,10 @@ class CargarBombaMixin():
             )
         
         if(not bomba_q):
-            return bomba[0]
+            if(bomba):
+                return bomba[0]
+
+            return bomba
         else:
             return bomba
 
@@ -1047,7 +1053,10 @@ class ObtenerVentiladorMixin():
     '''
     def get_ventilador(self, ventilador_q = None):
         if(not ventilador_q):
-            ventilador = Ventilador.objects.filter(pk = self.kwargs.get('pk'))
+            if(self.kwargs.get('pk')):
+                ventilador = Ventilador.objects.filter(pk = self.kwargs.get('pk'))
+            else:
+                ventilador = Ventilador.objects.none()
         else:
             ventilador = ventilador_q
 
@@ -1063,7 +1072,7 @@ class ObtenerVentiladorMixin():
             'condiciones_adicionales__densidad_unidad', 'condiciones_adicionales__potencia_freno_unidad'
         )
 
-        if(not ventilador_q):
+        if(not ventilador_q and ventilador):
             return ventilador[0]
         
         return ventilador

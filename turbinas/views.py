@@ -26,7 +26,10 @@ class ObtenerTurbinaVaporMixin():
     '''
     def get_turbina(self, turbina_q = None):
         if(not turbina_q):
-            turbina = TurbinaVapor.objects.filter(pk=self.kwargs['pk'])
+            if(self.kwargs.get('pk')):
+                turbina = TurbinaVapor.objects.filter(pk=self.kwargs['pk'])
+            else:
+                turbina = TurbinaVapor.objects.none()
         else:
             turbina = turbina_q
 
@@ -59,7 +62,10 @@ class ObtenerTurbinaVaporMixin():
            'datos_corrientes__corrientes'
         )
 
-        return turbina[0] if not turbina_q else turbina
+        if(turbina.count()):
+            return turbina[0] if not turbina_q else turbina
+        else:
+            return turbina
 
 class ReportesFichasTurbinasVaporMixin(ReportesFichasMixin):
     '''
