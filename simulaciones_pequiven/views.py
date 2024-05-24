@@ -368,7 +368,7 @@ class ComponerFluidos(View):
         
         return HttpResponse("Listo")
     
-class ConsultaEvaluacion(ListView, LoginRequiredMixin):
+class ConsultaEvaluacion(LoginRequiredMixin, ListView):
     """
     Resumen:
         Vista ABSTRACTA de consulta de evaluación de distintos equipos.
@@ -492,7 +492,7 @@ class FiltrarEvaluacionesMixin():
 
         return evaluaciones
 
-class PlantasPorComplejo(View):
+class PlantasPorComplejo(LoginRequiredMixin, View):
     """
     Resumen:
         Vista HTMX que filtra las plantas por complejo.

@@ -39,7 +39,7 @@ def determinar_propiedades_corrientes(corrientes: list, volumetrico: bool = Fals
     """
 
     for i,_ in enumerate(corrientes):
-        presion,temperatura = corrientes[i]['presion'],corrientes[i]['temperatura'] 
+        presion,temperatura = corrientes[i]['presion'],corrientes[i]['temperatura']
         corrientes[i]['entalpia'] = calcular_entalpia_coolprop(temperatura, presion, 'water')
         if(volumetrico):
             corrientes[i]['densidad'] = calcular_densidad_coolprop(temperatura, presion, 'water')
@@ -107,7 +107,7 @@ def evaluar_turbina(flujo_entrada: float, potencia: float, corrientes: list, cor
     h_salida = calcular_balance_energia_salida(corrientes_actualizadas, volumetrico)
 
     # Cálculo de potencia
-    potencia_calculada = h_entrada - h_salida
+    potencia_calculada = abs(h_entrada - h_salida)
     eficiencia = calcular_eficiencia(potencia_calculada, potencia)
 
     return {

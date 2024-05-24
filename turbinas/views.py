@@ -497,7 +497,7 @@ class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTur
     def get(self, request, pk):
         return render(request, 'turbinas_vapor/evaluacion.html', self.get_context_data())
     
-class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinaVaporMixin):
+class CalcularResultadosturbinaVapor(LoginRequiredMixin, View, ObtenerTurbinaVaporMixin):
     """
     Resumen:
         Vista para el cálculo de resultados de evaluaciones de Turbinas de Vapor y su almacenamiento.
