@@ -2285,7 +2285,7 @@ def detalle_evaluacion_ventilador(evaluacion):
             Paragraph(f"{entrada.temperatura_operacion}", centrar_parrafo)
         ],        
         [
-            f'Flujo ({entrada.flujo})',
+            f'Flujo ({entrada.flujo_unidad})',
             Paragraph(f"{entrada.flujo}", centrar_parrafo),
         ],
         [
@@ -2427,7 +2427,7 @@ def detalle_evaluacion_turbina_vapor(evaluacion):
     table = [[
         Paragraph("#", centrar_parrafo),
         Paragraph("Descripción", centrar_parrafo),
-        Paragraph(f"Presión ({entrada.presion_unidad})", centrar_parrafo),
+        Paragraph(f"Presión ({entrada.presion_unidad}g)", centrar_parrafo),
         Paragraph(f"Temperatura ({entrada.temperatura_unidad})", centrar_parrafo),
         Paragraph(f"Flujo ({entrada.flujo_entrada_unidad})", centrar_parrafo),
         Paragraph(f"Entalpía ({salida.entalpia_unidad})", centrar_parrafo),
@@ -2492,7 +2492,7 @@ def ficha_tecnica_turbina_vapor(turbina):
         [
             Paragraph(f"Velocidad ({especificaciones.velocidad_unidad})", centrar_parrafo),
             Paragraph(f"{especificaciones.velocidad if especificaciones.velocidad else '-'}", centrar_parrafo),
-            Paragraph(f"Presión de entrada ({especificaciones.presion_entrada_unidad})", centrar_parrafo),
+            Paragraph(f"Presión de entrada ({especificaciones.presion_entrada_unidad}g)", centrar_parrafo),
             Paragraph(f"{especificaciones.presion_entrada if especificaciones.presion_entrada else '-'}", centrar_parrafo)
         ],
         [
@@ -2523,13 +2523,13 @@ def ficha_tecnica_turbina_vapor(turbina):
     story.append(table)
 
     table = [[
-        Paragraph("Corrientes Circulante por la Turbina", centrar_parrafo)
+        Paragraph("Corrientes Circulantes por la Turbina", centrar_parrafo)
     ], [
         Paragraph("#", centrar_parrafo),
         Paragraph("Descripción", centrar_parrafo),
         Paragraph(f"Flujo ({datos_corrientes.flujo_unidad})", centrar_parrafo),
         Paragraph(f"Entalpía ({datos_corrientes.entalpia_unidad})", centrar_parrafo),
-        Paragraph(f"Presión ({datos_corrientes.presion_unidad})", centrar_parrafo),
+        Paragraph(f"Presión ({datos_corrientes.presion_unidad}g)", centrar_parrafo),
         Paragraph(f"Temperatura ({datos_corrientes.temperatura_unidad})", centrar_parrafo),
         Paragraph(f"Fase", centrar_parrafo),
     ]]
