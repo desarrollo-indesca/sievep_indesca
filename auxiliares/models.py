@@ -799,8 +799,8 @@ class CondicionesTrabajoVentilador(models.Model):
     tipo_flujo = models.CharField(max_length=1, choices=TIPO_FLUJO_CAUDAL, default='V')
     flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_caudal_volumetrico_unidad", null = True)
 
-    presion_entrada = models.FloatField(null = True, blank = True, verbose_name="Presión de Entrada", validators=[MinValueValidator(0.000001)])
-    presion_salida = models.FloatField(null = True, blank = True, verbose_name="Presión de Salida", validators=[MinValueValidator(0.000001)])
+    presion_entrada = models.FloatField(null = True, blank = True, verbose_name="Presión de Entrada")
+    presion_salida = models.FloatField(null = True, blank = True, verbose_name="Presión de Salida")
     presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_presion_unidad")
 
     velocidad_funcionamiento = models.FloatField(null = True, validators=[MinValueValidator(0.000001)], blank = True, verbose_name="Velocidad de Funcionamiento")
@@ -961,8 +961,8 @@ class EntradaEvaluacionVentilador(models.Model):
     '''
 
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
-    presion_entrada = models.FloatField(verbose_name="Presión Entrada", validators=[MinValueValidator(0.0001)])
-    presion_salida = models.FloatField(verbose_name="Presión Salida", validators=[MinValueValidator(0.0001)])
+    presion_entrada = models.FloatField(verbose_name="Presión Entrada")
+    presion_salida = models.FloatField(verbose_name="Presión Salida")
     presion_salida_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_presion_salida_unidad")
     
     flujo = models.FloatField(validators=[MinValueValidator(0.0001)])

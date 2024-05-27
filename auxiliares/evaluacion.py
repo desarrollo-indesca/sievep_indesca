@@ -498,7 +498,6 @@ def calcular_relacion_densidad(densidad_ficha: float, densidad_calculada: float)
     Devuelve:
         float -> Coeficiente de relación entre las densidades
     '''
-    print(type(densidad_ficha), type(densidad_calculada))
     return densidad_ficha/densidad_calculada if densidad_ficha else 1.0
 
 def calcular_potencia_ventilador(presion_entrada: float, presion_salida: float, relacion_densidad: float, flujo: float):
