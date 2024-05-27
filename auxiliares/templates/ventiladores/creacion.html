@@ -241,7 +241,7 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.presion_entrada.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.presion_entrada min="0.000001" class="form-control" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
+                        {% render_field form_condiciones_trabajo.presion_entrada class="form-control" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
                         {% render_field form_condiciones_trabajo.presion_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
                     </div>
                     <small>{{form_condiciones_trabajo.presion_entrada.errors}}</small>
@@ -250,7 +250,7 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.presion_salida.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.presion_salida min="0.000001" class="form-control" %}
+                        {% render_field form_condiciones_trabajo.presion_salida class="form-control" %}
                         {% render_field form_condiciones_trabajo.presion_unidad disabled="disabled" class="form-select" %}
                     </div>
                     <small>{{form_condiciones_trabajo.presion_salida.errors}}</small>
@@ -344,8 +344,8 @@
                 <div class="col-4">
                     {{form_condiciones_adicionales.presion_entrada.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_adicionales.presion_entrada min="0.000001" class="form-control" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_adicional-temperatura, #id_adicional-temperatura_unidad, #id_adicional-presion_entrada, #id_adicional-presion_unidad, #id_adicional-densidad_unidad, #id_adicional, #id_adicional-calculo_densidad" %}
-                        {% render_field form_condiciones_adicionales.presion_unidad min="0.000001" class="form-select" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_adicional-temperatura, #id_adicional-temperatura_unidad, #id_adicional-presion_entrada, #id_adicional-presion_unidad, #id_adicional-densidad_unidad, #id_adicional, #id_adicional-calculo_densidad" %}
+                        {% render_field form_condiciones_adicionales.presion_entrada class="form-control" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_adicional-temperatura, #id_adicional-temperatura_unidad, #id_adicional-presion_entrada, #id_adicional-presion_unidad, #id_adicional-densidad_unidad, #id_adicional, #id_adicional-calculo_densidad" %}
+                        {% render_field form_condiciones_adicionales.presion_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_adicional-temperatura, #id_adicional-temperatura_unidad, #id_adicional-presion_entrada, #id_adicional-presion_unidad, #id_adicional-densidad_unidad, #id_adicional, #id_adicional-calculo_densidad" %}
                     </div>
                     <small>{{form_condiciones_adicionales.presion_entrada.errors}}</small>
                 </div>
