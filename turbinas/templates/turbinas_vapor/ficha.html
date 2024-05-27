@@ -110,7 +110,7 @@
                     {% endwith %}
                     
                   <tr>
-                    <td colspan="6">Creado por el usuario <b>{{turbina.condiciones_diseno.creado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{turbina.creado_al|default_if_none:'-'}}</b>.</td>
+                    <td colspan="6">Creado por el usuario <b>{{turbina.creado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{turbina.creado_al|default_if_none:'-'}}</b>.</td>
                   </tr>
                   {% if turbina.editado_al %}
                   <tr>
@@ -166,8 +166,8 @@
           <form method="post" name="ficha_form">
             {% csrf_token %}
             <input type="hidden" name="ficha" value="{{turbina.pk}}">
-            <button name="tipo" value="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>
-            <button name="tipo" value="xlsx" target="_blank" href="#" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</a>
+            <button name="tipo" value="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</button>
+            <button name="tipo" value="xlsx" target="_blank" href="#" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</button>
           </form>
           
         </div>

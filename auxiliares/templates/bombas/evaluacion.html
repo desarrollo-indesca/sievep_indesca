@@ -47,21 +47,21 @@
                 <div class="col-12">
                     {{ form_entrada_evaluacion.presion_succion.label_tag }}
                     <div class="input-group mb-1">
-                        {% render_field form_entrada_evaluacion.presion_succion min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
+                        {% render_field form_entrada_evaluacion.presion_succion min="0.0001" max="9999999.99999" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
                         {% render_field form_entrada_evaluacion.presion_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
                     </div>                    
                 </div>
                 <div class="col-12">
                     {{ form_entrada_evaluacion.altura_succion.label_tag }}
                     <div class="input-group mb-1">
-                        {% render_field form_entrada_evaluacion.altura_succion min="-273.15" class="form-control" %}
+                        {% render_field form_entrada_evaluacion.altura_succion min="0.0001" max="9999999.99999" class="form-control" %}
                         {% render_field form_entrada_evaluacion.altura_unidad class="form-select" %}
                     </div>                    
                 </div>
                 <div class="col-12">
                     <label for="id_velocidad">Velocidad:</label>
                     <div class="input-group mb-1">
-                        <input id="id_velocidad" name="velocidad" type="number" step="0.0001" class="form-control" value="{{bomba.especificaciones_bomba.velocidad|unlocalize}}" disabled>
+                        <input id="id_velocidad" name="velocidad" type="number" step="0.0001" min="0.0001" max="9999999.99999" class="form-control" value="{{bomba.especificaciones_bomba.velocidad|unlocalize}}" disabled>
                         <select class="form-select" name="velocidad_unidad" id="id_velocidad_unidad" disabled>
                             <option>{{bomba.especificaciones_bomba.velocidad_unidad}}</option>
                         </select>
@@ -71,21 +71,21 @@
                 <div class="col-12">
                     {{ form_entrada_evaluacion.flujo.label_tag }}
                     <div class="input-group mb-1">
-                        {% render_field form_entrada_evaluacion.flujo min="-273.15" class="form-control" %}
+                        {% render_field form_entrada_evaluacion.flujo min="0.0001" max="9999999.99999" class="form-control" %}
                         {% render_field form_entrada_evaluacion.flujo_unidad class="form-select" %}
                     </div>                    
                 </div>
                 <div class="col-12">
                     {{ form_entrada_evaluacion.potencia.label_tag }}
                     <div class="input-group mb-1">
-                        {% render_field form_entrada_evaluacion.potencia min="-273.15" class="form-control" %}
+                        {% render_field form_entrada_evaluacion.potencia min="0.0001" max="9999999.99999" class="form-control" %}
                         {% render_field form_entrada_evaluacion.potencia_unidad class="form-select" %}
                     </div>                    
                 </div>
                 <div class="col-12">
                     {{ form_entrada_evaluacion.npshr.label_tag }}
                     <div class="input-group mb-1">
-                        {% render_field form_entrada_evaluacion.npshr min="-273.15" class="form-control" %}
+                        {% render_field form_entrada_evaluacion.npshr min="0.0001" max="9999999.99999" class="form-control" %}
                         {% render_field form_entrada_evaluacion.npshr_unidad class="form-select" %}
                     </div>                    
                 </div>
@@ -96,14 +96,14 @@
                 <div class="col-12">
                     {{ form_entrada_evaluacion.presion_descarga.label_tag }}
                     <div class="input-group mb-1">
-                        {% render_field form_entrada_evaluacion.presion_descarga min="-273.15" class="form-control" %}
+                        {% render_field form_entrada_evaluacion.presion_descarga min="0.0001" max="9999999.99999" class="form-control" %}
                         {% render_field form_entrada_evaluacion.presion_unidad disabled="disabled" class="form-select" %}
                     </div>                    
                 </div>
                 <div class="col-12">
                     {{ form_entrada_evaluacion.altura_descarga.label_tag }}
                     <div class="input-group mb-1">
-                        {% render_field form_entrada_evaluacion.altura_descarga min="-273.15" class="form-control" %}
+                        {% render_field form_entrada_evaluacion.altura_descarga min="0.0001" max="9999999.99999" class="form-control" %}
                         {% render_field form_entrada_evaluacion.altura_unidad disabled="disabled" class="form-select" %}
                     </div>                    
                 </div>
@@ -164,7 +164,7 @@
                 <div class="col-4">
                     <label for="id_presion_vapor">Presión Vapor:</label>
                     <div class="input-group mb-1">
-                        {% render_field form_entrada_evaluacion.presion_vapor min="0.0001" class="form-control" %}
+                        {% render_field form_entrada_evaluacion.presion_vapor min="0.0001" max="9999999.99999" class="form-control" %}
                         {% render_field form_entrada_evaluacion.presion_vapor_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
                     </div>
                 </div>
@@ -172,7 +172,7 @@
                 <div class="col-4">
                     <label for="id_viscosidad">Viscosidad:</label>
                     <div class="input-group mb-1">
-                        {% render_field form_entrada_evaluacion.viscosidad min="0.0001" class="form-control" %}
+                        {% render_field form_entrada_evaluacion.viscosidad min="0.0001" max="9999999.99999" class="form-control" %}
                         {% render_field form_entrada_evaluacion.viscosidad_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
                     </div>
                 </div>
@@ -180,7 +180,7 @@
                 <div class="col-4">
                     {{form_entrada_evaluacion.densidad.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_entrada_evaluacion.densidad min="0.0001" class="form-control" %}
+                        {% render_field form_entrada_evaluacion.densidad min="0.0001" max="9999999.99999" class="form-control" %}
                         {% render_field form_entrada_evaluacion.densidad_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
                     </div>
                 </div>

@@ -47,14 +47,14 @@
                 <div class="mt-3 col-6">
                     {{form_entrada_evaluacion.flujo_entrada.label_tag}}*
                     <div class="input-group">
-                        {% render_field form_entrada_evaluacion.flujo_entrada class="form-control parametros-propiedades" %}
+                        {% render_field form_entrada_evaluacion.flujo_entrada class="form-control parametros-propiedades" min="0.00001" %}
                         {% render_field form_entrada_evaluacion.flujo_entrada_unidad class="form-select parametros-propiedades" %}
                     </div>
                 </div>
                 <div class="mt-3 col-6">
                     {{form_entrada_evaluacion.potencia_real.label_tag}}*
                     <div class="input-group">
-                        {% render_field form_entrada_evaluacion.potencia_real class="form-control" %}
+                        {% render_field form_entrada_evaluacion.potencia_real class="form-control" min="0.00001" %}
                         {% render_field form_entrada_evaluacion.potencia_real_unidad class="form-select" %}
                     </div>
                 </div>
@@ -105,9 +105,9 @@
                         </td>
                         <td>
                             {% if not form.corriente.presion %}
-                            {% render_field form.form.presion class="form-control" placeholder="Presión no req. (saturado)" disabled="disabled" %}
+                            {% render_field form.form.presion class="form-control" placeholder="Presión no req. (saturado)" disabled="disabled" min="0.00001" %}
                             {% else %}
-                            {% render_field form.form.presion class="form-control" placeholder="Presión" required="required" min="0" %}
+                            {% render_field form.form.presion class="form-control" placeholder="Presión" required="required" min="0.00001" %}
                             {% endif %}                            
                             <small>{{form.form.presion.errors}}</small>
                         </td>

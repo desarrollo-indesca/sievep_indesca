@@ -100,7 +100,7 @@
             </div>
 
           <div class="col-12 text-end">
-            <small>Evaluación creada por {{evaluacion.creado_por.first_name}} al {{evaluacion.fecha}}.</small> 
+            <small>Evaluación creada por {{evaluacion.creado_por.get_full_name}} al {{evaluacion.fecha}}.</small> 
           </div>
         </div>
         <div class="modal-footer">
@@ -114,7 +114,7 @@
 
             <form method="post" name="reporte">
                 {% csrf_token %}
-                <button type="submit" name="detalle" value="{{evaluacion.pk}}" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>
+                <button type="submit" name="detalle" value="{{evaluacion.pk}}" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>&nbsp;
             </form>
         </div>
         {% endwith %}

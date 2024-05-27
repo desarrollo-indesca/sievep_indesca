@@ -3,6 +3,7 @@ from intercambiadores.models import Unidades
 UNIDADES_PRESION = Unidades.objects.filter(tipo = 'P')
 UNIDADES_POTENCIA = Unidades.objects.filter(tipo = 'B')
 UNIDADES_FLUJO_VOLUMETRICO = Unidades.objects.filter(tipo = 'K')
+UNIDADES_FLUJO_MASICO = Unidades.objects.filter(tipo = 'F')
 UNIDADES_VELOCIDAD_ANGULAR = Unidades.objects.filter(tipo = 'O')
 UNIDADES_LONGITUD = Unidades.objects.filter(tipo = 'L')
 UNIDADES_DENSIDAD = Unidades.objects.filter(tipo = 'D')

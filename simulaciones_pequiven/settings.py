@@ -15,7 +15,7 @@ A nivel de código el proyecto se llama 'simulaciones_pequiven' hasta que se dec
 """
 
 from pathlib import Path
-import ldap, os
+import os, ldap
 from django_auth_ldap.config import LDAPSearch
 
 AUTH_LDAP_GLOBAL_OPTIONS = {
