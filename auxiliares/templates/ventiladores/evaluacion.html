@@ -45,14 +45,14 @@
                 <div class="mt-3 col-6">
                     {{form_entrada_evaluacion.presion_entrada.label_tag}}*
                     <div class="input-group">
-                        {% render_field form_entrada_evaluacion.presion_entrada class="form-control parametros-propiedades" min="0.0001"  min="0.0001"hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-swap="none" hx-include=".parametros-propiedades" %}
+                        {% render_field form_entrada_evaluacion.presion_entrada class="form-control parametros-propiedades" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-swap="none" hx-include=".parametros-propiedades" %}
                         {% render_field form_entrada_evaluacion.presion_salida_unidad class="form-select parametros-propiedades" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-swap="none" hx-include=".parametros-propiedades" %}
                     </div>
                 </div>
                 <div class="mt-3 col-6">
                     {{form_entrada_evaluacion.presion_salida.label_tag}}*
                     <div class="input-group">
-                        {% render_field form_entrada_evaluacion.presion_salida class="form-control" min="0.0001" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-swap="none" hx-include=".parametros-propiedades" %}
+                        {% render_field form_entrada_evaluacion.presion_salida class="form-control" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-swap="none" hx-include=".parametros-propiedades" %}
                         {% render_field form_entrada_evaluacion.presion_salida_unidad class="form-select" disabled="disabled" %}
                     </div>
                 </div>
