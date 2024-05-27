@@ -105,7 +105,7 @@ def evaluar_turbina(flujo_entrada: float, potencia: float, corrientes: list, cor
     h_salida = calcular_balance_energia_salida(corrientes_actualizadas)
 
     # Cálculo de potencia
-    potencia_calculada = abs(h_entrada - h_salida)
+    potencia_calculada = h_entrada - h_salida
     eficiencia = calcular_eficiencia(potencia_calculada, potencia)
 
     return {
