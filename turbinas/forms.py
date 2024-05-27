@@ -77,7 +77,7 @@ class CorrienteForm(forms.ModelForm):
 class DatosCorrientesForm(FormConUnidades):
     def limpiar_campos_unidades(self):
         self.fields['flujo_unidad'].empty_label = None
-        self.fields['flujo_unidad'].queryset = UNIDADES_FLUJOS
+        self.fields['flujo_unidad'].queryset = UNIDADES_FLUJO_MASICO
         
         self.fields['presion_unidad'].empty_label = None
         self.fields['presion_unidad'].queryset = UNIDADES_PRESION
@@ -99,7 +99,7 @@ corrientes_formset = forms.modelformset_factory(
 class EntradaEvaluacionForm(FormConUnidades):
     def limpiar_campos_unidades(self):
         self.fields['flujo_entrada_unidad'].empty_label = None
-        self.fields['flujo_entrada_unidad'].queryset = UNIDADES_FLUJOS
+        self.fields['flujo_entrada_unidad'].queryset = UNIDADES_FLUJO_MASICO
 
         self.fields['potencia_real_unidad'].empty_label = None
         self.fields['potencia_real_unidad'].queryset = UNIDADES_POTENCIA
