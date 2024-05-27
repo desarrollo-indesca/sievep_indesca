@@ -51,12 +51,12 @@
         </div>
         <div class="col-3">
             <label for="id_complejo">{{form_bomba.complejo.label_tag}}</label>
-            {% render_field form_bomba.complejo class="form-control" hx-get="/plantas/" hx-include="#id_complejo, #complejo" hx-trigger="change" hx-target="#id_planta" hx-swap="none" %}
+            {% render_field form_bomba.complejo class="form-select" hx-get="/plantas/" hx-include="#id_complejo, #complejo" hx-trigger="change" hx-target="#id_planta" hx-swap="none" %}
             <small>{{form_bomba.complejo.errors}}</small>
         </div>
         <div class="col-3">
             <label for="id_planta">{{form_bomba.planta.label_tag}}</label>
-            {% render_field form_bomba.planta class="form-control" %}
+            {% render_field form_bomba.planta class="form-select" %}
             <small>{{form_bomba.planta.errors}}</small>
         </div>
         <div class="col-3">
@@ -72,7 +72,7 @@
         </div>
         <div class="col-3">
             <label for="id_tipo_bomba">{{form_bomba.tipo_bomba.label_tag}}</label>
-            {% render_field form_bomba.tipo_bomba class="form-control" %}
+            {% render_field form_bomba.tipo_bomba class="form-select" %}
             <small>{{form_bomba.tipo_bomba.errors}}</small>
         </div>
         <div class="col-6">

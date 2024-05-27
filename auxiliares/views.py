@@ -1629,7 +1629,7 @@ class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
                 'presion_entrada': ventilador.condiciones_trabajo.presion_entrada,
                 'presion_salida': ventilador.condiciones_trabajo.presion_salida,
             }),
-            'titulo': "Evaluación de Bomba"
+            'titulo': "Evaluación de Ventilador"
         }
 
         return context
