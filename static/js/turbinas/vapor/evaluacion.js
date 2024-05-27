@@ -15,7 +15,6 @@ $('form').change(e => {
 $('form').keyup(e => {
     if(e.keyCode !== 9){
         $('.resultado').html("");
-        $('form').removeClass('was-validated');
 
         $('#submit').html("Calcular Resultados");
         $('#submit').val("calcular");
@@ -40,6 +39,13 @@ document.body.addEventListener('htmx:beforeRequest', function(evt) {
 document.body.addEventListener('htmx:afterRequest', function(evt) {
     if(evt.detail.failed)
         alert("Ocurrió un error al momento de evaluar la turbina. Por favor verifique los datos ingresados.");
+    else
+        $('button[value="almacenar"]').click(e => {
+            if(!confirm("¿Seguro de que desea realizar esta acción?")){
+                evt.preventDefault();
+                return;
+            }
+        });
 
     document.body.style.opacity = 1.0;
 });

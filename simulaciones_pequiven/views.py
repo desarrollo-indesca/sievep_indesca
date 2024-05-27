@@ -16,6 +16,23 @@ from django.http import HttpResponse, HttpRequest
 from django.contrib import messages
 
 class Login(LoginView):
+    """
+    Resumen:
+        Vista de inicio de sesión de usuarios. Se hace la conexión con el AD definido y valida la conexión. Los datos de conexión se encuentran en el archivo de configuraciones.
+        Hereda de LoginView.
+
+    Atributos:
+        template_name: str -> Nombre de la plantilla a renderizar.
+        next_page: str -> Dirección URL de la página a la que redirigir en caso de que las credenciales sean correctas.
+
+    Métodos:
+        get_context_data(self, **kwargs) -> dict
+            Genera el contexto requerido para la renderización de la plantilla.
+
+        post(self, request) -> HttpResponse
+            Hace la autenticación correspondiente y anexa un mensaje dependiendo del resultado de la autenticación.
+    """
+
     template_name = "usuarios/login.html"
     next_page = "/"
 
@@ -39,22 +56,42 @@ class Login(LoginView):
             return redirect('/')
         
 class Bienvenida(View):
-    context = {
-        'titulo': "SIEVEP"
-    }
+    """
+    Resumen:
+        Vista que renderiza la pantalla de bienvenida si el usuario está autenticado.
 
+    Métodos:
+        get(self, request) -> HttpResponse
+            Contiene la lógica de la vista.
+    """
     def get(self, request):
         if(request.user.is_authenticated):
-            return render(request, 'bienvenida.html', context=self.context)
+            return render(request, 'bienvenida.html', context={'titulo': "SIEVEP"})
         else:
             return redirect("login/")
         
 class CerrarSesion(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Vista que cierra la sesión actual.
+
+    Métodos:
+        get(self, request) -> HttpResponse
+            Contiene la lógica de la vista.
+    """
     def get(self, request):
         logout(request)
         return redirect('/')
 
 class ManualDeUsuario(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Vista que envía el manual de usuario para vista previa o descarga.
+
+    Métodos:
+        get(self, request) -> HttpResponse
+            Contiene la lógica de la vista.
+    """
     def get(self, request):
         with open(BASE_DIR.__str__() + '/static/pdf/manual_de_usuario.pdf','rb') as file:
             response = HttpResponse(file.read(), content_type='application/pdf')
@@ -331,7 +368,7 @@ class ComponerFluidos(View):
         
         return HttpResponse("Listo")
     
-class ConsultaEvaluacion(ListView, LoginRequiredMixin):
+class ConsultaEvaluacion(LoginRequiredMixin, ListView):
     """
     Resumen:
         Vista ABSTRACTA de consulta de evaluación de distintos equipos.
@@ -416,10 +453,14 @@ class ConsultaEvaluacion(ListView, LoginRequiredMixin):
         return new_context
     
 class ReportesFichasMixin():
-    reporte_ficha_xlsx = lambda ventilador,request : '' # Definición Placeholder
-    titulo_reporte_ficha = ""
-    codigo_reporte_ficha = ""
-    model_ficha = None
+    """
+    Resumen:
+        Mixin que contiene la lógica de la función reporte_ficha, que debe ser llamada en todas las vistas que generen ficha técnica.
+    """
+    reporte_ficha_xlsx = None # Función de reporte en XLSX
+    titulo_reporte_ficha = "" # Título de la ficha a generar
+    codigo_reporte_ficha = "" # Código del reporte de la ficha
+    model_ficha = None # Modelo de Django al que corresponda la ficha
 
     def reporte_ficha(self, request):
         if(request.POST.get('ficha')):
@@ -432,6 +473,10 @@ class ReportesFichasMixin():
         return None
 
 class FiltrarEvaluacionesMixin():
+    """
+    Resumen:
+        Mixin que contiene el filtrado genérico de las evaluaciones.
+    """
     def filtrar(self, request, evaluaciones):
         if(request.GET.get('desde')):
             evaluaciones = evaluaciones.filter(fecha__gte = request.GET.get('desde'))
@@ -447,12 +492,31 @@ class FiltrarEvaluacionesMixin():
 
         return evaluaciones
 
-class PlantasPorComplejo(View):
+class PlantasPorComplejo(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Vista HTMX que filtra las plantas por complejo.
+    """
     def get(self, request):
         plantas = Planta.objects.filter(complejo__pk = request.GET['complejo'])
         return render(request, 'plantas.html', context={'plantas': plantas, 'planta_selec': int(request.GET['planta']) if request.GET.get('planta') else None}) 
     
 class FiltradoSimpleMixin():
+    """
+    Resumen:
+        Mixin que debe ser usado en las consultas de equipos.
+        Contiene código común en las partes de consultas de equipos para evitar duplicación.
+
+    Atributos:
+        titulo: str -> Título de la vista 
+
+    Métodos:
+        get(self, request) -> HttpResponse
+            Contiene la lógica para almacenar la paginación y filtrado previo.
+
+        get_context_data(self, **kwargs) -> dict
+            Genera el contexto de búsqueda y filtrado.
+    """
     titulo = ""
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:        
         if(request.GET.get('page')):

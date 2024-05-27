@@ -285,7 +285,7 @@
           <a href="{% url 'editar_doble_tubo' pk=intercambiador.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
           {% endif %}
 
-          <a name="pdf" target="_blank" href="{% url 'reporte_ficha_tecnica_doble_tubo' pk=generales.pk %}?tipo=pdf" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>
+          <a name="pdf" target="_blank" href="{% url 'reporte_ficha_tecnica_doble_tubo' pk=generales.pk %}?tipo=pdf" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>&nbsp;
           <a name="xlsx" target="_blank" href="{% url 'reporte_ficha_tecnica_doble_tubo' pk=generales.pk %}?tipo=xlsx" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</a>
         </div>
       </div>

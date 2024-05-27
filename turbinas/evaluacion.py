@@ -26,7 +26,7 @@ def determinar_flujos_corrientes(corrientes: list, corrientes_diseno: list, fluj
 
     return corrientes
 
-def determinar_propiedades_corrientes(corrientes: list, volumetrico: bool = False) -> list:
+def determinar_propiedades_corrientes(corrientes: list) -> list:
     """
     Resumen:
         Función para obtener las propiedades de las corrientes.
@@ -39,10 +39,8 @@ def determinar_propiedades_corrientes(corrientes: list, volumetrico: bool = Fals
     """
 
     for i,_ in enumerate(corrientes):
-        presion,temperatura = corrientes[i]['presion'],corrientes[i]['temperatura'] 
+        presion,temperatura = corrientes[i]['presion'],corrientes[i]['temperatura']
         corrientes[i]['entalpia'] = calcular_entalpia_coolprop(temperatura, presion, 'water')
-        if(volumetrico):
-            corrientes[i]['densidad'] = calcular_densidad_coolprop(temperatura, presion, 'water')
         corrientes[i]['fase'] = definicion_fases_coolprop(calcular_fase_coolprop(temperatura, presion, 'water'))
 
         if(not corrientes[i]['entalpia'] or not corrientes[i]['fase']):
@@ -50,7 +48,7 @@ def determinar_propiedades_corrientes(corrientes: list, volumetrico: bool = Fals
 
     return corrientes
 
-def calcular_balance_energia_entrada(corrientes_actualizadas: list, volumetrico: bool = False) -> float:
+def calcular_balance_energia_entrada(corrientes_actualizadas: list) -> float:
     """
     Resumen:
         Función para obtener el balance de energía de entrada de las corrientes.
@@ -63,9 +61,9 @@ def calcular_balance_energia_entrada(corrientes_actualizadas: list, volumetrico:
     """
 
     corriente_entrada = next(filter(lambda x : x['entrada'], corrientes_actualizadas))
-    return corriente_entrada['entalpia']*corriente_entrada['flujo'] if not volumetrico else corriente_entrada['entalpia']*corriente_entrada['flujo']*corriente_entrada['densidad'] 
+    return corriente_entrada['entalpia']*corriente_entrada['flujo']
 
-def calcular_balance_energia_salida(corrientes_actualizadas: list, volumetrico: bool = False) -> float:
+def calcular_balance_energia_salida(corrientes_actualizadas: list) -> float:
     """
     Resumen:
         Función para obtener el balance de energía de salida de las corrientes.
@@ -78,9 +76,9 @@ def calcular_balance_energia_salida(corrientes_actualizadas: list, volumetrico: 
         float -> Balance de energía de salida (J/s -> W)
     """
 
-    return sum([x['entalpia']*x['flujo'] if not volumetrico else x['entalpia']*x['flujo']*x['densidad'] for x in corrientes_actualizadas if not x['entrada']])
+    return sum([x['entalpia']*x['flujo'] for x in corrientes_actualizadas if not x['entrada']])
 
-def evaluar_turbina(flujo_entrada: float, potencia: float, corrientes: list, corrientes_diseno: list, volumetrico: bool = False):
+def evaluar_turbina(flujo_entrada: float, potencia: float, corrientes: list, corrientes_diseno: list):
     """
     Resumen:
         Función para evaluar una turbina de vapor a través de los datos ingresados.
@@ -100,11 +98,11 @@ def evaluar_turbina(flujo_entrada: float, potencia: float, corrientes: list, cor
     corrientes_actualizadas = determinar_flujos_corrientes(corrientes, corrientes_diseno, flujo_entrada)
     
     # Determinar la entalpía y fase de cada corriente e integrarlas
-    corrientes_actualizadas = determinar_propiedades_corrientes(corrientes_actualizadas, volumetrico)
+    corrientes_actualizadas = determinar_propiedades_corrientes(corrientes_actualizadas)
 
     # Balances de energía
-    h_entrada = calcular_balance_energia_entrada(corrientes_actualizadas, volumetrico)
-    h_salida = calcular_balance_energia_salida(corrientes_actualizadas, volumetrico)
+    h_entrada = calcular_balance_energia_entrada(corrientes_actualizadas)
+    h_salida = calcular_balance_energia_salida(corrientes_actualizadas)
 
     # Cálculo de potencia
     potencia_calculada = h_entrada - h_salida

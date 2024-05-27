@@ -145,14 +145,14 @@
         <div class="row">
             <div class="col-6">
                 {{form_generador.polos.label_tag}}
-                {% render_field form_generador.polos class="form-control" %}
+                {% render_field form_generador.polos class="form-control" min="0" %}
                 
                 <small>{{form_generador.polos.errors}}</small>
             </div>
 
             <div class="col-6">
                 {{form_generador.fases.label_tag}}
-                {% render_field form_generador.fases class="form-control" %}
+                {% render_field form_generador.fases class="form-control" min="0" %}
                 
                 <small>{{form_generador.fases.errors}}</small>
             </div>
@@ -270,31 +270,31 @@
                             <div class="d-flex justify-content-center align-items-center h-100">
                                 {% if form.instance %}
                                 {% if form.instance.entrada %}
-                                {% render_field form.entrada class="form-check-input entrada" %}
+                                {% render_field form.entrada class="form-check-input entrada" min="0.00001" %}
                                 {% else %}
-                                {% render_field form.entrada class="form-check-input entrada" %}
+                                {% render_field form.entrada class="form-check-input entrada" min="0.00001" %}
                                 {% endif %}
                                 {% else %}
-                                {% render_field form.entrada class="form-check-input entrada" %}
+                                {% render_field form.entrada class="form-check-input entrada" min="0.00001" %}
                                 {% endif %}
 
                             </div>
                             <small>{{form.entrada.errors}}</small>
                         </td>
                         <td>
-                            {% render_field form.flujo class="form-control flujo" placeholder="Flujo" required="required" %}
+                            {% render_field form.flujo class="form-control flujo" placeholder="Flujo" required="required" min="0.00001" %}
                             <small>{{form.flujo.errors}}</small>
                         </td>
                         <td>
-                            {% render_field form.entalpia class="form-control" placeholder="Entalpía" required="required" %}
+                            {% render_field form.entalpia class="form-control" placeholder="Entalpía" required="required" min="0.00001" %}
                             <small>{{form.entalpia.errors}}</small>
                         </td>
                         <td>
-                            {% render_field form.presion class="form-control presion" placeholder="Presión" %}
+                            {% render_field form.presion class="form-control presion" placeholder="Presión" min="0.00001" %}
                             <small>{{form.presion.errors}}</small>
                         </td>
                         <td>
-                            {% render_field form.temperatura class="form-control" placeholder="Temperatura" required="required" %}
+                            {% render_field form.temperatura class="form-control" placeholder="Temperatura" required="required" min="-273.15" %}
                             <small>{{form.temperatura.errors}}</small>
                         </td>
                         <td>

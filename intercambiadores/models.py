@@ -237,9 +237,19 @@ class Intercambiador(models.Model):
 
     def intercambiador(self):
         if(self.tipo.pk == 1):
-            return PropiedadesTuboCarcasa.objects.get(intercambiador = self)
+            return PropiedadesTuboCarcasa.objects.filter(intercambiador = self).select_related('intercambiador', 'intercambiador__planta', 
+            'intercambiador__planta__complejo', 'fluido_carcasa',
+            'intercambiador__tema', 'area_unidad','longitud_tubos_unidad','diametro_tubos_unidad', 
+            'q_unidad','u_unidad','ensuciamiento_unidad', 'tipo_tubo', 'unidades_pitch', 
+            'intercambiador__creado_por',
+        ).first()
         elif(self.tipo.pk == 2):
-            return PropiedadesDobleTubo.objects.get(intercambiador = self)
+            return PropiedadesDobleTubo.objects.filter(intercambiador = self).select_related('intercambiador', 'intercambiador__planta', 
+            'intercambiador__planta__complejo', 'fluido_in',
+            'intercambiador__tema', 'area_unidad','longitud_tubos_unidad','diametro_tubos_unidad', 
+            'q_unidad','u_unidad','ensuciamiento_unidad', 'tipo_tubo', 
+            'intercambiador__creado_por',
+        ).first()
     
     def tema_final(self):
         return self.tema.codigo[2] if self.tema.codigo[2] != 'N' else 'N_2'
@@ -410,10 +420,10 @@ class PropiedadesTuboCarcasa(models.Model):
             return None
 
     def condicion_tubo(self):
-        return self.intercambiador.condiciones.select_related('temperaturas_unidad','flujos_unidad','intercambiador','unidad_cp','unidad_presion').get(lado='T')
+        return self.intercambiador.condiciones.filter(lado='T').select_related('temperaturas_unidad','flujos_unidad','intercambiador','unidad_cp','unidad_presion').first()
     
     def condicion_carcasa(self):
-        return self.intercambiador.condiciones.select_related('temperaturas_unidad','flujos_unidad','intercambiador','unidad_cp','unidad_presion').get(lado='C')
+        return self.intercambiador.condiciones.filter(lado='C').select_related('temperaturas_unidad','flujos_unidad','intercambiador','unidad_cp','unidad_presion').first()
     
     def criticidad_larga(self):
         for x in criticidades:
@@ -558,10 +568,10 @@ class PropiedadesDobleTubo(models.Model):
             return None
 
     def condicion_interno(self):
-        return self.intercambiador.condiciones.get(lado='I')
+        return self.intercambiador.condiciones.filter(lado='I').select_related('temperaturas_unidad','flujos_unidad','intercambiador','unidad_cp','unidad_presion').first()
     
     def condicion_externo(self):
-        return self.intercambiador.condiciones.get(lado='E')
+        return self.intercambiador.condiciones.filter(lado='E').select_related('temperaturas_unidad','flujos_unidad','intercambiador','unidad_cp','unidad_presion').first()
     
     def criticidad_larga(self):
         for x in criticidades:

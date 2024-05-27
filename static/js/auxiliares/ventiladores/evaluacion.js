@@ -63,6 +63,13 @@ document.body.addEventListener('htmx:afterRequest', function(evt) {
 
     if(!evt.detail.failed){
         $('#calcular').removeAttr("disabled");
+
+        $('button[value="almacenar"]').click(e => {
+            if(!confirm("¿Seguro de que desea realizar esta acción?")){
+                evt.preventDefault();
+                return;
+            }
+        });
     } else{
         alert("Ocurrió un error al realizar los cálculos. Por favor intente de nuevo verificando la correctitud de los datos.");
         $('#id_densidad_evaluacion').val('');
@@ -105,3 +112,10 @@ $('input, select').change((e) => {
 })
 
 listeners_cambio();
+
+$('button[name="submit"]').click(e => {
+    if(!confirm("¿Seguro de que desea realizar esta acción?")){
+        evt.preventDefault();
+        return;
+    }
+})

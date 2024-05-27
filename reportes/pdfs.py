@@ -11,6 +11,7 @@ from intercambiadores.models import Planta, Complejo
 from calculos.unidades import *
 import matplotlib
 import matplotlib.pyplot as plt
+from simulaciones_pequiven.settings import BASE_DIR
 matplotlib.use('agg')
 
 # Aquí irán los reportes en formato PDF
@@ -89,11 +90,11 @@ def generar_pdf(request,object_list,titulo,reporte):
             color = colors.red
         )
         
-        i = Image('static/img/logo.png',width=55,height=55)
+        i = Image(f'{str(BASE_DIR)}/static/img/logo.png',width=55,height=55)
         i.wrapOn(canvas,width,height)
         i.drawOn(canvas,40,760)
 
-        i = Image('static/img/icono_indesca.png',width=55,height=55)
+        i = Image(f'{str(BASE_DIR)}/static/img/icono_indesca.png',width=55,height=55)
         i.wrapOn(canvas,width,height)
         i.drawOn(canvas,500,760)
 
@@ -279,7 +280,7 @@ def detalle_evaluacion(evaluacion):
     condicion_tubo = propiedades.condicion_tubo() if intercambiador.tipo.pk == 1 else propiedades.condicion_interno()
 
     # Primera Tabla: Datos de Entrada
-    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.first_name}"))
+    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.get_full_name()}"))
     story.append(Paragraph(f"<b>Tag del Equipo:</b> {intercambiador.tag}"))
     story.append(Paragraph("Datos de Entrada de la Evaluación", ParagraphStyle('', alignment=1)))
 
@@ -1441,7 +1442,7 @@ def detalle_evaluacion_bomba(evaluacion):
     salida_succion,salida_descarga = evaluacion.salida_succion(), evaluacion.salida_descarga()
 
     # TABLA DE DATOS DE ENTRADA
-    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.first_name}"))
+    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.get_full_name()}"))
     story.append(Paragraph(f"<b>Tag del Equipo:</b> {bomba.tag}"))
     story.append(Paragraph(f"<b>ID de la Evaluación:</b> {evaluacion.id}"))
 
@@ -1721,7 +1722,7 @@ def ficha_tecnica_bomba_centrifuga(bomba):
             Paragraph(f"{condiciones_diseno.presion_descarga if condiciones_diseno.presion_descarga else '-'}", centrar_parrafo)
         ],
         [
-            Paragraph(f"Presión Diferencial ({presion_unidad})", centrar_parrafo),
+            Paragraph(f"Presión Dif. ({presion_unidad})", centrar_parrafo),
             Paragraph(f"{condiciones_diseno.presion_diferencial if condiciones_diseno.presion_diferencial else '-'}", centrar_parrafo),
             Paragraph(f"NPSHa ({condiciones_diseno.npsha_unidad if condiciones_diseno.npsha_unidad else '-'})", centrar_parrafo),
             Paragraph(f"{condiciones_diseno.npsha if condiciones_diseno.npsha else '-'}", centrar_parrafo)
@@ -1740,7 +1741,7 @@ def ficha_tecnica_bomba_centrifuga(bomba):
             Paragraph(f"{condiciones_fluido.presion_vapor if condiciones_fluido.presion_vapor else '-'}", centrar_parrafo)
         ],
         [
-            Paragraph(f"Temp. Presión Vapor ({temperatura_unidad})", centrar_parrafo),
+            Paragraph(f"Temp. P. Vapor ({temperatura_unidad})", centrar_parrafo),
             Paragraph(f"{condiciones_fluido.temperatura_presion_vapor if condiciones_fluido.temperatura_presion_vapor else '-'}", centrar_parrafo),
             Paragraph(f"Densidad ({condiciones_fluido.densidad if condiciones_fluido.densidad else '-'})", centrar_parrafo),
             Paragraph(f"{condiciones_fluido.densidad if condiciones_fluido.densidad else '-'}", centrar_parrafo)
@@ -1758,9 +1759,9 @@ def ficha_tecnica_bomba_centrifuga(bomba):
             Paragraph(f"{condiciones_fluido.inflamable_largo()}", centrar_parrafo)
         ],
         [
-            Paragraph(f"Concentración H2S ({concentracion_unidad})", centrar_parrafo),
+            Paragraph(f"Conc. H2S ({concentracion_unidad})", centrar_parrafo),
             Paragraph(f"{condiciones_fluido.concentracion_h2s if condiciones_fluido.concentracion_h2s else '-'}", centrar_parrafo),
-            Paragraph(f"Concentración Cloro ({concentracion_unidad})", centrar_parrafo),
+            Paragraph(f"Conc. Cloro ({concentracion_unidad})", centrar_parrafo),
             Paragraph(f"{condiciones_fluido.concentracion_cloro if condiciones_fluido.concentracion_cloro else '-'}", centrar_parrafo)
         ],
         [
@@ -1901,10 +1902,10 @@ def ficha_tecnica_bomba_centrifuga(bomba):
         story.append(Paragraph(f"Bomba editada por {bomba.editado_por.get_full_name()} el día {bomba.editado_al.strftime('%d/%m/%Y %H:%M:%S')}.", centrar_parrafo))
 
     if(construccion.tipo):
-        story.append(Image(f'static/img/equipos_aux/bombas/{construccion.tipo}.jpg', width=6*inch, height=3*inch))
+        story.append(Image(f'{str(BASE_DIR)}/static/img/equipos_aux/bombas/{construccion.tipo}.jpg', width=6*inch, height=3*inch))
 
     if(bomba.grafica):
-        story.append(Image(f'media/{bomba.grafica}', width=6*inch, height=4*inch))
+        story.append(Image(f'{str(BASE_DIR)}/media/{bomba.grafica}', width=6*inch, height=4*inch))
 
     return [story, None]
 
@@ -2033,9 +2034,9 @@ def ficha_tecnica_ventilador(ventilador):
             Paragraph(f"{condiciones_trabajo.densidad if condiciones_trabajo.densidad else '-'}", centrar_parrafo)
         ],
         [
-            Paragraph(f"Presión Entrada ({temperatura_unidad})", centrar_parrafo),
+            Paragraph(f"Presión Entrada ({presion_unidad}g)", centrar_parrafo),
             Paragraph(f"{condiciones_trabajo.presion_entrada if condiciones_trabajo.presion_entrada else '-'}", centrar_parrafo),
-            Paragraph(f"Presión Salida ({presion_unidad}G)", centrar_parrafo),
+            Paragraph(f"Presión Salida ({presion_unidad}g)", centrar_parrafo),
             Paragraph(f"{condiciones_trabajo.presion_salida if condiciones_trabajo.presion_salida else '-'}", centrar_parrafo)
         ],
         [
@@ -2104,9 +2105,9 @@ def ficha_tecnica_ventilador(ventilador):
             Paragraph(f"{condiciones_adicionales.densidad if condiciones_adicionales.densidad else '-'}", centrar_parrafo)
         ],
         [
-            Paragraph(f"Presión Entrada ({temperatura_unidad})", centrar_parrafo),
+            Paragraph(f"Presión Entrada ({presion_unidad}g)", centrar_parrafo),
             Paragraph(f"{condiciones_adicionales.presion_entrada if condiciones_adicionales.presion_entrada else '-'}", centrar_parrafo),
-            Paragraph(f"Presión Salida ({presion_unidad}G)", centrar_parrafo),
+            Paragraph(f"Presión Salida ({presion_unidad}g)", centrar_parrafo),
             Paragraph(f"{condiciones_adicionales.presion_salida if condiciones_adicionales.presion_salida else '-'}", centrar_parrafo)
         ],
         [
@@ -2255,7 +2256,7 @@ def detalle_evaluacion_ventilador(evaluacion):
     salida = evaluacion.salida
 
     # TABLA DE DATOS DE ENTRADA
-    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.first_name}"))
+    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.get_full_name()}"))
     story.append(Paragraph(f"<b>Tag del Equipo:</b> {ventilador.tag}"))
     story.append(Paragraph(f"<b>ID de la Evaluación:</b> {evaluacion.id}"))
 
@@ -2272,11 +2273,11 @@ def detalle_evaluacion_ventilador(evaluacion):
             Paragraph(f"Aire", centrar_parrafo)
         ],
         [
-            f'Presión Entrada ({entrada.presion_salida_unidad})', 
+            f'Presión Entrada ({entrada.presion_salida_unidad}g)', 
             Paragraph(f"{entrada.presion_entrada}", centrar_parrafo)
         ],
         [
-            f'Presión Salida ({entrada.presion_salida_unidad}G)', 
+            f'Presión Salida ({entrada.presion_salida_unidad}g)', 
             Paragraph(f"{entrada.presion_salida}", centrar_parrafo)
         ],
         [
@@ -2284,7 +2285,7 @@ def detalle_evaluacion_ventilador(evaluacion):
             Paragraph(f"{entrada.temperatura_operacion}", centrar_parrafo)
         ],        
         [
-            f'Flujo ({entrada.flujo})',
+            f'Flujo ({entrada.flujo_unidad})',
             Paragraph(f"{entrada.flujo}", centrar_parrafo),
         ],
         [
@@ -2357,7 +2358,7 @@ def detalle_evaluacion_turbina_vapor(evaluacion):
     salida = evaluacion.salida
 
     # TABLA DE DATOS DE ENTRADA
-    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.first_name}"))
+    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.get_full_name()}"))
     story.append(Paragraph(f"<b>Tag del Equipo:</b> {turbina.tag}"))
     story.append(Paragraph(f"<b>ID de la Evaluación:</b> {evaluacion.id}"))
 
@@ -2426,7 +2427,7 @@ def detalle_evaluacion_turbina_vapor(evaluacion):
     table = [[
         Paragraph("#", centrar_parrafo),
         Paragraph("Descripción", centrar_parrafo),
-        Paragraph(f"Presión ({entrada.presion_unidad})", centrar_parrafo),
+        Paragraph(f"Presión ({entrada.presion_unidad}g)", centrar_parrafo),
         Paragraph(f"Temperatura ({entrada.temperatura_unidad})", centrar_parrafo),
         Paragraph(f"Flujo ({entrada.flujo_entrada_unidad})", centrar_parrafo),
         Paragraph(f"Entalpía ({salida.entalpia_unidad})", centrar_parrafo),
@@ -2491,7 +2492,7 @@ def ficha_tecnica_turbina_vapor(turbina):
         [
             Paragraph(f"Velocidad ({especificaciones.velocidad_unidad})", centrar_parrafo),
             Paragraph(f"{especificaciones.velocidad if especificaciones.velocidad else '-'}", centrar_parrafo),
-            Paragraph(f"Presión de entrada ({especificaciones.presion_entrada_unidad})", centrar_parrafo),
+            Paragraph(f"Presión de entrada ({especificaciones.presion_entrada_unidad}g)", centrar_parrafo),
             Paragraph(f"{especificaciones.presion_entrada if especificaciones.presion_entrada else '-'}", centrar_parrafo)
         ],
         [
@@ -2522,13 +2523,13 @@ def ficha_tecnica_turbina_vapor(turbina):
     story.append(table)
 
     table = [[
-        Paragraph("Corrientes Circulante por la Turbina", centrar_parrafo)
+        Paragraph("Corrientes Circulantes por la Turbina", centrar_parrafo)
     ], [
         Paragraph("#", centrar_parrafo),
         Paragraph("Descripción", centrar_parrafo),
         Paragraph(f"Flujo ({datos_corrientes.flujo_unidad})", centrar_parrafo),
         Paragraph(f"Entalpía ({datos_corrientes.entalpia_unidad})", centrar_parrafo),
-        Paragraph(f"Presión ({datos_corrientes.presion_unidad})", centrar_parrafo),
+        Paragraph(f"Presión ({datos_corrientes.presion_unidad}g)", centrar_parrafo),
         Paragraph(f"Temperatura ({datos_corrientes.temperatura_unidad})", centrar_parrafo),
         Paragraph(f"Fase", centrar_parrafo),
     ]]

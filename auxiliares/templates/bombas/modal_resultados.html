@@ -47,7 +47,7 @@
                         </tr>
                         <tr>
                             <th class="table-dark text-center">Velocidad ({{entrada.velocidad_unidad}})</th>
-                            <td class="text-center" colspan="2">{{salida.velocidad|floatformat:4}}</td>
+                            <td class="text-center" colspan="2">{{entrada.velocidad|floatformat:4}}</td>
                         </tr>
                         <tr>
                             <th class="table-dark text-center">Temp. Operación ({{entrada.temperatura_unidad}})</th>
@@ -55,7 +55,7 @@
                         </tr>
                         <tr>
                             <th class="table-dark text-center">Flujo ({{entrada.flujo_unidad}})</th>
-                            <td class="text-center" colspan="2">{{entrada.velocidad|floatformat:4}}</td>
+                            <td class="text-center" colspan="2">{{entrada.flujo|floatformat:4}}</td>
                         </tr>
                         <tr>
                             <th class="table-dark text-center">Potencia ({{entrada.potencia_unidad}})</th>
@@ -213,7 +213,7 @@
           </div>
 
           <div class="col-12 text-end">
-            <small>Evaluación creada por {{evaluacion.creado_por.first_name}} al {{evaluacion.fecha}}.</small> 
+            <small>Evaluación creada por {{evaluacion.creado_por.get_full_name}} al {{evaluacion.fecha}}.</small> 
           </div>
         </div>
         <div class="modal-footer">
@@ -227,7 +227,7 @@
 
             <form method="post" name="reporte">
                 {% csrf_token %}
-                <button type="submit" name="detalle" value="{{evaluacion.pk}}" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>
+                <button type="submit" name="detalle" value="{{evaluacion.pk}}" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>&nbsp;
             </form>
         </div>
         {% endwith %}

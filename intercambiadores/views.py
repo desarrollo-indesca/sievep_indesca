@@ -3,6 +3,8 @@ from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseNot
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib import messages
+from django.db.models import Prefetch
+
 from .models import *
 from django.views.generic.list import ListView
 from django.db import transaction
@@ -1049,9 +1051,12 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ConsultaIntercambiador):
                 intercambiador__tag__icontains = tag
             )
 
-        return new_context.select_related('intercambiador','area_unidad','longitud_tubos_unidad','diametro_tubos_unidad',
-            'q_unidad','u_unidad','ensuciamiento_unidad','intercambiador__planta__complejo','intercambiador__tema','unidades_pitch',
-            'fluido_carcasa','fluido_tubo')
+        return new_context.select_related('intercambiador', 'intercambiador__planta', 
+            'intercambiador__planta__complejo', 'fluido_carcasa',
+            'intercambiador__tema', 'area_unidad','longitud_tubos_unidad','diametro_tubos_unidad', 
+            'q_unidad','u_unidad','ensuciamiento_unidad', 'tipo_tubo', 'unidades_pitch', 
+            'intercambiador__creado_por',
+        )
 
 # VISTAS PARA LOS INTERCAMBIADORES DE DOBLE TUBO
 class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
@@ -1148,9 +1153,12 @@ class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
                 intercambiador__tag__icontains = tag
             )
 
-        return new_context.select_related('intercambiador','area_unidad','longitud_tubos_unidad','diametro_tubos_unidad',
-            'q_unidad','u_unidad','ensuciamiento_unidad','intercambiador__planta__complejo','intercambiador__tema',
-            'fluido_ex','fluido_in')
+        return new_context.select_related('intercambiador', 'intercambiador__planta', 
+            'intercambiador__planta__complejo', 'fluido_in',
+            'intercambiador__tema', 'area_unidad','longitud_tubos_unidad','diametro_tubos_unidad', 
+            'q_unidad','u_unidad','ensuciamiento_unidad', 'tipo_tubo', 
+            'intercambiador__creado_por',
+        )
 
 class CrearIntercambiadorDobleTubo(CrearIntercambiadorTuboCarcasa):
     """
@@ -2004,7 +2012,12 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
                 nombre__icontains = nombre
             )
 
-        return new_context.select_related('intercambiador','temperaturas_unidad','unidad_flujo','unidad_presion','cp_unidad')
+        return new_context.select_related(
+            'intercambiador',  'temperaturas_unidad',
+            'unidad_flujo','unidad_presion',
+            'cp_unidad', 'creado_por', 'area_diseno_unidad',
+            'u_diseno_unidad', 'q_diseno_unidad', 'ensuc_diseno_unidad'
+        )
 
 # VISTAS AJAX
 class EvaluarIntercambiador(LoginRequiredMixin, View):

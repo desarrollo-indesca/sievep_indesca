@@ -427,7 +427,7 @@ class Bombas(models.Model):
         Modelo principal de las bombas. Aquí se almacena la data de identificación y las referencias a otros datos.
 
     Atributos:
-        tag: str PK
+        tag: str UQ
         descripcion: str
         fabricante: str
         modelo: str
@@ -459,7 +459,7 @@ class Bombas(models.Model):
     especificaciones_bomba = models.OneToOneField(EspecificacionesBomba, on_delete=models.CASCADE)
     detalles_construccion = models.OneToOneField(DetallesConstruccionBomba, on_delete=models.CASCADE)
     condiciones_diseno = models.OneToOneField(CondicionesDisenoBomba, on_delete=models.CASCADE)
-    grafica = models.ImageField(null = True, blank = True, upload_to=MEDIA_ROOT + '/auxiliares/bombas/', verbose_name = "Gráfica del Equipo")
+    grafica = models.ImageField(null = True, blank = True, upload_to='media/auxiliares/bombas/', verbose_name = "Gráfica del Equipo")
 
     instalacion_succion = models.ForeignKey(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_succion")
     instalacion_descarga = models.ForeignKey(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_descarga")
@@ -799,8 +799,8 @@ class CondicionesTrabajoVentilador(models.Model):
     tipo_flujo = models.CharField(max_length=1, choices=TIPO_FLUJO_CAUDAL, default='V')
     flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_caudal_volumetrico_unidad", null = True)
 
-    presion_entrada = models.FloatField(null = True, blank = True, verbose_name="Presión de Entrada")
-    presion_salida = models.FloatField(null = True, blank = True, verbose_name="Presión de Salida")
+    presion_entrada = models.FloatField(null = True, blank = True, verbose_name="Presión de Entrada", validators=[MinValueValidator(0.000001)])
+    presion_salida = models.FloatField(null = True, blank = True, verbose_name="Presión de Salida", validators=[MinValueValidator(0.000001)])
     presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionestrabajoventilador_presion_unidad")
 
     velocidad_funcionamiento = models.FloatField(null = True, validators=[MinValueValidator(0.000001)], blank = True, verbose_name="Velocidad de Funcionamiento")
@@ -838,17 +838,17 @@ class CondicionesGeneralesVentilador(models.Model):
         presion_diseno: float -> Presión de diseño. Se utiliza para cálculo automático de densidad si no hay otras presiones definidas.
     '''
 
-    presion_barometrica = models.FloatField(null = True, blank = True, verbose_name="Presión Barométrica", validators=[MinValueValidator(0.000001)])
+    presion_barometrica = models.FloatField(null = True, blank = True, verbose_name="Presión Barométrica", validators=[MinValueValidator(0.0001)])
     presion_barometrica_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionesgenerales_presion_barometrica_unidad")
 
-    temp_ambiente = models.FloatField(null = True, blank = True, verbose_name="Temperatura Ambiente", validators=[MinValueValidator(0.000001)])
+    temp_ambiente = models.FloatField(null = True, blank = True, verbose_name="Temperatura Ambiente", validators=[MinValueValidator(-273.15)])
     temp_ambiente_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionesgenerales_temp_ambiente_unidad")
 
-    velocidad_diseno = models.FloatField(null = True, blank = True, verbose_name="Velocidad de Diseño", validators=[MinValueValidator(0.000001)])
+    velocidad_diseno = models.FloatField(null = True, blank = True, verbose_name="Velocidad de Diseño", validators=[MinValueValidator(0.0001)])
     velocidad_diseno_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="condicionesgenerales_velocidad_diseno_unidad")
 
     temp_diseno = models.FloatField(null = True, blank = True, verbose_name="Temperatura de Diseño", validators=[MinValueValidator(-273.15)])
-    presion_diseno = models.FloatField(null = True, blank = True, verbose_name="Presión de Diseño", validators=[MinValueValidator(0)])
+    presion_diseno = models.FloatField(null = True, blank = True, verbose_name="Presión de Diseño", validators=[MinValueValidator(0.0001)])
 
     class Meta:
         db_table = "ventiladores_condicionesgenerales"
@@ -873,8 +873,8 @@ class EspecificacionesVentilador(models.Model):
         velocidad_motor: float -> Velocidad del motor
         velocidad_motor_unidad: Unidad -> Unidad de velocidad angular (O)
     '''
-    espesor = models.FloatField(null = True, blank = True, verbose_name="Espesor de Carcasa", validators=[MinValueValidator(0.000001)])
-    espesor_caja = models.FloatField(null = True, blank = True,  verbose_name="Espesor de Caja de Entrada", validators=[MinValueValidator(0.000001)])
+    espesor = models.FloatField(null = True, blank = True, verbose_name="Espesor de Carcasa", validators=[MinValueValidator(0.0001)])
+    espesor_caja = models.FloatField(null = True, blank = True,  verbose_name="Espesor de Caja de Entrada", validators=[MinValueValidator(0.0001)])
     espesor_unidad =  models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="especificacionesventilador_velocidad_diseno_unidad")
 
     sello = models.CharField(max_length=45, null = True, blank = True,  verbose_name="Sello del Eje")
@@ -884,10 +884,10 @@ class EspecificacionesVentilador(models.Model):
     motor = models.CharField(max_length=45, null = True, blank = True)
     acceso_aire = models.CharField(max_length=45, null = True, blank = True,  verbose_name="Acceso del Aire al Ventilador")
 
-    potencia_motor = models.FloatField(null = True, blank = True,  verbose_name="Potencia del Motor", validators=[MinValueValidator(0.000001)])
+    potencia_motor = models.FloatField(null = True, blank = True,  verbose_name="Potencia del Motor", validators=[MinValueValidator(0.0001)])
     potencia_motor_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="especificacionesventilador_potencia_motor_unidad")
     
-    velocidad_motor = models.FloatField(null = True, blank = True,  verbose_name="Velocidad del Motor", validators=[MinValueValidator(0.000001)])
+    velocidad_motor = models.FloatField(null = True, blank = True,  verbose_name="Velocidad del Motor", validators=[MinValueValidator(0.0001)])
     velocidad_motor_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="especificacionesventilador_velocidad_motor_unidad")
 
     class Meta:
@@ -961,23 +961,23 @@ class EntradaEvaluacionVentilador(models.Model):
     '''
 
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
-    presion_entrada = models.FloatField(verbose_name="Presión Entrada")
-    presion_salida = models.FloatField(verbose_name="Presión Salida")
+    presion_entrada = models.FloatField(verbose_name="Presión Entrada", validators=[MinValueValidator(0.0001)])
+    presion_salida = models.FloatField(verbose_name="Presión Salida", validators=[MinValueValidator(0.0001)])
     presion_salida_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_presion_salida_unidad")
     
-    flujo = models.FloatField()
+    flujo = models.FloatField(validators=[MinValueValidator(0.0001)])
     tipo_flujo = models.CharField(max_length=1, choices=TIPO_FLUJO_CAUDAL, default='V')
     flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_flujo_unidad")
     
-    temperatura_operacion = models.FloatField(verbose_name="Temperatura de Operación")
+    temperatura_operacion = models.FloatField(verbose_name="Temperatura de Operación", validators=[MinValueValidator(-273.15)])
     temperatura_operacion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_temperatura_operacion_unidad")
 
-    potencia_ventilador = models.FloatField(verbose_name="Potencia del Ventilador")
+    potencia_ventilador = models.FloatField(verbose_name="Potencia del Ventilador", validators=[MinValueValidator(0.0001)])
     potencia_ventilador_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_potencia_ventilador_unidad")
 
     densidad_ficha = models.FloatField(null=True)
     densidad_ficha_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_densidad_ficha_unidad", null = True)
-    densidad_evaluacion = models.FloatField(verbose_name="Densidad Calculada", blank = True)
+    densidad_evaluacion = models.FloatField(verbose_name="Densidad Calculada", blank = True, validators=[MinValueValidator(0.0001)])
     densidad_evaluacion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entradaevaluacion_densidad_evaluacion_unidad")
 
     class Meta:

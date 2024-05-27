@@ -26,7 +26,10 @@ class ObtenerTurbinaVaporMixin():
     '''
     def get_turbina(self, turbina_q = None):
         if(not turbina_q):
-            turbina = TurbinaVapor.objects.filter(pk=self.kwargs['pk'])
+            if(self.kwargs.get('pk')):
+                turbina = TurbinaVapor.objects.filter(pk=self.kwargs['pk'])
+            else:
+                turbina = TurbinaVapor.objects.none()
         else:
             turbina = turbina_q
 
@@ -59,7 +62,10 @@ class ObtenerTurbinaVaporMixin():
            'datos_corrientes__corrientes'
         )
 
-        return turbina[0] if not turbina_q else turbina
+        if(turbina.count()):
+            return turbina[0] if not turbina_q else turbina
+        else:
+            return turbina
 
 class ReportesFichasTurbinasVaporMixin(ReportesFichasMixin):
     '''
@@ -255,19 +261,14 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
                 presiones_corrientes = transformar_unidades_presion([x['presion'] for x in corrientes], form_datos_corrientes.instance.presion_unidad.pk)
                 temperaturas_corrientes = transformar_unidades_temperatura([x['temperatura'] for x in corrientes], form_datos_corrientes.instance.temperatura_unidad.pk)
                 
-                if(flujo_unidad in PK_UNIDADES_FLUJO_MASICO):
-                    flujos_corrientes = transformar_unidades_flujo([x['flujo'] for x in corrientes], flujo_unidad)
-                    volumetrico = False
-                else:
-                    flujos_corrientes = transformar_unidades_flujo_volumetrico([x['flujo'] for x in corrientes], flujo_unidad)
-                    volumetrico = True
+                flujos_corrientes = transformar_unidades_flujo([x['flujo'] for x in corrientes], flujo_unidad)
 
                 for i in range(len(corrientes)):
                     corrientes[i]['presion'] = presiones_corrientes[i]
                     corrientes[i]['temperatura'] = temperaturas_corrientes[i]
                     corrientes[i]['flujo'] = flujos_corrientes[i]                    
 
-                res = evaluar_turbina(flujo_entrada, potencia_real, corrientes, corrientes, volumetrico)
+                res = evaluar_turbina(flujo_entrada, potencia_real, corrientes, corrientes)
 
                 form_especificaciones.instance.eficiencia = res['eficiencia']
                 form_especificaciones.save()
@@ -491,7 +492,7 @@ class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTur
     def get(self, request, pk):
         return render(request, 'turbinas_vapor/evaluacion.html', self.get_context_data())
     
-class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinaVaporMixin):
+class CalcularResultadosturbinaVapor(LoginRequiredMixin, View, ObtenerTurbinaVaporMixin):
     """
     Resumen:
         Vista para el cálculo de resultados de evaluaciones de Turbinas de Vapor y su almacenamiento.
@@ -531,12 +532,7 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinaVapor
         temperaturas = transformar_unidades_temperatura(temperaturas, temperatura_unidad)
         potencia_real = transformar_unidades_potencia([potencia_real], potencia_real_unidad)[0]
 
-        if(flujo_entrada_unidad in PK_UNIDADES_FLUJO_MASICO):
-            flujo_entrada = transformar_unidades_flujo([flujo_entrada], flujo_entrada_unidad)[0]
-            volumetrico = False
-        else:
-            flujo_entrada = transformar_unidades_flujo_volumetrico([flujo_entrada], flujo_entrada_unidad)[0]
-            volumetrico = True
+        flujo_entrada = transformar_unidades_flujo([flujo_entrada], flujo_entrada_unidad)[0]        
 
         # Calcular Resultados
         corrientes = []
@@ -547,7 +543,7 @@ class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerTurbinaVapor
                 'entrada': corrientes_diseno[x].entrada
             })
 
-        res = evaluar_turbina(flujo_entrada, potencia_real, corrientes, corrientes_diseno.values(), volumetrico)
+        res = evaluar_turbina(flujo_entrada, potencia_real, corrientes, corrientes_diseno.values())
 
         # Transformar unidades de internacional a salida (ficha)
         res['potencia_calculada'] = transformar_unidades_potencia([res['potencia_calculada']], 49, potencia_real_unidad)[0]

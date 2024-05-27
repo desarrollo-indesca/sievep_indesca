@@ -196,5 +196,9 @@ $('#submit').click(e => {
         evt.preventDefault();
 })
 
+$('form').submit(e => {
+    $('#submit').attr('disabled','disabled');
+})
+
 anadir_listeners_htmx();
 anadir_listeners_dropboxes();

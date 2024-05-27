@@ -255,7 +255,7 @@ class EntradaCorriente(models.Model):
         temperatura: Floatfield -> Temperatura de la corriente
     """
     id = models.UUIDField(primary_key=True, default = uuid.uuid4)
-    presion = models.FloatField(validators=[MinValueValidator(0)], null=True, blank=True)
+    presion = models.FloatField(validators=[MinValueValidator(0.0001)], null=True, blank=True)
     temperatura = models.FloatField(validators=[MinValueValidator(-273.15)])
 
     class Meta:
