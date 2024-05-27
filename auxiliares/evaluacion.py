@@ -190,11 +190,13 @@ def calculo_perdida_tramos(tramos, velocidades, areas, area_comp, flujos):
     ec = 0
     k,h,ft = 0,0,0
     diametro_previo = 0
+    h_accesorios = 0
 
     area_comp = sum(area_comp) # Suma del área de comparación
 
     for i,tramo in enumerate(tramos): # Cálculo de las pérdidas por tramo
-        ec += velocidades[i]**2/(2*GRAVEDAD) # Energía cinética
+        k = 0
+        ec = velocidades[i]**2/(2*GRAVEDAD) # Energía cinética
         longitud = transformar_unidades_longitud([tramo.longitud_tuberia], tramo.longitud_tuberia_unidad.pk)[0]
         diametro = transformar_unidades_longitud([tramo.diametro_tuberia], tramo.diametro_tuberia_unidad.pk)[0]
         
@@ -224,7 +226,7 @@ def calculo_perdida_tramos(tramos, velocidades, areas, area_comp, flujos):
         k += 20*tramo.conexiones_t_directo if tramo.conexiones_t_directo else 0
         k += 60*tramo.conexiones_t_ramal if tramo.conexiones_t_ramal else 0
         k += 1 if i == 0 else 0 # Entrada / Salida (una vez por lado)
-        ft += flujos[i]['factor_turbulento']
+        ft = flujos[i]['factor_turbulento']
 
         if(diametro_previo < diametro):
             k += (1-(areas[i]/area_comp)**2)*diametro
@@ -232,8 +234,8 @@ def calculo_perdida_tramos(tramos, velocidades, areas, area_comp, flujos):
             k += 0.5
 
         diametro_previo = diametro
-    
-    h_accesorios = ft*ec*k
+   
+        h_accesorios += ft*ec*k
 
     return [h, h_accesorios]
 
