@@ -4,22 +4,7 @@
 
 {% block head %}
 <script src="/static/js/htmx.min.js"></script>
-
-<style>
-    small{
-        color: #e31e24;
-        font-weight: bold;
-    }
-
-    .indicator-style {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        z-index: 1000;
-        margin-left: -50px;
-        margin-top: -50px;
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
 {% endblock %}
 
 {% block contenido %}
@@ -46,7 +31,7 @@
     <div class="row">
         <div class="col-3">
             <label for="id_tag">{{form_bomba.tag.label_tag}}</label>
-            {% render_field form_bomba.tag class="form-control" %}
+            {% render_field form_bomba.tag class="form-control" placeholder="Tag de la Bomba" %}
             <small>{{form_bomba.tag.errors}}</small>
         </div>
         <div class="col-3">
@@ -61,13 +46,13 @@
         </div>
         <div class="col-3">
             <label for="id_fabricante">{{form_bomba.fabricante.label_tag}}</label>
-            {% render_field form_bomba.fabricante class="form-control" %}
+            {% render_field form_bomba.fabricante class="form-control" placeholder="Fabricante de la Bomba" %}
             <small>{{form_bomba.fabricante.errors}}</small>
         </div>
 
         <div class="col-3">
             <label for="id_modelo">{{form_bomba.modelo.label_tag}}</label>
-            {% render_field form_bomba.modelo class="form-control" %}
+            {% render_field form_bomba.modelo class="form-control" placeholder="Modelo de la Bomba" %}
             <small>{{form_bomba.modelo.errors}}</small>
         </div>
         <div class="col-3">
@@ -82,7 +67,7 @@
         </div>
         <div class="col-12">
             <label for="id_descripcion">{{form_bomba.descripcion.label_tag}}</label>
-            {% render_field form_bomba.descripcion class="form-control" %}
+            {% render_field form_bomba.descripcion class="form-control" placeholder="Descripción de la bomba y su servicio" %}
             <small>{{form_bomba.descripcion.errors}}</small>
         </div>
     </div>
@@ -95,7 +80,7 @@
         <div class="col-3">
             <label for="id_velocidad">{{form_especificaciones.velocidad.label_tag}}</label>
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.velocidad min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.velocidad min="0.0001" class="form-control" placeholder="Velocidad de la bomba" %}
                 {% render_field form_especificaciones.velocidad_unidad class="form-select" %}
             </div>
             <small>{{form_especificaciones.velocidad.errors}}</small>
@@ -104,7 +89,7 @@
         <div class="col-3">
             <label for="id_potencia">{{form_especificaciones.potencia_maxima.label_tag}}</label>
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.potencia_maxima min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.potencia_maxima min="0.0001" class="form-control" placeholder="Potencia Máxima" %}
                 {% render_field form_especificaciones.potencia_unidad class="form-select" %}
             </div>
             <small>{{form_especificaciones.potencia_maxima.errors}}</small>
@@ -113,7 +98,7 @@
         <div class="col-3">
             <label for="id_npshr">{{form_especificaciones.npshr.label_tag}}</label>
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.npshr min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.npshr min="0.0001" class="form-control" placeholder="Cap. de Succión Req." %}
                 {% render_field form_especificaciones.npshr_unidad class="form-select" %}
             </div>
             <small>{{form_especificaciones.npshr.errors}}</small>
@@ -122,7 +107,7 @@
         <div class="col-3">
             <label for="id_cabezal_total">{{form_especificaciones.cabezal_total.label_tag}}</label>
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.cabezal_total min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.cabezal_total min="0.0001" class="form-control" placeholder="Cabezal Total" %}
                 {% render_field form_especificaciones.cabezal_unidad class="form-select" %}
             </div>
             <small>{{form_especificaciones.cabezal_total.errors}}</small>
@@ -131,7 +116,7 @@
         <div class="col-3">
             <label for="id_succion_id">{{form_especificaciones.succion_id.label_tag}}</label>
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.succion_id min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.succion_id min="0.0001" placeholder="Diám. Int. Succión" class="form-control" %}
                 {% render_field form_especificaciones.id_unidad class="form-select" %}
             </div>
 
@@ -141,7 +126,7 @@
         <div class="col-3">
             <label for="id_descarga_id">{{form_especificaciones.descarga_id.label_tag}}</label>
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.descarga_id min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.descarga_id min="0.0001" class="form-control" placeholder="Diám. Int. Desc." %}
                 {% render_field form_especificaciones.id_unidad class="form-select" disabled="disabled" %}
             </div>
             <small>{{form_especificaciones.descarga_id.errors}}</small>
@@ -150,13 +135,13 @@
 
         <div class="col-3">
             <label for="id_numero_etapas">{{form_especificaciones.numero_etapas.label_tag}}</label>
-            {% render_field form_especificaciones.numero_etapas min="1" class="form-control" %}        
+            {% render_field form_especificaciones.numero_etapas min="1" class="form-control" placeholder="Etapas de la bomba" %}        
             <small>{{form_especificaciones.numero_etapas.errors}}</small>
         </div>
 
         <div class="col-3">
             <label for="id_eficiencia">{{form_especificaciones.eficiencia.label_tag}}</label>
-            {% render_field form_especificaciones.eficiencia min="0" class="form-control" %}
+            {% render_field form_especificaciones.eficiencia min="0" class="form-control" placeholder="Eficiencia por Diseño" %}
             <small>{{form_especificaciones.eficiencia.errors}}</small>
         </div>
     </div>
@@ -169,7 +154,7 @@
             <div class="col-4">
                 <label for="id_capacidad">{{form_condiciones_diseno.capacidad.label_tag}}</label>
                 <div class="input-group mb-1">
-                    {% render_field form_condiciones_diseno.capacidad min="0.0001" class="form-control" %}
+                    {% render_field form_condiciones_diseno.capacidad min="0.0001" class="form-control" placeholder="(Volumétrica)" %}
                     {% render_field form_condiciones_diseno.capacidad_unidad class="form-select" %}
                 </div>
                 <small>{{form_condiciones_diseno.capacidad.errors}}</small>
@@ -180,7 +165,7 @@
             <div class="col-4">
                 <label for="id_npsha">{{form_condiciones_diseno.npsha.label_tag}}</label>
                 <div class="input-group mb-1">
-                    {% render_field form_condiciones_diseno.npsha min="0.0001" class="form-control" %}
+                    {% render_field form_condiciones_diseno.npsha min="0.0001" class="form-control" placeholder="Cap. de succión disp." %}
                     {% render_field form_condiciones_diseno.npsha_unidad class="form-select" %}
                 </div>
                 <small>{{form_condiciones_diseno.npsha.errors}}</small>
@@ -189,7 +174,7 @@
             <div class="col-4">
                 <label for="id_presion_succion">{{form_condiciones_diseno.presion_succion.label_tag}}</label>
                 <div class="input-group mb-1">
-                    {% render_field form_condiciones_diseno.presion_succion min="0.0001" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                    {% render_field form_condiciones_diseno.presion_succion min="0.0001" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" placeholder="Presión (abs.) Succión" %}
                     {% render_field form_condiciones_diseno.presion_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
                 </div>
                 <small>{{form_condiciones_diseno.presion_succion.errors}}</small>
@@ -198,7 +183,7 @@
             <div class="col-4">
                 <label for="id_presion_descarga">{{form_condiciones_diseno.presion_descarga.label_tag}}</label>
                 <div class="input-group mb-1">
-                    {% render_field form_condiciones_diseno.presion_descarga min="0.0001" class="form-control" %}
+                    {% render_field form_condiciones_diseno.presion_descarga min="0.0001" class="form-control" placeholder="Presión (abs.) Desc." %}
                     {% render_field form_condiciones_diseno.presion_unidad disabled="disabled" class="form-select" %}
                 </div>
                 <small>{{form_condiciones_diseno.presion_descarga.errors}}</small>
@@ -207,7 +192,7 @@
             <div class="col-4">
                 <label for="id_presion_diferencial">{{form_condiciones_diseno.presion_diferencial.label_tag}}</label>
                 <div class="input-group mb-1">
-                    {% render_field form_condiciones_diseno.presion_diferencial min="0.0001" class="form-control" %}
+                    {% render_field form_condiciones_diseno.presion_diferencial min="0.0001" class="form-control" placeholder="Presión (abs.) Dif." %}
                     {% render_field form_condiciones_diseno.presion_unidad disabled="disabled" class="form-select" %}
                 </div>
                 <small>{{form_condiciones_diseno.presion_diferencial.errors}}</small>
@@ -223,7 +208,7 @@
                 <div class="col-3">
                     <label for="id_temperatura_operacion">{{form_condiciones_fluido.temperatura_operacion.label_tag}}</label>
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_fluido.temperatura_operacion min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                        {% render_field form_condiciones_fluido.temperatura_operacion min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" placeholder="Temp. Operación" %}
                         {% render_field form_condiciones_fluido.temperatura_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
                     </div>
                     <small>{{form_condiciones_fluido.temperatura_operacion.errors}}</small>
@@ -232,7 +217,7 @@
                 <div class="col-3">
                     <label for="id_temperatura_presion_vapor">{{form_condiciones_fluido.temperatura_presion_vapor.label_tag}}</label>
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_fluido.temperatura_presion_vapor min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
+                        {% render_field form_condiciones_fluido.temperatura_presion_vapor min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" placeholder="Temp. Pres. Vapor" %}
                         {% render_field form_condiciones_fluido.temperatura_unidad class="form-select" disabled="disabled" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
                     </div>
                     <small>{{form_condiciones_fluido.temperatura_presion_vapor.errors}}</small>
@@ -264,7 +249,7 @@
                 <div class="col-4">
                     <label for="id_presion_vapor">{{form_condiciones_fluido.presion_vapor.label_tag}}</label>
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_fluido.presion_vapor min="0.0001" class="form-control" %}
+                        {% render_field form_condiciones_fluido.presion_vapor min="0.0001" class="form-control" placeholder="Pres. (abs.) Vapor" %}
                         {% render_field form_condiciones_fluido.presion_vapor_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
                     </div>
                     <small>{{form_condiciones_fluido.presion_vapor.errors}}</small>
@@ -273,7 +258,7 @@
                 <div class="col-4">
                     <label for="id_viscosidad">{{form_condiciones_fluido.viscosidad.label_tag}}</label>
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_fluido.viscosidad min="0.0001" class="form-control" %}
+                        {% render_field form_condiciones_fluido.viscosidad min="0.0001" class="form-control" placeholder="Viscosidad Fluido" %}
                         {% render_field form_condiciones_fluido.viscosidad_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
                     </div>
                     <small>{{form_condiciones_fluido.viscosidad.errors}}</small>
@@ -282,7 +267,7 @@
                 <div class="col-4">
                     <label for="id_densidad">{{form_condiciones_fluido.densidad.label_tag}}</label>
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_fluido.densidad min="0.0001" class="form-control" %}
+                        {% render_field form_condiciones_fluido.densidad min="0.0001" class="form-control" placeholder="Densidad Fluido" %}
                         {% render_field form_condiciones_fluido.densidad_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad" %}
                     </div>
                     <small>{{form_condiciones_fluido.densidad.errors}}</small>
@@ -313,7 +298,7 @@
                 <div class="col-3">
                     <label for="id_concentracion_h2s">{{form_condiciones_fluido.concentracion_h2s.label_tag}}</label>
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_fluido.concentracion_h2s min="0" class="form-control" %}
+                        {% render_field form_condiciones_fluido.concentracion_h2s min="0" class="form-control" placeholder="Conc. H₂S" %}
                         {% render_field form_condiciones_fluido.concentracion_unidad class="form-select" %}
                     </div>
                     <small>{{form_condiciones_fluido.concentracion_h2s.errors}}</small>
@@ -322,7 +307,7 @@
                 <div class="col-3">
                     <label for="id_concentracion_cloro">{{form_condiciones_fluido.concentracion_cloro.label_tag}}</label>
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_fluido.concentracion_cloro min="0" class="form-control" %}
+                        {% render_field form_condiciones_fluido.concentracion_cloro min="0" class="form-control" placeholder="Conc. Cl" %}
                         {% render_field form_condiciones_fluido.concentracion_unidad disabled="disabled" class="form-select" %}
                     </div>
                     <small>{{form_condiciones_fluido.concentracion_cloro.errors}}</small>
@@ -338,22 +323,22 @@
                 <div class="row">
                     <div class="col-3">
                         <label for="id_conexion_succion">{{form_detalles_construccion.conexion_succion.label_tag}}</label>
-                        {% render_field form_detalles_construccion.conexion_succion min="0" class="form-control" %}
+                        {% render_field form_detalles_construccion.conexion_succion min="0" class="form-control" placeholder="Conex. Succión" %}
                         <small>{{form_detalles_construccion.conexion_succion.errors}}</small>
                     </div>
                     <div class="col-3">
                         <label for="id_tamano_rating_succion">{{form_detalles_construccion.tamano_rating_succion.label_tag}}</label>
-                        {% render_field form_detalles_construccion.tamano_rating_succion min="0" class="form-control" %}
+                        {% render_field form_detalles_construccion.tamano_rating_succion min="0" class="form-control" placeholder="Tamaño Rating" %}
                         <small>{{form_detalles_construccion.tamano_rating_succion.errors}}</small>
                     </div>
                     <div class="col-3">
                         <label for="id_conexion_descarga">{{form_detalles_construccion.conexion_descarga.label_tag}}</label>
-                        {% render_field form_detalles_construccion.conexion_descarga min="0" class="form-control" %}
+                        {% render_field form_detalles_construccion.conexion_descarga min="0" class="form-control" placeholder="Conex. Descarga" %}
                         <small>{{form_detalles_construccion.conexion_descarga.errors}}</small>
                     </div>
                     <div class="col-3">
                         <label for="id_tamano_rating_descarga">{{form_detalles_construccion.tamano_rating_descarga.label_tag}}</label>
-                        {% render_field form_detalles_construccion.tamano_rating_descarga min="0" class="form-control" %}
+                        {% render_field form_detalles_construccion.tamano_rating_descarga min="0" class="form-control" placeholder="Tamaño Rating" %}
                         <small>{{form_detalles_construccion.tamano_rating_descarga.errors}}</small>
                     </div>
 
@@ -369,13 +354,13 @@
                     </div>
                     <div class="col-4">
                         <label for="id_modelo_construccion">{{form_detalles_construccion.modelo_construccion.label_tag}}</label>
-                        {% render_field form_detalles_construccion.modelo_construccion class="form-control" %}
+                        {% render_field form_detalles_construccion.modelo_construccion class="form-control" placeholder="Modelo de Construcción" %}
                         <small>{{form_detalles_construccion.modelo_construccion.errors}}</small>
                     </div>
 
                     <div class="col-4">
                         <label for="id_fabricante_sello">{{form_detalles_construccion.fabricante_sello.label_tag}}</label>
-                        {% render_field form_detalles_construccion.fabricante_sello class="form-control" %}
+                        {% render_field form_detalles_construccion.fabricante_sello class="form-control" placeholder="Fabricante de Sello" %}
                         <small>{{form_detalles_construccion.fabricante_sello.errors}}</small>
                     </div>
                     <div class="col-4">
@@ -398,7 +383,7 @@
                     <div class="col-3">
                         <label for="id_potencia">{{form_detalles_motor.potencia_motor.label_tag}}</label>
                         <div class="input-group mb-1">
-                            {% render_field form_detalles_motor.potencia_motor min="0.0001" class="form-control" %}
+                            {% render_field form_detalles_motor.potencia_motor min="0.0001" class="form-control" placeholder="Potencia del Motor" %}
                             {% render_field form_detalles_motor.potencia_motor_unidad class="form-select" %}
                         </div>
                         <small>{{form_detalles_motor.potencia_motor.errors}}</small>
@@ -406,7 +391,7 @@
                     <div class="col-3">
                         <label for="id_velocidad">{{form_detalles_motor.velocidad_motor.label_tag}}</label>
                         <div class="input-group mb-1">
-                            {% render_field form_detalles_motor.velocidad_motor min="0.0001" class="form-control" %}
+                            {% render_field form_detalles_motor.velocidad_motor min="0.0001" class="form-control" placeholder="Veloc. del Motor" %}
                             {% render_field form_detalles_motor.velocidad_motor_unidad class="form-select" %}
                         </div>
                         <small>{{form_detalles_motor.velocidad_motor.errors}}</small>
@@ -414,7 +399,7 @@
                     <div class="col-3">
                         <label for="id_voltaje">{{form_detalles_motor.voltaje.label_tag}}</label>
                         <div class="input-group mb-1">
-                            {% render_field form_detalles_motor.voltaje min="0.0001" class="form-control" %}
+                            {% render_field form_detalles_motor.voltaje min="0.0001" class="form-control" placeholder="Voltaje del Motor" %}
                             {% render_field form_detalles_motor.voltaje_unidad class="form-select" %}
                         </div>
                         <small>{{form_detalles_motor.voltaje.errors}}</small>
@@ -422,7 +407,7 @@
                     <div class="col-3">
                         <label for="id_frecuencia">{{form_detalles_motor.frecuencia.label_tag}}</label>
                         <div class="input-group mb-1">
-                            {% render_field form_detalles_motor.frecuencia min="0.0001" class="form-control" %}
+                            {% render_field form_detalles_motor.frecuencia min="0.0001" class="form-control" placeholder="Frecuencia" %}
                             {% render_field form_detalles_motor.frecuencia_unidad class="form-select" %}
                         </div>
                         <small>{{form_detalles_motor.frecuencia.errors}}</small>
@@ -430,7 +415,7 @@
 
                     <div class="col-3">
                         <label for="id_factor_de_servicio">{{form_detalles_motor.factor_de_servicio.label_tag}}</label>
-                        {% render_field form_detalles_motor.factor_de_servicio min="0" class="form-control" %}
+                        {% render_field form_detalles_motor.factor_de_servicio min="0" class="form-control" placeholder="Factor de Servicio" %}
                         <small>{{form_detalles_motor.factor_de_servicio.errors}}</small>
                     </div>
                     <div class="col-3">
@@ -440,7 +425,7 @@
                     </div>
                     <div class="col-2">
                         <label for="id_fases">{{form_detalles_motor.fases.label_tag}}</label>
-                        {% render_field form_detalles_motor.fases min="0" class="form-control" %}
+                        {% render_field form_detalles_motor.fases min="0" class="form-control" placeholder="Fases" %}
                         <small>{{form_detalles_motor.fases.errors}}</small>
                     </div>
                     <div class="col-2">
@@ -450,7 +435,7 @@
                     </div>
                     <div class="col-2">
                         <label for="id_arranque">{{form_detalles_motor.arranque.label_tag}}</label>
-                        {% render_field form_detalles_motor.arranque class="form-control" %}
+                        {% render_field form_detalles_motor.arranque class="form-control" placeholder="Tipo de Arranque" %}
                         <small>{{form_detalles_motor.arranque.errors}}</small>
                     </div>
                 </div>

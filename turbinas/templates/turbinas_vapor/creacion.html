@@ -4,22 +4,7 @@
 
 {% block head %}
 <script src="/static/js/htmx.min.js"></script>
-
-<style>
-    small{
-        color: #e31e24;
-        font-weight: bold;
-    }
-
-    .indicator-style {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        z-index: 1000;
-        margin-left: -50px;
-        margin-top: -50px;
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
 {% endblock %}
 
 {% block contenido %}
@@ -48,7 +33,7 @@
     <div class="row">
         <div class="col-4">
             {{form_turbina.tag.label_tag}}*
-            {% render_field form_turbina.tag class="form-control" %}
+            {% render_field form_turbina.tag class="form-control" placeholder="Tag de la Turbina" %}
             <small>{{form_turbina.tag.errors}}</small>
         </div>
         <div class="col-4">
@@ -63,18 +48,18 @@
         </div>
         <div class="col-6">
             {{form_turbina.fabricante.label_tag}}
-            {% render_field form_turbina.fabricante class="form-control" %}
+            {% render_field form_turbina.fabricante class="form-control" placeholder="Fabricante de la Turbina" %}
             <small>{{form_turbina.fabricante.errors}}</small>
         </div>
 
         <div class="col-6">
             {{form_turbina.modelo.label_tag}}
-            {% render_field form_turbina.modelo class="form-control" %}
+            {% render_field form_turbina.modelo class="form-control" placeholder="Modelo de la Turbina" %}
             <small>{{form_turbina.modelo.errors}}</small>
         </div>
         <div class="col-12">
             {{form_turbina.descripcion.label_tag}}*
-            {% render_field form_turbina.descripcion class="form-control" %}
+            {% render_field form_turbina.descripcion class="form-control" placeholder="Descripción de la Turbina y su servicio" %}
             <small>{{form_turbina.descripcion.errors}}</small>
         </div>
     </div>
@@ -87,7 +72,7 @@
         <div class="col-4">
             {{form_especificaciones.potencia.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.potencia min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.potencia min="0.0001" class="form-control" placeholder="Potencia de la Turbina" %}
                 {% render_field form_especificaciones.potencia_unidad class="form-select" %}
             </div>
             <small>{{form_especificaciones.potencia.errors}}</small>
@@ -96,7 +81,7 @@
         <div class="col-4">
             {{form_especificaciones.potencia_max.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.potencia_max min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.potencia_max min="0.0001" class="form-control" placeholder="Potencia Máxima de la turbina" %}
                 {% render_field form_especificaciones.potencia_unidad disabled="disabled" class="form-select" %}
             </div>
             <small>{{form_especificaciones.potencia_max.errors}}</small>
@@ -105,7 +90,7 @@
         <div class="col-4">
             {{form_especificaciones.velocidad.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.velocidad min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.velocidad min="0.0001" class="form-control" placeholder="Velocidad de la turbina" %}
                 {% render_field form_especificaciones.velocidad_unidad class="form-select" %}
             </div>
             <small>{{form_especificaciones.velocidad.errors}}</small>
@@ -114,7 +99,7 @@
         <div class="col-4">
             {{form_especificaciones.presion_entrada.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.presion_entrada min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.presion_entrada min="0.0001" class="form-control" placeholder="Presión (abs.) de Entrada" %}
                 {% render_field form_especificaciones.presion_entrada_unidad class="form-select" %}
             </div>
             <small>{{form_especificaciones.presion_entrada.errors}}</small>
@@ -123,7 +108,7 @@
         <div class="col-4">
             {{form_especificaciones.temperatura_entrada.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.temperatura_entrada min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.temperatura_entrada min="0.0001" class="form-control" placeholder="Temp. de Entrada" %}
                 {% render_field form_especificaciones.temperatura_entrada_unidad class="form-select" %}
             </div>
             <small>{{form_especificaciones.temperatura_entrada.errors}}</small>
@@ -132,7 +117,7 @@
         <div class="col-4">
             {{form_especificaciones.contra_presion.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.contra_presion min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.contra_presion min="0.0001" class="form-control" placeholder="Contra Presión" %}
                 {% render_field form_especificaciones.contra_presion_unidad class="form-select" %}
             </div>
             <small>{{form_especificaciones.contra_presion.errors}}</small>
@@ -145,14 +130,14 @@
         <div class="row">
             <div class="col-6">
                 {{form_generador.polos.label_tag}}
-                {% render_field form_generador.polos class="form-control" min="0" %}
+                {% render_field form_generador.polos class="form-control" min="0" placeholder="Polos del Generador" %}
                 
                 <small>{{form_generador.polos.errors}}</small>
             </div>
 
             <div class="col-6">
                 {{form_generador.fases.label_tag}}
-                {% render_field form_generador.fases class="form-control" min="0" %}
+                {% render_field form_generador.fases class="form-control" min="0" placeholder="Fases del Generador" %}
                 
                 <small>{{form_generador.fases.errors}}</small>
             </div>
@@ -160,7 +145,7 @@
             <div class="col-4">
                 {{form_generador.voltaje.label_tag}}
                 <div class="input-group mb-1">
-                    {% render_field form_generador.voltaje min="0.0001" class="form-control" %}
+                    {% render_field form_generador.voltaje min="0.0001" class="form-control" placeholder="Voltaje del Generador" %}
                     {% render_field form_generador.voltaje_unidad class="form-select" %}
                 </div>
                 <small>{{form_generador.voltaje.errors}}</small>
@@ -169,7 +154,7 @@
             <div class="col-4">
                 {{form_generador.potencia_real.label_tag}}
                 <div class="input-group mb-1">
-                    {% render_field form_generador.potencia_real min="0.0001" class="form-control" %}
+                    {% render_field form_generador.potencia_real min="0.0001" class="form-control" placeholder="Pot. Real del Generador" %}
                     {% render_field form_generador.potencia_real_unidad class="form-select" %}
                 </div>
                 <small>{{form_generador.potencia_real.errors}}</small>
@@ -178,7 +163,7 @@
             <div class="col-4">
                 {{form_generador.potencia_aparente.label_tag}}
                 <div class="input-group mb-1">
-                    {% render_field form_generador.potencia_aparente min="0.0001" class="form-control" %}
+                    {% render_field form_generador.potencia_aparente min="0.0001" class="form-control" placeholder="Pot. Aparente del Generador" %}
                     {% render_field form_generador.potencia_aparente_unidad class="form-select" %}
                 </div>
                 <small>{{form_generador.potencia_aparente.errors}}</small>
@@ -187,7 +172,7 @@
             <div class="col-4">
                 {{form_generador.ciclos.label_tag}}
                 <div class="input-group mb-1">
-                    {% render_field form_generador.ciclos min="0.0001" class="form-control" %}
+                    {% render_field form_generador.ciclos min="0.0001" class="form-control" placeholder="Ciclos del Generador" %}
                     {% render_field form_generador.ciclos_unidad class="form-select" %}
                 </div>
                 <small>{{form_generador.ciclos.errors}}</small>
@@ -196,7 +181,7 @@
             <div class="col-4">
                 {{form_generador.corriente_electrica.label_tag}}
                 <div class="input-group mb-1">
-                    {% render_field form_generador.corriente_electrica min="0.0001" class="form-control" %}
+                    {% render_field form_generador.corriente_electrica min="0.0001" class="form-control" placeholder="Corriente del Generador" %}
                     {% render_field form_generador.corriente_electrica_unidad class="form-select" %}
                 </div>
                 <small>{{form_generador.corriente_electrica.errors}}</small>
@@ -205,7 +190,7 @@
             <div class="col-4">
                 {{form_generador.velocidad.label_tag}}
                 <div class="input-group mb-1">
-                    {% render_field form_generador.velocidad min="0.0001" class="form-control" %}
+                    {% render_field form_generador.velocidad min="0.0001" class="form-control" placeholder="Velocidad del Generador" %}
                     {% render_field form_generador.velocidad_unidad class="form-select" %}
                 </div>
                 <small>{{form_generador.velocidad.errors}}</small>

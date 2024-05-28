@@ -6,22 +6,7 @@
 {% block head %}
 <script src="/static/js/htmx.min.js"></script>
 <meta name="htmx-config" content='{"useTemplateFragments":"true"}'>
-
-<style>
-    small{
-        color: #e31e24;
-        font-weight: bold;
-    }
-
-    .indicator-style {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        z-index: 1000;
-        margin-left: -50px;
-        margin-top: -50px;
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
 {% endblock %}
 
 {% block contenido %}
@@ -39,7 +24,7 @@
     <div class="row">
         <div class="col-12">
             {{form_evaluacion.nombre.label_tag}}*
-            {% render_field form_evaluacion.nombre class="form-control" %}
+            {% render_field form_evaluacion.nombre class="form-control" placeholder="Nombre descriptivo de la evaluación" %}
         </div>
 
         <div class="col-lg-12 col-xs-12 mb-3">
@@ -47,14 +32,14 @@
                 <div class="mt-3 col-6">
                     {{form_entrada_evaluacion.flujo_entrada.label_tag}}*
                     <div class="input-group">
-                        {% render_field form_entrada_evaluacion.flujo_entrada class="form-control parametros-propiedades" min="0.00001" %}
+                        {% render_field form_entrada_evaluacion.flujo_entrada class="form-control parametros-propiedades" min="0.00001" placeholder="Flujo (Másico) de Entrada" %}
                         {% render_field form_entrada_evaluacion.flujo_entrada_unidad class="form-select parametros-propiedades" %}
                     </div>
                 </div>
                 <div class="mt-3 col-6">
                     {{form_entrada_evaluacion.potencia_real.label_tag}}*
                     <div class="input-group">
-                        {% render_field form_entrada_evaluacion.potencia_real class="form-control" min="0.00001" %}
+                        {% render_field form_entrada_evaluacion.potencia_real class="form-control" min="0.00001" placeholder="Potencia real al evaluar" %}
                         {% render_field form_entrada_evaluacion.potencia_real_unidad class="form-select" %}
                     </div>
                 </div>
@@ -107,7 +92,7 @@
                             {% if not form.corriente.presion %}
                             {% render_field form.form.presion class="form-control" placeholder="Presión no req. (saturado)" disabled="disabled" min="0.00001" %}
                             {% else %}
-                            {% render_field form.form.presion class="form-control" placeholder="Presión" required="required" min="0.00001" %}
+                            {% render_field form.form.presion class="form-control" placeholder="Presión (Manométrica)" required="required" min="0.00001" %}
                             {% endif %}                            
                             <small>{{form.form.presion.errors}}</small>
                         </td>
