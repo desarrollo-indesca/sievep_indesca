@@ -418,48 +418,52 @@ def detalle_evaluacion(evaluacion):
 
     # Tercera Tabla: Parámetros de Diseño
     story.append(Spacer(0,10))
-    story.append(Paragraph("Parámetros de Diseño del Intercambiador", ParagraphStyle('', alignment=1)))
     diseno = propiedades.calcular_diseno
-    table = [
-        [
-            Paragraph(f"MTD ({condicion_carcasa.temperaturas_unidad})", centrar_parrafo), 
-            Paragraph(f"{diseno['lmtd']}", centrar_parrafo), 
-            Paragraph(f"Área Transf. ({propiedades.area_unidad})", centrar_parrafo), 
-            Paragraph(f"{propiedades.area}", centrar_parrafo)
-        ],
-        [
-            Paragraph(f"Eficiencia (%)", centrar_parrafo), 
-            Paragraph(f"{diseno['eficiencia']}", centrar_parrafo), 
-            Paragraph("Efectividad (%)", centrar_parrafo), 
-            Paragraph(f"{diseno['efectividad']}", centrar_parrafo)
-        ],
-        [
-            Paragraph(f"U ({propiedades.u_unidad})", centrar_parrafo), 
-            Paragraph(f"{propiedades.u}", centrar_parrafo), 
-            Paragraph(f"Q ({propiedades.q_unidad})", centrar_parrafo), 
-            Paragraph(f"{propiedades.q}", centrar_parrafo), 
-        ],
-        [
-            Paragraph(f"NTU", centrar_parrafo), 
-            Paragraph(f"{diseno['ntu']}", centrar_parrafo), 
-            Paragraph(f"Ensuciamiento ({propiedades.ensuciamiento_unidad})", centrar_parrafo), 
-            Paragraph(f"{diseno['factor_ensuciamiento']}", centrar_parrafo)
-        ],
-        [
-            Paragraph(f"C.Presión Máx. Tubo ({condicion_carcasa.unidad_presion})", centrar_parrafo), 
-            Paragraph(f"{condicion_tubo.caida_presion_max}", centrar_parrafo)      ,      
-            Paragraph(f"C.Presión Máx. Carcasa ({condicion_carcasa.unidad_presion})", centrar_parrafo), 
-            Paragraph(f"{condicion_carcasa.caida_presion_max}", centrar_parrafo)
-        ],
-        [
-            Paragraph(f"Núm. Tubos", centrar_parrafo), 
-            Paragraph(f"{propiedades.numero_tubos}", centrar_parrafo), 
+    if(diseno):
+        story.append(Paragraph("Parámetros de Diseño del Intercambiador", ParagraphStyle('', alignment=1)))
+        table = [
+            [
+                Paragraph(f"MTD ({condicion_carcasa.temperaturas_unidad})", centrar_parrafo), 
+                Paragraph(f"{diseno.get('lmtd','-')}", centrar_parrafo), 
+                Paragraph(f"Área Transf. ({propiedades.area_unidad})", centrar_parrafo), 
+                Paragraph(f"{propiedades.area}", centrar_parrafo)
+            ],
+            [
+                Paragraph(f"Eficiencia (%)", centrar_parrafo), 
+                Paragraph(f"{diseno.get('eficiencia','-')}", centrar_parrafo), 
+                Paragraph("Efectividad (%)", centrar_parrafo), 
+                Paragraph(f"{diseno.get('efectividad','-')}", centrar_parrafo)
+            ],
+            [
+                Paragraph(f"U ({propiedades.u_unidad})", centrar_parrafo), 
+                Paragraph(f"{propiedades.u}", centrar_parrafo), 
+                Paragraph(f"Q ({propiedades.q_unidad})", centrar_parrafo), 
+                Paragraph(f"{propiedades.q}", centrar_parrafo), 
+            ],
+            [
+                Paragraph(f"NTU", centrar_parrafo), 
+                Paragraph(f"{diseno.get('ntu')}", centrar_parrafo), 
+                Paragraph(f"Ensuciamiento ({propiedades.ensuciamiento_unidad})", centrar_parrafo), 
+                Paragraph(f"{diseno.get('factor_ensuciamiento')}", centrar_parrafo)
+            ],
+            [
+                Paragraph(f"C.Presión Máx. Tubo ({condicion_carcasa.unidad_presion})", centrar_parrafo), 
+                Paragraph(f"{condicion_tubo.caida_presion_max}", centrar_parrafo)      ,      
+                Paragraph(f"C.Presión Máx. Carcasa ({condicion_carcasa.unidad_presion})", centrar_parrafo), 
+                Paragraph(f"{condicion_carcasa.caida_presion_max}", centrar_parrafo)
+            ],
+            [
+                Paragraph(f"Núm. Tubos", centrar_parrafo), 
+                Paragraph(f"{propiedades.numero_tubos}", centrar_parrafo), 
+            ]
         ]
-    ]
-    
-    table = Table(table, hAlign=1)
-    table.setStyle(estilo)
-    story.append(table)
+        
+        table = Table(table, hAlign=1)
+        table.setStyle(estilo)
+        story.append(table)
+    else:
+        story.append(Paragraph("No están disponibles los datos de evaluación a partir del diseño. Estos deben ser verificados.", centrar_parrafo))
+        story.append(Spacer(0, 30))
 
     grafica1 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)
