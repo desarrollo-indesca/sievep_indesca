@@ -260,7 +260,7 @@ def reporte_equipos(request, object_list):
             Paragraph(x.planta.nombre.upper(), parrafo_tabla)
         ])
         
-    table = Table(table, colWidths=[0.5*inch, 1.5*inch, 3.2*inch,1.8*inch])
+    table = Table(table, colWidths=[0.5*inch, 1*inch, 3.2*inch,2.2*inch])
     table.setStyle(basicTableStyle)
     story.append(table)
     return [story, None]
@@ -281,7 +281,7 @@ def detalle_evaluacion(evaluacion):
 
     # Primera Tabla: Datos de Entrada
     story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.get_full_name()}"))
-    story.append(Paragraph(f"<b>Tag del Equipo:</b> {intercambiador.tag}"))
+    story.append(Paragraph(f"<b>Tag del Equipo:</b> {intercambiador.tag}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>ID de la Evaluación:</b> {evaluacion.id}"))
     story.append(Paragraph("Datos de Entrada de la Evaluación", ParagraphStyle('', alignment=1)))
 
     table = [

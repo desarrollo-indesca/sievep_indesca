@@ -5,6 +5,7 @@ from django.utils.functional import cached_property
 from calculos.unidades import transformar_unidades_cp
 import os.path
 from simulaciones_pequiven.settings import BASE_DIR
+import uuid
 
 # Tipos (Enum) Estáticos
 criticidades = [
@@ -663,6 +664,7 @@ class EvaluacionesIntercambiador(models.Model):
             Modelo que contiene las evaluaciones realizadas a un intercambiador.
 
         Atributos:
+            id: UUID -> ID único de la evaluación
             creado_por: Usuario -> Usuario que creó la evaluación
             fecha: datetime -> Fecha y hora en la cual fue realizada la evaluación
             intercambiador: Intercambiador -> Intercambiador al cual le fue realizada la evaluación
@@ -710,6 +712,7 @@ class EvaluacionesIntercambiador(models.Model):
             visible: bool -> Contiene si la evaluación es visible o no (es False cuando es "eliminada")
             diseno_editado: datetime.datetime -> Si se edita el diseño luego de la creación del intercambiador, se guardará la fecha aquí.  
     '''
+    id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING)
     fecha = models.DateTimeField(auto_now_add=True)
     intercambiador = models.ForeignKey(Intercambiador, on_delete=models.CASCADE, related_name="evaluaciones")
