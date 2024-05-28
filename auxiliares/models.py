@@ -889,6 +889,7 @@ class EspecificacionesVentilador(models.Model):
     
     velocidad_motor = models.FloatField(null = True, blank = True,  verbose_name="Velocidad del Motor", validators=[MinValueValidator(0.0001)])
     velocidad_motor_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="especificacionesventilador_velocidad_motor_unidad")
+    factor_servicio = models.FloatField("Factor de Servicio", null=True, blank=True)
 
     class Meta:
         db_table = "ventiladores_especificacionesventilador"

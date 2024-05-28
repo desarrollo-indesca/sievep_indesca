@@ -1090,6 +1090,7 @@ def ficha_tecnica_ventilador(_, ventilador, request):
     worksheet.write(f'AJ{num}', f'Acceso de Aire', especificaciones_estilo)
     worksheet.write(f'AK{num}', f'Potencia Motor ({especificaciones.potencia_motor_unidad})', especificaciones_estilo)
     worksheet.write(f'AL{num}', f'Velocidad Motor ({especificaciones.velocidad_motor_unidad})', especificaciones_estilo)
+    worksheet.write(f'AM{num}', f'Factor de Servicio', especificaciones_estilo)
 
     num += 1
     
@@ -1131,6 +1132,7 @@ def ficha_tecnica_ventilador(_, ventilador, request):
     worksheet.write(f'AJ{num}', especificaciones.acceso_aire, especificaciones_estilo)
     worksheet.write(f'AK{num}', especificaciones.potencia_motor, especificaciones_estilo)
     worksheet.write(f'AL{num}', especificaciones.velocidad_motor, especificaciones_estilo)
+    worksheet.write(f'AM{num}', especificaciones.factor_servicio, especificaciones_estilo)
 
     worksheet.write(f"J{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
     worksheet.write(f"J{num+2}", "Generado por " + request.user.get_full_name(), fecha)

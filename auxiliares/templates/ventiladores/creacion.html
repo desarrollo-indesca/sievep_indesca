@@ -143,7 +143,15 @@
             <small>{{form_especificaciones.motor.errors}}</small>
         </div>
 
-        <div class="col-4">
+        <div class="col-3">
+            {{form_especificaciones.factor_servicio.label_tag}}
+            <div class="input-group mb-1">
+                {% render_field form_especificaciones.factor_servicio class="form-control" %}
+            </div>
+            <small>{{form_especificaciones.factor_servicio.errors}}</small>
+        </div>
+
+        <div class="col-3">
             {{form_especificaciones.acceso_aire.label_tag}}
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.acceso_aire class="form-control" %}
@@ -151,7 +159,7 @@
             <small>{{form_especificaciones.acceso_aire.errors}}</small>
         </div>
 
-        <div class="col-4">
+        <div class="col-3">
             {{form_especificaciones.potencia_motor.label_tag}}
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.potencia_motor min="0.0001" class="form-control" %}
@@ -160,7 +168,7 @@
             <small>{{form_especificaciones.potencia_motor.errors}}</small>
         </div>
 
-        <div class="col-4">
+        <div class="col-3">
             {{form_especificaciones.velocidad_motor.label_tag}}
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.velocidad_motor min="0.0001" class="form-control" %}

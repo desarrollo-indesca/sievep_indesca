@@ -2088,9 +2088,13 @@ def ficha_tecnica_ventilador(ventilador):
         [
             Paragraph(f"Potencia Motor ({especificaciones.potencia_motor_unidad})", centrar_parrafo),
             Paragraph(f"{especificaciones.potencia_motor if especificaciones.potencia_motor else '-'}", centrar_parrafo),
+            Paragraph(f"Factor de Servicio", centrar_parrafo),
+            Paragraph(f"{especificaciones.factor_servicio if especificaciones.factor_servicio else '-'}", centrar_parrafo)
+        ],
+        [
             Paragraph(f"Velocidad Motor ({especificaciones.velocidad_motor_unidad})", centrar_parrafo),
             Paragraph(f"{especificaciones.velocidad_motor if especificaciones.velocidad_motor else '-'}", centrar_parrafo)
-    ]]
+        ]]
 
     if(condiciones_adicionales):
         presion_unidad = condiciones_adicionales.presion_unidad.simbolo
@@ -2136,18 +2140,20 @@ def ficha_tecnica_ventilador(ventilador):
         ('BACKGROUND', (0, 3), (-1, 3), sombreado),
         ('BACKGROUND', (0, 7), (-1, 7), sombreado),
         ('BACKGROUND', (0, 12), (-1, 12), sombreado),
-        ('BACKGROUND', (0, 18), (-1, 18), sombreado),
+        ('BACKGROUND', (1, 18), (-1, 18), colors.white),
+        ('BACKGROUND', (0, 19), (-1, 19), sombreado),
 
         ('SPAN', (0, 3), (-1, 3)),
         ('SPAN', (1, 6), (-1, 6)),
         ('SPAN', (0, 7), (-1, 7)),
         ('SPAN', (0, 12), (-1, 12)),
+        ('SPAN', (1, 18), (-1, 18)),
 
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE')
     ]
 
     if(condiciones_adicionales):
-        estilo.append(('SPAN', (0, 18), (-1, 18)))
+        estilo.append(('SPAN', (0, 19), (-1, 19)))
 
     table = Table(table)
     table.setStyle(TableStyle(estilo))
