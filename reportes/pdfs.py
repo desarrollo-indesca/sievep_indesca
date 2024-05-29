@@ -649,7 +649,7 @@ def ficha_tecnica_tubo_carcasa(object_list):
             Paragraph(f"{intercambiador.servicio}", centrar_parrafo)
         ],
         [
-            Paragraph("Condiciones de Diseño", centrar_parrafo)
+            Paragraph("<b>CONDICIONES DE DISEÑO</b>", centrar_parrafo)
         ]
     ]
     estilo = TableStyle(
@@ -767,7 +767,7 @@ def ficha_tecnica_tubo_carcasa(object_list):
             Paragraph(f"{propiedades.conexiones_salida_tubos}", centrar_parrafo), '',
         ],
         [
-            Paragraph("Parámetros de Diseño", centrar_parrafo), '','','','',''
+            Paragraph("<b>PARÁMETROS DE DISEÑO</b>", centrar_parrafo), '','','','',''
         ],
     ]
 
@@ -955,7 +955,7 @@ def ficha_tecnica_doble_tubo(object_list):
             Paragraph(f"{intercambiador.servicio}", centrar_parrafo)
         ],
         [
-            Paragraph("Condiciones de Diseño", centrar_parrafo)
+            Paragraph("<b>CONDICIONES DE DISEÑO</b>", centrar_parrafo)
         ]
     ]
     estilo = TableStyle(
@@ -1083,7 +1083,7 @@ def ficha_tecnica_doble_tubo(object_list):
             Paragraph(f"{propiedades.arreglo_serie_in}", centrar_parrafo), '',
         ],
         [
-            Paragraph("Parámetros de Diseño", centrar_parrafo), '','','','',''
+            Paragraph("<b>PARÁMETROS DE DISEÑO</b>", centrar_parrafo), '','','','',''
         ],
     ]
 
@@ -1248,13 +1248,13 @@ def tabla_tramo(i, tramo, story):
                 Paragraph('MATERIAL DE LA TUBERÍA', centrar_parrafo),
             ],
             [
-                Paragraph(f'{i+1}', centrar_parrafo),
+                Paragraph(f'<b>{i+1}</b>', centrar_parrafo),
                 Paragraph(f'{tramo.diametro_tuberia} {tramo.diametro_tuberia_unidad}', centrar_parrafo),
                 Paragraph(f'{tramo.longitud_tuberia} {tramo.longitud_tuberia_unidad}', centrar_parrafo),
                 Paragraph(f'{tramo.material_tuberia}', centrar_parrafo),
             ], 
             [
-                Paragraph("VÁLVULAS", centrar_parrafo)
+                Paragraph("<b>VÁLVULAS</b>", centrar_parrafo)
             ],
             [
                 Paragraph("Compuertas Abiertas", centrar_parrafo),
@@ -1297,7 +1297,7 @@ def tabla_tramo(i, tramo, story):
                 Paragraph(f"{tramo.numero_valvula_angulo if tramo.numero_valvula_angulo else '-'}", centrar_parrafo),
             ],
             [
-                Paragraph("CODOS", centrar_parrafo)
+                Paragraph("<b>CODOS</b>", centrar_parrafo)
             ],
             [
                 Paragraph("Codos a 90°", centrar_parrafo),
@@ -1318,7 +1318,7 @@ def tabla_tramo(i, tramo, story):
                 Paragraph(f"{tramo.numero_codos_180 if tramo.numero_codos_180 else '-'}", centrar_parrafo),                
             ],
             [
-                Paragraph("CONEXIONES T", centrar_parrafo)
+                Paragraph("<b>CONEXIONES T</b>", centrar_parrafo)
             ],
             [
                 Paragraph("Conexiones T Directo", centrar_parrafo),
@@ -1512,7 +1512,7 @@ def detalle_evaluacion_bomba(evaluacion):
 
     # TABLA DE RESULTADOS
     story.append(Spacer(0,10))
-    story.append(Paragraph("Resultados de la Evaluación", ParagraphStyle('', alignment=1)))
+    story.append(Paragraph("<b>RESULTADOS DE LA EVALUACIÓN</b>", ParagraphStyle('', alignment=1)))
 
     table = [
         [
@@ -1568,7 +1568,7 @@ def detalle_evaluacion_bomba(evaluacion):
 
     # TABLA DE PÉRDIDAS
     story.append(Spacer(0,10))
-    story.append(Paragraph("Resumen de Pérdidas", ParagraphStyle('', alignment=1)))
+    story.append(Paragraph("<b>RESUMEN DE PÉRDIDAS</b>", ParagraphStyle('', alignment=1)))
 
     table = [
         [
@@ -1623,7 +1623,7 @@ def detalle_evaluacion_bomba(evaluacion):
     # TABLA DE FLUJO/VELOCIDAD SUCCIÓN
     if(salida_succion.datos_tramos_seccion.count()):
         story.append(Spacer(0,10))
-        story.append(Paragraph("Flujos y Velocidades de la Succión", ParagraphStyle('', alignment=1)))        
+        story.append(Paragraph("<b>FLUJOS Y VELOCIDADES DE LA SUCCIÓN</b>", ParagraphStyle('', alignment=1)))        
 
         table = []
 
@@ -1657,7 +1657,7 @@ def detalle_evaluacion_bomba(evaluacion):
         story.append(Spacer(0,10))
         table = []
 
-        story.append(Paragraph("Flujos y Velocidades de la Descarga", ParagraphStyle('', alignment=1)))
+        story.append(Paragraph("<b>FLUJOS Y VELOCIDADES DE LA DESCARGA</b>", ParagraphStyle('', alignment=1)))
 
         for i,tramo in enumerate(salida_descarga.datos_tramos_seccion.all()):
             tuberia = tramo.tramo
@@ -1715,7 +1715,7 @@ def ficha_tecnica_bomba_centrifuga(bomba):
             Paragraph(f"{bomba.descripcion if bomba.descripcion else '-'}", centrar_parrafo)
         ],
         [
-            Paragraph("CONDICIONES DE DISEÑO", centrar_parrafo)
+            Paragraph("<b>CONDICIONES DE DISEÑO</b>", centrar_parrafo)
         ],
         [
             Paragraph(f"Capacidad ({condiciones_diseno.capacidad_unidad if condiciones_diseno.capacidad_unidad else '-'})", centrar_parrafo),
@@ -1734,7 +1734,7 @@ def ficha_tecnica_bomba_centrifuga(bomba):
             Paragraph(f"{condiciones_diseno.npsha if condiciones_diseno.npsha else '-'}", centrar_parrafo)
         ],
         [
-            Paragraph(f"Condiciones de Diseño del Fluido", centrar_parrafo)
+            Paragraph(f"<b>CONDICIONES DE DISEÑO DEL FLUIDO</b>", centrar_parrafo)
         ],
         [
             Paragraph(f"Fluido", centrar_parrafo),
@@ -1771,7 +1771,7 @@ def ficha_tecnica_bomba_centrifuga(bomba):
             Paragraph(f"{condiciones_fluido.concentracion_cloro if condiciones_fluido.concentracion_cloro else '-'}", centrar_parrafo)
         ],
         [
-            Paragraph(f"Especificaciones Técnicas", centrar_parrafo)
+            Paragraph(f"<b>ESPECIFICACIONES TÉCNICAS</b>", centrar_parrafo)
         ],
         [
             Paragraph(f"Número de Curva", centrar_parrafo),
@@ -1802,7 +1802,7 @@ def ficha_tecnica_bomba_centrifuga(bomba):
             Paragraph(f"{especificaciones.numero_etapas if especificaciones.numero_etapas else '-'}", centrar_parrafo)
         ],
         [
-            Paragraph(f"DETALLES DE CONSTRUCCIÓN", centrar_parrafo),
+            Paragraph(f"<b>DETALLES DE CONSTRUCCIÓN</b>", centrar_parrafo),
         ],
         [
             Paragraph(f"Conexión Succión", centrar_parrafo),
@@ -1833,7 +1833,7 @@ def ficha_tecnica_bomba_centrifuga(bomba):
             Paragraph(f"{construccion.tipo_carcasa1}/{construccion.tipo_carcasa2}" if construccion.tipo_carcasa2 else f'{construccion.tipo_carcasa1}' if construccion.tipo_carcasa1 else '-', centrar_parrafo)
         ],
         [
-            Paragraph(f"DETALLES DE MOTOR", centrar_parrafo),
+            Paragraph(f"<b>DETALLES DE MOTOR</b>", centrar_parrafo),
         ],
         [
             Paragraph(f"Potencia ({motor.potencia_motor_unidad})", centrar_parrafo),
@@ -2001,7 +2001,7 @@ def ficha_tecnica_ventilador(ventilador):
             Paragraph(f"{ventilador.descripcion if ventilador.descripcion else '-'}", centrar_parrafo)
         ],
         [
-            Paragraph("CONDICIONES GENERALES", centrar_parrafo)
+            Paragraph("<b>CONDICIONES GENERALES</b>", centrar_parrafo)
         ]
     ]
 
@@ -2031,7 +2031,7 @@ def ficha_tecnica_ventilador(ventilador):
 
     # Datos de Condiciones de Trabajo
     table = [*table, [
-            Paragraph(f"CONDICIONES DE TRABAJO", centrar_parrafo)
+            Paragraph(f"<b>CONDICIONES DE TRABAJO</b>", centrar_parrafo)
         ],
         [
             Paragraph(f"Flujo {'Másico' if condiciones_trabajo.tipo_flujo == 'M' else 'Volumétrico'}", centrar_parrafo),
@@ -2063,7 +2063,7 @@ def ficha_tecnica_ventilador(ventilador):
 
     # Especificaciones del Ventilador
     table = [*table, [
-            Paragraph(f"ESPECIFICACIONES DEL VENTILADOR", centrar_parrafo)
+            Paragraph(f"<b>ESPECIFICACIONES DEL VENTILADOR</b>", centrar_parrafo)
         ],
         [
             Paragraph(f"Espesor de Carcasa ({espesor_unidad})", centrar_parrafo),
@@ -2106,7 +2106,7 @@ def ficha_tecnica_ventilador(ventilador):
 
         # Condiciones Adicionales (Si hay)
         table = [*table, [
-            Paragraph(f"CONDICIONES ADICIONALES", centrar_parrafo)
+            Paragraph(f"<b>CONDICIONES ADICIONALES</b>", centrar_parrafo)
         ],
         [
             Paragraph(f"Flujo {'Másico' if condiciones_adicionales.tipo_flujo == 'M' else 'Volumétrico'}", centrar_parrafo),
@@ -2273,7 +2273,7 @@ def detalle_evaluacion_ventilador(evaluacion):
     story.append(Paragraph(f"<b>ID de la Evaluación:</b> {evaluacion.id}"))
 
     story.append(Spacer(0,10))
-    story.append(Paragraph("Datos de Entrada de la Evaluación", ParagraphStyle('', alignment=1)))
+    story.append(Paragraph("<b>DATOS DE ENTRADA DE LA EVALUACIÓN</b>", ParagraphStyle('', alignment=1)))
 
     table = [
         [
@@ -2321,7 +2321,7 @@ def detalle_evaluacion_ventilador(evaluacion):
 
     # TABLA DE RESULTADOS
     story.append(Spacer(0,10))
-    story.append(Paragraph("Resultados de la Evaluación", ParagraphStyle('', alignment=1)))
+    story.append(Paragraph("<b>RESULTADOS DE LA EVALUACIÓN</b>", ParagraphStyle('', alignment=1)))
 
     table = [
         [
@@ -2375,7 +2375,7 @@ def detalle_evaluacion_turbina_vapor(evaluacion):
     story.append(Paragraph(f"<b>ID de la Evaluación:</b> {evaluacion.id}"))
 
     story.append(Spacer(0,10))
-    story.append(Paragraph("Datos de Entrada Generales de la Evaluación", ParagraphStyle('', alignment=1)))
+    story.append(Paragraph("<b>DATOS DE ENTRADA GENERALES DE LA EVALUACIÓN</b>", ParagraphStyle('', alignment=1)))
 
     table = [
         [
@@ -2408,7 +2408,7 @@ def detalle_evaluacion_turbina_vapor(evaluacion):
 
     # TABLA DE RESULTADOS
     story.append(Spacer(0,10))
-    story.append(Paragraph("Resultados Generales de la Evaluación", ParagraphStyle('', alignment=1)))
+    story.append(Paragraph("<b>RESULTADOS GENERALES DE LA EVALUACIÓN</b>", ParagraphStyle('', alignment=1)))
 
     table = [
         [
@@ -2433,7 +2433,7 @@ def detalle_evaluacion_turbina_vapor(evaluacion):
     story.append(table)
 
     story.append(Spacer(0,10))
-    story.append(Paragraph("Resultados por Corriente", ParagraphStyle('', alignment=1)))
+    story.append(Paragraph("<b>RESULTADOS POR CORRIENTE</b>", ParagraphStyle('', alignment=1)))
 
     corrientes = evaluacion.corrientes_evaluacion.select_related('entrada','salida','corriente')
     table = [[
@@ -2493,7 +2493,7 @@ def ficha_tecnica_turbina_vapor(turbina):
             Paragraph(f"{turbina.descripcion}", centrar_parrafo)
         ],
         [
-            Paragraph("ESPECIFICACIONES TÉCNICAS", centrar_parrafo)
+            Paragraph("<b>ESPECIFICACIONES TÉCNICAS</b>", centrar_parrafo)
         ],
         [
             Paragraph(f"Potencia ({especificaciones.potencia_unidad})", centrar_parrafo),
@@ -2521,6 +2521,7 @@ def ficha_tecnica_turbina_vapor(turbina):
 
             ('BACKGROUND', (0, 0), (0, -1), sombreado),
             ('BACKGROUND', (2, 0), (2, 1), sombreado),
+            ('BACKGROUND', (2, 3), (2, -1), sombreado),
             ('BACKGROUND', (0, 3), (-1, 3), sombreado),
 
             ('SPAN', (0, 3), (-1,3)),
@@ -2535,7 +2536,7 @@ def ficha_tecnica_turbina_vapor(turbina):
     story.append(table)
 
     table = [[
-        Paragraph("Corrientes Circulantes por la Turbina", centrar_parrafo)
+        Paragraph("<b>CORRIENTES CIRCULANTES POR LA TURBINA</b>", centrar_parrafo)
     ], [
         Paragraph("#", centrar_parrafo),
         Paragraph("Descripción", centrar_parrafo),
