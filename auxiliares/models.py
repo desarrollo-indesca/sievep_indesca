@@ -459,7 +459,7 @@ class Bombas(models.Model):
     especificaciones_bomba = models.OneToOneField(EspecificacionesBomba, on_delete=models.CASCADE)
     detalles_construccion = models.OneToOneField(DetallesConstruccionBomba, on_delete=models.CASCADE)
     condiciones_diseno = models.OneToOneField(CondicionesDisenoBomba, on_delete=models.CASCADE)
-    grafica = models.ImageField(null = True, blank = True, upload_to='media/auxiliares/bombas/', verbose_name = "Gráfica del Equipo")
+    grafica = models.ImageField(null = True, blank = True, upload_to='auxiliares/bombas/', verbose_name = "Gráfica del Equipo")
 
     instalacion_succion = models.ForeignKey(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_succion")
     instalacion_descarga = models.ForeignKey(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_descarga")
@@ -889,6 +889,7 @@ class EspecificacionesVentilador(models.Model):
     
     velocidad_motor = models.FloatField(null = True, blank = True,  verbose_name="Velocidad del Motor", validators=[MinValueValidator(0.0001)])
     velocidad_motor_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="especificacionesventilador_velocidad_motor_unidad")
+    factor_servicio = models.FloatField("Factor de Servicio", null=True, blank=True)
 
     class Meta:
         db_table = "ventiladores_especificacionesventilador"

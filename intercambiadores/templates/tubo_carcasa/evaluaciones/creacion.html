@@ -19,7 +19,6 @@
             </div>
         </div>
         
-    
         <hr>
 
         {% if errores %}
@@ -37,12 +36,12 @@
         <div class="row">
             <div class="col-4 d-flex flex-column">
                 <label class="form-label" for="metodo">Nombre de la Evaluación:</label>
-                <input type="text" maxlength="50" class="form-control" name="nombre" required>
+                <input type="text" maxlength="50" class="form-control" name="nombre" required placeholder="Nombre descriptivo de la evaluación">
             </div>
 
             <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="no_tubos">Número de Tubos:</label>
-                <input type="number" min="1" class="form-control campo" id="no_tubos" name="no_tubos" max="{{intercambiador.numero_tubos}}" value="{{intercambiador.numero_tubos}}">
+                <input type="number" min="1" class="form-control campo" id="no_tubos" name="no_tubos" max="{{intercambiador.numero_tubos}}" placeholder="# Tubos no taponeados" value="{{intercambiador.numero_tubos}}">
             </div>
 
             <div class="col-4 d-flex justify-content-center align-items-center">
@@ -60,7 +59,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="temp_in_carcasa">Temperatura Entrada:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control temperatura campo" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control temperatura campo" type="number" name="temp_in_carcasa" id="temp_in_carcasa" step="0.01" min="-273.15" max="99999.99" placeholder="Temp. Entrada" required>
                             <select style="width: 40% !important;" class="form-select campo" name="unidad_temperaturas" id="unidad_temperaturas">
                                 {% for unidad in unidades_temperaturas %}
                                 <option value="{{unidad.pk}}">{{unidad.simbolo}}</option>
@@ -71,7 +70,7 @@
                     <div class="col-6">
                         <label class="form-label" for="temp_out_carcasa">Temperatura Salida:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control temperatura campo" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control temperatura campo" type="number" name="temp_out_carcasa" id="temp_out_carcasa" step="0.01" min="-273.15" max="99999.99" placeholder="Temp. Salida" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -97,7 +96,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="cp_carcasa_liquido">Cp Líquido Prom.:</label>
                         <div class="input-group mb-3">
-                            <input value="{% if not fluido_carcasa.pk %}{{condicion_carcasa.fluido_cp|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" max="99999999.9999" type="number" name="cp_liquido_carcasa" min="0.0001" id="cp_liquido_carcasa" class="form-control campo" required disabled>
+                            <input value="{% if not fluido_carcasa.pk %}{{condicion_carcasa.fluido_cp|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" max="99999999.9999" type="number" name="cp_liquido_carcasa" min="0.0001" id="cp_liquido_carcasa" class="form-control campo" required disabled placeholder="Cap. Calorífica Líq.">
                             <select style="width: 40% !important;" class="form-select campo" name="unidad_cp" id="unidad_cp">
                                 {% for unidad in unidades_cp %}
                                 <option value="{{unidad.pk}}">{{unidad}}</option>
@@ -108,7 +107,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="cp_carcasa_gas">Cp Gas Prom.:</label>
                         <div class="input-group mb-3">
-                            <input value="{% if not fluido_carcasa.pk %}{{condicion_carcasa.fluido_cp|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" max="99999999.9999" type="number" name="cp_gas_carcasa" min="0.0001" id="cp_gas_carcasa" class="form-control campo" disabled required>
+                            <input value="{% if not fluido_carcasa.pk %}{{condicion_carcasa.fluido_cp|unlocalize}}{%endif%}" style="width: 60% !important;" step="0.0001" max="99999999.9999" type="number" name="cp_gas_carcasa" min="0.0001" id="cp_gas_carcasa" class="form-control campo" placeholder="Cap. Calorífica Gas" disabled required>
                             <select style="width: 40% !important;" class="form-select campo" name="unidad_cp" id="unidad_cp" disabled>
                                 <option>J/KgK</option>
                             </select>
@@ -117,7 +116,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_carcasa">Flujo Másico:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control campo" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" min="0.01" max="9999999999.99" required>
+                            <input style="width: 60% !important;" class="form-control campo" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" min="0.01" max="9999999999.99" required placeholder="Flujo Másico al evaluar">
                             <select style="width: 40% !important;" class="form-select campo" name="unidad_flujo" id="unidad_flujo">
                                 {% for unidad in unidades_flujo %}
                                 <option value="{{unidad.pk}}">{{unidad.simbolo}}</option>
@@ -128,7 +127,7 @@
                     <div class="col-6">
                         <label class="form-label" for="caida_carcasa">Caída de Presión:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control campo" type="number" name="caida_carcasa" id="caida_carcasa" step="0.01" min="-99999.99" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control campo" type="number" name="caida_carcasa" id="caida_carcasa" step="0.01" min="-99999.99" max="99999.99" required placeholder="Caída Presión">
                             <select style="width: 40% !important;" class="form-select campo" name="unidad_presion" id="unidad_presion">
                                 {% for unidad in unidades_presion %}
                                 <option value="{{unidad.pk}}">{{unidad}}</option>
@@ -144,7 +143,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="temp_in_tubo">Temperatura Entrada:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control temperatura campo" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control temperatura campo" type="number" name="temp_in_tubo" id="temp_in_tubo" step="0.01" min="-273.15" max="99999.99" required placeholder="Temp. Entrada">
                             <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -153,7 +152,7 @@
                     <div class="col-6">
                         <label class="form-label" for="temp_out_tubo">Temperatura Salida:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control temperatura campo" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" min="-273.15" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control temperatura campo" type="number" name="temp_out_tubo" id="temp_out_tubo" step="0.01" min="-273.15" max="99999.99" required placeholder="Temp. Salida">
                             <select style="width: 40% !important;" class="form-select" name="unidad_temperaturas" disabled>
                                 <option value="1">°C</option>
                             </select>
@@ -179,7 +178,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="cp_tubo_liquido">Cp Líquido Prom.:</label>
                         <div class="input-group mb-3">
-                            <input value="{% if not fluido_tubo.pk %}{{condicion_tubo.fluido_cp_liquido|unlocalize}}{%endif%}" style="width: 60% !important;" max="99999999.9999" step="0.0001" type="number" name="cp_liquido_tubo" min="0.0001" id="cp_liquido_tubo" class="form-control campo" required disabled>
+                            <input value="{% if not fluido_tubo.pk %}{{condicion_tubo.fluido_cp_liquido|unlocalize}}{%endif%}" style="width: 60% !important;" max="99999999.9999" step="0.0001" type="number" name="cp_liquido_tubo" min="0.0001" id="cp_liquido_tubo" class="form-control campo" required disabled placeholder="Cap. Calorífica Líq.">
                             <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
                                 <option value="1">J/KgK</option>
                             </select>
@@ -188,7 +187,7 @@
                     <div class="col-6 d-flex flex-column">
                         <label class="form-label" for="cp_tubo_gas">Cp Gas Prom.:</label>
                         <div class="input-group mb-3">
-                            <input value="{% if not fluido_tubo.pk %}{{condicion_tubo.fluido_cp_gas|unlocalize}}{%endif%}" style="width: 60% !important;" max="99999999.9999" step="0.0001" type="number" name="cp_gas_tubo" min="0.0001" id="cp_gas_tubo" class="form-control campo" required disabled>
+                            <input value="{% if not fluido_tubo.pk %}{{condicion_tubo.fluido_cp_gas|unlocalize}}{%endif%}" style="width: 60% !important;" max="99999999.9999" step="0.0001" type="number" name="cp_gas_tubo" min="0.0001" id="cp_gas_tubo" class="form-control campo" required disabled placeholder="Cap. Calorífica Gas">
                             <select style="width: 40% !important;" class="form-select" name="unidad_cp" id="unidad_cp" disabled>
                                 <option value="1">J/KgK</option>
                             </select>
@@ -197,7 +196,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_tubo">Flujo Másico:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control campo" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" min="0.01" max="9999999999.99" required>
+                            <input style="width: 60% !important;" class="form-control campo" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" min="0.01" max="9999999999.99" required placeholder="Flujo Másico">
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujo" disabled>
                                 <option value="1">Kg/h</option>
                             </select>
@@ -206,7 +205,7 @@
                     <div class="col-6">
                         <label class="form-label" for="caida_tubo">Caída de Presión:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control campo" type="number" name="caida_tubo" id="caida_tubo" step="0.01" min="-99999.99" max="99999.99" required>
+                            <input style="width: 60% !important;" class="form-control campo" type="number" name="caida_tubo" id="caida_tubo" step="0.01" min="-99999.99" max="99999.99" required placeholder="Caída Presión">
                             <select style="width: 40% !important;" class="form-select" name="unidad_presion" disabled>
                                 <option value="1">bar</option>
                             </select>
@@ -262,7 +261,7 @@
                     <input id="eficiencia" disabled type="text" class="form-control">
                 </div>
                 <div class="col-4 d-flex flex-column">
-                    <label class="form-label">Q:</label>
+                    <label class="form-label">Calor Promedio (Q):</label>
                     <div class="input-group">
                         <input id="q" disabled type="text" class="form-control" style="width: 60% !important;">
                         <select id="unidad_calor" style="width: 40% !important;" class="form-select" disabled>
@@ -281,7 +280,7 @@
                     </div>
                 </div>
                 <div class="col-5 d-flex flex-column">
-                    <label class="form-label">U:</label>
+                    <label class="form-label">Coeficiente Global (U):</label>
                     <div class="input-group">
                         <input id="u" disabled type="text" class="form-control" style="width: 55% !important;">
                         <select id="unidad_u" style="width: 45% !important;" class="form-select" disabled>
@@ -389,30 +388,7 @@
                 document.getElementById('registrar_resultado').setAttribute('disabled', true);
                 return;
             }
-
-            // if(out_carcasa && in_carcasa === out_carcasa){
-            //     alert("Las temperaturas de entrada y salida de la carcasa no pueden ser iguales.");
-            //     document.getElementById('registrar_resultado').setAttribute('disabled', true);
-            //     return;
-            // }
         }
-
-        // if(out_carcasa){
-        //     if(out_tubo && out_tubo === out_carcasa){
-        //         alert("Las temperaturas de salida del tubo y la carcasa no pueden ser iguales.");
-        //         document.getElementById('registrar_resultado').setAttribute('disabled', true);
-        //         return;
-        //     }
-        // }
-
-        // if(in_tubo){
-            
-        //     if(out_tubo && out_tubo === in_tubo){
-        //         alert("Las temperaturas de entrada y salida del tubo no pueden ser iguales.");
-        //         document.getElementById('registrar_resultado').setAttribute('disabled', true);
-        //         return;
-        //     }
-        // }
 
         if(out_carcasa && out_tubo && in_carcasa && in_tubo){            
             if(in_tubo > out_tubo){

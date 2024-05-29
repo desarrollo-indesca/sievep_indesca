@@ -539,6 +539,7 @@ class EdicionBomba(CargarBombaMixin, CreacionBomba):
             return res
         
         except Exception as e:
+            print(str(e))
             return render(request, self.template_name, context={
                 'form_bomba': form_bomba, 
                 'form_especificaciones': form_especificaciones,

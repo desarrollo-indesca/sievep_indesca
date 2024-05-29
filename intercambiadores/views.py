@@ -3,7 +3,7 @@ from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseNot
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib import messages
-from django.db.models import Prefetch
+import uuid
 
 from .models import *
 from django.views.generic.list import ListView
@@ -2329,13 +2329,12 @@ class ReporteEvaluacionDetalle(LoginRequiredMixin, View):
             de detalle de la evaluación (disponible únicamente en PDF).
     '''
     def get(self, request, pk, evaluacion):
-        try:
-            evaluacion = EvaluacionesIntercambiador.objects.get(pk=evaluacion)
-            if(request.GET['tipo'] == 'pdf'):
-                return generar_pdf(request, evaluacion, f'Detalle de la Evaluación "{evaluacion.nombre}"', 'evaluacion_detalle')
-        except Exception as e:
-            print(str(e))
-            return HttpResponseNotFound(MENSAJE_ERROR)
+        id = uuid.UUID(evaluacion)
+        evaluacion = EvaluacionesIntercambiador.objects.get(id=id)
+        print(evaluacion)
+        if(request.GET['tipo'] == 'pdf'):
+            return generar_pdf(request, evaluacion, f'Detalle de la Evaluación "{evaluacion.nombre}"', 'evaluacion_detalle')
+
 
 class FichaTecnicaTuboCarcasa(LoginRequiredMixin, View):
     '''
