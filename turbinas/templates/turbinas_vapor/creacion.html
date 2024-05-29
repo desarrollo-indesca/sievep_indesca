@@ -318,10 +318,11 @@
 
 {% if form_turbina.instance.tag %}
 <script>
-    $('select[name="presion_unidad"]').html($('select[name="presion_unidad"]').html().replaceAll('</option>', 'g</option>'));
-
     $('.entrada').change();
 </script>
 {% endif %}
 
+<script>
+    $('select[name="presion_unidad"]').html($('select[name="presion_unidad"]').html().replaceAll('</option>', 'g</option>'));
+</script>
 {% endblock %}
