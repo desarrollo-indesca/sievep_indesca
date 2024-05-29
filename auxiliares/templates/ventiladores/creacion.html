@@ -4,22 +4,7 @@
 
 {% block head %}
 <script src="/static/js/htmx.min.js"></script>
-
-<style>
-    small{
-        color: #e31e24;
-        font-weight: bold;
-    }
-
-    .indicator-style {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        z-index: 1000;
-        margin-left: -50px;
-        margin-top: -50px;
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
 {% endblock %}
 
 {% block contenido %}
@@ -44,7 +29,7 @@
     <div class="row">
         <div class="col-4">
             {{form_equipo.tag.label_tag}}*
-            {% render_field form_equipo.tag class="form-control" %}
+            {% render_field form_equipo.tag class="form-control" placeholder="Tag único" %}
             <small>{{form_equipo.tag.errors}}</small>
         </div>
         <div class="col-4">
@@ -59,13 +44,13 @@
         </div>
         <div class="col-4">
             {{form_equipo.fabricante.label_tag}}
-            {% render_field form_equipo.fabricante class="form-control" %}
+            {% render_field form_equipo.fabricante class="form-control" placeholder="Fabricante del Equipo" %}
             <small>{{form_equipo.fabricante.errors}}</small>
         </div>
 
         <div class="col-4">
             {{form_equipo.modelo.label_tag}}
-            {% render_field form_equipo.modelo class="form-control" %}
+            {% render_field form_equipo.modelo class="form-control" placeholder="Modelo de Ventilador" %}
             <small>{{form_equipo.modelo.errors}}</small>
         </div>
         <div class="col-4">
@@ -75,7 +60,7 @@
         </div>
         <div class="col-12">
             {{form_equipo.descripcion.label_tag}}*
-            {% render_field form_equipo.descripcion class="form-control" %}
+            {% render_field form_equipo.descripcion class="form-control" placeholder="Descripción del ventilador y su servicio" %}
             <small>{{form_equipo.descripcion.errors}}</small>
         </div>
     </div>
@@ -88,7 +73,7 @@
         <div class="col-4">
             {{form_especificaciones.espesor.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.espesor min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.espesor min="0.0001" class="form-control" placeholder="Espesor de la Carcasa" %}
                 {% render_field form_especificaciones.espesor_unidad class="form-select" %}
             </div>
             <small>{{form_especificaciones.espesor.errors}}</small>
@@ -97,7 +82,7 @@
         <div class="col-4">
             {{form_especificaciones.espesor_caja.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.espesor_caja min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.espesor_caja min="0.0001" class="form-control" placeholder="Espesor de la Caja" %}
                 {% render_field form_especificaciones.espesor_unidad disabled="disabled" class="form-select" %}
             </div>
             <small>{{form_especificaciones.espesor_caja.errors}}</small>
@@ -106,7 +91,7 @@
         <div class="col-4">
             {{form_especificaciones.sello.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.sello class="form-control" %}
+                {% render_field form_especificaciones.sello class="form-control" placeholder="Sello del Eje" %}
             </div>
             <small>{{form_especificaciones.sello.errors}}</small>
         </div>
@@ -114,7 +99,7 @@
         <div class="col-3">
             {{form_especificaciones.lubricante.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.lubricante class="form-control" %}
+                {% render_field form_especificaciones.lubricante class="form-control" placeholder="Lubricante del Ventilador" %}
             </div>
             <small>{{form_especificaciones.lubricante.errors}}</small>
         </div>
@@ -122,7 +107,7 @@
         <div class="col-3">
             {{form_especificaciones.refrigerante.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.refrigerante class="form-control" %}
+                {% render_field form_especificaciones.refrigerante class="form-control" placeholder="Refrigerante del Ventilador" %}
             </div>
             <small>{{form_especificaciones.refrigerante.errors}}</small>
         </div>
@@ -130,7 +115,7 @@
         <div class="col-3">
             {{form_especificaciones.diametro.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.diametro class="form-control" %}
+                {% render_field form_especificaciones.diametro class="form-control" placeholder="Diámetro del Ventilador" %}
             </div>
             <small>{{form_especificaciones.diametro.errors}}</small>
         </div>
@@ -138,32 +123,40 @@
         <div class="col-3">
             {{form_especificaciones.motor.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.motor class="form-control" %}
+                {% render_field form_especificaciones.motor class="form-control" placeholder="Tipo de motor" %}
             </div>
             <small>{{form_especificaciones.motor.errors}}</small>
         </div>
 
-        <div class="col-4">
+        <div class="col-3">
+            {{form_especificaciones.factor_servicio.label_tag}}
+            <div class="input-group mb-1">
+                {% render_field form_especificaciones.factor_servicio class="form-control" placeholder="Factor de Servicio del Ventilador" %}
+            </div>
+            <small>{{form_especificaciones.factor_servicio.errors}}</small>
+        </div>
+
+        <div class="col-3">
             {{form_especificaciones.acceso_aire.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.acceso_aire class="form-control" %}
+                {% render_field form_especificaciones.acceso_aire class="form-control" placeholder="Parte de acceso de aire" %}
             </div>
             <small>{{form_especificaciones.acceso_aire.errors}}</small>
         </div>
 
-        <div class="col-4">
+        <div class="col-3">
             {{form_especificaciones.potencia_motor.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.potencia_motor min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.potencia_motor min="0.0001" class="form-control" placeholder="Potencia del Motor" %}
                 {% render_field form_especificaciones.potencia_motor_unidad class="form-select" %}
             </div>
             <small>{{form_especificaciones.potencia_motor.errors}}</small>
         </div>
 
-        <div class="col-4">
+        <div class="col-3">
             {{form_especificaciones.velocidad_motor.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.velocidad_motor min="0.0001" class="form-control" %}
+                {% render_field form_especificaciones.velocidad_motor min="0.0001" class="form-control" placeholder="Velocidad del Motor" %}
                 {% render_field form_especificaciones.velocidad_motor_unidad class="form-select" %}
             </div>
             <small>{{form_especificaciones.velocidad_motor.errors}}</small>
@@ -178,7 +171,7 @@
             <div class="col-4">
                 {{form_condiciones_generales.presion_barometrica.label_tag}}
                 <div class="input-group mb-1">
-                    {% render_field form_condiciones_generales.presion_barometrica min="0.0001" class="form-control" %}
+                    {% render_field form_condiciones_generales.presion_barometrica min="0.0001" class="form-control" placeholder="Espesor de la Carcasa" %}
                     {% render_field form_condiciones_generales.presion_barometrica_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
                 </div>
                 <small>{{form_condiciones_generales.presion_barometrica.errors}}</small>
@@ -189,7 +182,7 @@
             <div class="col-4">
                 {{form_condiciones_generales.temp_ambiente.label_tag}}
                 <div class="input-group mb-1">
-                    {% render_field form_condiciones_generales.temp_ambiente min="-273.15" class="form-control" %}
+                    {% render_field form_condiciones_generales.temp_ambiente min="-273.15" class="form-control" placeholder="Temperatura Ambiente" %}
                     {% render_field form_condiciones_generales.temp_ambiente_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
                 </div>
                 <small>{{form_condiciones_generales.temp_ambiente.errors}}</small>
@@ -198,7 +191,7 @@
             <div class="col-4">
                 {{form_condiciones_generales.velocidad_diseno.label_tag}}
                 <div class="input-group mb-1">
-                    {% render_field form_condiciones_generales.velocidad_diseno min="0.0001" class="form-control" %}
+                    {% render_field form_condiciones_generales.velocidad_diseno min="0.0001" class="form-control" placeholder="Velocidad de Diseño" %}
                     {% render_field form_condiciones_generales.velocidad_diseno_unidad class="form-select" %}
                 </div>
                 <small>{{form_condiciones_generales.velocidad_diseno.errors}}</small>
@@ -207,7 +200,7 @@
             <div class="col-4">
                 {{form_condiciones_generales.temp_diseno.label_tag}}
                 <div class="input-group mb-1">
-                    {% render_field form_condiciones_generales.temp_diseno min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
+                    {% render_field form_condiciones_generales.temp_diseno min="-273.15" class="form-control" placeholder="Temperatura de Diseño" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
                     {% render_field form_condiciones_generales.temp_ambiente_unidad disabled="disabled" class="form-select" %}
                 </div>
                 <small>{{form_condiciones_generales.temp_diseno.errors}}</small>
@@ -216,7 +209,7 @@
             <div class="col-4">
                 {{form_condiciones_generales.presion_diseno.label_tag}}
                 <div class="input-group mb-1">
-                    {% render_field form_condiciones_generales.presion_diseno min="0.0001" class="form-control" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
+                    {% render_field form_condiciones_generales.presion_diseno min="0.0001" class="form-control" placeholder="Presión (abs.) de Diseño" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
                     {% render_field form_condiciones_generales.presion_barometrica_unidad disabled="disabled" class="form-select" %}
                 </div>
                 <small>{{form_condiciones_generales.presion_diseno.errors}}</small>
@@ -232,7 +225,7 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.flujo.label_tag}}*
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.flujo min="0.000001" class="form-control" %}
+                        {% render_field form_condiciones_trabajo.flujo min="0.000001" class="form-control" placeholder="Másico/Volumétrico" %}
                         {% render_field form_condiciones_trabajo.flujo_unidad class="form-select" %}
                     </div>
                     <small>{{form_condiciones_trabajo.flujo.errors}}</small>
@@ -241,7 +234,7 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.presion_entrada.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.presion_entrada class="form-control" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
+                        {% render_field form_condiciones_trabajo.presion_entrada class="form-control" placeholder="Presión Manométrica" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
                         {% render_field form_condiciones_trabajo.presion_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
                     </div>
                     <small>{{form_condiciones_trabajo.presion_entrada.errors}}</small>
@@ -250,7 +243,7 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.presion_salida.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.presion_salida class="form-control" %}
+                        {% render_field form_condiciones_trabajo.presion_salida class="form-control" placeholder="Presión Manométrica" %}
                         {% render_field form_condiciones_trabajo.presion_unidad disabled="disabled" class="form-select" %}
                     </div>
                     <small>{{form_condiciones_trabajo.presion_salida.errors}}</small>
@@ -268,7 +261,7 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.temperatura.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.temperatura min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
+                        {% render_field form_condiciones_trabajo.temperatura min="-273.15" class="form-control" placeholder="Temp. del Fluido" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
                         {% render_field form_condiciones_trabajo.temperatura_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
                     </div>
                     <small>{{form_condiciones_trabajo.temperatura.errors}}</small>
@@ -289,9 +282,9 @@
                     {{form_condiciones_trabajo.densidad.label_tag}}*
                     <div class="input-group mb-1">
                         {% if form_condiciones_trabajo.instance.calculo_densidad == 'M' or not form_condiciones_trabajo.instance or not edicion %}
-                        {% render_field form_condiciones_trabajo.densidad min="0.000001" class="form-control" %}
+                        {% render_field form_condiciones_trabajo.densidad min="0.000001" class="form-control" placeholder="Densidad del Fluido" %}
                         {% else %}
-                        {% render_field form_condiciones_trabajo.densidad min="0.000001" disabled="disabled" class="form-control" %}
+                        {% render_field form_condiciones_trabajo.densidad min="0.000001" disabled="disabled" class="form-control" placeholder="Densidad del Fluido" %}
                         {% endif %}
                         {% render_field form_condiciones_trabajo.densidad_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad" %}
                     </div>
@@ -301,7 +294,7 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.velocidad_funcionamiento.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.velocidad_funcionamiento min="0.000001" class="form-control" %}
+                        {% render_field form_condiciones_trabajo.velocidad_funcionamiento min="0.000001" class="form-control" placeholder="Velocidad de Funcionamiento" %}
                         {% render_field form_condiciones_trabajo.velocidad_funcionamiento_unidad class="form-select" %}
                     </div>
                     <small>{{form_condiciones_trabajo.velocidad_funcionamiento.errors}}</small>
@@ -310,7 +303,7 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.potencia_freno.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.potencia_freno min="0.000001" class="form-control" %}
+                        {% render_field form_condiciones_trabajo.potencia_freno min="0.000001" class="form-control" placeholder="Potencia de Freno" %}
                         {% render_field form_condiciones_trabajo.potencia_freno_unidad class="form-select" %}
                     </div>
                     <small>{{form_condiciones_trabajo.potencia_freno.errors}}</small>
@@ -319,7 +312,7 @@
                 <div class="col-4">
                     {{form_condiciones_trabajo.potencia.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_trabajo.potencia min="0.000001" class="form-control" %}
+                        {% render_field form_condiciones_trabajo.potencia min="0.000001" class="form-control" placeholder="Potencia de Ventilador" %}
                         {% render_field form_condiciones_trabajo.potencia_freno_unidad disabled="disabled" class="form-select" %}
                     </div>
                     <small>{{form_condiciones_trabajo.potencia.errors}}</small>
@@ -335,7 +328,7 @@
                 <div class="col-4">
                     {{form_condiciones_adicionales.flujo.label_tag}}*
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_adicionales.flujo min="0.000001" class="form-control" %}
+                        {% render_field form_condiciones_adicionales.flujo min="0.000001" class="form-control" placeholder="Másico/Volumétrico" %}
                         {% render_field form_condiciones_adicionales.flujo_unidad class="form-select" %}
                     </div>
                     <small>{{form_condiciones_adicionales.flujo.errors}}</small>
@@ -344,7 +337,7 @@
                 <div class="col-4">
                     {{form_condiciones_adicionales.presion_entrada.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_adicionales.presion_entrada class="form-control" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_adicional-temperatura, #id_adicional-temperatura_unidad, #id_adicional-presion_entrada, #id_adicional-presion_unidad, #id_adicional-densidad_unidad, #id_adicional, #id_adicional-calculo_densidad" %}
+                        {% render_field form_condiciones_adicionales.presion_entrada class="form-control" placeholder="Presión Manométrica" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_adicional-temperatura, #id_adicional-temperatura_unidad, #id_adicional-presion_entrada, #id_adicional-presion_unidad, #id_adicional-densidad_unidad, #id_adicional, #id_adicional-calculo_densidad" %}
                         {% render_field form_condiciones_adicionales.presion_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_adicional-temperatura, #id_adicional-temperatura_unidad, #id_adicional-presion_entrada, #id_adicional-presion_unidad, #id_adicional-densidad_unidad, #id_adicional, #id_adicional-calculo_densidad" %}
                     </div>
                     <small>{{form_condiciones_adicionales.presion_entrada.errors}}</small>
@@ -353,7 +346,7 @@
                 <div class="col-4">
                     {{form_condiciones_adicionales.presion_salida.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_adicionales.presion_salida class="form-control" %}
+                        {% render_field form_condiciones_adicionales.presion_salida class="form-control" placeholder="Presión Manométrica" %}
                         {% render_field form_condiciones_adicionales.presion_unidad disabled="disabled" class="form-select" %}
                     </div>
                     <small>{{form_condiciones_adicionales.presion_salida.errors}}</small>
@@ -371,7 +364,7 @@
                 <div class="col-4">
                     {{form_condiciones_adicionales.temperatura.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_adicionales.temperatura min="-273.15" class="form-control" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_adicional-temperatura, #id_adicional-temperatura_unidad, #id_adicional-presion_entrada, #id_adicional-presion_unidad, #id_adicional-densidad_unidad, #id_adicional, #id_adicional-calculo_densidad" %}
+                        {% render_field form_condiciones_adicionales.temperatura min="-273.15" class="form-control" placeholder="Temp. del Fluido" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_adicional-temperatura, #id_adicional-temperatura_unidad, #id_adicional-presion_entrada, #id_adicional-presion_unidad, #id_adicional-densidad_unidad, #id_adicional, #id_adicional-calculo_densidad" %}
                         {% render_field form_condiciones_adicionales.temperatura_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_adicional-temperatura, #id_adicional-temperatura_unidad, #id_adicional-presion_entrada, #id_adicional-presion_unidad, #id_adicional-densidad_unidad, #id_adicional, #id_adicional-calculo_densidad" %}
                     </div>
                     <small>{{form_condiciones_adicionales.temperatura.errors}}</small>
@@ -392,9 +385,9 @@
                     {{form_condiciones_adicionales.densidad.label_tag}}*
                     <div class="input-group mb-1">
                         {% if form_condiciones_adicionales.instance.calculo_densidad == 'M' or not form_condiciones_adicionales.instance or not edicion %}
-                        {% render_field form_condiciones_adicionales.densidad min="0.000001" class="form-control" %}
+                        {% render_field form_condiciones_adicionales.densidad min="0.000001" class="form-control" placeholder="Densidad del Fluido" %}
                         {% else %}
-                        {% render_field form_condiciones_adicionales.densidad min="0.000001" disabled="disabled" class="form-control" %}
+                        {% render_field form_condiciones_adicionales.densidad min="0.000001" disabled="disabled" class="form-control" placeholder="Densidad del Fluido" %}
                         {% endif %}
                         {% render_field form_condiciones_adicionales.densidad_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_adicional-temperatura, #id_adicional-temperatura_unidad, #id_adicional-presion_entrada, #id_adicional-presion_unidad, #id_adicional-densidad_unidad, #id_adicional, #id_adicional-calculo_densidad" %}
                     </div>
@@ -404,7 +397,7 @@
                 <div class="col-4">
                     {{form_condiciones_adicionales.velocidad_funcionamiento.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_adicionales.velocidad_funcionamiento min="0.000001" class="form-control" %}
+                        {% render_field form_condiciones_adicionales.velocidad_funcionamiento placeholder="Velocidad de Funcionamiento" min="0.000001" class="form-control" %}
                         {% render_field form_condiciones_adicionales.velocidad_funcionamiento_unidad class="form-select" %}
                     </div>
                     <small>{{form_condiciones_adicionales.velocidad_funcionamiento.errors}}</small>
@@ -413,7 +406,7 @@
                 <div class="col-4">
                     {{form_condiciones_adicionales.potencia_freno.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_adicionales.potencia_freno min="0.000001" class="form-control" %}
+                        {% render_field form_condiciones_adicionales.potencia_freno placeholder="Potencia de Freno" min="0.000001" class="form-control" %}
                         {% render_field form_condiciones_adicionales.potencia_freno_unidad class="form-select" %}
                     </div>
                     <small>{{form_condiciones_adicionales.potencia_freno.errors}}</small>
@@ -422,7 +415,7 @@
                 <div class="col-4">
                     {{form_condiciones_adicionales.potencia.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_condiciones_adicionales.potencia min="0.000001" class="form-control" %}
+                        {% render_field form_condiciones_adicionales.potencia min="0.000001" placeholder="Potencia de Ventilador" class="form-control" %}
                         {% render_field form_condiciones_adicionales.potencia_freno_unidad disabled="disabled" class="form-select" %}
                     </div>
                     <small>{{form_condiciones_adicionales.potencia.errors}}</small>

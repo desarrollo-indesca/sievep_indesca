@@ -203,8 +203,12 @@
                     <tr>
                       <th class="table-dark">Potencia Motor ({{especificaciones.potencia_motor_unidad}})</th>
                       <td>{{especificaciones.potencia_motor|default_if_none:'-'}}</td>
-                      <th class="table-dark">Velocidad Motor ({{especificaciones.velocidad_motor_unidad}})</th>
-                      <td>{{especificaciones.velocidad_motor|default_if_none:'-'}}</td>
+                      <th class="table-dark">Factor de Servicio</th>
+                      <td>{{especificaciones.factor_servicio|default_if_none:'-'}}</td>
+                  </tr>
+                  <tr>
+                    <th class="table-dark">Velocidad Motor ({{especificaciones.velocidad_motor_unidad}})</th>
+                    <td colspan="3">{{especificaciones.velocidad_motor|default_if_none:'-'}}</td>
                   </tr>
                   <tr>
                     <td colspan="6">Creado por el usuario <b>{{ventilador.creado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{ventilador.creado_al|default_if_none:'-'}}</b>.</td>

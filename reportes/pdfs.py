@@ -260,7 +260,7 @@ def reporte_equipos(request, object_list):
             Paragraph(x.planta.nombre.upper(), parrafo_tabla)
         ])
         
-    table = Table(table, colWidths=[0.5*inch, 1.5*inch, 3.2*inch,1.8*inch])
+    table = Table(table, colWidths=[0.5*inch, 1*inch, 3.2*inch,2.2*inch])
     table.setStyle(basicTableStyle)
     story.append(table)
     return [story, None]
@@ -281,7 +281,7 @@ def detalle_evaluacion(evaluacion):
 
     # Primera Tabla: Datos de Entrada
     story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.creado_por.get_full_name()}"))
-    story.append(Paragraph(f"<b>Tag del Equipo:</b> {intercambiador.tag}"))
+    story.append(Paragraph(f"<b>Tag del Equipo:</b> {intercambiador.tag}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>ID de la Evaluación:</b> {evaluacion.id}"))
     story.append(Paragraph("Datos de Entrada de la Evaluación", ParagraphStyle('', alignment=1)))
 
     table = [
@@ -418,48 +418,52 @@ def detalle_evaluacion(evaluacion):
 
     # Tercera Tabla: Parámetros de Diseño
     story.append(Spacer(0,10))
-    story.append(Paragraph("Parámetros de Diseño del Intercambiador", ParagraphStyle('', alignment=1)))
     diseno = propiedades.calcular_diseno
-    table = [
-        [
-            Paragraph(f"MTD ({condicion_carcasa.temperaturas_unidad})", centrar_parrafo), 
-            Paragraph(f"{diseno['lmtd']}", centrar_parrafo), 
-            Paragraph(f"Área Transf. ({propiedades.area_unidad})", centrar_parrafo), 
-            Paragraph(f"{propiedades.area}", centrar_parrafo)
-        ],
-        [
-            Paragraph(f"Eficiencia (%)", centrar_parrafo), 
-            Paragraph(f"{diseno['eficiencia']}", centrar_parrafo), 
-            Paragraph("Efectividad (%)", centrar_parrafo), 
-            Paragraph(f"{diseno['efectividad']}", centrar_parrafo)
-        ],
-        [
-            Paragraph(f"U ({propiedades.u_unidad})", centrar_parrafo), 
-            Paragraph(f"{propiedades.u}", centrar_parrafo), 
-            Paragraph(f"Q ({propiedades.q_unidad})", centrar_parrafo), 
-            Paragraph(f"{propiedades.q}", centrar_parrafo), 
-        ],
-        [
-            Paragraph(f"NTU", centrar_parrafo), 
-            Paragraph(f"{diseno['ntu']}", centrar_parrafo), 
-            Paragraph(f"Ensuciamiento ({propiedades.ensuciamiento_unidad})", centrar_parrafo), 
-            Paragraph(f"{diseno['factor_ensuciamiento']}", centrar_parrafo)
-        ],
-        [
-            Paragraph(f"C.Presión Máx. Tubo ({condicion_carcasa.unidad_presion})", centrar_parrafo), 
-            Paragraph(f"{condicion_tubo.caida_presion_max}", centrar_parrafo)      ,      
-            Paragraph(f"C.Presión Máx. Carcasa ({condicion_carcasa.unidad_presion})", centrar_parrafo), 
-            Paragraph(f"{condicion_carcasa.caida_presion_max}", centrar_parrafo)
-        ],
-        [
-            Paragraph(f"Núm. Tubos", centrar_parrafo), 
-            Paragraph(f"{propiedades.numero_tubos}", centrar_parrafo), 
+    if(diseno):
+        story.append(Paragraph("Parámetros de Diseño del Intercambiador", ParagraphStyle('', alignment=1)))
+        table = [
+            [
+                Paragraph(f"MTD ({condicion_carcasa.temperaturas_unidad})", centrar_parrafo), 
+                Paragraph(f"{diseno.get('lmtd','-')}", centrar_parrafo), 
+                Paragraph(f"Área Transf. ({propiedades.area_unidad})", centrar_parrafo), 
+                Paragraph(f"{propiedades.area}", centrar_parrafo)
+            ],
+            [
+                Paragraph(f"Eficiencia (%)", centrar_parrafo), 
+                Paragraph(f"{diseno.get('eficiencia','-')}", centrar_parrafo), 
+                Paragraph("Efectividad (%)", centrar_parrafo), 
+                Paragraph(f"{diseno.get('efectividad','-')}", centrar_parrafo)
+            ],
+            [
+                Paragraph(f"U ({propiedades.u_unidad})", centrar_parrafo), 
+                Paragraph(f"{propiedades.u}", centrar_parrafo), 
+                Paragraph(f"Q ({propiedades.q_unidad})", centrar_parrafo), 
+                Paragraph(f"{propiedades.q}", centrar_parrafo), 
+            ],
+            [
+                Paragraph(f"NTU", centrar_parrafo), 
+                Paragraph(f"{diseno.get('ntu')}", centrar_parrafo), 
+                Paragraph(f"Ensuciamiento ({propiedades.ensuciamiento_unidad})", centrar_parrafo), 
+                Paragraph(f"{diseno.get('factor_ensuciamiento')}", centrar_parrafo)
+            ],
+            [
+                Paragraph(f"C.Presión Máx. Tubo ({condicion_carcasa.unidad_presion})", centrar_parrafo), 
+                Paragraph(f"{condicion_tubo.caida_presion_max}", centrar_parrafo)      ,      
+                Paragraph(f"C.Presión Máx. Carcasa ({condicion_carcasa.unidad_presion})", centrar_parrafo), 
+                Paragraph(f"{condicion_carcasa.caida_presion_max}", centrar_parrafo)
+            ],
+            [
+                Paragraph(f"Núm. Tubos", centrar_parrafo), 
+                Paragraph(f"{propiedades.numero_tubos}", centrar_parrafo), 
+            ]
         ]
-    ]
-    
-    table = Table(table, hAlign=1)
-    table.setStyle(estilo)
-    story.append(table)
+        
+        table = Table(table, hAlign=1)
+        table.setStyle(estilo)
+        story.append(table)
+    else:
+        story.append(Paragraph("No están disponibles los datos de evaluación a partir del diseño. Estos deben ser verificados.", centrar_parrafo))
+        story.append(Spacer(0, 30))
 
     grafica1 = BytesIO()
     fig, ax = plt.subplots(nrows=1, ncols=1)
@@ -2088,9 +2092,13 @@ def ficha_tecnica_ventilador(ventilador):
         [
             Paragraph(f"Potencia Motor ({especificaciones.potencia_motor_unidad})", centrar_parrafo),
             Paragraph(f"{especificaciones.potencia_motor if especificaciones.potencia_motor else '-'}", centrar_parrafo),
+            Paragraph(f"Factor de Servicio", centrar_parrafo),
+            Paragraph(f"{especificaciones.factor_servicio if especificaciones.factor_servicio else '-'}", centrar_parrafo)
+        ],
+        [
             Paragraph(f"Velocidad Motor ({especificaciones.velocidad_motor_unidad})", centrar_parrafo),
             Paragraph(f"{especificaciones.velocidad_motor if especificaciones.velocidad_motor else '-'}", centrar_parrafo)
-    ]]
+        ]]
 
     if(condiciones_adicionales):
         presion_unidad = condiciones_adicionales.presion_unidad.simbolo
@@ -2136,18 +2144,20 @@ def ficha_tecnica_ventilador(ventilador):
         ('BACKGROUND', (0, 3), (-1, 3), sombreado),
         ('BACKGROUND', (0, 7), (-1, 7), sombreado),
         ('BACKGROUND', (0, 12), (-1, 12), sombreado),
-        ('BACKGROUND', (0, 18), (-1, 18), sombreado),
+        ('BACKGROUND', (1, 18), (-1, 18), colors.white),
+        ('BACKGROUND', (0, 19), (-1, 19), sombreado),
 
         ('SPAN', (0, 3), (-1, 3)),
         ('SPAN', (1, 6), (-1, 6)),
         ('SPAN', (0, 7), (-1, 7)),
         ('SPAN', (0, 12), (-1, 12)),
+        ('SPAN', (1, 18), (-1, 18)),
 
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE')
     ]
 
     if(condiciones_adicionales):
-        estilo.append(('SPAN', (0, 18), (-1, 18)))
+        estilo.append(('SPAN', (0, 19), (-1, 19)))
 
     table = Table(table)
     table.setStyle(TableStyle(estilo))
