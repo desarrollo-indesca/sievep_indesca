@@ -117,7 +117,7 @@
         <div class="col-4">
             {{form_especificaciones.contra_presion.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.contra_presion min="0.0001" class="form-control" placeholder="Contra Presión" %}
+                {% render_field form_especificaciones.contra_presion min="0.0001" class="form-control" placeholder="Contra Presión (abs.)" %}
                 {% render_field form_especificaciones.contra_presion_unidad class="form-select" %}
             </div>
             <small>{{form_especificaciones.contra_presion.errors}}</small>
@@ -275,7 +275,7 @@
                             <small>{{form.entalpia.errors}}</small>
                         </td>
                         <td>
-                            {% render_field form.presion class="form-control presion" placeholder="Presión" min="0.00001" %}
+                            {% render_field form.presion class="form-control presion" placeholder="Presión (Manométrica)" min="0.00001" %}
                             <small>{{form.presion.errors}}</small>
                         </td>
                         <td>
