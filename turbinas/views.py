@@ -301,6 +301,7 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
                 'form_generador': form_generador, 
                 'form_datos_corrientes': form_datos_corrientes,
                 'forms_corrientes': forms_corrientes,
+                'error': "Ocurrió un error desconocido al momento de almacenar la turbina de vapor. Revise los datos e intente de nuevo."
             })
 
 class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
@@ -350,8 +351,19 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
         form_datos_corrientes = DatosCorrientesForm(request.POST)
         forms_corrientes = corrientes_formset(request.POST)
 
-        return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
+        try:
+            return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
                                         form_datos_corrientes, forms_corrientes)
+        except Exception as e:
+            print(str(e))
+            return render(request, self.template_name, context={
+                'form_turbina': form_turbina, 
+                'form_especificaciones': form_especificaciones,
+                'form_generador': form_generador, 
+                'form_datos_corrientes': form_datos_corrientes,
+                'forms_corrientes': forms_corrientes,
+                'error': "Ocurrió un error desconocido al momento de almacenar la turbina de vapor. Revise los datos e intente de nuevo."
+            })
         
 class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinaVaporMixin, ReportesFichasTurbinasVaporMixin):
     """

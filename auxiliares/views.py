@@ -385,6 +385,7 @@ class CreacionBomba(SuperUserRequiredMixin, View):
             return self.almacenar_datos(form_bomba, form_detalles_motor, form_condiciones_fluido,
                                 form_detalles_construccion, form_condiciones_diseno, form_especificaciones)
         except Exception as e:
+            print(str(e))
             return render(request, self.template_name, context={
                 'form_bomba': form_bomba, 
                 'form_especificaciones': form_especificaciones,
@@ -393,7 +394,8 @@ class CreacionBomba(SuperUserRequiredMixin, View):
                 'form_condiciones_diseno': form_condiciones_diseno,
                 'form_condiciones_fluido': form_condiciones_fluido,
                 'edicion': True,
-                'titulo': self.titulo
+                'titulo': self.titulo,
+                'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo."
             })
         
 class ObtencionDatosFluidosBomba(LoginRequiredMixin, View):
@@ -548,7 +550,8 @@ class EdicionBomba(CargarBombaMixin, CreacionBomba):
                 'form_condiciones_diseno': form_condiciones_diseno,
                 'form_condiciones_fluido': form_condiciones_fluido,
                 'edicion': True,
-                'titulo': self.titulo
+                'titulo': self.titulo,
+                'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo."
             })
         
 class CreacionInstalacionBomba(SuperUserRequiredMixin, View, CargarBombaMixin):
@@ -651,7 +654,11 @@ class CreacionInstalacionBomba(SuperUserRequiredMixin, View, CargarBombaMixin):
                       
         except Exception as e:
             print(str(e))        
-            return render(request, self.template_name, context={'bomba': bomba, 'forms_instalacion': formset_instalacion, 'forms_tuberia_succion': formset_tuberias_succion, 'forms_tuberia_descarga': formset_tuberias_descarga}) 
+            return render(request, self.template_name, context={'bomba': bomba, 
+                                                                'forms_instalacion': formset_instalacion,
+                                                                'forms_tuberia_succion': formset_tuberias_succion,
+                                                                'forms_tuberia_descarga': formset_tuberias_descarga,
+                                                                'error': 'Ocurrió un error desconocido al momento de registrar los datos de instalación. Revise e intente de nuevo.'}) 
 
     def get(self, request, **kwargs):
         return render(request, self.template_name, context=self.get_context())
@@ -1274,7 +1281,6 @@ class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
         return round(transformar_unidades_densidad([densidad], 30, densidad_unidad)[0], 6)
 
     def get(self, request):
-        print(self.request.GET)
         adicional =  request.GET.get('adicional') != None
         densidad = round(self.obtener_densidad(request.GET, adicional), 6)
 
@@ -1462,7 +1468,8 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
                 'form_condiciones_adicionales': form_condiciones_adicionales,
                 'form_condiciones_generales': form_condiciones_generales,
                 'recarga': True,
-                'titulo': self.titulo
+                'titulo': self.titulo,
+                'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo."
             })
 
 class EdicionVentilador(CreacionVentilador):
@@ -1521,7 +1528,8 @@ class EdicionVentilador(CreacionVentilador):
                 'form_condiciones_adicionales': form_condiciones_adicionales,
                 'form_condiciones_generales': form_condiciones_generales,
                 'edicion': True,
-                'titulo': self.titulo
+                'titulo': self.titulo,
+                'error': "Ocurrió un error desconocido al momento de almacenar el ventilador. Revise los datos e intente de nuevo."
             })
         
 # Evaluaciones de Ventiladores
