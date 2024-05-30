@@ -2549,7 +2549,7 @@ def ficha_tecnica_turbina_vapor(turbina):
 
     for corriente in turbina.datos_corrientes.corrientes.all():
         table.append([
-            Paragraph(corriente.numero_corriente, centrar_parrafo),
+            Paragraph(f'{corriente.numero_corriente}{"*" if corriente.entrada else ""}', centrar_parrafo),
             Paragraph(corriente.descripcion_corriente, centrar_parrafo),
             Paragraph(str(corriente.flujo), centrar_parrafo),
             Paragraph(str(corriente.entalpia), centrar_parrafo),

@@ -1297,7 +1297,7 @@ def ficha_tecnica_turbina_vapor(_, turbina, request):
     for corriente in datos_corrientes.corrientes.all():
         num += 1
         
-        worksheet.write(f'A{num}', corriente.numero_corriente, center_bordered)
+        worksheet.write(f'A{num}', f'{corriente.numero_corriente}{"*" if corriente.entrada else ""}', center_bordered)
         worksheet.write(f'B{num}', corriente.descripcion_corriente, center_bordered)
         worksheet.write(f'C{num}', corriente.flujo, center_bordered)
         worksheet.write(f'D{num}', corriente.entalpia, center_bordered)
