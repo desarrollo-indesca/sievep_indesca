@@ -33,7 +33,7 @@ class ObtenerTurbinaVaporMixin():
         else:
             turbina = turbina_q
 
-        turbina.select_related(
+        turbina = turbina.select_related(
             'generador_electrico', 
             'generador_electrico__ciclos_unidad',
             'generador_electrico__potencia_real_unidad',
@@ -43,6 +43,7 @@ class ObtenerTurbinaVaporMixin():
             'generador_electrico__voltaje_unidad',
             
             'planta', 'planta__complejo',
+            'creado_por', 'editado_por',
             
             'especificaciones', 
             'especificaciones__potencia_unidad',
@@ -362,6 +363,7 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
                 'form_generador': form_generador, 
                 'form_datos_corrientes': form_datos_corrientes,
                 'forms_corrientes': forms_corrientes,
+                'titulo': self.titulo,
                 'error': "Ocurrió un error desconocido al momento de almacenar la turbina de vapor. Revise los datos e intente de nuevo."
             })
         

@@ -1181,7 +1181,7 @@ class ConsultaVentiladores(ObtenerVentiladorMixin, FiltradoSimpleMixin, LoginReq
 class CalculoPropiedadesVentilador(LoginRequiredMixin, View):
     '''
     Resumen:
-        Vista para generar las densidades del aire necesarias.
+        Vista para generar los cálculos de evaluación de los ventiladores.
         Hereda de View.
         Pueden acceder usuarios que hayan iniciado sesión.
 
