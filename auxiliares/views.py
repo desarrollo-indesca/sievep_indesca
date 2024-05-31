@@ -90,30 +90,33 @@ class RegistrarFluidoCAS(View, SuperUserRequiredMixin):
         return JsonResponse(registrar_fluido(request.GET.get('cas'), request.GET.get('nombre')))
     
 class ReportesFichasBombasMixin():
+    '''
+    Resumen:
+        Mixin para evitar la repetición de código al generar fichas técnicas en las vistas que lo permites.
+        También incluye lógica para la generación de la ficha de los parámetros de instalación.
+    '''
     def reporte_ficha(self, request):
-        if(request.POST.get('ficha')):
+        if(request.POST.get('ficha')): # FICHA TÉCNICA
             bomba = Bombas.objects.get(pk = request.POST.get('ficha'))
             if(request.POST.get('tipo') == 'pdf'):
                 return generar_pdf(request,bomba, f"Ficha Técnica de la Bomba {bomba.tag}", "ficha_tecnica_bomba_centrifuga")
             if(request.POST.get('tipo') == 'xlsx'):
                 return ficha_tecnica_bomba_centrifuga(bomba, request)
             
-        if(request.POST.get('instalacion')):
+        if(request.POST.get('instalacion')): # FICHA DE INSTALACIÓN
             bomba = Bombas.objects.get(pk = request.POST.get('instalacion'))
             if(request.POST.get('tipo') == 'pdf'):
                 return generar_pdf(request,bomba, f"Ficha de Instalación de la Bomba {bomba.tag}", "ficha_instalacion_bomba_centrifuga")
             
             if(request.POST.get('tipo') == 'xlsx'):
                 return ficha_instalacion_bomba_centrifuga(bomba,request)
-            
-        return None
     
 # VISTAS DE BOMBAS
 
 class CargarBombaMixin():
     """
     Resumen:
-        Mixin que debe ser utilizado cuando una vista utilice una bomba pero no sea el componente principal.
+        Mixin que debe ser utilizado cuando una vista utilice una bomba para evitar repetición de código en la consulta.
 
     Métodos:
         get_bomba(self, prefetch, bomba_q) -> Bomba
@@ -166,15 +169,15 @@ class CargarBombaMixin():
             if(bomba):
                 return bomba[0]
 
-            return bomba
-        else:
-            return bomba
+        return bomba
 
 class ConsultaBombas(FiltradoSimpleMixin, CargarBombaMixin, LoginRequiredMixin, ListView, ReportesFichasBombasMixin):
     """
     Resumen:
-        Vista para la consulta general de las bombas centrífugas (primer equipo auxiliar)
+        Vista para la consulta general de las bombas centrífugas.
         Solo puede ser accedida por usuarios que hayan iniciado sesión.
+        Realiza filtrado de equipos simple.
+        Puede generar fichas a partir de esta vista.
 
     Atributos:
         context: dict
@@ -190,8 +193,11 @@ class ConsultaBombas(FiltradoSimpleMixin, CargarBombaMixin, LoginRequiredMixin, 
             Título a mostrar.
     
     Métodos:
-        get(self, request)
-            Renderiza la plantilla de selección de equipos.
+        post(self, request, *args, *kwargs) -> HttpResponse
+            Genera la ficha correspondiente.
+
+        get_queryset(self) -> QuerySet
+            Hace el filtrado correspondiente y el prefetching para la consulta.
     """
 
     model = Bombas
@@ -210,37 +216,8 @@ class ConsultaBombas(FiltradoSimpleMixin, CargarBombaMixin, LoginRequiredMixin, 
         if(request.POST.get('tipo') == 'xlsx'):
             return reporte_equipos(request, self.get_queryset(), 'Listado de Bombas Centrífugas', 'listado_bombas')
 
-    def get_queryset(self):
-        tag = self.request.GET.get('tag', '')
-        descripcion = self.request.GET.get('descripcion', '')
-        complejo = self.request.GET.get('complejo', '')
-        planta = self.request.GET.get('planta', '')
-
-        new_context = None
-
-        if(planta != '' and complejo != ''):
-            new_context = self.model.objects.filter(
-                planta__pk=planta
-            )
-        elif(complejo != ''):
-            new_context = new_context.filter(
-                planta__complejo__pk=complejo
-            ) if new_context else self.model.objects.filter(
-                planta__complejo__pk=complejo
-            )
-
-        if(not(new_context is None)):
-            new_context = new_context.filter(
-                descripcion__icontains = descripcion,
-                tag__icontains = tag
-            )
-        else:
-            new_context = self.model.objects.filter(
-                descripcion__icontains = descripcion,
-                tag__icontains = tag
-            )
-
-        new_context = self.get_bomba(True, new_context)
+    def get_queryset(self):        
+        new_context = self.get_bomba(True, self.filtrar_equipos())
 
         return new_context
 
@@ -1044,7 +1021,6 @@ class GenerarGrafica(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
                 'salida__cabezal_total': transformar_unidades_longitud([salida.cabezal_total], salida.cabezal_total_unidad.pk, bomba.especificaciones_bomba.cabezal_unidad.pk),
                 'salida__npsha': transformar_unidades_longitud([salida.npsha], value.entrada.npshr_unidad.pk, bomba.condiciones_diseno.npsha_unidad.pk),
             })
-            
 
         return JsonResponse(res[:15], safe=False)
     
@@ -1145,36 +1121,7 @@ class ConsultaVentiladores(ObtenerVentiladorMixin, FiltradoSimpleMixin, LoginReq
             return reporte_equipos(request, self.get_queryset(), 'Listado de Ventiladores de Calderas', 'listado_ventiladores')
 
     def get_queryset(self):
-        tag = self.request.GET.get('tag', '')
-        descripcion = self.request.GET.get('descripcion', '')
-        complejo = self.request.GET.get('complejo', '')
-        planta = self.request.GET.get('planta', '')
-
-        new_context = None
-
-        if(planta != '' and complejo != ''):
-            new_context = self.model.objects.filter(
-                planta__pk=planta
-            )
-        elif(complejo != ''):
-            new_context = new_context.filter(
-                planta__complejo__pk=complejo
-            ) if new_context else self.model.objects.filter(
-                planta__complejo__pk=complejo
-            )
-
-        if(not(new_context is None)):
-            new_context = new_context.filter(
-                descripcion__icontains = descripcion,
-                tag__icontains = tag
-            )
-        else:
-            new_context = self.model.objects.filter(
-                descripcion__icontains = descripcion,
-                tag__icontains = tag
-            )
-
-        new_context = self.get_ventilador(new_context)
+        new_context = self.get_ventilador(self.filtrar_equipos())
 
         return new_context
     

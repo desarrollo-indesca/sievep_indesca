@@ -516,6 +516,9 @@ class FiltradoSimpleMixin():
 
         get_context_data(self, **kwargs) -> dict
             Genera el contexto de búsqueda y filtrado.
+
+        filtrar_equipos(self) -> QuerySet
+            Filtra los equipos de forma estandarizada.
     """
     titulo = ""
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:        
@@ -530,7 +533,53 @@ class FiltradoSimpleMixin():
         request.session['planta_consulta'] = request.GET.get('planta') if request.GET.get('planta') else ''
         
         return super().get(request, *args, **kwargs)
+    
+    def filtrar_equipos(self):
+        tag = self.request.GET.get('tag', '')
+        descripcion = self.request.GET.get('descripcion', self.request.GET.get('servicio', ''))
+        complejo = self.request.GET.get('complejo', '')
+        planta = self.request.GET.get('planta', '')
+
+        new_context = None
+
+        if(planta != '' and complejo != ''):
+            new_context = self.model.objects.filter(
+                planta__pk=planta
+            )
+        elif(complejo != ''):
+            new_context = new_context.filter(
+                planta__complejo__pk=complejo
+            ) if new_context else self.model.objects.filter(
+                planta__complejo__pk=complejo
+            )
+
+        if(not(new_context is None)):
+            if(self.request.GET.get('descripcion')):
+                new_context = new_context.filter(
+                    descripcion__icontains = descripcion,
+                    tag__icontains = tag
+                )
+            else:
+                new_context = new_context.filter(
+                    servicio__icontains = descripcion,
+                    tag__icontains = tag
+                )
+        else:
+            new_context = self.model.objects.filter(
+                tag__icontains = tag
+            )
+
+            if(self.request.GET.get('descripcion')):
+                new_context = self.model.objects.filter(
+                    descripcion__icontains = descripcion,
+                )
+            elif(self.request.GET.get('servicio')):
+                new_context = self.model.objects.filter(
+                    servicio__icontains = descripcion,
+                )
         
+        return new_context
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["titulo"] = self.titulo
