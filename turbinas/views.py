@@ -183,14 +183,14 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
             if(valid):
                 form_especificaciones.save()
             else:
-                logger.info(form_especificaciones.errors)
+                print(form_especificaciones.errors)
             
             valid = valid and form_generador.is_valid() # Segundo formulario
 
             if(valid):
                 form_generador.save()
             else:
-                logger.info(form_generador.errors)
+                print(form_generador.errors)
 
             valid = valid and form_datos_corrientes.is_valid() # Tercer formulario
 
@@ -198,7 +198,7 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
                 form_datos_corrientes.instance.id = None
                 form_datos_corrientes.save()
             else:
-                logger.info(form_datos_corrientes.errors)
+                print(form_datos_corrientes.errors)
 
             valid = valid and forms_corrientes.is_valid() # Formset de corrientes
 
@@ -209,9 +209,9 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
                         form.instance.datos_corriente = form_datos_corrientes.instance
                         form.save()
                     else:
-                        logger.info(form.errors)
+                        print(form.errors)
             else:
-                logger.info(form_datos_corrientes.errors)
+                print(form_datos_corrientes.errors)
 
             valid = valid and form_turbina.is_valid() # Form de turbinas
 
@@ -249,7 +249,7 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
                 form_especificaciones.save()
                 
             else:
-                logger.info(form_turbina.errors)
+                print(form_turbina.errors)
                 
             if(valid): # Si todos los formularios son válidos, se almacena la turbina
 
@@ -269,7 +269,7 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
             return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
                                         form_datos_corrientes, forms_corrientes)
         except Exception as e:
-            logger.info(str(e))
+            print(str(e))
             return render(request, self.template_name, context={
                 'form_turbina': form_turbina, 
                 'form_especificaciones': form_especificaciones,
@@ -330,7 +330,7 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
             return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
                                         form_datos_corrientes, forms_corrientes)
         except Exception as e:
-            logger.info(str(e))
+            print(str(e))
             return render(request, self.template_name, context={
                 'form_turbina': form_turbina, 
                 'form_especificaciones': form_especificaciones,
@@ -567,7 +567,7 @@ class CalcularResultadosturbinaVapor(LoginRequiredMixin, View, ObtenerTurbinaVap
                 if(valid):
                     form_entrada.save()
                 else:
-                    logger.info(form_entrada.errors)
+                    print(form_entrada.errors)
 
                 valid = valid and formset_corrientes.is_valid() # Formset de datos de entrada de corrientes
 
@@ -576,7 +576,7 @@ class CalcularResultadosturbinaVapor(LoginRequiredMixin, View, ObtenerTurbinaVap
                         form.save() # Almacenarlo
                         entradas_corrientes.append(form.instance) # Guardar la instancia en una lista temporal
                 else:
-                    logger.info(formset_corrientes.errors)
+                    print(formset_corrientes.errors)
 
                 valid = valid and form_evaluacion.is_valid() # Segundo form validado
 
@@ -616,13 +616,13 @@ class CalcularResultadosturbinaVapor(LoginRequiredMixin, View, ObtenerTurbinaVap
                     CorrienteEvaluacion.objects.bulk_create(corrientes)
                     
                 else:
-                    logger.info(form_evaluacion.errors)
+                    print(form_evaluacion.errors)
                     return render(request, 'turbinas_vapor/partials/carga_fallida.html', {'turbina': turbina})
 
                 return render(request, 'turbinas_vapor/partials/carga_lograda.html', {'turbina': turbina})
 
         except Exception as e:
-            logger.info(str(e))
+            print(str(e))
             return render(request, 'turbinas_vapor/partials/carga_fallida.html', {'turbina': turbina})
 
     def post(self, request, pk):

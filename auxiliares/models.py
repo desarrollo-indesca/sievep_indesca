@@ -872,6 +872,7 @@ class EspecificacionesVentilador(models.Model):
         potencia_motor_unidad: Unidad -> Unidad de potencia del motor (B)
         velocidad_motor: float -> Velocidad del motor
         velocidad_motor_unidad: Unidad -> Unidad de velocidad angular (O)
+        factor_servicio: float -> Factor de servicio del equipo (Adimensional)
     '''
     espesor = models.FloatField(null = True, blank = True, verbose_name="Espesor de Carcasa", validators=[MinValueValidator(0.0001)])
     espesor_caja = models.FloatField(null = True, blank = True,  verbose_name="Espesor de Caja de Entrada", validators=[MinValueValidator(0.0001)])
