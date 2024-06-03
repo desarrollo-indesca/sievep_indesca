@@ -6,7 +6,7 @@ from intercambiadores.models import Unidades, Planta
 from calculos.utils import conseguir_largo
 import uuid
 
-# Create your models here.
+# Modelos de Turbinas
 
 FASES_CORRIENTES = (
     ('S','Saturado'),
@@ -22,7 +22,7 @@ class DatosCorrientes(models.Model):
         Modelo de datos de datos asociados a TODAS las corrientes circulantes por turbinas de vapor.
 
     Atributos:
-        flujo_unidad: Unidad (F,K) -> Unidad de flujo másico o volumétrico para los flujos circulantes en unidades.
+        flujo_unidad: Unidad (F) -> Unidad de flujo másico para los flujos circulantes en unidades.
         entalpia_unidad: Unidad (n) -> Unidad de entalpía (másica) de la corriente
         presion_unidad: Unidad (P) -> Unidad de presión (g) bajo la que está la corriente
         temperatura_unidad: Unidad (T) -> Unidad de temperatura a la que está la corriente  
@@ -43,7 +43,7 @@ class Corriente(models.Model):
     Atributos:
        numero_corriente: CharField(10) -> Número de la corriente de la turbina.
        descripcion_corriente: CharField(50) -> Descripción la corriente.
-       flujo: FloatField -> Flujo circulante
+       flujo: FloatField -> Flujo másico circulante
        entalpia: FloatField -> Entalpía de la corriente
        presion: FloatField ->  Presión bajo la que está la corriente / Si es salida no se requiere
        temperatura: FloatField -> Temperatura bajo la que está la corriente
@@ -204,8 +204,8 @@ class EntradaEvaluacion(models.Model):
 
     Atributos:
         id: UUIDField -> ID único del objeto
-        flujo_entrada: FloatField -> Flujo de entrada de la evaluación
-        flujo_entrada_unidad: Unidad (F,K) -> Unidad del flujo de entrada y los flujos calculados de las corrientes
+        flujo_entrada: FloatField -> Flujo másico de entrada de la evaluación
+        flujo_entrada_unidad: Unidad (F) -> Unidad del flujo másico de entrada y los flujos calculados de las corrientes
         potencia_real: FloatField -> Potencia real ingresada
         potencia_real_unidad: Unidad (B) -> Unidad de la potencia real
         presion_unidad: FloatField -> Unidad de la presión ingresada

@@ -281,7 +281,6 @@ class CreacionIntercambiadorMixin(ObtencionParametrosMixin):
         Mixin para el almacenamiento de las condiciones. Contiene una función para el almacenamiento de las condiciones de un intercambiador.
     '''
     def almacenar_condicion(self, calor, intercambiador, request, unidad_calor, fluido, lado, codigo_lado):
-        t1,t2 = transformar_unidades_temperatura([float(request.POST['temp_in_' + lado]), float(request.POST['temp_out_' + lado])], int(request.POST['unidad_temperaturas']))
         '''
         Resumen:
             Función para la creación de un objeto CondicionesIntercambiador
@@ -299,6 +298,7 @@ class CreacionIntercambiadorMixin(ObtencionParametrosMixin):
             CondicionesIntercambiador -> Devuelve la condición creada
         '''
 
+        t1,t2 = transformar_unidades_temperatura([float(request.POST['temp_in_' + lado]), float(request.POST['temp_out_' + lado])], int(request.POST['unidad_temperaturas']))
         presion = transformar_unidades_presion([float(request.POST['presion_entrada_' + lado])], int(request.POST['unidad_presiones']))[0]
         tipo_cp = request.POST.get('tipo_cp_' + lado)
         unidad_cp = int(request.POST['unidad_cp'])
@@ -2334,7 +2334,6 @@ class ReporteEvaluacionDetalle(LoginRequiredMixin, View):
         print(evaluacion)
         if(request.GET['tipo'] == 'pdf'):
             return generar_pdf(request, evaluacion, f'Detalle de la Evaluación "{evaluacion.nombre}"', 'evaluacion_detalle')
-
 
 class FichaTecnicaTuboCarcasa(LoginRequiredMixin, View):
     '''
