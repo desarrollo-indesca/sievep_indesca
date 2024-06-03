@@ -17,6 +17,9 @@ A nivel de código el proyecto se llama 'simulaciones_pequiven' hasta que se dec
 from pathlib import Path
 import os, ldap
 from django_auth_ldap.config import LDAPSearch
+from django_auth_ldap.config import ActiveDirectoryGroupType
+
+# CONFIGURACIÓN DE LDAP
 
 AUTH_LDAP_GLOBAL_OPTIONS = {
     ldap.OPT_X_TLS_REQUIRE_CERT: True,
@@ -37,7 +40,7 @@ AUTH_LDAP_USER_ATTR_MAP = {
     "last_name": "sn",
     "email": "mail",
 }
-from django_auth_ldap.config import ActiveDirectoryGroupType
+
 AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
     "dc=indesca,dc=local", ldap.SCOPE_SUBTREE, "(objectCategory=Group)" # Dominio
 )
@@ -108,6 +111,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "simulaciones_pequiven.middleware.RequestLogMiddleware",
     # "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
@@ -249,3 +253,34 @@ MEDIA_URL = '/media/'
 # INTERNAL_IPS = [
 #     "127.0.0.1",
 # ]
+
+# CONFIGURACIÓN DE LOS LOGS
+
+LOGGING = {
+    "version": 1,
+    "formatters": {
+        "request_formatter": {
+            "format": "%(asctime)s  - %(name)s - %(levelname)s - %(module)s - %(process)s - %(thread)s -  %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S"
+        },
+    },
+    "handlers": {
+        "request": {
+            "level": os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            "class": "logging.handlers.RotatingFileHandler",
+            "formatter": "request_formatter",
+            "filename": "app.log",
+            "maxBytes": 1024000*20, # 20 MB
+            "backupCount": 20
+        }
+    },
+    "loggers": {
+        'django.request': {
+            "handlers": ["request"]
+        },
+        'django': {
+            "handlers": ["request"]
+        },
+    },
+    "disable_existing_loggers": False
+}

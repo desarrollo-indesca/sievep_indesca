@@ -1,4 +1,5 @@
 from typing import Any
+import logging
 import datetime
 from django.db import transaction
 from django.db.models import Prefetch
@@ -18,6 +19,8 @@ from reportes.xlsx import reporte_equipos, historico_evaluaciones_turbinas_vapor
 from .models import *
 from .forms import *
 
+logger = logging.getLogger('django')
+
 # Create your views here.
 class ObtenerTurbinaVaporMixin():
     '''
@@ -33,7 +36,7 @@ class ObtenerTurbinaVaporMixin():
         else:
             turbina = turbina_q
 
-        turbina.select_related(
+        turbina = turbina.select_related(
             'generador_electrico', 
             'generador_electrico__ciclos_unidad',
             'generador_electrico__potencia_real_unidad',
@@ -43,6 +46,7 @@ class ObtenerTurbinaVaporMixin():
             'generador_electrico__voltaje_unidad',
             
             'planta', 'planta__complejo',
+            'creado_por', 'editado_por',
             
             'especificaciones', 
             'especificaciones__potencia_unidad',
@@ -121,36 +125,7 @@ class ConsultaTurbinasVapor(FiltradoSimpleMixin, ObtenerTurbinaVaporMixin, Login
             return reporte_equipos(request, self.get_queryset(), 'Listado de Turbinas de Vapor', 'listado_turbinas_vapor')
     
     def get_queryset(self):
-        tag = self.request.GET.get('tag', '')
-        descripcion = self.request.GET.get('descripcion', '')
-        complejo = self.request.GET.get('complejo', '')
-        planta = self.request.GET.get('planta', '')
-
-        new_context = None
-
-        if(planta != '' and complejo != ''):
-            new_context = self.model.objects.filter(
-                planta__pk=planta
-            )
-        elif(complejo != ''):
-            new_context = new_context.filter(
-                planta__complejo__pk=complejo
-            ) if new_context else self.model.objects.filter(
-                planta__complejo__pk=complejo
-            )
-
-        if(not(new_context is None)):
-            new_context = new_context.filter(
-                descripcion__icontains = descripcion,
-                tag__icontains = tag
-            )
-        else:
-            new_context = self.model.objects.filter(
-                descripcion__icontains = descripcion,
-                tag__icontains = tag
-            )
-
-        new_context = self.get_turbina(new_context)
+        new_context = self.get_turbina(self.filtrar_equipos())
 
         return new_context
     
@@ -301,6 +276,7 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
                 'form_generador': form_generador, 
                 'form_datos_corrientes': form_datos_corrientes,
                 'forms_corrientes': forms_corrientes,
+                'error': "Ocurrió un error desconocido al momento de almacenar la turbina de vapor. Revise los datos e intente de nuevo."
             })
 
 class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
@@ -350,8 +326,20 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
         form_datos_corrientes = DatosCorrientesForm(request.POST)
         forms_corrientes = corrientes_formset(request.POST)
 
-        return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
+        try:
+            return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
                                         form_datos_corrientes, forms_corrientes)
+        except Exception as e:
+            print(str(e))
+            return render(request, self.template_name, context={
+                'form_turbina': form_turbina, 
+                'form_especificaciones': form_especificaciones,
+                'form_generador': form_generador, 
+                'form_datos_corrientes': form_datos_corrientes,
+                'forms_corrientes': forms_corrientes,
+                'titulo': self.titulo,
+                'error': "Ocurrió un error desconocido al momento de almacenar la turbina de vapor. Revise los datos e intente de nuevo."
+            })
         
 class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinaVaporMixin, ReportesFichasTurbinasVaporMixin):
     """

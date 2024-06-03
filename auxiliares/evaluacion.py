@@ -107,7 +107,6 @@ def calcular_factor_friccion(flujo, numero_reynolds, diametro, rugosidad):
     Devuelve:
         float -> Factor de fricción calculado 
     '''
-
     if(flujo == 'L'): # Flujo Laminar
         return 64/numero_reynolds
     else: # Flujo Transitorio o Turbulento

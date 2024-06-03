@@ -59,7 +59,7 @@
   </tr>
 </thead>
 <tbody class="text-center" id="tabla-body">
-  {% if object_list.count %}
+  {% if object_list %}
   {% include 'turbinas_vapor/tabla.html' %}
   {% else %}
   <td colspan="7">No se encontraron bombas con los datos de filtrado proporcionados.</td>
@@ -69,7 +69,7 @@
 
 {% block opciones %}
 <div>
-  {% if object_list.count %}
+  {% if object_list %}
   <form method="post">
     {% csrf_token %}
     <button name="tipo" value="pdf" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar Reporte PDF</button>

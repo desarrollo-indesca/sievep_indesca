@@ -13,7 +13,7 @@
     {% csrf_token %}
     <input type="hidden" id="bomba" name="bomba" value="{{bomba.pk}}">
     <div class="row">
-        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_bombas' %}">↶ Regresar</a></div>
+        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'evaluacion_bomba' pk=bomba.pk %}">↶ Regresar</a></div>
         <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Nueva Evaluación Bomba {{bomba.tag}}</h3></div>
         <div class="col-md-3 col-lg-2"><button type="button" class="btn btn-success" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{bomba.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button></div>
     </div>

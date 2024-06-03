@@ -12,7 +12,7 @@
 <form id="form" method="post" name="form" hx-indicator="#spinner" hx-swap="none" hx-post="/auxiliares/ventiladores/evaluar/{{ventilador.pk}}/resultado/">
     {% csrf_token %}
     <div class="row">
-        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_ventiladores' %}">↶ Regresar</a></div>
+        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'evaluaciones_ventilador' pk=ventilador.pk %}">↶ Regresar</a></div>
         <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Nueva Evaluación Ventilador {{ventilador.tag}}</h3></div>
         <div class="col-md-3 col-lg-2"><button type="button" class="btn btn-success" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{ventilador.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button></div>
     </div>
