@@ -542,39 +542,39 @@ class FiltradoSimpleMixin():
 
         new_context = None
 
-        if(planta != '' and complejo != ''):
+        if(planta != '' and complejo != ''): # Filtrar por planta
             new_context = self.model.objects.filter(
                 planta__pk=planta
             )
-        elif(complejo != ''):
+        elif(complejo != ''): # Filtrar por complejo
             new_context = new_context.filter(
                 planta__complejo__pk=complejo
             ) if new_context else self.model.objects.filter(
                 planta__complejo__pk=complejo
             )
 
-        if(not(new_context is None)):
+        if(not(new_context is None)): # Si filtros fueron aplicados previamente...
             if(self.request.GET.get('descripcion')):
                 new_context = new_context.filter(
                     descripcion__icontains = descripcion,
                     tag__icontains = tag
                 )
-            else:
+            elif(self.request.GET.get('servicio')):
                 new_context = new_context.filter(
                     servicio__icontains = descripcion,
                     tag__icontains = tag
                 )
-        else:
+        else: # Si ningún filtro fue aplicado previamente
             new_context = self.model.objects.filter(
                 tag__icontains = tag
             )
 
             if(self.request.GET.get('descripcion')):
-                new_context = self.model.objects.filter(
+                new_context = new_context.filter(
                     descripcion__icontains = descripcion,
                 )
             elif(self.request.GET.get('servicio')):
-                new_context = self.model.objects.filter(
+                new_context = new_context.filter(
                     servicio__icontains = descripcion,
                 )
         

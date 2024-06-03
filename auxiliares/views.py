@@ -1031,7 +1031,7 @@ class ObtenerVentiladorMixin():
         Mixin para obtener un ventilador de la base de datos junto a todos sus datos adicionales.
 
     Métodos:
-        get_ventilador(self) -> QuerySet[1]
+        get_ventilador(self) -> QuerySet
             Obtiene un ventilador en un queryset con todo el prefetching necesario por cuestiones de eficiencia.
             El parámetro "ventilador_q" funciona para saber si la función se usará sobre ese QuerySet o no.
     '''
@@ -1068,7 +1068,7 @@ class ReportesFichasVentiladoresMixin(ReportesFichasMixin):
 
     Atributos:
         model_ficha: Model -> Modelo del cual se extraerá la ficha
-        reporte_ficha_xlsx: callable -> FUNCIÓN que generará la ficha deseada en formato XLSX
+        reporte_ficha_xlsx: function -> FUNCIÓN que generará la ficha deseada en formato XLSX
         titulo_reporte_ficha: str -> Título que se desea tenga el reporte PDF
         codigo_reporte_ficha: str -> Código único del reporte PDF para su generación
     '''
@@ -1088,6 +1088,7 @@ class ConsultaVentiladores(ObtenerVentiladorMixin, FiltradoSimpleMixin, LoginReq
     Atributos:
         model: Model -> Modelo del cual se extraerán los elementos de la lista.
         template_name: str -> Plantilla a renderizar
+        titulo: str -> Título de la vista a ser mostrado al usuario
         paginate_by: str -> Número de elementos a mostrar a a la vez
 
     Métodos:
@@ -1242,6 +1243,7 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
     Atributos:
         success_message: str -> Mensaje a ser enviado al usuario al registrar exitosamente una bomba.
         titulo: str -> Título de la vista
+        template_name: str -> Plantilla a ser renderizada
     
     Métodos:
         get_context(self) -> dict

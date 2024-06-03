@@ -93,6 +93,7 @@ class ConsultaTurbinasVapor(FiltradoSimpleMixin, ObtenerTurbinaVaporMixin, Login
         model: Model -> Modelo del cual se extraerán los elementos de la lista.
         template_name: str -> Plantilla a renderizar
         paginate_by: str -> Número de elementos a mostrar a a la vez
+        titulo: str -> Título de la vista
 
     Métodos:
         post(self, request, *args, **kwargs) -> HttpResponse
@@ -293,13 +294,6 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
         get_context(self) -> dict
             Crea instancias de los formularios a ser utilizados y define el título de la vista.
 
-        get(self, request, **kwargs) -> HttpResponse
-            Renderiza el formulario con la plantilla y contexto correspondiente.
-
-        post(self, request, pk) -> HttpResponse
-            Valida y almacena los datos de acuerdo a la lógica requerida para el almacenamiento de bombas por medio de los formularios.
-            Si hay errores se levantará una Exception y se retornará el formulario con los errores renderizados.
-
         post(self) -> HttpResponse
             Envía el request a los formularios y envía la respuesta al cliente.
     """
@@ -353,6 +347,7 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinaVaporMixi
         model_equipment -> Modelo del equipo
         clase_equipo -> Complemento del título de la vista
         tipo -> Tipo de equipo. Necesario para la renderización correcta de nombres y links.
+        template_name: str -> Plantilla a renderizar en la vista.
     
     Métodos:
         get_context_data(self) -> dict
