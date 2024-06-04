@@ -18,6 +18,10 @@ class FormConUnidades(forms.ModelForm):
         self.limpiar_campos_unidades()
 
 class BombaForm(forms.ModelForm):
+    '''
+    Resumen:
+        Form para el registro o edición de datos básicos de bombas.
+    '''
     complejo = forms.ModelChoiceField(queryset=Complejo.objects.all(), initial=1)
 
     def clean_tag(self):
@@ -31,6 +35,10 @@ class BombaForm(forms.ModelForm):
         ]
 
 class EspecificacionesBombaForm(FormConUnidades):
+    '''
+    Resumen:
+        Form para el registro o edición de datos básicos de bombas.
+    '''
 
     def limpiar_campos_unidades(self):
         self.fields['velocidad_unidad'].empty_label = None
@@ -54,7 +62,11 @@ class EspecificacionesBombaForm(FormConUnidades):
             "id",
         )
 
-class DetallesConstruccionBombaForm(forms.ModelForm): 
+class DetallesConstruccionBombaForm(forms.ModelForm):
+    '''
+    Resumen:
+        Form para el registro o edición de datos de construcción de la bomba.
+    ''' 
     class Meta:
         model = DetallesConstruccionBomba
         exclude = (
@@ -62,6 +74,10 @@ class DetallesConstruccionBombaForm(forms.ModelForm):
         )
 
 class DetallesMotorBombaForm(FormConUnidades):
+    '''
+    Resumen:
+        Form para el registro o edición de los detalles del motor de una bomba.
+    '''
     def limpiar_campos_unidades(self):
         self.fields['velocidad_motor_unidad'].empty_label = None
         self.fields['velocidad_motor_unidad'].queryset = UNIDADES_VELOCIDAD_ANGULAR
@@ -82,6 +98,10 @@ class DetallesMotorBombaForm(FormConUnidades):
         )
 
 class CondicionesDisenoBombaForm(FormConUnidades):
+    '''
+    Resumen:
+        Form para el registro o edición de las condiciones de diseño de una bomba.
+    '''
     def limpiar_campos_unidades(self):
         self.fields['capacidad_unidad'].empty_label = None
         self.fields['capacidad_unidad'].queryset = UNIDADES_FLUJO_VOLUMETRICO
@@ -100,6 +120,11 @@ class CondicionesDisenoBombaForm(FormConUnidades):
         )
 
 class CondicionFluidoBombaForm(FormConUnidades):
+    '''
+    Resumen:
+        Form para el registro o edición de las condiciones de diseño del fluido que pasa por una bomba.
+        Múltiples campos requieren validaciones adicionales.
+    '''
     def limpiar_campos_unidades(self):
         self.fields['temperatura_unidad'].empty_label = None
         self.fields['temperatura_unidad'].queryset = UNIDADES_TEMPERATURA
@@ -151,6 +176,11 @@ class CondicionFluidoBombaForm(FormConUnidades):
         )
 
 class EspecificacionesInstalacionForm(FormConUnidades):
+    '''
+    Resumen:
+        Form para el registro o edición de las especificaciones de instalación asociadas a una bomba.
+    '''
+
     def limpiar_campos_unidades(self):
         self.fields['elevacion_unidad'].empty_label = None
         self.fields['elevacion_unidad'].queryset = UNIDADES_LONGITUD
@@ -163,6 +193,11 @@ class EspecificacionesInstalacionForm(FormConUnidades):
         )
 
 class TuberiaInstalacionBombaForm(FormConUnidades):
+    '''
+    Resumen:
+        Form para el registro o edición de los tramos de tuberías asociados a la instalación de una bomba.
+    '''
+
     def limpiar_campos_unidades(self):
         self.fields['diametro_tuberia_unidad'].empty_label = None
         self.fields['diametro_tuberia_unidad'].queryset = UNIDADES_LONGITUD
@@ -178,11 +213,19 @@ class TuberiaInstalacionBombaForm(FormConUnidades):
         )
 
 class EvaluacionBombaForm(forms.ModelForm):
+    '''
+    Resumen:
+        Form para el registro de los datos generales de las evaluaciones realizadas a una bomba.
+    '''
     class Meta:
         model = EvaluacionBomba
         fields = ('nombre',)
 
 class EntradaEvaluacionBombaForm(FormConUnidades):
+    '''
+    Resumen:
+        Form para el registro de los datos de entrada de una evaluación realizada a una bomba.
+    '''
     def limpiar_campos_unidades(self):
         self.fields['altura_unidad'].empty_label = None
         self.fields['altura_unidad'].queryset = UNIDADES_LONGITUD
@@ -216,12 +259,16 @@ class EntradaEvaluacionBombaForm(FormConUnidades):
         model = EntradaEvaluacionBomba
         exclude = ('id', 'evaluacion', 'diametro_succion', 'diametro_descarga', 'diametro_unidad', 'velocidad', 'velocidad_unidad')
 
-EspecificacionesInstalacionFormSet = forms.modelformset_factory(EspecificacionesInstalacion, form=EspecificacionesInstalacionForm, min_num=2, max_num=2)
-TuberiaFormSet = forms.modelformset_factory(TuberiaInstalacionBomba, form=TuberiaInstalacionBombaForm, min_num=1, extra=0)
+EspecificacionesInstalacionFormSet = forms.modelformset_factory(EspecificacionesInstalacion, form=EspecificacionesInstalacionForm, min_num=2, max_num=2) # FormSet de Instalación
+TuberiaFormSet = forms.modelformset_factory(TuberiaInstalacionBomba, form=TuberiaInstalacionBombaForm, min_num=1, extra=0) # FormSet de Tubería
 
 # FORMS DE VENTILADORES
 
 class VentiladorForm(forms.ModelForm):
+    '''
+    Resumen:
+        Form para el registro de los datos generales de identificación de un ventilador.
+    '''
     complejo = forms.ModelChoiceField(queryset=Complejo.objects.all(), initial=1)
 
     def clean_tag(self):
@@ -234,6 +281,10 @@ class VentiladorForm(forms.ModelForm):
                    'creado_por','editado_por')
         
 class EspecificacionesVentiladorForm(FormConUnidades):
+    '''
+    Resumen:
+        Form para el registro de los datos de especificaciones técnicas de un ventilador.
+    '''
     def limpiar_campos_unidades(self):
         self.fields['espesor_unidad'].empty_label = None
         self.fields['espesor_unidad'].queryset = UNIDADES_LONGITUD
@@ -249,6 +300,10 @@ class EspecificacionesVentiladorForm(FormConUnidades):
         exclude = ('id',)
 
 class CondicionesGeneralesVentiladorForm(FormConUnidades):
+    '''
+    Resumen:
+        Form para el registro de los datos de las condiciones generales de un ventilador.
+    '''
     def clean_presion_diseno(self):
         presion_diseno = self.data['presion_diseno']
 
@@ -274,6 +329,10 @@ class CondicionesGeneralesVentiladorForm(FormConUnidades):
         exclude = ('id',)
 
 class CondicionesTrabajoVentiladorForm(FormConUnidades):
+    '''
+    Resumen:
+        Form para el registro de los datos de las condiciones de trabajo de un ventilador. Estas pueden ser de trabajo o adicionales.
+    '''
     def clean_presion_entrada(self):
         prefix = self.prefix + '-' if self.prefix else ''
         presion_entrada = self.data[f'{prefix}presion_entrada']
@@ -324,11 +383,19 @@ class CondicionesTrabajoVentiladorForm(FormConUnidades):
         exclude = ('id','eficiencia','tipo_flujo')
 
 class EvaluacionVentiladorForm(forms.ModelForm):
+    '''
+    Resumen:
+        Form para el registro de los datos de identificación de una evaluación.
+    '''
     class Meta:
         model = EvaluacionVentilador
         fields = ('nombre',)
 
 class EntradaEvaluacionVentiladorForm(FormConUnidades):
+    '''
+    Resumen:
+        Form para el registro de los datos de entrada de una evaluación.
+    '''
     def limpiar_campos_unidades(self):
         self.fields['flujo_unidad'].empty_label = None
         self.fields['flujo_unidad'].queryset = UNIDADES_FLUJOS
