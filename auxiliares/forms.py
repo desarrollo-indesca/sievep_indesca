@@ -34,7 +34,7 @@ class EspecificacionesBombaForm(FormConUnidades):
 
     def limpiar_campos_unidades(self):
         self.fields['velocidad_unidad'].empty_label = None
-        self.fields['velocidad_unidad'].queryset = Unidades.objects.filter(simbolo = 'RPM')
+        self.fields['velocidad_unidad'].queryset = UNIDADES_VELOCIDAD_ANGULAR
 
         self.fields['potencia_unidad'].empty_label = None
         self.fields['potencia_unidad'].queryset = UNIDADES_POTENCIA
@@ -64,16 +64,16 @@ class DetallesConstruccionBombaForm(forms.ModelForm):
 class DetallesMotorBombaForm(FormConUnidades):
     def limpiar_campos_unidades(self):
         self.fields['velocidad_motor_unidad'].empty_label = None
-        self.fields['velocidad_motor_unidad'].queryset = Unidades.objects.filter(simbolo = 'RPM')
+        self.fields['velocidad_motor_unidad'].queryset = UNIDADES_VELOCIDAD_ANGULAR
 
         self.fields['potencia_motor_unidad'].empty_label = None
         self.fields['potencia_motor_unidad'].queryset = UNIDADES_POTENCIA
 
         self.fields['voltaje_unidad'].empty_label = None
-        self.fields['voltaje_unidad'].queryset = Unidades.objects.filter(tipo = 'X')
+        self.fields['voltaje_unidad'].queryset = UNIDADES_VOLTAJE
 
         self.fields['frecuencia_unidad'].empty_label = None
-        self.fields['frecuencia_unidad'].queryset = Unidades.objects.filter(tipo = 'H')
+        self.fields['frecuencia_unidad'].queryset = UNIDADES_FRECUENCIA
 
     class Meta:
         model = DetallesMotorBomba
@@ -111,8 +111,7 @@ class CondicionFluidoBombaForm(FormConUnidades):
         self.fields['viscosidad_unidad'].queryset = UNIDADES_VISCOSIDAD
 
         self.fields['concentracion_unidad'].empty_label = None
-        self.fields['concentracion_unidad'].queryset = Unidades.objects.filter(tipo = '%')
-
+        self.fields['concentracion_unidad'].queryset = UNIDADES_CONCENTRACION
         self.fields['densidad_unidad'].queryset = UNIDADES_DENSIDAD
 
     def clean_densidad(self):
