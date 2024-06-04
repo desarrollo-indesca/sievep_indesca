@@ -15,5 +15,6 @@ UNIDADES_CORRIENTE = Unidades.objects.filter(tipo = 'Y')
 UNIDADES_POTENCIA_APARENTE = Unidades.objects.filter(tipo = 'Z')
 UNIDADES_ENTALPIA = Unidades.objects.filter(tipo = 'n')
 UNIDADES_FRECUENCIA = Unidades.objects.filter(tipo = 'H')
+UNIDADES_CONCENTRACION = Unidades.objects.filter(tipo = '%')
 
 PK_UNIDADES_FLUJO_MASICO = [6,10,18,19,54]
