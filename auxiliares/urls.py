@@ -15,8 +15,8 @@ urlpatterns = [
     path('bombas/evaluaciones/<int:pk>/', ConsultaEvaluacionBomba.as_view(), name = "evaluacion_bomba"),
     path('bombas/evaluar/<int:pk>/', CreacionEvaluacionBomba.as_view(), name = "crear_evaluacion_bomba"),
 
-    path('bombas/evaluar/resultados/<int:pk>/', CalcularResultados.as_view(), name = "resultados_evaluacion_bombas"),
-    path('bombas/evaluar/<int:pk>/historico/', GenerarGrafica.as_view(), name='generar_historico_bomba'),
+    path('bombas/evaluar/resultados/<int:pk>/', CalcularResultadosBomba.as_view(), name = "resultados_evaluacion_bombas"),
+    path('bombas/evaluar/<int:pk>/historico/', GenerarGraficaBomba.as_view(), name='generar_historico_bomba'),
 
     # URLs de VENTILADORES
     path('ventiladores/', ConsultaVentiladores.as_view(), name="consulta_ventiladores"),

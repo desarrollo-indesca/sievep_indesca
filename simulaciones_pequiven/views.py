@@ -4,6 +4,7 @@ from reportes.pdfs import generar_pdf
 
 from simulaciones_pequiven.settings import BASE_DIR
 from django.views import View
+from django.db.models import Q
 from django.views.generic import ListView
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout
@@ -440,10 +441,18 @@ class ConsultaEvaluacion(LoginRequiredMixin, ListView):
                 fecha__lte=hasta
             )
 
-        if(usuario != ''):
-            new_context = new_context.filter(
-                usuario__first_name__icontains = usuario
-            )
+        try:
+            if(usuario != ''):
+                new_context = new_context.filter(
+                    Q(creado_por__first_name__icontains = usuario) |
+                    Q(creado_por__last_name__icontains = usuario)
+                )
+        except:
+            if(usuario != ''):
+                new_context = new_context.filter(
+                    Q(usuario__first_name__icontains = usuario) |
+                    Q(usuario__last_name__icontains = usuario)
+                )
 
         if(nombre != ''):
             new_context = new_context.filter(

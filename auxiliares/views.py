@@ -729,7 +729,7 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion, CargarBombaMixin, ReportesFich
 
         return context
 
-class CalcularResultados(LoginRequiredMixin, View):
+class CalcularResultadosBomba(LoginRequiredMixin, View):
     """
     Resumen:
         Vista HTMX que calcula los resultados de una evaluación de una bomba.
@@ -766,7 +766,7 @@ class CalcularResultados(LoginRequiredMixin, View):
         condiciones_fluido = condiciones_diseno.condiciones_fluido
 
         # Obtención de parámetros de la fuente que sea requerida según tipo de calculo de propiedades        
-        velocidad = especificaciones.velocidad
+        velocidad = transformar_unidades_frecuencia_angular([especificaciones.velocidad], especificaciones.velocidad_unidad.pk)[0]
         temp_operacion = float(request.POST.get('temperatura_operacion')) if tipo_propiedades != 'F' else condiciones_fluido.temperatura_operacion
         presion_succion = float(request.POST.get('presion_succion')) if tipo_propiedades != 'F' else condiciones_diseno.presion_succion
         presion_descarga = float(request.POST.get('presion_descarga'))
@@ -996,7 +996,7 @@ class CreacionEvaluacionBomba(LoginRequiredMixin, View, CargarBombaMixin, Report
     def get(self, request, pk):
         return render(request, 'bombas/evaluacion.html', self.get_context_data())
     
-class GenerarGrafica(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
+class GenerarGraficaBomba(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
     """
     Resumen:
         Vista AJAX que envía los datos necesarios para la gráfica histórica de evaluaciones de bombas.

@@ -304,9 +304,21 @@ def transformar_unidades_potencia(args: list, unidad: int, unidad_salida: int = 
 
     return actualizadas
 
-def transformar_unidades_frecuencia_angular(args: list, unidad: int, unidad_salida: int):
+def transformar_unidades_frecuencia_angular(args: list, unidad: int, unidad_salida: int = 52):
+    '''
+    Resumen:
+        Función para transformar unidades de frecuencia angular.
+
+    Parámetros:
+        args: list -> Lista de valores a transformar
+        unidad: int -> ID de la unidad de entrada
+        unidad_salida: int -> ID de la unidad de salida. De no dar ninguna devolverá en RPM.
+
+    Devuelve:
+        list -> Lista de valores transformados a la unidad de salida
+    '''
     def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
-        return ur.radian / ur.second if unidad == 52 else ur.rpm
+        return ur.radian / ur.second if unidad == 51 else ur.rpm
 
     actualizadas = []
     unidad_salida = obtener_unidad(unidad_salida)
@@ -317,6 +329,18 @@ def transformar_unidades_frecuencia_angular(args: list, unidad: int, unidad_sali
     return actualizadas
 
 def transformar_unidades_entalpia_masica(args: list, unidad: int, unidad_salida: int = 60):
+    '''
+    Resumen:
+        Función para transformar unidades de entalpía específica o másica.
+
+    Parámetros:
+        args: list -> Lista de valores a transformar
+        unidad: int -> ID de la unidad de entrada
+        unidad_salida: int -> ID de la unidad de salida. De no dar ninguna devolverá en J/Kg.
+
+    Devuelve:
+        list -> Lista de valores transformados a la unidad de salida
+    '''
     def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
         return ur.Btu_it/ur.pound if unidad == 55 else ur.kilocalorie/ur.kilogram if unidad == 56 else ur.joule/ur.kilogram
 
