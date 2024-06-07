@@ -628,7 +628,6 @@ class CreacionInstalacionBomba(SuperUserRequiredMixin, View, CargarBombaMixin):
 
                 messages.success(request, "Se han actualizado los datos de instalación exitosamente.")
                 return redirect('/auxiliares/bombas/')    
-                      
         except Exception as e:
             print(str(e))        
             return render(request, self.template_name, context={'bomba': bomba, 
