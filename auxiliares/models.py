@@ -189,7 +189,7 @@ class TipoBomba(models.Model):
 
     Métodos:
         __str__() -> str:
-            Devuelve el nombre del tipo de bomba de acuerdo a su llaveen UPPERCASE.
+            Devuelve el nombre del tipo de bomba de acuerdo a su nombre en UPPERCASE.
     '''
     nombre = models.CharField(max_length = 45, unique = True)
 

@@ -111,7 +111,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "simulaciones_pequiven.middleware.RequestLogMiddleware",
+    # "simulaciones_pequiven.middleware.RequestLogMiddleware",
     # "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
@@ -256,31 +256,31 @@ MEDIA_URL = '/media/'
 
 # CONFIGURACIÓN DE LOS LOGS
 
-LOGGING = {
-    "version": 1,
-    "formatters": {
-        "request_formatter": {
-            "format": "%(asctime)s  - %(name)s - %(levelname)s - %(module)s - %(process)s - %(thread)s -  %(message)s",
-            "datefmt": "%Y-%m-%d %H:%M:%S"
-        },
-    },
-    "handlers": {
-        "request": {
-            "level": os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-            "class": "logging.handlers.RotatingFileHandler",
-            "formatter": "request_formatter",
-            "filename": "app.log",
-            "maxBytes": 1024000*20, # 20 MB
-            "backupCount": 20
-        }
-    },
-    "loggers": {
-        'django.request': {
-            "handlers": ["request"]
-        },
-        'django': {
-            "handlers": ["request"]
-        },
-    },
-    "disable_existing_loggers": False
-}
+# LOGGING = {
+#     "version": 1,
+#     "formatters": {
+#         "request_formatter": {
+#             "format": "%(asctime)s  - %(name)s - %(levelname)s - %(module)s - %(process)s - %(thread)s -  %(message)s",
+#             "datefmt": "%Y-%m-%d %H:%M:%S"
+#         },
+#     },
+#     "handlers": {
+#         "request": {
+#             "level": os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+#             "class": "logging.handlers.RotatingFileHandler",
+#             "formatter": "request_formatter",
+#             "filename": "app.log",
+#             "maxBytes": 1024000*20, # 20 MB
+#             "backupCount": 20
+#         }
+#     },
+#     "loggers": {
+#         'django.request': {
+#             "handlers": ["request"]
+#         },
+#         'django': {
+#             "handlers": ["request"]
+#         },
+#     },
+#     "disable_existing_loggers": False
+# }
