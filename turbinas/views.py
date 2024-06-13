@@ -512,7 +512,6 @@ class CalcularResultadosTurbinaVapor(LoginRequiredMixin, View, ObtenerTurbinaVap
         presiones = transformar_unidades_presion(presiones, presion_unidad)
         temperaturas = transformar_unidades_temperatura(temperaturas, temperatura_unidad)
         potencia_real = transformar_unidades_potencia([potencia_real], potencia_real_unidad)[0]
-
         flujo_entrada = transformar_unidades_flujo([flujo_entrada], flujo_entrada_unidad)[0]        
 
         # Calcular Resultados
