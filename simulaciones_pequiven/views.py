@@ -45,10 +45,8 @@ class Login(LoginView):
     def post(self, request):
         try:
             res = super().post(self, request)
-            if(res.status_code == 403):
+            if(res.status_code in [403, 200]):
                 messages.warning(request, "Las credenciales ingresadas son inválidas.")
-            elif(res.status_code == 200):
-                messages.warning(request, "El usuario no existe o no tiene los permisos requeridos para acceder al sistema.")
 
             return res
 
