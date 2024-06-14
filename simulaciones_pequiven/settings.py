@@ -90,13 +90,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'intercambiadores',
     'auxiliares',
     'turbinas',
+    'calderas',
     'usuarios',
     'static',
-    'pwa',
 
+    'pwa',
     'templatetags',
     'mathfilters',
     'widget_tweaks',
