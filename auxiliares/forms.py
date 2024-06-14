@@ -141,19 +141,19 @@ class CondicionFluidoBombaForm(FormConUnidades):
 
     def clean_densidad(self):
         if(self.data.get('densidad') in (None, '') and self.data['calculo_propiedades'] == 'M'):
-            raise forms.ValidationError('Esta propiedad es requerida. Si no la tiene use el cálculo automático.')
+            raise forms.ValidationError('Esta propiedad es requerida. Si no la tiene use el cálculo automático para obtener el valor.')
         
         return self.data.get('densidad')
     
     def clean_viscosidad(self):
         if(self.data.get('viscosidad') in (None, '') and self.data['calculo_propiedades'] == 'M'):
-            raise forms.ValidationError('Esta propiedad es requerida. Si no la tiene use el cálculo automático.')
+            raise forms.ValidationError('Esta propiedad es requerida. Si no la tiene use el cálculo automático para obtener el valor.')
         
         return self.data.get('viscosidad')
     
     def clean_presion_vapor(self):
         if(self.data.get('presion_vapor') in (None, '') and self.data['calculo_propiedades'] == 'M'):
-            raise forms.ValidationError('Esta propiedad es requerida. Si no la tiene use el cálculo automático.')
+            raise forms.ValidationError('Esta propiedad es requerida. Si no la tiene use el cálculo automático para obtener el valor.')
         
         return self.data.get('presion_vapor')
     
