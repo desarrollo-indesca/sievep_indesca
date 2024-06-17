@@ -51,7 +51,7 @@ class Sobrecalentador(models.Model):
 
     temperatura_unidad = models.ForeignKey(Unidades, models.PROTECT, default=1, related_name="temperatura_unidad_sobrecalentador")
     presion_unidad = models.ForeignKey(Unidades, models.PROTECT, default=33, related_name="presion_unidad_sobrecalentador")
-    flujo_unidad = models.ForeignKey(Unidades, models.PROTECT, default=26, related_name="flujo_unidad_sobrecalentador")
+    flujo_unidad = models.ForeignKey(Unidades, models.PROTECT, default=6, related_name="flujo_unidad_sobrecalentador")
 
 class DimensionesCaldera(models.Model):
     ancho = models.FloatField()
@@ -155,7 +155,7 @@ class Corriente(models.Model):
     tipo = models.CharField(max_length=1, choices=TIPOS_CORRIENTES)
 
     flujo_masico = models.FloatField()
-    flujo_masico_unidad = models.ForeignKey(Unidades, models.PROTECT, default=26, related_name="flujomasico_unidad_corriente_calderas")
+    flujo_masico_unidad = models.ForeignKey(Unidades, models.PROTECT, default=6, related_name="flujomasico_unidad_corriente_calderas")
     densidad = models.FloatField()
     densidad_unidad = models.ForeignKey(Unidades, models.PROTECT, default=43, related_name="densidad_unidad_corriente_corriente_calderas")
     estado = models.CharField(max_length=1, choices=[('L','Líquido'), ('V', 'Vapor')])
