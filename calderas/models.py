@@ -38,8 +38,8 @@ class DimsSobrecalentador(models.Model):
     diametro_tubos = models.FloatField(null=True)
     num_tubos = models.IntegerField(null=True)
 
-    area_unidad = models.ForeignKey(Unidades, models.PROTECT, default=3, related_name="area_unidad_especificaciones")
-    diametro_unidad = models.ForeignKey(Unidades, models.PROTECT, default=4, related_name="diametro_unidad_especificaciones")
+    area_unidad = models.ForeignKey(Unidades, models.PROTECT, default=3, related_name="area_unidad_sobrecalentador")
+    diametro_unidad = models.ForeignKey(Unidades, models.PROTECT, default=4, related_name="diametro_unidad_sobrecalentador")
 
 class Sobrecalentador(models.Model):
     presion_operacion = models.FloatField()
@@ -98,11 +98,15 @@ class ComposicionCombustible(models.Model):
 class Chimenea(models.Model):
     diametro = models.FloatField(null=True)
     altura = models.FloatField(null=True)
+    dimensiones_unidad = models.ForeignKey(Unidades, models.PROTECT, default=4)
 
 class Economizador(models.Model):
     area_total_transferencia = models.FloatField(null=True)
     diametro_tubos = models.FloatField(null=True)
     numero_tubos = models.IntegerField(name=True)
+
+    area_unidad = models.ForeignKey(Unidades, models.PROTECT, default=3, related_name="area_unidad_economizador")
+    diametro_unidad = models.ForeignKey(Unidades, models.PROTECT, default=4, related_name="diametro_unidad_economizador")
 
 class Caldera(models.Model):
     planta = models.ForeignKey(Planta, on_delete=models.PROTECT, related_name="planta_caldera")
@@ -137,6 +141,7 @@ class ValorPorCarga(models.Model):
     carga = models.FloatField()
     valor_num = models.FloatField()
     caracteristica = models.ForeignKey(Caracteristica, models.PROTECT)
+    unidad = models.ForeignKey(Unidades, models.PROTECT)
 
 class Corriente(models.Model):
     TIPOS_CORRIENTES = [
@@ -148,11 +153,16 @@ class Corriente(models.Model):
 
     numero = models.CharField(max_length=45, unique=True)
     tipo = models.CharField(choices=TIPOS_CORRIENTES)
+
     flujo_masico = models.FloatField()
+    flujo_masico_unidad = models.ForeignKey(Unidades, models.PROTECT, default=26, related_name="flujomasico_unidad_corriente")
     densidad = models.FloatField()
+    densidad_unidad = models.ForeignKey(Unidades, models.PROTECT, default=43, related_name="densidad_unidad_corriente_corriente")
     estado = models.CharField(max_length=[('L','Líquido'), ('V', 'Vapor')])
     temp_operacion = models.FloatField()
+    temp_operacion_unidad = models.ForeignKey(Unidades, models.PROTECT, default=1, related_name="temp_operacion_unidad_corriente")
     presion = models.FloatField()
+    presion_unidad = models.ForeignKey(Unidades, models.PROTECT, default=1, related_name="presion_unidad_corriente")
     caldera = models.ForeignKey(Caldera, on_delete=models.PROTECT)
 
 ## EVALUACIONES
