@@ -232,6 +232,18 @@ class Corriente(models.Model):
 
 ## EVALUACIONES
 class SalidaBalanceEnergia(models.Model):
+    """
+    Resumen:
+        Modelo que contiene la información de balances de energía de salida de una evaluación.
+    
+    Atributos:
+        energia_entrada_gas: models.FloatField -> Energía de entrada del combustible gas
+        energia_entrada_aire: models.FloatField -> Energía de entrada del aire
+        energia_total_entrada: models.FloatField -> Energía de entrada total
+        energia_total_reaccion: models.FloatField -> Energía total de la reacción
+        energia_horno: models.FloatField -> Energía total del horno
+        energia_unidad: Unidades -> Unidad de Energía
+    """
     energia_entrada_gas = models.FloatField()
     energia_entrada_aire = models.FloatField()
     energia_total_entrada = models.FloatField()
@@ -241,6 +253,16 @@ class SalidaBalanceEnergia(models.Model):
     energia_unidad = models.ForeignKey(Unidades, models.PROTECT, default=4, related_name="energia_salida_agua_evaluacion")
 
 class SalidaLadoAgua(models.Model):
+    """
+    Resumen:
+        Modelo que contiene la información de la salida del lado agua de una evaluación.
+    
+    Atributos:
+        flujo_purga: models.FloatField -> Flujo de purga calculada
+        energia_vapor: models.FloatField -> Energía de vapor calculada
+        eficiencia: models.FloatField -> Eficiencia térmica calculada
+        flujo_unidad: Unidades -> Unidad del flujo
+    """
     flujo_purga = models.FloatField()
     energia_vapor = models.FloatField()
     eficiencia = models.FloatField()
@@ -248,6 +270,17 @@ class SalidaLadoAgua(models.Model):
     flujo_unidad = models.ForeignKey(Unidades, models.PROTECT, default=3, related_name="flujo_salida_agua_evaluacion")
 
 class SalidaFracciones(models.Model):
+    """
+    Resumen:
+        Modelo para almacenar la información de salida de evaluación correspondiente a las fracciones molares de los gases de combustión.
+
+    Atributos:
+        h2o: models.FloatField -> Fracción calculada de Agua
+        co2: models.FloatField -> Fracción calculada de Dióxido de Carbono
+        n2: models.FloatField -> Fracción calculada de Nitrógeno
+        so2: models.FloatField -> Fracción calculada de Óxido de Azufre
+        o2: models.FloatField -> Fracción calculada de Oxígeno
+    """
     h2o = models.FloatField()
     co2 = models.FloatField()
     n2 = models.FloatField()
@@ -255,12 +288,33 @@ class SalidaFracciones(models.Model):
     o2 = models.FloatField()
 
 class SalidaBalanceMolar(models.Model):
-    # Se asumen todas las unidades como kmol/h
+    """
+    Resumen:
+        Modelo para almacenar la información de salida de evaluación correspondiente a las fracciones molares de los gases de combustión.
+
+    Atributos:
+        n_gas_entrada: models.FloatField -> Números de kmol/h calculados
+        n_aire_gas_entrada: models.FloatField -> Números de kmol/h calculados
+        n_total: models.FloatField -> Números de kmol/h calculados
+    """
     n_gas_entrada = models.FloatField()
     n_aire_gas_entrada = models.FloatField()
     n_total = models.FloatField()
 
 class SalidaFlujosEntrada(models.Model):
+    """
+    Resumen:
+        Modelo para almacenar la información de salida de evaluación correspondiente a las fracciones molares de los gases de combustión.
+
+    Atributos:
+        flujo_gas_entrada: models.FloatField -> Flujo de gas de entrada
+        flujo_aire_entrada: models.FloatField -> Flujo de aire de entrada
+        flujo_combustion: models.FloatField -> Flujo de combustión
+        flujo_combustion_vol: models.FloatField -> Flujo de combustión volumétrico
+        porc_o2_exceso: models.FloatField -> Porcentaje de O2 en exceso
+        flujo_masico_unidad: models.FloatField -> Unidades en la cual se encuentran las propiedades (másico)
+        flujo_vol_unidad: models.FloatField -> Unidades en la cual se encuentran las propiedades (volumétrico)
+    """
     flujo_gas_entrada = models.FloatField()
     flujo_aire_entrada = models.FloatField()
     flujo_combustion = models.FloatField()
@@ -271,8 +325,24 @@ class SalidaFlujosEntrada(models.Model):
     flujo_vol_unidad = models.ForeignKey(Unidades, models.PROTECT, related_name="flujo_volumetrico_unidad_salida_flujos_evaluacion")
 
 class Evaluacion(models.Model):
+    """
+    Resumen:
+        Modelo general para almacenar la información de una evaluación realizada a una caldera en un momento determinado por un usuario.
+
+    Atributos:
+        nombre: models.CharField -> Nombre de la evaluación
+        fecha: models.DateTimeField -> Fecha y hora de la evaluación realizada
+        usuario: User -> Usuario que realizó la evaluación 
+        salida_flujos: SalidaFlujosEntrada -> Datos de Salida de los flujos de entrada 
+        salida_balance_molar: SalidaBalanceMolar -> Datos de salida del balance molar asociado
+        salida_fracciones: SalidaFracciones -> Fracciones de los gases de salida calculados en la evaluación
+        salida_balance_energia: SalidaBalanceEnergia -> Datos de salida de los balances de energia
+        salida_lado_agua: SalidaLadoAgua -> Datos de Salida del lado de agua
+        caldera: Caldera -> Caldera a la que está asociada la caldera
+    """
     nombre = models.CharField(max_length=45)
     fecha = models.DateTimeField(auto_created=True)
+    usuario = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, default=1, related_name="usuario_evaluacion_caldera")
 
     salida_flujos = models.ForeignKey(SalidaFlujosEntrada, models.PROTECT)
     salida_balance_molar = models.ForeignKey(SalidaBalanceMolar, models.PROTECT)
@@ -282,6 +352,20 @@ class Evaluacion(models.Model):
     caldera = models.ForeignKey(Caldera, models.PROTECT)
 
 class EntradasFluidos(models.Model):
+    """
+    Resumen:
+        Modelo general para almacenar la información de una evaluación realizada a una caldera en un momento determinado por un usuario.
+
+    Atributos:
+        nombre_fluido: models.CharField -> Nombre del fluido
+        flujo: models.FloatField -> Flujo del fluido
+        temperatura: models.FloatField -> Temperatura del fluido
+        presion: models.FloatField -> Presión del fluido
+        tipo_fluido: models.CharField -> Tipo de fluido de entrada de la evaluación
+        humedad_relativa: models.FloatField -> % Humedad relativa. Se utiliza en el aire.
+        evaluacion: Evaluacion -> Evaluación a la cual está asociada la entrada.
+    """
+
     TIPOS_FLUIDOS = [
         ("G","Gas"),
         ("A","Aire"),
@@ -298,3 +382,23 @@ class EntradasFluidos(models.Model):
     tipo_fluido = models.CharField(max_length=1, choices=TIPOS_FLUIDOS)
     humedad_relativa = models.FloatField(null=True, blank=True)
     evaluacion = models.ForeignKey(Evaluacion, models.PROTECT)
+
+class EntradaComposicion(models.Model):
+    """
+    Resumen:
+        Modelo para almacenar la entrada de composición de los componentes de combostible.
+
+    Atributos:
+        parc_vol: models.FloatField -> Composición parcial (volumen) del fluido
+        parc_aire: models.FloatField ->  Composición parcial aire
+        normalizado: models.FloatField -> Composición normalizada (0-1)
+        normalizado_aire: models.FloatField -> Composición normalizada aire (0-1)
+        composicion: ComposicionCombustible ->  Composición original
+        evaluacion: Evaluacion -> Evaluación asociada a 
+    """
+    parc_vol = models.FloatField()
+    parc_aire = models.FloatField()
+    normalizado = models.FloatField()
+    normalizado_aire = models.FloatField(null=False, blank=True)
+    composicion = models.ForeignKey(ComposicionCombustible, models.PROTECT)
+    evaluacion = models.ForeignKey(Evaluacion, models.PROTECT, related_name="composiciones_evaluacion")
