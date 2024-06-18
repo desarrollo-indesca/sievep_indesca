@@ -109,6 +109,31 @@ class Economizador(models.Model):
     diametro_unidad = models.ForeignKey(Unidades, models.PROTECT, default=4, related_name="diametro_unidad_economizador")
 
 class Caldera(models.Model):
+    """
+    Resumen:
+        Modelo que contiene la información general de identificación de Calderas. Es el modelo central de las calderas.
+
+    Atributos:
+        planta: models.ForeignKey -> Planta o Instalación donde se encuentra el equipo.
+        tag: models.CharField -> Etiqueta única de identificación del equipo.
+        descripcion: models.CharField -> Descripción de las funciones del equipo.
+        fabricante: models.CharField -> Fabricante del equipo según ficha.
+        modelo: models.CharField -> Modelo de la caldera.
+        tipo_caldera: models.CharField -> Descripción del tipo de la caldera.
+        accesorios: models.CharField -> Marca de los accesorios de la caldera.
+        sobrecalentador: Sobrecalentador -> Sobrecalentador asociado a la caldera.
+        tambor: Tambor -> Tambor asociado a la caldera.  
+        dimensiones: DimensionesCaldera -> Dimensiones de la caldera.  
+        especificaciones: EspecificacionesCalderas -> Especificaciones asociadas a la caldera.  
+        combustible: Combustible -> Información del combustible utilizado en la caldera.  
+        chimenea: Chimenea -> Datos de la chimenea asociada a la caldera. 
+        economizador: Economizador -> Datos del economizador asociado a la caldera.  
+        creado_al: models.DateTimeField -> Fecha y hora de creación de la caldera.
+        editado_al: models.DateTimeField ->  Fecha y hora de última edición de la caldera.
+        creado_por: models.ForeignKey -> Usuario que creó la caldera
+        editado_por: models.ForeignKey ->  Usuario que editó por última vez la caldera
+    """
+
     planta = models.ForeignKey(Planta, on_delete=models.PROTECT, related_name="planta_caldera")
     tag = models.CharField(max_length=20, unique=True)
     descripcion = models.CharField(max_length=100, verbose_name="Descripción")
@@ -131,19 +156,58 @@ class Caldera(models.Model):
     editado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, null = True, related_name="caldera_editada_por")
 
 class Caracteristica(models.Model):
-    clase = models.CharField(max_length=1)
+    """
+    Resumen:
+        Modelo que contiene la información general de una característica
+
+    Atributos:
+        nombre: models.CharField -> Nombre de la característica
+        tipo_unidad: models.CharField -> Tipo de Unidad asociada
+        caldera: Caldera -> Caldera en la que se encuentra la característica
+    """
     nombre = models.CharField(max_length=45)
     tipo_unidad = models.CharField(max_length=1)
     caldera = models.ForeignKey(Caldera, on_delete=models.PROTECT)
 
 class ValorPorCarga(models.Model):
-    tipo = models.CharField(max_length=1)
+    """
+    Resumen:
+        Modelo que contiene la información del valor de una característica de la caldera por carga.
+
+    Atributos:
+        carga: models.FloatField -> Valor (PORCENTUAL) de la carga
+        valor_num: models.FloatField -> Valor de la característica
+        caracteristica: Caracteristica -> Característica a la que está asociado el valor y la carga
+        unidad: Unidades -> Unidad de medida de la magnitud de la característica
+    """
     carga = models.FloatField()
     valor_num = models.FloatField()
     caracteristica = models.ForeignKey(Caracteristica, models.PROTECT)
     unidad = models.ForeignKey(Unidades, models.PROTECT)
 
 class Corriente(models.Model):
+    """
+    Resumen:
+        Modelo que contiene la información general de las corrientes que circulan por la caldera.
+
+    Atributos:
+        TIPOS_CORRIENTES: list -> Lista de los tipos de corrientes que deben ser registrados en la caldera.
+
+        numero: models.CharField -> Número asociado a la corriente.
+        nombre: models.CharField -> Nombre asociado de la corriente.
+        tipo: models.CharField -> Tipo de corriente registrada.
+        flujo_masico: models.FloatField -> Flujo másico circulante
+        flujo_masico_unidad: Unidades -> Unidad asociada al flujo másico
+        densidad: models.FloatField -> Densidad del fluido circulante
+        densidad_unidad: Unidades -> Unidad asociada a la densidad
+        estado: models.CharField -> Estado (L o V) del fluido
+        temp_operacion: models.FloatField -> Temperatura de operación de la corriente
+        temp_operacion_unidad: Unidades -> Unidad de la temperatura de operación
+        presion: models.FloatField -> Presión bajo la que está sometida la corriente 
+        presion_unidad: Unidades -> Unidad de la presión
+        caldera: Caldera -> Caldera de la corriente
+    """
+
     TIPOS_CORRIENTES = [
         ('V', "Vapor de Alta Presión"),
         ('A', "Agua"),
@@ -151,17 +215,18 @@ class Corriente(models.Model):
         ('V', "Vapor de Baja Presión"),
     ]
 
-    numero = models.CharField(max_length=45, unique=True)
+    numero = models.CharField(max_length=20, null=True)
+    nombre = models.CharField(max_length=45, null=True)
     tipo = models.CharField(max_length=1, choices=TIPOS_CORRIENTES)
 
-    flujo_masico = models.FloatField()
+    flujo_masico = models.FloatField(null=True)
     flujo_masico_unidad = models.ForeignKey(Unidades, models.PROTECT, default=6, related_name="flujomasico_unidad_corriente_calderas")
-    densidad = models.FloatField()
+    densidad = models.FloatField(null=True)
     densidad_unidad = models.ForeignKey(Unidades, models.PROTECT, default=43, related_name="densidad_unidad_corriente_corriente_calderas")
     estado = models.CharField(max_length=1, choices=[('L','Líquido'), ('V', 'Vapor')])
-    temp_operacion = models.FloatField()
+    temp_operacion = models.FloatField(null=True)
     temp_operacion_unidad = models.ForeignKey(Unidades, models.PROTECT, default=1, related_name="temp_operacion_unidad_corriente_calderas")
-    presion = models.FloatField()
+    presion = models.FloatField(null=True)
     presion_unidad = models.ForeignKey(Unidades, models.PROTECT, default=1, related_name="presion_unidad_corriente_calderas")
     caldera = models.ForeignKey(Caldera, on_delete=models.PROTECT)
 
