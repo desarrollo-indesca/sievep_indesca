@@ -148,9 +148,9 @@ def transformar_unidades_calor(args: list, unidad: int, unidad_salida: int = 28)
     '''
     actualizadas = []
     unidad_salida = ur.watt if unidad_salida == 28 else ur.Btu_it/ur.hour if unidad_salida == 24 else ur.Btu_it/ur.second \
-        if unidad_salida == 25 else ur.kcal/ur.hour
+        if unidad_salida == 25 else ur.Btu_it*1e6/ur.hour if unidad == 62 else  ur.kcal/ur.hour
     unidad = ur.watt if unidad == 28 else ur.Btu_it/ur.hour if unidad == 24 else ur.Btu_it/ur.second \
-        if unidad == 25 else ur.kcal/ur.hour
+        if unidad == 25 else ur.Btu_it*1e6/ur.hour if unidad == 62 else  ur.kcal/ur.hour
 
     actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
@@ -343,6 +343,30 @@ def transformar_unidades_entalpia_masica(args: list, unidad: int, unidad_salida:
     '''
     def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
         return ur.Btu_it/ur.pound if unidad == 55 else ur.kilocalorie/ur.kilogram if unidad == 56 else ur.joule/ur.kilogram
+
+    actualizadas = []
+    unidad_salida = obtener_unidad(unidad_salida)
+    unidad = obtener_unidad(unidad)
+    
+    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
+
+    return actualizadas
+
+def transformar_unidades_tiempo(args: list, unidad: int, unidad_salida: int = 65):
+    '''
+    Resumen:
+        Función para transformar unidades de tiempo.
+
+    Parámetros:
+        args: list -> Lista de valores a transformar
+        unidad: int -> ID de la unidad de entrada
+        unidad_salida: int -> ID de la unidad de salida. De no dar ninguna devolverá en segundos.
+
+    Devuelve:
+        list -> Lista de valores transformados a la unidad de salida
+    '''
+    def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
+        return ur.hour if unidad == 63 else ur.minute if unidad == 64 else ur.second
 
     actualizadas = []
     unidad_salida = obtener_unidad(unidad_salida)

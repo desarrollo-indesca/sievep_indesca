@@ -27,7 +27,7 @@ AUTH_LDAP_GLOBAL_OPTIONS = {
     ldap.OPT_REFERRALS: 0,
     ldap.OPT_X_TLS_CACERTFILE: '/etc/ssl/certs/mycertfile.pem'
 }
-AUTH_LDAP_SERVER_URI = 'ldap://172.20.30.135'
+AUTH_LDAP_SERVER_URI = 'ldap://172.20.30.109'
 AUTH_LDAP_BIND_DN = "CN=bind,CN=Users,DC=indesca,DC=local"
 AUTH_LDAP_BIND_PASSWORD = "indesca2024+"
 AUTH_LDAP_USER_SEARCH = LDAPSearch(
