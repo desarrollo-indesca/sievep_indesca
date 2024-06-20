@@ -54,6 +54,36 @@ class Command(BaseCommand):
         },
     }
 
+    calderas_con_caracteristicas = ["C-14", "C-15", "C-16", "C-17"]
+    porcentajes_carga = [25, 50, 75, 100]
+    caracteristicas = [
+        ("Vapor", "vapor"),
+        ("Duración de la carga", "duracion_carga"),
+        ("Aire de Exceso en la Salida", "aire_exceso"),
+        ("Continuous Blowdown", "continuous_blowdown"),
+        ("Combustible", "combustible"),
+        ("Aire de Combustión", "aire_combustion"),
+        ("Gas Combustible en la Salida", "gas_combustible_salida"),
+        ("Vapor en la Salida del Precalentador", "vapor_precalentador"),
+        ("Operación Mínima en el Tambor", "operacion_minima_tambor"),
+        ("Caída de Presión en Tambor en la Salida Precalentador", "caida_presion_minima_tambor"),
+        ("Vapor Sobrecalentado", "vapor_sobrecalentado"),
+        ("Gas Combustible de Salida FRN", "gas_combustible_FRN"),
+        ("Gas Combustible en la Salida Rehervidor", "gas_combustible_rehervidor"),
+        ("Gas Combustible en Válvula Autocontrol", "gas_combustible_autocontrol"),
+        ("Agua en la Entrada del Economizador", "agua_entrada_economizador"),
+        ("Agua de Entrada a Rehervidor", "agua_entrada_rehervidor"),
+        ("Sobrecalentador", "sobrecalentador"),
+        ("Sección de Caldera", "seccion_caldera"),
+        ("(%) Gas Seco", "gas_seco"),
+        ("H2 y H2O en el combustible (%)", "h2_combustible"),
+        ("Aire Húmedo (%)", "aire_humedo"),
+        ("Combustible no Quemado (%)", "combustible_no_quemado"),
+        ("Radiación (%)", "radiacion"),
+        ("Error de manufactura  (%)", "error_manufactura"),
+        
+    ]
+
     def handle(self, *args, **options):
         data = []
 
@@ -160,3 +190,19 @@ class Command(BaseCommand):
                 )
 
                 # Corrientes y otros modelos que hagan referencia a la caldera
+
+                if(caldera.tag in self.calderas_con_caracteristicas):
+                    vapor = Caracteristica.objects.create(
+                        nombre = "Vapor",
+                        tipo_unidad = "F",
+                        caldera = caldera
+                    )
+
+                    for porcentaje in self.porcentajes_carga:
+                        carga = ValorPorCarga.objects.create(
+                            carga = porcentaje,
+                            valor_num = 
+                        )
+
+                    
+
