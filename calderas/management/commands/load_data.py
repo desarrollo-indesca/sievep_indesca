@@ -57,31 +57,34 @@ class Command(BaseCommand):
     calderas_con_caracteristicas = ["C-14", "C-15", "C-16", "C-17"]
     porcentajes_carga = [25, 50, 75, 100]
     caracteristicas = [
-        ("Vapor", "vapor"),
-        ("Duración de la carga", "duracion_carga"),
-        ("Aire de Exceso en la Salida", "aire_exceso"),
-        ("Continuous Blowdown", "continuous_blowdown"),
-        ("Combustible", "combustible"),
-        ("Aire de Combustión", "aire_combustion"),
-        ("Gas Combustible en la Salida", "gas_combustible_salida"),
-        ("Vapor en la Salida del Precalentador", "vapor_precalentador"),
-        ("Operación Mínima en el Tambor", "operacion_minima_tambor"),
-        ("Caída de Presión en Tambor en la Salida Precalentador", "caida_presion_minima_tambor"),
-        ("Vapor Sobrecalentado", "vapor_sobrecalentado"),
-        ("Gas Combustible de Salida FRN", "gas_combustible_FRN"),
-        ("Gas Combustible en la Salida Rehervidor", "gas_combustible_rehervidor"),
-        ("Gas Combustible en Válvula Autocontrol", "gas_combustible_autocontrol"),
-        ("Agua en la Entrada del Economizador", "agua_entrada_economizador"),
-        ("Agua de Entrada a Rehervidor", "agua_entrada_rehervidor"),
-        ("Sobrecalentador", "sobrecalentador"),
-        ("Sección de Caldera", "seccion_caldera"),
-        ("(%) Gas Seco", "gas_seco"),
-        ("H2 y H2O en el combustible (%)", "h2_combustible"),
-        ("Aire Húmedo (%)", "aire_humedo"),
-        ("Combustible no Quemado (%)", "combustible_no_quemado"),
-        ("Radiación (%)", "radiacion"),
-        ("Error de manufactura  (%)", "error_manufactura"),
-        
+        ("Vapor", "vapor", "F", 54),
+        ("Duración de la carga", "duracion_carga", "I", 63),
+        ("Aire de Exceso en la Salida (%)", "aire_exceso", None, None),
+        ("Continuous Blowdown", "continuous_blowdown", "F", 54),
+        ("Combustible", "combustible", "F", 54),
+        ("Aire de Combustión", "aire_combustion", "F", 54),
+        ("Gas Combustible en la Salida", "gas_combustible_salida", "F", 54),
+        ("Vapor en la Salida del Precalentador", "vapor_precalentador", "P", 33),
+        ("Operación Mínima en el Tambor", "operacion_minima_tambor", "P", 33),
+        ("Caída de Presión en Tambor en la Salida Precalentador", "caida_presion_minima_tambor", "P", 33),
+        ("Vapor Sobrecalentado", "vapor_sobrecalentado", "T", 1),
+        ("Gas Combustible de Salida FRN", "gas_combustible_FRN", "T", 1),
+        ("Gas Combustible en la Salida Rehervidor", "gas_combustible_rehervidor", "T", 1),
+        ("Gas Combustible en Válvula Autocontrol", "gas_combustible_autocontrol", "T", 1),
+        ("Agua en la Entrada del Economizador", "agua_entrada_economizador", "T", 1),
+        ("Agua de Entrada a Rehervidor", "agua_entrada_rehervidor", "T", 1),
+        ("Sobrecalentador", "sobrecalentador", "P", 33),
+        ("Sección de Caldera", "seccion_caldera", "P", 33),
+        ("(%) Gas Seco", "gas_seco", None, None),
+        ("H2 y H2O en el combustible (%)", "h2_combustible", None, None),
+        ("Aire Húmedo (%)", "aire_humedo", None, None),
+        ("Combustible no Quemado (%)", "combustible_no_quemado", None, None),
+        ("Radiación (%)", "radiacion", None, None),
+        ("Error de manufactura  (%)", "error_manufactura", None, None),
+        ("Pérdida de Calor Total (%)", "perdida_calor_total", None, None),
+        ("Eficiencia (%)", "eficiencia", None, None),
+        ("Máximo de concentracion de Partículas en el Rehervidor", "maximo_particulas", '%', 37),
+        ("FGR (%)", "fgr", None, None)
     ]
 
     def handle(self, *args, **options):
@@ -191,18 +194,113 @@ class Command(BaseCommand):
 
                 # Corrientes y otros modelos que hagan referencia a la caldera
 
-                if(caldera.tag in self.calderas_con_caracteristicas):
-                    vapor = Caracteristica.objects.create(
-                        nombre = "Vapor",
-                        tipo_unidad = "F",
-                        caldera = caldera
+                if(caldera.tag in self.calderas_con_caracteristicas):                    
+                    for caracteristica in self.caracteristicas:
+                        car = Caracteristica.objects.create(
+                            nombre = caracteristica[0],
+                            tipo_unidad = caracteristica[2],
+                            caldera = caldera
+                        )
+                        
+                        for porcentaje in self.porcentajes_carga:
+                            carga = ValorPorCarga.objects.create(
+                                carga = porcentaje,
+                                valor_num = data[f"{caracteristica[1]}_{porcentaje}"],
+                                caracteristica = car,
+                                unidad = Unidades.objects.get(pk = caracteristica[3])
+                            )
+
+                    # Ciclo de corrientes
+                    Corriente.objects.create(
+                        numero = "Corriente #5",
+                        nombre = "Vapor sobrecalentado antes Atemperación",
+                        tipo = "P",
+                        flujo_masico = data.get("flujo_c5_2", data.get("flujo_vapor_c5_2")),
+                        densidad = data["densidad_c5_2"],
+                        estado = None,
+                        temp_operacion = data["temp_c5_2"],
+                        presion = data["presion_c5_2"],
+                        caldera = caldera,                   
                     )
 
-                    for porcentaje in self.porcentajes_carga:
-                        carga = ValorPorCarga.objects.create(
-                            carga = porcentaje,
-                            valor_num = 
-                        )
+                    Corriente.objects.create(
+                        numero = "Corriente #6",
+                        nombre = "Vapor de Baja Presión",
+                        tipo = "B",
+                        flujo_masico = data.get("flujo_c6_2", data.get("flujo_vapor_c6_2")),
+                        temp_operacion = data["temp_c6_2"],
+                        presion = data["presion_c6_2"],
+                        caldera = caldera,                   
+                    )
 
-                    
+                    Corriente.objects.create(
+                        numero = "Corriente #3",
+                        nombre = "Agua de Alimentación a Caldera",
+                        tipo = "W",
+                        flujo_masico = data.get("flujo_c3", data.get("flujo_vapor_c3")),
+                        densidad = data["densidad_c3"],
+                        estado = data["estado_c3"],
+                        temp_operacion = data["temp_operacion_c3"],
+                        presion = data["presion_c3"],
+                        caldera = caldera,                   
+                    )
 
+                    Corriente.objects.create(
+                        numero = "Corriente #7",
+                        nombre = "Vapor de Alta Saturado al Sistema de Automatización",
+                        tipo = "A",
+                        flujo_masico = data.get("flujo_c7", data.get("flujo_vapor_c7")),
+                        densidad = data["densidad_c7"],
+                        temp_operacion = data["temp_c7"],
+                        presion = data["presion_c7"],
+                        caldera = caldera,                   
+                    )
+                else:
+                    # Ciclo de corrientes
+                    Corriente.objects.create(
+                        numero = "Corriente #3",
+                        nombre = "Agua de Alimentación a Caldera",
+                        tipo = "W",
+                        flujo_masico = data.get("flujo_c3", data.get("flujo_vapor_c3")),
+                        densidad = data["densidad_c3"],
+                        estado = data["estado_c3"],
+                        temp_operacion = data["temp_operacion_c3"],
+                        presion = data["presion_c3"],
+                        caldera = caldera,                   
+                    )
+
+                    Corriente.objects.create(
+                        numero = "Corriente #5",
+                        nombre = "Vapor sobrecalentado antes Atemperación",
+                        tipo = "B",
+                        flujo_masico = data.get("flujo_c5", data.get("flujo_vapor_c5")),
+                        densidad = data["densidad_c5"],
+                        estado = data["estado_c5"],
+                        temp_operacion = data["temp_operacion_c5"],
+                        presion = data["presion_c5"],
+                        caldera = caldera,                   
+                    )
+
+                    Corriente.objects.create(
+                        numero = "Corriente #6",
+                        nombre = "Purga Continua",
+                        tipo = "P",
+                        flujo_masico = data.get("flujo_c6", data.get("flujo_vapor_c6")),
+                        densidad = data["densidad_c6"],
+                        estado = data["estado_c6"],
+                        temp_operacion = data["temp_operacion_c6"],
+                        presion = data["presion_c6"],
+                        caldera = caldera,                   
+                    )
+
+                    Corriente.objects.create(
+                        numero = "Corriente #9",
+                        nombre = "Vapor de Alta Saturado al Sistema de Automatización",
+                        tipo = "A",
+                        flujo_masico = data.get("flujo_c9", data.get("flujo_vapor_c9")),
+                        densidad = data["densidad_c9"],
+                        estado = data["estado_c9"],
+                        temp_operacion = data["temp_operacion_c9"],
+                        presion = data["presion_c9"],
+                        caldera = caldera,                   
+                    )

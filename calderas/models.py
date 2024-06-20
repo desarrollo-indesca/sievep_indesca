@@ -332,10 +332,10 @@ class Corriente(models.Model):
     """
 
     TIPOS_CORRIENTES = [
-        ('V', "Vapor de Alta Presión"),
-        ('A', "Agua"),
+        ('A', "Vapor de Alta Presión"),
+        ('W', "Agua"),
         ('P', "Purga"),
-        ('V', "Vapor de Baja Presión"),
+        ('B', "Vapor de Baja Presión"),
     ]
 
     numero = models.CharField(max_length=20, null=True)
@@ -344,10 +344,10 @@ class Corriente(models.Model):
 
     flujo_masico = models.FloatField(null=True)
     flujo_masico_unidad = models.ForeignKey(Unidades, models.PROTECT, default=6, related_name="flujomasico_unidad_corriente_calderas")
-    densidad = models.FloatField(null=True)
+    densidad = models.FloatField(null=True, blank=True)
     densidad_unidad = models.ForeignKey(Unidades, models.PROTECT, default=43, related_name="densidad_unidad_corriente_corriente_calderas")
-    estado = models.CharField(max_length=1, choices=[('L','Líquido'), ('V', 'Vapor')])
-    temp_operacion = models.FloatField(null=True)
+    estado = models.CharField(max_length=1, choices=[('L','Líquido'), ('V', 'Vapor')], null=True, blank=True)
+    temp_operacion = models.FloatField(null=True, blank=True)
     temp_operacion_unidad = models.ForeignKey(Unidades, models.PROTECT, default=1, related_name="temp_operacion_unidad_corriente_calderas")
     presion = models.FloatField(null=True)
     presion_unidad = models.ForeignKey(Unidades, models.PROTECT, default=1, related_name="presion_unidad_corriente_calderas")
