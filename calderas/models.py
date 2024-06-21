@@ -50,9 +50,12 @@ class SeccionTambor(models.Model):
     seccion = models.CharField(max_length=1, choices=SECCIONES)
     diametro = models.FloatField(null=True, blank = True)
     longitud = models.FloatField(null=True, blank = True)
-    tambor = models.ForeignKey(Tambor, models.PROTECT)
+    tambor = models.ForeignKey(Tambor, models.PROTECT, related_name="secciones_tambor")
 
     dimensiones_unidad = models.ForeignKey(Unidades, models.PROTECT, default=4)
+
+    class Meta:
+        ordering = ('seccion',)
 
 class DimsSobrecalentador(models.Model):
     """
@@ -194,9 +197,12 @@ class ComposicionCombustible(models.Model):
         fluido: models.FloatField -> Fluido o Compuesto puro de la composición
     """
     porc_vol = models.FloatField()
-    porc_aire = models.FloatField()
-    combustible = models.ForeignKey(Combustible, models.PROTECT)
+    porc_aire = models.FloatField(null=True, blank=True)
+    combustible = models.ForeignKey(Combustible, models.PROTECT, related_name="composicion_combustible_caldera")
     fluido = models.ForeignKey(Fluido, models.PROTECT)
+
+    class Meta:
+        ordering = ("-porc_vol","-porc_vol")
 
 class Chimenea(models.Model):
     """
@@ -277,6 +283,9 @@ class Caldera(models.Model):
     editado_al = models.DateTimeField(null = True)
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="caldera_creada_por")
     editado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, null = True, related_name="caldera_editada_por")
+
+    class Meta:
+        ordering = ("tag",)
 
 class Caracteristica(models.Model):
     """
