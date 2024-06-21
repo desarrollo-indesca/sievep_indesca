@@ -96,6 +96,7 @@ class Command(BaseCommand):
 
 
         for caldera in data:
+            print(caldera["tag"])
             if(not Caldera.objects.filter(tag=caldera["tag"]).count()):
                 with transaction.atomic():
                     # Componentes que no hagan referencia al modelo Caldera
@@ -219,8 +220,7 @@ class Command(BaseCommand):
                                 )
 
                         # Ciclo de corrientes
-                        print("Corriente #5")
-                        
+                        print("Corriente #5")                        
                         Corriente.objects.create(
                             numero = "Corriente #5",
                             nombre = "Vapor sobrecalentado antes Atemperación",
@@ -232,8 +232,8 @@ class Command(BaseCommand):
                             presion = caldera["presion_c5_2"] if caldera["presion_c5_2"] else None,
                             caldera = caldera_obj,                   
                         )
-                        print("Corriente #6")
 
+                        print("Corriente #6")
                         Corriente.objects.create(
                             numero = "Corriente #6",
                             nombre = "Vapor de Baja Presión",
@@ -243,8 +243,8 @@ class Command(BaseCommand):
                             presion = caldera["presion_c6_2"] if caldera["presion_c6_2"] else None,
                             caldera = caldera_obj,                   
                         )
-                        print("Corriente #3")
 
+                        print("Corriente #3")
                         Corriente.objects.create(
                             numero = "Corriente #3",
                             nombre = "Agua de Alimentación a Caldera",
@@ -256,8 +256,8 @@ class Command(BaseCommand):
                             presion = caldera["presion_c3"] if caldera["presion_c3"] else None,
                             caldera = caldera_obj,                   
                         )
-                        print("Corriente #7")
 
+                        print("Corriente #7")
                         Corriente.objects.create(
                             numero = "Corriente #7",
                             nombre = "Vapor de Alta Saturado al Sistema de Automatización",
@@ -270,8 +270,10 @@ class Command(BaseCommand):
                         )
                     else:
                         # Ciclo de corrientes
-                        try:
-                            Corriente.objects.create(
+                        if(caldera["flujo_c3"] == ""):
+                            continue
+
+                        Corriente.objects.create(
                                 numero = "Corriente #3",
                                 nombre = "Agua de Alimentación a Caldera",
                                 tipo = "W",
@@ -281,9 +283,7 @@ class Command(BaseCommand):
                                 temp_operacion = caldera["temp_operacion_c3"] if caldera["temp_operacion_c3"] else None,
                                 presion = caldera["presion_c3"] if caldera["presion_c3"] else None,
                                 caldera = caldera_obj,                   
-                            )
-                        except:
-                            continue
+                        )
                         print("Corriente #5")
 
                         Corriente.objects.create(
