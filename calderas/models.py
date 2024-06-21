@@ -94,10 +94,10 @@ class Sobrecalentador(models.Model):
         presion_unidad: Unidades -> Unidad de la magnitud correspondiente
         flujo_unidad: Unidades -> Unidad de la magnitud correspondiente  
     """
-    presion_operacion = models.FloatField()
-    temp_operacion = models.FloatField()
-    presion_diseno = models.FloatField()
-    flujo_max_continuo = models.FloatField()
+    presion_operacion = models.FloatField(null=True, blank=True)
+    temp_operacion = models.FloatField(null=True, blank=True)
+    presion_diseno = models.FloatField(null=True, blank=True)
+    flujo_max_continuo = models.FloatField(null=True, blank=True)
 
     dims = models.OneToOneField(DimsSobrecalentador, models.PROTECT)
 
@@ -116,9 +116,9 @@ class DimensionesCaldera(models.Model):
         alto: models.FloatField -> Alto de la caldera
         dimensiones_unidad: Unidades -> Dimensión         
     """
-    ancho = models.FloatField()
-    largo = models.FloatField()
-    alto = models.FloatField()
+    ancho = models.FloatField(null=True, blank=True)
+    largo = models.FloatField(null=True, blank=True)
+    alto = models.FloatField(null=True, blank=True)
     dimensiones_unidad = models.ForeignKey(Unidades, models.PROTECT, default=4)
 
 class EspecificacionesCaldera(models.Model):
@@ -262,12 +262,12 @@ class Caldera(models.Model):
     descripcion = models.CharField(max_length=100, verbose_name="Descripción")
     fabricante = models.CharField(max_length=45, null = True, blank = True)
     modelo = models.CharField(max_length=45, null = True, blank = True)
-    tipo_caldera = models.CharField(max_length=45, null = True, blank = True)
+    tipo_caldera = models.CharField(max_length=50, null = True, blank = True)
     accesorios = models.CharField(max_length=45, null = True, blank = True)
 
     sobrecalentador = models.OneToOneField(Sobrecalentador, models.CASCADE)
     tambor = models.OneToOneField(Tambor, models.PROTECT)
-    dimensiones = models.OneToOneField(DimsSobrecalentador, models.PROTECT)
+    dimensiones = models.OneToOneField(DimensionesCaldera, models.PROTECT)
     especificaciones = models.OneToOneField(EspecificacionesCaldera, models.PROTECT)
     combustible = models.OneToOneField(Combustible, models.PROTECT)
     chimenea = models.OneToOneField(Chimenea, models.PROTECT)
@@ -339,7 +339,7 @@ class Corriente(models.Model):
     ]
 
     numero = models.CharField(max_length=20, null=True)
-    nombre = models.CharField(max_length=45, null=True)
+    nombre = models.CharField(max_length=55, null=True)
     tipo = models.CharField(max_length=1, choices=TIPOS_CORRIENTES)
 
     flujo_masico = models.FloatField(null=True)
