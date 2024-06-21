@@ -288,8 +288,8 @@ class Caracteristica(models.Model):
         tipo_unidad: models.CharField -> Tipo de Unidad asociada
         caldera: Caldera -> Caldera en la que se encuentra la característica
     """
-    nombre = models.CharField(max_length=45)
-    tipo_unidad = models.CharField(max_length=1)
+    nombre = models.CharField(max_length=80)
+    tipo_unidad = models.CharField(max_length=1, null=True, blank=True)
     caldera = models.ForeignKey(Caldera, on_delete=models.PROTECT)
 
 class ValorPorCarga(models.Model):
@@ -306,7 +306,7 @@ class ValorPorCarga(models.Model):
     carga = models.FloatField()
     valor_num = models.FloatField()
     caracteristica = models.ForeignKey(Caracteristica, models.PROTECT)
-    unidad = models.ForeignKey(Unidades, models.PROTECT)
+    unidad = models.ForeignKey(Unidades, models.PROTECT, null=True, blank=True)
 
 class Corriente(models.Model):
     """
@@ -339,7 +339,7 @@ class Corriente(models.Model):
     ]
 
     numero = models.CharField(max_length=20, null=True)
-    nombre = models.CharField(max_length=55, null=True)
+    nombre = models.CharField(max_length=80, null=True)
     tipo = models.CharField(max_length=1, choices=TIPOS_CORRIENTES)
 
     flujo_masico = models.FloatField(null=True)

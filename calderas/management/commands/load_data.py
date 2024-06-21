@@ -96,180 +96,155 @@ class Command(BaseCommand):
 
 
         for caldera in data:
-            with transaction.atomic():
-                # Componentes que no hagan referencia al modelo Caldera
-                tambor = Tambor.objects.create(
-                    presion_operacion = caldera["presion_operacion_tambor"] if caldera["presion_operacion_tambor"] else None,
-                    temp_operacion = caldera["temp_operacion_tambor"] if caldera["temp_operacion_tambor"] else None,
-                    presion_diseno = caldera["presion_diseno_tambor"] if caldera["presion_diseno_tambor"] else None,
-                    temp_diseno = caldera["temp_diseno_tambor"] if caldera["temp_diseno_tambor"] else None,
-                    material = caldera["material_tambor"] if caldera["material_tambor"] else None
-                )
+            if(not Caldera.objects.filter(tag=caldera["tag"]).count()):
+                with transaction.atomic():
+                    # Componentes que no hagan referencia al modelo Caldera
+                    tambor = Tambor.objects.create(
+                        presion_operacion = caldera["presion_operacion_tambor"] if caldera["presion_operacion_tambor"] else None,
+                        temp_operacion = caldera["temp_operacion_tambor"] if caldera["temp_operacion_tambor"] else None,
+                        presion_diseno = caldera["presion_diseno_tambor"] if caldera["presion_diseno_tambor"] else None,
+                        temp_diseno = caldera["temp_diseno_tambor"] if caldera["temp_diseno_tambor"] else None,
+                        material = caldera["material_tambor"] if caldera["material_tambor"] else None
+                    )
 
-                tambor_sup = SeccionTambor.objects.create(
-                    seccion = "S",
-                    diametro = caldera["diametro_tambor_sup"] if caldera["diametro_tambor_sup"] else None,
-                    longitud = caldera["longitud_tambor_sup"] if caldera["longitud_tambor_sup"] else None,
-                    tambor = tambor             
-                )
+                    tambor_sup = SeccionTambor.objects.create(
+                        seccion = "S",
+                        diametro = caldera["diametro_tambor_sup"] if caldera["diametro_tambor_sup"] else None,
+                        longitud = caldera["longitud_tambor_sup"] if caldera["longitud_tambor_sup"] else None,
+                        tambor = tambor             
+                    )
 
-                tambor_inf = SeccionTambor.objects.create(
-                    seccion = "I",
-                    diametro = caldera["diametro_tambor_inf"] if caldera["diametro_tambor_inf"] else None,
-                    longitud = caldera["longitud_tambor_inf"] if caldera["longitud_tambor_inf"] else None,
-                    tambor = tambor             
-                )
+                    tambor_inf = SeccionTambor.objects.create(
+                        seccion = "I",
+                        diametro = caldera["diametro_tambor_inf"] if caldera["diametro_tambor_inf"] else None,
+                        longitud = caldera["longitud_tambor_inf"] if caldera["longitud_tambor_inf"] else None,
+                        tambor = tambor             
+                    )
 
-                dims_sobrecalentador = DimsSobrecalentador.objects.create(
-                    area_total_transferencia = caldera["area_total_sobrecalentador"] if caldera["area_total_sobrecalentador"] else None,
-                    diametro_tubos = caldera["diametro_tubos_sobrecalentador"] if caldera["diametro_tubos_sobrecalentador"] else None,
-                    num_tubos = caldera["numero_tubos_sobrecalentador"] if caldera["numero_tubos_sobrecalentador"] else None
-                )
+                    dims_sobrecalentador = DimsSobrecalentador.objects.create(
+                        area_total_transferencia = caldera["area_total_sobrecalentador"] if caldera["area_total_sobrecalentador"] else None,
+                        diametro_tubos = caldera["diametro_tubos_sobrecalentador"] if caldera["diametro_tubos_sobrecalentador"] else None,
+                        num_tubos = caldera["numero_tubos_sobrecalentador"] if caldera["numero_tubos_sobrecalentador"] else None
+                    )
 
-                sobrecalentador = Sobrecalentador.objects.create(
-                    presion_operacion = caldera["presion_operacion_sobrecalentador"] if caldera["presion_operacion_sobrecalentador"] else None,
-                    temp_operacion = caldera["temp_operacion_sobrecalentador"] if caldera["temp_operacion_sobrecalentador"] else None,
-                    presion_diseno = caldera["presion_diseno_sobrecalentador"] if caldera["presion_diseno_sobrecalentador"] else None,
-                    flujo_max_continuo = caldera["flujo_max_continuo_sobrecalentador"] if caldera["flujo_max_continuo_sobrecalentador"] else None,
-                    dims = dims_sobrecalentador
-                )
+                    sobrecalentador = Sobrecalentador.objects.create(
+                        presion_operacion = caldera["presion_operacion_sobrecalentador"] if caldera["presion_operacion_sobrecalentador"] else None,
+                        temp_operacion = caldera["temp_operacion_sobrecalentador"] if caldera["temp_operacion_sobrecalentador"] else None,
+                        presion_diseno = caldera["presion_diseno_sobrecalentador"] if caldera["presion_diseno_sobrecalentador"] else None,
+                        flujo_max_continuo = caldera["flujo_max_continuo_sobrecalentador"] if caldera["flujo_max_continuo_sobrecalentador"] else None,
+                        dims = dims_sobrecalentador
+                    )
 
-                dims_caldera = DimensionesCaldera.objects.create(
-                    ancho = caldera["ancho"] if caldera["ancho"] else None,
-                    largo = caldera["largo"] if caldera["largo"] else None,
-                    alto = caldera["alto"] if caldera["alto"] else None
-                )
+                    dims_caldera = DimensionesCaldera.objects.create(
+                        ancho = caldera["ancho"] if caldera["ancho"] else None,
+                        largo = caldera["largo"] if caldera["largo"] else None,
+                        alto = caldera["alto"] if caldera["alto"] else None
+                    )
 
-                especificaciones = EspecificacionesCaldera.objects.create(
-                    material = caldera["material"] if caldera["material"] else None,
-                    area_transferencia_calor = caldera["area_total_transferencia"] if caldera["area_total_transferencia"] else None,
-                    calor_intercambiado = caldera["calor_intercambiado"] if caldera["calor_intercambiado"] else None,
-                    capacidad = caldera["capacidad"] if caldera["capacidad"] else None,
-                    temp_diseno = caldera["temp_diseno"] if caldera["temp_diseno"] else None,
-                    temp_operacion = caldera["temp_operacion"] if caldera["temp_operacion"] else None,
-                    presion_diseno = caldera["presion_diseno"] if caldera["presion_diseno"] else None,
-                    presion_operacion = caldera["presion_operacion"] if caldera["presion_operacion"] else None,
-                    carga = caldera["carga"] if caldera["carga"] else None
-                )
+                    especificaciones = EspecificacionesCaldera.objects.create(
+                        material = caldera["material"] if caldera["material"] else None,
+                        area_transferencia_calor = caldera["area_total_transferencia"] if caldera["area_total_transferencia"] else None,
+                        calor_intercambiado = caldera["calor_intercambiado"] if caldera["calor_intercambiado"] else None,
+                        capacidad = caldera["capacidad"] if caldera["capacidad"] else None,
+                        temp_diseno = caldera["temp_diseno"] if caldera["temp_diseno"] else None,
+                        temp_operacion = caldera["temp_operacion"] if caldera["temp_operacion"] else None,
+                        presion_diseno = caldera["presion_diseno"] if caldera["presion_diseno"] else None,
+                        presion_operacion = caldera["presion_operacion"] if caldera["presion_operacion"] else None,
+                        carga = caldera["carga"] if caldera["carga"] else None
+                    )
 
-                combustible = Combustible.objects.create(
-                    nombre_gas = "Gas Natural",
-                    liquido = False
-                )
+                    combustible = Combustible.objects.create(
+                        nombre_gas = "Gas Natural",
+                        liquido = False
+                    )
 
-                compuestos = []
+                    compuestos = []
 
-                for compuesto,porcentajes in self.composiciones.items():
-                    fluido = Fluido.objects.get(nombre = compuesto)
-                    compuestos.append(ComposicionCombustible(
-                        porc_vol = porcentajes.get("porc_vol"),
-                        porc_aire = porcentajes.get("porc_aire"),
+                    for compuesto,porcentajes in self.composiciones.items():
+                        fluido = Fluido.objects.get(nombre = compuesto)
+                        compuestos.append(ComposicionCombustible(
+                            porc_vol = porcentajes.get("porc_vol"),
+                            porc_aire = porcentajes.get("porc_aire"),
+                            combustible = combustible,
+                            fluido = fluido
+                        ))
+
+                    chimenea = Chimenea.objects.create(
+                        diametro = caldera["diametro_chimenea"] if caldera["diametro_chimenea"] else None,
+                        altura = caldera["altura_chimenea"] if caldera["altura_chimenea"] else None,
+                    )
+
+                    economizador = Economizador.objects.create(
+                        area_total_transferencia = caldera["area_total_economizador"] if caldera["area_total_economizador"] else None,
+                        diametro_tubos = caldera["diametro_tubos_economizador"] if caldera["diametro_tubos_economizador"] else None,
+                        numero_tubos = caldera["numero_tubos_economizador"] if caldera["numero_tubos_economizador"] else None 
+                    )
+
+                    # Modelo de Caldera
+
+                    caldera_obj = Caldera.objects.create(
+                        tag = caldera["tag"] if caldera["tag"] else None,
+                        planta = Planta.objects.get(pk=3),
+                        descripcion = caldera["descripcion"] if caldera["descripcion"] else None,
+                        fabricante = caldera["fabricante"] if caldera["fabricante"] else None,
+                        modelo = caldera["modelo"] if caldera["modelo"] else None,
+                        tipo_caldera = caldera["tipo_caldera"] if caldera["tipo_caldera"] else None,
+                        accesorios = caldera["accesorios"] if caldera["accesorios"] else None,
+                        creado_por = get_user_model().objects.get(pk = 1),
+                        sobrecalentador = sobrecalentador,
+                        tambor = tambor,
+                        dimensiones = dims_caldera,
+                        especificaciones = especificaciones,
                         combustible = combustible,
-                        fluido = fluido
-                    ))
+                        chimenea = chimenea,
+                        economizador = economizador
+                    )
 
-                chimenea = Chimenea.objects.create(
-                    diametro = caldera["diametro_chimenea"] if caldera["diametro_chimenea"] else None,
-                    altura = caldera["altura_chimenea"] if caldera["altura_chimenea"] else None,
-                )
+                    # Corrientes y otros modelos que hagan referencia a la caldera
 
-                economizador = Economizador.objects.create(
-                    area_total_transferencia = caldera["area_total_economizador"] if caldera["area_total_economizador"] else None,
-                    diametro_tubos = caldera["diametro_tubos_economizador"] if caldera["diametro_tubos_economizador"] else None,
-                    numero_tubos = caldera["numero_tubos_economizador"] if caldera["numero_tubos_economizador"] else None 
-                )
-
-                # Modelo de Caldera
-
-                caldera_obj = Caldera.objects.create(
-                    tag = caldera["tag"] if caldera["tag"] else None,
-                    planta = Planta.objects.get(pk=3),
-                    descripcion = caldera["descripcion"] if caldera["descripcion"] else None,
-                    fabricante = caldera["fabricante"] if caldera["fabricante"] else None,
-                    modelo = caldera["modelo"] if caldera["modelo"] else None,
-                    tipo_caldera = caldera["tipo_caldera"] if caldera["tipo_caldera"] else None,
-                    accesorios = caldera["accesorios"] if caldera["accesorios"] else None,
-                    creado_por = get_user_model().objects.get(pk = 1),
-                    sobrecalentador = sobrecalentador,
-                    tambor = tambor,
-                    dimensiones = dims_caldera,
-                    especificaciones = especificaciones,
-                    combustible = combustible,
-                    chimenea = chimenea,
-                    economizador = economizador
-                )
-
-                # Corrientes y otros modelos que hagan referencia a la caldera
-
-                if(caldera_obj.tag in self.calderas_con_caracteristicas):                    
-                    for caracteristica in self.caracteristicas:
-                        car = Caracteristica.objects.create(
-                            nombre = caracteristica[0],
-                            tipo_unidad = caracteristica[2],
-                            caldera = caldera_obj
-                        )
-                        
-                        for porcentaje in self.porcentajes_carga:
-                            carga = ValorPorCarga.objects.create(
-                                carga = porcentaje,
-                                valor_num = data[f"{caracteristica[1]}_{porcentaje}"],
-                                caracteristica = car,
-                                unidad = Unidades.objects.get(pk = caracteristica[3])
+                    if(caldera_obj.tag in self.calderas_con_caracteristicas):                    
+                        for caracteristica in self.caracteristicas:
+                            car = Caracteristica.objects.create(
+                                nombre = caracteristica[0],
+                                tipo_unidad = caracteristica[2],
+                                caldera = caldera_obj
                             )
+                            
+                            for porcentaje in self.porcentajes_carga:
+                                carga = ValorPorCarga.objects.create(
+                                    carga = porcentaje,
+                                    valor_num = caldera[f"{caracteristica[1]}_{porcentaje}"],
+                                    caracteristica = car,
+                                    unidad = Unidades.objects.get(pk = caracteristica[3]) if caracteristica[3] else None
+                                )
 
-                    # Ciclo de corrientes
-                    print("Corriente #5")
-                    
-                    Corriente.objects.create(
-                        numero = "Corriente #5",
-                        nombre = "Vapor sobrecalentado antes Atemperación",
-                        tipo = "P",
-                        flujo_masico = caldera["flujo_c5_2"] if caldera["flujo_c5_2"] != "" else caldera.get("flujo_vapor_c5_2"),
-                        densidad = caldera["densidad_c5_2"] if caldera["densidad_c5_2"] else None,
-                        estado = None,
-                        temp_operacion = caldera["temp_c5_2"] if caldera["temp_c5_2"] else None,
-                        presion = caldera["presion_c5_2"] if caldera["presion_c5_2"] else None,
-                        caldera = caldera_obj,                   
-                    )
-                    print("Corriente #6")
+                        # Ciclo de corrientes
+                        print("Corriente #5")
+                        
+                        Corriente.objects.create(
+                            numero = "Corriente #5",
+                            nombre = "Vapor sobrecalentado antes Atemperación",
+                            tipo = "P",
+                            flujo_masico = caldera["flujo_c5_2"] if caldera["flujo_c5_2"] != "" else caldera.get("flujo_vapor_c5_2"),
+                            densidad = None,
+                            estado = None,
+                            temp_operacion = caldera["temp_c5_2"] if caldera["temp_c5_2"] else None,
+                            presion = caldera["presion_c5_2"] if caldera["presion_c5_2"] else None,
+                            caldera = caldera_obj,                   
+                        )
+                        print("Corriente #6")
 
-                    Corriente.objects.create(
-                        numero = "Corriente #6",
-                        nombre = "Vapor de Baja Presión",
-                        tipo = "B",
-                        flujo_masico = caldera["flujo_c6_2"] if caldera["flujo_c6_2"] != "" else caldera.get("flujo_vapor_c6_2"),
-                        temp_operacion = caldera["temp_c6_2"] if caldera["temp_c6_2"] else None,
-                        presion = caldera["presion_c6_2"] if caldera["presion_c6_2"] else None,
-                        caldera = caldera_obj,                   
-                    )
-                    print("Corriente #3")
+                        Corriente.objects.create(
+                            numero = "Corriente #6",
+                            nombre = "Vapor de Baja Presión",
+                            tipo = "B",
+                            flujo_masico = caldera["flujo_c6_2"] if caldera["flujo_c6_2"] != "" else caldera.get("flujo_vapor_c6_2"),
+                            temp_operacion = caldera["temp_c6_2"] if caldera["temp_c6_2"] else None,
+                            presion = caldera["presion_c6_2"] if caldera["presion_c6_2"] else None,
+                            caldera = caldera_obj,                   
+                        )
+                        print("Corriente #3")
 
-                    Corriente.objects.create(
-                        numero = "Corriente #3",
-                        nombre = "Agua de Alimentación a Caldera",
-                        tipo = "W",
-                        flujo_masico =  caldera["flujo_c3"] if caldera["flujo_c3"] != "" else caldera.get("flujo_vapor_c3"),
-                        densidad = caldera["densidad_c3"] if caldera["densidad_c3"] else None,
-                        estado = caldera["estado_c3"] if caldera["estado_c3"] else None,
-                        temp_operacion = caldera["temp_operacion_c3"] if caldera["temp_operacion_c3"] else None,
-                        presion = caldera["presion_c3"] if caldera["presion_c3"] else None,
-                        caldera = caldera_obj,                   
-                    )
-                    print("Corriente #7")
-
-                    Corriente.objects.create(
-                        numero = "Corriente #7",
-                        nombre = "Vapor de Alta Saturado al Sistema de Automatización",
-                        tipo = "A",
-                        flujo_masico =  caldera["flujo_c7"] if caldera["flujo_c7"] != "" else caldera.get("flujo_vapor_c7"),
-                        densidad = caldera["densidad_c7"] if caldera["densidad_c7"] else None,
-                        temp_operacion = caldera["temp_c7"] if caldera["temp_c7"] else None,
-                        presion = caldera["presion_c7"] if caldera["presion_c7"] else None,
-                        caldera = caldera_obj,                   
-                    )
-                else:
-                    # Ciclo de corrientes
-                    try:
                         Corriente.objects.create(
                             numero = "Corriente #3",
                             nombre = "Agua de Alimentación a Caldera",
@@ -281,44 +256,72 @@ class Command(BaseCommand):
                             presion = caldera["presion_c3"] if caldera["presion_c3"] else None,
                             caldera = caldera_obj,                   
                         )
-                    except:
-                        continue
-                    print("Corriente #5")
+                        print("Corriente #7")
 
-                    Corriente.objects.create(
-                        numero = "Corriente #5",
-                        nombre = "Vapor sobrecalentado antes Atemperación",
-                        tipo = "B",
-                        flujo_masico =  caldera["flujo_c5"] if caldera["flujo_c5"] != "" else caldera.get("flujo_vapor_c5"),
-                        densidad = caldera["densidad_c5"] if caldera["densidad_c5"] else None,
-                        estado = caldera["estado_c5"] if caldera["estado_c5"] else None,
-                        temp_operacion = caldera["temp_operacion_c5"] if caldera["temp_operacion_c5"] else None,
-                        presion = caldera["presion_c5"] if caldera["presion_c5"] else None,
-                        caldera = caldera_obj,                   
-                    )
-                    print("Corriente #6")
+                        Corriente.objects.create(
+                            numero = "Corriente #7",
+                            nombre = "Vapor de Alta Saturado al Sistema de Automatización",
+                            tipo = "A",
+                            flujo_masico =  caldera["flujo_c7"] if caldera["flujo_c7"] != "" else caldera.get("flujo_vapor_c7"),
+                            densidad = None,
+                            temp_operacion = caldera["temp_c7"] if caldera["temp_c7"] else None,
+                            presion = caldera["presion_c7"] if caldera["presion_c7"] else None,
+                            caldera = caldera_obj,                   
+                        )
+                    else:
+                        # Ciclo de corrientes
+                        try:
+                            Corriente.objects.create(
+                                numero = "Corriente #3",
+                                nombre = "Agua de Alimentación a Caldera",
+                                tipo = "W",
+                                flujo_masico =  caldera["flujo_c3"] if caldera["flujo_c3"] != "" else caldera.get("flujo_vapor_c3"),
+                                densidad = caldera["densidad_c3"] if caldera["densidad_c3"] else None,
+                                estado = caldera["estado_c3"] if caldera["estado_c3"] else None,
+                                temp_operacion = caldera["temp_operacion_c3"] if caldera["temp_operacion_c3"] else None,
+                                presion = caldera["presion_c3"] if caldera["presion_c3"] else None,
+                                caldera = caldera_obj,                   
+                            )
+                        except:
+                            continue
+                        print("Corriente #5")
 
-                    Corriente.objects.create(
-                        numero = "Corriente #6",
-                        nombre = "Purga Continua",
-                        tipo = "P",
-                        flujo_masico =  caldera["flujo_c6"] if caldera["flujo_c6"] != "" else caldera.get("flujo_vapor_c6"),
-                        densidad = caldera["densidad_c6"] if caldera["densidad_c6"] else None,
-                        estado = caldera["estado_c6"] if caldera["estado_c6"] else None,
-                        temp_operacion = caldera["temp_operacion_c6"] if caldera["temp_operacion_c6"] else None,
-                        presion = caldera["presion_c6"] if caldera["presion_c6"] else None,
-                        caldera = caldera_obj,                   
-                    )
-                    print("Corriente #9")
+                        Corriente.objects.create(
+                            numero = "Corriente #5",
+                            nombre = "Vapor sobrecalentado antes Atemperación",
+                            tipo = "B",
+                            flujo_masico =  caldera["flujo_c5"] if caldera["flujo_c5"] != "" else caldera.get("flujo_vapor_c5"),
+                            densidad = caldera["densidad_c5"] if caldera["densidad_c5"] else None,
+                            estado = caldera["estado_c5"] if caldera["estado_c5"] else None,
+                            temp_operacion = caldera["temp_operacion_c5"] if caldera["temp_operacion_c5"] else None,
+                            presion = caldera["presion_c5"] if caldera["presion_c5"] else None,
+                            caldera = caldera_obj,                   
+                        )
+                        print("Corriente #6")
 
-                    Corriente.objects.create(
-                        numero = "Corriente #9",
-                        nombre = "Vapor de Alta Saturado al Sistema de Automatización",
-                        tipo = "A",
-                        flujo_masico =  caldera["flujo_c9"] if caldera["flujo_c9"] != "" else caldera.get("flujo_vapor_c9"),
-                        densidad = caldera["densidad_c9"] if caldera["densidad_c9"] else None,
-                        estado = caldera["estado_c9"] if caldera["estado_c9"] else None,
-                        temp_operacion = caldera["temp_operacion_c9"] if caldera["temp_operacion_c9"] else None,
-                        presion = caldera["presion_c9"] if caldera["presion_c9"] else None,
-                        caldera = caldera_obj,                   
-                    )
+                        Corriente.objects.create(
+                            numero = "Corriente #6",
+                            nombre = "Purga Continua",
+                            tipo = "P",
+                            flujo_masico =  caldera["flujo_c6"] if caldera["flujo_c6"] != "" else caldera.get("flujo_vapor_c6"),
+                            densidad = caldera["densidad_c6"] if caldera["densidad_c6"] else None,
+                            estado = caldera["estado_c6"] if caldera["estado_c6"] else None,
+                            temp_operacion = caldera["temp_operacion_c6"] if caldera["temp_operacion_c6"] else None,
+                            presion = caldera["presion_c6"] if caldera["presion_c6"] else None,
+                            caldera = caldera_obj,                   
+                        )
+                        print("Corriente #9")
+
+                        Corriente.objects.create(
+                            numero = "Corriente #9",
+                            nombre = "Vapor de Alta Saturado al Sistema de Automatización",
+                            tipo = "A",
+                            flujo_masico =  caldera["flujo_c9"] if caldera["flujo_c9"] != "" else caldera.get("flujo_vapor_c9"),
+                            densidad = caldera["densidad_c9"] if caldera["densidad_c9"] else None,
+                            estado = caldera["estado_c9"] if caldera["estado_c9"] else None,
+                            temp_operacion = caldera["temp_operacion_c9"] if caldera["temp_operacion_c9"] else None,
+                            presion = caldera["presion_c9"] if caldera["presion_c9"] else None,
+                            caldera = caldera_obj,                   
+                        )
+
+                        
