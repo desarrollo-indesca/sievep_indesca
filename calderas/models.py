@@ -363,7 +363,7 @@ class Corriente(models.Model):
     temp_operacion_unidad = models.ForeignKey(Unidades, models.PROTECT, default=1, related_name="temp_operacion_unidad_corriente_calderas")
     presion = models.FloatField(null=True)
     presion_unidad = models.ForeignKey(Unidades, models.PROTECT, default=1, related_name="presion_unidad_corriente_calderas")
-    caldera = models.ForeignKey(Caldera, on_delete=models.PROTECT)
+    caldera = models.ForeignKey(Caldera, on_delete=models.PROTECT, related_name='corrientes_caldera')
 
 ## EVALUACIONES
 class SalidaBalanceEnergia(models.Model):

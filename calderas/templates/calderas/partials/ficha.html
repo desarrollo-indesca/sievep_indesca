@@ -4,7 +4,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
       <div class="modal-content text-dark">
         <div class="modal-header">
-          <h5 class="modal-title" id="ficha_{{caldera.pk|default_if_none:'-'}}Label">Ficha Técnica caldera de Vapor ({{caldera.tag|default_if_none:'-'}})</h5>
+          <h5 class="modal-title" id="ficha_{{caldera.pk|default_if_none:'-'}}Label">Ficha Técnica Caldera de Vapor ({{caldera.tag|default_if_none:'-'}})</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body text-start small">
@@ -197,23 +197,6 @@
                       <td class="text-center" colspan="2">{{economizador.area_total_transferencia|default_if_none:"-"}}</td>
                     </tr>
                     {% endwith %}
-
-                    <!-- {% with caracteristicas=caldera.caracteristicas_caldera.objects.all %}
-                    <tr>
-                      <td>{{caracteristica.valores_por_carga}}</td>
-                      <th>25%</th>
-                      <th>50%</th>
-                      <th>75%</th>
-                      <th>100%</th>
-                    </tr>
-                    {% for caracteristica in caracteristicas %}
-                    <tr>
-                      {% for valor in caracteristica.valores_por_carga.objects.all %}
-                      <td>{{valor.valor_num}} ({{valor.unidad|default_if_none:'%'}})</td>
-                      {% endfor %}
-                    </tr>
-                    {% endfor %}
-                    {% endwith %} -->
                     
                   {% with combustible=caldera.combustible %}
                   <tr>
@@ -242,7 +225,7 @@
 
                   {% for compuesto in combustible.composicion_combustible_caldera.all %}
                   <tr>
-                    <td colspan="2" class="text-center">{{compuesto.fluido}}</td>
+                    <th colspan="2" class="text-center table-dark">{{compuesto.fluido}}</th>
                     <td class="text-center">{{compuesto.porc_vol}} %</td>
                     {% if compuesto.fluido.nombre == "Agua" or compuesto.fluido.nombre == "Nitrógeno" or compuesto.fluido.nombre == "Oxígeno" %}
                     <td class="text-center">{{compuesto.porc_aire|default_if_none:0}} %</td>
@@ -272,6 +255,7 @@
           {% if request.user.is_superuser %}
           <a href="#" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
           {% endif %}
+          <button class="btn btn-secondary" data-bs-target="#ficha_adicional_{{caldera.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Datos Adicionales</button>
 
           <form method="post" name="ficha_form">
             {% csrf_token %}
@@ -283,4 +267,95 @@
         </div>
       </div>
     </div>
+</div>
+
+<div class="modal fade" id="ficha_adicional_{{caldera.pk|default_if_none:'-'}}" tabindex="-1" aria-labelledby="ficha_{{caldera.pk|default_if_none:'-'}}Label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content text-dark">
+      <div class="modal-header">
+        <h5 class="modal-title" id="ficha_adicional_{{caldera.pk|default_if_none:'-'}}Label">Ficha Técnica Caldera de Vapor ({{caldera.tag|default_if_none:'-'}})</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-start small">
+        <div class="row">
+          <div class="col-12">
+            <div class="d-flex flex-column">
+              
+              <table class="table table-bordered text-center">
+                <thead>
+                  <tr>
+                    <th colspan="5" class="text-center table-dark">Características Adicionales</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% with caracteristicas=caldera.caracteristicas_caldera.all %}
+                  {% if caracteristicas.count %}
+                  <tr class="table-dark">
+                    <th>Característica</th>
+                    <th>25%</th>
+                    <th>50%</th>
+                    <th>75%</th>
+                    <th>100%</th>
+                  </tr>
+                  {% for caracteristica in caracteristicas %}
+                  <tr>
+                    <th class="table-dark">{{caracteristica.nombre.upper}}</th>
+                    {% for valor in caracteristica.valores_por_carga.all %}
+                    <td>{{valor.valor_num}} {{valor.unidad|default_if_none:'%'}}</td>
+                    {% endfor %}
+                  </tr>
+                  {% endfor %}
+                  {% endif %}
+                  {% endwith %}
+                </tbody>
+              </table>
+
+              <table class="table table-bordered text-center">
+                <tbody>
+                  {% with corrientes=caldera.corrientes_caldera.all %}
+                  {% if corrientes.count %}
+                  <tr class="table-dark">
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Flujo Másico</th>
+                    <th>Densidad</th>
+                    <th>Temp. Operación</th>
+                    <th>Presión</th>
+                    <th>Estado</th>
+                  </tr>
+                  {% for corriente in corrientes %}
+                  <tr>
+                    <th class="table-dark">{{corriente.numero|default_if_none:"-"}}</th>
+                    <th class="text-center">{{corriente.nombre|default_if_none:"-"}}</th>
+                    <td class="text-center">{{corriente.flujo_masico|default_if_none:"-"}} {{corriente.flujo_masico_unidad}}</td>
+                    <td class="text-center">{{corriente.densidad|default_if_none:"-"}} {{corriente.densidad_unidad}}</td>
+                    <td class="text-center">{{corriente.temp_operacion|default_if_none:"-"}} {{corriente.temp_operacion_unidad}}</td>
+                    <td class="text-center">{{corriente.presion|default_if_none:"-"}} {{corriente.presion_unidad}}</td>
+                    <td class="text-center">{{corriente.estado|default_if_none:"-"}}</td>
+                  </tr>
+                  {% endfor %}
+                  {% endif %}
+                  {% endwith %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        {% if request.user.is_superuser %}
+        <a href="#" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+        {% endif %}
+        <button class="btn btn-secondary" data-bs-target="#ficha_{{caldera.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Ficha Técnica</button>
+
+        <form method="post" name="ficha_form">
+          {% csrf_token %}
+          <input type="hidden" name="ficha" value="{{caldera.pk}}">
+          <button name="tipo" value="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</button>
+          <button name="tipo" value="xlsx" target="_blank" href="#" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</button>
+        </form>
+        
+      </div>
+    </div>
+  </div>
 </div>
