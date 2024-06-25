@@ -116,15 +116,15 @@
                     </tr>
                     <tr>
                       <th class="text-center table-dark">Presión de Operación ({{tambor.presion_unidad}})</th>
-                      <td class="text-center">{{tambor.presion_operacion}}</td>
+                      <td class="text-center">{{tambor.presion_operacion|default_if_none:'-'}}</td>
                       <th class="text-center table-dark">Presión de Diseño ({{tambor.presion_unidad}})</th>
-                      <td class="text-center">{{tambor.presion_diseno}}</td>
+                      <td class="text-center">{{tambor.presion_diseno|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                       <th class="text-center table-dark">Temperatura de Operación ({{tambor.temperatura_unidad}})</th>
-                      <td class="text-center">{{tambor.temp_operacion}}</td>
+                      <td class="text-center">{{tambor.temp_operacion|default_if_none:'-'}}</td>
                       <th class="text-center table-dark">Temperatura de Diseño ({{tambor.temperatura_unidad}})</th>
-                      <td class="text-center">{{tambor.temp_diseno}}</td>
+                      <td class="text-center">{{tambor.temp_diseno|default_if_none:'-'}}</td>
                     </tr>
                     {% for seccion in tambor.secciones_tambor.all %}
                     <tr>
