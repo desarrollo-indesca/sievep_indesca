@@ -126,19 +126,94 @@
                       <th class="text-center table-dark">Temperatura de Diseño ({{tambor.temperatura_unidad}})</th>
                       <td class="text-center">{{tambor.temp_diseno}}</td>
                     </tr>
+                    {% for seccion in tambor.secciones_tambor.all %}
+                    <tr>
+                      <th class="text-center table-dark">Diámetro ({{seccion.dimensiones_unidad}}, Tambor {% if seccion.seccion == "S" %}Superior{% else %}Inferior{%endif%})</th>
+                      <td class="text-center">{{seccion.diametro|default_if_none:'-'}}</td>
+                      <th class="text-center table-dark">Longitud ({{seccion.dimensiones_unidad}}, Tambor {% if seccion.seccion == "S" %}Superior{% else %}Inferior{%endif%})</th>
+                      <td class="text-center">{{seccion.longitud|default_if_none:'-'}}</td>
+                    </tr>
+                    {% endfor %}
                     <tr>
                       <th class="table-dark text-center">Material del Tambor</th>
                       <td colspan="3">{{tambor.material|default_if_none:'-'}}</td>
-                    </tr>
-                    {% for seccion in tambor.secciones_tambor.all %}
-                    <tr>
-                      <th class="text-center table-dark">Diámetro ({{seccion.dimensiones_unidad}}, Tambor {% if seccion.seccion == "S" %}Superior{% else %}Inferio{%endif%})</th>
-                      <td class="text-center">{{seccion.diametro|default_if_none:'-'}}</td>
-                      <th class="text-center table-dark">Longitud ({{seccion.dimensiones_unidad}}, Tambor {% if seccion.seccion == "S" %}Superior{% else %}Inferio{%endif%})</th>
-                      <td class="text-center">{{seccion.longitud|default_if_none:'-'}}</td>
-                    </tr>
-                    {% endfor %}         
+                    </tr>         
                     {% endwith %}
+
+                    {% with sobrecalentador=caldera.sobrecalentador %}
+                    <tr class="table-dark">
+                      <th colspan="4" class="text-center">ESPECIFICACIONES DEL SOBRECALENTADOR</th>
+                    </tr>
+                    <tr>
+                      <th class="text-center table-dark">Presión de Operación ({{sobrecalentador.presion_unidad}})</th>
+                      <td class="text-center">{{sobrecalentador.presion_operacion|default_if_none:'-'}}</td>
+                      <th class="text-center table-dark">Presión de Diseño ({{sobrecalentador.presion_unidad}})</th>
+                      <td class="text-center">{{sobrecalentador.presion_diseno|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th class="text-center table-dark">Temperatura de Operación ({{sobrecalentador.temperatura_unidad}})</th>
+                      <td class="text-center">{{sobrecalentador.temp_operacion|default_if_none:'-'}}</td>
+                      <th class="text-center table-dark">Flujo Máximo Continuo ({{sobrecalentador.flujo_unidad}})</th>
+                      <td class="text-center">{{sobrecalentador.flujo_max_continuo|default_if_none:'-'}}</td>
+                    </tr>
+                    {% with sobrecalentador_dimensiones=sobrecalentador.dims %}
+                    <tr>
+                      <th class="text-center table-dark">Diámetro ({{sobrecalentador_dimensiones.diametro_unidad}})</th>
+                      <td class="text-center">{{sobrecalentador_dimensiones.diametro_tubos|default_if_none:"-"}}</td>
+                      <th class="text-center table-dark">Número de Tubos</th>
+                      <td class="text-center">{{sobrecalentador_dimensiones.num_tubos|default_if_none:"-"}}</td>
+                    </tr>
+                    <tr>
+                      <th class="text-center table-dark" colspan="2">Área Total de Transferencia ({{sobrecalentador_dimensiones.area_unidad}})</th>
+                      <td class="text-center" colspan="2">{{sobrecalentador_dimensiones.area_total_transferencia|default_if_none:"-"}}</td>
+                    </tr>
+                    {% endwith %}       
+                    {% endwith %}
+
+                    {% with chimenea=caldera.chimenea %}
+                    <tr>
+                      <th class="text-center table-dark" colspan="4">ESPECIFICACIONES DE LA CHIMENEA</th>
+                    </tr>
+                    <tr>
+                      <th class="text-center table-dark">Diámetro ({{chimenea.dimensiones_unidad}})</th>
+                      <td class="text-center">{{chimenea.diametro|default_if_none:"-"}}</td>
+                      <th class="text-center table-dark">Altura ({{chimenea.dimensiones_unidad}})</th>
+                      <td class="text-center">{{chimenea.altura|default_if_none:"-"}}</td>
+                    </tr>
+                    {% endwith %}
+
+                    {% with economizador=caldera.economizador %}
+                    <tr>
+                      <th class="text-center table-dark" colspan="4">ESPECIFICACIONES DEL ECONOMIZADOR</th>
+                    </tr>
+                    <tr>
+                      <th class="text-center table-dark">Diámetro ({{economizador.diametro_unidad}})</th>
+                      <td class="text-center">{{economizador.diametro_tubos|default_if_none:"-"}}</td>
+                      <th class="text-center table-dark">Número de Tubos</th>
+                      <td class="text-center">{{economizador.numero_tubos|default_if_none:"-"}}</td>
+                    </tr>
+                    <tr>
+                      <th class="text-center table-dark" colspan="2">Área Total de Transferencia ({{economizador.area_unidad}})</th>
+                      <td class="text-center" colspan="2">{{economizador.area_total_transferencia|default_if_none:"-"}}</td>
+                    </tr>
+                    {% endwith %}
+
+                    <!-- {% with caracteristicas=caldera.caracteristicas_caldera.objects.all %}
+                    <tr>
+                      <td>{{caracteristica.valores_por_carga}}</td>
+                      <th>25%</th>
+                      <th>50%</th>
+                      <th>75%</th>
+                      <th>100%</th>
+                    </tr>
+                    {% for caracteristica in caracteristicas %}
+                    <tr>
+                      {% for valor in caracteristica.valores_por_carga.objects.all %}
+                      <td>{{valor.valor_num}} ({{valor.unidad|default_if_none:'%'}})</td>
+                      {% endfor %}
+                    </tr>
+                    {% endfor %}
+                    {% endwith %} -->
                     
                   {% with combustible=caldera.combustible %}
                   <tr>

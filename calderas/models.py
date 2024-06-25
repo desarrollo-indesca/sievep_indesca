@@ -299,7 +299,7 @@ class Caracteristica(models.Model):
     """
     nombre = models.CharField(max_length=80)
     tipo_unidad = models.CharField(max_length=1, null=True, blank=True)
-    caldera = models.ForeignKey(Caldera, on_delete=models.PROTECT)
+    caldera = models.ForeignKey(Caldera, on_delete=models.PROTECT, related_name="caracteristicas_caldera")
 
 class ValorPorCarga(models.Model):
     """
@@ -314,8 +314,11 @@ class ValorPorCarga(models.Model):
     """
     carga = models.FloatField()
     valor_num = models.FloatField()
-    caracteristica = models.ForeignKey(Caracteristica, models.PROTECT)
+    caracteristica = models.ForeignKey(Caracteristica, models.PROTECT, related_name="valores_por_carga")
     unidad = models.ForeignKey(Unidades, models.PROTECT, null=True, blank=True)
+
+    class Meta:
+        ordering = ("carga",)
 
 class Corriente(models.Model):
     """
