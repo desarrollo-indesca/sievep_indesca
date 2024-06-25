@@ -202,7 +202,7 @@ class ComposicionCombustible(models.Model):
     fluido = models.ForeignKey(Fluido, models.PROTECT)
 
     class Meta:
-        ordering = ("-porc_vol","-porc_vol")
+        ordering = ("-porc_vol","-porc_aire")
 
 class Chimenea(models.Model):
     """

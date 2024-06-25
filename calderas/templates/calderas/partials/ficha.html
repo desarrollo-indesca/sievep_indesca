@@ -305,12 +305,21 @@
                     {% endfor %}
                   </tr>
                   {% endfor %}
+                  {%else%}
+                  <tr>
+                    <th class="text-center">No hay características adicionales registradas para este equipo.</th>
+                  </tr>
                   {% endif %}
                   {% endwith %}
                 </tbody>
               </table>
 
               <table class="table table-bordered text-center">
+                <thead>
+                  <tr>
+                    <th colspan="5" class="text-center table-dark">Corrientes Circulantes por la Caldera</th>
+                  </tr>
+                </thead>
                 <tbody>
                   {% with corrientes=caldera.corrientes_caldera.all %}
                   {% if corrientes.count %}
@@ -334,6 +343,10 @@
                     <td class="text-center">{{corriente.estado|default_if_none:"-"}}</td>
                   </tr>
                   {% endfor %}
+                  {%else%}
+                  <tr>
+                    <th class="text-center">No hay corrientes registradas para este equipo.</th>
+                  </tr>
                   {% endif %}
                   {% endwith %}
                 </tbody>

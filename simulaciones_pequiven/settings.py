@@ -102,7 +102,7 @@ INSTALLED_APPS = [
     'templatetags',
     'mathfilters',
     'widget_tweaks',
-    # "debug_toolbar",
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -114,7 +114,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # "simulaciones_pequiven.middleware.RequestLogMiddleware",
-    # "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = 'simulaciones_pequiven.urls'
@@ -252,9 +252,9 @@ PWA_APP_SCREENSHOTS = [
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-# INTERNAL_IPS = [
-#     "127.0.0.1",
-# ]
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
 # CONFIGURACIÓN DE LOS LOGS
 
