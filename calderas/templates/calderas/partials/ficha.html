@@ -198,6 +198,24 @@
                     </tr>
                     {% endwith %}
                     
+                    {% with caracteristicas=caldera.caracteristicas_caldera.objects.all %}
+                    <tr>
+                      <td>Características {{caracteristicas}}</td>
+                      <th>25%</th>
+                      <th>50%</th>
+                      <th>75%</th>
+                      <th>100%</th>
+                    </tr>
+                    {% for caracteristica in caracteristicas %}
+                    <tr>
+                      <th>{{caracteristica}}</th>
+                      {% for valor in caracteristica.valores_por_carga.all %}
+                      <td>{{valor.valor_num}} ({{valor.unidad|default_if_none:'%'}})</td>
+                      {% endfor %}
+                    </tr>
+                    {% endfor %}
+                    {% endwith %}
+                    
                   {% with combustible=caldera.combustible %}
                   <tr>
                     <th colspan="4" class="table-dark text-uppercase">
