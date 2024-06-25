@@ -197,10 +197,10 @@
                       <td class="text-center" colspan="2">{{economizador.area_total_transferencia|default_if_none:"-"}}</td>
                     </tr>
                     {% endwith %}
-
-                    <!-- {% with caracteristicas=caldera.caracteristicas_caldera.objects.all %}
+                    
+                    {% with caracteristicas=caldera.caracteristicas_caldera.objects.all %}
                     <tr>
-                      <td>{{caracteristica.valores_por_carga}}</td>
+                      <td>Características {{caracteristicas}}</td>
                       <th>25%</th>
                       <th>50%</th>
                       <th>75%</th>
@@ -208,12 +208,13 @@
                     </tr>
                     {% for caracteristica in caracteristicas %}
                     <tr>
-                      {% for valor in caracteristica.valores_por_carga.objects.all %}
+                      <th>{{caracteristica}}</th>
+                      {% for valor in caracteristica.valores_por_carga.all %}
                       <td>{{valor.valor_num}} ({{valor.unidad|default_if_none:'%'}})</td>
                       {% endfor %}
                     </tr>
                     {% endfor %}
-                    {% endwith %} -->
+                    {% endwith %}
                     
                   {% with combustible=caldera.combustible %}
                   <tr>
