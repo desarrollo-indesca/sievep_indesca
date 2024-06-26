@@ -1,8 +1,7 @@
 from django import forms
-from django.forms.utils import ErrorList
-
 from .models import *
 from auxiliares.forms import FormConUnidades
+from intercambiadores.models import Complejo
 
 # Forms Específicos
 
@@ -14,7 +13,7 @@ class FormConPresionYTemperatura(FormConUnidades):
 class FormConAreaYDiametro(FormConUnidades):
     def limpiar_campos_unidades(self):
         self.fields["area_unidad"].queryset = Unidades.objects.filter(tipo="A")
-        self.fields["diametro_unidad"].queryset = Unidades.objects.filter(tipo="A")
+        self.fields["diametro_unidad"].queryset = Unidades.objects.filter(tipo="L")
 
 # FORMS DE CALDERAS
 
@@ -92,6 +91,8 @@ class EconomizadorForm(FormConAreaYDiametro):
         exclude = ["id"]
 
 class CalderaForm(forms.ModelForm):
+    complejo = forms.ModelChoiceField(queryset=Complejo.objects.all(), empty_label=None)
+
     class Meta:
         model = Caldera
         exclude = ["id", "sobrecalentador", "tambor", "dimensiones",

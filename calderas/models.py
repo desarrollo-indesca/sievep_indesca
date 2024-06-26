@@ -20,11 +20,11 @@ class Tambor(models.Model):
         presion_unidad: Unidades -> Unidades de las magnitudes asociadas
     """
 
-    presion_operacion = models.FloatField(null=True, blank = True)
-    temp_operacion = models.FloatField(null=True, blank = True)
-    presion_diseno = models.FloatField(null=True, blank = True)
-    temp_diseno = models.FloatField(null=True, blank = True)
-    material = models.CharField(max_length=45, null=True, blank = True)
+    presion_operacion = models.FloatField("Presión de Operación", null=True, blank = True)
+    temp_operacion = models.FloatField("Temperatura de Operación", null=True, blank = True)
+    presion_diseno = models.FloatField("Presión de Diseño", null=True, blank = True)
+    temp_diseno = models.FloatField("Temperatura de Diseño", null=True, blank = True)
+    material = models.CharField("Material del Tambor", max_length=45, null=True, blank = True)
 
     temperatura_unidad = models.ForeignKey(Unidades, models.PROTECT, default=1, related_name="temperatura_unidad_tambor")
     presion_unidad = models.ForeignKey(Unidades, models.PROTECT, default=33, related_name="presion_unidad_tambor")
@@ -48,8 +48,8 @@ class SeccionTambor(models.Model):
     ]
 
     seccion = models.CharField(max_length=1, choices=SECCIONES)
-    diametro = models.FloatField(null=True, blank = True)
-    longitud = models.FloatField(null=True, blank = True)
+    diametro = models.FloatField("Diámetro", null=True, blank = True)
+    longitud = models.FloatField("Longitud", null=True, blank = True)
     tambor = models.ForeignKey(Tambor, models.PROTECT, related_name="secciones_tambor")
 
     dimensiones_unidad = models.ForeignKey(Unidades, models.PROTECT, default=4)
@@ -75,9 +75,9 @@ class DimsSobrecalentador(models.Model):
         ('S','Superior')
     ]
 
-    area_total_transferencia = models.FloatField(null=True, blank = True)
-    diametro_tubos = models.FloatField(null=True, blank = True)
-    num_tubos = models.IntegerField(null=True, blank = True)
+    area_total_transferencia = models.FloatField("Área Total de Transferencia", null=True, blank = True)
+    diametro_tubos = models.FloatField("Diámetro de Tubos", null=True, blank = True)
+    num_tubos = models.IntegerField("Número de Tubos", null=True, blank = True)
 
     area_unidad = models.ForeignKey(Unidades, models.PROTECT, default=3, related_name="area_unidad_sobrecalentador")
     diametro_unidad = models.ForeignKey(Unidades, models.PROTECT, default=4, related_name="diametro_unidad_sobrecalentador")
@@ -97,10 +97,10 @@ class Sobrecalentador(models.Model):
         presion_unidad: Unidades -> Unidad de la magnitud correspondiente
         flujo_unidad: Unidades -> Unidad de la magnitud correspondiente  
     """
-    presion_operacion = models.FloatField(null=True, blank=True)
-    temp_operacion = models.FloatField(null=True, blank=True)
-    presion_diseno = models.FloatField(null=True, blank=True)
-    flujo_max_continuo = models.FloatField(null=True, blank=True)
+    presion_operacion = models.FloatField("Presión de Operación", null=True, blank=True)
+    temp_operacion = models.FloatField("Temperatura de Operación", null=True, blank=True)
+    presion_diseno = models.FloatField("Presión de Diseño", null=True, blank=True)
+    flujo_max_continuo = models.FloatField("Flujo Máximo Continuo", null=True, blank=True)
 
     dims = models.OneToOneField(DimsSobrecalentador, models.PROTECT)
 
@@ -147,29 +147,29 @@ class EspecificacionesCaldera(models.Model):
         carga_unidad: models.FloatField ->  Unidad de la carga de la caldera
         eficiencia_termica: models.FloatField -> Eficiencia térmica de la caldera por diseño
     """
-    material = models.CharField(max_length=45, null=True, blank = True)
+    material = models.CharField("Material de la Caldera", max_length=45, null=True, blank = True)
 
-    area_transferencia_calor = models.FloatField(null=True, blank = True)
+    area_transferencia_calor = models.FloatField("Área de Transferencia de Calor", null=True, blank = True)
     area_unidad = models.ForeignKey(Unidades, models.PROTECT, default=3, related_name="area_unidad_especificaciones")
 
-    calor_intercambiado = models.FloatField(null=True, blank = True)
+    calor_intercambiado = models.FloatField("Calor Intercambiado", null=True, blank = True)
     calor_unidad = models.ForeignKey(Unidades, models.PROTECT, default=62, related_name="calor_unidad_especificaciones")
 
-    capacidad = models.FloatField(null=True, blank = True)
+    capacidad = models.FloatField("Capacidad de la Caldera", null=True, blank = True)
     capacidad_unidad = models.ForeignKey(Unidades, models.PROTECT, default=6, related_name="capacidad_unidad_especificaciones")
 
-    temp_diseno = models.FloatField(null=True, blank = True)
-    temp_operacion = models.FloatField(null=True, blank = True)
+    temp_diseno = models.FloatField("Temperatura de Diseño", null=True, blank = True)
+    temp_operacion = models.FloatField("Temperatura de Operación", null=True, blank = True)
     temperatura_unidad = models.ForeignKey(Unidades, models.PROTECT, default=1, related_name="temperatura_unidad_especificaciones")
 
-    presion_diseno = models.FloatField(null=True, blank = True)
-    presion_operacion = models.FloatField(null=True, blank = True)
+    presion_diseno = models.FloatField("Presión de Diseño", null=True, blank = True)
+    presion_operacion = models.FloatField("Presión de Operación", null=True, blank = True)
     presion_unidad = models.ForeignKey(Unidades, models.PROTECT, default=33, related_name="presion_unidad_especificaciones")
 
-    carga = models.FloatField(null=True, blank = True)
+    carga = models.FloatField("Carga de la Caldera", null=True, blank = True)
     carga_unidad = models.ForeignKey(Unidades, models.PROTECT, default=6, related_name="carga_unidad_especificaciones")
 
-    eficiencia_termica = models.FloatField(null=True, blank = True)
+    eficiencia_termica = models.FloatField("Eficiencia Térmica", null=True, blank = True)
 
 class Combustible(models.Model):
     """
@@ -214,8 +214,8 @@ class Chimenea(models.Model):
         altura: models.FloatField -> Altura de la chimenea
         dimensiones_unidad: Unidades -> Unidad para las dimensiones
     """
-    diametro = models.FloatField(null=True, blank = True)
-    altura = models.FloatField(null=True, blank = True)
+    diametro = models.FloatField("Diámetro", null=True, blank = True)
+    altura = models.FloatField("Altura", null=True, blank = True)
     dimensiones_unidad = models.ForeignKey(Unidades, models.PROTECT, default=4)
 
 class Economizador(models.Model):
@@ -230,9 +230,9 @@ class Economizador(models.Model):
         area_unidad: Unidades -> Unidad para las medidas de área
         diametro_unidad: Unidades -> Unidad para las medidas de los diámetros
     """
-    area_total_transferencia = models.FloatField(null=True, blank = True)
-    diametro_tubos = models.FloatField(null=True, blank = True)
-    numero_tubos = models.IntegerField(null=True)
+    area_total_transferencia = models.FloatField("Área Total de Transferencia", null=True, blank = True)
+    diametro_tubos = models.FloatField("Diámetro de los tubos", null=True, blank = True)
+    numero_tubos = models.IntegerField("Número de Tubos", null=True)
 
     area_unidad = models.ForeignKey(Unidades, models.PROTECT, default=3, related_name="area_unidad_economizador")
     diametro_unidad = models.ForeignKey(Unidades, models.PROTECT, default=4, related_name="diametro_unidad_economizador")
@@ -268,7 +268,7 @@ class Caldera(models.Model):
     descripcion = models.CharField(max_length=100, verbose_name="Descripción")
     fabricante = models.CharField(max_length=45, null = True, blank = True)
     modelo = models.CharField(max_length=45, null = True, blank = True)
-    tipo_caldera = models.CharField(max_length=50, null = True, blank = True)
+    tipo_caldera = models.CharField("Tipo de Caldera", max_length=50, null = True, blank = True)
     accesorios = models.CharField(max_length=45, null = True, blank = True)
 
     sobrecalentador = models.OneToOneField(Sobrecalentador, models.CASCADE)

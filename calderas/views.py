@@ -1,11 +1,15 @@
 from .models import *
 
+from django.shortcuts import render, redirect
 from django.db.models import Prefetch
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView
+from django.views.generic import ListView, View
 from simulaciones_pequiven.views import FiltradoSimpleMixin
+
+from usuarios.views import SuperUserRequiredMixin 
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos
+from .forms import *
 
 # Create your views here.
 class CargarCalderasMixin():
@@ -113,8 +117,75 @@ class ConsultaCalderas(FiltradoSimpleMixin, CargarCalderasMixin, LoginRequiredMi
         if(request.POST.get('tipo') == 'xlsx'): # reporte de turbinas de vapor en XLSX
             return reporte_equipos(request, self.get_queryset(), 'Listado de Calderas', 'listado_calderas')
         
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["link_creacion"] = "creacion_caldera"
+
+        return context
+
     def get_queryset(self):        
         new_context = self.get_caldera(True, self.filtrar_equipos())
 
         return new_context
+
+class CreacionCaldera(SuperUserRequiredMixin, View):
+    """
+    Resumen:
+        Vista para el registro de nuevas calderas en el sistema.
+        Solo puede ser accedido por superusuarios.
+
+    Atributos:
+        success_message: str -> Mensaje al realizarse correctamente la creación
+        titulo: str -> Título a mostrar en la vista
+        template_name: str -> Dirección de la plantilla
     
+    Métodos:
+        get_context(self) -> dict
+            Crea instancias de los formularios a ser utilizados y define el título de la vista.
+
+        get(self, request, **kwargs) -> HttpResponse
+            Renderiza el formulario con la plantilla correspondiente.
+
+        almacenar_datos(self) -> HttpResponse
+            Valida y almacena los datos de acuerdo a la lógica requerida para el almacenamiento de calderas por medio de los formularios.
+            Si hay errores se levantará una Exception.
+
+        post(self) -> HttpResponse
+            Envía el request a los formularios y envía la respuesta al cliente.
+    """
+
+    success_message = "La nueva bomba ha sido registrada exitosamente. Los datos de instalación ya pueden ser cargados."
+    titulo = 'SIEVEP - Creación de Bomba Centrífuga'
+    template_name = 'calderas/creacion.html'
+
+    def get_context(self):
+        return {
+            'form_caldera': CalderaForm(prefix="caldera"), 
+            'form_tambor': TamborForm(prefix="tambor"), 
+            'form_chimenea': ChimeneaForm(prefix="chimenea"),
+            'form_economizador': EconomizadorForm(prefix="economizador"),
+            'form_tambor_superior': SeccionTamborForm(prefix="tambor-superior"), 
+            'form_tambor_inferior': SeccionTamborForm(prefix="tambor-inferior"), 
+            'form_sobrecalentador': SobrecalentadorForm(prefix="sobrecalentador"),
+            'form_dimensiones_sobrecalentador': DimsSobrecalentadorForm(prefix="dimensiones-sobrecalentador"),
+            'form_especificaciones': EspecificacionesCalderaForm(prefix="especificaciones-caldera"),
+            'form_dimensiones_caldera': DimensionesCalderaForm(prefix="dimensiones-caldera"),
+            'form_combustible': CombustibleForm(prefix="combustible"),
+            'titulo': self.titulo
+        }
+
+    def get(self, request, **kwargs):
+        return render(request, self.template_name, self.get_context())
+    
+    def almacenar_datos(self):
+        pass
+    
+    def post(self, request):
+        # FORMS
+        pass
+
+        try:
+            return self.almacenar_datos()
+        except Exception as e:
+            print(str(e))
+            return render()
