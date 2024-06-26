@@ -191,7 +191,7 @@
                 {{form_dimensiones_caldera.largo.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_dimensiones_caldera.largo min="0.0001" class="form-control" placeholder="Largo de la Caldera" %}
-                    {% render_field form_dimensiones_caldera.dimensiones_unidad class="form-select" %}
+                    {% render_field form_dimensiones_caldera.dimensiones_unidad disabled="" class="form-select" %}
                 </div>
                 <small>{{form_dimensiones_caldera.largo.errors}}</small>
             </div>
@@ -199,7 +199,7 @@
                 {{form_dimensiones_caldera.alto.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_dimensiones_caldera.alto min="0.0001" class="form-control" placeholder="Alto de la Caldera" %}
-                    {% render_field form_dimensiones_caldera.dimensiones_unidad class="form-select" %}
+                    {% render_field form_dimensiones_caldera.dimensiones_unidad disabled="" class="form-select" %}
                 </div>
                 <small>{{form_dimensiones_caldera.alto.errors}}</small>
             </div>
@@ -221,7 +221,7 @@
                 {{form_tambor.presion_diseno.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_tambor.presion_diseno min="0.0001" class="form-control" placeholder="Presión de Diseño" %}
-                    {% render_field form_tambor.presion_unidad class="form-select" %}
+                    {% render_field form_tambor.presion_unidad class="form-select" disabled="" %}
                 </div>
                 <small>{{form_tambor.presion_diseno.errors}}</small>
             </div>
@@ -329,7 +329,7 @@
                     {{form_sobrecalentador.flujo_max_continuo.label_tag}}
                     <div class="input-group mb-1">
                         {% render_field form_sobrecalentador.flujo_max_continuo min="0.0001" class="form-control" placeholder="Flujo Máximo Continuo" %}
-                        {% render_field form_sobrecalentador.flujo_unidad class="form-select" disabled="" %}
+                        {% render_field form_sobrecalentador.flujo_unidad class="form-select" %}
                     </div>
                     <small>{{form_sobrecalentador.flujo_max_continuo.errors}}</small>
                 </div>
@@ -377,7 +377,7 @@
                     {{form_chimenea.altura.label_tag}}
                     <div class="input-group mb-1">
                         {% render_field form_chimenea.altura class="form-control" placeholder="Altura de la Chimenea" %}
-                        {% render_field form_chimenea.dimensiones_unidad class="form-select" hx-swap="none" %}
+                        {% render_field form_chimenea.dimensiones_unidad disabled="" class="form-select" hx-swap="none" %}
                     </div>
                     <small>{{form_chimenea.altura.errors}}</small>
                 </div>
@@ -496,22 +496,5 @@
 {% endblock %}
 
 {% block extra_javascript %}
-<script src="/static/js/auxiliares/ventiladores/creacion.js"></script>
-
-{% if form_condiciones_trabajo.instance.calculo_propiedades == 'M' %}
-<script>
-    $('#id_densidad').removeAttr('disabled');
-</script>
-{% endif %}
-
-{% if form_condiciones_adicionales.instance.calculo_propiedades == 'M' %}
-<script>
-    $('#id_adicional-densidad').removeAttr('disabled');
-</script>
-{% endif %}
-
-<script>
-    $('select[name="presion_unidad"]').html($('select[name="presion_unidad"]').html().replaceAll('</option>', 'g</option>'));
-</script>
-
+<script src="/static/js/calderas/creacion.js"></script>
 {% endblock %}
