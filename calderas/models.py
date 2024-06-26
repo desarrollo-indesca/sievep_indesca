@@ -181,9 +181,9 @@ class Combustible(models.Model):
         liquido: models.BooleanField -> ¿Hay una parte líquida en el combustible?
         nombre_liquido: models.CharField -> Nombre del combustible líquido
     """
-    nombre_gas = models.CharField(max_length=45)
-    liquido = models.BooleanField()
-    nombre_liquido = models.CharField(max_length=45, null=True, blank = True)
+    nombre_gas = models.CharField("Nombre del Combustible Gas", max_length=45)
+    liquido = models.BooleanField("¿Utiliza Combustible Líquido?", default=False)
+    nombre_liquido = models.CharField("Nombre del Combustible Líquido", max_length=45, null=True, blank = True)
 
 class ComposicionCombustible(models.Model):
     """

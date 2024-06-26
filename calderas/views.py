@@ -4,12 +4,14 @@ from django.shortcuts import render, redirect
 from django.db.models import Prefetch
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, View
-from simulaciones_pequiven.views import FiltradoSimpleMixin
+from django.forms import modelformset_factory
 
+from simulaciones_pequiven.views import FiltradoSimpleMixin
 from usuarios.views import SuperUserRequiredMixin 
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos
 from .forms import *
+from .constants import COMPUESTOS_AIRE
 
 # Create your views here.
 class CargarCalderasMixin():
@@ -159,6 +161,18 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
     template_name = 'calderas/creacion.html'
 
     def get_context(self):
+        combustibles = ComposicionCombustible.objects.values('fluido').distinct()
+        print(len(combustibles))
+
+        combustible_forms = []
+
+        for i,x in enumerate(combustibles):
+            form = ComposicionCombustibleForm(prefix=f'combustible-{i}', initial={'fluido': x['fluido']})
+            combustible_forms.append({
+                'combustible': Fluido.objects.get(pk=x['fluido']),
+                'form': form
+            })
+            
         return {
             'form_caldera': CalderaForm(prefix="caldera"), 
             'form_tambor': TamborForm(prefix="tambor"), 
@@ -171,6 +185,8 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
             'form_especificaciones': EspecificacionesCalderaForm(prefix="especificaciones-caldera"),
             'form_dimensiones_caldera': DimensionesCalderaForm(prefix="dimensiones-caldera"),
             'form_combustible': CombustibleForm(prefix="combustible"),
+            'composicion_combustible_forms': combustible_forms,
+            'compuestos_aire': COMPUESTOS_AIRE,
             'titulo': self.titulo
         }
 
