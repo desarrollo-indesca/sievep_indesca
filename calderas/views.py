@@ -5,6 +5,7 @@ from django.db.models import Prefetch
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, View
 from django.db import transaction
+from django.contrib import messages
 
 from simulaciones_pequiven.views import FiltradoSimpleMixin
 from usuarios.views import SuperUserRequiredMixin 
@@ -218,16 +219,19 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
                     form.instance.combustible = combustible
                     form.save()
 
-                tambor = form_caldera.save()
+                tambor = form_tambor.save()
+                form_tambor_superior.instance.seccion = "S"
                 form_tambor_superior.instance.tambor = tambor
                 form_tambor_superior.save()
+                form_tambor_inferior.instance.seccion = "I"
                 form_tambor_inferior.instance.tambor = tambor
                 form_tambor_inferior.save()
 
                 chimenea = form_chimenea.save()
                 economizador = form_economizador.save()
+                form_dimensiones_sobrecalentador.instance.sobrecalentador = form_sobrecalentador.instance
                 sobrecalentador_dimensiones = form_dimensiones_sobrecalentador.save()
-                form_sobrecalentador.instance.dimensiones = sobrecalentador_dimensiones
+                form_sobrecalentador.instance.dims = sobrecalentador_dimensiones
                 sobrecalentador = form_sobrecalentador.save()
 
                 especificaciones = form_especificaciones.save()
@@ -237,12 +241,29 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
                 form_caldera.instance.tambor = tambor
                 form_caldera.instance.chimenea = chimenea
                 form_caldera.instance.economizador = economizador
-                form_caldera.instance.sobrecalentador = sobrecalentador
+                form_caldera.instance.sobrecalentador = form_sobrecalentador.instance
                 form_caldera.instance.dimensiones = dimensiones_caldera
                 form_caldera.instance.combustible = combustible
+                form_caldera.instance.creado_por = self.request.user
 
                 form_caldera.save()
+
+                messages.success(self.request, "La nueva caldera se ha almacenado correctamente.")
+                return redirect("/calderas")
             else:
+                print([
+                    form_especificaciones.errors,
+                    form_tambor.errors,
+                    form_chimenea.errors,
+                    form_economizador.errors,
+                    form_tambor_superior.errors,
+                    form_tambor_inferior.errors,
+                    form_sobrecalentador.errors,
+                    form_dimensiones_sobrecalentador.errors,
+                    form_dimensiones_caldera.errors,
+                    form_combustible.errors,
+                    form_caldera.errors
+                ])
                 raise Exception("Ocurrió un error.")
 
     def post(self, request):
@@ -263,36 +284,7 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
         for i in range(0,14):
             forms_composicion.append(ComposicionCombustibleForm(request.POST, prefix=f"combustible-{i}"))
 
-        try:
-            return self.almacenar_datos(form_caldera, form_tambor, form_chimenea, form_economizador, form_tambor_superior, form_tambor_inferior,
+        return self.almacenar_datos(form_caldera, form_tambor, form_chimenea, form_economizador, form_tambor_superior, form_tambor_inferior,
                                             form_sobrecalentador, form_dimensiones_caldera, form_dimensiones_sobrecalentador, form_especificaciones,
                                             form_combustible, forms_composicion)
-        except Exception as e:
-            print(str(e))
-
-            combustibles = ComposicionCombustible.objects.values('fluido').distinct()
-            combustible_forms = []
-            for i,x in enumerate(combustibles):
-                combustible_forms.append({
-                    'combustible': Fluido.objects.get(pk=x['fluido']),
-                    'form': forms_composicion[i]
-                })
-
-            return render(self.request, self.template_name, context={
-                    'form_caldera': form_caldera, 
-                    'form_especificaciones': form_especificaciones,
-                    'form_tambor': form_tambor, 
-                    'form_tambor': form_tambor,
-                    'form_chimenea': form_chimenea,
-                    'form_economizador': form_economizador,
-                    'form_tambor_superior': form_tambor_superior,
-                    'form_tambor_inferior': form_tambor_inferior,
-                    'form_sobrecalentador': form_sobrecalentador,
-                    'form_dimensiones_sobrecalentador': form_dimensiones_sobrecalentador,
-                    'form_dimensiones_caldera': form_dimensiones_caldera,
-                    'form_combustible': form_combustible,
-                    'composicion_combustible_forms': combustible_forms,
-                    'titulo': self.titulo,
-                    'compuestos_aire': COMPUESTOS_AIRE,
-                    'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo."
-                })
+        

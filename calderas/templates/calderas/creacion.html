@@ -453,11 +453,19 @@
                                 {{formset_composicion.management_form}}
                                 {% for form in composicion_combustible_forms %}
                                 <tr>
-                                    <th class="table-dark">{{form.combustible}} {% render_field form.form.fluido class="form-control" hidden="hidden" %}</th>
-                                    <td>{% render_field form.form.porc_vol class="form-control" placeholder="% Volumen" %}</td>
+                                    <th class="table-dark">
+                                        {{form.combustible}} 
+                                        {% render_field form.form.fluido class="form-control" hidden="hidden" %}
+                                        <small>{{form.form.fluido.errors}}</small>
+                                    </th>
+                                    <td>
+                                        {% render_field form.form.porc_vol class="form-control" placeholder="% Volumen" %}
+                                        <small>{{form.form.porc_vol.errors}}</small>
+                                    </td>
                                     <td>
                                         {% if form.combustible.pk in compuestos_aire %}
                                         {% render_field form.form.porc_aire class="form-control" placeholder="% Aire" %}
+                                        <small>{{form.form.porc_aire.errors}}</small>
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -476,7 +484,9 @@
             <div class="hidden" id="id_complejo"></div>
 </form>
 
+{% if not recargo and not edicion %}
 <div hx-get="/plantas/" hx-include="#id_complejo" hx-trigger="load" hx-target="#id_planta" hx-swap="none"></div>
+{% endif %}
 {% endblock %}
 
 {% block extra_javascript %}

@@ -28,7 +28,7 @@ class SeccionTamborForm(FormConUnidades):
 
     class Meta:
         model = SeccionTambor
-        exclude = ["id","tambor"]
+        exclude = ["id","tambor","seccion"]
 
 class SobrecalentadorForm(FormConPresionYTemperatura):
     def limpiar_campos_unidades(self):
@@ -37,7 +37,7 @@ class SobrecalentadorForm(FormConPresionYTemperatura):
 
     class Meta:
         model = Sobrecalentador
-        exclude = ["id"]
+        exclude = ["id","dims"]
 
 class DimsSobrecalentadorForm(FormConAreaYDiametro):
     class Meta:
