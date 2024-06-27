@@ -25,3 +25,15 @@ $("#id_dimensiones-caldera-dimensiones_unidad").change(() => {
 $("#id_tambor-presion_unidad").change(() => {
     $("select[name='tambor-presion_unidad']").val($("#id_tambor-presion_unidad").val())
 });
+
+$("#id_chimenea-dimensiones_unidad").change(() => {
+    $("select[name='chimenea-dimensiones_unidad']").val($("#id_chimenea-dimensiones_unidad").val())
+});
+
+$("#id_tambor-superior-dimensiones_unidad").change(() => {
+    $("select[name='tambor-superior-dimensiones_unidad']").val($("#id_tambor-superior-dimensiones_unidad").val())
+});
+
+$("#id_tambor-inferior-dimensiones_unidad").change(() => {
+    $("select[name='tambor-inferior-dimensiones_unidad']").val($("#id_tambor-inferior-dimensiones_unidad").val())
+});
