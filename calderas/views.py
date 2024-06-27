@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.db.models import Prefetch
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, View
-from django.forms import modelformset_factory
+from django.db import transaction
 
 from simulaciones_pequiven.views import FiltradoSimpleMixin
 from usuarios.views import SuperUserRequiredMixin 
@@ -162,8 +162,6 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
 
     def get_context(self):
         combustibles = ComposicionCombustible.objects.values('fluido').distinct()
-        print(len(combustibles))
-
         combustible_forms = []
 
         for i,x in enumerate(combustibles):
@@ -193,15 +191,59 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
     def get(self, request, **kwargs):
         return render(request, self.template_name, self.get_context())
     
-    def almacenar_datos(self):
-        pass
-    
+    def almacenar_datos(self, form_caldera, form_tambor, form_chimenea, form_economizador, form_tambor_superior, form_tambor_inferior,
+                            form_sobrecalentador, form_dimensiones_caldera, form_dimensiones_sobrecalentador, form_especificaciones,
+                            form_combustible, forms_composicion):
+        
+        with transaction.atomic(): 
+            valid = form_especificaciones.is_valid() # Se valida el primer formulario
+
+            if(form_especificaciones.is_valid()): # Se guardan las especificaciones si el formulario es válido
+                especificaciones = form_especificaciones.save()
+            
+            valid = valid and form_tambor.is_valid()
+            if(form_tambor.is_valid()): # Se guardan las especificaciones si el formulario es válido
+                tambor = form_tambor.save()
+
+            valid = valid and form_chimenea.is_valid()
+            if(form_chimenea.is_valid()): # Se guardan las especificaciones si el formulario es válido
+                chimenea = form_chimenea.save()
+
+            valid = valid and form_economizador.is_valid()
+            if(form_economizador.is_valid()): # Se guardan las especificaciones si el formulario es válido
+                tambor = form_economizador.save()
+            
+            valid = valid and form_tambor_superior.is_valid()
+            if(form_tambor_superior.is_valid()): # Se guardan las especificaciones si el formulario es válido
+                tambor_superior = form_tambor_superior.save()
+
+            valid = valid and form_tambor_inferior.is_valid()
+            if(form_tambor_inferior.is_valid()): # Se guardan las especificaciones si el formulario es válido
+                tambor_inferior = form_tambor_inferior.save()
+
+
     def post(self, request):
         # FORMS
-        pass
+        form_caldera = CalderaForm(request) 
+        form_tambor = TamborForm(request, prefix="tambor") 
+        form_chimenea = ChimeneaForm(request, prefix="chimenea")
+        form_economizador = EconomizadorForm(request, prefix="economizador")
+        form_tambor_superior = SeccionTamborForm(request, prefix="tambor-superior") 
+        form_tambor_inferior = SeccionTamborForm(request, prefix="tambor-inferior") 
+        form_sobrecalentador = SobrecalentadorForm(request, prefix="sobrecalentador")
+        form_dimensiones_sobrecalentador = DimsSobrecalentadorForm(request, prefix="dimensiones-sobrecalentador")
+        form_especificaciones = EspecificacionesCalderaForm(request, prefix="especificaciones-caldera")
+        form_dimensiones_caldera = DimensionesCalderaForm(request, prefix="dimensiones-caldera")
+        form_combustible = CombustibleForm(request, prefix="combustible")
+        forms_composicion = []
+
+        for i in range(0,14):
+            forms_composicion.append(ComposicionCombustibleForm(request, prefix=f"combustible-{i}"))
 
         try:
-            return self.almacenar_datos()
+            return self.almacenar_datos(form_caldera, form_tambor, form_chimenea, form_economizador, form_tambor_superior, form_tambor_inferior,
+                                            form_sobrecalentador, form_dimensiones_caldera, form_dimensiones_sobrecalentador, form_especificaciones,
+                                            form_combustible, forms_composicion)
         except Exception as e:
             print(str(e))
             return render()
