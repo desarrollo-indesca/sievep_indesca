@@ -174,7 +174,7 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
             })
             
         return {
-            'form_caldera': CalderaForm(prefix="caldera"), 
+            'form_caldera': CalderaForm(), 
             'form_tambor': TamborForm(prefix="tambor"), 
             'form_chimenea': ChimeneaForm(prefix="chimenea"),
             'form_economizador': EconomizadorForm(prefix="economizador"),

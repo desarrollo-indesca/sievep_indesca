@@ -37,3 +37,13 @@ $("#id_tambor-superior-dimensiones_unidad").change(() => {
 $("#id_tambor-inferior-dimensiones_unidad").change(() => {
     $("select[name='tambor-inferior-dimensiones_unidad']").val($("#id_tambor-inferior-dimensiones_unidad").val())
 });
+
+$("#id_combustible-liquido").change(e => {
+    console.log(e.target.checked);
+    if($(e.target).is(':checked'))
+        $("#id_combustible-nombre_liquido").removeAttr("disabled");
+    else{
+        $("#id_combustible-nombre_liquido").val("");
+        $("#id_combustible-nombre_liquido").attr("disabled","");
+    }
+});

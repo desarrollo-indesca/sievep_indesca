@@ -131,7 +131,7 @@
         <div class="col-6">
             {{form_especificaciones.presion_diseno.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.presion_diseno min="0.0001" class="form-control" placeholder="Presión de Diseño" %}
+                {% render_field form_especificaciones.presion_diseno min="0.0001" class="form-control" placeholder="Presión (abs.) de Diseño" %}
                 {% render_field form_especificaciones.presion_unidad class="form-select" %}
             </div>
             <small>{{form_especificaciones.presion_diseno.errors}}</small>
@@ -140,7 +140,7 @@
         <div class="col-6">
             {{form_especificaciones.presion_operacion.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.presion_operacion min="0.0001" class="form-control" placeholder="Presión de Operación" %}
+                {% render_field form_especificaciones.presion_operacion min="0.0001" class="form-control" placeholder="Presión (abs.) de Operación" %}
                 {% render_field form_especificaciones.presion_unidad class="form-select" disabled="" %}
             </div>
             <small>{{form_especificaciones.presion_operacion.errors}}</small>
@@ -212,7 +212,7 @@
             <div class="col-4">
                 {{form_tambor.presion_operacion.label_tag}}
                 <div class="input-group mb-1">
-                    {% render_field form_tambor.presion_operacion min="0.0001" class="form-control" placeholder="Presión de Operación" %}
+                    {% render_field form_tambor.presion_operacion min="0.0001" class="form-control" placeholder="Presión (abs.) de Operación" %}
                     {% render_field form_tambor.presion_unidad class="form-select" %}
                 </div>
                 <small>{{form_tambor.presion_operacion.errors}}</small>
@@ -220,7 +220,7 @@
             <div class="col-4">
                 {{form_tambor.presion_diseno.label_tag}}
                 <div class="input-group mb-1">
-                    {% render_field form_tambor.presion_diseno min="0.0001" class="form-control" placeholder="Presión de Diseño" %}
+                    {% render_field form_tambor.presion_diseno min="0.0001" class="form-control" placeholder="Presión (abs.) de Diseño" %}
                     {% render_field form_tambor.presion_unidad class="form-select" disabled="" %}
                 </div>
                 <small>{{form_tambor.presion_diseno.errors}}</small>
@@ -303,7 +303,7 @@
                 <div class="col-6">
                     {{form_sobrecalentador.presion_diseno.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_sobrecalentador.presion_diseno min="0.0001" class="form-control" placeholder="Presión de Diseño" %}
+                        {% render_field form_sobrecalentador.presion_diseno min="0.0001" class="form-control" placeholder="Presión (abs.) de Diseño" %}
                         {% render_field form_sobrecalentador.presion_unidad class="form-select" %}
                     </div>
                     <small>{{form_sobrecalentador.presion_diseno.errors}}</small>
@@ -311,7 +311,7 @@
                 <div class="col-6">
                     {{form_sobrecalentador.presion_operacion.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_sobrecalentador.presion_operacion min="0.0001" class="form-control" placeholder="Presión de Operación" %}
+                        {% render_field form_sobrecalentador.presion_operacion min="0.0001" class="form-control" placeholder="Presión (abs.) de Operación" %}
                         {% render_field form_sobrecalentador.presion_unidad class="form-select" disabled="" %}
                     </div>
                     <small>{{form_sobrecalentador.presion_operacion.errors}}</small>
@@ -377,7 +377,7 @@
                     {{form_chimenea.altura.label_tag}}
                     <div class="input-group mb-1">
                         {% render_field form_chimenea.altura class="form-control" placeholder="Altura de la Chimenea" %}
-                        {% render_field form_chimenea.dimensiones_unidad disabled="" class="form-select" hx-swap="none" %}
+                        {% render_field form_chimenea.dimensiones_unidad disabled="" class="form-select" %}
                     </div>
                     <small>{{form_chimenea.altura.errors}}</small>
                 </div>
@@ -407,7 +407,7 @@
                     {{form_economizador.area_total_transferencia.label_tag}}
                     <div class="input-group mb-1">
                         {% render_field form_economizador.area_total_transferencia class="form-control" placeholder="Área total de transferencia" %}
-                        {% render_field form_economizador.area_unidad class="form-select" hx-swap="none" %}
+                        {% render_field form_economizador.area_unidad class="form-select" %}
                     </div>
                     <small>{{form_economizador.area_total_transferencia.errors}}</small>
                 </div>
@@ -473,26 +473,10 @@
                 <button id="submit" type="submit" class="btn btn-danger">Enviar Formulario</button>
             </div>
 
-            <div class="hidden" hx-get="/plantas/" id="id_complejo" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none"></div>
+            <div class="hidden" id="id_complejo"></div>
 </form>
 
-{% if edicion or recarga %}
-{% if form_condiciones_adicionales.instance.calculo_densidad == 'A' and form_condiciones_adicionales.instance.densidad %}
-<div class="hidden" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="load" hx-indicator="#spinner" hx-include="#id_adicional-temperatura, #id_adicional-temperatura_unidad, #id_adicional-presion_entrada, #id_adicional-presion_unidad, #id_adicional-densidad_unidad, #id_adicional, #id_adicional-calculo_densidad">
-</div>
-{% endif %}
-
-{% if form_condiciones_trabajo.instance.calculo_densidad == 'A' %}
-<div class="hidden" hx-swap="none" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="load" hx-indicator="#spinner" hx-include="#id_temperatura, #id_temperatura_unidad, #id_presion_entrada, #id_presion_diseno, #id_temp_diseno, #id_temp_ambiente_unidad, #id_presion_barometrica_unidad, #id_presion_unidad, #id_densidad_unidad, #id_calculo_densidad">
-</div>
-{% endif %}
-
-{% endif %}
-
-<div id="spinner" class="htmx-indicator indicator-style">
-    <div class="spinner-grow text-danger" style="width: 6rem; height: 6rem;">
-    </div>
-</div>
+<div hx-get="/plantas/" hx-include="#id_complejo" hx-trigger="load" hx-target="#id_planta" hx-swap="none"></div>
 {% endblock %}
 
 {% block extra_javascript %}
