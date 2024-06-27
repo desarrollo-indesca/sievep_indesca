@@ -196,49 +196,72 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
                             form_combustible, forms_composicion):
         
         with transaction.atomic(): 
-            valid = form_especificaciones.is_valid() # Se valida el primer formulario
-
-            if(form_especificaciones.is_valid()): # Se guardan las especificaciones si el formulario es válido
-                especificaciones = form_especificaciones.save()
-            
+            # Se validan los formularios
+            valid = form_especificaciones.is_valid()            
             valid = valid and form_tambor.is_valid()
-            if(form_tambor.is_valid()): # Se guardan las especificaciones si el formulario es válido
-                tambor = form_tambor.save()
-
             valid = valid and form_chimenea.is_valid()
-            if(form_chimenea.is_valid()): # Se guardan las especificaciones si el formulario es válido
-                chimenea = form_chimenea.save()
-
             valid = valid and form_economizador.is_valid()
-            if(form_economizador.is_valid()): # Se guardan las especificaciones si el formulario es válido
-                tambor = form_economizador.save()
-            
             valid = valid and form_tambor_superior.is_valid()
-            if(form_tambor_superior.is_valid()): # Se guardan las especificaciones si el formulario es válido
-                tambor_superior = form_tambor_superior.save()
-
             valid = valid and form_tambor_inferior.is_valid()
-            if(form_tambor_inferior.is_valid()): # Se guardan las especificaciones si el formulario es válido
-                tambor_inferior = form_tambor_inferior.save()
+            valid = valid and form_sobrecalentador.is_valid()
+            valid = valid and form_dimensiones_sobrecalentador.is_valid()
+            valid = valid and form_dimensiones_caldera.is_valid()
+            valid = valid and form_combustible.is_valid()
+            valid = valid and form_caldera.is_valid()
 
+            for form in forms_composicion:
+                valid = valid and form.is_valid()
+            
+            if(valid):
+                combustible = form_combustible.save()
+                for form in forms_composicion:
+                    form.instance.combustible = combustible
+                    form.save()
+
+                tambor = form_caldera.save()
+                form_tambor_superior.instance.tambor = tambor
+                form_tambor_superior.save()
+                form_tambor_inferior.instance.tambor = tambor
+                form_tambor_inferior.save()
+
+                chimenea = form_chimenea.save()
+                economizador = form_economizador.save()
+                sobrecalentador_dimensiones = form_dimensiones_sobrecalentador.save()
+                form_sobrecalentador.instance.dimensiones = sobrecalentador_dimensiones
+                sobrecalentador = form_sobrecalentador.save()
+
+                especificaciones = form_especificaciones.save()
+                dimensiones_caldera = form_dimensiones_caldera.save()
+                
+                form_caldera.instance.especificaciones = especificaciones
+                form_caldera.instance.tambor = tambor
+                form_caldera.instance.chimenea = chimenea
+                form_caldera.instance.economizador = economizador
+                form_caldera.instance.sobrecalentador = sobrecalentador
+                form_caldera.instance.dimensiones = dimensiones_caldera
+                form_caldera.instance.combustible = combustible
+
+                form_caldera.save()
+            else:
+                raise Exception("Ocurrió un error.")
 
     def post(self, request):
         # FORMS
-        form_caldera = CalderaForm(request) 
-        form_tambor = TamborForm(request, prefix="tambor") 
-        form_chimenea = ChimeneaForm(request, prefix="chimenea")
-        form_economizador = EconomizadorForm(request, prefix="economizador")
-        form_tambor_superior = SeccionTamborForm(request, prefix="tambor-superior") 
-        form_tambor_inferior = SeccionTamborForm(request, prefix="tambor-inferior") 
-        form_sobrecalentador = SobrecalentadorForm(request, prefix="sobrecalentador")
-        form_dimensiones_sobrecalentador = DimsSobrecalentadorForm(request, prefix="dimensiones-sobrecalentador")
-        form_especificaciones = EspecificacionesCalderaForm(request, prefix="especificaciones-caldera")
-        form_dimensiones_caldera = DimensionesCalderaForm(request, prefix="dimensiones-caldera")
-        form_combustible = CombustibleForm(request, prefix="combustible")
+        form_caldera = CalderaForm(request.POST) 
+        form_tambor = TamborForm(request.POST, prefix="tambor") 
+        form_chimenea = ChimeneaForm(request.POST, prefix="chimenea")
+        form_economizador = EconomizadorForm(request.POST, prefix="economizador")
+        form_tambor_superior = SeccionTamborForm(request.POST, prefix="tambor-superior") 
+        form_tambor_inferior = SeccionTamborForm(request.POST, prefix="tambor-inferior") 
+        form_sobrecalentador = SobrecalentadorForm(request.POST, prefix="sobrecalentador")
+        form_dimensiones_sobrecalentador = DimsSobrecalentadorForm(request.POST, prefix="dimensiones-sobrecalentador")
+        form_especificaciones = EspecificacionesCalderaForm(request.POST, prefix="especificaciones-caldera")
+        form_dimensiones_caldera = DimensionesCalderaForm(request.POST, prefix="dimensiones-caldera")
+        form_combustible = CombustibleForm(request.POST, prefix="combustible")
         forms_composicion = []
 
         for i in range(0,14):
-            forms_composicion.append(ComposicionCombustibleForm(request, prefix=f"combustible-{i}"))
+            forms_composicion.append(ComposicionCombustibleForm(request.POST, prefix=f"combustible-{i}"))
 
         try:
             return self.almacenar_datos(form_caldera, form_tambor, form_chimenea, form_economizador, form_tambor_superior, form_tambor_inferior,
@@ -246,4 +269,30 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
                                             form_combustible, forms_composicion)
         except Exception as e:
             print(str(e))
-            return render()
+
+            combustibles = ComposicionCombustible.objects.values('fluido').distinct()
+            combustible_forms = []
+            for i,x in enumerate(combustibles):
+                combustible_forms.append({
+                    'combustible': Fluido.objects.get(pk=x['fluido']),
+                    'form': forms_composicion[i]
+                })
+
+            return render(self.request, self.template_name, context={
+                    'form_caldera': form_caldera, 
+                    'form_especificaciones': form_especificaciones,
+                    'form_tambor': form_tambor, 
+                    'form_tambor': form_tambor,
+                    'form_chimenea': form_chimenea,
+                    'form_economizador': form_economizador,
+                    'form_tambor_superior': form_tambor_superior,
+                    'form_tambor_inferior': form_tambor_inferior,
+                    'form_sobrecalentador': form_sobrecalentador,
+                    'form_dimensiones_sobrecalentador': form_dimensiones_sobrecalentador,
+                    'form_dimensiones_caldera': form_dimensiones_caldera,
+                    'form_combustible': form_combustible,
+                    'composicion_combustible_forms': combustible_forms,
+                    'titulo': self.titulo,
+                    'compuestos_aire': COMPUESTOS_AIRE,
+                    'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo."
+                })
