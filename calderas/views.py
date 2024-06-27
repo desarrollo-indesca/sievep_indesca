@@ -287,4 +287,53 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
         return self.almacenar_datos(form_caldera, form_tambor, form_chimenea, form_economizador, form_tambor_superior, form_tambor_inferior,
                                             form_sobrecalentador, form_dimensiones_caldera, form_dimensiones_sobrecalentador, form_especificaciones,
                                             form_combustible, forms_composicion)
-        
+
+class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
+    """
+    Resumen:
+        Vista para la creación o registro de nuevas calderas.
+        Solo puede ser accedido por superusuarios.
+        Hereda de CreacionBomba debido a la gran similitud de los procesos de renderización y almacenamiento.
+
+    Atributos:
+        success_message: str -> Mensaje a ser enviado al usuario al editar exitosamente una bomba.
+    
+    Métodos:
+        get_context(self) -> dict
+            Crea instancias de los formularios a ser utilizados y define el título de la vista.
+            Asimismo define las instancias con las que serán cargados los formularios.
+
+        post(self) -> HttpResponse
+            Envía el request a los formularios y envía la respuesta al cliente.
+    """
+    
+    def get_context(self):
+        combustibles = ComposicionCombustible.objects.values('fluido').distinct()
+        combustible_forms = []
+
+        caldera = self.get_caldera()
+        combustibles = caldera.combustible.composicion_combustible_caldera
+
+        for i,composicion in enumerate(combustibles):
+            form = ComposicionCombustibleForm(prefix=f'combustible-{i}', instance=composicion)
+            combustible_forms.append({
+                'combustible': composicion.fluido,
+                'form': form
+            })
+            
+        return {
+            'form_caldera': CalderaForm(instance=caldera), 
+            'form_tambor': TamborForm(prefix="tambor", instance=caldera.tambor), 
+            'form_chimenea': ChimeneaForm(prefix="chimenea", instance=caldera.chimenea),
+            'form_economizador': EconomizadorForm(prefix="economizador", instance=caldera.economizador),
+            'form_tambor_superior': SeccionTamborForm(prefix="tambor-superior", instance=caldera.tambor.secciones_tambor.get(seccion="S")), 
+            'form_tambor_inferior': SeccionTamborForm(prefix="tambor-inferior", instance=caldera.tambor.secciones_tambor.get(seccion="I")), 
+            'form_sobrecalentador': SobrecalentadorForm(prefix="sobrecalentador", instance=caldera.sobrecalentador),
+            'form_dimensiones_sobrecalentador': DimsSobrecalentadorForm(prefix="dimensiones-sobrecalentador", instance=caldera.sobrecalentador.dims),
+            'form_especificaciones': EspecificacionesCalderaForm(prefix="especificaciones-caldera", instance=Caldera.especificaciones),
+            'form_dimensiones_caldera': DimensionesCalderaForm(prefix="dimensiones-caldera", instance=caldera.dimensiones),
+            'form_combustible': CombustibleForm(prefix="combustible", caldera=caldera.combustible),
+            'composicion_combustible_forms': combustible_forms,
+            'compuestos_aire': COMPUESTOS_AIRE,
+            'titulo': self.titulo
+        }

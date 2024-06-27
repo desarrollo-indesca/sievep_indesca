@@ -253,7 +253,7 @@
         </div>
         <div class="modal-footer">
           {% if request.user.is_superuser %}
-          <a href="#" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+          <a href="{% url 'edicion_caldera' pk=caldera.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
           {% endif %}
           <button class="btn btn-secondary" data-bs-target="#ficha_adicional_{{caldera.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Datos Adicionales</button>
 
