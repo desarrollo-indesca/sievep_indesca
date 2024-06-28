@@ -232,7 +232,7 @@ class Economizador(models.Model):
     """
     area_total_transferencia = models.FloatField("Área Total de Transferencia", null=True, blank = True)
     diametro_tubos = models.FloatField("Diámetro de los tubos", null=True, blank = True)
-    numero_tubos = models.IntegerField("Número de Tubos", null=True)
+    numero_tubos = models.IntegerField("Número de Tubos", null=True, blank=True)
 
     area_unidad = models.ForeignKey(Unidades, models.PROTECT, default=3, related_name="area_unidad_economizador")
     diametro_unidad = models.ForeignKey(Unidades, models.PROTECT, default=4, related_name="diametro_unidad_economizador")

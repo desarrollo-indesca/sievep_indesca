@@ -18,7 +18,7 @@
             {% if not edicion %}
             <h3 class="text-center" style="color: #e31e24;">Registro de Nueva Caldera</h3>
             {% else %}
-            <h3 class="text-center" style="color: #e31e24;">Edición de Caldera</h3>
+            <h3 class="text-center" style="color: #e31e24;">Edición de la Caldera {{caldera.tag}}</h3>
             {% endif %}
         </div>
         <div class="col-3"></div>
@@ -431,7 +431,11 @@
                     <div class="col-4">
                         {{form_combustible.nombre_liquido.label_tag}}
                         <div class="input-group mb-1">
+                            {% if form_combustible.instance.liquido %}
+                            {% render_field form_combustible.nombre_liquido class="form-control" placeholder="Nombre del Combustible Líquido" %}
+                            {% else %}
                             {% render_field form_combustible.nombre_liquido class="form-control" disabled="" placeholder="Nombre del Combustible Líquido" %}
+                            {% endif %}
                         </div>
                         <small>{{form_combustible.nombre_liquido.errors}}</small>
                     </div>

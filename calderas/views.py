@@ -138,9 +138,9 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
         Solo puede ser accedido por superusuarios.
 
     Atributos:
-        success_message: str -> Mensaje al realizarse correctamente la creación
-        titulo: str -> Título a mostrar en la vista
-        template_name: str -> Dirección de la plantilla
+        success_message: str -> Mensaje al realizarse correctamente la creación.
+        titulo: str -> Título a mostrar en la vista.
+        template_name: str -> Dirección de la plantilla.
     
     Métodos:
         get_context(self) -> dict
@@ -157,8 +157,8 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
             Envía el request a los formularios y envía la respuesta al cliente.
     """
 
-    success_message = "La nueva bomba ha sido registrada exitosamente. Los datos de instalación ya pueden ser cargados."
-    titulo = 'SIEVEP - Creación de Bomba Centrífuga'
+    success_message = "La nueva caldera ha sido registrada exitosamente. Los datos adicionales ya pueden ser cargados."
+    titulo = 'SIEVEP - Creación de Caldera'
     template_name = 'calderas/creacion.html'
 
     def get_context(self):
@@ -248,7 +248,7 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
 
                 form_caldera.save()
 
-                messages.success(self.request, "La nueva caldera se ha almacenado correctamente.")
+                messages.success(self.request, self.success_message)
                 return redirect("/calderas")
             else:
                 print([
@@ -283,20 +283,49 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
 
         for i in range(0,14):
             forms_composicion.append(ComposicionCombustibleForm(request.POST, prefix=f"combustible-{i}"))
-
-        return self.almacenar_datos(form_caldera, form_tambor, form_chimenea, form_economizador, form_tambor_superior, form_tambor_inferior,
+        
+        try:
+            return self.almacenar_datos(form_caldera, form_tambor, form_chimenea, form_economizador, form_tambor_superior, form_tambor_inferior,
                                             form_sobrecalentador, form_dimensiones_caldera, form_dimensiones_sobrecalentador, form_especificaciones,
                                             form_combustible, forms_composicion)
+        except Exception as e:
+            print(str(e))
+
+            combustible_forms = []
+            for i,form in enumerate(forms_composicion):
+                combustible_forms.append({
+                    'combustible': form.instance.fluido,
+                    'form': form
+                })
+
+            return render(request, self.template_name, context={
+                'form_caldera': form_caldera, 
+                'form_tambor': form_tambor, 
+                'form_chimenea': form_chimenea,
+                'form_economizador': form_economizador,
+                'form_tambor_superior': form_tambor_superior, 
+                'form_tambor_inferior': form_tambor_inferior, 
+                'form_sobrecalentador': form_sobrecalentador,
+                'form_dimensiones_sobrecalentador': form_dimensiones_sobrecalentador,
+                'form_especificaciones': form_especificaciones,
+                'form_dimensiones_caldera': form_dimensiones_caldera,
+                'form_combustible': form_combustible,
+                'composicion_combustible_forms': combustible_forms,
+                'compuestos_aire': COMPUESTOS_AIRE,
+                'recargo': True,
+                'titulo': self.titulo
+            })
 
 class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
     """
     Resumen:
         Vista para la creación o registro de nuevas calderas.
         Solo puede ser accedido por superusuarios.
-        Hereda de CreacionBomba debido a la gran similitud de los procesos de renderización y almacenamiento.
+        Hereda de CreacionCaldera debido a la gran similitud de los procesos de renderización y almacenamiento.
 
     Atributos:
-        success_message: str -> Mensaje a ser enviado al usuario al editar exitosamente una bomba.
+        success_message: str -> Mensaje a ser enviado al usuario al editar exitosamente una caldera.
+        titulo: str -> Título de la vista
     
     Métodos:
         get_context(self) -> dict
@@ -306,15 +335,18 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
         post(self) -> HttpResponse
             Envía el request a los formularios y envía la respuesta al cliente.
     """
+
+    success_message = "La caldera ha sido modificada exitosamente."
+    titulo = 'SIEVEP - Edición de Caldera'
     
     def get_context(self):
         combustibles = ComposicionCombustible.objects.values('fluido').distinct()
         combustible_forms = []
 
-        caldera = self.get_caldera()
+        caldera = self.get_caldera(caldera_q=False)
         combustibles = caldera.combustible.composicion_combustible_caldera
 
-        for i,composicion in enumerate(combustibles):
+        for i,composicion in enumerate(combustibles.all()):
             form = ComposicionCombustibleForm(prefix=f'combustible-{i}', instance=composicion)
             combustible_forms.append({
                 'combustible': composicion.fluido,
@@ -330,10 +362,63 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
             'form_tambor_inferior': SeccionTamborForm(prefix="tambor-inferior", instance=caldera.tambor.secciones_tambor.get(seccion="I")), 
             'form_sobrecalentador': SobrecalentadorForm(prefix="sobrecalentador", instance=caldera.sobrecalentador),
             'form_dimensiones_sobrecalentador': DimsSobrecalentadorForm(prefix="dimensiones-sobrecalentador", instance=caldera.sobrecalentador.dims),
-            'form_especificaciones': EspecificacionesCalderaForm(prefix="especificaciones-caldera", instance=Caldera.especificaciones),
+            'form_especificaciones': EspecificacionesCalderaForm(prefix="especificaciones-caldera", instance=caldera.especificaciones),
             'form_dimensiones_caldera': DimensionesCalderaForm(prefix="dimensiones-caldera", instance=caldera.dimensiones),
-            'form_combustible': CombustibleForm(prefix="combustible", caldera=caldera.combustible),
+            'form_combustible': CombustibleForm(prefix="combustible", instance=caldera.combustible),
             'composicion_combustible_forms': combustible_forms,
             'compuestos_aire': COMPUESTOS_AIRE,
+            'edicion': True,
             'titulo': self.titulo
         }
+
+    def post(self, request, pk):
+        # FORMS
+        caldera = self.get_caldera(caldera_q=False)
+
+        form_caldera = CalderaForm(request.POST, instance=caldera) 
+        form_tambor = TamborForm(request.POST, prefix="tambor", instance=caldera.tambor) 
+        form_chimenea = ChimeneaForm(request.POST, prefix="chimenea", instance=caldera.chimenea)
+        form_economizador = EconomizadorForm(request.POST, prefix="economizador", instance=caldera.economizador)
+        form_tambor_superior = SeccionTamborForm(request.POST, prefix="tambor-superior", instance=caldera.tambor.secciones_tambor.get(seccion="S")) 
+        form_tambor_inferior = SeccionTamborForm(request.POST, prefix="tambor-inferior", instance=caldera.tambor.secciones_tambor.get(seccion="I")) 
+        form_sobrecalentador = SobrecalentadorForm(request.POST, prefix="sobrecalentador", instance=caldera.sobrecalentador)
+        form_dimensiones_sobrecalentador = DimsSobrecalentadorForm(request.POST, prefix="dimensiones-sobrecalentador", instance=caldera.sobrecalentador.dims)
+        form_especificaciones = EspecificacionesCalderaForm(request.POST, prefix="especificaciones-caldera", instance=caldera.especificaciones)
+        form_dimensiones_caldera = DimensionesCalderaForm(request.POST, prefix="dimensiones-caldera", instance=caldera.dimensiones)
+        form_combustible = CombustibleForm(request.POST, prefix="combustible", instance=caldera.combustible)
+        forms_composicion = []
+
+        for i,x in enumerate(caldera.combustible.composicion_combustible_caldera.all()):
+            forms_composicion.append(ComposicionCombustibleForm(request.POST, prefix=f"combustible-{i}", instance=x))
+
+        try:
+            return self.almacenar_datos(form_caldera, form_tambor, form_chimenea, form_economizador, form_tambor_superior, form_tambor_inferior,
+                                            form_sobrecalentador, form_dimensiones_caldera, form_dimensiones_sobrecalentador, form_especificaciones,
+                                            form_combustible, forms_composicion)
+        except Exception as e:
+            print(str(e))
+
+            combustible_forms = []
+            for i,form in enumerate(forms_composicion):
+                combustible_forms.append({
+                    'combustible': form.instance.fluido,
+                    'form': form
+                })
+
+            return render(request, self.template_name, context={
+                'form_caldera': form_caldera, 
+                'form_tambor': form_tambor, 
+                'form_chimenea': form_chimenea,
+                'form_economizador': form_economizador,
+                'form_tambor_superior': form_tambor_superior, 
+                'form_tambor_inferior': form_tambor_inferior, 
+                'form_sobrecalentador': form_sobrecalentador,
+                'form_dimensiones_sobrecalentador': form_dimensiones_sobrecalentador,
+                'form_especificaciones': form_especificaciones,
+                'form_dimensiones_caldera': form_dimensiones_caldera,
+                'form_combustible': form_combustible,
+                'composicion_combustible_forms': combustible_forms,
+                'compuestos_aire': COMPUESTOS_AIRE,
+                'edicion': True,
+                'titulo': self.titulo + f" {caldera.tag}"
+            })
