@@ -14,6 +14,8 @@ from reportes.xlsx import reporte_equipos
 from .forms import *
 from .constants import COMPUESTOS_AIRE
 
+from datetime import datetime
+
 # Create your views here.
 class CargarCalderasMixin():
     """
@@ -298,6 +300,8 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
                     'form': form
                 })
 
+            form_caldera.fields["planta"].queryset = Planta.objects.filter(complejo=form_caldera.instance.planta.complejo)
+
             return render(request, self.template_name, context={
                 'form_caldera': form_caldera, 
                 'form_tambor': form_tambor, 
@@ -375,7 +379,9 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
         # FORMS
         caldera = self.get_caldera(caldera_q=False)
 
-        form_caldera = CalderaForm(request.POST, instance=caldera) 
+        form_caldera = CalderaForm(request.POST, instance=caldera, initial={'complejo': caldera.planta.complejo}) 
+        form_caldera.instance.editado_por = request.user
+        form_caldera.instance.editado_al = datetime.now()
         form_tambor = TamborForm(request.POST, prefix="tambor", instance=caldera.tambor) 
         form_chimenea = ChimeneaForm(request.POST, prefix="chimenea", instance=caldera.chimenea)
         form_economizador = EconomizadorForm(request.POST, prefix="economizador", instance=caldera.economizador)

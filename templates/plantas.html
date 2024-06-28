@@ -13,3 +13,9 @@
     <option value="{{planta.pk}}" {% if planta_selec == planta.pk %}selected{% endif %}>{{planta.nombre}}</option>
     {% endfor %}
 </select>
+
+<select name="complejo" id="id_complejo" hx-swap-oob="true" class="form-select"  hx-get="/plantas/" hx-trigger="change" hx-target="#id_planta" hx-swap="none">
+    {% for complejo in complejos %}
+    <option value="{{complejo.pk}}" {% if complejo_seleccionado == complejo.pk %}selected{%endif%}>{{complejo}}</option>
+    {% endfor %}
+</select>

@@ -47,6 +47,9 @@ class Command(BaseCommand):
         "Dióxido de Azufre": {
             "porc_vol": 0
         },
+        "Dióxido de Carbono": {
+            "porc_vol": 3.13
+        },
         "Oxígeno": {
             "porc_vol": 0,
             "porc_aire": 21

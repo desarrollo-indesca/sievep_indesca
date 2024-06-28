@@ -113,7 +113,7 @@
         <div class="col-6">
             {{form_especificaciones.temp_diseno.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.temp_diseno min="0.0001" class="form-control" placeholder="Temp. de Diseño" %}
+                {% render_field form_especificaciones.temp_diseno min="-273.15" class="form-control" placeholder="Temp. de Diseño" %}
                 {% render_field form_especificaciones.temperatura_unidad class="form-select" %}
             </div>
             <small>{{form_especificaciones.temp_diseno.errors}}</small>
@@ -122,7 +122,7 @@
         <div class="col-6">
             {{form_especificaciones.temp_operacion.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.temp_operacion min="0.0001" class="form-control" placeholder="Temp. de Operación" %}
+                {% render_field form_especificaciones.temp_operacion min="-273.15" class="form-control" placeholder="Temp. de Operación" %}
                 {% render_field form_especificaciones.temperatura_unidad class="form-select" disabled="" %}
             </div>
             <small>{{form_especificaciones.temp_operacion.errors}}</small>
@@ -158,7 +158,7 @@
         <div class="col-4">
             {{form_especificaciones.eficiencia_termica.label_tag}}
             <div class="input-group mb-1">
-                {% render_field form_especificaciones.eficiencia_termica min="0.0001" class="form-control" placeholder="Eficiencia de referencia" %}
+                {% render_field form_especificaciones.eficiencia_termica class="form-control" placeholder="Eficiencia de referencia" %}
                 <select class="form-select" disabled="disabled">
                     <option value="">%</option>
                 </select>
@@ -235,7 +235,7 @@
             <div class="col-6">
                 {{form_tambor.temp_operacion.label_tag}}
                 <div class="input-group mb-1">
-                    {% render_field form_tambor.temp_operacion min="0.0001" class="form-control" placeholder="Temperatura de Operación" %}
+                    {% render_field form_tambor.temp_operacion min="-273.15" class="form-control" placeholder="Temperatura de Operación" %}
                     {% render_field form_tambor.temperatura_unidad class="form-select" %}
                 </div>
                 <small>{{form_tambor.temp_operacion.errors}}</small>
@@ -243,7 +243,7 @@
             <div class="col-6">
                 {{form_tambor.temp_diseno.label_tag}}
                 <div class="input-group mb-1">
-                    {% render_field form_tambor.temp_diseno min="0.0001" class="form-control" placeholder="Temperatura de Diseño" %}
+                    {% render_field form_tambor.temp_diseno min="-273.15" class="form-control" placeholder="Temperatura de Diseño" %}
                     {% render_field form_tambor.temperatura_unidad class="form-select" disabled="" %}
                 </div>
                 <small>{{form_tambor.temp_diseno.errors}}</small>
@@ -320,7 +320,7 @@
                 <div class="col-6">
                     {{form_sobrecalentador.temp_operacion.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_sobrecalentador.temp_operacion min="0.0001" class="form-control" placeholder="Temperatura de Operación" %}
+                        {% render_field form_sobrecalentador.temp_operacion min="-273.15" class="form-control" placeholder="Temperatura de Operación" %}
                         {% render_field form_sobrecalentador.temperatura_unidad class="form-select" %}
                     </div>
                     <small>{{form_sobrecalentador.temp_operacion.errors}}</small>
@@ -345,7 +345,7 @@
                 <div class="col-4">
                     {{form_dimensiones_sobrecalentador.num_tubos.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_dimensiones_sobrecalentador.num_tubos min="0.0001" class="form-control" placeholder="Número de los Tubos" %}
+                        {% render_field form_dimensiones_sobrecalentador.num_tubos min="1" class="form-control" placeholder="Número de los Tubos" %}
                     </div>
                     <small>{{form_dimensiones_sobrecalentador.num_tubos.errors}}</small>
                 </div>
@@ -367,7 +367,7 @@
                 <div class="col-6">
                     {{form_chimenea.diametro.label_tag}}*
                     <div class="input-group mb-1">
-                        {% render_field form_chimenea.diametro min="0.000001" class="form-control" placeholder="Diámetro de la Chimenea" %}
+                        {% render_field form_chimenea.diametro min="0.0001" class="form-control" placeholder="Diámetro de la Chimenea" %}
                         {% render_field form_chimenea.dimensiones_unidad class="form-select" %}
                     </div>
                     <small>{{form_chimenea.diametro.errors}}</small>
@@ -376,7 +376,7 @@
                 <div class="col-6">
                     {{form_chimenea.altura.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_chimenea.altura class="form-control" placeholder="Altura de la Chimenea" %}
+                        {% render_field form_chimenea.altura min="0.0001" class="form-control" placeholder="Altura de la Chimenea" %}
                         {% render_field form_chimenea.dimensiones_unidad disabled="" class="form-select" %}
                     </div>
                     <small>{{form_chimenea.altura.errors}}</small>
@@ -391,7 +391,7 @@
                 <div class="col-4">
                     {{form_economizador.diametro_tubos.label_tag}}*
                     <div class="input-group mb-1">
-                        {% render_field form_economizador.diametro_tubos min="0.000001" class="form-control" placeholder="Diámetro de tubos" %}
+                        {% render_field form_economizador.diametro_tubos min="0.0001" class="form-control" placeholder="Diámetro de tubos" %}
                         {% render_field form_economizador.diametro_unidad class="form-select" %}
                     </div>
                     <small>{{form_economizador.diametro_tubos.errors}}</small>
@@ -399,14 +399,14 @@
                 <div class="col-4">
                     {{form_economizador.numero_tubos.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_economizador.numero_tubos class="form-control" placeholder="Número de los tubos" %}
+                        {% render_field form_economizador.numero_tubos min="1" class="form-control" placeholder="Número de los tubos" %}
                     </div>
                     <small>{{form_economizador.numero_tubos.errors}}</small>
                 </div>
                 <div class="col-4">
                     {{form_economizador.area_total_transferencia.label_tag}}
                     <div class="input-group mb-1">
-                        {% render_field form_economizador.area_total_transferencia class="form-control" placeholder="Área total de transferencia" %}
+                        {% render_field form_economizador.area_total_transferencia min="0.0001" class="form-control" placeholder="Área total de transferencia" %}
                         {% render_field form_economizador.area_unidad class="form-select" %}
                     </div>
                     <small>{{form_economizador.area_total_transferencia.errors}}</small>
@@ -441,7 +441,7 @@
                     </div>
 
                     <div class="col-12 mt-3">
-                        <table class="table table-bordered text-center">
+                        <table class="table table-bordered text-center table-hover" style="vertical-align: middle;">
                             <thead class="table-dark">
                                 <tr>
                                     <th colspan="3">COMPOSICIÓN DEL COMBUSTIBLE</th>
@@ -463,17 +463,26 @@
                                         <small>{{form.form.fluido.errors}}</small>
                                     </th>
                                     <td>
-                                        {% render_field form.form.porc_vol class="form-control" placeholder="% Volumen" %}
+                                        {% render_field form.form.porc_vol min="0" class="form-control porc-vol" placeholder="% Volumen" %}
                                         <small>{{form.form.porc_vol.errors}}</small>
                                     </td>
                                     <td>
                                         {% if form.combustible.pk in compuestos_aire %}
-                                        {% render_field form.form.porc_aire class="form-control" placeholder="% Aire" %}
+                                        {% render_field form.form.porc_aire min="0" class="form-control porc-aire" placeholder="% Aire" %}
                                         <small>{{form.form.porc_aire.errors}}</small>
                                         {% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}
+                                <tr>
+                                    <th class="table-dark">TOTALES</th>
+                                    <td>
+                                        <input value="0.00" id="total-volumen" type="text" disabled="disabled" class="form-control">
+                                    </td>
+                                    <td>
+                                        <input value="0.00" id="total-aire" type="text" disabled="disabled" class="form-control">
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -488,9 +497,12 @@
             <div class="hidden" id="id_complejo"></div>
 </form>
 
-{% if not recargo and not edicion %}
-<div hx-get="/plantas/" hx-include="#id_complejo" hx-trigger="load" hx-target="#id_planta" hx-swap="none"></div>
+{% if edicion or recarga %}
+<div hx-get="/plantas/" hx-include="#id_planta" hx-vals="js:{complejo: {{form_caldera.instance.planta.complejo.pk}}}" hx-trigger="load" hx-target="#id_planta" hx-swap="none"></div>
+{% else %}
+<div hx-get="/plantas/" hx-include="#id_planta, #id_complejo" hx-trigger="load" hx-target="#id_planta" hx-swap="none"></div>
 {% endif %}
+
 {% endblock %}
 
 {% block extra_javascript %}

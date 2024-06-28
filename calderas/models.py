@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
 
 from intercambiadores.models import Planta, Fluido, Unidades
 
@@ -20,10 +21,18 @@ class Tambor(models.Model):
         presion_unidad: Unidades -> Unidades de las magnitudes asociadas
     """
 
-    presion_operacion = models.FloatField("Presión de Operación", null=True, blank = True)
-    temp_operacion = models.FloatField("Temperatura de Operación", null=True, blank = True)
-    presion_diseno = models.FloatField("Presión de Diseño", null=True, blank = True)
-    temp_diseno = models.FloatField("Temperatura de Diseño", null=True, blank = True)
+    presion_operacion = models.FloatField("Presión de Operación", null=True, blank = True, validators=[
+        MinValueValidator(0.00001)
+    ])
+    temp_operacion = models.FloatField("Temperatura de Operación", null=True, blank = True, validators=[
+        MinValueValidator(-273.15)
+    ])
+    presion_diseno = models.FloatField("Presión de Diseño", null=True, blank = True, validators=[
+        MinValueValidator(0.0001)
+    ])
+    temp_diseno = models.FloatField("Temperatura de Diseño", null=True, blank = True, validators=[
+        MinValueValidator(-273.15)
+    ])
     material = models.CharField("Material del Tambor", max_length=45, null=True, blank = True)
 
     temperatura_unidad = models.ForeignKey(Unidades, models.PROTECT, default=1, related_name="temperatura_unidad_tambor")
@@ -48,8 +57,12 @@ class SeccionTambor(models.Model):
     ]
 
     seccion = models.CharField(max_length=1, choices=SECCIONES)
-    diametro = models.FloatField("Diámetro", null=True, blank = True)
-    longitud = models.FloatField("Longitud", null=True, blank = True)
+    diametro = models.FloatField("Diámetro", null=True, blank = True, validators=[
+        MinValueValidator(0.0001)
+    ])
+    longitud = models.FloatField("Longitud", null=True, blank = True, validators=[
+        MinValueValidator(0.0001)
+    ])
     tambor = models.ForeignKey(Tambor, models.PROTECT, related_name="secciones_tambor")
 
     dimensiones_unidad = models.ForeignKey(Unidades, models.PROTECT, default=4)
@@ -75,9 +88,15 @@ class DimsSobrecalentador(models.Model):
         ('S','Superior')
     ]
 
-    area_total_transferencia = models.FloatField("Área Total de Transferencia", null=True, blank = True)
-    diametro_tubos = models.FloatField("Diámetro de Tubos", null=True, blank = True)
-    num_tubos = models.IntegerField("Número de Tubos", null=True, blank = True)
+    area_total_transferencia = models.FloatField("Área Total de Transferencia", null=True, blank = True, validators=[
+        MinValueValidator(0.0001)
+    ])
+    diametro_tubos = models.FloatField("Diámetro de Tubos", null=True, blank = True, validators=[
+        MinValueValidator(0.0001)
+    ])
+    num_tubos = models.IntegerField("Número de Tubos", null=True, blank = True, validators=[
+        MinValueValidator(1)
+    ])
 
     area_unidad = models.ForeignKey(Unidades, models.PROTECT, default=3, related_name="area_unidad_sobrecalentador")
     diametro_unidad = models.ForeignKey(Unidades, models.PROTECT, default=4, related_name="diametro_unidad_sobrecalentador")
@@ -97,10 +116,18 @@ class Sobrecalentador(models.Model):
         presion_unidad: Unidades -> Unidad de la magnitud correspondiente
         flujo_unidad: Unidades -> Unidad de la magnitud correspondiente  
     """
-    presion_operacion = models.FloatField("Presión de Operación", null=True, blank=True)
-    temp_operacion = models.FloatField("Temperatura de Operación", null=True, blank=True)
-    presion_diseno = models.FloatField("Presión de Diseño", null=True, blank=True)
-    flujo_max_continuo = models.FloatField("Flujo Máximo Continuo", null=True, blank=True)
+    presion_operacion = models.FloatField("Presión de Operación", null=True, blank=True, validators=[
+        MinValueValidator(0.0001)
+    ])
+    temp_operacion = models.FloatField("Temperatura de Operación", null=True, blank=True, validators=[
+        MinValueValidator(-273.15)
+    ])
+    presion_diseno = models.FloatField("Presión de Diseño", null=True, blank=True, validators=[
+        MinValueValidator(0.0001)
+    ])
+    flujo_max_continuo = models.FloatField("Flujo Máximo Continuo", null=True, blank=True, validators=[
+        MinValueValidator(0.0001)
+    ])
 
     dims = models.OneToOneField(DimsSobrecalentador, models.PROTECT)
 
@@ -119,9 +146,15 @@ class DimensionesCaldera(models.Model):
         alto: models.FloatField -> Alto de la caldera
         dimensiones_unidad: Unidades -> Dimensión         
     """
-    ancho = models.FloatField(null=True, blank=True)
-    largo = models.FloatField(null=True, blank=True)
-    alto = models.FloatField(null=True, blank=True)
+    ancho = models.FloatField(null=True, blank=True, validators=[
+        MinValueValidator(0.0001)
+    ])
+    largo = models.FloatField(null=True, blank=True, validators=[
+        MinValueValidator(0.0001)
+    ])
+    alto = models.FloatField(null=True, blank=True, validators=[
+        MinValueValidator(0.0001)
+    ])
     dimensiones_unidad = models.ForeignKey(Unidades, models.PROTECT, default=4)
 
 class EspecificacionesCaldera(models.Model):
@@ -149,24 +182,40 @@ class EspecificacionesCaldera(models.Model):
     """
     material = models.CharField("Material de la Caldera", max_length=45, null=True, blank = True)
 
-    area_transferencia_calor = models.FloatField("Área de Transferencia de Calor", null=True, blank = True)
+    area_transferencia_calor = models.FloatField("Área de Transferencia de Calor", null=True, blank = True, validators=[
+        MinValueValidator(0.0001)
+    ])
     area_unidad = models.ForeignKey(Unidades, models.PROTECT, default=3, related_name="area_unidad_especificaciones")
 
-    calor_intercambiado = models.FloatField("Calor Intercambiado", null=True, blank = True)
+    calor_intercambiado = models.FloatField("Calor Intercambiado", null=True, blank = True, validators=[
+        MinValueValidator(0.0001)
+    ])
     calor_unidad = models.ForeignKey(Unidades, models.PROTECT, default=62, related_name="calor_unidad_especificaciones")
 
-    capacidad = models.FloatField("Capacidad de la Caldera", null=True, blank = True)
+    capacidad = models.FloatField("Capacidad de la Caldera", null=True, blank = True, validators=[
+        MinValueValidator(0.0001)
+    ])
     capacidad_unidad = models.ForeignKey(Unidades, models.PROTECT, default=6, related_name="capacidad_unidad_especificaciones")
 
-    temp_diseno = models.FloatField("Temperatura de Diseño", null=True, blank = True)
-    temp_operacion = models.FloatField("Temperatura de Operación", null=True, blank = True)
+    temp_diseno = models.FloatField("Temperatura de Diseño", null=True, blank = True, validators=[
+        MinValueValidator(-273.15)
+    ])
+    temp_operacion = models.FloatField("Temperatura de Operación", null=True, blank = True, validators=[
+        MinValueValidator(-273.15)
+    ])
     temperatura_unidad = models.ForeignKey(Unidades, models.PROTECT, default=1, related_name="temperatura_unidad_especificaciones")
 
-    presion_diseno = models.FloatField("Presión de Diseño", null=True, blank = True)
-    presion_operacion = models.FloatField("Presión de Operación", null=True, blank = True)
+    presion_diseno = models.FloatField("Presión de Diseño", null=True, blank = True, validators=[
+        MinValueValidator(0.0001)
+    ])
+    presion_operacion = models.FloatField("Presión de Operación", null=True, blank = True, validators=[
+        MinValueValidator(0.0001)
+    ])
     presion_unidad = models.ForeignKey(Unidades, models.PROTECT, default=33, related_name="presion_unidad_especificaciones")
 
-    carga = models.FloatField("Carga de la Caldera", null=True, blank = True)
+    carga = models.FloatField("Carga de la Caldera", null=True, blank = True, validators=[
+        MinValueValidator(0.0001)
+    ])
     carga_unidad = models.ForeignKey(Unidades, models.PROTECT, default=6, related_name="carga_unidad_especificaciones")
 
     eficiencia_termica = models.FloatField("Eficiencia Térmica", null=True, blank = True)
@@ -196,8 +245,8 @@ class ComposicionCombustible(models.Model):
         combustible: models.FloatField -> Combustible al cual está asociado la composición
         fluido: models.FloatField -> Fluido o Compuesto puro de la composición
     """
-    porc_vol = models.FloatField()
-    porc_aire = models.FloatField(null=True, blank=True)
+    porc_vol = models.FloatField(validators=[MinValueValidator(0.0)])
+    porc_aire = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0)])
     combustible = models.ForeignKey(Combustible, models.PROTECT, related_name="composicion_combustible_caldera")
     fluido = models.ForeignKey(Fluido, models.PROTECT)
 
@@ -214,8 +263,12 @@ class Chimenea(models.Model):
         altura: models.FloatField -> Altura de la chimenea
         dimensiones_unidad: Unidades -> Unidad para las dimensiones
     """
-    diametro = models.FloatField("Diámetro", null=True, blank = True)
-    altura = models.FloatField("Altura", null=True, blank = True)
+    diametro = models.FloatField("Diámetro", null=True, blank = True, validators=[
+        MinValueValidator(0.0001)
+    ])
+    altura = models.FloatField("Altura", null=True, blank = True, validators=[
+        MinValueValidator(0.0001)
+    ])
     dimensiones_unidad = models.ForeignKey(Unidades, models.PROTECT, default=4)
 
 class Economizador(models.Model):
@@ -230,9 +283,13 @@ class Economizador(models.Model):
         area_unidad: Unidades -> Unidad para las medidas de área
         diametro_unidad: Unidades -> Unidad para las medidas de los diámetros
     """
-    area_total_transferencia = models.FloatField("Área Total de Transferencia", null=True, blank = True)
-    diametro_tubos = models.FloatField("Diámetro de los tubos", null=True, blank = True)
-    numero_tubos = models.IntegerField("Número de Tubos", null=True, blank=True)
+    area_total_transferencia = models.FloatField("Área Total de Transferencia", null=True, blank = True, validators=[
+        MinValueValidator(0.0001)
+    ])
+    diametro_tubos = models.FloatField("Diámetro de los tubos", null=True, blank = True, validators=[
+        MinValueValidator(0.0001)
+    ])
+    numero_tubos = models.IntegerField("Número de Tubos", null=True, blank=True, validators=[MinValueValidator(1)])
 
     area_unidad = models.ForeignKey(Unidades, models.PROTECT, default=3, related_name="area_unidad_economizador")
     diametro_unidad = models.ForeignKey(Unidades, models.PROTECT, default=4, related_name="diametro_unidad_economizador")
@@ -354,14 +411,26 @@ class Corriente(models.Model):
     nombre = models.CharField(max_length=80, null=True)
     tipo = models.CharField(max_length=1, choices=TIPOS_CORRIENTES)
 
-    flujo_masico = models.FloatField(null=True)
+    flujo_masico = models.FloatField(null=True, validators=[
+        MinValueValidator(0.0001)
+    ])
     flujo_masico_unidad = models.ForeignKey(Unidades, models.PROTECT, default=6, related_name="flujomasico_unidad_corriente_calderas")
-    densidad = models.FloatField(null=True, blank=True)
+    
+    densidad = models.FloatField(null=True, blank=True, validators=[
+        MinValueValidator(0.0001)
+    ])    
     densidad_unidad = models.ForeignKey(Unidades, models.PROTECT, default=43, related_name="densidad_unidad_corriente_corriente_calderas")
+    
     estado = models.CharField(max_length=1, choices=[('L','Líquido'), ('V', 'Vapor')], null=True, blank=True)
-    temp_operacion = models.FloatField(null=True, blank=True)
+    
+    temp_operacion = models.FloatField(null=True, blank=True, validators=[
+        MinValueValidator(-273.15)
+    ])
     temp_operacion_unidad = models.ForeignKey(Unidades, models.PROTECT, default=1, related_name="temp_operacion_unidad_corriente_calderas")
-    presion = models.FloatField(null=True)
+    
+    presion = models.FloatField(null=True, validators=[
+        MinValueValidator(0.0001)
+    ])
     presion_unidad = models.ForeignKey(Unidades, models.PROTECT, default=1, related_name="presion_unidad_corriente_calderas")
     caldera = models.ForeignKey(Caldera, on_delete=models.PROTECT, related_name='corrientes_caldera')
 
@@ -511,11 +580,19 @@ class EntradasFluidos(models.Model):
     ]
 
     nombre_fluido = models.CharField("Nombre del Fluido", max_length=45)
-    flujo = models.FloatField("Flujo Másico")
-    temperatura = models.FloatField("Temperatura de Operación")
-    presion = models.FloatField("Presión de Operación")
+    flujo = models.FloatField("Flujo Másico", validators=[
+        MinValueValidator(0.0001)
+    ])
+    temperatura = models.FloatField("Temperatura de Operación", validators=[
+        MinValueValidator(-273.15)
+    ])
+    presion = models.FloatField("Presión de Operación", validators=[
+        MinValueValidator(0.0001)
+    ])
     tipo_fluido = models.CharField(max_length=1, choices=TIPOS_FLUIDOS)
-    humedad_relativa = models.FloatField(null=True, blank=True)
+    humedad_relativa = models.FloatField(null=True, blank=True, validators=[
+        MinValueValidator(0)
+    ])
     evaluacion = models.ForeignKey(Evaluacion, models.PROTECT)
 
 class EntradaComposicion(models.Model):
@@ -531,9 +608,17 @@ class EntradaComposicion(models.Model):
         composicion: ComposicionCombustible ->  Composición original
         evaluacion: Evaluacion -> Evaluación asociada a 
     """
-    parc_vol = models.FloatField()
-    parc_aire = models.FloatField()
-    normalizado = models.FloatField()
-    normalizado_aire = models.FloatField(null=False, blank=True)
+    parc_vol = models.FloatField(validators=[
+        MinValueValidator(0)
+    ])
+    parc_aire = models.FloatField(validators=[
+        MinValueValidator(0)
+    ])
+    normalizado = models.FloatField(validators=[
+        MinValueValidator(0)
+    ])
+    normalizado_aire = models.FloatField(null=False, blank=True, validators=[
+        MinValueValidator(0)
+    ])
     composicion = models.ForeignKey(ComposicionCombustible, models.PROTECT)
     evaluacion = models.ForeignKey(Evaluacion, models.PROTECT, related_name="composiciones_evaluacion")
