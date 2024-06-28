@@ -197,7 +197,7 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
     def almacenar_datos(self, form_caldera, form_tambor, form_chimenea, form_economizador, form_tambor_superior, form_tambor_inferior,
                             form_sobrecalentador, form_dimensiones_caldera, form_dimensiones_sobrecalentador, form_especificaciones,
                             form_combustible, forms_composicion):
-        
+        error = ""
         with transaction.atomic(): 
             # Se validan los formularios
             valid = form_especificaciones.is_valid()            
@@ -212,8 +212,15 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
             valid = valid and form_combustible.is_valid()
             valid = valid and form_caldera.is_valid()
 
+            x_aire, x_volumen = 0,0
             for form in forms_composicion:
                 valid = valid and form.is_valid()
+                x_volumen += form.instance.porc_vol
+                x_aire += form.instance.porc_aire if form.instance.porc_aire else 0
+
+            if(round(x_volumen,2) != 100 or round(x_aire, 2) != 100):
+                valid = False
+                error = "La suma del porcentaje de las composiciones del combustible y del aire debe ser igual a 100." 
             
             if(valid):
                 combustible = form_combustible.save()
@@ -234,7 +241,7 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
                 form_dimensiones_sobrecalentador.instance.sobrecalentador = form_sobrecalentador.instance
                 sobrecalentador_dimensiones = form_dimensiones_sobrecalentador.save()
                 form_sobrecalentador.instance.dims = sobrecalentador_dimensiones
-                sobrecalentador = form_sobrecalentador.save()
+                form_sobrecalentador.save()
 
                 especificaciones = form_especificaciones.save()
                 dimensiones_caldera = form_dimensiones_caldera.save()
@@ -266,7 +273,7 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
                     form_combustible.errors,
                     form_caldera.errors
                 ])
-                raise Exception("Ocurrió un error.")
+                raise Exception("Ocurrió un error. Verifique los datos e intente de nuevo." if error == "" else error)
 
     def post(self, request):
         # FORMS
@@ -317,7 +324,8 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
                 'composicion_combustible_forms': combustible_forms,
                 'compuestos_aire': COMPUESTOS_AIRE,
                 'recargo': True,
-                'titulo': self.titulo
+                'titulo': self.titulo,
+                'error': str(e)
             })
 
 class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
@@ -372,7 +380,7 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
             'composicion_combustible_forms': combustible_forms,
             'compuestos_aire': COMPUESTOS_AIRE,
             'edicion': True,
-            'titulo': self.titulo
+            'titulo': self.titulo + f" {caldera.tag}"
         }
 
     def post(self, request, pk):
@@ -426,7 +434,8 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
                 'composicion_combustible_forms': combustible_forms,
                 'compuestos_aire': COMPUESTOS_AIRE,
                 'edicion': True,
-                'titulo': self.titulo + f" {caldera.tag}"
+                'titulo': self.titulo + f" {caldera.tag}",
+                'error': str(e)
             })
         
 class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View):
