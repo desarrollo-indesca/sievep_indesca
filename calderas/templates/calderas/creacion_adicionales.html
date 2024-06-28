@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block contenido %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center">
+            <a class="btn d-block btn-secondary" href="{% url 'consulta_calderas' %}">↶ Regresar</a>
+        </div>
+        <div class="col-md-6 col-lg-8">
+            <h3 class="text-center" style="color: #e31e24;">Datos Adicionales de la Caldera {{caldera.tag}}</h3>
+        </div>
+        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center">
+            <button type="button" class="btn btn-success text-dark" data-bs-toggle="modal" data-bs-target="#ficha_{{caldera.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica"> Ficha Técnica</button>
+            {% include 'calderas/partials/ficha.html' %}
+        </div>
+    </div>
+
+    <hr>
+
+    {% if error %}
+    <h5 class="text-center" style="color: #e31e24;">{{error}}</h5>
+    <hr>
+    {% endif %}
+
+    <h4 class="text-center" style="color: #e31e24;">Corrientes de la Caldera</h4>
+    <table class="table table-bordered table-hover text-center align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>TIPO</th>
+                <th>NOMBRE</th>                
+                <th>FLUJO MÁSICO</th>
+                <th>DENSIDAD</th>
+                <th>TEMP. OPERACIÓN</th>
+                <th>PRESIÓN</th>
+                <th>ESTADO</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>
+                    <input type="text" class="form-control" placeholder="# Corriente">
+                </td>                
+                <td>
+                    <input type="text" class="form-control" placeholder="Tipo" disabled value="Agua">
+                </td>
+                <td>
+                    <input type="text" class="form-control" placeholder="Nombre de la Corriente">
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Flujo Másico Circulante">
+                        <select class="form-select" name="" id="">
+                            <option value="">Kg/h</option>
+                        </select>
+                    </div>                    
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Densidad del Fluido">
+                        <select class="form-select" name="" id="">
+                            <option>Kg/m³</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Temperatura Operación">
+                        <select name="" id="" class="form-select">
+                            <option value="">°C</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Presión (abs.) de la corriente">
+                        <select name="" id="" class="form-select">
+                            <option value="">KPa</option>
+                        </select>
+                    </div>
+                    
+                </td>
+                <td>
+                    <select name="estado" id="estado" class="form-select">
+                        <option value="L">Líquido</option>
+                        <option value="V">Vapor</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="text" class="form-control" placeholder="# Corriente">
+                </td>                
+                <td>
+                    <input type="text" class="form-control" placeholder="Tipo" disabled value="Vapor Alta">
+                </td>
+                <td>
+                    <input type="text" class="form-control" placeholder="Nombre de la Corriente">
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Flujo Másico Circulante">
+                        <select class="form-select" name="" id="">
+                            <option value="">Kg/h</option>
+                        </select>
+                    </div>                    
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Densidad del Fluido">
+                        <select class="form-select" name="" id="">
+                            <option>Kg/m³</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Temperatura Operación">
+                        <select name="" id="" class="form-select">
+                            <option value="">°C</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Presión (abs.) de la corriente">
+                        <select name="" id="" class="form-select">
+                            <option value="">KPa</option>
+                        </select>
+                    </div>
+                    
+                </td>
+                <td>
+                    <select name="estado" id="estado" class="form-select">
+                        <option value="L">Líquido</option>
+                        <option value="V">Vapor</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="text" class="form-control" placeholder="# Corriente">
+                </td>                
+                <td>
+                    <input type="text" class="form-control" placeholder="Tipo" disabled value="Vapor Baja">
+                </td>
+                <td>
+                    <input type="text" class="form-control" placeholder="Nombre de la Corriente">
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Flujo Másico Circulante">
+                        <select class="form-select" name="" id="">
+                            <option value="">Kg/h</option>
+                        </select>
+                    </div>                    
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Densidad del Fluido">
+                        <select class="form-select" name="" id="">
+                            <option>Kg/m³</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Temperatura Operación">
+                        <select name="" id="" class="form-select">
+                            <option value="">°C</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Presión (abs.) de la corriente">
+                        <select name="" id="" class="form-select">
+                            <option value="">KPa</option>
+                        </select>
+                    </div>
+                    
+                </td>
+                <td>
+                    <select name="estado" id="estado" class="form-select">
+                        <option value="L">Líquido</option>
+                        <option value="V">Vapor</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="text" class="form-control" placeholder="# Corriente">
+                </td>                
+                <td>
+                    <input type="text" class="form-control" placeholder="Tipo" disabled value="Purga">
+                </td>
+                <td>
+                    <input type="text" class="form-control" placeholder="Nombre de la Corriente">
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Flujo Másico Circulante">
+                        <select class="form-select" name="" id="">
+                            <option value="">Kg/h</option>
+                        </select>
+                    </div>                    
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Densidad del Fluido">
+                        <select class="form-select" name="" id="">
+                            <option>Kg/m³</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Temperatura Operación">
+                        <select name="" id="" class="form-select">
+                            <option value="">°C</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Presión (abs.) de la corriente">
+                        <select name="" id="" class="form-select">
+                            <option value="">KPa</option>
+                        </select>
+                    </div>
+                    
+                </td>
+                <td>
+                    <select name="estado" id="estado" class="form-select">
+                        <option value="L">Líquido</option>
+                        <option value="V">Vapor</option>
+                    </select>
+                </td>
+            </tr>         
+        </tbody>
+    </table>  
+
+    <hr>
+
+    <h4 class="text-center" style="color: #e31e24;">Características Adicionales</h4>
+    <table class="table table-bordered table-hover text-center align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>NOMBRE</th>
+                <th>TIPO UNIDAD</th>
+                <th>VALOR</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>
+                    <input type="text" class="form-control" placeholder="Nombre de la característica">
+                </td>
+                <td>
+                    <select name="" id="" class="form-select">
+                        <option value="">------------------------</option>
+                        <option value="">Presión</option>
+                        <option value="">Temperatura</option>
+                        <option value="">Flujo Másico</option>
+                    </select>
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Valor Numérico">
+                        <select name="" id="" class="form-select">
+                            <option value="">%</option>
+                        </select>
+                    </div>
+                    
+                </td>
+                <td>
+                    <button class="btn btn-success">+</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>  
+    
+    <hr>
+    
+</form>
+
+{% endblock %}
+
+{% block extra_javascript %}
+<script src="/static/js/calderas/creacion.js"></script>
+{% endblock %}

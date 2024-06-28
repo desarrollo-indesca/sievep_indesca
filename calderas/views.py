@@ -428,3 +428,56 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
                 'edicion': True,
                 'titulo': self.titulo + f" {caldera.tag}"
             })
+        
+class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View):
+    """
+    Resumen:
+        Vista para el registro de datos adicionales de una caldera.
+        Solo puede ser accedido por superusuarios.
+
+    Atributos:
+        success_message: str -> Mensaje al realizarse correctamente el registro.
+        titulo: str -> Título a mostrar en la vista.
+        template_name: str -> Dirección de la plantilla.
+    
+    Métodos:
+        get_context(self) -> dict
+            Crea instancias de los formularios a ser utilizados y define el título de la vista.
+
+        get(self, request, **kwargs) -> HttpResponse
+            Renderiza el formulario con la plantilla correspondiente.
+
+        almacenar_datos(self) -> HttpResponse
+            Valida y almacena los datos de acuerdo a la lógica requerida para el almacenamiento de calderas por medio de los formularios.
+            Si hay errores se levantará una Exception.
+
+        post(self) -> HttpResponse
+            Envía el request a los formularios y envía la respuesta al cliente.
+    """
+
+    success_message = "Se han registrado los datos adicionales a la caldera."
+    titulo = 'SIEVEP - Registro de Datos Adicionales de Caldera'
+    template_name = 'calderas/creacion_adicionales.html'
+
+    def get_context(self):
+        return {
+            'caldera': self.get_caldera(caldera_q=False),
+            'titulo': self.titulo
+        }
+    
+    def get(self, request, **kwargs):
+        return render(request, self.template_name, self.get_context())
+    
+    def almacenar_datos(self):        
+        with transaction.atomic(): 
+            pass
+
+    def post(self, request):
+        # FORMS
+        
+        try:
+            return self.almacenar_datos()
+        except Exception as e:
+            print(str(e))
+            return render(request, self.template_name, context={
+            })
