@@ -505,7 +505,6 @@ class PlantasPorComplejo(LoginRequiredMixin, View):
         Vista HTMX que filtra las plantas por complejo.
     """
     def get(self, request):
-        print("AAAAA")
         plantas = Planta.objects.filter(complejo__pk = request.GET['complejo'])
         return render(request, 'plantas.html', context={'plantas': plantas, 'planta_selec': int(request.GET['planta']) if request.GET.get('planta') else None,
                                                         'complejos': Complejo.objects.all(), 'complejo_seleccionado': int(request.GET['complejo'])}) 

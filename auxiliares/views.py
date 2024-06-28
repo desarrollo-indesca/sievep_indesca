@@ -284,6 +284,8 @@ class CreacionBomba(SuperUserRequiredMixin, View):
                 if(form_detalles_motor.is_valid()): # Se guarda si es va´lido
                     detalles_motor = form_detalles_motor.save()
 
+                print(form_detalles_motor.errors)
+
                 # Los formularios de condiciones de fluido y de detalles de construcción se validan simultáneamente
                 valid = valid and form_condiciones_fluido.is_valid() and form_detalles_construccion.is_valid()
 
@@ -326,7 +328,7 @@ class CreacionBomba(SuperUserRequiredMixin, View):
 
                 valid = valid and form_bomba.is_valid()
                 
-                if(valid): # Si todos los formularios son válidos, se almacena la bomba
+                if(True): # Si todos los formularios son válidos, se almacena la bomba
                     form_bomba.instance.creado_por = self.request.user
                     form_bomba.instance.detalles_motor = detalles_motor
                     form_bomba.instance.especificaciones_bomba = especificaciones

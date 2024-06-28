@@ -410,9 +410,9 @@
                         <small>{{form_detalles_motor.voltaje.errors}}</small>
                     </div>
                     <div class="col-3">
-                        <label for="id_frecuencia">{{form_detalles_motor.frecuencia.label_tag}}</label>
+                        <label for="id_frecargouencia">{{form_detalles_motor.frecuencia.label_tag}}</label>
                         <div class="input-group mb-1">
-                            {% render_field form_detalles_motor.frecuencia min="0.0001" class="form-control" placeholder="Frecuencia" %}
+                            {% render_field form_detalles_motor.frecuencia min="0.0001" class="form-control" placeholder="frecuencia" %}
                             {% render_field form_detalles_motor.frecuencia_unidad class="form-select" %}
                         </div>
                         <small>{{form_detalles_motor.frecuencia.errors}}</small>
@@ -501,7 +501,14 @@
     </div>
 </div>
 
-<div class="hidden" hx-get="/plantas/" id="id_complejo" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none"></div>
+<div hidden>
+    {% if edicion %}
+    <div hx-get="/plantas/" hx-include="#id_planta" hx-vals="js:{complejo: {{form_bomba.instance.planta.complejo.pk}}}" hx-trigger="load" hx-target="#id_planta" hx-swap="none"></div>
+    {%else%}
+    <div class="hidden" hx-get="/plantas/" id="id_complejo" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none"></div>
+    {% endif %}
+</div>
+
 {% endblock %}
 
 {% block extra_javascript %}
