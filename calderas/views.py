@@ -493,8 +493,16 @@ class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View
     template_name = 'calderas/creacion_adicionales.html'
 
     def get_context(self):
+        caldera = self.get_caldera(caldera_q=False)
+
+        forms_corrientes = []
+        for corriente in caldera.corrientes_caldera.all():
+            forms_corrientes.append(CorrienteForm(instance=corriente))
+
         return {
-            'caldera': self.get_caldera(caldera_q=False),
+            'forms_corrientes': forms_corrientes,
+            'forms_caracteristicas': caracteristica_formset,
+            'caldera': caldera,
             'titulo': self.titulo
         }
     

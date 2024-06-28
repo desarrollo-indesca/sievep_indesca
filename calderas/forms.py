@@ -110,7 +110,7 @@ class ValorPorCargaForm(forms.ModelForm):
         model = ValorPorCarga
         exclude = ["id", "caracteristica"]
         
-caracteristica_formset = forms.modelformset_factory(ValorPorCarga, ValorPorCargaForm)
+caracteristica_formset = forms.modelformset_factory(ValorPorCarga, ValorPorCargaForm, extra=0)
 
 class CorrienteForm(FormConUnidades):
     def limpiar_campos_unidades(self):
@@ -122,8 +122,6 @@ class CorrienteForm(FormConUnidades):
     class Meta:
         model = Corriente
         exclude = ["id", "caldera"]
-
-corriente_formset = forms.modelformset_factory(Corriente, CorrienteForm)
 
 # FORMS EVALUACIÓN
 class EvaluacionForm(forms.ModelForm):

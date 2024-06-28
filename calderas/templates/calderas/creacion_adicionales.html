@@ -41,6 +41,50 @@
         </thead>
 
         <tbody>
+            {% for form in forms_corrientes %}
+            <tr>
+                <td>                    
+                </td>                
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Flujo Másico Circulante">
+                        <select class="form-select" name="" id="">
+                            <option value="">Kg/h</option>
+                        </select>
+                    </div>                    
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Densidad del Fluido">
+                        <select class="form-select" name="" id="">
+                            <option>Kg/m³</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Temperatura Operación">
+                        <select name="" id="" class="form-select">
+                            <option value="">°C</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group mb-1">
+                        <input type="text" class="form-control" placeholder="Presión (abs.) de la corriente">
+                        <select name="" id="" class="form-select">
+                            <option value="">KPa</option>
+                        </select>
+                    </div>                    
+                </td>
+                <td>
+                </td>
+            </tr>
+            {% endfor %}
             <tr>
                 <td>
                     <input type="text" class="form-control" placeholder="# Corriente">
