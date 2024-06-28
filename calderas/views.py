@@ -77,7 +77,31 @@ class CargarCalderasMixin():
 
         return caldera
 
-class ConsultaCalderas(FiltradoSimpleMixin, CargarCalderasMixin, LoginRequiredMixin, ListView):
+class ReportesFichasCalderasMixin():
+    '''
+    Resumen:
+        Mixin para evitar la repetición de código al generar fichas técnicas en las vistas que lo permites.
+        También incluye lógica para la generación de la ficha de los parámetros de instalación.
+    '''
+    def reporte_ficha(self, request):
+        if(request.POST.get('ficha')): # FICHA TÉCNICA
+            caldera = Caldera.objects.get(pk = request.POST.get('ficha'))
+            if(request.POST.get('tipo') == 'pdf'):
+                return generar_pdf(request,caldera, f"Ficha Técnica de la Caldera {caldera.tag}", "ficha_tecnica_caldera")
+            if(request.POST.get('tipo') == 'xlsx'):
+                return ficha_tecnica_caldera(caldera, request)
+            
+        if(request.POST.get('instalacion')): # FICHA DE INSTALACIÓN
+            caldera = Caldera.objects.get(pk = request.POST.get('instalacion'))
+            if(request.POST.get('tipo') == 'pdf'):
+                return generar_pdf(request,caldera, f"Ficha de Instalación de la caldera {caldera.tag}", "ficha_instalacion_caldera")
+            
+            if(request.POST.get('tipo') == 'xlsx'):
+                return ficha_instalacion_caldera(caldera,request)
+
+# VISTAS DE CALDERAS
+
+class ConsultaCalderas(FiltradoSimpleMixin, ReportesFichasCalderasMixin, CargarCalderasMixin, LoginRequiredMixin, ListView):
     '''
     Resumen:
         Vista para la consulta de las calderas.
