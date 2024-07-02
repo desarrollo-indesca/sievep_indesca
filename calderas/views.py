@@ -62,8 +62,8 @@ class CargarCalderasMixin():
                     ))
                 )),
 
-                Prefetch("caracteristicas_caldera", Caracteristica.objects.prefetch_related(
-                    Prefetch("valores_por_carga", ValorPorCarga.objects.select_related("unidad"))
+                Prefetch("caracteristicas_caldera", Caracteristica.objects.select_related(
+                    'unidad'
                 )),
 
                 Prefetch("tambor", Tambor.objects.select_related("temperatura_unidad", "presion_unidad").prefetch_related(
@@ -507,7 +507,7 @@ class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View
 
         return {
             'forms_corrientes': forms_corrientes,
-            'forms_caracteristicas': caracteristica_formset,
+            'forms_caracteristicas': None,
             'caldera': caldera,
             'titulo': self.titulo
         }

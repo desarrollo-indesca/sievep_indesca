@@ -299,10 +299,11 @@
                   </tr>
                   {% for caracteristica in caracteristicas %}
                   <tr>
-                    <th class="table-dark">{{caracteristica.nombre.upper}}</th>
-                    {% for valor in caracteristica.valores_por_carga.all %}
-                    <td>{{valor.valor_num}} {{valor.unidad|default_if_none:'%'}}</td>
-                    {% endfor %}
+                    <th class="table-dark">{{caracteristica.nombre.upper}} ({{caracteristica.unidad}})</th>
+                    <td>{{caracteristica.carga_25}}</td>
+                    <td>{{caracteristica.carga_50}}</td>
+                    <td>{{caracteristica.carga_75}}</td>
+                    <td>{{caracteristica.carga_100}}</td>
                   </tr>
                   {% endfor %}
                   {%else%}

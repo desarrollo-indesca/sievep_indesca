@@ -356,26 +356,13 @@ class Caracteristica(models.Model):
     """
     nombre = models.CharField(max_length=80)
     tipo_unidad = models.CharField(max_length=1, null=True, blank=True)
+    unidad = models.ForeignKey(Unidades, models.PROTECT, null=True, blank=True)
     caldera = models.ForeignKey(Caldera, on_delete=models.PROTECT, related_name="caracteristicas_caldera")
 
-class ValorPorCarga(models.Model):
-    """
-    Resumen:
-        Modelo que contiene la información del valor de una característica de la caldera por carga.
-
-    Atributos:
-        carga: models.FloatField -> Valor (PORCENTUAL) de la carga
-        valor_num: models.FloatField -> Valor de la característica
-        caracteristica: Caracteristica -> Característica a la que está asociado el valor y la carga
-        unidad: Unidades -> Unidad de medida de la magnitud de la característica
-    """
-    carga = models.FloatField()
-    valor_num = models.FloatField()
-    caracteristica = models.ForeignKey(Caracteristica, models.PROTECT, related_name="valores_por_carga")
-    unidad = models.ForeignKey(Unidades, models.PROTECT, null=True, blank=True)
-
-    class Meta:
-        ordering = ("carga",)
+    carga_25 = models.FloatField()
+    carga_50 = models.FloatField()
+    carga_75 = models.FloatField()
+    carga_100 = models.FloatField()
 
 class Corriente(models.Model):
     """

@@ -94,9 +94,7 @@ class Command(BaseCommand):
             csv_reader = csv.DictReader(file, delimiter=';')
             data = [row for row in csv_reader]
 
-
         for caldera in data:
-            print(caldera["tag"])
             if(not Caldera.objects.filter(tag=caldera["tag"]).count()):
                 with transaction.atomic():
                     # Componentes que no hagan referencia al modelo Caldera

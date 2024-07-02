@@ -105,13 +105,6 @@ class CaracteristicaForm(forms.ModelForm):
         model = Caracteristica
         exclude = ["id", "caldera"]
 
-class ValorPorCargaForm(forms.ModelForm):
-    class Meta:
-        model = ValorPorCarga
-        exclude = ["id", "caracteristica"]
-        
-caracteristica_formset = forms.modelformset_factory(ValorPorCarga, ValorPorCargaForm, extra=0)
-
 class CorrienteForm(FormConUnidades):
     def limpiar_campos_unidades(self):
         self.fields["flujo_masico_unidad"].queryset = Unidades.objects.filter(tipo="F")
