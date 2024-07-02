@@ -115,22 +115,22 @@
             {% for form in forms_caracteristicas %}
             <tr>
                 <td>
-                    {% render_field form.nombre class="form-control" %}
+                    {% render_field form.nombre class="form-control" placeholder="Nombre" %}
                 </td>
                 <td>
-                    {% render_field form.tipo_unidad class="form-control" %}
+                    {% render_field form.tipo_unidad class="form-control" placeholder="Tipo de Unidad" %}
                 </td>
                 <td>
-                    {% render_field form.carga_25 class="form-control" %}                    
+                    {% render_field form.carga_25 class="form-control" placeholder="Valor al 25%" %}                    
                 </td>
                 <td>
-                    {% render_field form.carga_50 class="form-control" %}
+                    {% render_field form.carga_50 class="form-control" placeholder="Valor al 50%" %}
                 </td>
                 <td>
-                    {% render_field form.carga_75 class="form-control" %}
+                    {% render_field form.carga_75 class="form-control" placeholder="Valor al 75%" %}
                 </td>
                 <td>
-                    {% render_field form.carga_100 class="form-control" %}
+                    {% render_field form.carga_100 class="form-control" placeholder="Valor al 100%" %}
                 </td>
                 <td>
                     <a href="#" class="btn btn-success">
