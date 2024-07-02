@@ -494,10 +494,16 @@ class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View
 
     def get_context(self):
         caldera = self.get_caldera(caldera_q=False)
-
+        corrientes = caldera.corrientes_caldera.all()
+        corrientes_requeridas = ["A","B","W","P"]
         forms_corrientes = []
-        for corriente in caldera.corrientes_caldera.all():
+
+        for corriente in corrientes:
             forms_corrientes.append(CorrienteForm(instance=corriente))
+            corrientes_requeridas = [x for x in corrientes_requeridas if corriente.tipo != x]
+        
+        for tipo in corrientes_requeridas:
+            forms_corrientes.append(CorrienteForm(initial={'tipo': tipo}))
 
         return {
             'forms_corrientes': forms_corrientes,
