@@ -352,7 +352,8 @@ class CreacionBomba(SuperUserRequiredMixin, View):
                     raise Exception("Ocurrió un error")
     
     def post(self, request):
-        form_bomba = BombaForm(request.POST, request.FILES)
+        planta = Planta.objects.get(pk=request.POST.get('planta'))
+        form_bomba = BombaForm(request.POST, request.FILES, initial={'planta': planta, 'complejo': planta.complejo})
         form_especificaciones = EspecificacionesBombaForm(request.POST)
         form_detalles_motor = DetallesMotorBombaForm(request.POST)
         form_detalles_construccion = DetallesConstruccionBombaForm(request.POST)
@@ -484,7 +485,7 @@ class EdicionBomba(CargarBombaMixin, CreacionBomba):
         bomba = self.get_bomba()
         diseno = bomba.condiciones_diseno
         return {
-            'form_bomba': BombaForm(instance = bomba), 
+            'form_bomba': BombaForm(instance = bomba, initial={'complejo': bomba.planta.complejo}), 
             'form_especificaciones': EspecificacionesBombaForm(instance = bomba.especificaciones_bomba), 
             'form_detalles_construccion': DetallesConstruccionBombaForm(instance = bomba.detalles_construccion), 
             'form_detalles_motor': DetallesMotorBombaForm(instance = bomba.detalles_motor),
@@ -1393,7 +1394,9 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
             return redirect('/auxiliares/ventiladores/')
     
     def post(self, request):
-        form_equipo = VentiladorForm(request.POST)
+        planta = Planta.objects.get(pk = request.POST.get('planta'))
+
+        form_equipo = VentiladorForm(request.POST, initial={'planta': planta, 'complejo': planta.complejo})
         form_especificaciones = EspecificacionesVentiladorForm(request.POST)
         form_condiciones_generales = CondicionesGeneralesVentiladorForm(request.POST)
         form_condiciones_trabajo = CondicionesTrabajoVentiladorForm(request.POST)
@@ -1434,7 +1437,7 @@ class EdicionVentilador(CreacionVentilador):
         ventilador = Ventilador.objects.get(pk = self.kwargs['pk'])
 
         return {
-            'form_equipo': VentiladorForm(instance = ventilador), 
+            'form_equipo': VentiladorForm(instance = ventilador, initial={'complejo': ventilador.planta.complejo}), 
             'form_especificaciones': EspecificacionesVentiladorForm(instance = ventilador.especificaciones), 
             'form_condiciones_generales': CondicionesGeneralesVentiladorForm(instance = ventilador.condiciones_generales), 
             'form_condiciones_trabajo': CondicionesTrabajoVentiladorForm(instance = ventilador.condiciones_trabajo),
@@ -1445,8 +1448,9 @@ class EdicionVentilador(CreacionVentilador):
     
     def post(self, request, pk):
         ventilador = Ventilador.objects.get(pk = self.kwargs['pk'])
+        planta = Planta.objects.get(pk = request.POST.get('planta'))
 
-        form_equipo = VentiladorForm(request.POST, instance=ventilador)
+        form_equipo = VentiladorForm(request.POST, instance=ventilador, initial={'planta': planta, 'complejo': planta.complejo})
         form_especificaciones = EspecificacionesVentiladorForm(request.POST, instance = ventilador.especificaciones)
         form_condiciones_generales = CondicionesGeneralesVentiladorForm(request.POST, instance = ventilador.condiciones_generales)
         form_condiciones_trabajo = CondicionesTrabajoVentiladorForm(request.POST, instance = ventilador.condiciones_trabajo)

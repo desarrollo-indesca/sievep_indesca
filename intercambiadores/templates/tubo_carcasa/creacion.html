@@ -35,7 +35,7 @@
 
             <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="complejo">Complejo:</label>
-                <select required class="form-select" name="complejo" id="complejo" hx-get="/plantas/" hx-include="#id_complejo, #complejo" hx-trigger="change" hx-target="#planta" hx-swap="none">
+                <select required class="form-select" name="complejo" id="id_complejo" hx-get="/plantas/" id="id_complejo" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none">
                     {% for complejo in complejos %}
                     <option value="{{complejo.pk}}" {% if previo.complejo == complejo.pk|slugify %}selected{% endif %}>{{complejo}}</option>
                     {% endfor %}
@@ -44,7 +44,7 @@
     
             <div class="col-3 d-flex flex-column">
                 <label class="form-label" for="planta">Planta:</label>
-                <select required class="form-select" name="planta" id="planta">
+                <select required class="form-select" name="planta" id="id_planta">
                     {% for planta in plantas %}
                     <option value="{{planta.pk}}" {% if previo.planta == planta.pk|slugify %}selected{% endif %}>{{planta}}</option>
                     {% endfor %}

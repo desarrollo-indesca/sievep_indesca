@@ -41,7 +41,7 @@
         </div>
         <div class="col-3">
             <label for="id_complejo">{{form_bomba.complejo.label_tag}}</label>
-            {% render_field form_bomba.complejo class="form-select" hx-get="/plantas/" hx-include="#id_complejo, #complejo" hx-trigger="change" hx-target="#id_planta" hx-swap="none" %}
+            {% render_field form_bomba.complejo class="form-select" hx-get="/plantas/" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none" %}
             <small>{{form_bomba.complejo.errors}}</small>
         </div>
         <div class="col-3">
@@ -499,14 +499,6 @@
 <div id="spinner" class="htmx-indicator indicator-style">
     <div class="spinner-grow text-danger" style="width: 6rem; height: 6rem;">
     </div>
-</div>
-
-<div hidden>
-    {% if edicion %}
-    <div hx-get="/plantas/" hx-include="#id_planta" hx-vals="js:{complejo: {{form_bomba.instance.planta.complejo.pk}}}" hx-trigger="load" hx-target="#id_planta" hx-swap="none"></div>
-    {%else%}
-    <div class="hidden" hx-get="/plantas/" id="id_complejo" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none"></div>
-    {% endif %}
 </div>
 
 {% endblock %}

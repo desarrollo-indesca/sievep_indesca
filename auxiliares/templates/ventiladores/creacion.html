@@ -39,7 +39,7 @@
         </div>
         <div class="col-4">
             {{form_equipo.complejo.label_tag}}*
-            {% render_field form_equipo.complejo class="form-select" hx-get="/plantas/" hx-include="#id_complejo" hx-trigger="change" hx-target="#id_planta" hx-swap="none" %}
+            {% render_field form_equipo.complejo class="form-select" hx-get="/plantas/" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none" %}
             <small>{{form_equipo.complejo.errors}}</small>
         </div>
         <div class="col-4">
@@ -434,8 +434,6 @@
             <div class="d-flex w-100 justify-content-center mb-3">
                 <button id="submit" type="submit" class="btn btn-danger">Enviar Formulario</button>
             </div>
-
-            <div class="hidden" hx-get="/plantas/" id="id_complejo" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none"></div>
 </form>
 
 {% if edicion or recarga %}
