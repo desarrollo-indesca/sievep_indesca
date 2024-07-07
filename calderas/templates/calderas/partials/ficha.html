@@ -299,7 +299,7 @@
                   </tr>
                   {% for caracteristica in caracteristicas %}
                   <tr>
-                    <th class="table-dark">{{caracteristica.nombre.upper}} ({{caracteristica.unidad}})</th>
+                    <th class="table-dark">{{caracteristica.nombre.upper}} {% if caracteristica.unidad %}({{caracteristica.unidad}}){% endif %}</th>
                     <td>{{caracteristica.carga_25}}</td>
                     <td>{{caracteristica.carga_50}}</td>
                     <td>{{caracteristica.carga_75}}</td>
