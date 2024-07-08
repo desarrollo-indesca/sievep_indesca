@@ -145,7 +145,9 @@
             {% for form in forms_caracteristicas %}
             <tr class="form">
                 <td>
+                    {{form.id}}
                     {% render_field form.nombre class="form-control" placeholder="Nombre" %}
+                    <small>{{form.nombre.errors}}</small>
                 </td>
                 <td>
                     <select name="form-{{forloop.counter0}}-tipo_unidad" class="form-select" 
@@ -160,6 +162,7 @@
                         {% endfor %}
                         {% endwith %}
                     </select>
+                    <small>{{form.tipo_unidad.errors}}</small>
                 </td>
                 <td>
                     <div class="input-group mb-1">
@@ -227,7 +230,7 @@
     <hr>
 
     <div class="w-100 d-flex justify-content-center align-items-center">
-        <button type="submit" class="btn btn-danger">Registrar Cambios</button>
+        <button type="submit" class="btn btn-danger p-2">Registrar Cambios</button>
     </div>    
 </form>
 

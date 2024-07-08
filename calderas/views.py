@@ -390,7 +390,7 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
             })
             
         return {
-            'form_caldera': CalderaForm(instance=caldera), 
+            'form_caldera': CalderaForm(instance=caldera, initial={'planta': caldera.planta, 'complejo': caldera.planta.complejo}), 
             'form_tambor': TamborForm(prefix="tambor", instance=caldera.tambor), 
             'form_chimenea': ChimeneaForm(prefix="chimenea", instance=caldera.chimenea),
             'form_economizador': EconomizadorForm(prefix="economizador", instance=caldera.economizador),
@@ -410,8 +410,10 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
     def post(self, request, pk):
         # FORMS
         caldera = self.get_caldera(caldera_q=False)
-
-        form_caldera = CalderaForm(request.POST, instance=caldera, initial={'complejo': caldera.planta.complejo}) 
+        
+        planta = Planta.objects.get(pk=request.POST.get('planta'))
+        form_caldera = CalderaForm(request.POST, instance=caldera, initial={'complejo': planta.complejo, 'planta': planta}) 
+        
         form_caldera.instance.editado_por = request.user
         form_caldera.instance.editado_al = datetime.now()
         form_tambor = TamborForm(request.POST, prefix="tambor", instance=caldera.tambor) 
@@ -527,12 +529,18 @@ class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View
 
     def post(self, request):
         # FORMS
+        form_corrientes = [CorrienteForm(request.POST, prefix=f"corriente-{i}") for i in range(0,4)]
+        form_caracteristicas = forms.modelformset_factory(model=Caracteristica, form=CaracteristicaForm)
+        form_caracteristicas = form_caracteristicas(request.POST, prefix="form")
         
         try:
-            return self.almacenar_datos()
+            return self.almacenar_datos(form_corrientes, form_caracteristicas)
+
         except Exception as e:
-            print(str(e))
             return render(request, self.template_name, context={
+                'error': str(e),
+                'forms_corrientes': form_corrientes,
+                'forms_caracteristicas': form_caracteristicas,
             })
         
 # VISTAS PARA LA GENERACIÓN DE PLANTILLAS PARCIALES

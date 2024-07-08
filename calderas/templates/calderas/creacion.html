@@ -41,7 +41,7 @@
         </div>
         <div class="col-4">
             {{form_caldera.complejo.label_tag}}*
-            {% render_field form_caldera.complejo class="form-select" hx-get="/plantas/" hx-include="#id_complejo" hx-trigger="change" hx-target="#id_planta" hx-swap="none" %}
+            {% render_field form_caldera.complejo class="form-select" hx-get="/plantas/" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none" %}
             <small>{{form_caldera.complejo.errors}}</small>
         </div>
         <div class="col-4">
@@ -493,16 +493,7 @@
             <div class="d-flex w-100 justify-content-center mb-3">
                 <button id="submit" type="submit" class="btn btn-danger">Enviar Formulario</button>
             </div>
-
-            <div class="hidden" id="id_complejo"></div>
 </form>
-
-{% if edicion or recarga %}
-<div hx-get="/plantas/" hx-include="#id_planta" hx-vals="js:{complejo: {{form_caldera.instance.planta.complejo.pk}}}" hx-trigger="load" hx-target="#id_planta" hx-swap="none"></div>
-{% else %}
-<div hx-get="/plantas/" hx-include="#id_planta, #id_complejo" hx-trigger="load" hx-target="#id_planta" hx-swap="none"></div>
-{% endif %}
-
 {% endblock %}
 
 {% block extra_javascript %}
