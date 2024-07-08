@@ -106,6 +106,8 @@ class CaracteristicaForm(forms.ModelForm):
         exclude = ["id", "caldera"]
 
 class CorrienteForm(FormConUnidades):
+    use_required_attribute = False
+    
     def limpiar_campos_unidades(self):
         self.fields["flujo_masico_unidad"].queryset = Unidades.objects.filter(tipo="F")
         self.fields["densidad_unidad"].queryset = Unidades.objects.filter(tipo="D")

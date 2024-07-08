@@ -398,7 +398,7 @@ class Corriente(models.Model):
     nombre = models.CharField(max_length=80, null=True)
     tipo = models.CharField(max_length=1, choices=TIPOS_CORRIENTES)
 
-    flujo_masico = models.FloatField(null=True, validators=[
+    flujo_masico = models.FloatField(null=True, blank=True, validators=[
         MinValueValidator(0.0001)
     ])
     flujo_masico_unidad = models.ForeignKey(Unidades, models.PROTECT, default=6, related_name="flujomasico_unidad_corriente_calderas")
@@ -420,6 +420,9 @@ class Corriente(models.Model):
     ])
     presion_unidad = models.ForeignKey(Unidades, models.PROTECT, default=1, related_name="presion_unidad_corriente_calderas")
     caldera = models.ForeignKey(Caldera, on_delete=models.PROTECT, related_name='corrientes_caldera')
+
+    class Meta:
+        ordering = ('tipo',)
 
 ## EVALUACIONES
 class SalidaBalanceEnergia(models.Model):
