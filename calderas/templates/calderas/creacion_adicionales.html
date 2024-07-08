@@ -60,34 +60,59 @@
                 <td>  
                     <div class="input-group mb-1">
                         {% render_field form.flujo_masico min="0.0001" class="form-control" placeholder="Flujo Másico" %}
-                        {% render_field form.flujo_masico_unidad class="form-select" %}
+                        <select name="form-{{forloop.counter0}}-flujo_unidad" id="id_form-{{forloop.counter0}}-flujo_unidad" class="form-select">
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'F' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form.instance.flujo_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
                         <small>{{form.flujo_masico.errors}}</small>
                     </div>                 
                 </td>
                 <td>
                     <div class="input-group mb-1">
                         {% render_field form.densidad min="0.0001" class="form-control" placeholder="Densidad" %}
-                        {% render_field form.densidad_unidad class="form-select" %}
+                        <select name="form-{{forloop.counter0}}-densidad_unidad" id="id_form-{{forloop.counter0}}-densidad_unidad" class="form-select">
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'D' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form.instance.densidad_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
                         <small>{{form.densidad.errors}}</small>
                     </div>      
                 </td>
                 <td>
                     <div class="input-group mb-1">
                         {% render_field form.temp_operacion min="0.0001" class="form-control" placeholder="Temp. de Operación" %}
-                        {% render_field form.temp_operacion_unidad class="form-select" %}
+                        <select name="form-{{forloop.counter0}}-temp_operacion_unidad" id="id_form-{{forloop.counter0}}-temp_operacion_unidad" class="form-select">
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'T' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form.instance.temp_operacion_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
                         <small>{{form.temp_operacion.errors}}</small>
                     </div>      
                 </td>
                 <td>
                     <div class="input-group mb-1">
                         {% render_field form.presion min="0.0001" class="form-control" placeholder="Presión (abs.)" %}
-                        {% render_field form.presion_unidad class="form-select" %}
+                        <select name="form-{{forloop.counter0}}-presion_unidad" id="id_form-{{forloop.counter0}}-presion_unidad" class="form-select">
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'P' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form.instance.presion_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
                         <small>{{form.presion.errors}}</small>
                     </div>              
                 </td>
                 <td>
                     <div class="input-group mb-1">
                         {% render_field form.estado class="form-select" %}
+                        <small>{{form.estado.errors}}</small>
                     </div>
                 </td>
             </tr>
@@ -118,22 +143,60 @@
                     {% render_field form.nombre class="form-control" placeholder="Nombre" %}
                 </td>
                 <td>
-                    {% render_field form.tipo_unidad class="form-control" placeholder="Tipo de Unidad" %}
+                    <select name="form-{{forloop.counter0}}-tipo_unidad" class="form-select">
+                        <option value="">ADIMENSIONAL / PORCENTUAL</option>
+                        {% with tipo_unidad_usada=form.instance.tipo_unidad.pk %}
+                        {% for tipo_unidad in tipo_unidades %}
+                            <option value="{{tipo_unidad.pk}}" {% if tipo_unidad.pk == tipo_unidad_usada %}selected{% endif %}>{{tipo_unidad.nombre}}</option>
+                        {% endfor %}
+                        {% endwith %}
+                    </select>
                 </td>
                 <td>
-                    {% render_field form.carga_25 class="form-control" placeholder="Valor al 25%" %}                    
+                    <div class="input-group mb-1">
+                        {% render_field form.carga_25 class="form-control" placeholder="Valor al 25%" %}
+                        <select name="form-{{forloop.counter0}}-unidad" id="id_form-{{forloop.counter0}}-unidad" class="form-select">
+                            <option value="">----------------</option>
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == form.instance.tipo_unidad.pk %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form.instance.unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <small>{{form.carga_25.errors}}</small>                                       
+                </td>
+                {% with unidad=form.instance.unidad.simbolo %}
+                <td>
+                    <div class="input-group mb-1">
+                        {% render_field form.carga_50 class="form-control" placeholder="Valor al 50%" %}
+                        <select class="form-select form-{{forloop.counter0}}-unidad" disabled>
+                            <option>{{unidad}}</option>
+                        </select>
+                    </div>
+                    <small>{{form.carga_50.errors}}</small>                                        
                 </td>
                 <td>
-                    {% render_field form.carga_50 class="form-control" placeholder="Valor al 50%" %}
+                    <div class="input-group mb-1">
+                        {% render_field form.carga_75 class="form-control" placeholder="Valor al 75%" %}
+                        <select class="form-select form-{{forloop.counter0}}-unidad" disabled>
+                            <option>{{unidad}}</option>
+                        </select>
+                    </div>
+                    <small>{{form.carga_75.errors}}</small>                                        
                 </td>
                 <td>
-                    {% render_field form.carga_75 class="form-control" placeholder="Valor al 75%" %}
+                    <div class="input-group mb-1">
+                        {% render_field form.carga_100 class="form-control" placeholder="Valor al 100%" %}
+                        <select class="form-select form-{{forloop.counter0}}-unidad" disabled>
+                            <option>{{unidad}}</option>
+                        </select>
+                    </div>
+                    <small>{{form.carga_100.errors}}</small>                                        
                 </td>
+                {% endwith %}
                 <td>
-                    {% render_field form.carga_100 class="form-control" placeholder="Valor al 100%" %}
-                </td>
-                <td>
-                    <a href="#" class="btn btn-success">
+                    <a href="#" class="btn btn-{% if forloop.first %}success{% else %}danger{% endif %}">
                     {% if forloop.first %}
                         +
                     {% else %}
@@ -141,6 +204,12 @@
                     {% endif %}
                     </a>
                 </td>
+
+                <script>
+                    $("select[name='form-{{forloop.counter0}}-unidad']").change(function(e) {
+                        $(".form-{{forloop.counter0}}-unidad").html(`<option selected>${$(this).find("option:selected").text()}</option>`);
+                    });
+                </script>
             </tr>
             {% endfor %}
         </tbody>

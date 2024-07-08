@@ -770,3 +770,14 @@ class EvaluacionesIntercambiador(models.Model):
     class Meta:
         db_table = "intercambiadores_evaluaciones"
         ordering = ('-fecha',)
+
+class ClasesUnidades(models.Model):
+    tipo = models.CharField(max_length=1, primary_key=True)
+    nombre = models.CharField(max_length=50)
+
+    class Meta:
+        db_table = "unidades_clases"
+        ordering = ('nombre',)
+
+    def __str__(self):
+        return self.nombre

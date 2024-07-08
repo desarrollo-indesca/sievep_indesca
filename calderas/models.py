@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 
-from intercambiadores.models import Planta, Fluido, Unidades
+from intercambiadores.models import Planta, Fluido, Unidades, ClasesUnidades
 
 # Create your models here.
 
@@ -355,7 +355,7 @@ class Caracteristica(models.Model):
         caldera: Caldera -> Caldera en la que se encuentra la característica
     """
     nombre = models.CharField(max_length=80)
-    tipo_unidad = models.CharField(max_length=1, null=True, blank=True)
+    tipo_unidad = models.ForeignKey(ClasesUnidades, models.PROTECT, null=True, blank=True)
     unidad = models.ForeignKey(Unidades, models.PROTECT, null=True, blank=True)
     caldera = models.ForeignKey(Caldera, on_delete=models.PROTECT, related_name="caracteristicas_caldera")
 

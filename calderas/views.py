@@ -505,11 +505,13 @@ class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View
         for tipo in corrientes_requeridas:
             forms_corrientes.append(CorrienteForm(initial={'tipo': tipo}))
 
-        caracteristicas = caldera.caracteristicas_caldera.all()
+        caracteristicas = caldera.caracteristicas_caldera.select_related('tipo_unidad','unidad').all()
         formset_caracteristicas = forms.modelformset_factory(model=Caracteristica, form=CaracteristicaForm)
         formset_caracteristicas = formset_caracteristicas(queryset=caracteristicas)
 
         return {
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
+            'tipo_unidades': ClasesUnidades.objects.all().values('pk', 'nombre'),
             'forms_corrientes': forms_corrientes,
             'forms_caracteristicas': formset_caracteristicas,
             'caldera': caldera,
