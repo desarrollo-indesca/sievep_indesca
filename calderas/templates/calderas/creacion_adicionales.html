@@ -3,6 +3,10 @@
 {% load static %}
 {% load widget_tweaks %}
 
+{% block head %}
+<script src="{% static 'js/htmx.min.js' %}"></script>
+{% endblock %}
+
 {% block contenido %}
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
@@ -123,6 +127,7 @@
     <hr>
 
     <h4 class="text-center" style="color: #e31e24;">Características Adicionales</h4>
+    {{forms_caracteristicas.management_form}}
     <table class="table table-bordered table-hover text-center align-middle">
         <thead class="table-dark">
             <tr>
@@ -136,14 +141,18 @@
             </tr>
         </thead>
 
-        <tbody>
+        <tbody id="id-forms-container">
             {% for form in forms_caracteristicas %}
-            <tr>
+            <tr class="form">
                 <td>
                     {% render_field form.nombre class="form-control" placeholder="Nombre" %}
                 </td>
                 <td>
-                    <select name="form-{{forloop.counter0}}-tipo_unidad" class="form-select">
+                    <select name="form-{{forloop.counter0}}-tipo_unidad" class="form-select" 
+                    id="id_form-{{forloop.counter0}}-tipo_unidad"
+                    hx-target="#id_form-{{forloop.counter0}}-unidad" hx-swap="innerHTML" 
+                    hx-get="{% url 'unidades_por_clase' %}" hx-trigger="change"
+                    hx-vals="js:{clase: document.getElementById('id_form-{{forloop.counter0}}-tipo_unidad').value, form: {{forloop.counter0}}}">
                         <option value="">ADIMENSIONAL / PORCENTUAL</option>
                         {% with tipo_unidad_usada=form.instance.tipo_unidad.pk %}
                         {% for tipo_unidad in tipo_unidades %}
@@ -196,7 +205,7 @@
                 </td>
                 {% endwith %}
                 <td>
-                    <a href="#" class="btn btn-{% if forloop.first %}success{% else %}danger{% endif %}">
+                    <button type="button" class="btn btn-{% if forloop.first %}success anadir{% else %}danger eliminar{% endif %}">
                     {% if forloop.first %}
                         +
                     {% else %}
@@ -216,11 +225,15 @@
     </table>  
     
     <hr>
-    
+
+    <div class="w-100 d-flex justify-content-center align-items-center">
+        <button type="submit" class="btn btn-danger">Registrar Cambios</button>
+    </div>    
 </form>
 
 {% endblock %}
 
 {% block extra_javascript %}
 <script src="/static/js/calderas/creacion.js"></script>
+<script src="{% static 'js/calderas/creacion-adicionales.js' %}"></script>
 {% endblock %}

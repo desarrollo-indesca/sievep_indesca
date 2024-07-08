@@ -534,3 +534,12 @@ class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View
             print(str(e))
             return render(request, self.template_name, context={
             })
+        
+# VISTAS PARA LA GENERACIÓN DE PLANTILLAS PARCIALES
+def unidades_por_clase(request):
+    return render(request, 'calderas/partials/unidades_por_clase.html', context={
+        'unidades': Unidades.objects.filter(
+            tipo = request.GET.get('clase')
+        ),
+        'form': int(request.GET.get('form'))
+    })
