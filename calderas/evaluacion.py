@@ -111,6 +111,35 @@ def calcular_calores_aire(composicion, h, temperatura_aire, presion_aire, humeda
 
     return calor_especifico, pm_aire_promedio
 
+def calcular_n_total_salida(n: list, composicion: list,
+                            n_gas_entrada: float, calores_horno: list,
+                            n_aire_entrada: float, aire_humedo: list):
+    entalpias = []
+    ns = []
+    for i,compuesto in enumerate(n):
+        x = (compuesto['moles']+composicion[compuesto['cas']['x']]*n_gas_entrada)
+        ns.append(x)
+        entalpias.append(x*compuesto['compuesto'].MW*calores_horno[i])
+
+    x_n2 = n_aire_entrada*aire_humedo[1]+composicion[13][x]*n_gas_entrada
+    entalpias.append(x_n2*composicion[12]['compuesto'].MW*calores_horno[5])
+
+    x_o2_entrada = n_aire_entrada*aire_humedo[2]
+    x_o2_reaccion = n_gas_entrada*n[5]
+    x_o2 = x_o2_entrada-x_o2_reaccion
+    entalpias.append(x_o2*composicion[11]['compuesto'].MW*calores_horno[4])
+    o2_exceso = x_o2/x_o2_reaccion
+
+    n_h2o_aire = n_aire_entrada*aire_humedo[2]
+    n_h2o_gas = n_gas_entrada*composicion[11]['x']
+    n_h2o_reaccion = n[6]*n_gas_entrada
+    n_h2o = n_h2o_aire+n_h2o_gas+n_h2o_reaccion
+    entalpias.append(n_h2o*composicion[24]['compuesto'].PM*calores_horno[6])
+    
+    n_total = sum([n_h2o, x_n2, x_o2, *ns])
+
+    return sum(entalpias), n_total, [x/n_total for x in [n_h2o, x_n2, x_o2, *ns]], o2_exceso
+
 def evaluar_caldera(flujo_gas: float, temperatura_gas: float, presion_gas: float,
                     flujo_aire: float, temperatura_aire: float, presion_aire: float,
                     humedad_relativa_aire: float, temperatura_horno: float,
@@ -146,4 +175,42 @@ def evaluar_caldera(flujo_gas: float, temperatura_gas: float, presion_gas: float
     energia_total = energia_gas_entrada + energia_aire_entrada
     energia_total_reaccion = calor_especifico_reaccion*ngas_entrada
 
-    return
+    entalpias_totales, n_total, ns_totales, o2_exceso = calcular_n_total_salida()
+
+    pm_salida_promedio = '' #TODO
+    flujo_combustion = n_total/(presion_horno/(R*temperatura_horno))
+    flujo_combustion_masico = '' # TODO
+
+    energia_horno = energia_total_reaccion + entalpias_totales + energia_aire_entrada
+    flujo_purga = flujo_agua - flujo_vapor
+
+    energia_vapor = flujo_vapor*h_vapor - flujo_agua*h_agua + flujo_vapor*2.44346*1e6
+
+    eficiencia = abs(energia_vapor/energia_horno) * 100
+
+    return {
+        'balance_materiales_msicos': {
+           
+       },
+
+       'flujo_combustion': flujo_combustion,
+       'oxigeno_exceso': o2_exceso,
+
+       'balance_materiales_molares': {
+           
+       },
+
+       'fraccion_h2o_gas': ns_totales[0],
+       'fraccion_n2_gas': ns_totales[1],
+       'fraccion_o2_gas': ns_totales[2],
+       'fraccion_co2_gas': ns_totales[3],
+
+       'balance_energia': {
+           
+       },
+
+       'flujo_purga': flujo_purga,
+       'energia_vapor': energia_vapor,
+
+       'eficiencia': eficiencia
+    }
