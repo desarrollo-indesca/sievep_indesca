@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
@@ -438,6 +440,7 @@ class SalidaBalanceEnergia(models.Model):
         energia_horno: models.FloatField -> Energía total del horno
         energia_unidad: Unidades -> Unidad de Energía
     """
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     energia_entrada_gas = models.FloatField()
     energia_entrada_aire = models.FloatField()
     energia_total_entrada = models.FloatField()
@@ -457,6 +460,7 @@ class SalidaLadoAgua(models.Model):
         eficiencia: models.FloatField -> Eficiencia térmica calculada
         flujo_unidad: Unidades -> Unidad del flujo
     """
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     flujo_purga = models.FloatField()
     energia_vapor = models.FloatField()
     eficiencia = models.FloatField()
@@ -475,6 +479,7 @@ class SalidaFracciones(models.Model):
         so2: models.FloatField -> Fracción calculada de Óxido de Azufre
         o2: models.FloatField -> Fracción calculada de Oxígeno
     """
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     h2o = models.FloatField()
     co2 = models.FloatField()
     n2 = models.FloatField()
@@ -491,6 +496,7 @@ class SalidaBalanceMolar(models.Model):
         n_aire_gas_entrada: models.FloatField -> Números de kmol/h calculados
         n_total: models.FloatField -> Números de kmol/h calculados
     """
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     n_gas_entrada = models.FloatField()
     n_aire_gas_entrada = models.FloatField()
     n_total = models.FloatField()
@@ -509,6 +515,7 @@ class SalidaFlujosEntrada(models.Model):
         flujo_masico_unidad: models.FloatField -> Unidades en la cual se encuentran las propiedades (másico)
         flujo_vol_unidad: models.FloatField -> Unidades en la cual se encuentran las propiedades (volumétrico)
     """
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     flujo_gas_entrada = models.FloatField()
     flujo_aire_entrada = models.FloatField()
     flujo_combustion = models.FloatField()
@@ -534,16 +541,18 @@ class Evaluacion(models.Model):
         salida_lado_agua: SalidaLadoAgua -> Datos de Salida del lado de agua
         caldera: Caldera -> Caldera a la que está asociada la caldera
     """
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     nombre = models.CharField(max_length=45)
     fecha = models.DateTimeField(auto_created=True)
     usuario = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, default=1, related_name="usuario_evaluacion_caldera")
+    activo = models.BooleanField(default=True)
 
     salida_flujos = models.ForeignKey(SalidaFlujosEntrada, models.PROTECT)
     salida_balance_molar = models.ForeignKey(SalidaBalanceMolar, models.PROTECT)
     salida_fracciones = models.ForeignKey(SalidaFracciones, models.PROTECT)
     salida_balance_energia = models.ForeignKey(SalidaBalanceEnergia, models.PROTECT)
     salida_lado_agua = models.ForeignKey(SalidaLadoAgua, models.PROTECT)
-    caldera = models.ForeignKey(Caldera, models.PROTECT)
+    equipo = models.ForeignKey(Caldera, models.PROTECT, related_name="equipo_evaluacion_caldera")
 
 class EntradasFluidos(models.Model):
     """
@@ -569,6 +578,8 @@ class EntradasFluidos(models.Model):
         ("V","Vapor Producido")
     ]
 
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+
     nombre_fluido = models.CharField("Nombre del Fluido", max_length=45)
     flujo = models.FloatField("Flujo Másico", validators=[
         MinValueValidator(0.0001)
@@ -583,7 +594,7 @@ class EntradasFluidos(models.Model):
     humedad_relativa = models.FloatField(null=True, blank=True, validators=[
         MinValueValidator(0)
     ])
-    evaluacion = models.ForeignKey(Evaluacion, models.PROTECT)
+    evaluacion = models.ForeignKey(Evaluacion, models.PROTECT, related_name="entradas_fluidos_caldera")
 
 class EntradaComposicion(models.Model):
     """
@@ -598,6 +609,7 @@ class EntradaComposicion(models.Model):
         composicion: ComposicionCombustible ->  Composición original
         evaluacion: Evaluacion -> Evaluación asociada a 
     """
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     parc_vol = models.FloatField(validators=[
         MinValueValidator(0)
     ])

@@ -7,7 +7,7 @@ from django.views.generic import ListView, View
 from django.db import transaction
 from django.contrib import messages
 
-from simulaciones_pequiven.views import FiltradoSimpleMixin
+from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion
 from usuarios.views import SuperUserRequiredMixin 
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos
@@ -589,7 +589,79 @@ class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View
                 'caldera': caldera,
                 'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
             })
-        
+
+class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, ReportesFichasCalderasMixin):
+    """
+    Resumen:
+        Vista para la creación o registro de nuevas calderas.
+        Solo puede ser accedido por superusuarios.
+        Hereda de ConsultaEvaluacion.
+
+    Atributos:
+        model: EvaluacionBomba -> Modelo de la vista
+        model_equipment -> Modelo del equipo
+        clase_equipo -> Complemento del título de la vista
+    
+    Métodos:
+        get_context_data(self) -> dict
+            Añade al contexto original el equipo.
+
+        get_queryset(self) -> QuerySet
+            Hace el prefetching correspondiente al queryset de las evaluaciones
+
+        post(self) -> HttpResponse
+            Contiene la lógica de eliminación (ocultación) de una evaluación.
+    """
+    model = Evaluacion
+    model_equipment = Caldera
+    clase_equipo = " la Caldera"
+
+    def post(self, request, **kwargs):
+        if(request.user.is_superuser and request.POST.get('evaluacion')): # Lógica de "Eliminación"
+            evaluacion = self.model.objects.get(pk=request.POST['evaluacion'])
+            evaluacion.activo = False
+            evaluacion.save()
+            messages.success(request, "Evaluación eliminada exitosamente.")
+        elif(request.POST.get('evaluacion') and not request.user.is_superuser):
+            messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
+
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha):
+            return reporte_ficha
+
+        if(request.POST.get('tipo') == 'pdf'):
+            return generar_pdf(request, self.get_queryset(), f"Evaluaciones de la Bomba {self.get_bomba().tag}", "evaluaciones_bombas")
+        elif(request.POST.get('tipo') == 'xlsx'):
+            return historico_evaluaciones_caldera(self.get_queryset(), request)
+
+        if(request.POST.get('detalle')):
+            return generar_pdf(request, self.model.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Bomba", "detalle_evaluacion_bomba")
+
+        return self.get(request, **kwargs)
+    
+    def get_queryset(self):
+        new_context = super().get_queryset()
+
+        new_context = new_context.select_related(
+            'usuario', 
+            
+            'salida_flujos', 'salida_flujos__flujo_masico_unidad', 
+            'salida_flujos__flujo_vol_unidad', 
+            'salida_fracciones', 'salida_balance_molar'
+        )
+
+        new_context = new_context.prefetch_related(
+            'entradas_fluidos_caldera', 'composiciones_evaluacion'
+        )
+
+        return new_context
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['equipo'] = self.get_caldera(True, False)
+
+        return context
+
 # VISTAS PARA LA GENERACIÓN DE PLANTILLAS PARCIALES
 def unidades_por_clase(request):
     return render(request, 'calderas/partials/unidades_por_clase.html', context={

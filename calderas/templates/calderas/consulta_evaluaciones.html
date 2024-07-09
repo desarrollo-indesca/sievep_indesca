@@ -4,13 +4,15 @@
 
 {% block encabezado %}
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="
-    {% url 'consulta_calderas' %}
+    {% url 'consulta_turbinas_vapor' %}
 ?page={{request.session.pagina_consulta}}&tag={{request.session.tag_consulta}}&servicio={{request.session.servicio_consulta}}&complejo={{request.session.complejo_consulta}}&planta={{request.session.planta_consulta}}
   ">↶ Regresar</a></div>
   <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Evaluaciones de{{clase_equipo}} {{equipo.tag}}</h3></div>
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
     <a class="btn d-block btn-success" 
-    href="#"
+    href="
+      {% url 'evaluacion_turbina_vapor' pk=equipo.pk %}
+      "
     >+ Nueva</a> &nbsp;
   </div>
 
@@ -52,7 +54,7 @@
 </thead>
 <tbody class="text-center">
   {% if object_list.count %}
-    {% include 'calderas/partials/tabla_evaluaciones.html' %}
+    {% include 'turbinas_vapor/partials/tabla_evaluaciones.html' %}
   {% else %}
   <td colspan="7">No se encontraron evaluaciones para este equipo con los datos proporcionados.</td>
   {% endif %}
@@ -70,8 +72,8 @@
     <button type="button" class="btn btn-secondary" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{equipo.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button>
     <button type="button" class="btn btn-warning" style="color: black;" data-bs-toggle="modal" data-bs-target="#grafica_historica"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Mostrar gráfica histórico">&nbsp;Gráfica Histórica</button>
   </form>
-  {% include 'calderas/ficha.html' with caldera=equipo %}
-  {% include 'calderas/partials/historico.html' %}
+  {% include 'turbinas_vapor/ficha.html' with turbina=equipo %}
+  {% include 'turbinas_vapor/partials/historico.html' %}
 </div>
 <footer aria-label="Page navigation example">
   <ul class="pagination">

@@ -8,4 +8,6 @@ urlpatterns = [
     path('adicionales/<int:pk>/', RegistroDatosAdicionales.as_view(), name="registro_adicionales_caldera"),
 
     path('unidades/', unidades_por_clase, name="unidades_por_clase"),
+
+    path('evaluaciones/<int:pk>/', ConsultaEvaluacionCaldera.as_view(), name="evaluaciones_caldera"),
 ]
