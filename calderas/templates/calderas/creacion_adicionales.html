@@ -230,13 +230,12 @@
     <hr>
 
     <div class="w-100 d-flex justify-content-center align-items-center">
-        <button type="submit" class="btn btn-danger p-2">Registrar Cambios</button>
+        <button id="submit" type="submit" class="btn btn-danger p-2">Registrar Cambios</button>
     </div>    
 </form>
 
 {% endblock %}
 
 {% block extra_javascript %}
-<script src="/static/js/calderas/creacion.js"></script>
 <script src="{% static 'js/calderas/creacion-adicionales.js' %}"></script>
 {% endblock %}

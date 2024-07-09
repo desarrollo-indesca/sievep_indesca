@@ -112,4 +112,26 @@ const cargarEventListeners = (anadirListeners = true) => {
       });
 };
 
+const confirmSubmit = () => {
+    return new Promise((resolve, reject) => {
+        const confirmSubmitWindow = window.confirm(
+            "¿Está seguro que desea agregar estos datos?"
+        );
+
+        if (confirmSubmitWindow) {
+            resolve();
+        } else {
+            reject();
+        }
+    });
+};
+
+$("#submit").click(async (e) => {
+    e.preventDefault();
+
+    await confirmSubmit();
+
+    e.target.form.submit();
+});
+
 cargarEventListeners();

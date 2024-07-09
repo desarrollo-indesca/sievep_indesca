@@ -505,7 +505,7 @@ class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View
             corrientes_requeridas = [x for x in corrientes_requeridas if corriente.tipo != x]
         
         for tipo in corrientes_requeridas:
-            forms_corrientes.append(CorrienteForm(initial={'tipo': tipo}))
+            forms_corrientes.append(CorrienteForm(initial={'tipo': tipo}, prefix=f"corriente-{len(forms_corrientes)}"))
 
         caracteristicas = caldera.caracteristicas_caldera.select_related('tipo_unidad','unidad').all()
         formset_caracteristicas = forms.modelformset_factory(model=Caracteristica, form=CaracteristicaForm, extra=0 if len(caracteristicas) else 1, min_num=0)
@@ -523,46 +523,55 @@ class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View
     def get(self, request, **kwargs):
         return render(request, self.template_name, self.get_context())
          
-    def almacenar_datos(self, form_corrientes, form_caracteristicas):       
-        with transaction.atomic(): 
-            all = True
-            caldera = self.get_caldera(False, False)
+    def almacenar_datos(self, form_corrientes, form_caracteristicas):
+        caldera = self.get_caldera(False, False)
+
+        with transaction.atomic():
+            all_valid = True
+
             for form in form_corrientes:
                 if form.is_valid():
-                    form.save()
+                    instance = form.save(commit=False)
+                    instance.caldera = caldera
+                    instance.save(update_fields=form.changed_data)
                 else:
-                    all = False
-            
+                    all_valid = False
+
             if form_caracteristicas.is_valid():
                 for form in form_caracteristicas:
-                    if form.is_valid():
+                    if form.is_valid() and form.cleaned_data:
                         instance = form.save(commit=False)
                         instance.caldera = caldera
-
-                        try:
-                            instance.save()
-                        except:
-                            continue
+                        instance.save()
                     else:
-                        all = False
+                        all_valid = False
             else:
-                raise Exception("Ocurrió un error de validación general")
-        
-            if(all):
+                raise Exception("Ocurrió un Error de Validación General.")
+
+            if all_valid:
                 messages.success(self.request, self.success_message)
             else:
-                messages.warning(self.request, "Se han almacenado los datos adicionales pero algunos no pudieron ser validados.")
-        
-        return redirect('/calderas')
+                messages.warning(self.request, "Los datos adicionales fueron guardados pero no todos fueron validados.")
 
+            return redirect('/calderas')
+        
     def post(self, request, pk):
         # FORMS
         caldera = self.get_caldera(caldera_q=False)
         corrientes = caldera.corrientes_caldera.all()
-        form_corrientes = [
-            CorrienteForm(request.POST, prefix=f"corriente-{i}", instance=corrientes[i]) for i in range(0,4)
-        ]
+        form_corrientes = []
 
+        print(request.POST)
+
+        for i in range(0,4):
+            prefix = f"corriente-{i}"
+            tipo = request.POST[f"{prefix}-tipo"]
+
+            if(corrientes.filter(tipo=tipo).exists()):
+                form_corrientes.append(CorrienteForm(request.POST, instance=corrientes.get(tipo=tipo), prefix=prefix))
+            else:
+                form_corrientes.append(CorrienteForm(request.POST, prefix=prefix))
+        
         form_caracteristicas = forms.modelformset_factory(model=Caracteristica, form=CaracteristicaForm)
         form_caracteristicas = form_caracteristicas(request.POST, prefix="form")
         
@@ -570,6 +579,7 @@ class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View
             return self.almacenar_datos(form_corrientes, form_caracteristicas)
 
         except Exception as e:
+            print(str(e))
             print([form.errors for form in form_corrientes])
             print(len(form_caracteristicas.errors))
             return render(request, self.template_name, context={

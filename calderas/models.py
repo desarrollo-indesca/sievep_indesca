@@ -415,7 +415,7 @@ class Corriente(models.Model):
     ])
     temp_operacion_unidad = models.ForeignKey(Unidades, models.PROTECT, default=1, related_name="temp_operacion_unidad_corriente_calderas")
     
-    presion = models.FloatField(null=True, validators=[
+    presion = models.FloatField(null=True, blank=True, validators=[
         MinValueValidator(0.0001)
     ])
     presion_unidad = models.ForeignKey(Unidades, models.PROTECT, default=1, related_name="presion_unidad_corriente_calderas")
