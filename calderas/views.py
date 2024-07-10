@@ -13,6 +13,8 @@ from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos
 from .forms import *
 from .constants import COMPUESTOS_AIRE
+from .evaluacion import evaluar_caldera
+from calculos.unidades import *
 
 from datetime import datetime
 
@@ -733,8 +735,72 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
     def get(self, *args, **kwargs):
         return render(self.request, 'calderas/evaluacion.html', context=self.get_context_data())
     
-    def post(self, pk, *args, **kwargs):
+    def evaluar(self):
+        resultados = self.calcular_resultados()
+        return render(self.request, 'calderas/partials/resultados.html', context={
+            'resultados': resultados
+        })
+
+    def almacenar(self):
         pass
+
+    def calcular_resultados(self):
+        request = self.request
+
+        variables = {
+            'gas-flujo': 'gas-flujo_unidad',
+            'gas-temperatura': 'gas-temperatura_unidad',
+            'gas-presion': 'gas-presion_unidad',
+            'aire-flujo': 'aire-flujo_unidad',
+            'aire-temperatura': 'aire-temperatura_unidad',
+            'aire-presion': 'aire-presion_unidad',
+            'aire-humedad_relativa': None,
+            'horno-temperatura': 'horno-temperatura_unidad',
+            'horno-presion': 'horno-presion_unidad',
+            'agua-flujo': 'agua-flujo_unidad',
+            'agua-temperatura': 'agua-temperatura_unidad',
+            'agua-presion': 'agua-presion_unidad',
+            'vapor-flujo': 'vapor-flujo_unidad',
+            'vapor-temperatura': 'vapor-temperatura_unidad',
+            'vapor-presion': 'vapor-presion_unidad',
+        }
+
+        for valor,llave in variables.values():
+            unidad = int(request.POST.get(llave))
+            valor = float(request.POST.get(valor))
+            funcion = transformar_unidades_presion if 'presion' in llave else \
+                transformar_unidades_temperatura if 'temperatura' in llave else \
+                transformar_unidades_flujo_volumetrico if 'gas' in llave or 'aire' in llave else \
+                transformar_unidades_flujo
+
+            if unidad:
+                valor = funcion([valor], unidad)[0]
+
+            variables[llave] = valor
+
+        composiciones = []
+
+        for i in range(15):
+            fluido = request.POST.get(f'composicion-{i}-fluido')
+            parc_vol = request.POST.get(f'composicion-{i}-parc_vol')
+            parc_aire = request.POST.get(f'composicion-{i}-parc_aire')
+            
+            if fluido:
+                composiciones.append({
+                    'fluido': fluido,
+                    'porc_vol': parc_vol,
+                    'porc_aire': parc_aire
+                })
+        
+        resultados = evaluar_caldera(**variables, composiciones=composiciones)
+        return resultados
+
+    def post(self, request, pk, *args, **kwargs):
+        if(request.POST.get('almacenar')):
+            pass
+        else:
+            return self.evaluar()
+
 
 # VISTAS PARA LA GENERACIÓN DE PLANTILLAS PARCIALES
 def unidades_por_clase(request):

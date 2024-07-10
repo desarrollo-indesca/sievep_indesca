@@ -581,7 +581,7 @@ class EntradasFluidos(models.Model):
 
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
 
-    flujo = models.FloatField("Flujo Másico", null=True, blank=True, validators=[
+    flujo = models.FloatField("Flujo", null=True, blank=True, validators=[
         MinValueValidator(0.0001)
     ])
     flujo_unidad = models.ForeignKey(Unidades, models.PROTECT, related_name="flujo_unidad_entrada_fluidos_caldera")

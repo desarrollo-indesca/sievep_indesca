@@ -189,25 +189,24 @@ def evaluar_caldera(flujo_gas: float, temperatura_gas: float, presion_gas: float
     eficiencia = abs(energia_vapor/energia_horno) * 100
 
     return {
-        'balance_materiales_msicos': {
-           
-       },
-
        'flujo_combustion': flujo_combustion,
        'oxigeno_exceso': o2_exceso,
-
-       'balance_materiales_molares': {
-           
-       },
 
        'fraccion_h2o_gas': ns_totales[0],
        'fraccion_n2_gas': ns_totales[1],
        'fraccion_o2_gas': ns_totales[2],
        'fraccion_co2_gas': ns_totales[3],
 
-       'balance_energia': {
+       'balance_gas': {
            
        },
+
+       'balance_aire': {
+           
+       },
+
+       'energia_gas_entrada': energia_gas_entrada,
+       'energia_aire_entrada': energia_aire_entrada,
 
        'flujo_purga': flujo_purga,
        'energia_vapor': energia_vapor,
