@@ -667,11 +667,7 @@ class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, Reporte
 
 class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
 
-    def get_context_data(self, **kwargs):
-        context = {}
-        context['equipo'] = self.get_caldera(True, False)
-
-        composiciones = ComposicionCombustible.objects.filter(combustible= context['equipo'].combustible).select_related('fluido')
+    def make_forms(self, caldera, composiciones, corrientes):
         formset_composicion = [
             {
                 'form': EntradaComposicionForm(prefix=f'composicion-{i}', initial = {'parc_vol': composicion.porc_vol, 'parc_aire': composicion.porc_aire}),
@@ -679,9 +675,14 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
             } for i,composicion in enumerate(composiciones)
         ]
 
+        corriente_agua = corrientes.get(tipo='W')
+        corriente_vapor = corrientes.get(tipo='A')
+
         forms = {
             'form_gas': EntradasFluidosForm(prefix='gas', initial={
-                'tipo': 'G'
+                'tipo': 'G',
+                'flujo': caldera.especificaciones.carga,
+                'flujo_unidad': caldera.especificaciones.carga_unidad
             }),
             'form_aire': EntradasFluidosForm(prefix='aire', initial={
                 'tipo': 'A'
@@ -690,10 +691,22 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
                 'tipo': 'H'
             }), 
             'form_agua': EntradasFluidosForm(prefix='agua', initial={
-                'tipo': 'W'
+                'tipo': 'W',
+                'flujo': corriente_agua.flujo_masico,
+                'flujo_unidad': corriente_agua.flujo_masico_unidad,
+                'presion': corriente_agua.presion,
+                'presion_unidad': corriente_agua.presion_unidad,
+                'temperatura': corriente_agua.temp_operacion,
+                'temperatura_unidad': corriente_agua.temp_operacion_unidad
             }),
             'form_vapor': EntradasFluidosForm(prefix='vapor', initial={
-                'tipo': 'V'
+                'tipo': 'V',
+                'flujo': corriente_vapor.flujo_masico,
+                'flujo_unidad': corriente_vapor.flujo_masico_unidad,
+                'presion': corriente_vapor.presion,
+                'presion_unidad': corriente_vapor.presion_unidad,
+                'temperatura': corriente_vapor.temp_operacion,
+                'temperatura_unidad': corriente_vapor.temp_operacion_unidad
             }), 
 
             'form_evaluacion': EvaluacionForm(prefix='evaluacion'),
@@ -701,9 +714,17 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
             'formset_composicion': formset_composicion
         }
 
+        return forms
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        context['equipo'] = self.get_caldera(True, False)
+
+        composiciones = ComposicionCombustible.objects.filter(combustible= context['equipo'].combustible).select_related('fluido')
+        corrientes = context['equipo'].corrientes_caldera.select_related('flujo_masico_unidad', 'presion_unidad', 'temp_operacion_unidad')        
         unidades = Unidades.objects.all().values('pk', 'simbolo', 'tipo')
 
-        context['forms'] = forms
+        context['forms'] = self.make_forms(context['equipo'], composiciones, corrientes)
         context['unidades'] = unidades
         context['fluidos_composiciones'] = COMPUESTOS_AIRE
 

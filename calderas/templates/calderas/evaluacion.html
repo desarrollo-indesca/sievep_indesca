@@ -15,7 +15,11 @@
     <div class="col-md-6 col-lg-8">
         <h3 class="text-center" style="color: #e31e24;">Evaluación de Caldera {{equipo.tag}}</h3>
     </div>
-    <div class="col-3"></div>
+    <div class="col-2">
+        <button type="button" class="btn btn-success" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{equipo.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button>
+        {% include 'calderas/partials/ficha.html' with caldera=equipo %}
+    </div>
+    
 </div>
 
 <form method="post" enctype="multipart/form-data">
@@ -28,7 +32,7 @@
                     <hr>
                 </div>
 
-                <div class="col-12"  style="max-height: 80vh; overflow-y: auto;">
+                <div class="col-12 pb-2 pt-2"  style="max-height: 80vh; overflow-y: auto;">
                     <div class="row">
                         <div class="col-12">
                             <h4 class="text-center">Gas</h4>
@@ -142,7 +146,7 @@
                             <div class="input-group">
                                 {% render_field forms.form_agua.flujo class="form-control" %}
                                 <select name="agua-flujo_unidad" class="form-select" id="id_agua-flujo_unidad">
-                                    {% include 'unidades.html' with unidades=unidades tipo='K' pk_selected=forms.form_agu.flujo_unidad.pk %}        
+                                    {% include 'unidades.html' with unidades=unidades tipo='F' pk_selected=forms.form_agua.flujo_unidad.pk %}        
                                 </select>
         
                                 <small>{{forms.form_agua.flujo.errors}}</small>
@@ -152,7 +156,7 @@
                             <div class="input-group">
                                 {% render_field forms.form_agua.temperatura class="form-control" %}
                                 <select name="agua-temperatura_unidad" class="form-select" id="id_agua-temperatura_unidad">
-                                    {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=forms.form_agu.temperatura_unidad.pk %}        
+                                    {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=forms.form_agua.temperatura_unidad.pk %}        
                                 </select>
         
                                 <small>{{forms.form_agua.temperatura.errors}}</small>
@@ -211,7 +215,7 @@
             <h4 class="text-center">Composición del Combustible</h4>
             <hr>
             <div style="max-height: 80vh; overflow-y: auto;">
-                <table class="table table-responsive table-bordered w-100">
+                <table class="table table-responsive table-hover table-bordered w-100 text-center" style="vertical-align: middle;">
                     <thead>
                         <tr class="table-dark">
                             <th class="text-center">COMPUESTO</th>
@@ -226,17 +230,26 @@
                                 {{composicion.composicion.fluido}}
                             </td>
                             <td>
-                                {% render_field composicion.form.parc_vol class="form-control" placeholder="% VOL" %}
+                                {% render_field composicion.form.parc_vol class="form-control porc-vol" placeholder="% VOL" min=0 max=100 step="0.01" %}
                                 <small>{{composicion.form.parc_vol.errors}}</small>
                             </td>
                             <td>
                                 {% if composicion.composicion.fluido.pk in fluidos_composiciones %}
-                                {% render_field composicion.form.parc_aire class="form-control" placeholder="% AIRE" %}
+                                {% render_field composicion.form.parc_aire class="form-control porc-aire" placeholder="% AIRE" min=0 max=100 step="0.01" %}
                                 <small>{{composicion.form.parc_aire.errors}}</small>
                                 {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
+                        <tr class="table-success">
+                            <th>TOTALES</th>
+                            <th>
+                                <input class="form-control" id="total-vol" value="100" disabled>
+                            </th>
+                            <th>
+                                <input id="total-aire" class="form-control" value="100" disabled>
+                            </th>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -245,7 +258,7 @@
             <h4 class="text-center">Resultados</h4>
             <hr>
             <div id="resultados" class="d-flex justify-content-center" style="max-height: 80vh; overflow-y: auto;">
-                <button type="submit" class="btn btn-danger">Calcular Resultados</button>
+                <button type="submit" id="submit" class="btn btn-danger">Calcular Resultados</button>
             </div>
         </div>
     </div>
