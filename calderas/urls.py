@@ -10,4 +10,5 @@ urlpatterns = [
     path('unidades/', unidades_por_clase, name="unidades_por_clase"),
 
     path('evaluaciones/<int:pk>/', ConsultaEvaluacionCaldera.as_view(), name="evaluaciones_caldera"),
+    path('evaluacion/<int:pk>/', CreacionEvaluacionCaldera.as_view(), name="evaluar_caldera"),
 ]

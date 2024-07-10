@@ -615,6 +615,7 @@ class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, Reporte
     model = Evaluacion
     model_equipment = Caldera
     clase_equipo = " la Caldera"
+    template_name = 'calderas/consulta_evaluaciones.html'
 
     def post(self, request, **kwargs):
         if(request.user.is_superuser and request.POST.get('evaluacion')): # Lógica de "Eliminación"
@@ -661,6 +662,58 @@ class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, Reporte
         context['equipo'] = self.get_caldera(True, False)
 
         return context
+
+# VISTAS DE EVALUACIONES
+
+class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        context['equipo'] = self.get_caldera(True, False)
+
+        composiciones = ComposicionCombustible.objects.filter(combustible= context['equipo'].combustible).select_related('fluido')
+        formset_composicion = [
+            {
+                'form': EntradaComposicionForm(prefix=f'composicion-{i}', initial = {'parc_vol': composicion.porc_vol, 'parc_aire': composicion.porc_aire}),
+                'composicion': composicion
+            } for i,composicion in enumerate(composiciones)
+        ]
+
+        forms = {
+            'form_gas': EntradasFluidosForm(prefix='gas', initial={
+                'tipo': 'G'
+            }),
+            'form_aire': EntradasFluidosForm(prefix='aire', initial={
+                'tipo': 'A'
+            }),
+            'form_horno': EntradasFluidosForm(prefix='horno', initial={
+                'tipo': 'H'
+            }), 
+            'form_agua': EntradasFluidosForm(prefix='agua', initial={
+                'tipo': 'W'
+            }),
+            'form_vapor': EntradasFluidosForm(prefix='vapor', initial={
+                'tipo': 'V'
+            }), 
+
+            'form_evaluacion': EvaluacionForm(prefix='evaluacion'),
+
+            'formset_composicion': formset_composicion
+        }
+
+        unidades = Unidades.objects.all().values('pk', 'simbolo', 'tipo')
+
+        context['forms'] = forms
+        context['unidades'] = unidades
+        context['fluidos_composiciones'] = COMPUESTOS_AIRE
+
+        return context
+
+    def get(self, *args, **kwargs):
+        return render(self.request, 'calderas/evaluacion.html', context=self.get_context_data())
+    
+    def post(self, pk, *args, **kwargs):
+        pass
 
 # VISTAS PARA LA GENERACIÓN DE PLANTILLAS PARCIALES
 def unidades_por_clase(request):

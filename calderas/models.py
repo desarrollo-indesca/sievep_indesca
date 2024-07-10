@@ -554,13 +554,15 @@ class Evaluacion(models.Model):
     salida_lado_agua = models.ForeignKey(SalidaLadoAgua, models.PROTECT)
     equipo = models.ForeignKey(Caldera, models.PROTECT, related_name="equipo_evaluacion_caldera")
 
+    class Meta:
+        ordering = ('-fecha',)
+
 class EntradasFluidos(models.Model):
     """
     Resumen:
         Modelo general para almacenar la información de una evaluación realizada a una caldera en un momento determinado por un usuario.
 
     Atributos:
-        nombre_fluido: models.CharField -> Nombre del fluido
         flujo: models.FloatField -> Flujo del fluido
         temperatura: models.FloatField -> Temperatura del fluido
         presion: models.FloatField -> Presión del fluido
@@ -573,23 +575,27 @@ class EntradasFluidos(models.Model):
         ("G","Gas"),
         ("A","Aire"),
         ("H","Horno"),
-        ("L","Líquido"),
         ("W","Agua de Entrada a la Caldera"),
         ("V","Vapor Producido")
     ]
 
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
 
-    nombre_fluido = models.CharField("Nombre del Fluido", max_length=45)
-    flujo = models.FloatField("Flujo Másico", validators=[
+    flujo = models.FloatField("Flujo Másico", null=True, blank=True, validators=[
         MinValueValidator(0.0001)
     ])
+    flujo_unidad = models.ForeignKey(Unidades, models.PROTECT, related_name="flujo_unidad_entrada_fluidos_caldera")
+
     temperatura = models.FloatField("Temperatura de Operación", validators=[
         MinValueValidator(-273.15)
     ])
+    temperatura_unidad = models.ForeignKey(Unidades, models.PROTECT, related_name="temperatura_unidad_entrada_fluidos_caldera")
+
     presion = models.FloatField("Presión de Operación", validators=[
         MinValueValidator(0.0001)
     ])
+    presion_unidad = models.ForeignKey(Unidades, models.PROTECT, related_name="presion_unidad_entrada_fluidos_caldera")
+    
     tipo_fluido = models.CharField(max_length=1, choices=TIPOS_FLUIDOS)
     humedad_relativa = models.FloatField(null=True, blank=True, validators=[
         MinValueValidator(0)

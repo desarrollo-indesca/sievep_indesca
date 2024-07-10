@@ -11,7 +11,7 @@
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
     <a class="btn d-block btn-success" 
     href="
-      {% url 'evaluacion_turbina_vapor' pk=equipo.pk %}
+      {% url 'evaluar_caldera' pk=equipo.pk %}
       "
     >+ Nueva</a> &nbsp;
   </div>
@@ -54,7 +54,7 @@
 </thead>
 <tbody class="text-center">
   {% if object_list.count %}
-    {% include 'turbinas_vapor/partials/tabla_evaluaciones.html' %}
+    {% include 'calderas/partials/tabla_evaluaciones.html' %}
   {% else %}
   <td colspan="7">No se encontraron evaluaciones para este equipo con los datos proporcionados.</td>
   {% endif %}
