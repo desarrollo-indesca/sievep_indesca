@@ -781,9 +781,14 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
             variables[llave] = valor
 
         composiciones = []
-
+        fluidos = []
         for i in range(15):
-            fluido = request.POST.get(f'composicion-{i}-fluido')
+            fluidos.append(pk=request.POST.get(f'composicion-{i}-fluido'))
+
+        fluidos = Fluido.objects.filter(pk__in=fluidos).values('cas', 'nombre', 'pk')
+     
+        for i in range(15):
+            fluido = fluidos[i]
             parc_vol = request.POST.get(f'composicion-{i}-parc_vol')
             parc_aire = request.POST.get(f'composicion-{i}-parc_aire')
             
