@@ -509,6 +509,7 @@ class PlantasPorComplejo(LoginRequiredMixin, View):
         selected_planta_id = request.GET.get('planta')
         plantas = Planta.objects.filter(complejo_id=complejo_id)
         selected_planta = int(selected_planta_id) if selected_planta_id else None
+        print(complejo_id, selected_planta_id)
         context = {
             'plantas': plantas,
             'selected_planta': selected_planta,

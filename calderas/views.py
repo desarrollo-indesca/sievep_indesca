@@ -390,9 +390,11 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
                 'combustible': composicion.fluido,
                 'form': form
             })
+
+        planta = caldera.planta
             
         return {
-            'form_caldera': CalderaForm(instance=caldera, initial={'planta': caldera.planta, 'complejo': caldera.planta.complejo}), 
+            'form_caldera': CalderaForm(instance=caldera, initial={'complejo': planta.complejo, 'planta': planta}), 
             'form_tambor': TamborForm(prefix="tambor", instance=caldera.tambor), 
             'form_chimenea': ChimeneaForm(prefix="chimenea", instance=caldera.chimenea),
             'form_economizador': EconomizadorForm(prefix="economizador", instance=caldera.economizador),
