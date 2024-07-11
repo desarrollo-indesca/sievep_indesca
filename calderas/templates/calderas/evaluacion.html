@@ -22,7 +22,7 @@
     
 </div>
 
-<form method="post" enctype="multipart/form-data" hx-post="{% url 'evaluar_caldera' pk=equipo.pk %}" hx-target="resultados">
+<form method="post" enctype="multipart/form-data" hx-post="{% url 'evaluar_caldera' pk=equipo.pk %}" hx-target="#resultados">
     {% csrf_token %}
     <div class="row">
         <div class="col-4">
@@ -211,6 +211,7 @@
                 </div>                
             </div>
         </div>
+
         <div class="col-4">
             <h4 class="text-center">Composición del Combustible</h4>
             <hr>
@@ -254,6 +255,7 @@
                 </table>
             </div>
         </div>
+
         <div class="col-4">
             <h4 class="text-center">Resultados</h4>
             <hr>
