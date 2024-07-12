@@ -188,12 +188,16 @@ def evaluar_caldera(flujo_gas: float, temperatura_gas: float, presion_gas: float
                     presion_vapor: float, composiciones_combustible: list):
     
     composicion_normalizada = normalizar_composicion(composiciones_combustible)
+    
     compuestos_combustion = [compuesto for compuesto in composicion_normalizada.values() if compuesto['compuesto'].CAS in COMPUESTOS_COMBUSTION]
+    compuestos_horno = [compuesto for compuesto in composicion_normalizada.values() if compuesto['compuesto'].CAS in COMPUESTOS_HORNO]
+    compuestos_aire = [compuesto for compuesto in composicion_normalizada.values() if compuesto['compuesto'].CAS in COMPUESTOS_AIRE]
+
     n, calor_especifico_combustion = obtener_moles_reaccion(compuestos_combustion)
 
     h_gas = calcular_h(presion_gas, temperatura_gas, composicion_normalizada.values())
-    h_aire = calcular_h(presion_aire, temperatura_aire, [comp for comp in composicion_normalizada.values() if comp['compuesto'].CAS in COMPUESTOS_AIRE])
-    h_horno = calcular_h(presion_horno, temperatura_horno, [comp for comp in composicion_normalizada.values() if comp['compuesto'].CAS in COMPUESTOS_HORNO])
+    h_aire = calcular_h(presion_aire, temperatura_aire, compuestos_aire)
+    h_horno = calcular_h(presion_horno, temperatura_horno, compuestos_horno)
     
     h_agua = CP.PropsSI('H', 'P', presion_agua, 'T', temperatura_agua, 'water')
     h_vapor = CP.PropsSI('H', 'P', presion_vapor, 'T', temperatura_vapor, 'water')
@@ -219,9 +223,9 @@ def evaluar_caldera(flujo_gas: float, temperatura_gas: float, presion_gas: float
         aire_humedo
     )
 
-    pm_salida_promedio = [compuesto['x_vol']*compuesto['compuesto'].MW for compuesto in composicion_normalizada.values() if compuesto['compuesto'].CAS in COMPUESTOS_HORNO]
+    pm_salida_promedio = [compuesto['x_vol']*compuesto['compuesto'].MW for compuesto in compuestos_horno]
     flujo_combustion = n_total/(presion_horno/(R*temperatura_horno))
-    flujo_combustion_masico =  [ns_totales[compuesto['compuesto'].CAS]*compuesto['compuesto'].MW for compuesto in composicion_normalizada.values() if compuesto['compuesto'].CAS in COMPUESTOS_HORNO]
+    flujo_combustion_masico =  [ns_totales[compuesto['compuesto'].CAS]*compuesto['compuesto'].MW for compuesto in compuestos_horno]
 
     energia_horno = energia_total_reaccion + entalpias_totales + energia_aire_entrada
     flujo_purga = flujo_agua - flujo_vapor
@@ -255,6 +259,10 @@ def evaluar_caldera(flujo_gas: float, temperatura_gas: float, presion_gas: float
        'energia_gas_entrada': energia_gas_entrada,
        'energia_aire_entrada': energia_aire_entrada,
        'energia_total': energia_total,
+       'energia_total_entrada': energia_total,
+       'energia_total_reaccion': energia_total_reaccion,
+       'energia_horno': energia_horno,
+       'energia_total_salida': abs(energia_vapor),
 
        'flujo_purga': flujo_purga,
        'energia_vapor': energia_vapor,
