@@ -241,6 +241,7 @@ def evaluar_caldera(flujo_gas: float, temperatura_gas: float, presion_gas: float
        'fraccion_h2o_gas': ns_totales['7732-18-5'],
        'fraccion_n2_gas': ns_totales['7727-37-9'],
        'fraccion_o2_gas': ns_totales['7782-44-7'],
+       'fraccion_so2_gas': ns_totales['7446-09-5'],
        'fraccion_co2_gas': ns_totales['124-38-9'],
 
        'balance_gas': {

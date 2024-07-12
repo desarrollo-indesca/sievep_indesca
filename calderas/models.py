@@ -447,8 +447,6 @@ class SalidaBalanceEnergia(models.Model):
     energia_total_reaccion = models.FloatField()
     energia_horno = models.FloatField()
 
-    energia_unidad = models.ForeignKey(Unidades, models.PROTECT, default=4, related_name="energia_salida_agua_evaluacion")
-
 class SalidaLadoAgua(models.Model):
     """
     Resumen:
@@ -457,13 +455,11 @@ class SalidaLadoAgua(models.Model):
     Atributos:
         flujo_purga: models.FloatField -> Flujo de purga calculada
         energia_vapor: models.FloatField -> Energía de vapor calculada
-        eficiencia: models.FloatField -> Eficiencia térmica calculada
         flujo_unidad: Unidades -> Unidad del flujo
     """
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     flujo_purga = models.FloatField()
     energia_vapor = models.FloatField()
-    eficiencia = models.FloatField()
 
     flujo_unidad = models.ForeignKey(Unidades, models.PROTECT, default=3, related_name="flujo_salida_agua_evaluacion")
 
@@ -486,7 +482,7 @@ class SalidaFracciones(models.Model):
     so2 = models.FloatField()
     o2 = models.FloatField()
 
-class SalidaBalanceMolar(models.Model):
+class SalidaBalances(models.Model):
     """
     Resumen:
         Modelo para almacenar la información de salida de evaluación correspondiente a las fracciones molares de los gases de combustión.
@@ -497,9 +493,10 @@ class SalidaBalanceMolar(models.Model):
         n_total: models.FloatField -> Números de kmol/h calculados
     """
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
-    n_gas_entrada = models.FloatField()
-    n_aire_gas_entrada = models.FloatField()
-    n_total = models.FloatField()
+    n_gas = models.FloatField()
+    n_aire = models.FloatField()
+    m_gas = models.FloatField()
+    m_aire = models.FloatField()
 
 class SalidaFlujosEntrada(models.Model):
     """
@@ -521,9 +518,6 @@ class SalidaFlujosEntrada(models.Model):
     flujo_combustion = models.FloatField()
     flujo_combustion_vol = models.FloatField()
     porc_o2_exceso = models.FloatField()
-
-    flujo_masico_unidad = models.ForeignKey(Unidades, models.PROTECT, related_name="flujo_masico_unidad_salida_flujos_evaluacion")    
-    flujo_vol_unidad = models.ForeignKey(Unidades, models.PROTECT, related_name="flujo_volumetrico_unidad_salida_flujos_evaluacion")
 
 class Evaluacion(models.Model):
     """
@@ -548,11 +542,12 @@ class Evaluacion(models.Model):
     activo = models.BooleanField(default=True)
 
     salida_flujos = models.ForeignKey(SalidaFlujosEntrada, models.PROTECT)
-    salida_balance_molar = models.ForeignKey(SalidaBalanceMolar, models.PROTECT)
+    salida_balances = models.ForeignKey(SalidaBalances, models.PROTECT)
     salida_fracciones = models.ForeignKey(SalidaFracciones, models.PROTECT)
     salida_balance_energia = models.ForeignKey(SalidaBalanceEnergia, models.PROTECT)
     salida_lado_agua = models.ForeignKey(SalidaLadoAgua, models.PROTECT)
     equipo = models.ForeignKey(Caldera, models.PROTECT, related_name="equipo_evaluacion_caldera")
+    eficiencia = models.FloatField()
 
     class Meta:
         ordering = ('-fecha',)

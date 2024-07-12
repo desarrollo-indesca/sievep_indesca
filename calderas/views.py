@@ -741,9 +741,112 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
         return render(self.request, 'calderas/partials/resultados.html', context={
             'resultados': resultados
         })
+    
+    def almacenamiento_fallido(self):
+        return render(self.request, 'calderas/partials/almacenamiento_fallido.html')
+    
+    def almacenamiento_exitoso(self):
+        return render(self.request, 'calderas/partials/almacenamiento_exitoso.html')
 
     def almacenar(self):
-        pass
+        request = request.POST
+
+        composiciones = ComposicionCombustible.objects.filter(
+            combustible= self.get_caldera(True, False).combustible
+        ).select_related(
+            'fluido'
+        )
+        
+        forms_composicion = [
+            EntradaComposicionForm(request.POST, prefix=f'composicion-{i}') 
+            for i,composicion in enumerate(composiciones)
+        ]
+
+        form_vapor = EntradasFluidosForm(request.POST, prefix='vapor')
+        form_gas = EntradasFluidosForm(request.POST, prefix='gas')
+        form_aire = EntradasFluidosForm(request.POST, prefix='aire')
+        form_horno = EntradasFluidosForm(request.POST, prefix='horno')
+        form_agua = EntradasFluidosForm(request.POST, prefix='agua')
+
+        resultado = self.calcular_resultados()
+
+        with transaction.atomic():
+            if all([form_vapor.is_valid(), form_gas.is_valid(), form_aire.is_valid(), form_horno.is_valid(), form_agua.is_valid()]):
+                salida_fracciones = SalidaFracciones.objects.create(
+                    h2o = resultado['fraccion_h2o_gas'],
+                    co2 = resultado['fraccion_n2_gas'],
+                    n2 = resultado['fraccion_o2_gas'],
+                    so2 = resultado['fraccion_so2_gas'],
+                    o2 = resultado['fraccion_co2_gas']
+                )
+
+                salida_lado_agua = SalidaLadoAgua.objects.create(
+                    flujo_purga = resultado['flujo_purga'],
+                    energia_vapor = resultado['energia_vapor'],
+                )
+
+                salida_flujos = SalidaFlujosEntrada.objects.create(
+                    flujo_gas_entrada = resultado['flujo_gas_entrda'],
+                    flujo_aire_entrada = resultado['flujo_aire_entrada'],
+                    flujo_combustion = resultado['flujo_combustion_masico'],
+                    flujo_combustion_vol = resultado['flujo_combustion'],
+                    porc_o2_exceso = resultado['oxigeno_exceso'],
+                    flujo_masico_unidad = resultado['flujo_masico_unidad'],
+                    flujo_vol_unidad = resultado['flujo_vol_unidad'],
+                )
+
+                salida_balances = SalidaBalances.objects.create(
+                    n_gas = resultado['balance_gas']['molar'],
+                    n_aire = resultado['balance_aire']['molar'],
+                    m_gas = resultado['balance_gas']['masico'],
+                    m_aire = resultado['balance_aire']['masico']
+                )
+
+                salida_balance_energia = SalidaBalanceEnergia.objects.create(
+                    energia_entrada_gas = resultado['energia_gas_entrada'],
+                    energia_entrada_aire = resultado['energia_aire_entrada'],
+                    energia_total_entrada = resultado['energia_total_entrada'],
+                    energia_total_reaccion = resultado['energia_total_reaccion'],
+                    energia_horno = resultado['energia_horno']
+                )
+                
+                evaluacion = Evaluacion.objects.create(
+                    nombre = request.POST['nombre'],
+                    equipo = self.get_caldera(True, False),
+                    usuario = request.user,
+                    eficiencia = resultado['eficiencia'],
+
+                    salida_flujos = salida_flujos,
+                    salida_fracciones = salida_fracciones,
+                    salida_lado_agua = salida_lado_agua,
+                    salida_balances = salida_balances,
+                    salida_balance_energia = salida_balance_energia
+                )
+
+                form_vapor.instance.evaluacion = evaluacion                
+                form_vapor.save()
+
+                form_gas.instance.evaluacion = evaluacion
+                form_gas.save()
+
+                form_aire.instance.evaluacion = evaluacion
+                form_aire.save()
+
+                form_horno.instance.evaluacion = evaluacion
+                form_horno.save()
+
+                form_agua.instance.evaluacion = evaluacion
+                form_agua.save()
+
+                for form_composicion in forms_composicion:
+                    if form_composicion.is_valid():
+                        form_composicion.save()
+                    else:
+                        return self.almacenamiento_fallido()
+
+                return self.almacenamiento_exitoso()
+            else:
+                return self.almacenamiento_fallido()
 
     def calcular_resultados(self):
         request = self.request
@@ -814,7 +917,10 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
 
     def post(self, request, pk, *args, **kwargs):
         if(request.POST.get('almacenar')):
-            pass
+            try:
+                return self.almacenar()
+            except:
+                return self.almacenamiento_fallido()
         else:
             return self.evaluar()
 
