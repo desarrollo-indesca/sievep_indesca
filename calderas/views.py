@@ -670,7 +670,6 @@ class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, Reporte
 # VISTAS DE EVALUACIONES
 
 class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
-
     def make_forms(self, caldera, composiciones, corrientes):
         formset_composicion = [
             {
@@ -916,7 +915,7 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
         return resultados
 
     def post(self, request, pk, *args, **kwargs):
-        if(request.POST.get('almacenar')):
+        if(request.POST.get('accion')):
             try:
                 return self.almacenar()
             except:
