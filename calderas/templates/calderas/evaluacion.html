@@ -229,6 +229,9 @@
                         <tr>
                             <td>
                                 {{composicion.composicion.fluido}}
+                                <div class="hidden">
+                                    <input type="hidden" name="composicion-{{forloop.counter0}}-composicion" value="{{composicion.form.composicion.value}}">
+                                </div>
                             </td>
                             <td>
                                 {% render_field composicion.form.parc_vol class="form-control porc-vol" placeholder="% VOL" min=0 max=100 step="0.01" %}

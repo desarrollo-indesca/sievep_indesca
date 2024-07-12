@@ -136,4 +136,4 @@ entradas_fluidos_formset = forms.modelformset_factory(EntradasFluidos, EntradasF
 class EntradaComposicionForm(forms.ModelForm):
     class Meta:
         model = EntradaComposicion
-        exclude = ["id", "composicion", "evaluacion"]
+        exclude = ["id","evaluacion"]

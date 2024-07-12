@@ -48,7 +48,7 @@ class Command(BaseCommand):
                 for caracteristica in self.caracteristicas:
                     car = Caracteristica.objects.create(
                         nombre = caracteristica[0],
-                        tipo_unidad = caracteristica[2],
+                        tipo_unidad = ClasesUnidades.objects.get(tipo=caracteristica[2]) if caracteristica[2] else None,
                         unidad = Unidades.objects.get(pk=caracteristica[-1]) if caracteristica[-1] else None,
                         caldera = caldera,
                         carga_25 = row[f"{caracteristica[1]}_25"],

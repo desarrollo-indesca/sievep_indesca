@@ -1,7 +1,7 @@
 from .models import *
 
 from django.shortcuts import render, redirect
-from django.db.models import Prefetch
+from django.db.models import Prefetch, F
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, View
 from django.db import transaction
@@ -674,13 +674,13 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
     def make_forms(self, caldera, composiciones, corrientes):
         formset_composicion = [
             {
-                'form': EntradaComposicionForm(prefix=f'composicion-{i}', initial = {'parc_vol': composicion.porc_vol, 'parc_aire': composicion.porc_aire}),
+                'form': EntradaComposicionForm(prefix=f'composicion-{i}', initial = {'parc_vol': composicion.porc_vol, 'composicion': composicion, 'parc_aire': composicion.porc_aire}),
                 'composicion': composicion
             } for i,composicion in enumerate(composiciones)
         ]
 
-        corriente_agua = corrientes.get(tipo='W')
-        corriente_vapor = corrientes.get(tipo='A')
+        corriente_agua = corrientes.get(tipo='W') if corrientes.filter(tipo="W").exists() else None
+        corriente_vapor = corrientes.get(tipo='A') if corrientes.filter(tipo="W").exists() else None
 
         forms = {
             'form_gas': EntradasFluidosForm(prefix='gas', initial={
@@ -696,25 +696,24 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
             }), 
             'form_agua': EntradasFluidosForm(prefix='agua', initial={
                 'tipo': 'W',
-                'flujo': corriente_agua.flujo_masico,
-                'flujo_unidad': corriente_agua.flujo_masico_unidad,
-                'presion': corriente_agua.presion,
-                'presion_unidad': corriente_agua.presion_unidad,
-                'temperatura': corriente_agua.temp_operacion,
-                'temperatura_unidad': corriente_agua.temp_operacion_unidad
+                'flujo': corriente_agua.flujo_masico if corriente_agua else None,
+                'flujo_unidad': corriente_agua.flujo_masico_unidad if corriente_agua else None,
+                'presion': corriente_agua.presion if corriente_agua else None,
+                'presion_unidad': corriente_agua.presion_unidad if corriente_agua else None,
+                'temperatura': corriente_agua.temp_operacion if corriente_agua else None,
+                'temperatura_unidad': corriente_agua.temp_operacion_unidad if corriente_agua else None
             }),
             'form_vapor': EntradasFluidosForm(prefix='vapor', initial={
                 'tipo': 'V',
-                'flujo': corriente_vapor.flujo_masico,
-                'flujo_unidad': corriente_vapor.flujo_masico_unidad,
-                'presion': corriente_vapor.presion,
-                'presion_unidad': corriente_vapor.presion_unidad,
-                'temperatura': corriente_vapor.temp_operacion,
-                'temperatura_unidad': corriente_vapor.temp_operacion_unidad
+                'flujo': corriente_vapor.flujo_masico if corriente_vapor else None,
+                'flujo_unidad': corriente_vapor.flujo_masico_unidad if corriente_vapor else None,
+                'presion': corriente_vapor.presion if corriente_vapor else None,
+                'presion_unidad': corriente_vapor.presion_unidad if corriente_vapor else None,
+                'temperatura': corriente_vapor.temp_operacion if corriente_vapor else None,
+                'temperatura_unidad': corriente_vapor.temp_operacion_unidad if corriente_vapor else None
             }), 
 
             'form_evaluacion': EvaluacionForm(prefix='evaluacion'),
-
             'formset_composicion': formset_composicion
         }
 
@@ -767,26 +766,37 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
             'vapor-presion': 'vapor-presion_unidad',
         }
 
-        for valor,llave in variables.values():
-            unidad = int(request.POST.get(llave))
-            valor = float(request.POST.get(valor))
-            funcion = transformar_unidades_presion if 'presion' in llave else \
-                transformar_unidades_temperatura if 'temperatura' in llave else \
-                transformar_unidades_flujo_volumetrico if 'gas' in llave or 'aire' in llave else \
+        variables_eval = {}
+
+        for valor,u in variables.items():
+            unidad = int(request.POST.get(u)) if u else None
+            valor_num = float(request.POST.get(valor))
+            funcion = transformar_unidades_presion if u and ('presion' in u) else \
+                transformar_unidades_temperatura if u and ('temperatura' in u) else \
+                transformar_unidades_flujo_volumetrico if u and ('gas' in u or 'aire' in u) else \
                 transformar_unidades_flujo
 
             if unidad:
-                valor = funcion([valor], unidad)[0]
+                valor_num = funcion([valor_num], unidad)[0]
 
-            variables[llave] = valor
+            llave = "_".join(valor.split('-')[::-1])
+            print(llave)
+            variables_eval[llave] = valor_num
 
         composiciones = []
         fluidos = []
         for i in range(15):
-            fluidos.append(pk=request.POST.get(f'composicion-{i}-fluido'))
+            fluidos.append(request.POST.get(f'composicion-{i}-composicion'))
 
-        fluidos = Fluido.objects.filter(pk__in=fluidos).values('cas', 'nombre', 'pk')
-     
+        fluidos = ComposicionCombustible.objects.select_related(
+            'fluido'
+        ).filter(pk__in=fluidos).annotate(
+            cas=F('fluido__cas'), 
+            nombre=F('fluido__nombre')
+        ).values('cas', 'nombre')
+
+        print(fluidos)
+
         for i in range(15):
             fluido = fluidos[i]
             parc_vol = request.POST.get(f'composicion-{i}-parc_vol')
@@ -799,7 +809,7 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
                     'porc_aire': parc_aire
                 })
         
-        resultados = evaluar_caldera(**variables, composiciones=composiciones)
+        resultados = evaluar_caldera(**variables_eval, composiciones_combustible=composiciones)
         return resultados
 
     def post(self, request, pk, *args, **kwargs):
@@ -807,7 +817,6 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
             pass
         else:
             return self.evaluar()
-
 
 # VISTAS PARA LA GENERACIÓN DE PLANTILLAS PARCIALES
 def unidades_por_clase(request):
