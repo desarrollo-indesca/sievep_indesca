@@ -6,6 +6,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, View
 from django.db import transaction
 from django.contrib import messages
+from django.forms.models import model_to_dict
+from django.http import JsonResponse
 
 from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion
 from usuarios.views import SuperUserRequiredMixin 
@@ -935,3 +937,27 @@ def unidades_por_clase(request):
         ),
         'form': int(request.GET.get('form'))
     })
+
+def grafica_historica_calderas(request, pk):
+    caldera = Caldera.objects.get(pk=pk)
+    evaluaciones = Evaluacion.objects.filter(activo = True, equipo = caldera) \
+        .select_related('balance_energia', 'salida_fracciones', 'salida_lado_agua').order_by('fecha')
+
+    if(request.POST.get('desde')):
+        evaluaciones = evaluaciones.filter(fecha__gte = request.POST.get('desde'))
+
+    if(request.POST.get('hasta')):
+        evaluaciones = evaluaciones.filter(fecha__lte = request.POST.get('hasta'))
+        
+    res = []
+
+    for evaluacion in evaluaciones:
+        res.append({
+            'fecha': evaluacion.fecha.__str__(),
+            'eficiencia': evaluacion.eficiencia,
+            'calor_combustion_total': evaluacion.balance_energia.energia_horno,
+            'calor_vapor': evaluacion.salida_lado_agua.energia_vapor,
+            'composicion': model_to_dict(evaluacion.salida_fracciones)
+        })
+
+    return JsonResponse(res[:15], safe=False)
