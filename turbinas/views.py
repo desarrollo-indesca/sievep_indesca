@@ -19,8 +19,6 @@ from reportes.xlsx import reporte_equipos, historico_evaluaciones_turbinas_vapor
 from .models import *
 from .forms import *
 
-logger = logging.getLogger('django')
-
 # Create your views here.
 class ObtenerTurbinaVaporMixin():
     '''
@@ -260,7 +258,8 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
                 raise Exception("Ocurrió un error de validación.")
     
     def post(self, request):
-        form_turbina = TurbinaVaporForm(request.POST)
+        planta = Planta.objects.get(pk = request.POST.get('planta'))
+        form_turbina = TurbinaVaporForm(request.POST, initial={'planta': planta, 'complejo': planta.complejo})
         form_especificaciones = EspecificacionesTurbinaVaporForm(request.POST)
         form_generador = GeneradorElectricoForm(request.POST)
         form_datos_corrientes = DatosCorrientesForm(request.POST)
@@ -302,8 +301,9 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
 
     def get_context(self):
         turbina = self.get_turbina()
+        planta = turbina.planta
         return {
-            'form_turbina': TurbinaVaporForm(instance=turbina), 
+            'form_turbina': TurbinaVaporForm(instance=turbina, initial={'planta': planta, 'complejo': planta.complejo}), 
             'form_especificaciones': EspecificacionesTurbinaVaporForm(instance=turbina.especificaciones), 
             'form_generador': GeneradorElectricoForm(instance=turbina.generador_electrico), 
             'form_datos_corrientes': DatosCorrientesForm(instance=turbina.datos_corrientes),
@@ -314,7 +314,8 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
     def post(self, request, pk):
         turbina = self.get_turbina()
 
-        form_turbina = TurbinaVaporForm(request.POST, instance=turbina)
+        planta = Planta.objects.get(pk = request.POST.get('planta'))
+        form_turbina = TurbinaVaporForm(request.POST, instance=turbina, initial={'planta': planta, 'complejo': planta.complejo})
         form_especificaciones = EspecificacionesTurbinaVaporForm(request.POST, instance=turbina.especificaciones)
         form_generador = GeneradorElectricoForm(request.POST, instance=turbina.generador_electrico)
         form_datos_corrientes = DatosCorrientesForm(request.POST)
@@ -514,7 +515,6 @@ class CalcularResultadosTurbinaVapor(LoginRequiredMixin, View, ObtenerTurbinaVap
         presiones = transformar_unidades_presion(presiones, presion_unidad)
         temperaturas = transformar_unidades_temperatura(temperaturas, temperatura_unidad)
         potencia_real = transformar_unidades_potencia([potencia_real], potencia_real_unidad)[0]
-
         flujo_entrada = transformar_unidades_flujo([flujo_entrada], flujo_entrada_unidad)[0]        
 
         # Calcular Resultados

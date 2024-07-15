@@ -45,10 +45,8 @@ class Login(LoginView):
     def post(self, request):
         try:
             res = super().post(self, request)
-            if(res.status_code == 403):
+            if(res.status_code in [403, 200]):
                 messages.warning(request, "Las credenciales ingresadas son inválidas.")
-            elif(res.status_code == 200):
-                messages.warning(request, "El usuario no existe o no tiene los permisos requeridos para acceder al sistema.")
 
             return res
 
@@ -507,8 +505,18 @@ class PlantasPorComplejo(LoginRequiredMixin, View):
         Vista HTMX que filtra las plantas por complejo.
     """
     def get(self, request):
-        plantas = Planta.objects.filter(complejo__pk = request.GET['complejo'])
-        return render(request, 'plantas.html', context={'plantas': plantas, 'planta_selec': int(request.GET['planta']) if request.GET.get('planta') else None}) 
+        complejo_id = request.GET['complejo']
+        selected_planta_id = request.GET.get('planta')
+        plantas = Planta.objects.filter(complejo_id=complejo_id)
+        selected_planta = int(selected_planta_id) if selected_planta_id else None
+        print(complejo_id, selected_planta_id)
+        context = {
+            'plantas': plantas,
+            'selected_planta': selected_planta,
+            'complejos': Complejo.objects.all(),
+            'selected_complejo': int(complejo_id)
+        }
+        return render(request, 'plantas.html', context=context)
     
 class FiltradoSimpleMixin():
     """

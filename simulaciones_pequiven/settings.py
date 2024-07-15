@@ -16,8 +16,7 @@ A nivel de código el proyecto se llama 'simulaciones_pequiven' hasta que se dec
 
 from pathlib import Path
 import os, ldap
-from django_auth_ldap.config import LDAPSearch
-from django_auth_ldap.config import ActiveDirectoryGroupType
+from django_auth_ldap.config import LDAPSearch, ActiveDirectoryGroupType
 
 # CONFIGURACIÓN DE LDAP
 
@@ -27,9 +26,10 @@ AUTH_LDAP_GLOBAL_OPTIONS = {
     ldap.OPT_REFERRALS: 0,
     ldap.OPT_X_TLS_CACERTFILE: '/etc/ssl/certs/mycertfile.pem'
 }
-AUTH_LDAP_SERVER_URI = 'ldap://172.20.30.135'
+AUTH_LDAP_SERVER_URI = 'ldap://172.20.30.109'
 AUTH_LDAP_BIND_DN = "CN=bind,CN=Users,DC=indesca,DC=local"
 AUTH_LDAP_BIND_PASSWORD = "indesca2024+"
+
 AUTH_LDAP_USER_SEARCH = LDAPSearch(
     "dc=indesca,dc=local", ldap.SCOPE_SUBTREE, "sAMAccountName=%(user)s"
 )
@@ -56,7 +56,7 @@ AUTH_LDAP_GROUP_CACHE_TIMEOUT = 1  # 1 hour cache
 
 AUTH_LDAP_MIRROR_GROUPS = True
 AUTHENTICATION_BACKENDS = [
-    'django_auth_ldap.backend.LDAPBackend',
+    "django_auth_ldap.backend.LDAPBackend",
 ]
 
 AUTH_LDAP_REQUIRE_GROUP = "CN=django-admins,CN=Users,DC=INDESCA,DC=LOCAL" # Grupos requeridos para acceder al sistema.
@@ -90,17 +90,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'intercambiadores',
     'auxiliares',
     'turbinas',
+    'calderas',
     'usuarios',
     'static',
-    'pwa',
 
+    'pwa',
     'templatetags',
     'mathfilters',
     'widget_tweaks',
-    # "debug_toolbar",
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -111,8 +113,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "simulaciones_pequiven.middleware.RequestLogMiddleware",
-    # "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # "simulaciones_pequiven.middleware.RequestLogMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = 'simulaciones_pequiven.urls'
@@ -250,37 +252,37 @@ PWA_APP_SCREENSHOTS = [
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-# INTERNAL_IPS = [
-#     "127.0.0.1",
-# ]
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
 # CONFIGURACIÓN DE LOS LOGS
 
-LOGGING = {
-    "version": 1,
-    "formatters": {
-        "request_formatter": {
-            "format": "%(asctime)s  - %(name)s - %(levelname)s - %(module)s - %(process)s - %(thread)s -  %(message)s",
-            "datefmt": "%Y-%m-%d %H:%M:%S"
-        },
-    },
-    "handlers": {
-        "request": {
-            "level": os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-            "class": "logging.handlers.RotatingFileHandler",
-            "formatter": "request_formatter",
-            "filename": "app.log",
-            "maxBytes": 1024000*20, # 20 MB
-            "backupCount": 20
-        }
-    },
-    "loggers": {
-        'django.request': {
-            "handlers": ["request"]
-        },
-        'django': {
-            "handlers": ["request"]
-        },
-    },
-    "disable_existing_loggers": False
-}
+# LOGGING = {
+#     "version": 1,
+#     "formatters": {
+#         "request_formatter": {
+#             "format": "%(asctime)s  - %(name)s - %(levelname)s - %(module)s - %(process)s - %(thread)s -  %(message)s",
+#             "datefmt": "%Y-%m-%d %H:%M:%S"
+#         },
+#     },
+#     "handlers": {
+#         "request": {
+#             "level": os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+#             "class": "logging.handlers.RotatingFileHandler",
+#             "formatter": "request_formatter",
+#             "filename": "app.log",
+#             "maxBytes": 1024000*20, # 20 MB
+#             "backupCount": 20
+#         }
+#     },
+#     "loggers": {
+#         'django.request': {
+#             "handlers": ["request"]
+#         },
+#         'django': {
+#             "handlers": ["request"]
+#         },
+#     },
+#     "disable_existing_loggers": False
+# }

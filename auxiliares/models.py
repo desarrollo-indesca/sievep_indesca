@@ -4,7 +4,6 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 from intercambiadores.models import Fluido, Planta, Unidades
 from calculos.utils import conseguir_largo
-from simulaciones_pequiven.settings import MEDIA_ROOT
 
 import uuid
 
@@ -189,7 +188,7 @@ class TipoBomba(models.Model):
 
     Métodos:
         __str__() -> str:
-            Devuelve el nombre del tipo de bomba de acuerdo a su llaveen UPPERCASE.
+            Devuelve el nombre del tipo de bomba de acuerdo a su nombre en UPPERCASE.
     '''
     nombre = models.CharField(max_length = 45, unique = True)
 
