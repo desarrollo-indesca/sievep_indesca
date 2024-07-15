@@ -96,7 +96,33 @@
                     </tbody>
                 </table>
             </div>
-            <div class="col-lg-6 col-xs-12 d-flex justify-content-center align-items-center">
+            <div class="col-lg-6 col-xs-12">
+                <table class="table table-bordered table-responsive text-center">
+                    <thead>
+                        <tr>
+                            <th class="text-center table-secondary" colspan="4">
+                                COMPOSICIONES DEL COMBUSTIBLE
+                            </th>
+                        </tr>
+                        <tr class="table-dark">
+                            <th>COMPUESTO</th>
+                            <th>% VOLUMEN</th>
+                            <th>% AIRE</th>
+                        </tr>
+                    </thead>
+            
+                    <tbody>
+                        {% for composicion in evaluacion.composiciones_evaluacion.all %}
+                        <tr>
+                            <th class="table-dark text-center">{{composicion.composicion.fluido}}</th>
+                            <td>{{composicion.parc_vol}} %</td>
+                            <td>{% if composicion.parc_aire %} {{composicion.parc_aire}} % {% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>                
+            </div>
+            <div class="col-12 d-flex justify-content-center align-items-center">
                 <table class="table table-bordered table-responsive text-center">
                     <thead>
                         <tr>
@@ -180,20 +206,20 @@
 
                         {% with balances_energia=evaluacion.salida_balance_energia %}
                         <tr>
-                            <th class="table-dark" colspan="4">Balances de Energía (kJ/h)</th>
+                            <th class="table-dark" colspan="4">Balances de Energía</th>
                         </tr>
                         <tr>
                             <th class="table-dark">
                                 Energía Entrada Gas
                             </th>
                             <td>
-                                {{balances_energia.energia_entrada_gas|floatformat:4}}
+                                {{balances_energia.energia_entrada_gas|floatformat:4}} kJ/h
                             </td>
                             <th class="table-dark">
                                 Energía Entrada Aire
                             </th>
                             <td>
-                                {{balances_energia.energia_entrada_aire|floatformat:4}}
+                                {{balances_energia.energia_entrada_aire|floatformat:4}} kJ/h
                             </td>
                         </tr>
                         <tr>
@@ -201,7 +227,7 @@
                                 Energía Total Entrada
                             </th>
                             <td colspan="3">
-                                {{balances_energia.energia_total_entrada|floatformat:4}}
+                                {{balances_energia.energia_total_entrada|floatformat:4}} kJ/h
                             </td>
                         </tr>
                         <tr>
@@ -209,13 +235,13 @@
                                 Energía Total Reacción
                             </th>
                             <td>
-                                {{balances_energia.energia_total_reaccion|floatformat:4}}
+                                {{balances_energia.energia_total_reaccion|floatformat:4}} kJ/h
                             </td>
                             <th class="table-dark">
                                 Energía Horno
                             </th>
                             <td>
-                                {{balances_energia.energia_horno|floatformat:4}}
+                                {{balances_energia.energia_horno|floatformat:4}} kJ/h
                             </td>
                         </tr>                        
                         {% endwith %}

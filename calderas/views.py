@@ -724,6 +724,7 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
         corrientes = context['equipo'].corrientes_caldera.select_related('flujo_masico_unidad', 'presion_unidad', 'temp_operacion_unidad')        
         unidades = Unidades.objects.all().values('pk', 'simbolo', 'tipo')
 
+        context['titulo'] = f"Evaluación de la Caldera {context['equipo'].tag}"
         context['forms'] = self.make_forms(context['equipo'], composiciones, corrientes)
         context['unidades'] = unidades
         context['fluidos_composiciones'] = COMPUESTOS_AIRE
