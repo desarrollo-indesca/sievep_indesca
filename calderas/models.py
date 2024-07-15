@@ -461,8 +461,6 @@ class SalidaLadoAgua(models.Model):
     flujo_purga = models.FloatField()
     energia_vapor = models.FloatField()
 
-    flujo_unidad = models.ForeignKey(Unidades, models.PROTECT, default=3, related_name="flujo_salida_agua_evaluacion")
-
 class SalidaFracciones(models.Model):
     """
     Resumen:
@@ -479,24 +477,7 @@ class SalidaFracciones(models.Model):
     h2o = models.FloatField()
     co2 = models.FloatField()
     n2 = models.FloatField()
-    so2 = models.FloatField()
     o2 = models.FloatField()
-
-class SalidaBalances(models.Model):
-    """
-    Resumen:
-        Modelo para almacenar la información de salida de evaluación correspondiente a las fracciones molares de los gases de combustión.
-
-    Atributos:
-        n_gas_entrada: models.FloatField -> Números de kmol/h calculados
-        n_aire_gas_entrada: models.FloatField -> Números de kmol/h calculados
-        n_total: models.FloatField -> Números de kmol/h calculados
-    """
-    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
-    n_gas = models.FloatField()
-    n_aire = models.FloatField()
-    m_gas = models.FloatField()
-    m_aire = models.FloatField()
 
 class SalidaFlujosEntrada(models.Model):
     """
@@ -544,7 +525,6 @@ class Evaluacion(models.Model):
     activo = models.BooleanField(default=True)
 
     salida_flujos = models.ForeignKey(SalidaFlujosEntrada, models.PROTECT)
-    salida_balances = models.ForeignKey(SalidaBalances, models.PROTECT)
     salida_fracciones = models.ForeignKey(SalidaFracciones, models.PROTECT)
     salida_balance_energia = models.ForeignKey(SalidaBalanceEnergia, models.PROTECT)
     salida_lado_agua = models.ForeignKey(SalidaLadoAgua, models.PROTECT)
@@ -598,6 +578,9 @@ class EntradasFluidos(models.Model):
         MinValueValidator(0)
     ])
     evaluacion = models.ForeignKey(Evaluacion, models.PROTECT, related_name="entradas_fluidos_caldera")
+
+    class Meta:
+        ordering = ('tipo_fluido',)
 
 class EntradaComposicion(models.Model):
     """

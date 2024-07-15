@@ -72,8 +72,8 @@
     <button type="button" class="btn btn-secondary" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{equipo.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button>
     <button type="button" class="btn btn-warning" style="color: black;" data-bs-toggle="modal" data-bs-target="#grafica_historica"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Mostrar gráfica histórico">&nbsp;Gráfica Histórica</button>
   </form>
-  {% include 'turbinas_vapor/ficha.html' with turbina=equipo %}
-  {% include 'turbinas_vapor/partials/historico.html' %}
+  {% include 'calderas/partials/ficha.html' with caldera=equipo %}
+  {% include 'calderas/partials/historico.html' %}
 </div>
 <footer aria-label="Page navigation example">
   <ul class="pagination">

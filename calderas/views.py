@@ -565,8 +565,6 @@ class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View
         corrientes = caldera.corrientes_caldera.all()
         form_corrientes = []
 
-        print(request.POST)
-
         for i in range(0,4):
             prefix = f"corriente-{i}"
             tipo = request.POST[f"{prefix}-tipo"]
@@ -593,6 +591,8 @@ class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View
                 'caldera': caldera,
                 'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
             })
+
+# VISTAS DE EVALUACIONES
 
 class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, ReportesFichasCalderasMixin):
     """
@@ -651,7 +651,6 @@ class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, Reporte
             'usuario',             
             'salida_flujos',  
             'salida_fracciones', 
-            'salida_balances',
             'salida_balance_energia',
             'salida_lado_agua'
         )
@@ -667,8 +666,6 @@ class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, Reporte
         context['equipo'] = self.get_caldera(True, False)
 
         return context
-
-# VISTAS DE EVALUACIONES
 
 class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
     def make_forms(self, caldera, composiciones, corrientes):
@@ -771,7 +768,6 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
         form_agua = EntradasFluidosForm(request.POST, prefix='agua')
 
         resultado = self.calcular_resultados()
-        print('RESULTADO: ', resultado)
 
         with transaction.atomic():
             if all([form_vapor.is_valid(), form_gas.is_valid(), form_aire.is_valid(), form_horno.is_valid(), form_agua.is_valid()]):
@@ -779,8 +775,7 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
                     h2o = resultado['fraccion_h2o_gas'],
                     co2 = resultado['fraccion_n2_gas'],
                     n2 = resultado['fraccion_o2_gas'],
-                    so2 = resultado['fraccion_so2_gas'],
-                    o2 = resultado['fraccion_co2_gas']
+                    so2 = resultado['fraccion_o2_gas']
                 )
 
                 salida_lado_agua = SalidaLadoAgua.objects.create(
@@ -796,13 +791,6 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
                     flujo_combustion = resultado['flujo_combustion_masico'],
                     flujo_combustion_vol = resultado['flujo_combustion'],
                     porc_o2_exceso = resultado['oxigeno_exceso'],
-                )
-
-                salida_balances = SalidaBalances.objects.create(
-                    n_gas = resultado['balance_gas']['molar'],
-                    n_aire = resultado['balance_aire']['molar'],
-                    m_gas = resultado['balance_gas']['masico'],
-                    m_aire = resultado['balance_aire']['masico']
                 )
 
                 salida_balance_energia = SalidaBalanceEnergia.objects.create(
@@ -822,7 +810,6 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
                     salida_flujos = salida_flujos,
                     salida_fracciones = salida_fracciones,
                     salida_lado_agua = salida_lado_agua,
-                    salida_balances = salida_balances,
                     salida_balance_energia = salida_balance_energia
                 )
 
@@ -902,8 +889,6 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
             cas=F('fluido__cas'), 
             nombre=F('fluido__nombre')
         ).values('cas', 'nombre')
-
-        print(fluidos)
 
         for i in range(15):
             fluido = fluidos[i]
