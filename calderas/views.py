@@ -656,7 +656,19 @@ class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, Reporte
         )
 
         new_context = new_context.prefetch_related(
-            'entradas_fluidos_caldera', 'composiciones_evaluacion'
+            Prefetch(
+                'entradas_fluidos_caldera', 
+                queryset=EntradasFluidos.objects.select_related(
+                    'flujo_unidad', 'temperatura_unidad', 'presion_unidad'
+                )
+            ),
+            Prefetch(
+                'composiciones_evaluacion',
+                queryset=EntradaComposicion.objects.select_related(
+                    'composicion', 'composicion__fluido'
+                )
+            )
+            
         )
 
         return new_context
