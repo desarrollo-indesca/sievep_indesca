@@ -25,6 +25,11 @@
 <form method="post" enctype="multipart/form-data" hx-post="{% url 'evaluar_caldera' pk=equipo.pk %}" hx-target="#resultados">
     {% csrf_token %}
     <div class="row">
+        <div class="col-12 mb-3">
+            {{forms.form_evaluacion.nombre.label_tag}}
+            {% render_field forms.form_evaluacion.nombre class="form-control" %}
+        </div>
+
         <div class="col-4">
             <div class="row">
                 <div class="col-12">
@@ -66,6 +71,8 @@
         
                                 <small>{{forms.form_gas.presion.errors}}</small>
                             </div>
+
+                            <input type="hidden" name="{{forms.form_gas.prefix}}-tipo_fluido" value="G">
                         </div>
         
                         <div class="col-12">
@@ -111,6 +118,8 @@
         
                                 <small>{{forms.form_aire.humedad_relativa.errors}}</small>
                             </div>
+
+                            <input type="hidden" name="{{forms.form_aire.prefix}}-tipo_fluido" value="A">
                         </div>
         
                         <div class="col-12">
@@ -136,6 +145,8 @@
         
                                 <small>{{forms.form_horno.presion.errors}}</small>
                             </div>
+
+                            <input type="hidden" name="{{forms.form_horno.prefix}}-tipo_fluido" value="H">
                         </div>
         
                         <div class="col-12">
@@ -171,6 +182,7 @@
         
                                 <small>{{forms.form_agua.presion.errors}}</small>
                             </div>
+                            <input type="hidden" name="{{forms.form_agua.prefix}}-tipo_fluido" value="W">
                         </div>
         
                         <div class="col-12">
@@ -206,6 +218,8 @@
         
                                 <small>{{forms.form_vapor.presion.errors}}</small>
                             </div>
+
+                            <input type="hidden" name="{{forms.form_vapor.prefix}}-tipo_fluido" value="V">
                         </div>
                     </div>
                 </div>                

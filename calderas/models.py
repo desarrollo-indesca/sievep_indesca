@@ -513,8 +513,10 @@ class SalidaFlujosEntrada(models.Model):
         flujo_vol_unidad: models.FloatField -> Unidades en la cual se encuentran las propiedades (volumétrico)
     """
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
-    flujo_gas_entrada = models.FloatField()
-    flujo_aire_entrada = models.FloatField()
+    flujo_m_gas_entrada = models.FloatField()
+    flujo_m_aire_entrada = models.FloatField()
+    flujo_n_gas_entrada = models.FloatField()
+    flujo_n_aire_entrada = models.FloatField()
     flujo_combustion = models.FloatField()
     flujo_combustion_vol = models.FloatField()
     porc_o2_exceso = models.FloatField()
@@ -536,8 +538,8 @@ class Evaluacion(models.Model):
         caldera: Caldera -> Caldera a la que está asociada la caldera
     """
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
-    nombre = models.CharField(max_length=45)
-    fecha = models.DateTimeField(auto_created=True)
+    nombre = models.CharField("Nombre de la Evaluación", max_length=45)
+    fecha = models.DateTimeField(auto_now=True)
     usuario = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, default=1, related_name="usuario_evaluacion_caldera")
     activo = models.BooleanField(default=True)
 
@@ -579,7 +581,7 @@ class EntradasFluidos(models.Model):
     flujo = models.FloatField("Flujo", null=True, blank=True, validators=[
         MinValueValidator(0.0001)
     ])
-    flujo_unidad = models.ForeignKey(Unidades, models.PROTECT, related_name="flujo_unidad_entrada_fluidos_caldera")
+    flujo_unidad = models.ForeignKey(Unidades, models.PROTECT, null=True, blank=True, related_name="flujo_unidad_entrada_fluidos_caldera")
 
     temperatura = models.FloatField("Temperatura de Operación", validators=[
         MinValueValidator(-273.15)
@@ -608,19 +610,13 @@ class EntradaComposicion(models.Model):
         normalizado: models.FloatField -> Composición normalizada (0-1)
         normalizado_aire: models.FloatField -> Composición normalizada aire (0-1)
         composicion: ComposicionCombustible ->  Composición original
-        evaluacion: Evaluacion -> Evaluación asociada a 
+        evaluacion: Evaluacion -> Evaluación asociada
     """
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     parc_vol = models.FloatField(validators=[
         MinValueValidator(0)
     ])
-    parc_aire = models.FloatField(validators=[
-        MinValueValidator(0)
-    ])
-    normalizado = models.FloatField(validators=[
-        MinValueValidator(0)
-    ])
-    normalizado_aire = models.FloatField(null=False, blank=True, validators=[
+    parc_aire = models.FloatField(null=True, blank=True, validators=[
         MinValueValidator(0)
     ])
     composicion = models.ForeignKey(ComposicionCombustible, models.PROTECT)

@@ -648,11 +648,12 @@ class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, Reporte
         new_context = super().get_queryset()
 
         new_context = new_context.select_related(
-            'usuario', 
-            
-            'salida_flujos', 'salida_flujos__flujo_masico_unidad', 
-            'salida_flujos__flujo_vol_unidad', 
-            'salida_fracciones', 'salida_balance_molar'
+            'usuario',             
+            'salida_flujos',  
+            'salida_fracciones', 
+            'salida_balances',
+            'salida_balance_energia',
+            'salida_lado_agua'
         )
 
         new_context = new_context.prefetch_related(
@@ -669,7 +670,7 @@ class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, Reporte
 
 # VISTAS DE EVALUACIONES
 
-class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
+class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
     def make_forms(self, caldera, composiciones, corrientes):
         formset_composicion = [
             {
@@ -745,10 +746,12 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
         return render(self.request, 'calderas/partials/almacenamiento_fallido.html')
     
     def almacenamiento_exitoso(self):
-        return render(self.request, 'calderas/partials/almacenamiento_exitoso.html')
+        return render(self.request, 'calderas/partials/almacenamiento_exitoso.html', context={
+            'caldera': self.get_caldera(False, False)
+        })
 
     def almacenar(self):
-        request = request.POST
+        request = self.request
 
         composiciones = ComposicionCombustible.objects.filter(
             combustible= self.get_caldera(True, False).combustible
@@ -768,6 +771,7 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
         form_agua = EntradasFluidosForm(request.POST, prefix='agua')
 
         resultado = self.calcular_resultados()
+        print('RESULTADO: ', resultado)
 
         with transaction.atomic():
             if all([form_vapor.is_valid(), form_gas.is_valid(), form_aire.is_valid(), form_horno.is_valid(), form_agua.is_valid()]):
@@ -785,13 +789,13 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
                 )
 
                 salida_flujos = SalidaFlujosEntrada.objects.create(
-                    flujo_gas_entrada = resultado['flujo_gas_entrda'],
-                    flujo_aire_entrada = resultado['flujo_aire_entrada'],
+                    flujo_m_gas_entrada = resultado['balance_gas']['masico'],
+                    flujo_n_gas_entrada = resultado['balance_gas']['molar'],
+                    flujo_m_aire_entrada = resultado['balance_aire']['masico'],
+                    flujo_n_aire_entrada = resultado['balance_aire']['molar'],
                     flujo_combustion = resultado['flujo_combustion_masico'],
                     flujo_combustion_vol = resultado['flujo_combustion'],
                     porc_o2_exceso = resultado['oxigeno_exceso'],
-                    flujo_masico_unidad = resultado['flujo_masico_unidad'],
-                    flujo_vol_unidad = resultado['flujo_vol_unidad'],
                 )
 
                 salida_balances = SalidaBalances.objects.create(
@@ -810,7 +814,7 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
                 )
                 
                 evaluacion = Evaluacion.objects.create(
-                    nombre = request.POST['nombre'],
+                    nombre = request.POST['evaluacion-nombre'],
                     equipo = self.get_caldera(True, False),
                     usuario = request.user,
                     eficiencia = resultado['eficiencia'],
@@ -839,12 +843,15 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
 
                 for form_composicion in forms_composicion:
                     if form_composicion.is_valid():
+                        form_composicion.instance.evaluacion = evaluacion
                         form_composicion.save()
                     else:
+                        print(form_composicion.errors)
                         return self.almacenamiento_fallido()
 
                 return self.almacenamiento_exitoso()
             else:
+                print([form.errors for form in [form_vapor, form_gas, form_aire, form_horno, form_agua]])
                 return self.almacenamiento_fallido()
 
     def calcular_resultados(self):
@@ -882,7 +889,6 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
                 valor_num = funcion([valor_num], unidad)[0]
 
             llave = "_".join(valor.split('-')[::-1])
-            print(llave)
             variables_eval[llave] = valor_num
 
         composiciones = []
@@ -918,7 +924,7 @@ class CreacionEvaluacionCaldera(CargarCalderasMixin, View):
         if(request.POST.get('accion')):
             try:
                 return self.almacenar()
-            except:
+            except Exception as e:
                 return self.almacenamiento_fallido()
         else:
             return self.evaluar()
