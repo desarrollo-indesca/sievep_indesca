@@ -941,13 +941,19 @@ def unidades_por_clase(request):
 def grafica_historica_calderas(request, pk):
     caldera = Caldera.objects.get(pk=pk)
     evaluaciones = Evaluacion.objects.filter(activo = True, equipo = caldera) \
-        .select_related('balance_energia', 'salida_fracciones', 'salida_lado_agua').order_by('fecha')
+        .select_related('salida_balance_energia', 'salida_fracciones', 'salida_lado_agua').order_by('fecha')
 
-    if(request.POST.get('desde')):
-        evaluaciones = evaluaciones.filter(fecha__gte = request.POST.get('desde'))
+    if(request.GET.get('desde')):
+        evaluaciones = evaluaciones.filter(fecha__gte = request.GET.get('desde'))
 
-    if(request.POST.get('hasta')):
-        evaluaciones = evaluaciones.filter(fecha__lte = request.POST.get('hasta'))
+    if(request.GET.get('hasta')):
+        evaluaciones = evaluaciones.filter(fecha__lte = request.GET.get('hasta'))
+
+    if(request.GET.get('usuario')):
+        evaluaciones = evaluaciones.filter(usuario__first_name__icontains = request.GET.get('usuario'))
+
+    if(request.GET.get('nombre')):
+        evaluaciones = evaluaciones.filter(nombre__icontains = request.GET.get('nombre'))
         
     res = []
 
@@ -955,7 +961,7 @@ def grafica_historica_calderas(request, pk):
         res.append({
             'fecha': evaluacion.fecha.__str__(),
             'eficiencia': evaluacion.eficiencia,
-            'calor_combustion_total': evaluacion.balance_energia.energia_horno,
+            'calor_combustion_total': evaluacion.salida_balance_energia.energia_horno,
             'calor_vapor': evaluacion.salida_lado_agua.energia_vapor,
             'composicion': model_to_dict(evaluacion.salida_fracciones)
         })
