@@ -4,7 +4,6 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 from intercambiadores.models import Fluido, Planta, Unidades
 from calculos.utils import conseguir_largo
-from simulaciones_pequiven.settings import MEDIA_ROOT
 
 import uuid
 

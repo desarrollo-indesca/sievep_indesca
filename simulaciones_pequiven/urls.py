@@ -32,9 +32,10 @@ urlpatterns = [
     path('intercambiadores/', include('intercambiadores.urls')),
     path('auxiliares/', include('auxiliares.urls')),
     path('turbinas/', include('turbinas.urls')),
+    path('calderas/', include('calderas.urls')),
 
     path('usuarios/', include('usuarios.urls')),
     path('', include('pwa.urls')),
     path('manual/', ManualDeUsuario.as_view(), name="manual"),
-    # path("__debug__/", include("debug_toolbar.urls")),
+    path("__debug__/", include("debug_toolbar.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

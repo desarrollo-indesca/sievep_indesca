@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block head %}
+<script src="/static/js/htmx.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="row mb-4">
+    <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center">
+        <a class="btn d-block btn-secondary" href="{% url 'evaluaciones_caldera' pk=equipo.pk %}">↶ Regresar</a>
+    </div>
+    <div class="col-md-6 col-lg-8">
+        <h3 class="text-center" style="color: #e31e24;">Evaluación de Caldera {{equipo.tag}}</h3>
+    </div>
+    <div class="col-2">
+        <button type="button" class="btn btn-success" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{equipo.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button>
+        {% include 'calderas/partials/ficha.html' with caldera=equipo %}
+    </div>
+    
+</div>
+
+<form method="post" enctype="multipart/form-data" hx-post="{% url 'evaluar_caldera' pk=equipo.pk %}" hx-target="#resultados">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-12 mb-3">
+            {{forms.form_evaluacion.nombre.label_tag}}
+            {% render_field forms.form_evaluacion.nombre class="form-control" %}
+        </div>
+
+        <div class="col-4">
+            <div class="row">
+                <div class="col-12">
+                    <h4 class="text-center">Condiciones Operativas</h4>
+                    <hr>
+                </div>
+
+                <div class="col-12 pb-2 pt-2"  style="max-height: 80vh; overflow-y: auto;">
+                    <div class="row">
+                        <div class="col-12">
+                            <h4 class="text-center">Gas</h4>
+        
+                            {{forms.form_gas.flujo.label_tag}}
+                            <div class="input-group">
+                                {% render_field forms.form_gas.flujo class="form-control" placeholder="Flujo Volumétrico" %}
+                                <select name="gas-flujo_unidad" class="form-select" id="id_gas-flujo_unidad">
+                                    {% include 'unidades.html' with unidades=unidades tipo='K' pk_selected=forms.form_gas.flujo_unidad.initial.pk %}
+                                </select>
+        
+                                <small>{{forms.form_gas.flujo.errors}}</small>
+                            </div>
+        
+                            {{forms.form_gas.temperatura.label_tag}}
+                            <div class="input-group">
+                                {% render_field forms.form_gas.temperatura class="form-control" placeholder="Temperatura Operación" %}
+                                <select name="gas-temperatura_unidad" class="form-select" id="id_gas-temperatura_unidad">
+                                    {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=forms.form_gas.temperatura.initial.pk %}
+                                </select>
+        
+                                <small>{{forms.form_gas.temperatura.errors}}</small>
+                            </div>
+        
+                            {{forms.form_gas.presion.label_tag}}
+                            <div class="input-group">
+                                {% render_field forms.form_gas.presion class="form-control" placeholder="Presión Operación" %}
+                                <select name="gas-presion_unidad" class="form-select" id="id_gas-presion_unidad">
+                                    {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_gas.presion_unidad.initial.pk %}
+                                </select>
+        
+                                <small>{{forms.form_gas.presion.errors}}</small>
+                            </div>
+
+                            <input type="hidden" name="{{forms.form_gas.prefix}}-tipo_fluido" value="G">
+                        </div>
+        
+                        <div class="col-12">
+                            <hr>
+                            <h4 class="text-center">Aire</h4>
+        
+                            {{forms.form_aire.flujo.label_tag}}
+                            <div class="input-group">
+                                {% render_field forms.form_aire.flujo class="form-control" placeholder="Flujo Volumétrico" %}
+                                <select name="aire-flujo_unidad" class="form-select" id="id_aire-flujo_unidad">
+                                    {% include 'unidades.html' with unidades=unidades tipo='K' pk_selected=forms.form_aire.flujo_unidad.initial.pk %}
+                                </select>
+        
+                                <small>{{forms.form_aire.flujo.errors}}</small>
+                            </div>
+        
+                            {{forms.form_aire.temperatura.label_tag}}
+                            <div class="input-group">
+                                {% render_field forms.form_aire.temperatura class="form-control" placeholder="Temperatura Operación" %}
+                                <select name="aire-temperatura_unidad" class="form-select" id="id_aire-temperatura_unidad">
+                                    {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=forms.form_aire.temperatura_unidad.initial.pk %}
+                                </select>
+        
+                                <small>{{forms.form_aire.temperatura.errors}}</small>
+                            </div>
+        
+                            {{forms.form_aire.presion.label_tag}}
+                            <div class="input-group">
+                                {% render_field forms.form_aire.presion class="form-control" placeholder="Presión Operación" %}
+                                <select name="aire-presion_unidad" class="form-select" id="id_aire-presion_unidad">
+                                    {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_aire.presion_unidad.initial.pk %}
+                                </select>
+        
+                                <small>{{forms.form_aire.presion.errors}}</small>
+                            </div>
+        
+                            {{forms.form_aire.humedad_relativa.label_tag}}
+                            <div class="input-group">
+                                {% render_field forms.form_aire.humedad_relativa class="form-control" min="0" max="100" placeholder="% Humedad Relativa" %}
+                                <select name="aire-humedad_relativa_unidad" class="form-select" id="id_aire-humedad_relativa_unidad">
+                                    <option value="">%</option>
+                                </select>
+        
+                                <small>{{forms.form_aire.humedad_relativa.errors}}</small>
+                            </div>
+
+                            <input type="hidden" name="{{forms.form_aire.prefix}}-tipo_fluido" value="A">
+                        </div>
+        
+                        <div class="col-12">
+                            <hr>
+                            <h4 class="text-center">Horno</h4>
+        
+                            {{forms.form_horno.temperatura.label_tag}}
+                            <div class="input-group">
+                                {% render_field forms.form_horno.temperatura class="form-control" placeholder="Temperatura del Horno" %}
+                                <select name="horno-temperatura_unidad" class="form-select" id="id_horno-temperatura_unidad">
+                                    {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=forms.form_horno.temperatura_unidad.initial.pk %}
+                                </select>
+        
+                                <small>{{forms.form_horno.temperatura.errors}}</small>
+                            </div>
+        
+                            {{forms.form_horno.presion.label_tag}}
+                            <div class="input-group">
+                                {% render_field forms.form_horno.presion class="form-control" placeholder="Presión del Horno" %}
+                                <select name="horno-presion_unidad" class="form-select" id="id_horno-presion_unidad">
+                                    {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_horno.presion_unidad.initial.pk %}
+                                </select>
+        
+                                <small>{{forms.form_horno.presion.errors}}</small>
+                            </div>
+
+                            <input type="hidden" name="{{forms.form_horno.prefix}}-tipo_fluido" value="H">
+                        </div>
+        
+                        <div class="col-12">
+                            <hr>
+                            <h4 class="text-center">Agua de Entrada</h4>
+        
+                            {{forms.form_agua.flujo.label_tag}}
+                            <div class="input-group">
+                                {% render_field forms.form_agua.flujo class="form-control" placeholder="Flujo Másico" %}
+                                <select name="agua-flujo_unidad" class="form-select" id="id_agua-flujo_unidad">
+                                    {% include 'unidades.html' with unidades=unidades tipo='F' pk_selected=forms.form_agua.flujo_unidad.initial.pk %}        
+                                </select>
+        
+                                <small>{{forms.form_agua.flujo.errors}}</small>
+                            </div>
+        
+                            {{forms.form_agua.temperatura.label_tag}}
+                            <div class="input-group">
+                                {% render_field forms.form_agua.temperatura class="form-control" placeholder="Temperatura Operación" %}
+                                <select name="agua-temperatura_unidad" class="form-select" id="id_agua-temperatura_unidad">
+                                    {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=forms.form_agua.temperatura_unidad.initial.pk %}        
+                                </select>
+        
+                                <small>{{forms.form_agua.temperatura.errors}}</small>
+                            </div>
+        
+                            {{forms.form_agua.presion.label_tag}}
+                            <div class="input-group">
+                                {% render_field forms.form_agua.presion class="form-control" placeholder="Presión Operación" %}
+                                <select name="agua-presion_unidad" class="form-select" id="id_agua-presion_unidad">
+                                    {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_agua.presion_unidad.initial.pk %}        
+                                </select>
+        
+                                <small>{{forms.form_agua.presion.errors}}</small>
+                            </div>
+                            <input type="hidden" name="{{forms.form_agua.prefix}}-tipo_fluido" value="W">
+                        </div>
+        
+                        <div class="col-12">
+                            <hr>
+                            <h4 class="text-center">Vapor Producido</h4>
+        
+                            {{forms.form_vapor.flujo.label_tag}}
+                            <div class="input-group">
+                                {% render_field forms.form_vapor.flujo class="form-control" placeholder="Flujo Másico" %}
+                                <select name="vapor-flujo_unidad" class="form-select" id="id_vapor-flujo_unidad">
+                                    {% include 'unidades.html' with unidades=unidades tipo='F' pk_selected=forms.form_vapor.flujo_unidad.initial.pk %}        
+                                </select>
+        
+                                <small>{{forms.form_vapor.flujo.errors}}</small>
+                            </div>
+        
+                            {{forms.form_vapor.temperatura.label_tag}}
+                            <div class="input-group">
+                                {% render_field forms.form_vapor.temperatura class="form-control" placeholder="Temperatura Operación" %}
+                                <select name="vapor-temperatura_unidad" class="form-select" id="id_vapor-temperatura_unidad">
+                                    {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=forms.form_vapor.temperatura_unidad.initial.pk %}
+                                </select>
+        
+                                <small>{{forms.form_vapor.temperatura.errors}}</small>
+                            </div>
+        
+                            {{forms.form_vapor.presion.label_tag}}
+                            <div class="input-group">
+                                {% render_field forms.form_vapor.presion class="form-control" placeholder="Presión Operación" %}
+                                <select name="vapor-presion_unidad" class="form-select" id="id_vapor-presion_unidad">
+                                    {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_vapor.presion_unidad.initial.pk %}
+                                </select>
+        
+                                <small>{{forms.form_vapor.presion.errors}}</small>
+                            </div>
+
+                            <input type="hidden" name="{{forms.form_vapor.prefix}}-tipo_fluido" value="V">
+                        </div>
+                    </div>
+                </div>                
+            </div>
+        </div>
+
+        <div class="col-4">
+            <h4 class="text-center">Composición del Combustible</h4>
+            <hr>
+            <div style="max-height: 80vh; overflow-y: auto;">
+                <table class="table table-responsive table-hover table-bordered w-100 text-center" style="vertical-align: middle;">
+                    <thead>
+                        <tr class="table-dark">
+                            <th class="text-center">COMPUESTO</th>
+                            <th class="text-center">% VOL</th>
+                            <th class="text-center">% AIRE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for composicion in forms.formset_composicion %}
+                        <tr>
+                            <td>
+                                {{composicion.composicion.fluido}}
+                                <div class="hidden">
+                                    <input type="hidden" name="composicion-{{forloop.counter0}}-composicion" value="{{composicion.form.composicion.value}}">
+                                </div>
+                            </td>
+                            <td>
+                                {% render_field composicion.form.parc_vol class="form-control porc-vol" placeholder="% VOL" min=0 max=100 step="0.01" %}
+                                <small>{{composicion.form.parc_vol.errors}}</small>
+                            </td>
+                            <td>
+                                {% if composicion.composicion.fluido.pk in fluidos_composiciones %}
+                                {% render_field composicion.form.parc_aire class="form-control porc-aire" placeholder="% AIRE" min=0 max=100 step="0.01" %}
+                                <small>{{composicion.form.parc_aire.errors}}</small>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        <tr class="table-success">
+                            <th>TOTALES</th>
+                            <th>
+                                <input class="form-control" id="total-vol" value="100" disabled>
+                            </th>
+                            <th>
+                                <input id="total-aire" class="form-control" value="100" disabled>
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-4">
+            <h4 class="text-center">Resultados</h4>
+            <hr>
+            <div id="resultados" name="accion" value="calcular" style="max-height: 80vh; overflow-y: auto;">
+                <button type="submit" id="submit" class="btn btn-danger w-full">Calcular Resultados</button>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_javascript %}
+<script src="/static/js/calderas/evaluacion.js"></script>
+{% endblock %}

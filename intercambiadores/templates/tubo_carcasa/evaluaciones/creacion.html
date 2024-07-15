@@ -2,6 +2,10 @@
 {% load static %}
 {% load l10n %}
 
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
+{% endblock %}
+
 {% block contenido %}
     <form method="post" onsubmit="return validarForm(this);">
         {% csrf_token %}
@@ -301,6 +305,11 @@
         </div>
     </form>
     {% endwith %}
+
+    <div hidden id="spinner" class="htmx-indicator indicator-style">
+        <div class="spinner-grow text-danger" style="width: 6rem; height: 6rem;">
+        </div>
+    </div>
 {% endblock %}
 
 {% block extra_javascript %}
@@ -456,6 +465,7 @@
         
         if(!$('#cp_ficha').is(':checked') && tipo_cp === 'A' && t1 && t2){
             document.body.style.opacity = 0.5;
+            $('#spinner').removeAttr('hidden');
             if(lado === 'T' && $('#fluido_tubo').val()){
                 $('#cp_liquido_tubo').val('');
                 document.getElementById('cp_liquido_tubo').setAttribute('disabled', true);
@@ -485,6 +495,7 @@
                 },
                 success: (res) => {
                     document.body.style.opacity = 1.0;
+                    $('#spinner').attr('hidden', true);
                     if(lado === 'T'){
                             if(res.cp_liquido){
                                 $('#cp_liquido_tubo').val(res.cp_liquido)
@@ -533,6 +544,7 @@
                 }, 
                 error: (res) => {
                     document.body.style.opacity = 1.0;
+                    $('#spinner').attr('hidden', true);
                     console.log(res);
                     if(lado === 'T'){
                         $('#cp_gas_tubo').removeAttr('disabled');
@@ -761,6 +773,7 @@
             && (($('#cp_gas_carcasa').val() !== '' || $('#cp_liquido_carcasa').val() !== '') && $('#cambio_fase_ficha_carcasa').html() === 'S' || ($('#cp_gas_carcasa').val() !== ''&& $('#cp_liquido_carcasa').val() !== ''))){
             
             document.body.style.opacity = 0.5;
+            $('#spinner').removeAttr('hidden');
             $.ajax({
                 url: '/intercambiadores/evaluar/tubo_carcasa/{{intercambiador.intercambiador.pk}}/',
                 data: {
@@ -781,6 +794,7 @@
                 },
                 success: (res) => {        
                     document.body.style.opacity = 1.0;
+                    $('#spinner').attr('hidden', true);
                     if(res.lmtd === NaN)                      
                         vaciarCampos() 
                     else{
@@ -798,6 +812,7 @@
                 error: async (res) => {
                     console.log(res);
                     document.body.style.opacity = 1.0;
+                    $('#spinner').attr('hidden', true);
 
                     if(mostrarAdvertencia){
                         mostrarAdvertencia = false;
