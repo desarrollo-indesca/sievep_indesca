@@ -785,6 +785,7 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
         resultado = self.calcular_resultados()
 
         with transaction.atomic():
+            raise Exception("Ocurrio un error de prueba de almacenamiento")
             if all([form_vapor.is_valid(), form_gas.is_valid(), form_aire.is_valid(), form_horno.is_valid(), form_agua.is_valid()]):
                 salida_fracciones = SalidaFracciones.objects.create(
                     h2o = resultado['fraccion_h2o_gas'],

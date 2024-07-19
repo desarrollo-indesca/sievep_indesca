@@ -22,10 +22,10 @@ COMPUESTOS_COOLPROP = {
 }
 
 COMPUESTOS_COMBUSTION = [
-    '74-82-8', '74-84-0', '74-98-6', '75-28-5',
-    '106-97-8', '109-66-0', '110-54-3',
-    '78-78-4 ', '1333-74-0', '110-54-3'
-    '7446-09-5'
+    '74-82-8', '74-84-0', '74-98-6', '106-97-8',
+    '75-28-5', '109-66-0', '110-54-3',
+    '78-78-4', '1333-74-0', '110-54-3',
+    '7783-06-4'
 ]
 
 COMPUESTOS_AIRE = [
@@ -44,11 +44,11 @@ COMPUESTOS_RESULTANTES_COMBUSTION = [
     '7732-18-5', '7446-09-5'
 ]
 
-MATRIZ_ESTEQUIOMETRICA = [
-    [2, 7/2, 5, 13/2, 13/2, 8, 8, 19/2, 1/2, 3/2 ],
-	[1,   2, 3,    4,    4, 5, 5,    6,   0, 0   ],
-	[2,   3, 4,    5,    5, 6, 6,    7,   1, 1   ],
-	[0,   0, 0,    0,    0, 0, 0,    0,   0, 1   ]
+MATRIZ_ESTEQUIOMETRICA = [	
+    [2, 7/2, 5, 13/2, 13/2, 8, 8, 19/2,  3/2, 1/2,],
+	[1,   2, 3,    4,    4, 5, 5,    6,    0, 0,  ],
+	[2,   3, 4,    5,    5, 6, 6,    7,    1, 1,  ],
+	[0,   0, 0,    0,    0, 0, 0,    0,    1, 0,  ]
 ]
 
 CALORES_COMBUSTION = {
@@ -64,19 +64,26 @@ CALORES_COMBUSTION = {
     '7783-06-4': -518,
 }
 
-R=8.3145e-5
+R = 8.3145e-5
 
 def obtener_moles_reaccion(composicion: list):
     n = {}
     especifico = 0
+    calor_calculado = False
+
     for i in range(4):
         moles = 0
         for j,compuesto in enumerate(composicion):
             cas = compuesto['compuesto'].CAS
             moles += compuesto['x_vol'] * MATRIZ_ESTEQUIOMETRICA[i][j] 
-            especifico += compuesto['x_vol'] * CALORES_COMBUSTION[cas]
+
+            if(not calor_calculado):
+                especifico += compuesto['x_vol'] * CALORES_COMBUSTION[cas]
+
+            print(f"X_VOL = {compuesto['x_vol']}, COMP = {compuesto['compuesto'].name}, CALOR = {CALORES_COMBUSTION[cas]}")
 
         n[COMPUESTOS_RESULTANTES_COMBUSTION[i]] = moles
+        calor_calculado = True
 
     return [n, especifico]
 
@@ -102,6 +109,10 @@ def calcular_h(presion: float, temperatura: float, composicion: list):
         cas = comp['compuesto'].CAS
         entalpias[cas] = CP.PropsSI('H', 'P', presion, 'T', temperatura, COMPUESTOS_COOLPROP[cas]) 
 
+        print(f"{comp['compuesto'].name} = {entalpias[cas]}")
+    
+    print("=========================")
+
     return entalpias
 
 def calcular_calores_gas(composicion, h):
@@ -122,14 +133,16 @@ def calcular_calores_aire(composiciones, h, temperatura_aire, presion_aire, hume
     C4 = 4.1635e-6
     C5 = 2
     
-    p_h2o = (math.e**(C1 + C2/(temperatura_aire+273.15) + C3*math.log(temperatura_aire+273.15)+C4*math.pow(temperatura_aire+273.15,C5)))
-    x_h2o = humedad_relativa_aire/100*(p_h2o/presion_aire)
+    p_h2o = (math.e**(C1 + C2/(temperatura_aire) + C3*math.log(temperatura_aire)+C4*math.pow(temperatura_aire,C5)))/100000
+    x_h2o = humedad_relativa_aire/100*(p_h2o/(presion_aire/100000))
 
     aire_humedo = [
-        0.21-x_h2o,
+        0.21*(1-x_h2o),
         0.79*(1-x_h2o),
         x_h2o
     ]
+
+    print(p_h2o, x_h2o)
 
     calor_especifico = 0.0
     pm_aire_promedio = 0.0
@@ -148,25 +161,27 @@ def calcular_n_total_salida(n: list, composicion: list,
     entalpias = []
 
     x_co2 = (n['124-38-9']+composicion['124-38-9']['x_vol'])*n_gas_entrada
-    entalpias.append(x_co2*composicion['124-38-9']['compuesto'].MW*calores_horno['124-38-9'])
+    entalpias.append(x_co2*composicion['124-38-9']['compuesto'].MW*calores_horno['124-38-9']/1000)
+
+    print(x_co2, entalpias)
 
     x_so2 = (n['7446-09-5']+composicion['7446-09-5']['x_vol'])*n_gas_entrada
-    entalpias.append(x_so2*composicion['7446-09-5']['compuesto'].MW*calores_horno['7446-09-5'])
+    entalpias.append(x_so2*composicion['7446-09-5']['compuesto'].MW*calores_horno['7446-09-5']/1000)
 
     x_n2 = n_aire_entrada*aire_humedo[1]+composicion['7727-37-9']['x_vol']*n_gas_entrada
-    entalpias.append(x_n2*composicion['7727-37-9']['compuesto'].MW*calores_horno['7727-37-9'])
+    entalpias.append(x_n2*composicion['7727-37-9']['compuesto'].MW*calores_horno['7727-37-9']/1000)
 
     x_o2_entrada = n_aire_entrada*aire_humedo[0]
     x_o2_reaccion = n_gas_entrada*n['7782-44-7']
     x_o2 = x_o2_entrada-x_o2_reaccion
-    entalpias.append(x_o2*composicion['7782-44-7']['compuesto'].MW*calores_horno['7782-44-7'])
+    entalpias.append(x_o2*composicion['7782-44-7']['compuesto'].MW*calores_horno['7782-44-7']/1000)
     o2_exceso = x_o2/x_o2_reaccion*100
 
     x_h2o_aire = n_aire_entrada*aire_humedo[2]
     x_h2o_gas = n_gas_entrada*composicion['7732-18-5']['x_vol']
     x_h2o_reaccion = n['7732-18-5']*n_gas_entrada
     x_h2o = x_h2o_aire+x_h2o_gas+x_h2o_reaccion
-    entalpias.append(x_h2o*composicion['7732-18-5']['compuesto'].MW*calores_horno['7732-18-5'])
+    entalpias.append(x_h2o*composicion['7732-18-5']['compuesto'].MW*calores_horno['7732-18-5']/1000)
     
     n_total = sum([x_h2o, x_n2, x_o2, x_so2, x_co2])
 
@@ -188,7 +203,7 @@ def evaluar_caldera(flujo_gas: float, temperatura_gas: float, presion_gas: float
                     presion_vapor: float, composiciones_combustible: list):
     
     composicion_normalizada = normalizar_composicion(composiciones_combustible)
-    
+
     compuestos_combustion = [compuesto for compuesto in composicion_normalizada.values() if compuesto['compuesto'].CAS in COMPUESTOS_COMBUSTION]
     compuestos_horno = [compuesto for compuesto in composicion_normalizada.values() if compuesto['compuesto'].CAS in COMPUESTOS_HORNO]
     compuestos_aire = [compuesto for compuesto in composicion_normalizada.values() if compuesto['compuesto'].CAS in COMPUESTOS_AIRE]
@@ -202,35 +217,36 @@ def evaluar_caldera(flujo_gas: float, temperatura_gas: float, presion_gas: float
     h_agua = CP.PropsSI('H', 'P', presion_agua, 'T', temperatura_agua, 'water')
     h_vapor = CP.PropsSI('H', 'P', presion_vapor, 'T', temperatura_vapor, 'water')
 
-    calor_gas_especifico, calor_gas_promedio = calcular_calores_gas(composicion_normalizada.values(), h_gas)    
-    ngas_entrada = flujo_gas*(presion_gas/(R*temperatura_gas)) 
-    mgas_entrada = ngas_entrada*calor_gas_promedio
-    energia_gas_entrada = ngas_entrada*calor_gas_especifico
+    calor_gas_especifico, pm_promedio = calcular_calores_gas(composicion_normalizada.values(), h_gas)    
+    
+    ngas_entrada = flujo_gas*3600*((presion_gas)/100000/(R*temperatura_gas))/1000 # Kg/h
+    mgas_entrada = ngas_entrada*pm_promedio #kmol/h
+    energia_gas_entrada = ngas_entrada*calor_gas_especifico/1000
 
-    calor_aire_especifico, calor_aire_promedio, aire_humedo = calcular_calores_aire(composicion_normalizada,
+    calor_aire_especifico, pm_aire_promedio, aire_humedo = calcular_calores_aire(composicion_normalizada,
                                                                         h_aire, temperatura_aire, 
                                                                         presion_aire, humedad_relativa_aire)
-    naire_entrada = flujo_aire*(presion_aire/(R*temperatura_aire))
-    maire_entrada = naire_entrada*calor_aire_promedio
+   
+    naire_entrada = flujo_aire*3600*((presion_aire/100000)/(R*temperatura_aire))/1000 # kg/h
+    maire_entrada = naire_entrada*pm_aire_promedio
+    energia_aire_entrada = naire_entrada*calor_aire_especifico/1000
 
-    energia_aire_entrada = maire_entrada*calor_aire_especifico
-
-    energia_total = energia_gas_entrada + energia_aire_entrada
-    energia_total_reaccion = calor_especifico_combustion*ngas_entrada
+    energia_total_entrada = energia_gas_entrada + energia_aire_entrada
+    energia_total_reaccion = calor_especifico_combustion*ngas_entrada*1e3
 
     entalpias_totales, n_total, ns_totales, o2_exceso = calcular_n_total_salida(
         n, composicion_normalizada, ngas_entrada, h_horno, naire_entrada, 
         aire_humedo
     )
 
-    pm_salida_promedio = [compuesto['x_vol']*compuesto['compuesto'].MW for compuesto in compuestos_horno]
-    flujo_combustion = n_total/(presion_horno/(R*temperatura_horno))
+    flujo_combustion = n_total/(((presion_horno/100000)/(R*temperatura_horno))/1000)
     flujo_combustion_masico = sum([ns_totales[compuesto['compuesto'].CAS]*compuesto['compuesto'].MW for compuesto in compuestos_horno])
 
-    energia_horno = energia_total_reaccion + entalpias_totales + energia_aire_entrada
-    flujo_purga = flujo_agua - flujo_vapor
+    energia_horno = energia_total_reaccion + entalpias_totales - (energia_aire_entrada + energia_gas_entrada)
+    
+    flujo_purga = (flujo_agua - flujo_vapor)*3600/1000 # T/h
 
-    energia_vapor = flujo_vapor*h_vapor - flujo_agua*h_agua + flujo_vapor
+    energia_vapor = (flujo_vapor*h_vapor - flujo_agua*h_agua + flujo_vapor*2.44346*1e6)*3600/1000
 
     eficiencia = abs(energia_vapor/energia_horno) * 100
 
@@ -238,11 +254,11 @@ def evaluar_caldera(flujo_gas: float, temperatura_gas: float, presion_gas: float
        'flujo_combustion': flujo_combustion,
        'oxigeno_exceso': o2_exceso,
 
-       'fraccion_h2o_gas': ns_totales['7732-18-5'],
-       'fraccion_n2_gas': ns_totales['7727-37-9'],
-       'fraccion_o2_gas': ns_totales['7782-44-7'],
-       'fraccion_so2_gas': ns_totales['7446-09-5'],
-       'fraccion_co2_gas': ns_totales['124-38-9'],
+       'fraccion_h2o_gas': round(ns_totales['7732-18-5'], 4),
+       'fraccion_n2_gas': round(ns_totales['7727-37-9'], 4),
+       'fraccion_o2_gas': round(ns_totales['7782-44-7'], 4),
+       'fraccion_so2_gas': round(ns_totales['7446-09-5'], 4),
+       'fraccion_co2_gas': round(ns_totales['124-38-9'], 4),
 
        'balance_gas': {
            'masico': mgas_entrada,
@@ -254,16 +270,14 @@ def evaluar_caldera(flujo_gas: float, temperatura_gas: float, presion_gas: float
            'molar': naire_entrada           
        },
 
-       'pm_salida_promedio': pm_salida_promedio,
        'flujo_combustion_masico': flujo_combustion_masico,
 
        'energia_gas_entrada': energia_gas_entrada,
        'energia_aire_entrada': energia_aire_entrada,
-       'energia_total': energia_total,
-       'energia_total_entrada': energia_total,
+       'energia_total_entrada': energia_total_entrada,
        'energia_total_reaccion': energia_total_reaccion,
        'energia_horno': energia_horno,
-       'energia_total_salida': abs(energia_vapor),
+       'energia_total_salida': entalpias_totales,
 
        'flujo_purga': flujo_purga,
        'energia_vapor': energia_vapor,
