@@ -478,6 +478,7 @@ class SalidaFracciones(models.Model):
     co2 = models.FloatField()
     n2 = models.FloatField()
     o2 = models.FloatField()
+    so2 = models.FloatField()
 
 class SalidaFlujosEntrada(models.Model):
     """
