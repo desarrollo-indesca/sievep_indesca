@@ -145,13 +145,13 @@
                             <th class="table-dark">Aire (Másico)</th>
                             <td>{{flujos.flujo_m_aire_entrada|floatformat:4}} Kg/h</td>
                             <th class="table-dark">Aire (Molar)</th>
-                            <td>{{flujos.flujo_n_aire_entrada|floatformat:4}} mol/h</td>
+                            <td>{{flujos.flujo_n_aire_entrada|floatformat:4}} kmol/h</td>
                         </tr>
                         <tr>
                             <th class="table-dark">Gas (Másico)</th>
                             <td>{{flujos.flujo_m_gas_entrada|floatformat:4}} Kg/h</td>
                             <th class="table-dark">Gas (Molar)</th>
-                            <td>{{flujos.flujo_n_gas_entrada|floatformat:4}} mol/h</td>
+                            <td>{{flujos.flujo_n_gas_entrada|floatformat:4}} kmol/h</td>
                         </tr>
 
                         <tr>
@@ -160,9 +160,9 @@
 
                         <tr>
                             <th class="table-dark">Flujo de Combustión Volumétrico</th>
-                            <td>{{flujos.flujo_combustion_vol|floatformat:4}} m3/h</td>
+                            <td>{{flujos.flujo_combustion_vol|floatformat:4}} m³/h</td>
                             <th class="table-dark">Flujo de Combustión Molar</th>
-                            <td>{{flujos.flujo_combustion|floatformat:4}} mol/h</td>
+                            <td>{{flujos.flujo_combustion|floatformat:4}} kmol/h</td>
                         </tr>
                         <tr>
                             <th class="table-dark">Oxígeno en Exceso</th>
@@ -200,6 +200,14 @@
                             </th>
                             <td>
                                 {{fracciones.o2|floatformat:4}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark">
+                                SO2
+                            </th>
+                            <td colspan="3">
+                                {{fracciones.so2|floatformat:4}}
                             </td>
                         </tr>
                         {% endwith %}
