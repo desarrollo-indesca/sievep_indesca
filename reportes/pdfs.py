@@ -2978,7 +2978,8 @@ def reporte_ficha_tecnica_caldera(caldera):
         story.append(table)
     else:
         story.append(Paragraph("No hay características adicionales registradas para esta caldera.", centrar_parrafo))
-    
+
+    # CUARTA TABLA: CORRIENTES    
     corrientes = caldera.corrientes_caldera.all()
 
     if(corrientes.count()):
@@ -3024,3 +3025,94 @@ def reporte_ficha_tecnica_caldera(caldera):
         story.append(Paragraph("No hay corrientes registradas para esta caldera.", centrar_parrafo))
 
     return [story, None]
+
+def reporte_evaluaciones_caldera(object_list, request):
+    pass
+
+def reporte_detalle_evaluacion_caldera(evaluacion):
+    """
+    Resumen:
+        Esta función genera un reporte en formato PDf del detalle de una evaluación realizada a una caldera.
+        No genera gráfica.
+    """
+
+    entradas_fluidos = evaluacion.entradas_fluidos_caldera.all()
+    entrada_gas = entradas_fluidos.get(tipo_fluido="G")
+    entrada_agua = entradas_fluidos.get(tipo_fluido="W")
+    entrada_aire = entradas_fluidos.get(tipo_fluido="A")
+    entrada_vapor = entradas_fluidos.get(tipo_fluido="V")
+    entrada_horno = entradas_fluidos.get(tipo_fluido="H")
+
+    # TABLA 1: DATOS DE ENTRADA
+    table = [
+        [
+            Paragraph("DATOS DE ENTRADA DE LA EVALUACIÓN", centrar_parrafo),
+        ],
+        [
+            Paragraph("CONDICIONES OPERATIVAS", centrar_parrafo),
+        ],
+        [
+            Paragraph("GAS", centrar_parrafo),
+        ],
+        [
+            Paragraph("Flujo Volumétrico", centrar_parrafo),
+            Paragraph(f"{entrada_gas.flujo if entrada_gas.flujo else '-'} {entrada_gas.flujo_unidad}", centrar_parrafo),
+        ],
+        [
+            Paragraph("Temperatura de Operación", centrar_parrafo),
+            Paragraph(f"{entrada_gas.temperatura if entrada_gas.temperatura else '-'} {entrada_gas.temperatura_unidad}", centrar_parrafo),
+        ],
+        [
+            Paragraph("Presión de Operación", centrar_parrafo),
+            Paragraph(f"{entrada_gas.presion if entrada_gas.presion else '-'} {entrada_gas.presion_unidad}", centrar_parrafo),
+        ],
+        [
+            Paragraph("AIRE", centrar_parrafo),
+        ],
+        [
+            Paragraph("Flujo Volumétrico", centrar_parrafo),
+            Paragraph(f"{entrada_aire.flujo if entrada_aire.flujo else '-'} {entrada_aire.flujo_unidad}", centrar_parrafo),
+        ],
+        [
+            Paragraph("Temperatura de Operación", centrar_parrafo),
+            Paragraph(f"{entrada_aire.temperatura if entrada_aire.temperatura else '-'} {entrada_aire.temperatura_unidad}", centrar_parrafo),
+        ],
+        [
+            Paragraph("Presión de Operación", centrar_parrafo),
+            Paragraph(f"{entrada_aire.presion if entrada_aire.presion else '-'} {entrada_aire.presion_unidad}", centrar_parrafo),
+        ],
+        [
+            Paragraph("% Humedad Relativa", centrar_parrafo),
+            Paragraph(f"{entrada_aire.humedad_relativa} %", centrar_parrafo),
+        ],
+        [
+            Paragraph("HORNO", centrar_parrafo),
+        ],
+        [
+            Paragraph("Temperatura de Operación", centrar_parrafo),
+            Paragraph(f"{entrada_horno.temperatura if entrada_horno.temperatura else '-'} {entrada_horno.temperatura_unidad}", centrar_parrafo),
+        ],
+        [
+            Paragraph("Presión de Operación", centrar_parrafo),
+            Paragraph(f"{entrada_horno.presion if entrada_horno.presion else '-'} {entrada_horno.presion_unidad}", centrar_parrafo),
+        ],
+        [
+            Paragraph("AGUA", centrar_parrafo),
+        ],
+        [
+            Paragraph("Flujo Volumétrico", centrar_parrafo),
+            Paragraph(f"{entrada_gas.flujo if entrada_gas.flujo else '-'} {entrada_gas.flujo_unidad}", centrar_parrafo),
+        ],
+        [
+            Paragraph("Temperatura de Operación", centrar_parrafo),
+            Paragraph(f"{entrada_gas.temperatura if entrada_gas.temperatura else '-'} {entrada_gas.temperatura_unidad}", centrar_parrafo),
+        ],
+        [
+            Paragraph("Presión de Operación", centrar_parrafo),
+            Paragraph(f"{entrada_gas.presion if entrada_gas.presion else '-'} {entrada_gas.presion_unidad}", centrar_parrafo),
+        ],
+    ]
+    # TABLA 2: COMPOSICIONES
+    # TABLA 3: SALIDA
+
+    return [[],]

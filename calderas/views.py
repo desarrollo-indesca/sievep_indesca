@@ -791,7 +791,7 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
                     co2 = resultado['fraccion_co2_gas'],
                     n2 = resultado['fraccion_n2_gas'],
                     so2 = resultado['fraccion_so2_gas'],
-                    o2 = resultado['fraccion_so2_gas']
+                    o2 = resultado['fraccion_o2_gas']
                 )
 
                 salida_lado_agua = SalidaLadoAgua.objects.create(
