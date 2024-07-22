@@ -224,6 +224,9 @@ def generar_historia(request, reporte, object_list):
     
     if reporte == 'reporte_evaluaciones_turbinas_vapor':
         return reporte_evaluaciones_turbinas_vapor(object_list, request)
+    
+    if reporte == 'ficha_tecnica_caldera':
+        return reporte_ficha_tecnica_caldera(object_list)
 
 # GENERALES
 def reporte_equipos(request, object_list):
@@ -2664,4 +2667,360 @@ def reporte_evaluaciones_turbinas_vapor(object_list, request):
 
         return [story, [grafica1, grafica2]]    
     
+    return [story, None]
+
+# REPORTES DE CALDERAS
+
+def reporte_ficha_tecnica_caldera(caldera):
+    '''
+    Resumen:
+        Crea el reporte de la ficha de la caldera. No devuelve gráficos.
+    '''
+
+    story = []
+    story.append(Spacer(0,90))
+
+    especificaciones = caldera.especificaciones
+    dimensiones = caldera.dimensiones
+    tambor = caldera.tambor  
+    secciones_tambor = tambor.secciones_tambor
+    tambor_superior = secciones_tambor.get(seccion='S')
+    tambor_inferior = secciones_tambor.get(seccion='I')  
+    sobrecalentador = caldera.sobrecalentador
+    chimenea = caldera.chimenea
+    economizador = caldera.economizador
+    combustible = caldera.combustible
+
+    # Primera Tabla: Datos Generales y Especificaciones
+    table = [
+        [
+            Paragraph("Tag", centrar_parrafo), 
+            Paragraph(f"{caldera.tag}", centrar_parrafo), 
+            Paragraph("Planta", centrar_parrafo),
+            Paragraph(f"{caldera.planta.nombre}", centrar_parrafo)
+        ],
+        [
+            Paragraph("Fabricante", centrar_parrafo), 
+            Paragraph(f"{caldera.fabricante}", centrar_parrafo),
+            Paragraph("Modelo", centrar_parrafo), 
+            Paragraph(f"{caldera.modelo if caldera.modelo else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph("Tipo", centrar_parrafo), 
+            Paragraph(f"{caldera.tipo_caldera}", centrar_parrafo),
+            Paragraph("Accesorios", centrar_parrafo), 
+            Paragraph(f"{caldera.accesorios if caldera.accesorios else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph("Descripción", centrar_parrafo), 
+            Paragraph(f"{caldera.descripcion}", centrar_parrafo)
+        ],
+        [
+            Paragraph("<b>ESPECIFICACIONES TÉCNICAS</b>", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Material", centrar_parrafo),
+            Paragraph(f"{especificaciones.material if especificaciones.material else '-'}", centrar_parrafo),
+            Paragraph(f"Área Transf. de Calor ({especificaciones.area_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.area_transferencia_calor if especificaciones.area_transferencia_calor else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Calor Intercambiado ({especificaciones.calor_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.calor_intercambiado if especificaciones.calor_intercambiado else '-'}", centrar_parrafo),
+            Paragraph(f"Capacidad ({especificaciones.capacidad_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.capacidad if especificaciones.capacidad else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Temp. Diseño ({especificaciones.temperatura_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.temp_diseno if especificaciones.temp_diseno else '-'}", centrar_parrafo),
+            Paragraph(f"Temp. Operación ({especificaciones.temperatura_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.temp_operacion if especificaciones.temp_operacion else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Presión Diseño ({especificaciones.temperatura_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.presion_diseno if especificaciones.presion_diseno else '-'}", centrar_parrafo),
+            Paragraph(f"Presión Operación ({especificaciones.temperatura_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.presion_operacion if especificaciones.presion_operacion else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Carga ({especificaciones.carga_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.carga if especificaciones.carga else '-'}", centrar_parrafo),
+            Paragraph(f"Eficiencia Térmica (%)", centrar_parrafo),
+            Paragraph(f"{especificaciones.eficiencia_termica if especificaciones.eficiencia_termica else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"<b>DIMENSIONES DE LA CALDERA</b>", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Ancho ({dimensiones.dimensiones_unidad})", centrar_parrafo),
+            Paragraph(f"{dimensiones.ancho if dimensiones.ancho else '-'}", centrar_parrafo),
+            Paragraph(f"Largo ({dimensiones.dimensiones_unidad})", centrar_parrafo),
+            Paragraph(f"{dimensiones.largo if dimensiones.largo else '-'}", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Alto ({dimensiones.dimensiones_unidad})", centrar_parrafo),
+            Paragraph(f"{dimensiones.alto if dimensiones.alto else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"<b>ESPECIFICACIONES DEL TAMBOR</b>", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Presión Operación ({tambor.presion_unidad})", centrar_parrafo),
+            Paragraph(f"{tambor.presion_operacion if tambor.presion_operacion else '-'}", centrar_parrafo),
+            Paragraph(f"Presión Diseño ({tambor.presion_unidad})", centrar_parrafo),
+            Paragraph(f"{tambor.presion_operacion if tambor.presion_operacion else '-'}", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Temperatura Diseño ({tambor.temperatura_unidad})", centrar_parrafo),
+            Paragraph(f"{tambor.presion_diseno if tambor.presion_diseno else '-'}", centrar_parrafo),
+            Paragraph(f"Temperatura Operación ({tambor.temperatura_unidad})", centrar_parrafo),
+            Paragraph(f"{tambor.presion_operacion if tambor.presion_operacion else '-'}", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Diámetro ({tambor_superior.dimensiones_unidad}, Superior)", centrar_parrafo),
+            Paragraph(f"{tambor_superior.diametro if tambor_superior.diametro else '-'}", centrar_parrafo),
+            Paragraph(f"Longitud ({tambor_superior.dimensiones_unidad}, Superior)", centrar_parrafo),
+            Paragraph(f"{tambor_superior.longitud if tambor_superior.longitud else '-'}", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Diámetro ({tambor_inferior.dimensiones_unidad}, Inferior)", centrar_parrafo),
+            Paragraph(f"{tambor_inferior.diametro if tambor_inferior.diametro else '-'}", centrar_parrafo),
+            Paragraph(f"Longitud ({tambor_inferior.dimensiones_unidad}, Inferior)", centrar_parrafo),
+            Paragraph(f"{tambor_inferior.longitud if tambor_inferior.longitud else '-'}", centrar_parrafo),
+        ],
+        [
+            Paragraph("Material del Tambor", centrar_parrafo),
+            Paragraph(f"{tambor.material if tambor.material else '-'}", centrar_parrafo),
+        ],
+        [
+            Paragraph("<b>ESPECIFICACIONES DEL SOBRECALENTADOR</b>", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Presión Operación ({sobrecalentador.presion_unidad})", centrar_parrafo),
+            Paragraph(f"{sobrecalentador.presion_operacion if sobrecalentador.presion_operacion else '-'}", centrar_parrafo),
+            Paragraph(f"Presión Diseño ({sobrecalentador.presion_unidad})", centrar_parrafo),
+            Paragraph(f"{sobrecalentador.presion_diseno if sobrecalentador.presion_diseno else '-'}", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Temperatura Operación ({sobrecalentador.temperatura_unidad})", centrar_parrafo),
+            Paragraph(f"{sobrecalentador.temp_operacion if sobrecalentador.temp_operacion else '-'}", centrar_parrafo),
+            Paragraph(f"Flujo Máx. Continuo ({sobrecalentador.flujo_unidad})", centrar_parrafo),
+            Paragraph(f"{sobrecalentador.flujo_max_continuo if sobrecalentador.flujo_max_continuo else '-'}", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Diámetro ({sobrecalentador.dims.diametro_unidad})", centrar_parrafo),
+            Paragraph(f"{sobrecalentador.dims.diametro_tubos if sobrecalentador.dims.diametro_tubos else '-'}", centrar_parrafo),
+            Paragraph(f"Área Total de Transferencia ({sobrecalentador.dims.area_unidad})", centrar_parrafo),
+            Paragraph(f"{sobrecalentador.dims.area_total_transferencia if sobrecalentador.dims.area_total_transferencia else '-'}", centrar_parrafo),
+        ],
+        [
+            Paragraph("Número de Tubos", centrar_parrafo),
+            Paragraph(f"{sobrecalentador.dims.num_tubos if sobrecalentador.dims.num_tubos else '-'}", centrar_parrafo),
+        ],
+        [
+            Paragraph("<b>ESPECIFICACIONES DE LA CHIMENEA</b>", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Diámetro ({chimenea.dimensiones_unidad})", centrar_parrafo),
+            Paragraph(f"{chimenea.diametro if chimenea.diametro else '-'}", centrar_parrafo),
+            Paragraph(f"Altura ({chimenea.dimensiones_unidad})", centrar_parrafo),
+            Paragraph(f"{chimenea.altura if chimenea.altura else '-'}", centrar_parrafo),
+        ],
+        [
+            Paragraph("<b>ESPECIFICACIONES DEL ECONOMIZADOR</b>", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Diámetro Tubos ({economizador.diametro_unidad})", centrar_parrafo),
+            Paragraph(f"{economizador.diametro_tubos if economizador.diametro_tubos else '-'}", centrar_parrafo),
+            Paragraph(f"Altura ({economizador.area_unidad})", centrar_parrafo),
+            Paragraph(f"{economizador.area_total_transferencia if economizador.area_total_transferencia else '-'}", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Número de Tubos", centrar_parrafo),
+            Paragraph(f"{economizador.numero_tubos if economizador.numero_tubos else '-'}", centrar_parrafo)
+        ] 
+    ]
+
+    estilo = TableStyle(
+        [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+
+            ('BACKGROUND', (0, 0), (0, -1), sombreado),
+            ('BACKGROUND', (2, 0), (2, 2), sombreado),
+            ('BACKGROUND', (2, 5), (2, 11), sombreado),
+            ('BACKGROUND', (0, 10), (-1, 10), sombreado),
+            ('BACKGROUND', (2, 5), (2, 10), sombreado),
+            ('BACKGROUND', (0, 10), (-1, 10), sombreado),
+            ('BACKGROUND', (2, 13), (2, 17), sombreado),
+            ('BACKGROUND', (0, 13), (-1, 13), sombreado),
+            ('BACKGROUND', (2, 19), (2, 22), sombreado),
+            ('BACKGROUND', (0, 19), (-1, 19), sombreado),
+            ('BACKGROUND', (2, 24), (2, 27), sombreado),
+            ('BACKGROUND', (0, 24), (-1, 24), sombreado),
+            ('BACKGROUND', (0, 26), (-1, 26), sombreado),
+            ('BACKGROUND', (0, 4), (-1, 4), sombreado),
+
+            ('SPAN', (1, 3), (-1, 3)),
+            ('SPAN', (0, 4), (-1, 4)),
+            ('SPAN', (0, 10), (-1, 10)),
+
+            ('SPAN', (1, 12), (-1, 12)),
+            ('SPAN', (0, 13), (-1, 13)),
+
+            ('SPAN', (1, 18), (-1, 18)),
+            ('SPAN', (0, 19), (-1, 19)),
+
+            ('SPAN', (1, 23), (-1, 23)),
+            ('SPAN', (0, 24), (-1, 24)),
+
+            ('SPAN', (0, 26), (-1, 26)),
+            ('SPAN', (1, 28), (-1, 28)),
+
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE')
+        ]
+    )
+
+    table = Table(table, colWidths=(1.8*inch, 1.8*inch, 1.8*inch, 1.8*inch))
+    table.setStyle(estilo)
+    story.append(table)
+
+    story.append(Paragraph(f"Caldera registrada por {caldera.creado_por.get_full_name()} el día {caldera.creado_al.strftime('%d/%m/%Y %H:%M:%S')}.", centrar_parrafo))
+
+    if(caldera.editado_al):
+        story.append(Paragraph(f"Caldera editada por {caldera.editado_por.get_full_name()} el día {caldera.editado_al.strftime('%d/%m/%Y %H:%M:%S')}.", centrar_parrafo))
+
+    story.append(Spacer(0,60))
+
+    # SEGUNDA TABLA: COMBUSTIBLE
+    table = [
+        [
+            Paragraph("<b>DATOS DEL COMBUSTIBLE</b>", centrar_parrafo),
+        ],
+        [
+            Paragraph("<b>NOMBRE GAS</b>", centrar_parrafo),
+            Paragraph(f"{combustible.nombre_gas}", centrar_parrafo),
+        ], 
+        [
+            Paragraph("<b>NOMBRE LIQUIDO</b>", centrar_parrafo),
+            Paragraph(f"{combustible.nombre_liquido if combustible.nombre_liquido else '-'}", centrar_parrafo),
+        ],
+        
+        [
+            Paragraph(f"<b>COMPUESTO</b>", centrar_parrafo),
+            Paragraph(f"<b>% VOLUMEN</b>", centrar_parrafo),
+            Paragraph(f"<b>% AIRE</b>", centrar_parrafo),
+        ]
+    ]
+
+    for composicion in combustible.composicion_combustible_caldera.all():
+        table.append([
+            Paragraph(f"{composicion.fluido.nombre.upper()}", centrar_parrafo),
+            Paragraph(f"{composicion.porc_vol} %", centrar_parrafo),
+            Paragraph(f"{composicion.porc_aire if composicion.porc_aire else '0.00'} %", centrar_parrafo),
+        ])
+
+    estilo = TableStyle(
+        [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+
+            ('SPAN', (0, 0), (-1, 0)),
+            ('SPAN', (1, 1), (-1, 1)),
+            ('SPAN', (1, 2), (-1, 2)),
+
+            ('BACKGROUND', (0, 3), (-1, 3), sombreado),
+            ('BACKGROUND', (0, 0), (0, -1), sombreado),
+            ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+        ]
+    )
+
+    table = Table(table, colWidths=(2.4*inch, 2.4*inch, 2.4*inch))
+    table.setStyle(estilo)
+    story.append(table)
+
+    # TERCERA TABLA: CARACTERÍSTICAS
+    caracteristicas = caldera.caracteristicas_caldera.all()
+
+    if(caracteristicas.count()):
+        story.append(Spacer(0,25))
+
+        table = [
+            [
+                Paragraph("<b>CARACTERÍSTICAS DE LAS CALDERAS</b>", centrar_parrafo),
+            ],
+            [
+                Paragraph("Nombre", centrar_parrafo),
+                Paragraph("25%", centrar_parrafo),
+                Paragraph("50%", centrar_parrafo),
+                Paragraph("75%", centrar_parrafo),
+                Paragraph("100%", centrar_parrafo),
+            ],
+        ]
+
+        for caracteristica in caracteristicas:
+            table.append([
+                Paragraph(f"{caracteristica.nombre}", centrar_parrafo),
+                Paragraph(f"{caracteristica.carga_25} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
+                Paragraph(f"{caracteristica.carga_50} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
+                Paragraph(f"{caracteristica.carga_75} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
+                Paragraph(f"{caracteristica.carga_100} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
+            ])
+
+        estilo = TableStyle([
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('BACKGROUND', (0, 0), (-1, 1), sombreado),
+            ('SPAN', (0, 0), (-1, 0)),
+        ])
+
+        table = Table(table, colWidths=(2.5*inch, 1.18*inch, 1.18*inch, 1.18*inch, 1.18*inch))
+        table.setStyle(estilo)
+        story.append(table)
+    else:
+        story.append(Paragraph("No hay características adicionales registradas para esta caldera.", centrar_parrafo))
+    
+    corrientes = caldera.corrientes_caldera.all()
+
+    if(corrientes.count()):
+        story.append(Spacer(0,50))
+
+        table = [
+            [
+                Paragraph("<b>CORRIENTES DE LA CALDERA</b>", centrar_parrafo),
+            ],
+            [
+                Paragraph("#", centrar_parrafo),
+                Paragraph("NOMBRE", centrar_parrafo),
+                Paragraph("FLUJO MÁSICO", centrar_parrafo),
+                Paragraph("DENSIDAD", centrar_parrafo),
+                Paragraph("TEMPERATURA", centrar_parrafo),
+                Paragraph("PRESIÓN", centrar_parrafo),
+                Paragraph("ESTADO", centrar_parrafo),
+            ],
+        ]
+
+        for corriente in corrientes:
+            table.append([
+                Paragraph(f"{corriente.numero}", centrar_parrafo),
+                Paragraph(f"{corriente.nombre}", centrar_parrafo),
+                Paragraph(f"{corriente.flujo_masico if corriente.flujo_masico else '-'} {corriente.flujo_masico_unidad}", centrar_parrafo),
+                Paragraph(f"{corriente.densidad if corriente.densidad else '-'} {corriente.densidad_unidad}", centrar_parrafo),
+                Paragraph(f"{corriente.temp_operacion if corriente.temp_operacion else '-'} {corriente.temp_operacion_unidad}", centrar_parrafo),
+                Paragraph(f"{corriente.presion if corriente.presion else '-'} {corriente.presion_unidad}", centrar_parrafo),
+                Paragraph(f"{corriente.estado if corriente.estado else '-'}", centrar_parrafo),
+            ])
+
+        estilo = TableStyle([
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('BACKGROUND', (0, 0), (-1, 1), sombreado),
+            ('SPAN', (0, 0), (-1, 0)),
+        ])
+
+        table = Table(table, colWidths=(1*inch, 2*inch, 1*inch, 1*inch, 1.22*inch, 1*inch, 0.5*inch))
+        table.setStyle(estilo)
+        story.append(table)
+    else:
+        story.append(Paragraph("No hay corrientes registradas para esta caldera.", centrar_parrafo))
+
     return [story, None]
