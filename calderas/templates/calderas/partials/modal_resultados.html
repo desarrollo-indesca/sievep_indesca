@@ -251,7 +251,15 @@
                             <td>
                                 {{balances_energia.energia_horno|floatformat:4}} kJ/h
                             </td>
-                        </tr>                        
+                        </tr>
+                        <tr>
+                            <th class="table-dark">
+                                Energía Total Salida
+                            </th>
+                            <td colspan="3">
+                                {{balances_energia.energia_total_salida|floatformat:4}} kJ/h
+                            </td>
+                        </tr>                    
                         {% endwith %}
 
                         {% with lado_agua=evaluacion.salida_lado_agua %}

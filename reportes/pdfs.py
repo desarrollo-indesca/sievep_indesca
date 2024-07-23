@@ -228,6 +228,9 @@ def generar_historia(request, reporte, object_list):
     if reporte == 'ficha_tecnica_caldera':
         return reporte_ficha_tecnica_caldera(object_list)
 
+    if reporte == 'detalle_evaluacion_caldera':
+        return reporte_detalle_evaluacion_caldera(object_list)
+
 # GENERALES
 def reporte_equipos(request, object_list):
     '''
@@ -3035,6 +3038,12 @@ def reporte_detalle_evaluacion_caldera(evaluacion):
         Esta función genera un reporte en formato PDf del detalle de una evaluación realizada a una caldera.
         No genera gráfica.
     """
+    story = [Spacer(0,70)]
+
+    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.usuario.get_full_name()}"))
+    story.append(Paragraph(f"<b>Tag del Equipo:</b> {evaluacion.equipo.tag}"))
+    story.append(Paragraph(f"<b>ID de la Evaluación:</b> {evaluacion.id}"))
+    story.append(Spacer(0,20))
 
     entradas_fluidos = evaluacion.entradas_fluidos_caldera.all()
     entrada_gas = entradas_fluidos.get(tipo_fluido="G")
@@ -3097,22 +3106,195 @@ def reporte_detalle_evaluacion_caldera(evaluacion):
             Paragraph(f"{entrada_horno.presion if entrada_horno.presion else '-'} {entrada_horno.presion_unidad}", centrar_parrafo),
         ],
         [
-            Paragraph("AGUA", centrar_parrafo),
+            Paragraph("AGUA DE ENTRADA", centrar_parrafo),
         ],
         [
-            Paragraph("Flujo Volumétrico", centrar_parrafo),
-            Paragraph(f"{entrada_gas.flujo if entrada_gas.flujo else '-'} {entrada_gas.flujo_unidad}", centrar_parrafo),
+            Paragraph("Flujo Másico", centrar_parrafo),
+            Paragraph(f"{entrada_agua.flujo if entrada_agua.flujo else '-'} {entrada_agua.flujo_unidad}", centrar_parrafo),
         ],
         [
             Paragraph("Temperatura de Operación", centrar_parrafo),
-            Paragraph(f"{entrada_gas.temperatura if entrada_gas.temperatura else '-'} {entrada_gas.temperatura_unidad}", centrar_parrafo),
+            Paragraph(f"{entrada_agua.temperatura if entrada_agua.temperatura else '-'} {entrada_agua.temperatura_unidad}", centrar_parrafo),
         ],
         [
             Paragraph("Presión de Operación", centrar_parrafo),
-            Paragraph(f"{entrada_gas.presion if entrada_gas.presion else '-'} {entrada_gas.presion_unidad}", centrar_parrafo),
+            Paragraph(f"{entrada_agua.presion if entrada_agua.presion else '-'} {entrada_agua.presion_unidad}", centrar_parrafo),
+        ],
+        [
+            Paragraph("VAPOR PRODUCIDO", centrar_parrafo),
+        ],
+        [
+            Paragraph("Flujo Másico", centrar_parrafo),
+            Paragraph(f"{entrada_vapor.flujo if entrada_vapor.flujo else '-'} {entrada_vapor.flujo_unidad}", centrar_parrafo),
+        ],
+        [
+            Paragraph("Temperatura de Operación", centrar_parrafo),
+            Paragraph(f"{entrada_vapor.temperatura if entrada_vapor.temperatura else '-'} {entrada_vapor.temperatura_unidad}", centrar_parrafo),
+        ],
+        [
+            Paragraph("Presión de Operación", centrar_parrafo),
+            Paragraph(f"{entrada_vapor.presion if entrada_vapor.presion else '-'} {entrada_vapor.presion_unidad}", centrar_parrafo),
         ],
     ]
-    # TABLA 2: COMPOSICIONES
-    # TABLA 3: SALIDA
 
-    return [[],]
+    estilo = TableStyle([
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),  
+
+        ('BACKGROUND', (0, 0), (-1, 2), sombreado),
+        ('BACKGROUND', (0, 0), (0, -1), sombreado),
+        ('BACKGROUND', (0, 6), (-1, 6), sombreado),
+        ('BACKGROUND', (0, 11), (-1, 11), sombreado),
+        ('BACKGROUND', (0, 14), (-1, 14), sombreado),
+        ('BACKGROUND', (0, 18), (-1, 18), sombreado),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+
+        ('SPAN', (0,0), (-1,0)),
+        ('SPAN', (0,1), (-1,1)),
+        ('SPAN', (0,2), (-1,2)),
+        ('SPAN', (0,6), (-1,6)),
+        ('SPAN', (0,11), (-1,11)),
+        ('SPAN', (0,14), (-1,14)),
+        ('SPAN', (0,18), (-1,18)),
+    ])
+    table = Table(table)
+    table.setStyle(estilo)
+    story.append(table)
+    story.append(Spacer(0,35))
+
+    # TABLA 2: COMPOSICIONES
+    composiciones = evaluacion.composiciones_evaluacion.all()
+    table = [
+        [
+            Paragraph("COMPUESTO", centrar_parrafo),
+            Paragraph("% VOLUMEN", centrar_parrafo),
+            Paragraph("% AIRE", centrar_parrafo)
+        ]
+    ]
+
+    for composicion in composiciones:
+        table.append([
+            Paragraph(f"{composicion.composicion.fluido}", centrar_parrafo),
+            Paragraph(f"{composicion.parc_vol} %", centrar_parrafo),
+            Paragraph(f"{composicion.parc_aire if composicion.parc_aire else '—'} %", centrar_parrafo)
+        ])
+
+    estilo = TableStyle([
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),  
+
+        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+        ('BACKGROUND', (0, 0), (0, -1), sombreado),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+    ])
+    table = Table(table)
+    table.setStyle(estilo)
+    story.append(table)
+    story.append(Spacer(0,35))
+
+    # TABLA 3: SALIDA
+    salida_flujos = evaluacion.salida_flujos
+    salida_fracciones = evaluacion.salida_fracciones
+    salida_balance_energia = evaluacion.salida_balance_energia
+    salida_lado_agua = evaluacion.salida_lado_agua
+
+    table = [
+        [
+            Paragraph("RESULTADOS DE LA EVALUACIÓN", centrar_parrafo)
+        ],
+        [
+            Paragraph("Eficiencia de la Caldera", centrar_parrafo),
+            Paragraph(f"{round(evaluacion.eficiencia, 2)} %", centrar_parrafo)
+        ],
+
+        [
+            Paragraph("BALANCE DE MATERIALES", centrar_parrafo)
+        ],
+        [
+            Paragraph("Aire (Másico)", centrar_parrafo),
+            Paragraph(f"{round(salida_flujos.flujo_m_aire_entrada, 4)} Kg/h", centrar_parrafo),
+            Paragraph("Aire (Molar)", centrar_parrafo),
+            Paragraph(f"{round(salida_flujos.flujo_n_aire_entrada, 4)} Kg/h", centrar_parrafo)
+        ],
+        [
+            Paragraph("Gas (Másico)", centrar_parrafo),
+            Paragraph(f"{salida_flujos.flujo_m_gas_entrada} Kg/h", centrar_parrafo),
+            Paragraph("Gas (Molar)", centrar_parrafo),
+            Paragraph(f"{salida_flujos.flujo_n_gas_entrada} Kg/h", centrar_parrafo)
+        ],
+
+        [
+            Paragraph("LADO COMBUSTIÓN", centrar_parrafo)
+        ],
+        [
+            Paragraph("Flujo Volumétrico de Combustión", centrar_parrafo),
+            Paragraph(f"{round(salida_flujos.flujo_combustion_vol, 4)} m³/h", centrar_parrafo),
+            Paragraph("Flujo Másico de Combustión", centrar_parrafo),
+            Paragraph(f"{round(salida_flujos.flujo_combustion, 4)} Kg/h", centrar_parrafo)
+        ],
+        [
+            Paragraph("Oxígeno en Exceso", centrar_parrafo),
+            Paragraph(f"{round(salida_flujos.porc_o2_exceso, 2)} %", centrar_parrafo)
+        ],
+
+        [
+            Paragraph("COMPOSICIONES DEL GAS A LA SALIDA", centrar_parrafo)
+        ],
+        [
+            Paragraph("H2O", centrar_parrafo),
+            Paragraph(f"{round(salida_fracciones.h2o, 4)}", centrar_parrafo),
+            Paragraph("CO2", centrar_parrafo),
+            Paragraph(f"{round(salida_fracciones.co2, 4)}", centrar_parrafo)
+        ],
+        [
+            Paragraph("N2", centrar_parrafo),
+            Paragraph(f"{round(salida_fracciones.o2, 4)}", centrar_parrafo),
+            Paragraph("O2", centrar_parrafo),
+            Paragraph(f"{round(salida_fracciones.o2, 4)}", centrar_parrafo)
+        ],
+        [
+            Paragraph("SO2", centrar_parrafo),
+            Paragraph(f"{round(salida_fracciones.so2, 4)}", centrar_parrafo),
+        ],
+
+        [
+            Paragraph("BALANCES DE ENERGÍA", centrar_parrafo)
+        ],
+        [
+            Paragraph("Energía Entrada Gas", centrar_parrafo),
+            Paragraph(f"{round(salida_balance_energia.energia_entrada_gas, 4)} kJ/h"),
+            Paragraph("Energía Entrada Aire", centrar_parrafo),
+            Paragraph(f"{round(salida_balance_energia.energia_entrada_aire, 4)} kJ/h"),
+        ],
+        [
+            Paragraph("Energía Total Entrada", centrar_parrafo),
+            Paragraph(f"{round(salida_balance_energia.energia_total_entrada, 4)} kJ/h")
+        ],
+        [
+            Paragraph("Energía Total Reacción", centrar_parrafo),
+            Paragraph(f"{round(salida_balance_energia.energia_total_reaccion, 4)} kJ/h"),
+            Paragraph("Energía Horno", centrar_parrafo),
+            Paragraph(f"{round(salida_balance_energia.energia_horno, 4)} kJ/h"),
+        ],
+        [
+            Paragraph("Energía Total Salida", centrar_parrafo),
+            Paragraph(f"{round(salida_balance_energia.energia_total_salida, 4)} kJ/h")
+        ],
+
+        [
+            Paragraph("SALIDA LADO AGUA", centrar_parrafo)
+        ],
+        [
+            Paragraph("Flujo de Purga", centrar_parrafo),
+            Paragraph(f"{round(salida_lado_agua.flujo_purga, 4)} T/h"),
+            Paragraph("Energía de Vapor", centrar_parrafo),
+            Paragraph(f"{round(salida_lado_agua.energia_vapor, 4)} kJ/h"),
+        ]
+    ]
+
+    estilo = TableStyle([
+
+    ])
+    table = Table(table)
+    table.setStyle(estilo)
+    story.append(table)
+
+    return [story, None]

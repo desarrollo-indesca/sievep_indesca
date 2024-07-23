@@ -642,7 +642,7 @@ class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, Reporte
             return historico_evaluaciones_caldera(self.get_queryset(), request)
 
         if(request.POST.get('detalle')):
-            return generar_pdf(request, self.model.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Bomba", "detalle_evaluacion_bomba")
+            return generar_pdf(request, self.model.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Caldera", "detalle_evaluacion_caldera")
 
         return self.get(request, **kwargs)
     
@@ -814,7 +814,8 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
                     energia_entrada_aire = resultado['energia_aire_entrada'],
                     energia_total_entrada = resultado['energia_total_entrada'],
                     energia_total_reaccion = resultado['energia_total_reaccion'],
-                    energia_horno = resultado['energia_horno']
+                    energia_horno = resultado['energia_horno'],
+                    energia_total_salida = resultado['energia_total_salida']
                 )
                 
                 evaluacion = Evaluacion.objects.create(
