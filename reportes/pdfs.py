@@ -3291,7 +3291,28 @@ def reporte_detalle_evaluacion_caldera(evaluacion):
     ]
 
     estilo = TableStyle([
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),  
 
+        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+        ('BACKGROUND', (0, 0), (0, -1), sombreado),
+        ('BACKGROUND', (0, 2), (-1, 2), sombreado),
+        ('BACKGROUND', (0, 5), (-1, 5), sombreado),
+        ('BACKGROUND', (0, 8), (-1, 8), sombreado),
+        ('BACKGROUND', (0, 12), (-1, 12), sombreado),
+
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),    
+
+        ('SPAN', (0,0), (-1,0)),
+        ('SPAN', (1,1), (-1,1)),
+        ('SPAN', (0,2), (-1,2)),
+        ('SPAN', (0,5), (-1,5)),
+        ('SPAN', (1,7), (-1,7)),
+        ('SPAN', (0,8), (-1,8)),
+        ('SPAN', (1,11), (-1,11)),
+        ('SPAN', (0,12), (-1,12)),
+        ('SPAN', (0,14), (-1,14)),
+        ('SPAN', (1,16), (-1,16)),
+        ('SPAN', (0,17), (-1,17)) 
     ])
     table = Table(table)
     table.setStyle(estilo)
