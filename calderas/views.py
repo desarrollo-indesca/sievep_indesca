@@ -12,7 +12,7 @@ from django.http import JsonResponse
 from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion
 from usuarios.views import SuperUserRequiredMixin 
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import reporte_equipos
+from reportes.xlsx import reporte_equipos,historico_evaluaciones_caldera
 from .forms import *
 from .constants import COMPUESTOS_AIRE
 from .evaluacion import evaluar_caldera

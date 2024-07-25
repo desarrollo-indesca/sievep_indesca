@@ -1314,3 +1314,86 @@ def ficha_tecnica_turbina_vapor(_, turbina, request):
     workbook.close()
         
     return enviar_response(f'ficha_tecnica_turbina_vapor_{turbina.tag}', excel_io, fecha)
+
+# REPORTES DE CALDERAS
+def historico_evaluaciones_caldera(object_list, request):
+    '''
+    Resumen:
+        Función que genera el histórico XLSX de evaluaciones realizadas a un ventilador filtradas de acuerdo a lo establecido en el request.
+    '''
+    excel_io = BytesIO()
+    workbook = xlsxwriter.Workbook(excel_io)    
+    worksheet = workbook.add_worksheet()
+
+    ventilador = object_list[0].equipo
+    
+    worksheet.set_column('B:B', 20)
+    worksheet.set_column('C:C', 20)
+    worksheet.set_column('D:D', 20)
+    worksheet.set_column('E:E', 40)
+
+    bold = workbook.add_format({'bold': True})
+    bold_bordered = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'yellow'})
+    center_bordered = workbook.add_format({'border': 1})
+    bordered = workbook.add_format({'border': 1})
+    fecha =  workbook.add_format({'border': 1})
+
+    fecha.set_align('right')
+    bold_bordered.set_align('vcenter')
+    center_bordered.set_align('vcenter')
+    bold_bordered.set_align('center')
+    center_bordered.set_align('center')
+
+    worksheet.insert_image(0, 0, LOGO_PEQUIVEN, {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.write('C1', 'Reporte de Histórico de Evaluaciones', bold)
+    worksheet.insert_image(0, 4, LOGO_INDESCA, {'x_scale': 0.1, 'y_scale': 0.1})
+
+    worksheet.write('A5', 'Filtros', bold_bordered)
+    worksheet.write('B5', 'Desde', bold_bordered)
+    worksheet.write('C5', 'Hasta', bold_bordered)
+    worksheet.write('D5', 'Usuario', bold_bordered)
+    worksheet.write('E5', 'Nombre', bold_bordered)
+    worksheet.write('F5', 'Equipo', bold_bordered)
+
+    worksheet.write('B6', request.GET.get('desde', ''), center_bordered)
+    worksheet.write('C6', Planta.objects.get(pk=request.GET.get('hasta')).nombre if request.GET.get('hasta') else '', center_bordered)
+    worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('usuario')).nombre if request.GET.get('usuario') else '', center_bordered)
+    worksheet.write('E6', request.GET.get('nombre', ''), center_bordered)
+    worksheet.write('F6', ventilador.tag.upper(), center_bordered)
+    num = 8
+
+    worksheet.write(f'A{num}', '#', bold_bordered)
+    worksheet.write(f'B{num}', 'Fecha', bold_bordered)
+    worksheet.write(f'C{num}', "Eficiencia (%)", bold_bordered)
+    worksheet.write(f'D{num}', "Calor de Combustión (kJ/h)", bold_bordered)
+    worksheet.write(f'E{num}', "Calor de Vapor (kJ/h)", bold_bordered)
+    worksheet.write(f"F{num}", f"Fracción O2", bold_bordered)
+    worksheet.write(f"G{num}", f"Fracción SO2", bold_bordered)
+    worksheet.write(f"H{num}", f"Fracción N2", bold_bordered)
+    worksheet.write(f"I{num}", f"Fracción CO2", bold_bordered)
+    worksheet.write(f"J{num}", f"Fracción H2O", bold_bordered)
+
+    for i,evaluacion in enumerate(object_list):
+        fracciones = evaluacion.salida_fracciones
+        eficiencia = evaluacion.eficiencia        
+        calor_vapor = evaluacion.salida_lado_agua.energia_vapor
+        calor_combustion = evaluacion.salida_balance_energia.energia_horno
+        fecha_ev = evaluacion.fecha.strftime('%d/%m/%Y %H:%M')
+
+        num += 1
+        worksheet.write(f'A{num}', i+1, center_bordered)
+        worksheet.write(f'B{num}', fecha_ev, center_bordered)
+        worksheet.write_number(f'C{num}', eficiencia, center_bordered)
+        worksheet.write_number(f'D{num}', calor_combustion, center_bordered)
+        worksheet.write_number(f'E{num}', calor_vapor, bordered)
+        worksheet.write_number(f'F{num}', fracciones.o2, bordered)
+        worksheet.write_number(f'G{num}', fracciones.so2, bordered)
+        worksheet.write_number(f'H{num}', fracciones.n2, bordered)
+        worksheet.write_number(f'I{num}', fracciones.co2, bordered)
+        worksheet.write_number(f'J{num}', fracciones.h2o, bordered)
+
+    worksheet.write(f"J{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
+    worksheet.write(f"J{num+2}", "Generado por " + request.user.get_full_name(), fecha)
+    workbook.close()
+        
+    return enviar_response('historico_evaluaciones_caldera', excel_io, fecha)
