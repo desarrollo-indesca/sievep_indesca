@@ -3260,23 +3260,23 @@ def reporte_detalle_evaluacion_caldera(evaluacion):
         ],
         [
             Paragraph("Energía Entrada Gas", centrar_parrafo),
-            Paragraph(f"{round(salida_balance_energia.energia_entrada_gas, 4)} kJ/h"),
+            Paragraph(f"{round(salida_balance_energia.energia_entrada_gas, 4)} kJ/h", centrar_parrafo),
             Paragraph("Energía Entrada Aire", centrar_parrafo),
-            Paragraph(f"{round(salida_balance_energia.energia_entrada_aire, 4)} kJ/h"),
+            Paragraph(f"{round(salida_balance_energia.energia_entrada_aire, 4)} kJ/h", centrar_parrafo),
         ],
         [
             Paragraph("Energía Total Entrada", centrar_parrafo),
-            Paragraph(f"{round(salida_balance_energia.energia_total_entrada, 4)} kJ/h")
+            Paragraph(f"{round(salida_balance_energia.energia_total_entrada, 4)} kJ/h", centrar_parrafo)
         ],
         [
             Paragraph("Energía Total Reacción", centrar_parrafo),
-            Paragraph(f"{round(salida_balance_energia.energia_total_reaccion, 4)} kJ/h"),
+            Paragraph(f"{round(salida_balance_energia.energia_total_reaccion, 4)} kJ/h", centrar_parrafo),
             Paragraph("Energía Horno", centrar_parrafo),
-            Paragraph(f"{round(salida_balance_energia.energia_horno, 4)} kJ/h"),
+            Paragraph(f"{round(salida_balance_energia.energia_horno, 4)} kJ/h", centrar_parrafo),
         ],
         [
             Paragraph("Energía Total Salida", centrar_parrafo),
-            Paragraph(f"{round(salida_balance_energia.energia_total_salida, 4)} kJ/h")
+            Paragraph(f"{round(salida_balance_energia.energia_total_salida, 4)} kJ/h", centrar_parrafo)
         ],
 
         [
@@ -3284,9 +3284,9 @@ def reporte_detalle_evaluacion_caldera(evaluacion):
         ],
         [
             Paragraph("Flujo de Purga", centrar_parrafo),
-            Paragraph(f"{round(salida_lado_agua.flujo_purga, 4)} T/h"),
+            Paragraph(f"{round(salida_lado_agua.flujo_purga, 4)} T/h", centrar_parrafo),
             Paragraph("Energía de Vapor", centrar_parrafo),
-            Paragraph(f"{round(salida_lado_agua.energia_vapor, 4)} kJ/h"),
+            Paragraph(f"{round(salida_lado_agua.energia_vapor, 4)} kJ/h", centrar_parrafo),
         ]
     ]
 
@@ -3299,6 +3299,13 @@ def reporte_detalle_evaluacion_caldera(evaluacion):
         ('BACKGROUND', (0, 5), (-1, 5), sombreado),
         ('BACKGROUND', (0, 8), (-1, 8), sombreado),
         ('BACKGROUND', (0, 12), (-1, 12), sombreado),
+        ('BACKGROUND', (2, 3), (2, 6), sombreado),
+        ('BACKGROUND', (2, 8), (2, 10), sombreado),
+        ('BACKGROUND', (2, 12), (2, 13), sombreado),
+        ('BACKGROUND', (2, 15), (2, 15), sombreado),
+        ('BACKGROUND', (2, 17), (2, 18), sombreado),
+        ('BACKGROUND', (0, 17), (-1, 17), sombreado),
+        ('BACKGROUND', (0, 17), (-1, 17), sombreado),
 
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),    
 
@@ -3310,7 +3317,7 @@ def reporte_detalle_evaluacion_caldera(evaluacion):
         ('SPAN', (0,8), (-1,8)),
         ('SPAN', (1,11), (-1,11)),
         ('SPAN', (0,12), (-1,12)),
-        ('SPAN', (0,14), (-1,14)),
+        ('SPAN', (1,14), (-1,14)),
         ('SPAN', (1,16), (-1,16)),
         ('SPAN', (0,17), (-1,17)) 
     ])
