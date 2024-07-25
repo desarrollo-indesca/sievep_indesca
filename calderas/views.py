@@ -637,7 +637,7 @@ class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, Reporte
             return reporte_ficha
 
         if(request.POST.get('tipo') == 'pdf'):
-            return generar_pdf(request, self.get_queryset(), f"Evaluaciones de la Bomba {self.get_bomba().tag}", "evaluaciones_bombas")
+            return generar_pdf(request, self.get_queryset(), f"Evaluaciones de la Caldera {self.get_caldera(False, False).tag}", "reporte_evaluaciones_caldera")
         elif(request.POST.get('tipo') == 'xlsx'):
             return historico_evaluaciones_caldera(self.get_queryset(), request)
 

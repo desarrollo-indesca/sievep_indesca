@@ -231,6 +231,9 @@ def generar_historia(request, reporte, object_list):
     if reporte == 'detalle_evaluacion_caldera':
         return reporte_detalle_evaluacion_caldera(object_list)
 
+    if reporte == 'reporte_evaluaciones_caldera':
+        return reporte_evaluaciones_caldera(object_list, request)
+
 # GENERALES
 def reporte_equipos(request, object_list):
     '''
@@ -2638,7 +2641,6 @@ def reporte_evaluaciones_turbinas_vapor(object_list, request):
         entrada = x.entrada
         eficiencia = salida.eficiencia
         potencia, potencia_calculada = transformar_unidades_potencia([entrada.potencia_real, salida.potencia_calculada], entrada.potencia_real_unidad.pk, potencia_unidad.pk)
-        print(entrada.potencia_real)
         
         fecha = x.fecha.strftime('%d/%m/%Y %H:%M')            
 
@@ -3030,7 +3032,83 @@ def reporte_ficha_tecnica_caldera(caldera):
     return [story, None]
 
 def reporte_evaluaciones_caldera(object_list, request):
-    pass
+    '''
+    Resumen:
+        Esta función genera la historia de elementos a utilizar en el reporte de histórico de evaluaciones de una caldera.
+        Devuelve además una lista de elementos de archivos que deben ser cerrados una vez se genere el reporte.
+    '''
+    story = []
+    story.append(Spacer(0,60))
+
+    caldera = object_list[0].equipo
+    
+    # Condiciones de Filtrado
+    if(len(request.GET) >= 2 and (request.GET['desde'] or request.GET['hasta'] or request.GET['usuario'] or request.GET['nombre'])):
+        story.append(Paragraph("Datos de Filtrado", centrar_parrafo))
+        table = [[Paragraph("Desde", centrar_parrafo), Paragraph("Hasta", centrar_parrafo), Paragraph("Usuario", centrar_parrafo), Paragraph("Nombre Ev.", centrar_parrafo)]]
+        table.append([
+            Paragraph(request.GET.get('desde'), parrafo_tabla),
+            Paragraph(request.GET.get('hasta'), parrafo_tabla),
+            Paragraph(request.GET.get('usuario'), parrafo_tabla),
+            Paragraph(request.GET.get('nombre'), parrafo_tabla),
+        ])
+
+        table = Table(table)
+        table.setStyle(basicTableStyle)
+
+        story.append(table)
+        story.append(Spacer(0,7))
+    
+    # Primera tabla: Evaluaciones
+    table = [
+        [
+            Paragraph(f"Fecha", centrar_parrafo),
+            Paragraph(f"Calor Vapor (kJ/h)", centrar_parrafo),
+            Paragraph(f"Calor Combustión (kJ/h)", centrar_parrafo),
+            Paragraph(f"Eficiencia (%)", centrar_parrafo),
+        ]
+    ]
+
+    eficiencias = []
+    calores_vapor = []
+    calores_combustion = []
+    fechas = []
+
+    object_list = object_list.order_by('fecha')
+    for evaluacion in object_list:
+        eficiencia = evaluacion.eficiencia
+        calor_combustion = evaluacion.salida_balance_energia.energia_horno
+        calor_vapor = evaluacion.salida_lado_agua.energia_vapor
+        
+        fecha = evaluacion.fecha.strftime('%d/%m/%Y %H:%M')            
+
+        eficiencias.append(eficiencia)
+        calores_vapor.append(calor_vapor)
+        calores_combustion.append(calor_combustion)
+        fechas.append(fecha)
+            
+        table.append([Paragraph(fecha, centrar_parrafo), Paragraph(str(round(calor_vapor, 4)), centrar_parrafo), 
+                      Paragraph(str(round(calor_combustion, 4)), centrar_parrafo), Paragraph(str(round(eficiencia, 2)), 
+                      centrar_parrafo)])
+        
+    table = Table(table, colWidths=[1.8*inch, 1.8*inch, 1.8*inch, 1.8*inch])
+    table.setStyle(basicTableStyle)
+    story.append(table)
+    
+    sub = "Fechas" # Subtítulo de las evaluaciones
+    if(len(fechas) >= 5):
+        fechas = list(range(1,len(fechas)+1))
+        sub = "Evaluaciones"
+
+    # Generación de Gráficas históricas. Todas las magnitudes deben encontrarse en la misma unidad.
+    if(len(object_list) > 1):
+        story, grafica1 = anadir_grafica(story, eficiencias, fechas, sub, "Eficiencia", "Eficiencias (%)")
+        story, grafica2 = anadir_grafica(story, calores_vapor, fechas, sub, "Calores de Vapor", "Calores de Vapor")
+        story, grafica3 = anadir_grafica(story, calores_combustion, fechas, sub, "Calores de Combustión", f"Calores de Combustión")
+
+        return [story, [grafica1, grafica2, grafica3]]    
+    
+    return [story, None]
 
 def reporte_detalle_evaluacion_caldera(evaluacion):
     """
