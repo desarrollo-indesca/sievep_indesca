@@ -1574,8 +1574,60 @@ def ficha_tecnica_caldera(caldera, request):
         num4 += 1
 
     # TABLA 3: CARACTERÍSTICAS SEGUN LA CARGA
+    num5 = num4 + 2
+
+    worksheet.write(f'A{num5}', 'Característica', identificacion)
+    worksheet.write(f'B{num5}', 'Unidad', identificacion)
+    worksheet.write(f'C{num5}', '25%', identificacion)
+    worksheet.write(f'D{num5}', '50%', identificacion)
+    worksheet.write(f'E{num5}', '75%', identificacion)
+    worksheet.write(f'F{num5}', '100%', identificacion)
+
+    num6 = num5 + 1
+    caracteristicas = caldera.caracteristicas_caldera
+
+    for caracteristica in caracteristicas.all():
+        worksheet.write(f'A{num6}', caracteristica.nombre, center_bordered)
+        worksheet.write(f'B{num6}', caracteristica.unidad.simbolo if caracteristica.unidad else '%', center_bordered)
+        worksheet.write(f'C{num6}', caracteristica.carga_25, center_bordered)
+        worksheet.write(f'D{num6}', caracteristica.carga_50, center_bordered)
+        worksheet.write(f'E{num6}', caracteristica.carga_75, center_bordered)
+        worksheet.write(f'F{num6}', caracteristica.carga_100, center_bordered)
+
+        num6 += 1
 
     # TABLA 4: CORRIENTES
+    num7 = num6 + 2
+
+    worksheet.write(f'A{num7}', '#', identificacion)
+    worksheet.write(f'B{num7}', 'Nombre', identificacion)
+    worksheet.write(f'C{num7}', 'Flujo Másico', identificacion)
+    worksheet.write(f'D{num7}', 'Densidad', identificacion)
+    worksheet.write(f'E{num7}', 'Temp. Operación', identificacion)
+    worksheet.write(f'F{num7}', 'Presión', identificacion)
+    worksheet.write(f'G{num7}', 'Estado', identificacion)
+
+    num8 = num7 + 1
+    corrientes = caldera.corrientes_caldera
+
+    for corriente in corrientes.all():
+        worksheet.write(f'A{num8}', corriente.numero, center_bordered)
+        worksheet.write(f'B{num8}', corriente.nombre, center_bordered)
+        worksheet.write(f'C{num8}', corriente.flujo_masico, center_bordered)
+        worksheet.write(f'D{num8}', corriente.densidad, center_bordered)
+        worksheet.write(f'E{num8}', corriente.temp_operacion, center_bordered)
+        worksheet.write(f'F{num8}', corriente.presion, center_bordered)
+        worksheet.write(f'G{num8}', corriente.estado, center_bordered)
+
+        num8 += 1
+
+    worksheet.write(f'F{11}', "Identificación", identificacion)
+    worksheet.write(f'G{11}', "Especificaciones", especificaciones_estilo)
+    worksheet.write(f'H{11}', "Dimensiones", dimensiones_estilo)
+    worksheet.write(f'I{11}', "Tambor", tambor_estilo)
+    worksheet.write(f'J{11}', "Sobrecalentador", sobrecalentador_estilo)
+    worksheet.write(f'K{11}', "Chimenea", chimenea_estilo)
+    worksheet.write(f'L{11}', "Economizador", economizador_estilo)
 
     workbook.close()
         
