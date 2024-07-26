@@ -1550,6 +1550,28 @@ def ficha_tecnica_caldera(caldera, request):
     num += 1
 
     # TABLA 2: COMPOSICIÓN COMBUSTIBLE
+    num3 = num2 + 2
+    combustible = caldera.combustible
+
+    worksheet.write(f'A{num3}', 'Combustible Gas', identificacion)
+    worksheet.write(f'B{num3}', combustible.nombre_gas, center_bordered)
+    num3 += 1
+    
+    worksheet.write(f'A{num3}', 'Combustible Líquido', identificacion)
+    worksheet.write(f'B{num3}', combustible.nombre_liquido, center_bordered)
+
+    num3 += 2
+    num4 = num3 + 1
+
+    worksheet.write(f'A{num3}', 'Compuesto', identificacion)
+    worksheet.write(f'B{num3}', '% Volumen', identificacion)
+    worksheet.write(f'C{num3}', '% Aire', identificacion)
+
+    for composicion in combustible.composicion_combustible_caldera.all():
+        worksheet.write(f'A{num4}', composicion.fluido.nombre.upper(), center_bordered)
+        worksheet.write(f'B{num4}', composicion.porc_vol, center_bordered)
+        worksheet.write(f'C{num4}', composicion.porc_aire, center_bordered)
+        num4 += 1
 
     # TABLA 3: CARACTERÍSTICAS SEGUN LA CARGA
 
