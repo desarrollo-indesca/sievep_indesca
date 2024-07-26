@@ -2837,7 +2837,7 @@ def reporte_ficha_tecnica_caldera(caldera):
         [
             Paragraph(f"Diámetro Tubos ({economizador.diametro_unidad})", centrar_parrafo),
             Paragraph(f"{economizador.diametro_tubos if economizador.diametro_tubos else '-'}", centrar_parrafo),
-            Paragraph(f"Altura ({economizador.area_unidad})", centrar_parrafo),
+            Paragraph(f"Área Transf. ({economizador.area_unidad})", centrar_parrafo),
             Paragraph(f"{economizador.area_total_transferencia if economizador.area_total_transferencia else '-'}", centrar_parrafo),
         ],
         [

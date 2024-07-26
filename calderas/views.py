@@ -12,7 +12,7 @@ from django.http import JsonResponse
 from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion
 from usuarios.views import SuperUserRequiredMixin 
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import reporte_equipos,historico_evaluaciones_caldera
+from reportes.xlsx import reporte_equipos, historico_evaluaciones_caldera, ficha_tecnica_caldera
 from .forms import *
 from .constants import COMPUESTOS_AIRE
 from .evaluacion import evaluar_caldera
@@ -94,14 +94,6 @@ class ReportesFichasCalderasMixin():
                 return generar_pdf(request,caldera, f"Ficha Técnica de la Caldera {caldera.tag}", "ficha_tecnica_caldera")
             if(request.POST.get('tipo') == 'xlsx'):
                 return ficha_tecnica_caldera(caldera, request)
-            
-        if(request.POST.get('instalacion')): # FICHA DE INSTALACIÓN
-            caldera = Caldera.objects.get(pk = request.POST.get('instalacion'))
-            if(request.POST.get('tipo') == 'pdf'):
-                return generar_pdf(request,caldera, f"Ficha de Instalación de la caldera {caldera.tag}", "ficha_instalacion_caldera")
-            
-            if(request.POST.get('tipo') == 'xlsx'):
-                return ficha_instalacion_caldera(caldera,request)
 
 # VISTAS DE CALDERAS
 

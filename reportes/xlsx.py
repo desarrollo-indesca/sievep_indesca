@@ -1397,3 +1397,164 @@ def historico_evaluaciones_caldera(object_list, request):
     workbook.close()
         
     return enviar_response('historico_evaluaciones_caldera', excel_io, fecha)
+
+def ficha_tecnica_caldera(caldera, request):
+    '''
+    Resumen:
+        Función que genera los datos de ficha técnica de una caldera en formato XLSX.
+    '''
+    excel_io = BytesIO()
+    workbook = xlsxwriter.Workbook(excel_io)
+    
+    worksheet = workbook.add_worksheet()
+
+    bold = workbook.add_format({'bold': True})
+    identificacion = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'yellow'})
+    especificaciones_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'red'})
+    dimensiones_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'cyan'})
+    tambor_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'green'})
+    sobrecalentador_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'pink'})
+    chimenea_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'purple'})
+    economizador_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'grey'})
+
+    center_bordered = workbook.add_format({'border': 1})
+    fecha =  workbook.add_format({'border': 1})
+
+    fecha.set_align('right')
+    identificacion.set_align('vcenter')
+    center_bordered.set_align('vcenter')
+    identificacion.set_align('center')
+    center_bordered.set_align('center')
+
+    worksheet.insert_image(0, 0, LOGO_PEQUIVEN, {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.write('C1', f'Ficha Técnica Caldera {caldera.tag}', bold)
+    worksheet.insert_image(0, 7, LOGO_INDESCA, {'x_scale': 0.1, 'y_scale': 0.1})
+
+    num = 6
+    num2 = num + 1
+
+    especificaciones = caldera.especificaciones
+    dimensiones = caldera.dimensiones
+    tambor = caldera.tambor
+    chimenea = caldera.chimenea
+    economizador = caldera.economizador
+    sobrecalentador = caldera.sobrecalentador
+
+    worksheet.write(f'A{num}', 'Tag', identificacion)
+    worksheet.write(f'B{num}', 'Complejo', identificacion)
+    worksheet.write(f'C{num}', 'Planta', identificacion)
+    worksheet.write(f'D{num}', 'Fabricante', identificacion)
+    worksheet.write(f'E{num}', 'Modelo', identificacion)
+    worksheet.write(f'F{num}', 'Descripción', identificacion)
+    worksheet.write(f'G{num}', 'Tipo', identificacion)
+    worksheet.write(f'H{num}', 'Accesorios', identificacion)
+
+    worksheet.write(f'A{num2}', caldera.tag, center_bordered)
+    worksheet.write(f'B{num2}', caldera.planta.complejo.nombre, center_bordered)
+    worksheet.write(f'C{num2}', caldera.planta.nombre, center_bordered)
+    worksheet.write(f'D{num2}', caldera.fabricante, center_bordered)
+    worksheet.write(f'E{num2}', caldera.modelo, center_bordered)
+    worksheet.write(f'F{num2}', caldera.descripcion, center_bordered)
+    worksheet.write(f'G{num2}', caldera.tipo_caldera, center_bordered)
+    worksheet.write(f'H{num2}', caldera.accesorios, center_bordered)
+
+    # ESPECIFICACIONES DE LA CALDERA
+    worksheet.write(f'I{num}', f'Material', especificaciones_estilo)
+    worksheet.write(f'J{num}', f'Área Transf. Calor ({especificaciones.area_unidad})', especificaciones_estilo)
+    worksheet.write(f'K{num}', f'Calor Intercambiado ({especificaciones.calor_unidad})', especificaciones_estilo)
+    worksheet.write(f'L{num}', f'Capacidad ({especificaciones.capacidad_unidad})', especificaciones_estilo)
+    worksheet.write(f'M{num}', f'Temp. Diseño ({especificaciones.temperatura_unidad})', especificaciones_estilo)
+    worksheet.write(f'N{num}', f'Temp. Operación ({especificaciones.temperatura_unidad})', especificaciones_estilo)
+    worksheet.write(f'O{num}', f'Presión Diseño ({especificaciones.temperatura_unidad})', especificaciones_estilo)
+    worksheet.write(f'P{num}', f'Presión Operación ({especificaciones.temperatura_unidad})', especificaciones_estilo)
+    worksheet.write(f'Q{num}', f'Carga ({especificaciones.carga_unidad})', especificaciones_estilo)
+    worksheet.write(f'R{num}', f'Eficiencia (%)', especificaciones_estilo)
+
+    worksheet.write(f'I{num2}', especificaciones.material, center_bordered)
+    worksheet.write(f'J{num2}', especificaciones.area_transferencia_calor, center_bordered)
+    worksheet.write(f'K{num2}', especificaciones.calor_intercambiado, center_bordered)
+    worksheet.write(f'L{num2}', especificaciones.capacidad, center_bordered)
+    worksheet.write(f'M{num2}', especificaciones.temp_diseno, center_bordered)
+    worksheet.write(f'N{num2}', especificaciones.temp_operacion, center_bordered)
+    worksheet.write(f'O{num2}', especificaciones.presion_diseno, center_bordered)
+    worksheet.write(f'P{num2}', especificaciones.presion_operacion, center_bordered)
+    worksheet.write(f'Q{num2}', especificaciones.carga, center_bordered)
+    worksheet.write(f'R{num2}', especificaciones.eficiencia_termica, center_bordered)
+
+    # DIMENSIONES
+    worksheet.write(f'S{num}', f'Ancho ({dimensiones.dimensiones_unidad})', dimensiones_estilo)
+    worksheet.write(f'T{num}', f'Alto ({dimensiones.dimensiones_unidad})', dimensiones_estilo)
+    worksheet.write(f'U{num}', f'Largo ({dimensiones.dimensiones_unidad})', dimensiones_estilo)
+
+    worksheet.write(f'S{num2}', dimensiones.ancho, center_bordered)
+    worksheet.write(f'T{num2}', dimensiones.alto, center_bordered)
+    worksheet.write(f'U{num2}', dimensiones.largo, center_bordered)
+
+    # TAMBOR
+    worksheet.write(f'V{num}', f'Presión Operación ({tambor.presion_unidad})', tambor_estilo)
+    worksheet.write(f'W{num}', f'Presión Diseño ({tambor.presion_unidad})', tambor_estilo)
+    worksheet.write(f'X{num}', f'Temp. Diseño ({tambor.temperatura_unidad})', tambor_estilo)
+    worksheet.write(f'Y{num}', f'Temp. Operación ({tambor.temperatura_unidad})', tambor_estilo)
+    worksheet.write(f'Z{num}', f'Material', tambor_estilo)
+
+    worksheet.write(f'V{num2}', tambor.presion_operacion, center_bordered)
+    worksheet.write(f'W{num2}', tambor.presion_diseno, center_bordered)
+    worksheet.write(f'X{num2}', tambor.temp_diseno, center_bordered)
+    worksheet.write(f'Y{num2}', tambor.temp_operacion, center_bordered)
+    worksheet.write(f'Z{num2}', tambor.material, center_bordered)
+
+    tambor_superior = tambor.secciones_tambor.get(seccion="S")
+    tambor_inferior = tambor.secciones_tambor.get(seccion="I")
+
+    worksheet.write(f'AA{num}', f'Diámetro Sup. ({tambor_superior.dimensiones_unidad})', tambor_estilo)
+    worksheet.write(f'AB{num}', f'Longitud Sup. ({tambor_superior.dimensiones_unidad})', tambor_estilo)
+    worksheet.write(f'AC{num}', f'Diámetro Inf. ({tambor_inferior.dimensiones_unidad})', tambor_estilo)
+    worksheet.write(f'AD{num}', f'Longitud Inf. ({tambor_inferior.dimensiones_unidad})', tambor_estilo)
+
+    worksheet.write(f'AA{num2}', tambor_superior.diametro, center_bordered)
+    worksheet.write(f'AB{num2}', tambor_superior.longitud, center_bordered)
+    worksheet.write(f'AC{num2}', tambor_inferior.diametro, center_bordered)
+    worksheet.write(f'AD{num2}', tambor_inferior.longitud, center_bordered)
+
+    dims_sobrecalentador = sobrecalentador.dims 
+    worksheet.write(f'AE{num}', f'Presión Operación ({sobrecalentador.presion_unidad})', sobrecalentador_estilo)
+    worksheet.write(f'AF{num}', f'Presión Diseño ({sobrecalentador.presion_unidad})', sobrecalentador_estilo)
+    worksheet.write(f'AG{num}', f'Temp. Operación ({sobrecalentador.temperatura_unidad})', sobrecalentador_estilo)
+    worksheet.write(f'AH{num}', f'Flujo Máx. Continuo ({sobrecalentador.flujo_unidad})', sobrecalentador_estilo)
+    worksheet.write(f'AI{num}', f'Diámetro ({dims_sobrecalentador.diametro_unidad})', sobrecalentador_estilo)
+    worksheet.write(f'AJ{num}', f'Área Total Transf. ({dims_sobrecalentador.area_unidad})', sobrecalentador_estilo)
+    worksheet.write(f'AI{num}', f'Número de Tubos', sobrecalentador_estilo)
+    
+    worksheet.write(f'AE{num2}', sobrecalentador.presion_operacion, center_bordered)
+    worksheet.write(f'AF{num2}', sobrecalentador.presion_diseno, center_bordered)
+    worksheet.write(f'AG{num2}', sobrecalentador.temp_operacion, center_bordered)
+    worksheet.write(f'AH{num2}', sobrecalentador.flujo_max_continuo, center_bordered)
+    worksheet.write(f'AI{num2}', dims_sobrecalentador.diametro_tubos, center_bordered)
+    worksheet.write(f'AJ{num2}', dims_sobrecalentador.area_total_transferencia, center_bordered)
+    worksheet.write(f'AI{num2}', dims_sobrecalentador.num_tubos, center_bordered)
+
+    worksheet.write(f'AJ{num}', f'Diámetro ({chimenea.dimensiones_unidad})', chimenea_estilo)
+    worksheet.write(f'AK{num}', f'Altura ({chimenea.dimensiones_unidad})', chimenea_estilo)
+
+    worksheet.write(f'AJ{num2}', chimenea.diametro, center_bordered)
+    worksheet.write(f'AK{num2}', chimenea.altura, center_bordered)
+
+    worksheet.write(f'AL{num}', f'Diámetro ({economizador.diametro_unidad})', economizador_estilo)
+    worksheet.write(f'AM{num}', f'Área Total Transf. ({economizador.area_unidad})', economizador_estilo)
+    worksheet.write(f'AN{num}', f'Número de Tubos', economizador_estilo)
+
+    worksheet.write(f'AL{num2}', economizador.diametro_tubos, center_bordered)
+    worksheet.write(f'AM{num2}', economizador.area_total_transferencia, center_bordered)
+    worksheet.write(f'AN{num2}', economizador.numero_tubos, center_bordered)
+
+    num += 1
+
+    # TABLA 2: COMPOSICIÓN COMBUSTIBLE
+
+    # TABLA 3: CARACTERÍSTICAS SEGUN LA CARGA
+
+    # TABLA 4: CORRIENTES
+
+    workbook.close()
+        
+    return enviar_response(f'ficha_tecnica_caldera_{caldera.tag}', excel_io, fecha)
