@@ -674,6 +674,41 @@ class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, Reporte
         return context
 
 class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
+    """
+    Resumen:
+        Viste que contiene toda la lógica para la creación de evaluaciones de calderas en el sistema.
+        Solo pueden ingresar superusuarios.
+        Utiliza las queries optimizadas para los datos de calderas a que puede verse la ficha técnica desde esta vista.
+
+    Métodos:
+        make_forms(self, caldera, composiciones, corrientes)
+            Inicializa los formularios a ser cargados en el contexto.
+
+        get_context_data(self, **kwargs)
+            Crea el contexto inicial para la vista.
+
+        get(self, *args, **kwargs)
+            Renderización de la plantilla.
+
+        def evaluar(self)
+            Proceso para los resultados a partir de los datos de entrada del request.
+
+        def almacenamiento_fallido(self)
+            Retorna la plantilla en caso de que el almacenamiento falle.
+
+        def almacenamiento_exitoso(self)
+            Retorna la plantilla en caso de que el almacenamiento sea exitoso.
+
+        def almacenar(self)
+            Proceso de almacenamiento en base de datos de los formularios enviados.
+
+        def calcular_resultados(self)
+            Método para calcular los resultados y transformar las unidades del request.
+
+        def post(self, request, pk, *args, **kwargs)
+            Función llamada al realizar una solicitud POST.
+    """
+
     def make_forms(self, caldera, composiciones, corrientes):
         formset_composicion = [
             {
@@ -926,6 +961,11 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
 
 # VISTAS PARA LA GENERACIÓN DE PLANTILLAS PARCIALES
 def unidades_por_clase(request):
+    """
+    Resumen:
+        Filtrado de unidades por clase. Es una vista HTMX.
+    """
+
     return render(request, 'calderas/partials/unidades_por_clase.html', context={
         'unidades': Unidades.objects.filter(
             tipo = request.GET.get('clase')
@@ -934,6 +974,10 @@ def unidades_por_clase(request):
     })
 
 def grafica_historica_calderas(request, pk):
+    """
+    Resumen:
+        Datos de la gráfica histórica de las evaluaciones en formato JSON.
+    """
     caldera = Caldera.objects.get(pk=pk)
     evaluaciones = Evaluacion.objects.filter(activo = True, equipo = caldera) \
         .select_related('salida_balance_energia', 'salida_fracciones', 'salida_lado_agua').order_by('fecha')
