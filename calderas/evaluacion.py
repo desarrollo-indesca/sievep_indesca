@@ -85,6 +85,18 @@ PESOS_MOLECULARES = {
 R = 8.3145e-5
 
 def obtener_moles_reaccion(composicion: list):
+    """
+    Resumen:
+        Calcula los moles de los compuestos resultantes de la reaccion quimica en la caldera.
+
+    Parametros:
+        composicion : list
+            Lista de diccionarios, donde cada diccionario tiene la estructura {'compuesto':objeto_compuesto, 'x_vol': valor_moles}
+
+    Devuelve:
+        list
+            Lista con dos elementos. El primero es un diccionario donde las llaves son los CAS de los compuestos resultantes de la reaccion y los valores son los moles de cada compuesto. El segundo elemento es el calor especifico del gas resultante de la reaccion.
+    """
     n = {}
     especifico = 0
     calor_calculado = False
@@ -98,16 +110,25 @@ def obtener_moles_reaccion(composicion: list):
             if(not calor_calculado):
                 especifico += compuesto['x_vol'] * CALORES_COMBUSTION[cas]
 
-            print(f"X_VOL = {compuesto['x_vol']}, COMP = {compuesto['compuesto'].name}, CALOR = {CALORES_COMBUSTION[cas]}")
-
         n[COMPUESTOS_RESULTANTES_COMBUSTION[i]] = moles
         calor_calculado = True
 
     return [n, especifico]
 
 def normalizar_composicion(composicion: list):
+    """
+    Resumen:
+        Normaliza la composicion de los compuestos del combustible la caldera.
+
+    Parametros:
+        composicion : list
+            Lista de diccionarios, donde cada diccionario tiene la estructura {'fluido':objeto_fluido, 'porc_vol': porcentaje_volumen, 'porc_aire': porcentaje_aire}
+
+    Devuelve:
+        list
+            Lista de diccionarios normalizados, donde cada diccionario tiene la estructura {'compuesto':objeto_compuesto, 'x_vol': valor_moles_normalizado, 'x_aire': valor_moles_aire_normalizado}
+    """
     composicion_normalizada = {}
-    print(composicion)
     total_vol = sum([float(comp['porc_vol']) for comp in composicion])
     total_aire = sum([float(comp['porc_aire']) for comp in composicion if comp['porc_aire']])
 
@@ -122,18 +143,44 @@ def normalizar_composicion(composicion: list):
     return composicion_normalizada
 
 def calcular_h(presion: float, temperatura: float, composicion: list):
+    """
+    Resumen:
+        Calcula las entalpias de los compuestos del gas de combustion.
+
+    Parametros:
+        presion : float
+            Presion del gas de combustion [Pa]
+        temperatura : float
+            Temperatura del gas de combustion [K]
+        composicion : list
+            Lista de diccionarios, donde cada diccionario tiene la estructura {'compuesto':objeto_compuesto, 'x_vol': valor_moles}
+
+    Devuelve:
+        dict
+            Diccionario donde las llaves son los CAS de los compuestos y los valores son las entalpias de cada compuesto [J/mol]
+    """
     entalpias = {}
     for comp in composicion:
         cas = comp['compuesto'].CAS
         entalpias[cas] = CP.PropsSI('H', 'P', presion, 'T', temperatura, COMPUESTOS_COOLPROP[cas]) 
 
-        print(f"{comp['compuesto'].name} = {entalpias[cas]}")
-    
-    print("=========================")
-
     return entalpias
 
 def calcular_calores_gas(composicion, h):
+    """
+    Resumen:
+        Calcula el calor especifico y el promedio de masa molecular del gas de combustion.
+
+    Parametros:
+        composicion : list
+            Lista de diccionarios, donde cada diccionario tiene la estructura {'compuesto':objeto_compuesto, 'x_vol': valor_moles}
+        h : dict
+            Diccionario donde las llaves son los CAS de los compuestos y los valores son las entalpias de cada compuesto [J/mol]
+
+    Devuelve:
+        tuple
+            Tupla con dos elementos. El primer elemento es el calor especifico del gas de combustion [J/kgK]. El segundo elemento es el promedio de masa molecular del gas de combustion [kg/mol]
+    """
     calor_especifico = 0.0
     pm_gas_promedio = 0.0
 
@@ -142,9 +189,26 @@ def calcular_calores_gas(composicion, h):
         calor_especifico += comp['x_vol'] * h[compuesto.CAS] * PESOS_MOLECULARES[compuesto.CAS]
         pm_gas_promedio += comp['x_vol'] * PESOS_MOLECULARES[compuesto.CAS]
 
-    return calor_especifico, pm_gas_promedio
+    return (calor_especifico, pm_gas_promedio)
 
-def calcular_calores_aire(composiciones, h, temperatura_aire, presion_aire, humedad_relativa_aire):
+def calcular_calores_aire(h, temperatura_aire, presion_aire, humedad_relativa_aire):
+    """
+    Calcula el calor especifico y el promedio de masa molecular del aire de combustion.
+
+    Parametros:
+        h : dict
+            Diccionario donde las llaves son los CAS de los compuestos y los valores son las entalpias de cada compuesto [J/mol]
+        temperatura_aire : float
+            Temperatura del aire de combustion [K]
+        presion_aire : float
+            Presion del aire de combustion [Pa]
+        humedad_relativa_aire : float
+            Humedad relativa del aire de combustion [%]
+
+    Devuelve:
+        tuple
+            Tupla con tres elementos. El primer elemento es el calor especifico del aire de combustion [J/kgK]. El segundo elemento es el promedio de masa molecular del aire de combustion [kg/mol]. El tercero es la composición del aire húmedo.
+    """
     C1 = 73.649
     C2 = -7258.2
     C3 = -7.6037
@@ -154,14 +218,11 @@ def calcular_calores_aire(composiciones, h, temperatura_aire, presion_aire, hume
     p_h2o = (math.e**(C1 + C2/(temperatura_aire) + C3*math.log(temperatura_aire)+C4*math.pow(temperatura_aire,C5)))/100000
     x_h2o = humedad_relativa_aire/100*(p_h2o/(presion_aire))
 
-    print(x_h2o)
     aire_humedo = [
         0.21*(1-x_h2o),
         0.79*(1-x_h2o),
         x_h2o
     ]
-
-    print(p_h2o, x_h2o)
 
     calor_especifico = 0.0
     pm_aire_promedio = 0.0
@@ -177,6 +238,27 @@ def calcular_calores_aire(composiciones, h, temperatura_aire, presion_aire, hume
 def calcular_n_total_salida(n: list, composicion: list,
                             n_gas_entrada: float, calores_horno: list,
                             n_aire_entrada: float, aire_humedo: list):
+    """
+    Calcula el valor total de las fracciones molares de los gases salientes de la caldera.
+
+    Parametros:
+        n : dict
+            Diccionario con las fracciones molares de los compuestos de los gases de combustión. Las llaves son los CAS de los compuestos y los valores son las fracciones molares de cada compuesto.
+        composicion : dict
+            Diccionario con la composición de los compuestos de los gases de combustión. Las llaves son los CAS de los compuestos y los valores son los diccionarios de composición.
+        n_gas_entrada : float
+            Cantidad de gases de combustión entrantes [m3/s].
+        calores_horno : dict
+            Diccionario con los calores especificos de cada compuesto de los gases de combustión. Las llaves son los CAS de los compuestos y los valores son los calores especificos.
+        n_aire_entrada : float
+            Cantidad de aire de combustion entrantes [m3/s].
+        aire_humedo : list
+            Lista con las fracciones molares del aire húmedo. El primer elemento representa la fraccion molar de nitrogeno, el segundo elemento representa la fraccion molar de oxigeno y el tercer elemento representa la fraccion molar de agua.
+
+    Devuelve:
+        tuple
+            Tupla con tres elementos. El primer elemento es la suma de las entalpias de los gases salientes [kJ/s]. El segundo elemento es la suma de las fracciones molares molares de los gases salientes. El tercero es el porcentaje de exceso de oxigeno.
+    """
     entalpias = []
 
     x_co2 = (n['124-38-9']+composicion['124-38-9']['x_vol'])*n_gas_entrada
@@ -188,12 +270,10 @@ def calcular_n_total_salida(n: list, composicion: list,
     x_n2 = n_aire_entrada*aire_humedo[1]+composicion['7727-37-9']['x_vol']*n_gas_entrada
     entalpias.append(x_n2*PESOS_MOLECULARES['7727-37-9']*calores_horno['7727-37-9']/1000)
 
-    print(n_aire_entrada)
     x_o2_entrada = n_aire_entrada*aire_humedo[0]
     x_o2_reaccion = n_gas_entrada*n['7782-44-7']
     x_o2 = x_o2_entrada-x_o2_reaccion
     entalpias.append(x_o2*PESOS_MOLECULARES['7782-44-7']*calores_horno['7782-44-7']/1000)
-    print(x_o2, x_o2_reaccion)
     o2_exceso = x_o2/x_o2_reaccion*100
 
     x_h2o_aire = n_aire_entrada*aire_humedo[2]
@@ -220,7 +300,31 @@ def evaluar_caldera(flujo_gas: float, temperatura_gas: float, presion_gas: float
                     presion_horno: float, flujo_agua: float, temperatura_agua: float,
                     presion_agua: float, flujo_vapor: float, temperatura_vapor: float,
                     presion_vapor: float, composiciones_combustible: list):
-    
+    """
+    Evalúa la caldera utilizando los parámetros de entrada.
+
+    Args:
+        flujo_gas (float): Flujo de gas en m³/h.
+        temperatura_gas (float): Temperatura de gas en K.
+        presion_gas (float): Presión de gas en bar.
+        flujo_aire (float): Flujo de aire en m³/h.
+        temperatura_aire (float): Temperatura de aire en K.
+        presion_aire (float): Presión de aire en bar.
+        humedad_relativa_aire (float): Humedad relativa del aire en %.
+        temperatura_horno (float): Temperatura del horno en K.
+        presion_horno (float): Presión del horno en bar.
+        flujo_agua (float): Flujo de agua en m³/h.
+        temperatura_agua (float): Temperatura del agua en K.
+        presion_agua (float): Presión del agua en bar.
+        flujo_vapor (float): Flujo de vapor en m³/h.
+        temperatura_vapor (float): Temperatura del vapor en K.
+        presion_vapor (float): Presión del vapor en bar.
+        composiciones_combustible (list): Lista de composiciones de combustible.
+
+    Returns:
+        dict: Devuelve un diccionario con los valores de la evaluación de la caldera.
+    """
+
     composicion_normalizada = normalizar_composicion(composiciones_combustible)
 
     compuestos_combustion = [compuesto for compuesto in composicion_normalizada.values() if compuesto['compuesto'].CAS in COMPUESTOS_COMBUSTION]
@@ -242,8 +346,7 @@ def evaluar_caldera(flujo_gas: float, temperatura_gas: float, presion_gas: float
     mgas_entrada = ngas_entrada*pm_promedio #kmol/h
     energia_gas_entrada = ngas_entrada*calor_gas_especifico/1000
 
-    calor_aire_especifico, pm_aire_promedio, aire_humedo = calcular_calores_aire(composicion_normalizada,
-                                                                        h_aire, temperatura_aire, 
+    calor_aire_especifico, pm_aire_promedio, aire_humedo = calcular_calores_aire(h_aire, temperatura_aire, 
                                                                         presion_aire, humedad_relativa_aire)
    
     naire_entrada = flujo_aire*3600*((presion_aire/100000)/(R*temperatura_aire))/1000 # kg/h
@@ -265,7 +368,7 @@ def evaluar_caldera(flujo_gas: float, temperatura_gas: float, presion_gas: float
     
     flujo_purga = (flujo_agua - flujo_vapor)*3600/1000 # T/h
 
-    energia_vapor = (flujo_vapor*h_vapor - flujo_agua*h_agua + flujo_vapor*2.44346*1e6)*3600/1000
+    energia_vapor = (flujo_vapor*h_vapor - flujo_agua*h_agua + flujo_vapor*2.44346*1e6)*3600/1000 # kJ/h
 
     eficiencia = abs(energia_vapor/energia_horno) * 100
 
