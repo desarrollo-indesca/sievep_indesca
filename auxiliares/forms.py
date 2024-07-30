@@ -285,15 +285,6 @@ class EspecificacionesVentiladorForm(FormConUnidades):
     Resumen:
         Form para el registro de los datos de especificaciones técnicas de un ventilador.
     '''
-    def limpiar_campos_unidades(self):
-        self.fields['espesor_unidad'].empty_label = None
-        self.fields['espesor_unidad'].queryset = UNIDADES_LONGITUD
-
-        self.fields['potencia_motor_unidad'].empty_label = None
-        self.fields['potencia_motor_unidad'].queryset = UNIDADES_POTENCIA
-        
-        self.fields['velocidad_motor_unidad'].empty_label = None
-        self.fields['velocidad_motor_unidad'].queryset = UNIDADES_VELOCIDAD_ANGULAR
 
     class Meta:
         model = EspecificacionesVentilador
@@ -313,17 +304,6 @@ class CondicionesGeneralesVentiladorForm(FormConUnidades):
             return forms.ValidationError("La presión de diseño es absoluta y debe ser mayor a 0.")
         
         return float(presion_diseno)
-
-    def limpiar_campos_unidades(self):
-        self.fields['presion_barometrica_unidad'].empty_label = None
-        self.fields['presion_barometrica_unidad'].queryset = UNIDADES_PRESION
-
-        self.fields['temp_ambiente_unidad'].empty_label = None
-        self.fields['temp_ambiente_unidad'].queryset = UNIDADES_TEMPERATURA
-        
-        self.fields['velocidad_diseno_unidad'].empty_label = None
-        self.fields['velocidad_diseno_unidad'].queryset = UNIDADES_VELOCIDAD_ANGULAR
-
     class Meta:
         model = CondicionesGeneralesVentilador
         exclude = ('id',)
@@ -358,25 +338,6 @@ class CondicionesTrabajoVentiladorForm(FormConUnidades):
                 raise forms.ValidationError("La presión no puede ser menor a la presión atmosférica negativa.")
             
         return float(presion_salida) if presion_salida != '' else None
-
-    def limpiar_campos_unidades(self):
-        self.fields['flujo_unidad'].empty_label = None
-        self.fields['flujo_unidad'].queryset = UNIDADES_FLUJOS
-
-        self.fields['presion_unidad'].empty_label = None
-        self.fields['presion_unidad'].queryset = UNIDADES_PRESION
-        
-        self.fields['densidad_unidad'].empty_label = None
-        self.fields['densidad_unidad'].queryset = UNIDADES_DENSIDAD
-
-        self.fields['temperatura_unidad'].empty_label = None
-        self.fields['temperatura_unidad'].queryset = UNIDADES_TEMPERATURA
-
-        self.fields['velocidad_funcionamiento_unidad'].empty_label = None
-        self.fields['velocidad_funcionamiento_unidad'].queryset = UNIDADES_VELOCIDAD_ANGULAR
-
-        self.fields['potencia_freno_unidad'].empty_label = None
-        self.fields['potencia_freno_unidad'].queryset = UNIDADES_POTENCIA
 
     class Meta:
         model = CondicionesTrabajoVentilador
