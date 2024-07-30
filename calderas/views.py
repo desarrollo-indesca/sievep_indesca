@@ -531,7 +531,7 @@ class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View
                 if form.is_valid():
                     instance = form.save(commit=False)
                     instance.caldera = caldera
-                    instance.save(update_fields=form.changed_data)
+                    instance.save()
                 else:
                     all_valid = False
 

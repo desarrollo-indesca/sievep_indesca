@@ -127,11 +127,8 @@ const confirmSubmit = () => {
 };
 
 $("#submit").click(async (e) => {
-    e.preventDefault();
-
-    await confirmSubmit();
-
-    e.target.form.submit();
+    if(!confirm("¿Está seguro que desea realizar esta acción?")) 
+        e.preventDefault();
 });
 
 cargarEventListeners();
