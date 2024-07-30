@@ -1276,7 +1276,8 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
             'form_condiciones_generales': CondicionesGeneralesVentiladorForm(),
             'form_condiciones_trabajo': CondicionesTrabajoVentiladorForm(),
             'form_condiciones_adicionales': CondicionesTrabajoVentiladorForm(prefix="adicional"),
-            'titulo': self.titulo
+            'titulo': self.titulo,
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
         }
 
     def get(self, request, **kwargs):
@@ -1425,7 +1426,7 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
                 'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo."
             })
 
-class EdicionVentilador(CreacionVentilador):
+class EdicionVentilador(CreacionVentilador, ObtenerVentiladorMixin):
     '''
     Resumen:
         Vista para la edición de un ventilador. Sigue la misma lógica que la creación pero envía un contexto con las instancias previas. 
@@ -1434,7 +1435,7 @@ class EdicionVentilador(CreacionVentilador):
     template_name = 'ventiladores/creacion.html'
     
     def get_context(self):
-        ventilador = Ventilador.objects.get(pk = self.kwargs['pk'])
+        ventilador = self.get_ventilador()
 
         return {
             'form_equipo': VentiladorForm(instance = ventilador, initial={'complejo': ventilador.planta.complejo}), 
@@ -1443,11 +1444,12 @@ class EdicionVentilador(CreacionVentilador):
             'form_condiciones_trabajo': CondicionesTrabajoVentiladorForm(instance = ventilador.condiciones_trabajo),
             'form_condiciones_adicionales': CondicionesTrabajoVentiladorForm(instance = ventilador.condiciones_adicionales, prefix="adicional"),
             'titulo': f'SIEVEP - Edición del Ventilador {ventilador.tag}',
-            'edicion': True
+            'edicion': True,
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
         }
     
     def post(self, request, pk):
-        ventilador = Ventilador.objects.get(pk = self.kwargs['pk'])
+        ventilador = self.get_ventilador()
         planta = Planta.objects.get(pk = request.POST.get('planta'))
 
         form_equipo = VentiladorForm(request.POST, instance=ventilador, initial={'planta': planta, 'complejo': planta.complejo})
