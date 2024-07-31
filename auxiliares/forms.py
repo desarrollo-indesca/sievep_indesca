@@ -357,21 +357,6 @@ class EntradaEvaluacionVentiladorForm(FormConUnidades):
     Resumen:
         Form para el registro de los datos de entrada de una evaluación.
     '''
-    def limpiar_campos_unidades(self):
-        self.fields['flujo_unidad'].empty_label = None
-        self.fields['flujo_unidad'].queryset = UNIDADES_FLUJOS
-
-        self.fields['presion_salida_unidad'].empty_label = None
-        self.fields['presion_salida_unidad'].queryset = UNIDADES_PRESION
-        
-        self.fields['densidad_evaluacion_unidad'].empty_label = None
-        self.fields['densidad_evaluacion_unidad'].queryset = UNIDADES_DENSIDAD
-
-        self.fields['temperatura_operacion_unidad'].empty_label = None
-        self.fields['temperatura_operacion_unidad'].queryset = UNIDADES_TEMPERATURA
-
-        self.fields['potencia_ventilador_unidad'].empty_label = None
-        self.fields['potencia_ventilador_unidad'].queryset = UNIDADES_POTENCIA
         
     class Meta:
         model = EntradaEvaluacionVentilador

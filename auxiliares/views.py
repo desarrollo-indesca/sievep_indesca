@@ -1594,7 +1594,8 @@ class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
                 'presion_entrada': ventilador.condiciones_trabajo.presion_entrada,
                 'presion_salida': ventilador.condiciones_trabajo.presion_salida,
             }),
-            'titulo': "Evaluación de Ventilador"
+            'titulo': "Evaluación de Ventilador",
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
         }
 
         return context

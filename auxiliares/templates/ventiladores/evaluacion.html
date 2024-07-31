@@ -31,14 +31,26 @@
                     {{form_entrada_evaluacion.presion_entrada.label_tag}}*
                     <div class="input-group">
                         {% render_field form_entrada_evaluacion.presion_entrada class="form-control parametros-propiedades" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-swap="none" hx-include=".parametros-propiedades" placeholder="(Manométrica)" %}
-                        {% render_field form_entrada_evaluacion.presion_salida_unidad class="form-select parametros-propiedades" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-swap="none" hx-include=".parametros-propiedades" %}
+                        <select name="presion_salida_unidad" id="id_presion_salida_unidad" class="form-select parametros-propiedades" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-swap="none" hx-include=".parametros-propiedades">
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'P' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form_entrada_evaluacion.instance.presion_salida_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
                 <div class="mt-3 col-6">
                     {{form_entrada_evaluacion.presion_salida.label_tag}}*
                     <div class="input-group">
                         {% render_field form_entrada_evaluacion.presion_salida class="form-control" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-swap="none" hx-include=".parametros-propiedades" placeholder="(Manométrica)" %}
-                        {% render_field form_entrada_evaluacion.presion_salida_unidad class="form-select" disabled="disabled" %}
+                        <select name="presion_salida_unidad" id="id_presion_salida_unidad" class="form-select parametros-propiedades" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-swap="none" hx-include=".parametros-propiedades" disabled>
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'P' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form_entrada_evaluacion.instance.presion_salida_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
 
@@ -46,7 +58,13 @@
                     {{form_entrada_evaluacion.temperatura_operacion.label_tag}}*
                     <div class="input-group">
                         {% render_field form_entrada_evaluacion.temperatura_operacion min="-273.15" class="form-control parametros-propiedades" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="keyup delay:1s" hx-swap="none" hx-include=".parametros-propiedades" placeholder="Temp. de Operación al Evaluar" %}
-                        {% render_field form_entrada_evaluacion.temperatura_operacion_unidad class="form-select parametros-propiedades" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-swap="none" hx-include=".parametros-propiedades" %}
+                        <select name="temperatura_operacion_unidad" id="id_temperatura_operacion_unidad" class="form-select parametros-propiedades" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-swap="none" hx-include=".parametros-propiedades">
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'T' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form_entrada_evaluacion.instance.temperatura_operacion_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
 
@@ -54,7 +72,13 @@
                     {{form_entrada_evaluacion.densidad_evaluacion.label_tag}}*
                     <div class="input-group">
                         {% render_field form_entrada_evaluacion.densidad_evaluacion class="form-control" disabled="disabled" %}
-                        {% render_field form_entrada_evaluacion.densidad_evaluacion_unidad class="form-select parametros-propiedades" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-swap="none" hx-include=".parametros-propiedades" %}
+                        <select name="densidad_evaluacion_unidad" id="id_densidad_evaluacion_unidad" class="form-select parametros-propiedades" hx-get="/auxiliares/ventiladores/datos_fluido/" hx-trigger="change" hx-swap="none" hx-include=".parametros-propiedades">
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'D' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form_entrada_evaluacion.instance.densidad_evaluacion_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
 
@@ -62,7 +86,13 @@
                     {{form_entrada_evaluacion.flujo.label_tag}}*
                     <div class="input-group">
                         {% render_field form_entrada_evaluacion.flujo min="0.0001" class="form-control" placeholder="Flujo del Ventilador al Evaluar" %}
-                        {% render_field form_entrada_evaluacion.flujo_unidad class="form-select" %}
+                        <select name="flujo_unidad" id="id_flujo_unidad" class="form-select parametros-propiedades">
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'F' or unidad.tipo == 'K' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form_entrada_evaluacion.instance.flujo_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
 
@@ -70,7 +100,13 @@
                     {{form_entrada_evaluacion.potencia_ventilador.label_tag}}*
                     <div class="input-group">
                         {% render_field form_entrada_evaluacion.potencia_ventilador min="0.0001" class="form-control" placeholder="Potencia del Ventilador al Evaluar" %}
-                        {% render_field form_entrada_evaluacion.potencia_ventilador_unidad class="form-select" %}
+                        <select name="potencia_ventilador_unidad" id="id_potencia_ventilador_unidad" class="form-select parametros-propiedades">
+                            {% for unidad in unidades %}
+                            {% if unidad.tipo == 'B' %}
+                            <option value="{{unidad.pk}}" {% if unidad.pk == form_entrada_evaluacion.instance.potencia_ventilador_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
             </div>
