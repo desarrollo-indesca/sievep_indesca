@@ -36,6 +36,15 @@ $("#id_presion_unidad").change((e) => {
   });
 });
 
+$("#id_altura_unidad").change((e) => {
+  const array = $('select[name="altura_unidad"]').toArray().slice(1);
+
+  array.map((x) => {
+    x.innerHTML =
+      "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+  });
+});
+
 $("#id_temperatura_unidad").change((e) => {
   const array = $('select[name="temperatura_unidad"]').toArray().slice(1);
 

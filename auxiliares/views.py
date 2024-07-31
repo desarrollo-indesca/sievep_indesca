@@ -994,17 +994,15 @@ class CreacionEvaluacionBomba(LoginRequiredMixin, View, CargarBombaMixin, Report
         precargo = {
             'altura_succion': instalacion_succion.elevacion,
             'altura_descarga': bomba.instalacion_descarga.elevacion,
-            'altura_unidad':instalacion_succion.elevacion_unidad.pk,
             'potencia': especificaciones.potencia_maxima,
-            'potencia_unidad': especificaciones.potencia_unidad,
-            'npshr': especificaciones.npshr,
-            'npshr_unidad': especificaciones.npshr_unidad
+            'npshr': especificaciones.npshr
         }
         context = {
             'bomba': bomba,
             'form_evaluacion': EvaluacionBombaForm(),
             'form_entrada_evaluacion': EntradaEvaluacionBombaForm(precargo),
-            'titulo': "Evaluación de Bomba"
+            'titulo': "Evaluación de Bomba",
+            "unidades": Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
         }
 
         return context

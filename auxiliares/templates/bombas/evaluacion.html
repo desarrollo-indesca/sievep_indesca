@@ -33,14 +33,18 @@
                     {{ form_entrada_evaluacion.presion_succion.label_tag }}
                     <div class="input-group mb-1">
                         {% render_field form_entrada_evaluacion.presion_succion min="0.0001" max="9999999.99999" placeholder="Presión (abs.) al evaluar" class="form-control" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
-                        {% render_field form_entrada_evaluacion.presion_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
+                        <select name="presion_unidad" id="id_presion_unidad" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba">
+                            {% include 'unidades.html' with tipo="P" %}
+                        </select>
                     </div>                    
                 </div>
                 <div class="col-12">
                     {{ form_entrada_evaluacion.altura_succion.label_tag }}
                     <div class="input-group mb-1">
                         {% render_field form_entrada_evaluacion.altura_succion min="0.0001" max="9999999.99999" placeholder="Altura al evaluar" class="form-control" %}
-                        {% render_field form_entrada_evaluacion.altura_unidad class="form-select" %}
+                        <select name="altura_unidad" id="id_altura_unidad" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba">
+                            {% include 'unidades.html' with tipo="L" pk_selected=bomba.instalacion_succion.elevacion_unidad.pk %}
+                        </select>
                     </div>                    
                 </div>
                 <div class="col-12">
@@ -57,21 +61,27 @@
                     {{ form_entrada_evaluacion.flujo.label_tag }}
                     <div class="input-group mb-1">
                         {% render_field form_entrada_evaluacion.flujo min="0.0001" max="9999999.99999" placeholder="Flujo Volumétrico al evaluar" class="form-control" %}
-                        {% render_field form_entrada_evaluacion.flujo_unidad class="form-select" %}
+                        <select name="flujo_unidad" id="id_flujo_unidad" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba">
+                            {% include 'unidades.html' with tipo="K" %}
+                        </select>
                     </div>                    
                 </div>
                 <div class="col-12">
                     {{ form_entrada_evaluacion.potencia.label_tag }}
                     <div class="input-group mb-1">
                         {% render_field form_entrada_evaluacion.potencia min="0.0001" max="9999999.99999" class="form-control" placeholder="Potencia al evaluar" %}
-                        {% render_field form_entrada_evaluacion.potencia_unidad class="form-select" %}
+                        <select name="potencia_unidad" id="id_potencia_unidad" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba">
+                            {% include 'unidades.html' with tipo="B" %}
+                        </select>
                     </div>                    
                 </div>
                 <div class="col-12">
                     {{ form_entrada_evaluacion.npshr.label_tag }}
                     <div class="input-group mb-1">
                         {% render_field form_entrada_evaluacion.npshr min="0.0001" max="9999999.99999" class="form-control" placeholder="Capacidad requerida de succión" %}
-                        {% render_field form_entrada_evaluacion.npshr_unidad class="form-select" %}
+                        <select name="npshr_unidad" id="id_npshr_unidad" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba">
+                            {% include 'unidades.html' with tipo="L" pk_selected=bomba.especificaciones.npshr_unidad.pk %}
+                        </select>
                     </div>                    
                 </div>
             </div>
@@ -82,14 +92,18 @@
                     {{ form_entrada_evaluacion.presion_descarga.label_tag }}
                     <div class="input-group mb-1">
                         {% render_field form_entrada_evaluacion.presion_descarga min="0.0001" max="9999999.99999" class="form-control" placeholder="Presión (abs.) al evaluar" %}
-                        {% render_field form_entrada_evaluacion.presion_unidad disabled="disabled" class="form-select" %}
+                        <select name="presion_unidad" id="id_presion_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with tipo="P" %}
+                        </select>
                     </div>                    
                 </div>
                 <div class="col-12">
                     {{ form_entrada_evaluacion.altura_descarga.label_tag }}
                     <div class="input-group mb-1">
                         {% render_field form_entrada_evaluacion.altura_descarga min="0.0001" max="9999999.99999" class="form-control" placeholder="Altura al momento de evaluar" %}
-                        {% render_field form_entrada_evaluacion.altura_unidad disabled="disabled" class="form-select" %}
+                        <select name="altura_unidad" id="id_altura_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with tipo="L" %}
+                        </select>
                     </div>                    
                 </div>
         </div>
@@ -104,7 +118,9 @@
                     {{form_entrada_evaluacion.temperatura_operacion.label_tag}}
                     <div class="input-group mb-1">
                         {% render_field form_entrada_evaluacion.temperatura_operacion min="-273.15" class="form-control" placeholder="Temp. del fluido" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="keyup delay:1s" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
-                        {% render_field form_entrada_evaluacion.temperatura_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
+                        <select name="temperatura_unidad" id="id_temperatura_unidad" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba">
+                            {% include 'unidades.html' with tipo="T" %}
+                        </select>                        
                     </div>
                 </div>
 
@@ -150,7 +166,9 @@
                     <label for="id_presion_vapor">Presión Vapor:</label>
                     <div class="input-group mb-1">
                         {% render_field form_entrada_evaluacion.presion_vapor min="0.0001" max="9999999.99999" class="form-control" placeholder="Pres. (abs) de Vapor" %}
-                        {% render_field form_entrada_evaluacion.presion_vapor_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
+                        <select name="presion_vapor_unidad" id="id_presion_vapor_unidad" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba">
+                            {% include 'unidades.html' with tipo="P" %}
+                        </select>       
                     </div>
                 </div>
         
@@ -158,7 +176,9 @@
                     <label for="id_viscosidad">Viscosidad:</label>
                     <div class="input-group mb-1">
                         {% render_field form_entrada_evaluacion.viscosidad min="0.0001" max="9999999.99999" class="form-control" placeholder="Viscosidad del Fluido" %}
-                        {% render_field form_entrada_evaluacion.viscosidad_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
+                        <select name="viscosidad_unidad" id="id_viscosidad_unidad" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba">
+                            {% include 'unidades.html' with tipo="V" %}
+                        </select>
                     </div>
                 </div>
         
@@ -166,7 +186,9 @@
                     {{form_entrada_evaluacion.densidad.label_tag}}
                     <div class="input-group mb-1">
                         {% render_field form_entrada_evaluacion.densidad min="0.0001" max="9999999.99999" class="form-control" placeholder="Densidad del Fluido" %}
-                        {% render_field form_entrada_evaluacion.densidad_unidad class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba" %}
+                        <select name="densidad_unidad" id="id_densidad_unidad" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba">
+                            {% include 'unidades.html' with tipo="D" %}
+                        </select>
                     </div>
                 </div>
 

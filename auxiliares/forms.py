@@ -165,13 +165,7 @@ class EntradaEvaluacionBombaForm(FormConUnidades):
     Resumen:
         Form para el registro de los datos de entrada de una evaluación realizada a una bomba.
     '''
-    def limpiar_campos_unidades(self):
-        self.fields['altura_unidad'].empty_label = None
-        self.fields['altura_unidad'].queryset = UNIDADES_LONGITUD
-
-        self.fields['presion_unidad'].empty_label = None
-        self.fields['presion_unidad'].queryset = UNIDADES_PRESION
-        
+    def limpiar_campos_unidades(self):        
         self.fields['presion_vapor_unidad'].empty_label = None
         self.fields['presion_vapor_unidad'].queryset = UNIDADES_PRESION
 

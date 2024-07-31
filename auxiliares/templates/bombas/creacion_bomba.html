@@ -327,6 +327,7 @@
                     <div class="input-group mb-1">
                         {% render_field form_condiciones_fluido.densidad min="0.0001" class="form-control" placeholder="Densidad Fluido" %}
                         <select name="densidad_unidad" id="id_densidad_unidad" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_temperatura_presion_vapor, #id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad">
+                            <option value="">------------------</option>
                             {% include 'unidades.html' with unidades=unidades tipo='D' pk_selected=form_condiciones_fluido.instance.densidad_unidad.pk %}
                         </select>
                     </div>
