@@ -161,8 +161,16 @@ class CargarBombaMixin():
             'planta__complejo',
             )
             bomba = bomba.prefetch_related(
-                'instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad', 'instalacion_succion__tuberias__longitud_tuberia_unidad', 'instalacion_succion__tuberias__material_tuberia',
-                'instalacion_descarga__tuberias', 'instalacion_descarga__tuberias__diametro_tuberia_unidad', 'instalacion_descarga__tuberias__longitud_tuberia_unidad', 'instalacion_descarga__tuberias__material_tuberia'
+                Prefetch('instalacion_succion__tuberias', 
+                            queryset=TuberiaInstalacionBomba.objects.select_related(
+                                'diametro_tuberia_unidad', 'longitud_tuberia_unidad', 'material_tuberia'
+                            )
+                        ),
+                Prefetch('instalacion_descarga__tuberias', 
+                            queryset=TuberiaInstalacionBomba.objects.select_related(
+                                'diametro_tuberia_unidad', 'longitud_tuberia_unidad', 'material_tuberia'
+                            )
+                        ),
             )
         
         if(not bomba_q):
@@ -511,16 +519,32 @@ class EdicionBomba(CargarBombaMixin, CreacionBomba):
         form_condiciones_diseno = CondicionesDisenoBombaForm(request.POST, instance = bomba.condiciones_diseno)
         form_condiciones_fluido = CondicionFluidoBombaForm(request.POST, instance = bomba.condiciones_diseno.condiciones_fluido)
 
-        res = self.almacenar_datos(form_bomba, form_detalles_motor, form_condiciones_fluido,
+        try: # Almacenamiento
+            res = self.almacenar_datos(form_bomba, form_detalles_motor, form_condiciones_fluido,
                                 form_detalles_construccion, form_condiciones_diseno, form_especificaciones)
             
-        bomba.editado_al = datetime.datetime.now()
-        bomba.editado_por = self.request.user
-        bomba.instalacion_succion = instalacion_succion
-        bomba.instalacion_descarga = instalacion_descarga
-        bomba.save()
+            bomba.editado_al = datetime.datetime.now()
+            bomba.editado_por = self.request.user
+            bomba.instalacion_succion = instalacion_succion
+            bomba.instalacion_descarga = instalacion_descarga
+            bomba.save()
 
-        return res
+            return res
+        
+        except Exception as e:
+            print(str(e))
+            return render(request, self.template_name, context={
+                'form_bomba': form_bomba, 
+                'form_especificaciones': form_especificaciones,
+                'form_detalles_construccion': form_detalles_construccion, 
+                'form_detalles_motor': form_detalles_motor,
+                'form_condiciones_diseno': form_condiciones_diseno,
+                'form_condiciones_fluido': form_condiciones_fluido,
+                'edicion': True,
+                'titulo': self.titulo,
+                'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
+                'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo."
+            })
         
 class CreacionInstalacionBomba(SuperUserRequiredMixin, View, CargarBombaMixin):
     """
@@ -554,15 +578,17 @@ class CreacionInstalacionBomba(SuperUserRequiredMixin, View, CargarBombaMixin):
 
     def get_context(self):
         bomba = self.get_bomba()
-        instalacion_succion = bomba.instalacion_succion
-        instalacion_descarga = bomba.instalacion_descarga
+        instalacion_succion = bomba.instalacion_succion.pk
+        instalacion_descarga = bomba.instalacion_descarga.pk
 
         context = {
             'bomba': bomba,
-            'forms_instalacion': EspecificacionesInstalacionFormSet(queryset=EspecificacionesInstalacion.objects.filter(pk__in = [instalacion_succion.pk, instalacion_descarga.pk]), prefix = self.PREFIJO_INSTALACIONES),
-            'forms_tuberia_succion': TuberiaFormSet(queryset=instalacion_succion.tuberias.all(), prefix=self.PREFIJO_TUBERIAS_SUCCION),
-            'forms_tuberia_descarga': TuberiaFormSet(queryset=instalacion_descarga.tuberias.all(), prefix=self.PREFIJO_TUBERIAS_DESCARGA),
-            'titulo': "Especificaciones de Instalación"
+            'forms_instalacion': EspecificacionesInstalacionFormSet(queryset=EspecificacionesInstalacion.objects.filter(pk__in = [instalacion_succion, instalacion_descarga]).select_related('elevacion_unidad'), prefix = self.PREFIJO_INSTALACIONES),
+            'forms_tuberia_succion': TuberiaFormSet(queryset=bomba.instalacion_succion.tuberias.all(), prefix=self.PREFIJO_TUBERIAS_SUCCION),
+            'forms_tuberia_descarga': TuberiaFormSet(queryset=bomba.instalacion_descarga.tuberias.all(), prefix=self.PREFIJO_TUBERIAS_DESCARGA),
+            'titulo': "Especificaciones de Instalación",
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
+            'materiales': MaterialTuberia.objects.all().values('pk', 'nombre'),
         }
 
         return context

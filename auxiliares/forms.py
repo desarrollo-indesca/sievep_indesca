@@ -62,18 +62,6 @@ class DetallesMotorBombaForm(FormConUnidades):
     Resumen:
         Form para el registro o edición de los detalles del motor de una bomba.
     '''
-    def limpiar_campos_unidades(self):
-        self.fields['velocidad_motor_unidad'].empty_label = None
-        self.fields['velocidad_motor_unidad'].queryset = UNIDADES_VELOCIDAD_ANGULAR
-
-        self.fields['potencia_motor_unidad'].empty_label = None
-        self.fields['potencia_motor_unidad'].queryset = UNIDADES_POTENCIA
-
-        self.fields['voltaje_unidad'].empty_label = None
-        self.fields['voltaje_unidad'].queryset = UNIDADES_VOLTAJE
-
-        self.fields['frecuencia_unidad'].empty_label = None
-        self.fields['frecuencia_unidad'].queryset = UNIDADES_FRECUENCIA
 
     class Meta:
         model = DetallesMotorBomba
@@ -143,10 +131,6 @@ class EspecificacionesInstalacionForm(FormConUnidades):
         Form para el registro o edición de las especificaciones de instalación asociadas a una bomba.
     '''
 
-    def limpiar_campos_unidades(self):
-        self.fields['elevacion_unidad'].empty_label = None
-        self.fields['elevacion_unidad'].queryset = UNIDADES_LONGITUD
-
     class Meta:
         model = EspecificacionesInstalacion
         exclude = (
@@ -159,13 +143,6 @@ class TuberiaInstalacionBombaForm(FormConUnidades):
     Resumen:
         Form para el registro o edición de los tramos de tuberías asociados a la instalación de una bomba.
     '''
-
-    def limpiar_campos_unidades(self):
-        self.fields['diametro_tuberia_unidad'].empty_label = None
-        self.fields['diametro_tuberia_unidad'].queryset = UNIDADES_LONGITUD
-
-        self.fields['longitud_tuberia_unidad'].empty_label = None
-        self.fields['longitud_tuberia_unidad'].queryset = UNIDADES_LONGITUD
 
     class Meta:
         model = TuberiaInstalacionBomba
