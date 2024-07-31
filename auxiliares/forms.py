@@ -40,22 +40,6 @@ class EspecificacionesBombaForm(FormConUnidades):
         Form para el registro o edición de datos básicos de bombas.
     '''
 
-    def limpiar_campos_unidades(self):
-        self.fields['velocidad_unidad'].empty_label = None
-        self.fields['velocidad_unidad'].queryset = UNIDADES_VELOCIDAD_ANGULAR
-
-        self.fields['potencia_unidad'].empty_label = None
-        self.fields['potencia_unidad'].queryset = UNIDADES_POTENCIA
-
-        self.fields['npshr_unidad'].empty_label = None
-        self.fields['npshr_unidad'].queryset = UNIDADES_LONGITUD
-
-        self.fields['id_unidad'].empty_label = None
-        self.fields['id_unidad'].queryset = UNIDADES_LONGITUD
-
-        self.fields['cabezal_unidad'].empty_label = None
-        self.fields['cabezal_unidad'].queryset = UNIDADES_LONGITUD
-
     class Meta:
         model = EspecificacionesBomba
         exclude = (
@@ -102,15 +86,6 @@ class CondicionesDisenoBombaForm(FormConUnidades):
     Resumen:
         Form para el registro o edición de las condiciones de diseño de una bomba.
     '''
-    def limpiar_campos_unidades(self):
-        self.fields['capacidad_unidad'].empty_label = None
-        self.fields['capacidad_unidad'].queryset = UNIDADES_FLUJO_VOLUMETRICO
-
-        self.fields['presion_unidad'].empty_label = None
-        self.fields['presion_unidad'].queryset = UNIDADES_PRESION
-
-        self.fields['npsha_unidad'].empty_label = None
-        self.fields['npsha_unidad'].queryset = UNIDADES_LONGITUD
     
     class Meta:
         model = CondicionesDisenoBomba
@@ -125,19 +100,6 @@ class CondicionFluidoBombaForm(FormConUnidades):
         Form para el registro o edición de las condiciones de diseño del fluido que pasa por una bomba.
         Múltiples campos requieren validaciones adicionales.
     '''
-    def limpiar_campos_unidades(self):
-        self.fields['temperatura_unidad'].empty_label = None
-        self.fields['temperatura_unidad'].queryset = UNIDADES_TEMPERATURA
-
-        self.fields['presion_vapor_unidad'].empty_label = None
-        self.fields['presion_vapor_unidad'].queryset = UNIDADES_PRESION
-
-        self.fields['viscosidad_unidad'].empty_label = None
-        self.fields['viscosidad_unidad'].queryset = UNIDADES_VISCOSIDAD
-
-        self.fields['concentracion_unidad'].empty_label = None
-        self.fields['concentracion_unidad'].queryset = UNIDADES_CONCENTRACION
-        self.fields['densidad_unidad'].queryset = UNIDADES_DENSIDAD
 
     def clean_densidad(self):
         if(self.data.get('densidad') in (None, '') and self.data['calculo_propiedades'] == 'M'):

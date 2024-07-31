@@ -261,7 +261,8 @@ class CreacionBomba(SuperUserRequiredMixin, View):
             'form_detalles_motor': DetallesMotorBombaForm(),
             'form_condiciones_diseno': CondicionesDisenoBombaForm(),
             'form_condiciones_fluido': CondicionFluidoBombaForm(),
-            'titulo': self.titulo
+            'titulo': self.titulo,
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
         }
 
     def get(self, request, **kwargs):
@@ -328,7 +329,7 @@ class CreacionBomba(SuperUserRequiredMixin, View):
 
                 valid = valid and form_bomba.is_valid()
                 
-                if(True): # Si todos los formularios son válidos, se almacena la bomba
+                if(valid): # Si todos los formularios son válidos, se almacena la bomba
                     form_bomba.instance.creado_por = self.request.user
                     form_bomba.instance.detalles_motor = detalles_motor
                     form_bomba.instance.especificaciones_bomba = especificaciones
@@ -349,6 +350,7 @@ class CreacionBomba(SuperUserRequiredMixin, View):
                     messages.success(self.request, self.success_message)
                     return redirect(f'/auxiliares/bombas/')
                 else:
+                    print([form_bomba.errors, form_especificaciones.errors, form_detalles_motor.errors, form_condiciones_fluido.errors, form_detalles_construccion.errors, form_condiciones_diseno.errors])
                     raise Exception("Ocurrió un error")
     
     def post(self, request):
@@ -492,7 +494,8 @@ class EdicionBomba(CargarBombaMixin, CreacionBomba):
             'form_condiciones_diseno': CondicionesDisenoBombaForm(instance = diseno),
             'form_condiciones_fluido': CondicionFluidoBombaForm(instance = diseno.condiciones_fluido),
             'titulo': f'SIEVEP - Edición de la Bomba {bomba.tag}',
-            'edicion': True
+            'edicion': True,
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo')
         }
     
     def post(self, request, pk):
@@ -508,31 +511,16 @@ class EdicionBomba(CargarBombaMixin, CreacionBomba):
         form_condiciones_diseno = CondicionesDisenoBombaForm(request.POST, instance = bomba.condiciones_diseno)
         form_condiciones_fluido = CondicionFluidoBombaForm(request.POST, instance = bomba.condiciones_diseno.condiciones_fluido)
 
-        try: # Almacenamiento
-            res = self.almacenar_datos(form_bomba, form_detalles_motor, form_condiciones_fluido,
+        res = self.almacenar_datos(form_bomba, form_detalles_motor, form_condiciones_fluido,
                                 form_detalles_construccion, form_condiciones_diseno, form_especificaciones)
             
-            bomba.editado_al = datetime.datetime.now()
-            bomba.editado_por = self.request.user
-            bomba.instalacion_succion = instalacion_succion
-            bomba.instalacion_descarga = instalacion_descarga
-            bomba.save()
+        bomba.editado_al = datetime.datetime.now()
+        bomba.editado_por = self.request.user
+        bomba.instalacion_succion = instalacion_succion
+        bomba.instalacion_descarga = instalacion_descarga
+        bomba.save()
 
-            return res
-        
-        except Exception as e:
-            print(str(e))
-            return render(request, self.template_name, context={
-                'form_bomba': form_bomba, 
-                'form_especificaciones': form_especificaciones,
-                'form_detalles_construccion': form_detalles_construccion, 
-                'form_detalles_motor': form_detalles_motor,
-                'form_condiciones_diseno': form_condiciones_diseno,
-                'form_condiciones_fluido': form_condiciones_fluido,
-                'edicion': True,
-                'titulo': self.titulo,
-                'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo."
-            })
+        return res
         
 class CreacionInstalacionBomba(SuperUserRequiredMixin, View, CargarBombaMixin):
     """

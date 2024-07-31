@@ -219,6 +219,7 @@ document.body.addEventListener("htmx:afterRequest", function (evt) {
 $("#submit").click((e) => {
   if (!confirm("¿Está seguro que desea realizar esta acción?"))
     e.preventDefault();
+    
 });
 
 $("form").submit((e) => {
