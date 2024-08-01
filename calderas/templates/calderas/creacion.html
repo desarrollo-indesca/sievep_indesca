@@ -21,7 +21,34 @@
             <h3 class="text-center" style="color: #e31e24;">Edición de Caldera</h3>
             {% endif %}
         </div>
-        <div class="col-3"></div>
+        <div class="col-md-3 col-lg-2">
+            <button type="button" data-bs-toggle="modal" data-bs-target="#partes_caldera" class="btn btn-danger">Partes de la Caldera</button>
+            <div class="modal fade" id="partes_caldera" tabindex="-1" aria-labelledby="partes_calderaLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+                  <div class="modal-content text-dark">
+            
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="partes_calderaLabel">Partes de la Caldera</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+            
+                    <div class="modal-body text-start small">
+                      <div class="row">
+                        <div class="col-12 d-flex justify-content-center">
+                            <img src="{% static 'img/calderas/partes1.jpg' %}" class="img img-responsive">
+                        </div>
+                        <div class="col-12 d-flex justify-content-center">
+                            <img src="{% static 'img/calderas/partes2.jpg' %}" class="img img-responsive">
+                        </div>
+                        <div class="col-12 d-flex justify-content-center">
+                            <img src="{% static 'img/calderas/partes3.png' %}" class="img img-responsive">
+                        </div>
+                      </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <hr>
@@ -87,7 +114,9 @@
             {{form_especificaciones.area_transferencia_calor.label_tag}}
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.area_transferencia_calor min="0.0001" class="form-control" placeholder="Área total de Transferencia" %}
-                {% render_field form_especificaciones.area_unidad class="form-select" %}
+                <select name="especificaciones-caldera-area_unidad" id="id_especificaciones-caldera-area_unidad" class="form-select">
+                    {% include 'unidades.html' with tipo='A' pk_selected=form_especificaciones.instance.area_unidad.pk %}
+                </select>
             </div>
             <small>{{form_especificaciones.area_transferencia_calor.errors}}</small>
         </div>
@@ -96,7 +125,9 @@
             {{form_especificaciones.calor_intercambiado.label_tag}}
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.calor_intercambiado min="0.0001" class="form-control" placeholder="Calor total Intercambiado" %}
-                {% render_field form_especificaciones.calor_unidad class="form-select" %}
+                <select name="especificaciones-caldera-calor_unidad" id="id_especificaciones-caldera-calor_unidad" class="form-select">
+                    {% include 'unidades.html' with tipo='Q' pk_selected=form_especificaciones.instance.calor_unidad.pk %}
+                </select>
             </div>
             <small>{{form_especificaciones.calor_intercambiado.errors}}</small>
         </div>
@@ -105,7 +136,9 @@
             {{form_especificaciones.capacidad.label_tag}}
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.capacidad min="0.0001" class="form-control" placeholder="Capacidad total" %}
-                {% render_field form_especificaciones.capacidad_unidad class="form-select" %}
+                <select name="especificaciones-caldera-capacidad_unidad" id="id_especificaciones-caldera-capacidad_unidad" class="form-select">
+                    {% include 'unidades.html' with tipo='Q' pk_selected=form_especificaciones.instance.capacidad_unidad.pk %}
+                </select>
             </div>
             <small>{{form_especificaciones.capacidad.errors}}</small>
         </div>
@@ -114,7 +147,9 @@
             {{form_especificaciones.temp_diseno.label_tag}}
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.temp_diseno min="-273.15" class="form-control" placeholder="Temp. de Diseño" %}
-                {% render_field form_especificaciones.temperatura_unidad class="form-select" %}
+                <select name="especificaciones-caldera-temperatura_unidad" id="id_especificaciones-caldera-temperatura_unidad" class="form-select">
+                    {% include 'unidades.html' with tipo='T' pk_selected=form_especificaciones.instance.temperatura_unidad.pk %}
+                </select>
             </div>
             <small>{{form_especificaciones.temp_diseno.errors}}</small>
         </div>
@@ -123,7 +158,9 @@
             {{form_especificaciones.temp_operacion.label_tag}}
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.temp_operacion min="-273.15" class="form-control" placeholder="Temp. de Operación" %}
-                {% render_field form_especificaciones.temperatura_unidad class="form-select" disabled="" %}
+                <select name="especificaciones-caldera-temperatura_unidad" id="id_especificaciones-caldera-temperatura_unidad" class="form-select" disabled>
+                    {% include 'unidades.html' with tipo='T' pk_selected=form_especificaciones.instance.temperatura_unidad.pk %}
+                </select>
             </div>
             <small>{{form_especificaciones.temp_operacion.errors}}</small>
         </div>
@@ -132,7 +169,9 @@
             {{form_especificaciones.presion_diseno.label_tag}}
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.presion_diseno min="0.0001" class="form-control" placeholder="Presión (abs.) de Diseño" %}
-                {% render_field form_especificaciones.presion_unidad class="form-select" %}
+                <select name="especificaciones-caldera-presion_unidad" id="id_especificaciones-caldera-presion_unidad" class="form-select">
+                    {% include 'unidades.html' with tipo='P' pk_selected=form_especificaciones.instance.presion_unidad.pk %}
+                </select>
             </div>
             <small>{{form_especificaciones.presion_diseno.errors}}</small>
         </div>
@@ -141,7 +180,9 @@
             {{form_especificaciones.presion_operacion.label_tag}}
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.presion_operacion min="0.0001" class="form-control" placeholder="Presión (abs.) de Operación" %}
-                {% render_field form_especificaciones.presion_unidad class="form-select" disabled="" %}
+                <select name="especificaciones-caldera-presion_unidad" id="id_especificaciones-caldera-presion_unidad" class="form-select" disabled>
+                    {% include 'unidades.html' with tipo='P' pk_selected=form_especificaciones.instance.presion_unidad.pk %}
+                </select>
             </div>
             <small>{{form_especificaciones.presion_operacion.errors}}</small>
         </div>
@@ -150,7 +191,9 @@
             {{form_especificaciones.carga.label_tag}}
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.carga min="0.0001" class="form-control" placeholder="Carga total" %}
-                {% render_field form_especificaciones.carga_unidad class="form-select" %}
+                <select name="especificaciones-caldera-carga_unidad" id="id_especificaciones-caldera-carga_unidad" class="form-select">
+                    {% include 'unidades.html' with tipo='F' pk_selected=form_especificaciones.instance.carga_unidad.pk %}
+                </select>
             </div>
             <small>{{form_especificaciones.carga.errors}}</small>
         </div>
@@ -183,7 +226,9 @@
                 {{form_dimensiones_caldera.ancho.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_dimensiones_caldera.ancho min="0.0001" class="form-control" placeholder="Altura de la Caldera" %}
-                    {% render_field form_dimensiones_caldera.dimensiones_unidad class="form-select" %}
+                    <select name="dimensiones-caldera-dimensiones_unidad" id="id_dimensiones-caldera-dimensiones_unidad" class="form-select">
+                        {% include 'unidades.html' with tipo='L' pk_selected=form_dimensiones_caldera.instance.dimensiones_unidad.pk %}
+                    </select>
                 </div>
                 <small>{{form_dimensiones_caldera.ancho.errors}}</small>
             </div>
@@ -191,7 +236,9 @@
                 {{form_dimensiones_caldera.largo.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_dimensiones_caldera.largo min="0.0001" class="form-control" placeholder="Largo de la Caldera" %}
-                    {% render_field form_dimensiones_caldera.dimensiones_unidad disabled="" class="form-select" %}
+                    <select name="dimensiones-caldera-dimensiones_unidad" id="id_dimensiones-caldera-dimensiones_unidad" class="form-select" disabled>
+                        {% include 'unidades.html' with tipo='L' pk_selected=form_dimensiones_caldera.instance.dimensiones_unidad.pk %}
+                    </select>
                 </div>
                 <small>{{form_dimensiones_caldera.largo.errors}}</small>
             </div>
@@ -199,7 +246,9 @@
                 {{form_dimensiones_caldera.alto.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_dimensiones_caldera.alto min="0.0001" class="form-control" placeholder="Alto de la Caldera" %}
-                    {% render_field form_dimensiones_caldera.dimensiones_unidad disabled="" class="form-select" %}
+                    <select name="dimensiones-caldera-dimensiones_unidad" id="id_dimensiones-caldera-dimensiones_unidad" class="form-select" disabled>
+                        {% include 'unidades.html' with tipo='L' pk_selected=form_dimensiones_caldera.instance.dimensiones_unidad.pk %}
+                    </select>
                 </div>
                 <small>{{form_dimensiones_caldera.alto.errors}}</small>
             </div>
@@ -213,7 +262,9 @@
                 {{form_tambor.presion_operacion.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_tambor.presion_operacion min="0.0001" class="form-control" placeholder="Presión (abs.) de Operación" %}
-                    {% render_field form_tambor.presion_unidad class="form-select" %}
+                    <select name="tambor-presion_unidad" id="id_tambor-presion_unidad" class="form-select">
+                        {% include 'unidades.html' with tipo='P' pk_selected=form_tambor.instance.presion_unidad.pk %}
+                    </select>
                 </div>
                 <small>{{form_tambor.presion_operacion.errors}}</small>
             </div>
@@ -221,7 +272,9 @@
                 {{form_tambor.presion_diseno.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_tambor.presion_diseno min="0.0001" class="form-control" placeholder="Presión (abs.) de Diseño" %}
-                    {% render_field form_tambor.presion_unidad class="form-select" disabled="" %}
+                    <select name="tambor-presion_unidad" id="id_tambor-presion_unidad" class="form-select" disabled>
+                        {% include 'unidades.html' with tipo='P' pk_selected=form_tambor.instance.presion_unidad.pk %}
+                    </select>
                 </div>
                 <small>{{form_tambor.presion_diseno.errors}}</small>
             </div>
@@ -236,7 +289,9 @@
                 {{form_tambor.temp_operacion.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_tambor.temp_operacion min="-273.15" class="form-control" placeholder="Temperatura de Operación" %}
-                    {% render_field form_tambor.temperatura_unidad class="form-select" %}
+                    <select name="tambor-temperatura_unidad" id="id_tambor-temperatura_unidad" class="form-select">
+                        {% include 'unidades.html' with tipo='T' pk_selected=form_tambor.instance.temperatura_unidad.pk %}
+                    </select>
                 </div>
                 <small>{{form_tambor.temp_operacion.errors}}</small>
             </div>
@@ -244,7 +299,9 @@
                 {{form_tambor.temp_diseno.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_tambor.temp_diseno min="-273.15" class="form-control" placeholder="Temperatura de Diseño" %}
-                    {% render_field form_tambor.temperatura_unidad class="form-select" disabled="" %}
+                    <select name="tambor-temperatura_unidad" id="id_tambor-temperatura_unidad" class="form-select" disabled>
+                        {% include 'unidades.html' with tipo='T' pk_selected=form_tambor.instance.temperatura_unidad.pk %}
+                    </select>
                 </div>
                 <small>{{form_tambor.temp_diseno.errors}}</small>
             </div>
@@ -258,7 +315,9 @@
                         {{form_tambor_superior.diametro.label_tag}}
                         <div class="input-group mb-1">
                             {% render_field form_tambor_superior.diametro min="0.0001" class="form-control" placeholder="Diámetro de la Sección" %}
-                            {% render_field form_tambor_superior.dimensiones_unidad class="form-select" %}
+                            <select name="tambor-superior-dimensiones_unidad" id="id_tambor-superior-dimensiones_unidad" class="form-select">
+                                {% include 'unidades.html' with tipo='L' pk_selected=form_tambor_superior.instance.dimensiones_unidad.pk %}
+                            </select>
                         </div>
                         <small>{{form_tambor_superior.diametro.errors}}</small>
                     </div>
@@ -266,7 +325,9 @@
                         {{form_tambor_superior.longitud.label_tag}}
                         <div class="input-group mb-1">
                             {% render_field form_tambor_superior.longitud min="0.0001" class="form-control" placeholder="Longitud de la Sección" %}
-                            {% render_field form_tambor_superior.dimensiones_unidad class="form-select" disabled="" %}
+                            <select name="tambor-superior-dimensiones_unidad" id="id_tambor-superior-dimensiones_unidad" class="form-select" disabled>
+                                {% include 'unidades.html' with tipo='L' pk_selected=form_tambor_superior.instance.dimensiones_unidad.pk %}
+                            </select>
                         </div>
                         <small>{{form_tambor_superior.longitud.errors}}</small>
                     </div>
@@ -279,7 +340,9 @@
                         {{form_tambor_inferior.diametro.label_tag}}
                         <div class="input-group mb-1">
                             {% render_field form_tambor_inferior.diametro min="0.0001" class="form-control" placeholder="Diámetro de la Sección" %}
-                            {% render_field form_tambor_inferior.dimensiones_unidad class="form-select" %}
+                            <select name="tambor-inferior-dimensiones_unidad" id="id_tambor-inferior-dimensiones_unidad" class="form-select" disabled>
+                                {% include 'unidades.html' with tipo='L' pk_selected=inferior.instance.dimensiones_unidad.pk %}
+                            </select>
                         </div>
                         <small>{{form_tambor_inferior.diametro.errors}}</small>
                     </div>
@@ -287,7 +350,9 @@
                         {{form_tambor_inferior.longitud.label_tag}}
                         <div class="input-group mb-1">
                             {% render_field form_tambor_inferior.longitud min="0.0001" class="form-control" placeholder="Longitud de la Sección" %}
-                            {% render_field form_tambor_inferior.dimensiones_unidad class="form-select" disabled="" %}
+                            <select name="tambor-inferior-dimensiones_unidad" id="id_tambor-inferior-dimensiones_unidad" class="form-select">
+                                {% include 'unidades.html' with tipo='L' pk_selected=inferior.instance.dimensiones_unidad.pk %}
+                            </select>
                         </div>
                         <small>{{form_tambor_inferior.longitud.errors}}</small>
                     </div>
@@ -304,7 +369,9 @@
                     {{form_sobrecalentador.presion_diseno.label_tag}}
                     <div class="input-group mb-1">
                         {% render_field form_sobrecalentador.presion_diseno min="0.0001" class="form-control" placeholder="Presión (abs.) de Diseño" %}
-                        {% render_field form_sobrecalentador.presion_unidad class="form-select" %}
+                        <select name="sobrecalentador-presion_unidad" id="id_sobrecalentador-presion_unidad" class="form-select">
+                            {% include 'unidades.html' with tipo='P' pk_selected=form_sobrecalentador.instance.presion_unidad.pk %}
+                        </select>
                     </div>
                     <small>{{form_sobrecalentador.presion_diseno.errors}}</small>
                 </div>
@@ -312,7 +379,9 @@
                     {{form_sobrecalentador.presion_operacion.label_tag}}
                     <div class="input-group mb-1">
                         {% render_field form_sobrecalentador.presion_operacion min="0.0001" class="form-control" placeholder="Presión (abs.) de Operación" %}
-                        {% render_field form_sobrecalentador.presion_unidad class="form-select" disabled="" %}
+                        <select name="sobrecalentador-presion_unidad" id="id_sobrecalentador-presion_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with tipo='P' pk_selected=form_sobrecalentador.instance.presion_unidad.pk %}
+                        </select>
                     </div>
                     <small>{{form_sobrecalentador.presion_operacion.errors}}</small>
                 </div>
@@ -321,7 +390,9 @@
                     {{form_sobrecalentador.temp_operacion.label_tag}}
                     <div class="input-group mb-1">
                         {% render_field form_sobrecalentador.temp_operacion min="-273.15" class="form-control" placeholder="Temperatura de Operación" %}
-                        {% render_field form_sobrecalentador.temperatura_unidad class="form-select" %}
+                        <select name="sobrecalentador-temperatura_unidad" id="id_sobrecalentador-temperatura_unidad" class="form-select">
+                            {% include 'unidades.html' with tipo='T' pk_selected=form_sobrecalentador.instance.temperatura_unidad.pk %}
+                        </select>
                     </div>
                     <small>{{form_sobrecalentador.temp_operacion.errors}}</small>
                 </div>
@@ -329,7 +400,9 @@
                     {{form_sobrecalentador.flujo_max_continuo.label_tag}}
                     <div class="input-group mb-1">
                         {% render_field form_sobrecalentador.flujo_max_continuo min="0.0001" class="form-control" placeholder="Flujo Máximo Continuo" %}
-                        {% render_field form_sobrecalentador.flujo_unidad class="form-select" %}
+                        <select name="sobrecalentador-flujo_unidad" id="id_sobrecalentador-flujo_unidad" class="form-select">
+                            {% include 'unidades.html' with tipo='F' pk_selected=form_sobrecalentador.instance.flujo_unidad.pk %}
+                        </select>
                     </div>
                     <small>{{form_sobrecalentador.flujo_max_continuo.errors}}</small>
                 </div>
@@ -338,7 +411,9 @@
                     {{form_dimensiones_sobrecalentador.diametro_tubos.label_tag}}
                     <div class="input-group mb-1">
                         {% render_field form_dimensiones_sobrecalentador.diametro_tubos min="0.0001" class="form-control" placeholder="Diámetro de los Tubos" %}
-                        {% render_field form_dimensiones_sobrecalentador.diametro_unidad class="form-select" %}
+                        <select name="dimensiones-sobrecalentador-diametro_unidad" id="id_dimensiones-sobrecalentador-diametro_unidad" class="form-select">
+                            {% include 'unidades.html' with tipo='L' pk_selected=form_dimensiones_sobrecalentador.instance.diametro_unidad.pk %}
+                        </select>
                     </div>
                     <small>{{form_dimensiones_sobrecalentador.diametro_tubos.errors}}</small>
                 </div>
@@ -353,7 +428,9 @@
                     {{form_dimensiones_sobrecalentador.area_total_transferencia.label_tag}}
                     <div class="input-group mb-1">
                         {% render_field form_dimensiones_sobrecalentador.area_total_transferencia min="0.0001" class="form-control" placeholder="Área Total de Transferencia" %}
-                        {% render_field form_dimensiones_sobrecalentador.area_unidad class="form-select" %}
+                        <select name="dimensiones-sobrecalentador-area_unidad" id="id_dimensiones-sobrecalentador-area_unidad" class="form-select">
+                            {% include 'unidades.html' with tipo='A' pk_selected=form_dimensiones_sobrecalentador.instance.area_unidad.pk %}
+                        </select>
                     </div>
                     <small>{{form_dimensiones_sobrecalentador.area_total_transferencia.errors}}</small>
                 </div>
@@ -368,7 +445,9 @@
                     {{form_chimenea.diametro.label_tag}}*
                     <div class="input-group mb-1">
                         {% render_field form_chimenea.diametro min="0.0001" class="form-control" placeholder="Diámetro de la Chimenea" %}
-                        {% render_field form_chimenea.dimensiones_unidad class="form-select" %}
+                        <select name="chimenea-dimensiones_unidad" id="id_chimenea-dimensiones_unidad" class="form-select">
+                            {% include 'unidades.html' with tipo='L' pk_selected=form_chimenea.instance.dimensiones_unidad.pk %}
+                        </select>
                     </div>
                     <small>{{form_chimenea.diametro.errors}}</small>
                 </div>
@@ -377,7 +456,9 @@
                     {{form_chimenea.altura.label_tag}}
                     <div class="input-group mb-1">
                         {% render_field form_chimenea.altura min="0.0001" class="form-control" placeholder="Altura de la Chimenea" %}
-                        {% render_field form_chimenea.dimensiones_unidad disabled="" class="form-select" %}
+                        <select name="chimenea-dimensiones_unidad" id="id_chimenea-dimensiones_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with tipo='L' pk_selected=form_chimenea.instance.dimensiones_unidad.pk %}
+                        </select>
                     </div>
                     <small>{{form_chimenea.altura.errors}}</small>
                 </div>
@@ -392,7 +473,9 @@
                     {{form_economizador.diametro_tubos.label_tag}}*
                     <div class="input-group mb-1">
                         {% render_field form_economizador.diametro_tubos min="0.0001" class="form-control" placeholder="Diámetro de tubos" %}
-                        {% render_field form_economizador.diametro_unidad class="form-select" %}
+                        <select name="economizador-diametro_unidad" id="id_economizador-diametro_unidad" class="form-select">
+                            {% include 'unidades.html' with tipo='L' pk_selected=form_economizador.instance.diametro_unidad.pk %}
+                        </select>
                     </div>
                     <small>{{form_economizador.diametro_tubos.errors}}</small>
                 </div>    
@@ -407,7 +490,9 @@
                     {{form_economizador.area_total_transferencia.label_tag}}
                     <div class="input-group mb-1">
                         {% render_field form_economizador.area_total_transferencia min="0.0001" class="form-control" placeholder="Área total de transferencia" %}
-                        {% render_field form_economizador.area_unidad class="form-select" %}
+                        <select name="economizador-area_unidad" id="id_economizador-area_unidad" class="form-select">
+                            {% include 'unidades.html' with tipo='A' pk_selected=form_economizador.instance.area_unidad.pk %}
+                        </select>
                     </div>
                     <small>{{form_economizador.area_total_transferencia.errors}}</small>
                 </div>
@@ -458,8 +543,8 @@
                                 {% for form in composicion_combustible_forms %}
                                 <tr>
                                     <th class="table-dark">
-                                        {{form.combustible}} 
-                                        {% render_field form.form.fluido class="form-control" hidden="hidden" %}
+                                        {{form.combustible}}
+                                        <input type="hidden" name="combustible-{{forloop.counter0}}-fluido" id="id_combustible-{{forloop.counter0}}-fluido" value="{{form.form.fluido.initial}}">
                                         <small>{{form.form.fluido.errors}}</small>
                                     </th>
                                     <td>

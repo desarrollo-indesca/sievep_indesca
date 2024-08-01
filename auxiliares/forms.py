@@ -40,22 +40,6 @@ class EspecificacionesBombaForm(FormConUnidades):
         Form para el registro o edición de datos básicos de bombas.
     '''
 
-    def limpiar_campos_unidades(self):
-        self.fields['velocidad_unidad'].empty_label = None
-        self.fields['velocidad_unidad'].queryset = UNIDADES_VELOCIDAD_ANGULAR
-
-        self.fields['potencia_unidad'].empty_label = None
-        self.fields['potencia_unidad'].queryset = UNIDADES_POTENCIA
-
-        self.fields['npshr_unidad'].empty_label = None
-        self.fields['npshr_unidad'].queryset = UNIDADES_LONGITUD
-
-        self.fields['id_unidad'].empty_label = None
-        self.fields['id_unidad'].queryset = UNIDADES_LONGITUD
-
-        self.fields['cabezal_unidad'].empty_label = None
-        self.fields['cabezal_unidad'].queryset = UNIDADES_LONGITUD
-
     class Meta:
         model = EspecificacionesBomba
         exclude = (
@@ -78,18 +62,6 @@ class DetallesMotorBombaForm(FormConUnidades):
     Resumen:
         Form para el registro o edición de los detalles del motor de una bomba.
     '''
-    def limpiar_campos_unidades(self):
-        self.fields['velocidad_motor_unidad'].empty_label = None
-        self.fields['velocidad_motor_unidad'].queryset = UNIDADES_VELOCIDAD_ANGULAR
-
-        self.fields['potencia_motor_unidad'].empty_label = None
-        self.fields['potencia_motor_unidad'].queryset = UNIDADES_POTENCIA
-
-        self.fields['voltaje_unidad'].empty_label = None
-        self.fields['voltaje_unidad'].queryset = UNIDADES_VOLTAJE
-
-        self.fields['frecuencia_unidad'].empty_label = None
-        self.fields['frecuencia_unidad'].queryset = UNIDADES_FRECUENCIA
 
     class Meta:
         model = DetallesMotorBomba
@@ -102,15 +74,6 @@ class CondicionesDisenoBombaForm(FormConUnidades):
     Resumen:
         Form para el registro o edición de las condiciones de diseño de una bomba.
     '''
-    def limpiar_campos_unidades(self):
-        self.fields['capacidad_unidad'].empty_label = None
-        self.fields['capacidad_unidad'].queryset = UNIDADES_FLUJO_VOLUMETRICO
-
-        self.fields['presion_unidad'].empty_label = None
-        self.fields['presion_unidad'].queryset = UNIDADES_PRESION
-
-        self.fields['npsha_unidad'].empty_label = None
-        self.fields['npsha_unidad'].queryset = UNIDADES_LONGITUD
     
     class Meta:
         model = CondicionesDisenoBomba
@@ -125,19 +88,6 @@ class CondicionFluidoBombaForm(FormConUnidades):
         Form para el registro o edición de las condiciones de diseño del fluido que pasa por una bomba.
         Múltiples campos requieren validaciones adicionales.
     '''
-    def limpiar_campos_unidades(self):
-        self.fields['temperatura_unidad'].empty_label = None
-        self.fields['temperatura_unidad'].queryset = UNIDADES_TEMPERATURA
-
-        self.fields['presion_vapor_unidad'].empty_label = None
-        self.fields['presion_vapor_unidad'].queryset = UNIDADES_PRESION
-
-        self.fields['viscosidad_unidad'].empty_label = None
-        self.fields['viscosidad_unidad'].queryset = UNIDADES_VISCOSIDAD
-
-        self.fields['concentracion_unidad'].empty_label = None
-        self.fields['concentracion_unidad'].queryset = UNIDADES_CONCENTRACION
-        self.fields['densidad_unidad'].queryset = UNIDADES_DENSIDAD
 
     def clean_densidad(self):
         if(self.data.get('densidad') in (None, '') and self.data['calculo_propiedades'] == 'M'):
@@ -181,10 +131,6 @@ class EspecificacionesInstalacionForm(FormConUnidades):
         Form para el registro o edición de las especificaciones de instalación asociadas a una bomba.
     '''
 
-    def limpiar_campos_unidades(self):
-        self.fields['elevacion_unidad'].empty_label = None
-        self.fields['elevacion_unidad'].queryset = UNIDADES_LONGITUD
-
     class Meta:
         model = EspecificacionesInstalacion
         exclude = (
@@ -197,13 +143,6 @@ class TuberiaInstalacionBombaForm(FormConUnidades):
     Resumen:
         Form para el registro o edición de los tramos de tuberías asociados a la instalación de una bomba.
     '''
-
-    def limpiar_campos_unidades(self):
-        self.fields['diametro_tuberia_unidad'].empty_label = None
-        self.fields['diametro_tuberia_unidad'].queryset = UNIDADES_LONGITUD
-
-        self.fields['longitud_tuberia_unidad'].empty_label = None
-        self.fields['longitud_tuberia_unidad'].queryset = UNIDADES_LONGITUD
 
     class Meta:
         model = TuberiaInstalacionBomba
@@ -227,32 +166,6 @@ class EntradaEvaluacionBombaForm(FormConUnidades):
         Form para el registro de los datos de entrada de una evaluación realizada a una bomba.
     '''
     def limpiar_campos_unidades(self):
-        self.fields['altura_unidad'].empty_label = None
-        self.fields['altura_unidad'].queryset = UNIDADES_LONGITUD
-
-        self.fields['presion_unidad'].empty_label = None
-        self.fields['presion_unidad'].queryset = UNIDADES_PRESION
-        
-        self.fields['presion_vapor_unidad'].empty_label = None
-        self.fields['presion_vapor_unidad'].queryset = UNIDADES_PRESION
-
-        self.fields['temperatura_unidad'].empty_label = None
-        self.fields['temperatura_unidad'].queryset = UNIDADES_TEMPERATURA
-
-        self.fields['viscosidad_unidad'].empty_label = None
-        self.fields['viscosidad_unidad'].queryset = UNIDADES_VISCOSIDAD
-
-        self.fields['potencia_unidad'].empty_label = None
-        self.fields['potencia_unidad'].queryset = UNIDADES_POTENCIA
-
-        self.fields['flujo_unidad'].empty_label = None
-        self.fields['flujo_unidad'].queryset = UNIDADES_FLUJO_VOLUMETRICO
-
-        self.fields['npshr_unidad'].empty_label = None
-        self.fields['npshr_unidad'].queryset = UNIDADES_LONGITUD
-
-        self.fields['densidad_unidad'].queryset = UNIDADES_DENSIDAD
-
         self.fields['calculo_propiedades'].choices = (('A', 'Automático'), ('M', 'Manual'), ('F', 'Ficha'))
 
     class Meta:
@@ -285,15 +198,6 @@ class EspecificacionesVentiladorForm(FormConUnidades):
     Resumen:
         Form para el registro de los datos de especificaciones técnicas de un ventilador.
     '''
-    def limpiar_campos_unidades(self):
-        self.fields['espesor_unidad'].empty_label = None
-        self.fields['espesor_unidad'].queryset = UNIDADES_LONGITUD
-
-        self.fields['potencia_motor_unidad'].empty_label = None
-        self.fields['potencia_motor_unidad'].queryset = UNIDADES_POTENCIA
-        
-        self.fields['velocidad_motor_unidad'].empty_label = None
-        self.fields['velocidad_motor_unidad'].queryset = UNIDADES_VELOCIDAD_ANGULAR
 
     class Meta:
         model = EspecificacionesVentilador
@@ -313,17 +217,6 @@ class CondicionesGeneralesVentiladorForm(FormConUnidades):
             return forms.ValidationError("La presión de diseño es absoluta y debe ser mayor a 0.")
         
         return float(presion_diseno)
-
-    def limpiar_campos_unidades(self):
-        self.fields['presion_barometrica_unidad'].empty_label = None
-        self.fields['presion_barometrica_unidad'].queryset = UNIDADES_PRESION
-
-        self.fields['temp_ambiente_unidad'].empty_label = None
-        self.fields['temp_ambiente_unidad'].queryset = UNIDADES_TEMPERATURA
-        
-        self.fields['velocidad_diseno_unidad'].empty_label = None
-        self.fields['velocidad_diseno_unidad'].queryset = UNIDADES_VELOCIDAD_ANGULAR
-
     class Meta:
         model = CondicionesGeneralesVentilador
         exclude = ('id',)
@@ -359,25 +252,6 @@ class CondicionesTrabajoVentiladorForm(FormConUnidades):
             
         return float(presion_salida) if presion_salida != '' else None
 
-    def limpiar_campos_unidades(self):
-        self.fields['flujo_unidad'].empty_label = None
-        self.fields['flujo_unidad'].queryset = UNIDADES_FLUJOS
-
-        self.fields['presion_unidad'].empty_label = None
-        self.fields['presion_unidad'].queryset = UNIDADES_PRESION
-        
-        self.fields['densidad_unidad'].empty_label = None
-        self.fields['densidad_unidad'].queryset = UNIDADES_DENSIDAD
-
-        self.fields['temperatura_unidad'].empty_label = None
-        self.fields['temperatura_unidad'].queryset = UNIDADES_TEMPERATURA
-
-        self.fields['velocidad_funcionamiento_unidad'].empty_label = None
-        self.fields['velocidad_funcionamiento_unidad'].queryset = UNIDADES_VELOCIDAD_ANGULAR
-
-        self.fields['potencia_freno_unidad'].empty_label = None
-        self.fields['potencia_freno_unidad'].queryset = UNIDADES_POTENCIA
-
     class Meta:
         model = CondicionesTrabajoVentilador
         exclude = ('id','eficiencia','tipo_flujo')
@@ -396,21 +270,6 @@ class EntradaEvaluacionVentiladorForm(FormConUnidades):
     Resumen:
         Form para el registro de los datos de entrada de una evaluación.
     '''
-    def limpiar_campos_unidades(self):
-        self.fields['flujo_unidad'].empty_label = None
-        self.fields['flujo_unidad'].queryset = UNIDADES_FLUJOS
-
-        self.fields['presion_salida_unidad'].empty_label = None
-        self.fields['presion_salida_unidad'].queryset = UNIDADES_PRESION
-        
-        self.fields['densidad_evaluacion_unidad'].empty_label = None
-        self.fields['densidad_evaluacion_unidad'].queryset = UNIDADES_DENSIDAD
-
-        self.fields['temperatura_operacion_unidad'].empty_label = None
-        self.fields['temperatura_operacion_unidad'].queryset = UNIDADES_TEMPERATURA
-
-        self.fields['potencia_ventilador_unidad'].empty_label = None
-        self.fields['potencia_ventilador_unidad'].queryset = UNIDADES_POTENCIA
         
     class Meta:
         model = EntradaEvaluacionVentilador

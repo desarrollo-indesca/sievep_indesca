@@ -205,6 +205,15 @@ $("button[type=submit]").click((e) => {
   }
 });
 
+$("#id_potencia_unidad").change((e) => {
+  const array = $('select[name="potencia_unidad"]').toArray().slice(1);
+
+  array.map((x) => {
+    x.innerHTML =
+      "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+  });
+});
+
 $("form").submit((e) => {
   $("#submit").attr("disabled", "disabled");
 });

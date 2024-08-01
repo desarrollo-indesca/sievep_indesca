@@ -40,7 +40,9 @@
                     <label for="id_elevacion">{{form_instalacion.elevacion.label_tag}}</label>
                     <div class="input-group mb-1">
                         {% render_field form_instalacion.elevacion min="0.0001" class="form-control" %}
-                        {% render_field form_instalacion.elevacion_unidad class="form-select" %}
+                        <select class="form-select" name="formset-instalaciones-{{forloop.counter0}}-elevacion_unidad" id="id_formset-instalaciones-{{forloop.counter0}}-elevacion_unidad">
+                            {% include 'unidades.html' with tipo='L' pk_selected=form_instalacion.instance.elevacion_unidad.pk %}
+                        </select>
                     </div>
                     <small>{{form_instalacion.elevacion.errors}}</small>
                 </div>
@@ -59,7 +61,9 @@
                             <label>{{form.longitud_tuberia.label_tag}}</label>
                             <div class="input-group mb-1">
                                 {% render_field form.longitud_tuberia min="0" class="form-control" %}
-                                {% render_field form.longitud_tuberia_unidad class="form-select" %}
+                                <select class="form-select" name="formset-succion-{{forloop.counter0}}-longitud_tuberia_unidad" id="id_formset-succion-{{forloop.counter0}}-longitud_tuberia_unidad">
+                                    {% include 'unidades.html' with tipo='L' pk_selected=form.instance.longitud_tuberia_unidad.pk %}
+                                </select>
                             </div>
                             <small>{{form.longitud_tuberia.errors}}</small>
                         </div>
@@ -67,13 +71,20 @@
                             <label>{{form.diametro_tuberia.label_tag}}</label>
                             <div class="input-group mb-1">
                                 {% render_field form.diametro_tuberia min="0" class="form-control" %}
-                                {% render_field form.diametro_tuberia_unidad class="form-select" %}
+                                <select class="form-select" name="formset-succion-{{forloop.counter0}}-diametro_tuberia_unidad" id="id_formset-succion-{{forloop.counter0}}-diametro_tuberia_unidad">
+                                    {% include 'unidades.html' with tipo='L' pk_selected=form.instance.diametro_tuberia_unidad.pk %}
+                                </select>
                             </div>
                             <small>{{form.diametro_tuberia.errors}}</small>
                         </div>
                         <div class="col-2">
                             <label>{{form.material_tuberia.label_tag}}</label>
-                            {% render_field form.material_tuberia min="0" class="form-select" %}
+                            <select class="form-select" name="formset-succion-{{forloop.counter0}}-material_tuberia" id="id_formset-descarga-{{forloop.counter0}}-material_tuberia">
+                                <option value="">------------------</option>
+                                {% for material in materiales %}
+                                    <option value="{{material.pk}}" {% if material.pk == form.instance.material_tuberia.pk %} selected {% endif %} >{{material.nombre.upper}}</option>
+                                {% endfor %}
+                            </select>
                             <small>{{form.material_tuberia.errors}}</small>
                         </div>
                         <div class="col-1 fs-5 d-flex align-items-end">
@@ -99,7 +110,9 @@
                                 <label>{{form.longitud_tuberia.label_tag}}</label>
                                 <div class="input-group mb-1">
                                     {% render_field form.longitud_tuberia min="0" class="form-control" %}
-                                    {% render_field form.longitud_tuberia_unidad class="form-select" %}
+                                    <select class="form-select" name="formset-descarga-{{forloop.counter0}}-longitud_tuberia_unidad" id="id_formset-descarga-{{forloop.counter0}}-longitud_tuberia_unidad">
+                                        {% include 'unidades.html' with tipo='L' pk_selected=form.instance.longitud_tuberia_unidad.pk %}
+                                    </select>
                                 </div>
                                 <small>{{form.longitud_tuberia.errors}}</small>
                             </div>
@@ -107,13 +120,20 @@
                                 <label>{{form.diametro_tuberia.label_tag}}</label>
                                 <div class="input-group mb-1">
                                     {% render_field form.diametro_tuberia min="0" class="form-control" %}
-                                    {% render_field form.diametro_tuberia_unidad class="form-select" style="width: 30% !important;" %}
+                                    <select class="form-select" name="formset-descarga-{{forloop.counter0}}-diametro_tuberia_unidad" id="id_formset-descarga-{{forloop.counter0}}-diametro_tuberia_unidad">
+                                        {% include 'unidades.html' with tipo='L' pk_selected=form.instance.diametro_tuberia_unidad.pk %}
+                                    </select>
                                 </div>
                                 <small>{{form.diametro_tuberia.errors}}</small>
                             </div>
                             <div class="col-2">
                                 <label>{{form.material_tuberia.label_tag}}</label>
-                                {% render_field form.material_tuberia class="form-select" %}
+                                <select class="form-select" name="formset-descarga-{{forloop.counter0}}-material_tuberia" id="id_formset-descarga-{{forloop.counter0}}-material_tuberia">
+                                    <option value="">------------------</option>
+                                    {% for material in materiales %}
+                                        <option value="{{material.pk}}" {% if material.pk == form.instance.material_tuberia.pk %} selected {% endif %} >{{material.nombre.upper}}</option>
+                                    {% endfor %}
+                                </select>
                                 <small>{{form.material_tuberia.errors}}</small>
                             </div>
                             <div class="col-1 fs-5 d-flex align-items-end">

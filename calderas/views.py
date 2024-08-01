@@ -12,7 +12,7 @@ from django.http import JsonResponse
 from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion
 from usuarios.views import SuperUserRequiredMixin 
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import reporte_equipos
+from reportes.xlsx import reporte_equipos, historico_evaluaciones_caldera, ficha_tecnica_caldera
 from .forms import *
 from .constants import COMPUESTOS_AIRE
 from .evaluacion import evaluar_caldera
@@ -94,14 +94,6 @@ class ReportesFichasCalderasMixin():
                 return generar_pdf(request,caldera, f"Ficha Técnica de la Caldera {caldera.tag}", "ficha_tecnica_caldera")
             if(request.POST.get('tipo') == 'xlsx'):
                 return ficha_tecnica_caldera(caldera, request)
-            
-        if(request.POST.get('instalacion')): # FICHA DE INSTALACIÓN
-            caldera = Caldera.objects.get(pk = request.POST.get('instalacion'))
-            if(request.POST.get('tipo') == 'pdf'):
-                return generar_pdf(request,caldera, f"Ficha de Instalación de la caldera {caldera.tag}", "ficha_instalacion_caldera")
-            
-            if(request.POST.get('tipo') == 'xlsx'):
-                return ficha_instalacion_caldera(caldera,request)
 
 # VISTAS DE CALDERAS
 
@@ -192,13 +184,13 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
     template_name = 'calderas/creacion.html'
 
     def get_context(self):
-        combustibles = ComposicionCombustible.objects.values('fluido').distinct()
+        combustibles = ComposicionCombustible.objects.select_related('fluido').values('fluido', 'fluido__nombre').distinct()
         combustible_forms = []
 
         for i,x in enumerate(combustibles):
             form = ComposicionCombustibleForm(prefix=f'combustible-{i}', initial={'fluido': x['fluido']})
             combustible_forms.append({
-                'combustible': Fluido.objects.get(pk=x['fluido']),
+                'combustible': x['fluido__nombre'],
                 'form': form
             })
             
@@ -216,7 +208,8 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
             'form_combustible': CombustibleForm(prefix="combustible"),
             'composicion_combustible_forms': combustible_forms,
             'compuestos_aire': COMPUESTOS_AIRE,
-            'titulo': self.titulo
+            'titulo': self.titulo,
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo')
         }
 
     def get(self, request, **kwargs):
@@ -353,7 +346,8 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
                 'compuestos_aire': COMPUESTOS_AIRE,
                 'recargo': True,
                 'titulo': self.titulo,
-                'error': str(e)
+                'error': str(e),
+                'unidades': Unidades.objects.all().values('pk','simbolo','tipo')
             })
 
 class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
@@ -410,7 +404,8 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
             'composicion_combustible_forms': combustible_forms,
             'compuestos_aire': COMPUESTOS_AIRE,
             'edicion': True,
-            'titulo': self.titulo + f" {caldera.tag}"
+            'titulo': self.titulo + f" {caldera.tag}",
+            'unidades': Unidades.objects.all().values('pk','simbolo','tipo')
         }
 
     def post(self, request, pk):
@@ -467,7 +462,8 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
                 'compuestos_aire': COMPUESTOS_AIRE,
                 'edicion': True,
                 'titulo': self.titulo + f" {caldera.tag}",
-                'error': str(e)
+                'error': str(e),
+                'unidades': Unidades.objects.all().values('pk','simbolo','tipo')
             })
         
 class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View):
@@ -539,7 +535,7 @@ class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View
                 if form.is_valid():
                     instance = form.save(commit=False)
                     instance.caldera = caldera
-                    instance.save(update_fields=form.changed_data)
+                    instance.save()
                 else:
                     all_valid = False
 
@@ -637,12 +633,12 @@ class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, Reporte
             return reporte_ficha
 
         if(request.POST.get('tipo') == 'pdf'):
-            return generar_pdf(request, self.get_queryset(), f"Evaluaciones de la Bomba {self.get_bomba().tag}", "evaluaciones_bombas")
+            return generar_pdf(request, self.get_queryset(), f"Evaluaciones de la Caldera {self.get_caldera(False, False).tag}", "reporte_evaluaciones_caldera")
         elif(request.POST.get('tipo') == 'xlsx'):
             return historico_evaluaciones_caldera(self.get_queryset(), request)
 
         if(request.POST.get('detalle')):
-            return generar_pdf(request, self.model.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Bomba", "detalle_evaluacion_bomba")
+            return generar_pdf(request, self.model.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Caldera", "detalle_evaluacion_caldera")
 
         return self.get(request, **kwargs)
     
@@ -682,6 +678,41 @@ class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, Reporte
         return context
 
 class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
+    """
+    Resumen:
+        Viste que contiene toda la lógica para la creación de evaluaciones de calderas en el sistema.
+        Solo pueden ingresar superusuarios.
+        Utiliza las queries optimizadas para los datos de calderas a que puede verse la ficha técnica desde esta vista.
+
+    Métodos:
+        make_forms(self, caldera, composiciones, corrientes)
+            Inicializa los formularios a ser cargados en el contexto.
+
+        get_context_data(self, **kwargs)
+            Crea el contexto inicial para la vista.
+
+        get(self, *args, **kwargs)
+            Renderización de la plantilla.
+
+        def evaluar(self)
+            Proceso para los resultados a partir de los datos de entrada del request.
+
+        def almacenamiento_fallido(self)
+            Retorna la plantilla en caso de que el almacenamiento falle.
+
+        def almacenamiento_exitoso(self)
+            Retorna la plantilla en caso de que el almacenamiento sea exitoso.
+
+        def almacenar(self)
+            Proceso de almacenamiento en base de datos de los formularios enviados.
+
+        def calcular_resultados(self)
+            Método para calcular los resultados y transformar las unidades del request.
+
+        def post(self, request, pk, *args, **kwargs)
+            Función llamada al realizar una solicitud POST.
+    """
+
     def make_forms(self, caldera, composiciones, corrientes):
         formset_composicion = [
             {
@@ -788,9 +819,10 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
             if all([form_vapor.is_valid(), form_gas.is_valid(), form_aire.is_valid(), form_horno.is_valid(), form_agua.is_valid()]):
                 salida_fracciones = SalidaFracciones.objects.create(
                     h2o = resultado['fraccion_h2o_gas'],
-                    co2 = resultado['fraccion_n2_gas'],
-                    n2 = resultado['fraccion_o2_gas'],
-                    so2 = resultado['fraccion_o2_gas']
+                    co2 = resultado['fraccion_co2_gas'],
+                    n2 = resultado['fraccion_n2_gas'],
+                    so2 = resultado['fraccion_so2_gas'],
+                    o2 = resultado['fraccion_o2_gas']
                 )
 
                 salida_lado_agua = SalidaLadoAgua.objects.create(
@@ -813,7 +845,8 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
                     energia_entrada_aire = resultado['energia_aire_entrada'],
                     energia_total_entrada = resultado['energia_total_entrada'],
                     energia_total_reaccion = resultado['energia_total_reaccion'],
-                    energia_horno = resultado['energia_horno']
+                    energia_horno = resultado['energia_horno'],
+                    energia_total_salida = resultado['energia_total_salida']
                 )
                 
                 evaluacion = Evaluacion.objects.create(
@@ -925,12 +958,18 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
             try:
                 return self.almacenar()
             except Exception as e:
+                print(str(e))
                 return self.almacenamiento_fallido()
         else:
             return self.evaluar()
 
 # VISTAS PARA LA GENERACIÓN DE PLANTILLAS PARCIALES
 def unidades_por_clase(request):
+    """
+    Resumen:
+        Filtrado de unidades por clase. Es una vista HTMX.
+    """
+
     return render(request, 'calderas/partials/unidades_por_clase.html', context={
         'unidades': Unidades.objects.filter(
             tipo = request.GET.get('clase')
@@ -939,6 +978,10 @@ def unidades_por_clase(request):
     })
 
 def grafica_historica_calderas(request, pk):
+    """
+    Resumen:
+        Datos de la gráfica histórica de las evaluaciones en formato JSON.
+    """
     caldera = Caldera.objects.get(pk=pk)
     evaluaciones = Evaluacion.objects.filter(activo = True, equipo = caldera) \
         .select_related('salida_balance_energia', 'salida_fracciones', 'salida_lado_agua').order_by('fecha')

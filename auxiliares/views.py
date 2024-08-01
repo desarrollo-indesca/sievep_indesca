@@ -161,8 +161,16 @@ class CargarBombaMixin():
             'planta__complejo',
             )
             bomba = bomba.prefetch_related(
-                'instalacion_succion__tuberias', 'instalacion_succion__tuberias__diametro_tuberia_unidad', 'instalacion_succion__tuberias__longitud_tuberia_unidad', 'instalacion_succion__tuberias__material_tuberia',
-                'instalacion_descarga__tuberias', 'instalacion_descarga__tuberias__diametro_tuberia_unidad', 'instalacion_descarga__tuberias__longitud_tuberia_unidad', 'instalacion_descarga__tuberias__material_tuberia'
+                Prefetch('instalacion_succion__tuberias', 
+                            queryset=TuberiaInstalacionBomba.objects.select_related(
+                                'diametro_tuberia_unidad', 'longitud_tuberia_unidad', 'material_tuberia'
+                            )
+                        ),
+                Prefetch('instalacion_descarga__tuberias', 
+                            queryset=TuberiaInstalacionBomba.objects.select_related(
+                                'diametro_tuberia_unidad', 'longitud_tuberia_unidad', 'material_tuberia'
+                            )
+                        ),
             )
         
         if(not bomba_q):
@@ -261,7 +269,8 @@ class CreacionBomba(SuperUserRequiredMixin, View):
             'form_detalles_motor': DetallesMotorBombaForm(),
             'form_condiciones_diseno': CondicionesDisenoBombaForm(),
             'form_condiciones_fluido': CondicionFluidoBombaForm(),
-            'titulo': self.titulo
+            'titulo': self.titulo,
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
         }
 
     def get(self, request, **kwargs):
@@ -328,7 +337,7 @@ class CreacionBomba(SuperUserRequiredMixin, View):
 
                 valid = valid and form_bomba.is_valid()
                 
-                if(True): # Si todos los formularios son válidos, se almacena la bomba
+                if(valid): # Si todos los formularios son válidos, se almacena la bomba
                     form_bomba.instance.creado_por = self.request.user
                     form_bomba.instance.detalles_motor = detalles_motor
                     form_bomba.instance.especificaciones_bomba = especificaciones
@@ -349,6 +358,7 @@ class CreacionBomba(SuperUserRequiredMixin, View):
                     messages.success(self.request, self.success_message)
                     return redirect(f'/auxiliares/bombas/')
                 else:
+                    print([form_bomba.errors, form_especificaciones.errors, form_detalles_motor.errors, form_condiciones_fluido.errors, form_detalles_construccion.errors, form_condiciones_diseno.errors])
                     raise Exception("Ocurrió un error")
     
     def post(self, request):
@@ -492,7 +502,8 @@ class EdicionBomba(CargarBombaMixin, CreacionBomba):
             'form_condiciones_diseno': CondicionesDisenoBombaForm(instance = diseno),
             'form_condiciones_fluido': CondicionFluidoBombaForm(instance = diseno.condiciones_fluido),
             'titulo': f'SIEVEP - Edición de la Bomba {bomba.tag}',
-            'edicion': True
+            'edicion': True,
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo')
         }
     
     def post(self, request, pk):
@@ -531,6 +542,7 @@ class EdicionBomba(CargarBombaMixin, CreacionBomba):
                 'form_condiciones_fluido': form_condiciones_fluido,
                 'edicion': True,
                 'titulo': self.titulo,
+                'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
                 'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo."
             })
         
@@ -566,15 +578,17 @@ class CreacionInstalacionBomba(SuperUserRequiredMixin, View, CargarBombaMixin):
 
     def get_context(self):
         bomba = self.get_bomba()
-        instalacion_succion = bomba.instalacion_succion
-        instalacion_descarga = bomba.instalacion_descarga
+        instalacion_succion = bomba.instalacion_succion.pk
+        instalacion_descarga = bomba.instalacion_descarga.pk
 
         context = {
             'bomba': bomba,
-            'forms_instalacion': EspecificacionesInstalacionFormSet(queryset=EspecificacionesInstalacion.objects.filter(pk__in = [instalacion_succion.pk, instalacion_descarga.pk]), prefix = self.PREFIJO_INSTALACIONES),
-            'forms_tuberia_succion': TuberiaFormSet(queryset=instalacion_succion.tuberias.all(), prefix=self.PREFIJO_TUBERIAS_SUCCION),
-            'forms_tuberia_descarga': TuberiaFormSet(queryset=instalacion_descarga.tuberias.all(), prefix=self.PREFIJO_TUBERIAS_DESCARGA),
-            'titulo': "Especificaciones de Instalación"
+            'forms_instalacion': EspecificacionesInstalacionFormSet(queryset=EspecificacionesInstalacion.objects.filter(pk__in = [instalacion_succion, instalacion_descarga]).select_related('elevacion_unidad'), prefix = self.PREFIJO_INSTALACIONES),
+            'forms_tuberia_succion': TuberiaFormSet(queryset=bomba.instalacion_succion.tuberias.all(), prefix=self.PREFIJO_TUBERIAS_SUCCION),
+            'forms_tuberia_descarga': TuberiaFormSet(queryset=bomba.instalacion_descarga.tuberias.all(), prefix=self.PREFIJO_TUBERIAS_DESCARGA),
+            'titulo': "Especificaciones de Instalación",
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
+            'materiales': MaterialTuberia.objects.all().values('pk', 'nombre'),
         }
 
         return context
@@ -980,17 +994,15 @@ class CreacionEvaluacionBomba(LoginRequiredMixin, View, CargarBombaMixin, Report
         precargo = {
             'altura_succion': instalacion_succion.elevacion,
             'altura_descarga': bomba.instalacion_descarga.elevacion,
-            'altura_unidad':instalacion_succion.elevacion_unidad.pk,
             'potencia': especificaciones.potencia_maxima,
-            'potencia_unidad': especificaciones.potencia_unidad,
-            'npshr': especificaciones.npshr,
-            'npshr_unidad': especificaciones.npshr_unidad
+            'npshr': especificaciones.npshr
         }
         context = {
             'bomba': bomba,
             'form_evaluacion': EvaluacionBombaForm(),
             'form_entrada_evaluacion': EntradaEvaluacionBombaForm(precargo),
-            'titulo': "Evaluación de Bomba"
+            'titulo': "Evaluación de Bomba",
+            "unidades": Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
         }
 
         return context
@@ -1276,7 +1288,8 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
             'form_condiciones_generales': CondicionesGeneralesVentiladorForm(),
             'form_condiciones_trabajo': CondicionesTrabajoVentiladorForm(),
             'form_condiciones_adicionales': CondicionesTrabajoVentiladorForm(prefix="adicional"),
-            'titulo': self.titulo
+            'titulo': self.titulo,
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
         }
 
     def get(self, request, **kwargs):
@@ -1425,7 +1438,7 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
                 'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo."
             })
 
-class EdicionVentilador(CreacionVentilador):
+class EdicionVentilador(CreacionVentilador, ObtenerVentiladorMixin):
     '''
     Resumen:
         Vista para la edición de un ventilador. Sigue la misma lógica que la creación pero envía un contexto con las instancias previas. 
@@ -1434,7 +1447,7 @@ class EdicionVentilador(CreacionVentilador):
     template_name = 'ventiladores/creacion.html'
     
     def get_context(self):
-        ventilador = Ventilador.objects.get(pk = self.kwargs['pk'])
+        ventilador = self.get_ventilador()
 
         return {
             'form_equipo': VentiladorForm(instance = ventilador, initial={'complejo': ventilador.planta.complejo}), 
@@ -1443,11 +1456,12 @@ class EdicionVentilador(CreacionVentilador):
             'form_condiciones_trabajo': CondicionesTrabajoVentiladorForm(instance = ventilador.condiciones_trabajo),
             'form_condiciones_adicionales': CondicionesTrabajoVentiladorForm(instance = ventilador.condiciones_adicionales, prefix="adicional"),
             'titulo': f'SIEVEP - Edición del Ventilador {ventilador.tag}',
-            'edicion': True
+            'edicion': True,
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
         }
     
     def post(self, request, pk):
-        ventilador = Ventilador.objects.get(pk = self.kwargs['pk'])
+        ventilador = self.get_ventilador()
         planta = Planta.objects.get(pk = request.POST.get('planta'))
 
         form_equipo = VentiladorForm(request.POST, instance=ventilador, initial={'planta': planta, 'complejo': planta.complejo})
@@ -1592,7 +1606,8 @@ class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
                 'presion_entrada': ventilador.condiciones_trabajo.presion_entrada,
                 'presion_salida': ventilador.condiciones_trabajo.presion_salida,
             }),
-            'titulo': "Evaluación de Ventilador"
+            'titulo': "Evaluación de Ventilador",
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
         }
 
         return context

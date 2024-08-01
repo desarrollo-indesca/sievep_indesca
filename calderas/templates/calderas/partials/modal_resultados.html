@@ -145,13 +145,13 @@
                             <th class="table-dark">Aire (Másico)</th>
                             <td>{{flujos.flujo_m_aire_entrada|floatformat:4}} Kg/h</td>
                             <th class="table-dark">Aire (Molar)</th>
-                            <td>{{flujos.flujo_n_aire_entrada|floatformat:4}} mol/h</td>
+                            <td>{{flujos.flujo_n_aire_entrada|floatformat:4}} kmol/h</td>
                         </tr>
                         <tr>
                             <th class="table-dark">Gas (Másico)</th>
                             <td>{{flujos.flujo_m_gas_entrada|floatformat:4}} Kg/h</td>
                             <th class="table-dark">Gas (Molar)</th>
-                            <td>{{flujos.flujo_n_gas_entrada|floatformat:4}} mol/h</td>
+                            <td>{{flujos.flujo_n_gas_entrada|floatformat:4}} kmol/h</td>
                         </tr>
 
                         <tr>
@@ -160,9 +160,9 @@
 
                         <tr>
                             <th class="table-dark">Flujo de Combustión Volumétrico</th>
-                            <td>{{flujos.flujo_combustion_vol|floatformat:4}} m3/h</td>
+                            <td>{{flujos.flujo_combustion_vol|floatformat:4}} m³/h</td>
                             <th class="table-dark">Flujo de Combustión Molar</th>
-                            <td>{{flujos.flujo_combustion|floatformat:4}} mol/h</td>
+                            <td>{{flujos.flujo_combustion|floatformat:4}} kmol/h</td>
                         </tr>
                         <tr>
                             <th class="table-dark">Oxígeno en Exceso</th>
@@ -193,13 +193,21 @@
                                 N2
                             </th>
                             <td>
-                                {{fracciones.h2o|floatformat:4}}
+                                {{fracciones.n2|floatformat:4}}
                             </td>
                             <th class="table-dark">
                                 O2
                             </th>
                             <td>
                                 {{fracciones.o2|floatformat:4}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark">
+                                SO2
+                            </th>
+                            <td colspan="3">
+                                {{fracciones.so2|floatformat:4}}
                             </td>
                         </tr>
                         {% endwith %}
@@ -243,7 +251,15 @@
                             <td>
                                 {{balances_energia.energia_horno|floatformat:4}} kJ/h
                             </td>
-                        </tr>                        
+                        </tr>
+                        <tr>
+                            <th class="table-dark">
+                                Energía Total Salida
+                            </th>
+                            <td colspan="3">
+                                {{balances_energia.energia_total_salida|floatformat:4}} kJ/h
+                            </td>
+                        </tr>                    
                         {% endwith %}
 
                         {% with lado_agua=evaluacion.salida_lado_agua %}

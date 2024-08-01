@@ -22,7 +22,7 @@
     
 </div>
 
-<form method="post" enctype="multipart/form-data" hx-post="{% url 'evaluar_caldera' pk=equipo.pk %}" hx-target="#resultados">
+<form method="post" enctype="multipart/form-data" hx-indicator="#spinner" hx-post="{% url 'evaluar_caldera' pk=equipo.pk %}" hx-target="#resultados">
     {% csrf_token %}
     <div class="row">
         <div class="col-12 mb-3">
@@ -277,11 +277,18 @@
             <h4 class="text-center">Resultados</h4>
             <hr>
             <div id="resultados" name="accion" value="calcular" style="max-height: 80vh; overflow-y: auto;">
-                <button type="submit" id="submit" class="btn btn-danger w-full">Calcular Resultados</button>
+                <div class="d-flex justify-content-center w-100">
+                    <button type="submit" id="submit" class="btn btn-danger w-full">Calcular Resultados</button>
+                </div>
             </div>
         </div>
     </div>
 </form>
+
+<div id="spinner" class="htmx-indicator indicator-style">
+    <div class="spinner-grow text-danger" style="width: 6rem; height: 6rem;">
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_javascript %}
