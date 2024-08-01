@@ -448,13 +448,10 @@ class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTur
             'form_evaluacion': EvaluacionesForm(),
             'form_entrada_evaluacion': EntradaEvaluacionForm({
                 'potencia_real': turbina.generador_electrico.potencia_real if turbina.generador_electrico.potencia_real else None,
-                'potencia_real_unidad': turbina.generador_electrico.potencia_real_unidad,
-                'flujo_entrada_unidad': turbina.datos_corrientes.flujo_unidad if turbina.datos_corrientes.flujo_unidad else turbina.datos_corrientes.flujo_unidad,
-                'presion_unidad': turbina.datos_corrientes.presion_unidad,
-                'temperatura_unidad': turbina.datos_corrientes.temperatura_unidad
             }),
             'formset_entrada_corriente': self.generar_formset_entrada_corrientes(turbina),
-            'titulo': "Evaluación de Turbina de Vapor"
+            'titulo': "Evaluación de Turbina de Vapor",
+            'unidades': Unidades.objects.all().values('pk','simbolo','tipo')
         }
 
         return context

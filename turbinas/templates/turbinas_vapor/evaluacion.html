@@ -33,14 +33,18 @@
                     {{form_entrada_evaluacion.flujo_entrada.label_tag}}*
                     <div class="input-group">
                         {% render_field form_entrada_evaluacion.flujo_entrada class="form-control parametros-propiedades" min="0.00001" placeholder="Flujo (Másico) de Entrada" %}
-                        {% render_field form_entrada_evaluacion.flujo_entrada_unidad class="form-select parametros-propiedades" %}
+                        <select name="flujo_entrada_unidad" id="id_flujo_entrada_unidad" class="form-select parametros-propiedades">
+                            {% include 'unidades.html' with tipo='F' pk_selected=turbina.datos_corrientes.flujo_unidad.pk %}
+                        </select>
                     </div>
                 </div>
                 <div class="mt-3 col-6">
                     {{form_entrada_evaluacion.potencia_real.label_tag}}*
                     <div class="input-group">
                         {% render_field form_entrada_evaluacion.potencia_real class="form-control" min="0.00001" placeholder="Potencia real al evaluar" %}
-                        {% render_field form_entrada_evaluacion.potencia_real_unidad class="form-select" %}
+                        <select name="potencia_real_unidad" id="id_potencia_real_unidad" class="form-select parametros-propiedades">
+                            {% include 'unidades.html' with tipo='B' pk_selected=turbina.generador_electrico.potencia_real_unidad.pk %}
+                        </select>
                     </div>
                 </div>
             </div>
@@ -63,13 +67,19 @@
                         <th class="text-center">-</td>
                         <td class="text-center">-</td>
                         <td class="text-center">
-                            {% render_field form_entrada_evaluacion.presion_unidad class="form-select" %}
+                            <select name="presion_unidad" id="id_presion_unidad" class="form-select parametros-propiedades">
+                                {% include 'unidades.html' with tipo='P' pk_selected=turbina.datos_corrientes.presion_unidad.pk %}
+                            </select>
                         </td>
                         <td class="text-center">
-                            {% render_field form_entrada_evaluacion.temperatura_unidad class="form-select" %}
+                            <select name="temperatura_unidad" id="id_temperatura_unidad" class="form-select parametros-propiedades">
+                                {% include 'unidades.html' with tipo='T' pk_selected=turbina.datos_corrientes.temperatura_unidad.pk %}
+                            </select>
                         </td>
                         <td class="text-center">
-                            {% render_field form_entrada_evaluacion.flujo_entrada_unidad class="form-select" disabled="disabled" %}
+                            <select name="flujo_entrada_unidad" id="id_flujo_entrada_unidad" class="form-select parametros-propiedades" disabled>
+                                {% include 'unidades.html' with tipo='F' pk_selected=turbina.datos_corrientes.flujo_unidad.pk %}
+                            </select>
                         </td>
                         <td class="text-center">
                             <select name="" id="" disabled class="form-select">
