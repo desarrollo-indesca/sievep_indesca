@@ -93,12 +93,6 @@ class EspecificacionesCalderaForm(FormConPresionYTemperatura):
     Resumen:
         Clase que permite ingresar los datos específicos de una caldera.
     """
-    def limpiar_campos_unidades(self):
-        super().limpiar_campos_unidades()
-        self.fields["area_unidad"].queryset = Unidades.objects.filter(tipo="A")
-        self.fields["calor_unidad"].queryset = Unidades.objects.filter(tipo="Q")
-        self.fields["capacidad_unidad"].queryset = Unidades.objects.filter(tipo="F")
-        self.fields["carga_unidad"].queryset = Unidades.objects.filter(tipo="F")
 
     class Meta:
         model = EspecificacionesCaldera

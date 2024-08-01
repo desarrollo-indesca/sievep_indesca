@@ -184,13 +184,13 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
     template_name = 'calderas/creacion.html'
 
     def get_context(self):
-        combustibles = ComposicionCombustible.objects.values('fluido').distinct()
+        combustibles = ComposicionCombustible.objects.select_related('fluido').values('fluido', 'fluido__nombre').distinct()
         combustible_forms = []
 
         for i,x in enumerate(combustibles):
             form = ComposicionCombustibleForm(prefix=f'combustible-{i}', initial={'fluido': x['fluido']})
             combustible_forms.append({
-                'combustible': Fluido.objects.get(pk=x['fluido']),
+                'combustible': x['fluido__nombre'],
                 'form': form
             })
             
@@ -208,7 +208,8 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
             'form_combustible': CombustibleForm(prefix="combustible"),
             'composicion_combustible_forms': combustible_forms,
             'compuestos_aire': COMPUESTOS_AIRE,
-            'titulo': self.titulo
+            'titulo': self.titulo,
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo')
         }
 
     def get(self, request, **kwargs):
@@ -345,7 +346,8 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
                 'compuestos_aire': COMPUESTOS_AIRE,
                 'recargo': True,
                 'titulo': self.titulo,
-                'error': str(e)
+                'error': str(e),
+                'unidades': Unidades.objects.all().values('pk','simbolo','tipo')
             })
 
 class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
@@ -402,7 +404,8 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
             'composicion_combustible_forms': combustible_forms,
             'compuestos_aire': COMPUESTOS_AIRE,
             'edicion': True,
-            'titulo': self.titulo + f" {caldera.tag}"
+            'titulo': self.titulo + f" {caldera.tag}",
+            'unidades': Unidades.objects.all().values('pk','simbolo','tipo')
         }
 
     def post(self, request, pk):
@@ -459,7 +462,8 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
                 'compuestos_aire': COMPUESTOS_AIRE,
                 'edicion': True,
                 'titulo': self.titulo + f" {caldera.tag}",
-                'error': str(e)
+                'error': str(e),
+                'unidades': Unidades.objects.all().values('pk','simbolo','tipo')
             })
         
 class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View):
