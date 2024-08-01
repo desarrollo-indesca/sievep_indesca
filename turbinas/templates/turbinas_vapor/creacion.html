@@ -78,7 +78,9 @@
             {{form_especificaciones.potencia.label_tag}}
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.potencia min="0.0001" class="form-control" placeholder="Potencia de la Turbina" %}
-                {% render_field form_especificaciones.potencia_unidad class="form-select" %}
+                <select name="potencia_unidad" id="id_potencia_unidad" class="form-select">
+                    {% include 'unidades.html' with tipo="B" pk_selected=form_especificaciones.instance.potencia_unidad.pk %}
+                </select>
             </div>
             <small>{{form_especificaciones.potencia.errors}}</small>
         </div>
@@ -87,7 +89,9 @@
             {{form_especificaciones.potencia_max.label_tag}}
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.potencia_max min="0.0001" class="form-control" placeholder="Potencia Máxima de la turbina" %}
-                {% render_field form_especificaciones.potencia_unidad disabled="disabled" class="form-select" %}
+                <select name="potencia_unidad" id="id_potencia_unidad" class="form-select" disabled>
+                    {% include 'unidades.html' with tipo="B" pk_selected=form_especificaciones.instance.potencia_unidad.pk %}
+                </select>
             </div>
             <small>{{form_especificaciones.potencia_max.errors}}</small>
         </div>
@@ -96,7 +100,9 @@
             {{form_especificaciones.velocidad.label_tag}}
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.velocidad min="0.0001" class="form-control" placeholder="Velocidad de la turbina" %}
-                {% render_field form_especificaciones.velocidad_unidad class="form-select" %}
+                <select name="velocidad_unidad" id="id_velocidad_unidad" class="form-select">
+                    {% include 'unidades.html' with tipo="O" pk_selected=form_especificaciones.instance.velocidad_unidad.pk %}
+                </select>
             </div>
             <small>{{form_especificaciones.velocidad.errors}}</small>
         </div>
@@ -105,7 +111,9 @@
             {{form_especificaciones.presion_entrada.label_tag}}
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.presion_entrada min="0.0001" class="form-control" placeholder="Presión (abs.) de Entrada" %}
-                {% render_field form_especificaciones.presion_entrada_unidad class="form-select" %}
+                <select name="presion_entrada_unidad" id="id_presion_entrada_unidad" class="form-select">
+                    {% include 'unidades.html' with tipo="P" pk_selected=form_especificaciones.instance.presion_entrada_unidad.pk %}
+                </select>
             </div>
             <small>{{form_especificaciones.presion_entrada.errors}}</small>
         </div>
@@ -114,7 +122,9 @@
             {{form_especificaciones.temperatura_entrada.label_tag}}
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.temperatura_entrada min="0.0001" class="form-control" placeholder="Temp. de Entrada" %}
-                {% render_field form_especificaciones.temperatura_entrada_unidad class="form-select" %}
+                <select name="temperatura_entrada_unidad" id="id_temperatura_entrada_unidad" class="form-select">
+                    {% include 'unidades.html' with tipo="T" pk_selected=form_especificaciones.instance.temperatura_entrada_unidad.pk %}
+                </select>
             </div>
             <small>{{form_especificaciones.temperatura_entrada.errors}}</small>
         </div>
@@ -123,7 +133,9 @@
             {{form_especificaciones.contra_presion.label_tag}}
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.contra_presion min="0.0001" class="form-control" placeholder="Contra Presión (abs.)" %}
-                {% render_field form_especificaciones.contra_presion_unidad class="form-select" %}
+                <select name="contra_presion_unidad" id="id_contra_presion_unidad" class="form-select">
+                    {% include 'unidades.html' with tipo="B" pk_selected=form_especificaciones.instance.contra_presion_unidad.pk %}
+                </select>
             </div>
             <small>{{form_especificaciones.contra_presion.errors}}</small>
         </div>
@@ -151,7 +163,9 @@
                 {{form_generador.voltaje.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_generador.voltaje min="0.0001" class="form-control" placeholder="Voltaje del Generador" %}
-                    {% render_field form_generador.voltaje_unidad class="form-select" %}
+                    <select name="voltaje_unidad" id="id_voltaje_unidad" class="form-select">
+                        {% include 'unidades.html' with tipo="X" pk_selected=form_generador.instance.voltaje_unidad.pk %}
+                    </select>
                 </div>
                 <small>{{form_generador.voltaje.errors}}</small>
             </div>
@@ -160,7 +174,9 @@
                 {{form_generador.potencia_real.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_generador.potencia_real min="0.0001" class="form-control" placeholder="Pot. Real del Generador" %}
-                    {% render_field form_generador.potencia_real_unidad class="form-select" %}
+                    <select name="potencia_real_unidad" id="id_potencia_real_unidad" class="form-select">
+                        {% include 'unidades.html' with tipo="B" pk_selected=form_generador.instance.potencia_real_unidad.pk %}
+                    </select>
                 </div>
                 <small>{{form_generador.potencia_real.errors}}</small>
             </div>
@@ -169,7 +185,9 @@
                 {{form_generador.potencia_aparente.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_generador.potencia_aparente min="0.0001" class="form-control" placeholder="Pot. Aparente del Generador" %}
-                    {% render_field form_generador.potencia_aparente_unidad class="form-select" %}
+                    <select name="potencia_aparente_unidad" id="id_potencia_aparente_unidad" class="form-select">
+                        {% include 'unidades.html' with tipo="Z" pk_selected=form_generador.instance.potencia_aparente_unidad.pk %}
+                    </select>
                 </div>
                 <small>{{form_generador.potencia_aparente.errors}}</small>
             </div>
@@ -178,7 +196,9 @@
                 {{form_generador.ciclos.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_generador.ciclos min="0.0001" class="form-control" placeholder="Ciclos del Generador" %}
-                    {% render_field form_generador.ciclos_unidad class="form-select" %}
+                    <select name="ciclos_unidad" id="id_ciclos_unidad" class="form-select">
+                        {% include 'unidades.html' with tipo="H" pk_selected=form_generador.instance.ciclos_unidad.pk %}
+                    </select>
                 </div>
                 <small>{{form_generador.ciclos.errors}}</small>
             </div>
@@ -187,7 +207,9 @@
                 {{form_generador.corriente_electrica.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_generador.corriente_electrica min="0.0001" class="form-control" placeholder="Corriente del Generador" %}
-                    {% render_field form_generador.corriente_electrica_unidad class="form-select" %}
+                    <select name="corriente_electrica_unidad" id="id_corriente_electrica_unidad" class="form-select">
+                        {% include 'unidades.html' with tipo="Y" pk_selected=form_generador.instance.corriente_electrica_unidad.pk %}
+                    </select>
                 </div>
                 <small>{{form_generador.corriente_electrica.errors}}</small>
             </div>
@@ -196,7 +218,9 @@
                 {{form_generador.velocidad.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_generador.velocidad min="0.0001" class="form-control" placeholder="Velocidad del Generador" %}
-                    {% render_field form_generador.velocidad_unidad class="form-select" %}
+                    <select name="velocidad_unidad" id="id_velocidad_unidad" class="form-select">
+                        {% include 'unidades.html' with tipo="O" pk_selected=form_generador.instance.velocidad_unidad.pk %}
+                    </select>
                 </div>
                 <small>{{form_generador.velocidad.errors}}</small>
             </div>
@@ -228,16 +252,24 @@
                         <td class="text-center">-</td>
                         <td class="text-center">-</td>
                         <td class="text-center">
-                            {% render_field form_datos_corrientes.flujo_unidad class="form-select" %}
+                            <select name="flujo_unidad" id="id_flujo_unidad" class="form-select">
+                                {% include 'unidades.html' with tipo="F" pk_selected=form_datos_corrientes.instance.flujo_unidad.pk %}
+                            </select>
                         </td>
                         <td class="text-center">
-                            {% render_field form_datos_corrientes.entalpia_unidad class="form-select" %}
+                            <select name="entalpia_unidad" id="id_entalpia_unidad" class="form-select">
+                                {% include 'unidades.html' with tipo="n" pk_selected=form_datos_corrientes.instance.entalpia_unidad.pk %}
+                            </select>
                         </td>
                         <td class="text-center">
-                            {% render_field form_datos_corrientes.presion_unidad class="form-select" %}
+                            <select name="presion_unidad" id="id_presion_unidad" class="form-select">
+                                {% include 'unidades.html' with tipo="P" pk_selected=form_datos_corrientes.instance.presion_unidad.pk %}
+                            </select>
                         </td>
                         <td class="text-center">
-                            {% render_field form_datos_corrientes.temperatura_unidad class="form-select" %}
+                            <select name="temperatura_unidad" id="id_temperatura_unidad" class="form-select">
+                                {% include 'unidades.html' with tipo="T" pk_selected=form_datos_corrientes.instance.temperatura_unidad.pk %}
+                            </select>
                         </td>
                         <td class="text-center">-</td>
                         <td class="text-center">-</td>

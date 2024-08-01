@@ -165,7 +165,8 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
             'form_generador': GeneradorElectricoForm(), 
             'form_datos_corrientes': DatosCorrientesForm(),
             'forms_corrientes': corrientes_formset(queryset=Corriente.objects.none()),
-            'titulo': self.titulo
+            'titulo': self.titulo,
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
         }
 
     def get(self, request, **kwargs):
@@ -308,7 +309,8 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
             'form_generador': GeneradorElectricoForm(instance=turbina.generador_electrico), 
             'form_datos_corrientes': DatosCorrientesForm(instance=turbina.datos_corrientes),
             'forms_corrientes': corrientes_formset(queryset=turbina.datos_corrientes.corrientes.all()),
-            'titulo': self.titulo
+            'titulo': self.titulo,
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
         }
 
     def post(self, request, pk):
