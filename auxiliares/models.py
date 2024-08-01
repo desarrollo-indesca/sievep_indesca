@@ -1097,7 +1097,8 @@ class SeccionesPrecalentadorAgua(models.Model):
     entalpia_salida = models.FloatField(null=True)
     entalpia_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entalpia_unidad_seccion_precalentador_agua")
 
-    flujo_masico = models.FloatField()
+    flujo_masico_entrada = models.FloatField()
+    flujo_masico_salida = models.FloatField()
     flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="flujo_unidad_seccion_precalentador_agua")
 
     temp_entrada = models.FloatField()
@@ -1118,7 +1119,7 @@ class EspecificacionesPrecalentadorAgua(models.Model):
     '''
     Resumen:
         Modelo que registra las especificaciones de los distintos elementos del precalentador.
-        La idea es que cada precalentador tenga una sección de cada tipo (Agua, Vapor y Drenaje)
+        La idea es que cada precalentador tenga una sección de cada tipo (Drenaje, Reducción de Desobrecalentamiento y Condensado)
 
     Atributos:
         calor: models.FloatField -> Calor intercambiado en el elemento
@@ -1143,9 +1144,12 @@ class EspecificacionesPrecalentadorAgua(models.Model):
     coeficiente_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="coeficiente_unidad_especificaciones_precalentador_agua")
 
     mtd = models.FloatField(validators=[MinValueValidator(0.0001)], null=True)
-    mtd_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="temperatura_unidad_especificaciones_precalentador_agua")
+    mtd_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="mtd_unidad_especificaciones_precalentador_agua")
 
-    tipo = models.CharField(choices=[("D","Drenaje"),("R","Reducción"),("C","Condensado"),("S","Desobrecalentamiento")])
+    caida_presion = models.FloatField(validators=[MinValueValidator(0.0001)], null=True)
+    caida_presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="caida_presion_unidad_especificaciones_precalentador_agua")
+
+    tipo = models.CharField(choices=[("D","Drenaje"),("R","Reducción de Desobrecalentamiento"),("C","Condensado")])
     precalentador = models.ForeignKey(PrecalentadorAgua, on_delete=models.PROTECT, related_name="especificaciones_precalentador")
 
     class Meta:
