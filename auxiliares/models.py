@@ -64,6 +64,18 @@ TIPO_FLUJO_CAUDAL = (
     ('V','Volumétrico')
 )
 
+TIPOS_ELEMENTOS_PRECALENTADOR = [
+    ("D","Drenaje"),
+    ("R","Reducción de Desobrecalentamiento"),
+    ("C","Condensado")
+]
+
+TIPOS_SECCIONES_PRECALENTADOR = [
+    ("A","Agua"),
+    ("V","Vapor"),
+    ("D","Drenaje")
+]
+
 # MODELOS DE BOMBAS
 
 class MaterialTuberia(models.Model):
@@ -1108,7 +1120,7 @@ class SeccionesPrecalentadorAgua(models.Model):
     velocidad_promedio = models.FloatField(null=True)
     velocidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="velocidad_unidad_seccion_precalentador_agua")
 
-    tipo = models.CharField(choices=[("A","Agua"),("V","Vapor"),("D","Drenaje")])
+    tipo = models.CharField(choices=TIPOS_SECCIONES_PRECALENTADOR)
     precalentador = models.ForeignKey(PrecalentadorAgua, on_delete=models.PROTECT, related_name="secciones_precalentador")
 
     class Meta:
@@ -1149,7 +1161,7 @@ class EspecificacionesPrecalentadorAgua(models.Model):
     caida_presion = models.FloatField(validators=[MinValueValidator(0.0001)], null=True)
     caida_presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="caida_presion_unidad_especificaciones_precalentador_agua")
 
-    tipo = models.CharField(choices=[("D","Drenaje"),("R","Reducción de Desobrecalentamiento"),("C","Condensado")])
+    tipo = models.CharField(choices=TIPOS_ELEMENTOS_PRECALENTADOR)
     precalentador = models.ForeignKey(PrecalentadorAgua, on_delete=models.PROTECT, related_name="especificaciones_precalentador")
 
     class Meta:
