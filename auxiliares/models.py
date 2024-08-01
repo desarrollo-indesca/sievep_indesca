@@ -1035,7 +1035,121 @@ class EvaluacionVentilador(models.Model):
         ordering = ('-fecha',)
 
 # MODELOS DE PRECALENTADOR DE AGUA
+class PrecalentadorAgua(models.Model):
+    '''
+    Resumen:
+        Modelo de registro de los precalentadores de agua.
 
-# MODELOS DE ECONOMIZADORES
+    Atributos:
+        tag: models.CharField -> Tag único para el precalentador de agua.
+        descripcion: models.CharField -> Descripción del servicio o funciones del equipo.
+        fabricante: models.CharField -> Nombre del fabricante del equipo.
+        planta: Planta -> Planta donde se encuenta el precalentador de agua.
+        creado_al: models.DateTimeField -> Tiempo de creación del equipo.
+        editado_al: models.DateTimeField -> Tiempo de última edición del equipo.
+        creado_por: Usuario -> Usuario que creó el equipo.
+        editado_por: Usuario -> Usuario que editó el equipo por última vez.
+    '''
+
+    tag = models.CharField(max_length=45, unique=True)
+    descripcion = models.CharField(max_length=80)
+    fabricante = models.CharField(max_length=45)
+
+    planta = models.ForeignKey(Planta, on_delete=models.PROTECT)
+    creado_al = models.DateTimeField(auto_now_add=True)
+    editado_al = models.DateTimeField(null = True)
+
+    creado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="ventilador_creado_por")
+    editado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, null = True, related_name="ventilador_editado_por")
+
+    class Meta:
+        db_table = "precalentador_agua"
+        ordering = ('tag',)
+
+class SeccionesPrecalentadorAgua(models.Model):
+    '''
+    Resumen:
+        Modelo que registra las características de las distintas secciones del precalentador.
+        La idea es que cada precalentador tenga una sección de cada tipo (Agua, Vapor y Drenaje)
+
+    Atributos:
+        presion_entrada: models.FloatField -> Presión de entrada a la sección (manométrica)
+        caida_presion: models.FloatField -> Caída de Presión correspondiente a la sección (manométrica)
+        presion_unidad: Unidades -> Unidad de presión asociada a las presiones del modelo.
+        entalpia_entrada: models.FloatField -> Entalpía de entrada
+        entalpia_salida: models.FloatField -> Entalpía de salida
+        entalpia_unidad: Unidades -> Unidad de entalpía asociada a las entalpías del modelo.
+        flujo_masico: models.FloatField -> Flujo másico circulante por la sección
+        flujo_unidad: Unidades -> Unidad de flujo asociada al flujo del modelo.
+        temp_entrada: models.FloatField -> Temperatura de entrada a la sección
+        temp_salida: models.FloatField -> Temperatura de Salida
+        temp_unidad: Unidades -> Unidad de temperatura asociada a las temperaturas del modelo.
+        velocidad_promedio: models.FloatField -> Velocidad promedio del fluido circulante
+        velocidad_unidad: Unidades -> Unidad de velocidad asociada a la velocidad promedio.
+        tipo: models.CharField -> Tipo de Sección del equipo
+        precalentador: PrecalentadorAgua -> Precalentador de agua al que pertenece la sección
+    '''
+    presion_entrada = models.FloatField() # Manométrica. Debe calcularse el mínimo en el form
+    caida_presion = models.FloatField(null=True)
+    presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="presion_unidad_seccion_precalentador_agua")
+
+    entalpia_entrada = models.FloatField()
+    entalpia_salida = models.FloatField(null=True)
+    entalpia_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entalpia_unidad_seccion_precalentador_agua")
+
+    flujo_masico = models.FloatField()
+    flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="flujo_unidad_seccion_precalentador_agua")
+
+    temp_entrada = models.FloatField()
+    temp_salida = models.FloatField(null=True)
+    temp_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="temperatura_unidad_seccion_precalentador_agua")
+
+    velocidad_promedio = models.FloatField(null=True)
+    velocidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="velocidad_unidad_seccion_precalentador_agua")
+
+    tipo = models.CharField(choices=[("A","Agua"),("V","Vapor"),("D","Drenaje")])
+    precalentador = models.ForeignKey(PrecalentadorAgua, on_delete=models.PROTECT, related_name="secciones_precalentador")
+
+    class Meta:
+        db_table = "precalentador_agua_secciones"
+        ordering = ('tipo',)
+
+class EspecificacionesPrecalentadorAgua(models.Model):
+    '''
+    Resumen:
+        Modelo que registra las especificaciones de los distintos elementos del precalentador.
+        La idea es que cada precalentador tenga una sección de cada tipo (Agua, Vapor y Drenaje)
+
+    Atributos:
+        calor: models.FloatField -> Calor intercambiado en el elemento
+        calor_unidad: Unidades -> Unidad del calor intercambiado
+        area: models.FloatField -> Área total de transferencia del elemento
+        area_unidad: Unidades -> Unidad del área de transferencia
+        coeficiente_transferencia: models.FloatField -> Coeficiente global de transferencia
+        coeficiente_unidad: Unidades -> Unidad asociada al coeficiente global de transferencia
+        mtd: models.FloatField -> Delta T Medio de variación de las temperaturas
+        mtd_unidad: Unidades -> Unidad asociada al MTD
+        tipo: models.CharField -> Tipo de elemento del cual se describen las especificaciones 
+        precalentador: PrecalentadorAgua -> Precalentador de agua al que pertenecen las especificacionesa
+    '''
+
+    calor = models.FloatField(validators=[MinValueValidator(0.0001)], null=True)
+    calor_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="calor_unidad_especificaciones_precalentador_agua")
+
+    area = models.FloatField(validators=[MinValueValidator(0.0001)], null=True)
+    area_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="area_unidad_especificaciones_precalentador_agua")
+
+    coeficiente_transferencia = models.FloatField(validators=[MinValueValidator(0.0001)], null=True)
+    coeficiente_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="coeficiente_unidad_especificaciones_precalentador_agua")
+
+    mtd = models.FloatField(validators=[MinValueValidator(0.0001)], null=True)
+    mtd_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="temperatura_unidad_especificaciones_precalentador_agua")
+
+    tipo = models.CharField(choices=[("D","Drenaje"),("R","Reducción"),("C","Condensado"),("S","Desobrecalentamiento")])
+    precalentador = models.ForeignKey(PrecalentadorAgua, on_delete=models.PROTECT, related_name="especificaciones_precalentador")
+
+    class Meta:
+        db_table = "precalentador_agua_secciones"
+        ordering = ('tipo',)
 
 # MODELOS DE PRECALENTADOR DE AIRE
