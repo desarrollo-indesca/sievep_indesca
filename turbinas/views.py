@@ -165,7 +165,8 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
             'form_generador': GeneradorElectricoForm(), 
             'form_datos_corrientes': DatosCorrientesForm(),
             'forms_corrientes': corrientes_formset(queryset=Corriente.objects.none()),
-            'titulo': self.titulo
+            'titulo': self.titulo,
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
         }
 
     def get(self, request, **kwargs):
@@ -308,7 +309,8 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
             'form_generador': GeneradorElectricoForm(instance=turbina.generador_electrico), 
             'form_datos_corrientes': DatosCorrientesForm(instance=turbina.datos_corrientes),
             'forms_corrientes': corrientes_formset(queryset=turbina.datos_corrientes.corrientes.all()),
-            'titulo': self.titulo
+            'titulo': self.titulo,
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
         }
 
     def post(self, request, pk):
@@ -446,13 +448,10 @@ class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTur
             'form_evaluacion': EvaluacionesForm(),
             'form_entrada_evaluacion': EntradaEvaluacionForm({
                 'potencia_real': turbina.generador_electrico.potencia_real if turbina.generador_electrico.potencia_real else None,
-                'potencia_real_unidad': turbina.generador_electrico.potencia_real_unidad,
-                'flujo_entrada_unidad': turbina.datos_corrientes.flujo_unidad if turbina.datos_corrientes.flujo_unidad else turbina.datos_corrientes.flujo_unidad,
-                'presion_unidad': turbina.datos_corrientes.presion_unidad,
-                'temperatura_unidad': turbina.datos_corrientes.temperatura_unidad
             }),
             'formset_entrada_corriente': self.generar_formset_entrada_corrientes(turbina),
-            'titulo': "Evaluación de Turbina de Vapor"
+            'titulo': "Evaluación de Turbina de Vapor",
+            'unidades': Unidades.objects.all().values('pk','simbolo','tipo')
         }
 
         return context

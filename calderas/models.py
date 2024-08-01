@@ -446,6 +446,7 @@ class SalidaBalanceEnergia(models.Model):
     energia_total_entrada = models.FloatField()
     energia_total_reaccion = models.FloatField()
     energia_horno = models.FloatField()
+    energia_total_salida = models.FloatField()
 
 class SalidaLadoAgua(models.Model):
     """
@@ -478,6 +479,7 @@ class SalidaFracciones(models.Model):
     co2 = models.FloatField()
     n2 = models.FloatField()
     o2 = models.FloatField()
+    so2 = models.FloatField()
 
 class SalidaFlujosEntrada(models.Model):
     """

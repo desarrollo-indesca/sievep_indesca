@@ -9,11 +9,11 @@
         </tr>
         <tr>
             <th class="table-dark">Gas de Entrada</th>
-            <td>{{resultados.balance_gas.masico|floatformat:4}} Kg/h / {{resultados.balance_gas.molar|floatformat:4}} mol/h</td>
+            <td>{{resultados.balance_gas.masico|floatformat:4}} Kg/h / {{resultados.balance_gas.molar|floatformat:4}} Kmol/h</td>
         </tr>
         <tr>
             <th class="table-dark">Aire de Entrada</th>
-            <td>{{resultados.balance_aire.masico|floatformat:4}} Kg/h / {{resultados.balance_aire.molar|floatformat:4}} mol/h</td>
+            <td>{{resultados.balance_aire.masico|floatformat:4}} Kg/h / {{resultados.balance_aire.molar|floatformat:4}} Kmol/h</td>
         </tr>
         <tr>
             <th class="table-dark" colspan="2">Lado Combustión</th>
@@ -31,19 +31,23 @@
         </tr>
         <tr>
             <th class="table-dark">H2O</th>
-            <td>{{resultados.fraccion_h2o_gas|floatformat:6}}</td>
+            <td>{{resultados.fraccion_h2o_gas|floatformat:4}}</td>
         </tr>
         <tr>
             <th class="table-dark">CO2</th>
-            <td>{{resultados.fraccion_co2_gas|floatformat:6}}</td>
+            <td>{{resultados.fraccion_co2_gas|floatformat:4}}</td>
         </tr>
         <tr>
             <th class="table-dark">N2</th>
-            <td>{{resultados.fraccion_n2_gas|floatformat:6}}</td>
+            <td>{{resultados.fraccion_n2_gas|floatformat:4}}</td>
         </tr>
         <tr>
             <th class="table-dark">O2</th>
-            <td>{{resultados.fraccion_o2_gas|floatformat:6}}</td>
+            <td>{{resultados.fraccion_o2_gas|floatformat:4}}</td>
+        </tr>
+        <tr>
+            <th class="table-dark">SO2</th>
+            <td>{{resultados.fraccion_so2_gas|floatformat:4}}</td>
         </tr>
         <tr>
             <th class="table-dark" colspan="2">Balance de Energía</th>
