@@ -1763,3 +1763,85 @@ class GenerarGraficaVentilador(LoginRequiredMixin, View, FiltrarEvaluacionesMixi
             })
 
         return JsonResponse(res[:15], safe=False)
+
+# PRECALENTADORES DE AGUA
+class ObtenerPrecalentadorAguaMixin():
+    '''
+    Resumen:
+        Mixin para obtener un precalentador de agua de la base de datos de acuerdo a la PK correspondiente y su prefetching.
+
+    Métodos:
+        get_precalentador(self) -> QuerySet
+            Obtiene un precalentador en un queryset con todo el prefetching necesario por cuestiones de eficiencia.
+            El parámetro "precalentador_q" funciona para saber si la función se usará sobre ese QuerySet o no.
+    '''
+    def get_precalentador(self, precalentador_q = None):
+        if(not precalentador_q):
+            if(self.kwargs.get('pk')):
+                precalentador = PrecalentadorAgua.objects.filter(pk = self.kwargs.get('pk'))
+            else:
+                precalentador = PrecalentadorAgua.objects.none()
+        else:
+            precalentador = precalentador_q
+
+        precalentador = precalentador.select_related(
+            'planta', 'creado_por', 'editado_por'
+        ).prefetch_related(
+            Prefetch('secciones_precalentador', SeccionesPrecalentadorAgua.objects.select_related(
+                'presion_unidad', 'entalpia_unidad', 'flujo_unidad', 
+                'temp_unidad', 'velocidad_unidad'
+            )),
+            Prefetch('especificaciones_precalentador', EspecificacionesPrecalentadorAgua.objects.select_related(
+                'calor_unidad', 'area_unidad','coeficiente_unidad',
+                'mtd_unidad', 'caida_presion_unidad'
+            )),
+        )
+
+        if(not precalentador_q and precalentador):
+            return precalentador[0]
+        
+        return precalentador
+
+class ConsultaPrecalentadoresAgua(ObtenerPrecalentadorAguaMixin, FiltradoSimpleMixin, LoginRequiredMixin, ListView, ReportesFichasVentiladoresMixin):
+    '''
+    Resumen:
+        Vista para la consulta de precalentadores de agua.
+        Hereda de ListView.
+        Pueden acceder usuarios que hayan iniciado sesión.
+        Se puede generar una ficha a través de esta vista.
+
+    Atributos:
+        model: Model -> Modelo del cual se extraerán los elementos de la lista.
+        template_name: str -> Plantilla a renderizar
+        titulo: str -> Título de la vista a ser mostrado al usuario
+        paginate_by: str -> Número de elementos a mostrar a a la vez
+
+    Métodos:
+        post(self, request, *args, **kwargs) -> HttpResponse
+            Se utiliza para la generación de reportes de ficha o de precalentadores de agua.
+
+        get_queryset(self) -> QuerySet
+            Obtiene el QuerySet de la lista de acuerdo al modelo del atributo.
+            Hace el filtrado correspondiente y prefetching necesario para reducir las queries.
+    '''
+    model = PrecalentadorAgua
+    template_name = 'precalentadores_agua/consulta.html'
+    titulo = "SIEVEP - Consulta de Precalentadores de Agua"
+    paginate_by = 10
+
+    def post(self, request, *args, **kwargs):
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha): # Si se está deseando generar un reporte de ficha, se genera
+            return reporte_ficha
+
+        if(request.POST.get('tipo') == 'pdf'): # Reporte de Precalentadores en PDF
+            return generar_pdf(request, self.get_queryset(), 'Reporte de Precalentadores de Agua', 'precalentadores_agua')
+        
+        if(request.POST.get('tipo') == 'xlsx'): # reporte de precalentadores en XLSX
+            return reporte_equipos(request, self.get_queryset(), 'Listado de Precalentadores de Agua', 'listado_precalentadores')
+
+    def get_queryset(self):
+        new_context = self.get_precalentador(self.filtrar_equipos())
+        return new_context   
+
+# PRECALENTADORES DE AIRE
