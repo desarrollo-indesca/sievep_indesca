@@ -274,3 +274,35 @@ class EntradaEvaluacionVentiladorForm(FormConUnidades):
     class Meta:
         model = EntradaEvaluacionVentilador
         exclude = ('id','tipo_flujo','densidad_ficha', 'densidad_ficha_unidad')
+
+# FORMS DE PRECALENTADOR DE AGUA Y AIRE
+class FormPrecalentadorAgua(forms.Form):
+    complejo = forms.ModelChoiceField(queryset=Complejo.objects.all(), initial=1)
+
+    class Meta:
+        model = PrecalentadorAgua
+        exclude = ('id',)
+
+class FormSeccionesPrecalentadorAgua(forms.Form):
+    '''
+    Resumen:
+        Form para el registro de los datos de las condiciones de diseño  en las secciones en una parte del precalentador.
+        La idea es que se defina el tipo correspondiente a la parte del precalentador de forma independiente (no por el usuario).
+        Debe haber solo uno de cada tipo por precalentador.
+    '''
+
+    class Meta:
+        model = SeccionesPrecalentadorAgua
+        exclude = ('id','tipo', 'precalentador')
+
+class FormEspecificacionesPrecalentadorAgua(forms.Form):
+    '''
+    Resumen:
+        Form para el registro de los datos de las especificaciones de diseño de una parte del precalentador.
+        La idea es que se defina el tipo correspondiente a la parte del precalentador de forma independiente (no por el usuario).
+        Debe haber solo uno de cada tipo por precalentador.
+    '''
+
+    class Meta:
+        model = EspecificacionesPrecalentadorAgua
+        exclude = ('id','tipo', 'precalentador')
