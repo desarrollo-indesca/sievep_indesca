@@ -11,24 +11,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         
         with transaction.atomic():
-            # Crear unidades de velocidad lineal
-            Unidades.objects.get_or_create(
-                simbolo = 'm/s',
-                tipo = "s"
-            ) 
-
-            Unidades.objects.get_or_create(
-                simbolo = 'km/h',
-                tipo = "s"
-            ) 
-
-            Unidades.objects.get_or_create(
-                simbolo = 'milla/h',
-                tipo = "s"
-            ) 
-
             # Cargo de precalentadores
-            with open('auxiliares/data/precalentadores.csv', 'r') as file:
+            with open('auxiliares/data/precalentador_agua.csv', 'r') as file:
                 csv_reader = csv.DictReader(file, delimiter=';')
                 data = [row for row in csv_reader]
 
@@ -41,60 +25,79 @@ class Command(BaseCommand):
                     fabricante = precalentador['fabricante'],
                     planta = Planta.objects.get(pk=precalentador['planta']),
                     creado_por = usuario
-                )
+                )[0]
 
                 # Sección 1: Agua
                 SeccionesPrecalentadorAgua.objects.get_or_create(
-                    presion_entrada = precalentador.get('presion_entrada_agua'),
-                    caida_presion = precalentador.get('caida_presion_agua'),
-                    entalpia_entrada = precalentador.get('entalpia_entrada_agua'),
-                    entalpia_salida = precalentador.get('entalpia_salida_agua'),
-                    flujo_masico_entrada = precalentador.get('flujo_masico_entrada_agua'),
-                    flujo_masico_salida = precalentador.get('flujo_masico_salida_agua'),
-                    temp_entrada = precalentador.get('temp_entrada_agua'),
-                    temp_salida = precalentador.get('temp_salida_agua'),
-                    velocidad_promedio = precalentador.get('velocidad_promedio_agua'),
+                    presion_entrada = precalentador.get('presion_entrada_agua') if precalentador.get('presion_entrada_agua') != '' else None,
+                    caida_presion = precalentador.get('caida_presion_agua') if precalentador.get('caida_presion_agua') != '' else None,
+                    entalpia_entrada = precalentador.get('entalpia_entrada_agua') if precalentador.get('entalpia_entrada_agua') != '' else None,
+                    entalpia_salida = precalentador.get('entalpia_salida_agua') if precalentador.get('entalpia_salida_agua') != '' else None,
+                    flujo_masico_entrada = precalentador.get('flujo_masico_entrada_agua') if precalentador.get('flujo_masico_entrada_agua') != '' else None,
+                    flujo_masico_salida = precalentador.get('flujo_masico_salida_agua') if precalentador.get('flujo_masico_salida_agua') != '' else None,
+                    temp_entrada = precalentador.get('temp_entrada_agua') if precalentador.get('temp_entrada_agua') != '' else None,
+                    temp_salida = precalentador.get('temp_salida_agua') if precalentador.get('temp_salida_agua') != '' else None,
+                    velocidad_promedio = precalentador.get('velocidad_promedio_agua') if precalentador.get('velocidad_promedio_agua') != '' else None,
                     tipo = 'A',
                     precalentador = precalentador_bdd,
                 )
 
                 # Sección 2: Vapor
                 SeccionesPrecalentadorAgua.objects.get_or_create(
-                    presion_entrada = precalentador.get('presion_entrada_vapor'),
-                    caida_presion = precalentador.get('caida_presion_vapor'),
-                    entalpia_entrada = precalentador.get('entalpia_entrada_vapor'),
-                    entalpia_salida = precalentador.get('entalpia_salida_vapor'),
-                    flujo_masico_entrada = precalentador.get('flujo_masico_entrada_vapor'),
-                    flujo_masico_salida = precalentador.get('flujo_masico_salida_vapor'),
-                    temp_entrada = precalentador.get('temp_entrada_vapor'),
-                    temp_salida = precalentador.get('temp_salida_vapor'),
-                    velocidad_promedio = precalentador.get('velocidad_promedio_vapor'),
+                    presion_entrada = precalentador.get('presion_entrada_vapor') if precalentador.get('presion_entrada_vapor') != '' else None,
+                    caida_presion = precalentador.get('caida_presion_vapor') if precalentador.get('caida_presion_vapor') != '' else None,
+                    entalpia_entrada = precalentador.get('entalpia_entrada_vapor') if precalentador.get('entalpia_entrada_vapor') != '' else None,
+                    entalpia_salida = precalentador.get('entalpia_salida_vapor') if precalentador.get('entalpia_salida_vapor') != '' else None,
+                    flujo_masico_entrada = precalentador.get('flujo_masico_entrada_vapor') if precalentador.get('flujo_masico_entrada_vapor') != '' else None,
+                    flujo_masico_salida = precalentador.get('flujo_masico_salida_vapor') if precalentador.get('flujo_masico_salida_vapor') != '' else None,
+                    temp_entrada = precalentador.get('temp_entrada_vapor') if precalentador.get('temp_entrada_vapor') != '' else None,
+                    temp_salida = precalentador.get('temp_salida_vapor') if precalentador.get('temp_salida_vapor') != '' else None,
+                    velocidad_promedio = precalentador.get('velocidad_promedio_vapor') if precalentador.get('velocidad_promedio_vapor') != '' else None,
                     tipo = 'V',
                     precalentador = precalentador_bdd,
                 )
 
                 # Sección 3: Drenaje 
                 SeccionesPrecalentadorAgua.objects.get_or_create(
-                    presion_entrada = precalentador.get('presion_entrada_drenaje'),
-                    caida_presion = precalentador.get('caida_presion_drenaje'),
-                    entalpia_entrada = precalentador.get('entalpia_entrada_drenaje'),
-                    entalpia_salida = precalentador.get('entalpia_salida_drenaje'),
-                    flujo_masico_entrada = precalentador.get('flujo_masico_entrada_drenaje'),
-                    flujo_masico_salida = precalentador.get('flujo_masico_salida_drenaje'),
-                    temp_entrada = precalentador.get('temp_entrada_drenaje'),
-                    temp_salida = precalentador.get('temp_salida_drenaje'),
-                    velocidad_promedio = precalentador.get('velocidad_promedio_drenaje'),
+                    presion_entrada = precalentador.get('presion_entrada_drenaje') if precalentador.get('presion_entrada_drenaje') != '' else None,
+                    caida_presion = precalentador.get('caida_presion_drenaje') if precalentador.get('caida_presion_drenaje') != '' else None,
+                    entalpia_entrada = precalentador.get('entalpia_entrada_drenaje') if precalentador.get('entalpia_entrada_drenaje') != '' else None,
+                    entalpia_salida = precalentador.get('entalpia_salida_drenaje') if precalentador.get('entalpia_salida_drenaje') != '' else None,
+                    flujo_masico_entrada = precalentador.get('flujo_masico_entrada_drenaje') if precalentador.get('flujo_masico_entrada_drenaje') != '' else None,
+                    flujo_masico_salida = precalentador.get('flujo_masico_salida_drenaje') if precalentador.get('flujo_masico_salida_drenaje') != '' else None,
+                    temp_entrada = precalentador.get('temp_entrada_drenaje') if precalentador.get('temp_entrada_drenaje') != '' else None,
+                    temp_salida = precalentador.get('temp_salida_drenaje') if precalentador.get('temp_salida_drenaje') != '' else None,
+                    velocidad_promedio = precalentador.get('velocidad_promedio_drenaje') if precalentador.get('velocidad_promedio_drenaje') != '' else None,
                     tipo = 'D',
                     precalentador = precalentador_bdd,
                 )
 
                 # Especificaciones 1: Drenaje
                 EspecificacionesPrecalentadorAgua.objects.get_or_create(
-                    
+                    calor = precalentador.get('calor_drenaje') if precalentador.get('calor_drenaje') != '' else None,
+                    area = precalentador.get('area_drenaje') if precalentador.get('area_drenaje') != '' else None,
+                    coeficiente_transferencia = precalentador.get('coeficiente_transferencia_drenaje') if precalentador.get('coeficiente_transferencia_drenaje') != '' else None,
+                    mtd = precalentador.get('mtd_drenaje') if precalentador.get('mtd_drenaje') != '' else None,
+                    caida_presion = precalentador.get('caida_presion_drenaje_b') if precalentador.get('caida_presion_drenaje_b') != '' else None,
+                    precalentador = precalentador_bdd,
                 )
 
                 # Especificaciones 2: Reducción de Desobrecalentamiento
+                EspecificacionesPrecalentadorAgua.objects.get_or_create(
+                    calor = precalentador.get('calor_reduccion') if precalentador.get('calor_reduccion') != '' else None,
+                    area = precalentador.get('area_reduccion') if precalentador.get('area_reduccion') != '' else None,
+                    coeficiente_transferencia = precalentador.get('coeficiente_transferencia_reduccion') if precalentador.get('coeficiente_transferencia_reduccion') != '' else None,
+                    mtd = precalentador.get('mtd_reduccion') if precalentador.get('mtd_reduccion') != '' else None,
+                    caida_presion = precalentador.get('caida_presion_reduccion') if precalentador.get('caida_presion_reduccion') != '' else None,
+                    precalentador = precalentador_bdd,
+                )
 
                 # Especificaciones 3: Condensado
-
-        pass
+                EspecificacionesPrecalentadorAgua.objects.get_or_create(
+                    calor = precalentador.get('calor_condensacion') if precalentador.get('calor_condensacion') != '' else None,
+                    area = precalentador.get('area_condensacion') if precalentador.get('area_condensacion') != '' else None,
+                    coeficiente_transferencia = precalentador.get('coeficiente_transferencia_condensacion') if precalentador.get('coeficiente_transferencia_condensacion') != '' else None,
+                    mtd = precalentador.get('mtd_condensacion') if precalentador.get('mtd_condensacion') != '' else None,
+                    caida_presion = precalentador.get('caida_presion_condensacion') if precalentador.get('caida_presion_condensacion') != '' else None,
+                    precalentador = precalentador_bdd,
+                )
