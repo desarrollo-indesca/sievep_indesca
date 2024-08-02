@@ -1785,7 +1785,7 @@ class ObtenerPrecalentadorAguaMixin():
             precalentador = precalentador_q
 
         precalentador = precalentador.select_related(
-            'planta', 'creado_por', 'editado_por'
+            'planta', 'planta__complejo', 'creado_por', 'editado_por'
         ).prefetch_related(
             Prefetch('secciones_precalentador', SeccionesPrecalentadorAgua.objects.select_related(
                 'presion_unidad', 'entalpia_unidad', 'flujo_unidad', 
@@ -1796,6 +1796,8 @@ class ObtenerPrecalentadorAguaMixin():
                 'mtd_unidad', 'caida_presion_unidad'
             )),
         )
+
+        print(precalentador[0].especificaciones_precalentador.all()[0])
 
         if(not precalentador_q and precalentador):
             return precalentador[0]

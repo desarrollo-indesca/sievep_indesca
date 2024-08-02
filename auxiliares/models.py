@@ -1147,7 +1147,7 @@ class EspecificacionesPrecalentadorAgua(models.Model):
     '''
 
     calor = models.FloatField(validators=[MinValueValidator(0.0001)], null=True)
-    calor_unidad = models.ForeignKey(Unidades, default=88, on_delete=models.PROTECT, related_name="calor_unidad_especificaciones_precalentador_agua")
+    calor_unidad = models.ForeignKey(Unidades, default=91, on_delete=models.PROTECT, related_name="calor_unidad_especificaciones_precalentador_agua")
 
     area = models.FloatField(validators=[MinValueValidator(0.0001)], null=True)
     area_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, default=3, related_name="area_unidad_especificaciones_precalentador_agua")
