@@ -1896,7 +1896,7 @@ class CreacionPrecalentadorAgua(SuperUserRequiredMixin, View):
             'form_seccion_vapor': SeccionesPrecalentadorAguaForm(prefix=self.prefix_seccion_vapor, initial={'tipo':'V'}),
             'form_seccion_drenaje': SeccionesPrecalentadorAguaForm(prefix=self.prefix_seccion_drenaje, initial={'tipo':'D'}),
             'form_especs_condensado': EspecificacionesPrecalentadorAguaForm(prefix=self.prefix_especs_condensado, initial={'tipo': 'C'}), 
-            'form_especs_reduccion': EspecificacionesPrecalentadorAguaForm(prefix=self.prefix_especs_reduccion, initial={'tipo':'V'}),
+            'form_especs_reduccion': EspecificacionesPrecalentadorAguaForm(prefix=self.prefix_especs_reduccion, initial={'tipo':'R'}),
             'form_especs_drenaje': EspecificacionesPrecalentadorAguaForm(prefix=self.prefix_especs_drenaje, initial={'tipo':'D'}),
             'titulo': self.titulo,
             'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
@@ -1911,8 +1911,8 @@ class CreacionPrecalentadorAgua(SuperUserRequiredMixin, View):
         with transaction.atomic():
             valid = form_equipo.is_valid()
             if(valid):
-                form_equipo.creado_por = self.request.user
-                precalentador = form_equipo.save(commit=False)
+                form_equipo.instance.creado_por = self.request.user
+                precalentador = form_equipo.save()
             else:
                 print(form_equipo.errors)
                 raise Exception("Ocurrio un error al validar los datos del precalentador")
@@ -1966,7 +1966,7 @@ class CreacionPrecalentadorAgua(SuperUserRequiredMixin, View):
                 raise Exception("Ocurrio un error al validar los datos del condensado (e)")
             
             messages.success(self.request, self.success_message)
-            return redirect('auxiliares/precalentadores/')
+            return redirect('/auxiliares/precalentadores/')
     
     def post(self, request):
         form_equipo = PrecalentadorAguaForm(request.POST)
@@ -1977,10 +1977,26 @@ class CreacionPrecalentadorAgua(SuperUserRequiredMixin, View):
         form_especificaciones_reduccion = EspecificacionesPrecalentadorAguaForm(request.POST, prefix=self.prefix_especs_reduccion)
         form_especificaciones_drenaje = EspecificacionesPrecalentadorAguaForm(request.POST, prefix=self.prefix_especs_drenaje)
 
-        return self.almacenar_datos(form_equipo, form_seccion_agua,
+        try:
+            return self.almacenar_datos(form_equipo, form_seccion_agua,
                             form_seccion_vapor, form_seccion_drenaje, 
                             form_especificaciones_condensado,
                             form_especificaciones_reduccion,
                             form_especificaciones_drenaje)
+        except Exception as e:
+            print(str(e))
+            return render(
+                request, self.template_name,{
+                    'form_equipo': form_equipo, 
+                    'form_seccion_agua': form_seccion_agua, 
+                    'form_seccion_vapor': form_seccion_vapor,
+                    'form_seccion_drenaje': form_seccion_drenaje,
+                    'form_especs_condensado': form_especificaciones_condensado, 
+                    'form_especs_reduccion': form_especificaciones_reduccion,
+                    'form_especs_drenaje': form_especificaciones_drenaje,
+                    'titulo': self.titulo,
+                    'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
+                })
+
 
 # PRECALENTADORES DE AIRE
