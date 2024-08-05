@@ -7,7 +7,7 @@
   <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Precalentadores de Agua</h3></div>
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
     {% if request.user.is_superuser and link_creacion %}
-    <a class="btn d-block btn-success" href="{% url 'creacion_bomba' %}">+ Nuevo</a>
+    <a class="btn d-block btn-success" href="{% url 'creacion_precalentador_agua' %}">+ Nuevo</a>
     {% endif %}
   </div>
 {% endblock %}
@@ -62,7 +62,7 @@
   {% if object_list.count %}
   {% include 'precalentadores_agua/partials/tabla.html' %}
   {% else %}
-  <td colspan="7">No se encontraron bombas con los datos de filtrado proporcionados.</td>
+  <td colspan="7">No se encontraron precalentadores de agua con los datos de filtrado proporcionados.</td>
   {% endif %}
 </tbody>
 {% endblock %}

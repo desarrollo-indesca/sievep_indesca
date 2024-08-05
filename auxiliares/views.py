@@ -1846,4 +1846,65 @@ class ConsultaPrecalentadoresAgua(ObtenerPrecalentadorAguaMixin, FiltradoSimpleM
         new_context = self.get_precalentador(self.filtrar_equipos())
         return new_context   
 
+class CreacionPrecalentadorAgua(SuperUserRequiredMixin, View):
+    """
+    Resumen:
+        Vista para la creación o registro de nuevos ventiladores.
+        Solo puede ser accedido por superusuarios.
+
+    Atributos:
+        success_message: str -> Mensaje a ser enviado al usuario al registrar exitosamente una bomba.
+        titulo: str -> Título de la vista
+        template_name: str -> Plantilla a ser renderizada
+    
+    Métodos:
+        get_context(self) -> dict
+            Crea instancias de los formularios a ser utilizados y define el título de la vista.
+
+        get(self, request, **kwargs) -> HttpResponse
+            Renderiza el formulario con la plantilla correspondiente.
+
+        almacenar_datos(self, form_bomba, form_detalles_motor, form_condiciones_fluido,
+                            form_detalles_construccion, form_condiciones_diseno, 
+                            form_especificaciones) -> HttpResponse
+
+            Valida y almacena los datos de acuerdo a la lógica requerida para el almacenamiento de bombas por medio de los formularios.
+            Si hay errores se levantará una Exception.
+
+        post(self) -> HttpResponse
+            Envía el request a los formularios y envía la respuesta al cliente.
+    """
+
+    success_message = "El nuevo precalentador de agua ha sido registrado exitosamente."
+    titulo = 'SIEVEP - Creación de Precalentador de Agua'
+    template_name = 'precalentadores_agua/creacion.html'
+
+    def get(self, request):
+        return render(request, self.template_name, self.get_context())
+
+    def get_context(self):
+        return {
+            'form_equipo': PrecalentadorAguaForm(), 
+            'form_seccion_agua': SeccionesPrecalentadorAguaForm(prefix='seccion-agua', initial={'tipo': 'A'}), 
+            'form_seccion_vapor': SeccionesPrecalentadorAguaForm(prefix='seccion-vapor', initial={'tipo':'V'}),
+            'form_seccion_drenaje': SeccionesPrecalentadorAguaForm(prefix='seccion-drenaje', initial={'tipo':'D'}),
+            'form_especs_condensado': EspecificacionesPrecalentadorAguaForm(prefix='especs-condensado', initial={'tipo': 'A'}), 
+            'form_especs_reduccion': EspecificacionesPrecalentadorAguaForm(prefix='especs-reduccion', initial={'tipo':'V'}),
+            'form_especs_drenaje': EspecificacionesPrecalentadorAguaForm(prefix='especs-drenaje', initial={'tipo':'D'}),
+            'titulo': self.titulo,
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
+        }
+    
+    def almacenar_datos(self, form_equipo, form_condiciones_generales,
+                            form_condiciones_trabajo, form_condiciones_adicionales, 
+                            form_especificaciones):
+        pass
+    
+    def post(self, request):
+        pass
+        try:
+            pass
+        except Exception as e:
+            pass
+
 # PRECALENTADORES DE AIRE
