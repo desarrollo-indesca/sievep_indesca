@@ -1063,9 +1063,9 @@ class PrecalentadorAgua(models.Model):
         editado_por: Usuario -> Usuario que editó el equipo por última vez.
     '''
 
-    tag = models.CharField(max_length=45, unique=True)
-    descripcion = models.CharField(max_length=80)
-    fabricante = models.CharField(max_length=45)
+    tag = models.CharField("Tag", max_length=45, unique=True)
+    descripcion = models.CharField("Descripción", max_length=80)
+    fabricante = models.CharField("Fabricante", max_length=45)
 
     planta = models.ForeignKey(Planta, on_delete=models.PROTECT)
     creado_al = models.DateTimeField(auto_now_add=True)

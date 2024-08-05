@@ -68,9 +68,11 @@
 
                 <div class="col-6">
                     <h6 class="text-center">Agua</h6>
+                    {% render_field form_seccion_agua.tipo %}
                 </div>
                 <div class="col-6">
                     <h6 class="text-center">Drenaje</h6>
+                    {% render_field form_seccion_drenaje.tipo %}
                 </div>
 
                 <div class="col-6">
@@ -240,6 +242,7 @@
                 </div>
                 <div class="col-12">
                     <h6 class="text-center">Vapor</h6>
+                    {% render_field form_seccion_vapor.tipo %}
                 </div>
 
                 <div class="col-12">
@@ -341,12 +344,15 @@
     <div class="row">
         <div class="col-4">
             <h5 class="text-center">Drenaje</h5>
+            {% render_field form_especs_drenaje.tipo %}
         </div>
         <div class="col-4">
             <h5 class="text-center">Condensación</h5>
+            {% render_field form_especs_condensado.tipo %}
         </div>
         <div class="col-4">
             <h5 class="text-center">Reducción de Sobrecalentamiento</h5>
+            {% render_field form_especs_reduccion.tipo %}
         </div>
 
         <div class="col-4">
@@ -478,7 +484,7 @@
             <div class="input-group">
                 {% render_field form_especs_drenaje.mtd class="form-control" %}
                 <select name="especs-drenaje-mtd_unidad" id="id_especs-drenaje-mtd_unidad" class="form-select">
-                    {% include 'unidades.html' with unidades=unidades tipo='U' pk_selected=form_especs_drenaje.instance.mtd_unidad.pk %}
+                    {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=form_especs_drenaje.instance.mtd_unidad.pk %}
                 </select>
             </div>
             {{form_especs_drenaje.mtd.errors}}
@@ -488,7 +494,7 @@
             <div class="input-group">
                 {% render_field form_especs_condensado.mtd class="form-control" %}
                 <select name="especs-condensado-mtd_unidad" id="id_especs-condensado-mtd_unidad" class="form-select">
-                    {% include 'unidades.html' with unidades=unidades tipo='U' pk_selected=form_especs_condensado.instance.mtd_unidad.pk %}
+                    {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=form_especs_condensado.instance.mtd_unidad.pk %}
                 </select>
             </div>
             {{form_especs_condensado.mtd.errors}}
@@ -498,7 +504,7 @@
             <div class="input-group">
                 {% render_field form_especs_reduccion.mtd class="form-control" %}
                 <select name="especs-reduccion-mtd_unidad" id="id_especs-reduccion-mtd_unidad" class="form-select">
-                    {% include 'unidades.html' with unidades=unidades tipo='U' pk_selected=form_especs_reduccion.instance.mtd_unidad.pk %}
+                    {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=form_especs_reduccion.instance.mtd_unidad.pk %}
                 </select>
             </div>
             {{form_especs_reduccion.mtd.errors}}
@@ -519,25 +525,5 @@
 {% endblock %}
 
 {% block extra_javascript %}
-<script src="/static/js/auxiliares/bombas/creacion.js"></script>
-
-{% if form_condiciones_fluido.instance.nombre_fluido %}
-<script>
-    $('#id_fluido').html($('#id_fluido').html() + `<option value selected>{{form_condiciones_fluido.instance.nombre_fluido}}</option>`);
-</script>
-{% endif %}
-
-{% if form_condiciones_fluido.instance.calculo_propiedades == 'A' %}
-<script>
-    $('#id_densidad').attr('disabled', 'diisabled');
-    $('#id_viscosidad').attr('disabled', 'diisabled');
-    $('#id_presion_vapor').attr('disabled', 'diisabled');
-</script>
-{% endif %}
-
-{% if form_detalles_construccion.instance.tipo_carcasa1 %}
-<script>
-    $('#id_tipo_carcasa2').removeAttr('disabled');
-</script>
-{% endif %}
+<script src="/static/js/auxiliares/precalentadores_agua/creacion.js"></script>
 {% endblock %}

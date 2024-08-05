@@ -281,7 +281,7 @@ class PrecalentadorAguaForm(forms.ModelForm):
 
     class Meta:
         model = PrecalentadorAgua
-        exclude = ('id',)
+        exclude = ('id','creado_por','editado_por','creado_al','editado_al')
 
 class SeccionesPrecalentadorAguaForm(forms.ModelForm):
     '''
@@ -294,6 +294,9 @@ class SeccionesPrecalentadorAguaForm(forms.ModelForm):
     class Meta:
         model = SeccionesPrecalentadorAgua
         exclude = ('id', 'precalentador')
+        widgets = {
+            'tipo': forms.HiddenInput(),
+        }
 
 class EspecificacionesPrecalentadorAguaForm(forms.ModelForm):
     '''
@@ -306,3 +309,6 @@ class EspecificacionesPrecalentadorAguaForm(forms.ModelForm):
     class Meta:
         model = EspecificacionesPrecalentadorAgua
         exclude = ('id', 'precalentador')
+        widgets = {
+            'tipo': forms.HiddenInput(),
+        }

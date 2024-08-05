@@ -1878,6 +1878,13 @@ class CreacionPrecalentadorAgua(SuperUserRequiredMixin, View):
     success_message = "El nuevo precalentador de agua ha sido registrado exitosamente."
     titulo = 'SIEVEP - Creación de Precalentador de Agua'
     template_name = 'precalentadores_agua/creacion.html'
+    prefix_seccion_agua = 'seccion-agua'
+    prefix_seccion_vapor = 'seccion-vapor'
+    prefix_seccion_drenaje = 'seccion-drenaje'
+
+    prefix_especs_condensado = 'especs-condensado'
+    prefix_especs_reduccion = 'especs-reduccion'
+    prefix_especs_drenaje = 'especs-drenaje'
 
     def get(self, request):
         return render(request, self.template_name, self.get_context())
@@ -1885,26 +1892,95 @@ class CreacionPrecalentadorAgua(SuperUserRequiredMixin, View):
     def get_context(self):
         return {
             'form_equipo': PrecalentadorAguaForm(), 
-            'form_seccion_agua': SeccionesPrecalentadorAguaForm(prefix='seccion-agua', initial={'tipo': 'A'}), 
-            'form_seccion_vapor': SeccionesPrecalentadorAguaForm(prefix='seccion-vapor', initial={'tipo':'V'}),
-            'form_seccion_drenaje': SeccionesPrecalentadorAguaForm(prefix='seccion-drenaje', initial={'tipo':'D'}),
-            'form_especs_condensado': EspecificacionesPrecalentadorAguaForm(prefix='especs-condensado', initial={'tipo': 'A'}), 
-            'form_especs_reduccion': EspecificacionesPrecalentadorAguaForm(prefix='especs-reduccion', initial={'tipo':'V'}),
-            'form_especs_drenaje': EspecificacionesPrecalentadorAguaForm(prefix='especs-drenaje', initial={'tipo':'D'}),
+            'form_seccion_agua': SeccionesPrecalentadorAguaForm(prefix=self.prefix_seccion_agua, initial={'tipo': 'A'}), 
+            'form_seccion_vapor': SeccionesPrecalentadorAguaForm(prefix=self.prefix_seccion_vapor, initial={'tipo':'V'}),
+            'form_seccion_drenaje': SeccionesPrecalentadorAguaForm(prefix=self.prefix_seccion_drenaje, initial={'tipo':'D'}),
+            'form_especs_condensado': EspecificacionesPrecalentadorAguaForm(prefix=self.prefix_especs_condensado, initial={'tipo': 'C'}), 
+            'form_especs_reduccion': EspecificacionesPrecalentadorAguaForm(prefix=self.prefix_especs_reduccion, initial={'tipo':'V'}),
+            'form_especs_drenaje': EspecificacionesPrecalentadorAguaForm(prefix=self.prefix_especs_drenaje, initial={'tipo':'D'}),
             'titulo': self.titulo,
             'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
         }
     
-    def almacenar_datos(self, form_equipo, form_condiciones_generales,
-                            form_condiciones_trabajo, form_condiciones_adicionales, 
-                            form_especificaciones):
-        pass
+    def almacenar_datos(self, form_equipo, form_seccion_agua,
+                            form_seccion_vapor, form_seccion_drenaje, 
+                            form_especificaciones_condensado,
+                            form_especificaciones_reduccion,
+                            form_especificaciones_drenaje):
+        
+        with transaction.atomic():
+            valid = form_equipo.is_valid()
+            if(valid):
+                form_equipo.creado_por = self.request.user
+                precalentador = form_equipo.save(commit=False)
+            else:
+                print(form_equipo.errors)
+                raise Exception("Ocurrio un error al validar los datos del precalentador")
+            
+            valid = valid and form_seccion_agua.is_valid()
+            if(valid):
+                form_seccion_agua.instance.precalentador = precalentador
+                form_seccion_agua.save()
+            else:
+                print(form_seccion_agua.errors)
+                raise Exception("Ocurrio un error al validar los datos del agua (s)")
+
+            valid = valid and form_seccion_vapor.is_valid()
+            if(valid):
+                form_seccion_vapor.instance.precalentador = precalentador
+                form_seccion_vapor.save()
+            else:
+                print(form_seccion_vapor.errors)
+                raise Exception("Ocurrio un error al validar los datos del vapor (s)")
+            
+            valid = valid and form_seccion_drenaje.is_valid()
+            if(valid):
+                form_seccion_drenaje.instance.precalentador = precalentador
+                form_seccion_drenaje.save()
+            else:
+                print(form_seccion_drenaje.errors)
+                raise Exception("Ocurrio un error al validar los datos del drenaje (s)")
+
+            valid = valid and form_especificaciones_drenaje.is_valid()
+            if(valid):
+                form_especificaciones_drenaje.instance.precalentador = precalentador
+                form_especificaciones_drenaje.save()
+            else:
+                print(form_especificaciones_drenaje.errors)
+                raise Exception("Ocurrio un error al validar los datos del drenaje (e)")
+
+            valid = valid and form_especificaciones_reduccion.is_valid()
+            if(valid):
+                form_especificaciones_reduccion.instance.precalentador = precalentador
+                form_especificaciones_reduccion.save()
+            else:
+                print(form_especificaciones_reduccion.errors)
+                raise Exception("Ocurrio un error al validar los datos del reduccion (e)")
+
+            valid = valid and form_especificaciones_condensado.is_valid()
+            if(valid):
+                form_especificaciones_condensado.instance.precalentador = precalentador
+                form_especificaciones_condensado.save()
+            else:
+                print(form_especificaciones_condensado.errors)
+                raise Exception("Ocurrio un error al validar los datos del condensado (e)")
+            
+            messages.success(self.request, self.success_message)
+            return redirect('auxiliares/precalentadores/')
     
     def post(self, request):
-        pass
-        try:
-            pass
-        except Exception as e:
-            pass
+        form_equipo = PrecalentadorAguaForm(request.POST)
+        form_seccion_agua = SeccionesPrecalentadorAguaForm(request.POST, prefix=self.prefix_seccion_agua)
+        form_seccion_vapor = SeccionesPrecalentadorAguaForm(request.POST, prefix=self.prefix_seccion_vapor)
+        form_seccion_drenaje = SeccionesPrecalentadorAguaForm(request.POST, prefix=self.prefix_seccion_drenaje)
+        form_especificaciones_condensado = EspecificacionesPrecalentadorAguaForm(request.POST, prefix=self.prefix_especs_condensado)
+        form_especificaciones_reduccion = EspecificacionesPrecalentadorAguaForm(request.POST, prefix=self.prefix_especs_reduccion)
+        form_especificaciones_drenaje = EspecificacionesPrecalentadorAguaForm(request.POST, prefix=self.prefix_especs_drenaje)
+
+        return self.almacenar_datos(form_equipo, form_seccion_agua,
+                            form_seccion_vapor, form_seccion_drenaje, 
+                            form_especificaciones_condensado,
+                            form_especificaciones_reduccion,
+                            form_especificaciones_drenaje)
 
 # PRECALENTADORES DE AIRE
