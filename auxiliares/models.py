@@ -471,6 +471,7 @@ class Bombas(models.Model):
     detalles_construccion = models.OneToOneField(DetallesConstruccionBomba, on_delete=models.CASCADE)
     condiciones_diseno = models.OneToOneField(CondicionesDisenoBomba, on_delete=models.CASCADE)
     grafica = models.ImageField(null = True, blank = True, upload_to='auxiliares/bombas/', verbose_name = "Gráfica del Equipo")
+    copia = models.BooleanField(default=False, blank=True)
 
     instalacion_succion = models.ForeignKey(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_succion")
     instalacion_descarga = models.ForeignKey(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_descarga")
@@ -1067,6 +1068,7 @@ class PrecalentadorAgua(models.Model):
     tag = models.CharField("Tag", max_length=45, unique=True)
     descripcion = models.CharField("Descripción", max_length=80)
     fabricante = models.CharField("Fabricante", max_length=45)
+    copia = models.BooleanField(default=False, blank=True)
 
     planta = models.ForeignKey(Planta, on_delete=models.PROTECT)
     creado_al = models.DateTimeField(auto_now_add=True)

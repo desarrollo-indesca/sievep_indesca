@@ -19,7 +19,7 @@ from django.views import View
 from django.views.generic import ListView
 from django.http import JsonResponse
 from django.contrib import messages
-from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion, ReportesFichasMixin, FiltrarEvaluacionesMixin
+from simulaciones_pequiven.views import FiltradoSimpleMixin, DuplicateView, ConsultaEvaluacion, ReportesFichasMixin, FiltrarEvaluacionesMixin
 from simulaciones_pequiven.unidades import PK_UNIDADES_FLUJO_MASICO
 from simulaciones_pequiven.utils import generate_nonexistent_tag
 
@@ -2061,13 +2061,7 @@ class EdicionPrecalentadorAgua(CreacionPrecalentadorAgua, ObtenerPrecalentadorAg
 # PRECALENTADORES DE AIRE
 
 # VISTAS DE DUPLICACIÓN
-class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, View):
-    
-    def copy(self, objeto):
-        objeto.pk = None
-        objeto.save()
-
-        return objeto
+class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, DuplicateView):
 
     def post(self, request, *args, **kwargs):
         ventilador = self.get_ventilador()
@@ -2086,3 +2080,61 @@ class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, View):
 
         messages.success(request, f"Se ha creado la copia del ventilador {old_tag} como {ventilador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 12:00m.")
         return redirect('/auxiliares/ventiladores/')
+
+class DuplicarBomba(SuperUserRequiredMixin, CargarBombaMixin, DuplicateView):
+
+    def post(self, request, *args, **kwargs):
+        bomba_original = self.get_bomba()
+        bomba = bomba_original
+        old_tag = bomba.tag
+        
+        with transaction.atomic():
+            bomba.detalles_motor = self.copy(bomba.detalles_motor)
+            bomba.especificaciones_bomba = self.copy(bomba.especificaciones_bomba)
+            bomba.detalles_construccion = self.copy(bomba.detalles_construccion)
+            condiciones_fluido = self.copy(bomba_original.condiciones_diseno.condiciones_fluido)
+            bomba.condiciones_diseno.condiciones_fluido = condiciones_fluido
+            bomba.condiciones_diseno = self.copy(bomba.condiciones_diseno)
+            bomba.instalacion_succion = self.copy(bomba.instalacion_succion)
+            bomba.instalacion_descarga = self.copy(bomba.instalacion_descarga)
+
+            for tuberia in bomba_original.instalacion_succion.tuberias.all():
+                tuberia.instalacion = bomba.instalacion_succion
+                tuberia = self.copy(tuberia)
+
+            for tuberia in bomba_original.instalacion_descarga.tuberias.all():
+                tuberia.instalacion = bomba.instalacion_descarga
+                tuberia = self.copy(tuberia)
+
+            bomba.descripcion = f"COPIA DE LA BOMBA {bomba.tag}"
+            bomba.tag = generate_nonexistent_tag(Bombas, bomba.tag)
+            bomba.copia = True
+            
+            bomba = self.copy(bomba)
+
+        messages.success(request, f"Se ha creado la copia de la bomba {old_tag} como {bomba.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 12:00m.")
+        return redirect('/auxiliares/bombas/')
+
+class DuplicarPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAguaMixin, DuplicateView):
+
+    def post(self, request, *args, **kwargs):
+        precalentador_original = self.get_precalentador()
+        precalentador = precalentador_original
+        old_tag = precalentador.tag
+        
+        with transaction.atomic():
+            precalentador.descripcion = f"COPIA DEL PRECALENTADOR {precalentador.tag}"
+            precalentador.tag = generate_nonexistent_tag(PrecalentadorAgua, precalentador.tag)
+            precalentador.copia = True                 
+            precalentador = self.copy(precalentador)
+
+            for seccion in precalentador_original.secciones_precalentador.all():
+                seccion.precalentador = precalentador
+                self.copy(seccion)
+
+            for especificacion in precalentador_original.especificaciones_precalentador.all():
+                especificacion.precalentador = precalentador
+                self.copy(especificacion)
+
+        messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 12:00m.")
+        return redirect('/auxiliares/precalentadores/')

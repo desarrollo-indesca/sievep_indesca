@@ -619,3 +619,27 @@ class FiltradoSimpleMixin():
         context['link_creacion'] = 'creacion_turbina_vapor'
 
         return context
+
+class DuplicateView(View):
+    """
+    Resumen:
+        Clase para la creación de duplicados de objetos en la base de datos.
+
+        Esta clase permite crear duplicados de un objeto en la base de datos.
+        Para hacerlo, se debe derivar esta clase y definir la variable "model"
+        con el modelo de la clase que se desea duplicar.
+
+    Métodos:
+        copy(objeto): copia un objeto y lo guarda en la base de datos.
+        post(request, *args, **kwargs): método que se debe implementar, donde se debe validar
+            los datos entregados por el usuario y se debe realizar la
+            operación de duplicado.
+    """
+    def copy(self, objeto):
+        objeto.pk = None
+        objeto.save()
+
+        return objeto
+    
+    def post(self, request, *args, **kwargs):
+        pass
