@@ -1797,8 +1797,6 @@ class ObtenerPrecalentadorAguaMixin():
             )),
         )
 
-        print(precalentador[0].especificaciones_precalentador.all()[0])
-
         if(not precalentador_q and precalentador):
             return precalentador[0]
         
@@ -2021,6 +2019,7 @@ class EdicionPrecalentadorAgua(CreacionPrecalentadorAgua, ObtenerPrecalentadorAg
             'form_especs_drenaje': EspecificacionesPrecalentadorAguaForm(instance=especificaciones.get(tipo="D"), prefix=self.prefix_especs_drenaje, initial={'tipo':'D'}),
             'titulo': self.titulo,
             'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
+            'edicion': True
         }
     
     def post(self, request, *args, **kwargs):
@@ -2036,11 +2035,26 @@ class EdicionPrecalentadorAgua(CreacionPrecalentadorAgua, ObtenerPrecalentadorAg
         form_especificaciones_reduccion = EspecificacionesPrecalentadorAguaForm(request.POST, instance=especificaciones.get(tipo="R"), prefix=self.prefix_especs_reduccion)
         form_especificaciones_drenaje = EspecificacionesPrecalentadorAguaForm(request.POST, instance=especificaciones.get(tipo="D"), prefix=self.prefix_especs_drenaje)
 
-        return self.almacenar_datos(form_equipo, form_seccion_agua,
+        try:
+            return self.almacenar_datos(form_equipo, form_seccion_agua,
                             form_seccion_vapor, form_seccion_drenaje, 
                             form_especificaciones_condensado,
                             form_especificaciones_reduccion,
                             form_especificaciones_drenaje)
-        
+        except Exception as e:
+            print(str(e))
+            return render(
+                request, self.template_name,{
+                    'form_equipo': form_equipo, 
+                    'form_seccion_agua': form_seccion_agua, 
+                    'form_seccion_vapor': form_seccion_vapor,
+                    'form_seccion_drenaje': form_seccion_drenaje,
+                    'form_especs_condensado': form_especificaciones_condensado, 
+                    'form_especs_reduccion': form_especificaciones_reduccion,
+                    'form_especs_drenaje': form_especificaciones_drenaje,
+                    'titulo': self.titulo,
+                    'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
+                    'edicion': True
+                })    
 
 # PRECALENTADORES DE AIRE
