@@ -1998,5 +1998,4 @@ class CreacionPrecalentadorAgua(SuperUserRequiredMixin, View):
                     'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
                 })
 
-
 # PRECALENTADORES DE AIRE

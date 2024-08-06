@@ -291,6 +291,19 @@ class SeccionesPrecalentadorAguaForm(forms.ModelForm):
         Debe haber solo uno de cada tipo por precalentador.
     '''
 
+    def clean_presion_entrada(self):
+        prefix = self.prefix + '-' if self.prefix else ''
+        presion_entrada = self.data[f'{prefix}presion_entrada']
+        
+        if(presion_entrada != ''):
+            presion_unidad = int(self.data[f'{prefix}presion_unidad'])
+            presion_entrada_calculada = transformar_unidades_presion([float(presion_entrada)], presion_unidad)[0]
+
+            if(presion_entrada_calculada < -101325):
+                raise forms.ValidationError("La presión no puede ser menor a la presión atmosférica negativa.")
+        
+        return float(presion_entrada) if presion_entrada != '' else None
+
     class Meta:
         model = SeccionesPrecalentadorAgua
         exclude = ('id', 'precalentador')
@@ -305,6 +318,19 @@ class EspecificacionesPrecalentadorAguaForm(forms.ModelForm):
         La idea es que se defina el tipo correspondiente a la parte del precalentador de forma independiente (no por el usuario).
         Debe haber solo uno de cada tipo por precalentador.
     '''
+
+    def clean_caida_presion(self):
+        prefix = self.prefix + '-' if self.prefix else ''
+        caida_presion = self.data[f'{prefix}caida_presion']
+        
+        if(caida_presion != ''):
+            presion_unidad = int(self.data[f'{prefix}presion_unidad'])
+            caida_presion_calculada = transformar_unidades_presion([float(caida_presion)], presion_unidad)[0]
+
+            if(caida_presion_calculada < -101325):
+                raise forms.ValidationError("La presión no puede ser menor a la presión atmosférica negativa.")
+        
+        return float(caida_presion) if caida_presion != '' else None
 
     class Meta:
         model = EspecificacionesPrecalentadorAgua
