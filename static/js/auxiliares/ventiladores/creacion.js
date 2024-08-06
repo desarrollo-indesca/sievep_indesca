@@ -75,8 +75,6 @@ const anadir_listeners_htmx = () => {
         const body = document.getElementsByTagName('body')[0];
         body.style.opacity = 0.25;
 
-        console.log("A");
-
         if(evt.target.id == 'id_complejo')
             return;
         

@@ -64,8 +64,6 @@ document.body.addEventListener("htmx:beforeRequest", function (evt) {
     return;
   }
 
-  console.log(evt);
-
   if (evt.target.id === "form")
     if (!confirm("¿Seguro de que desea realizar esta acción?")) {
       evt.preventDefault();
