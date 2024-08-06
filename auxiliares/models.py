@@ -941,6 +941,7 @@ class Ventilador(models.Model):
     
     creado_al = models.DateTimeField(auto_now_add=True)
     editado_al = models.DateTimeField(null = True)
+    copia = models.BooleanField(default=False, blank=True)
 
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="ventilador_creado_por")
     editado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, null = True, related_name="ventilador_editado_por")

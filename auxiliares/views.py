@@ -21,6 +21,7 @@ from django.http import JsonResponse
 from django.contrib import messages
 from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion, ReportesFichasMixin, FiltrarEvaluacionesMixin
 from simulaciones_pequiven.unidades import PK_UNIDADES_FLUJO_MASICO
+from simulaciones_pequiven.utils import generate_nonexistent_tag
 
 from usuarios.views import SuperUserRequiredMixin
 from auxiliares.models import *
@@ -2058,3 +2059,30 @@ class EdicionPrecalentadorAgua(CreacionPrecalentadorAgua, ObtenerPrecalentadorAg
                 })    
 
 # PRECALENTADORES DE AIRE
+
+# VISTAS DE DUPLICACIÓN
+class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, View):
+    
+    def copy(self, objeto):
+        objeto.pk = None
+        objeto.save()
+
+        return objeto
+
+    def post(self, request, *args, **kwargs):
+        ventilador = self.get_ventilador()
+        old_tag = ventilador.tag
+        
+        with transaction.atomic():
+            ventilador.condiciones_trabajo = self.copy(ventilador.condiciones_trabajo)
+            ventilador.condiciones_adicionales = self.copy(ventilador.condiciones_adicionales)
+            ventilador.condiciones_generales = self.copy(ventilador.condiciones_generales)
+            ventilador.especificaciones = self.copy(ventilador.especificaciones)
+            ventilador.descripcion = f"COPIA DEL VENTILADOR {ventilador.tag}"
+            ventilador.tag = generate_nonexistent_tag(Ventilador, ventilador.tag)
+            ventilador.copia = True
+            
+            self.copy(ventilador)
+
+        messages.success(request, f"Se ha creado la copia del ventilador {old_tag} como {ventilador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 12:00m.")
+        return redirect('/auxiliares/ventiladores/')
