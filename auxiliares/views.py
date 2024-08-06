@@ -1886,7 +1886,7 @@ class CreacionPrecalentadorAgua(SuperUserRequiredMixin, View):
     prefix_especs_reduccion = 'especs-reduccion'
     prefix_especs_drenaje = 'especs-drenaje'
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         return render(request, self.template_name, self.get_context())
 
     def get_context(self):
@@ -1968,7 +1968,7 @@ class CreacionPrecalentadorAgua(SuperUserRequiredMixin, View):
             messages.success(self.request, self.success_message)
             return redirect('/auxiliares/precalentadores/')
     
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         form_equipo = PrecalentadorAguaForm(request.POST)
         form_seccion_agua = SeccionesPrecalentadorAguaForm(request.POST, prefix=self.prefix_seccion_agua)
         form_seccion_vapor = SeccionesPrecalentadorAguaForm(request.POST, prefix=self.prefix_seccion_vapor)
@@ -1997,5 +1997,50 @@ class CreacionPrecalentadorAgua(SuperUserRequiredMixin, View):
                     'titulo': self.titulo,
                     'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
                 })
+
+class EdicionPrecalentadorAgua(CreacionPrecalentadorAgua, ObtenerPrecalentadorAguaMixin):
+    '''
+    Resumen:
+        Vista para la edición de un precalentador de agua. Sigue la misma lógica que la creación pero envía un contexto con las instancias previas. 
+    '''
+    success_message = "Se han guardado los cambios exitosamente."
+    template_name = 'precalentadores_agua/creacion.html'
+    
+    def get_context(self):
+        precalentador = self.get_precalentador()
+        secciones = precalentador.secciones_precalentador.all()
+        especificaciones = precalentador.especificaciones_precalentador.all()
+
+        return {
+            'form_equipo': PrecalentadorAguaForm(instance=precalentador), 
+            'form_seccion_agua': SeccionesPrecalentadorAguaForm(instance=secciones.get(tipo="A"), prefix=self.prefix_seccion_agua, initial={'tipo': 'A'}), 
+            'form_seccion_vapor': SeccionesPrecalentadorAguaForm(instance=secciones.get(tipo="V"), prefix=self.prefix_seccion_vapor, initial={'tipo':'V'}),
+            'form_seccion_drenaje': SeccionesPrecalentadorAguaForm(instance=secciones.get(tipo="D"), prefix=self.prefix_seccion_drenaje, initial={'tipo':'D'}),
+            'form_especs_condensado': EspecificacionesPrecalentadorAguaForm(instance=especificaciones.get(tipo="C"), prefix=self.prefix_especs_condensado, initial={'tipo': 'C'}), 
+            'form_especs_reduccion': EspecificacionesPrecalentadorAguaForm(instance=especificaciones.get(tipo="R"), prefix=self.prefix_especs_reduccion, initial={'tipo':'R'}),
+            'form_especs_drenaje': EspecificacionesPrecalentadorAguaForm(instance=especificaciones.get(tipo="D"), prefix=self.prefix_especs_drenaje, initial={'tipo':'D'}),
+            'titulo': self.titulo,
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
+        }
+    
+    def post(self, request, *args, **kwargs):
+        precalentador = self.get_precalentador()
+        secciones = precalentador.secciones_precalentador.all()
+        especificaciones = precalentador.especificaciones_precalentador.all()
+
+        form_equipo = PrecalentadorAguaForm(request.POST, instance=precalentador)
+        form_seccion_agua = SeccionesPrecalentadorAguaForm(request.POST, instance=secciones.get(tipo="A"), prefix=self.prefix_seccion_agua)
+        form_seccion_vapor = SeccionesPrecalentadorAguaForm(request.POST, instance=secciones.get(tipo="V"), prefix=self.prefix_seccion_vapor)
+        form_seccion_drenaje = SeccionesPrecalentadorAguaForm(request.POST, instance=secciones.get(tipo="D"), prefix=self.prefix_seccion_drenaje)
+        form_especificaciones_condensado = EspecificacionesPrecalentadorAguaForm(request.POST, instance=especificaciones.get(tipo="C"), prefix=self.prefix_especs_condensado)
+        form_especificaciones_reduccion = EspecificacionesPrecalentadorAguaForm(request.POST, instance=especificaciones.get(tipo="R"), prefix=self.prefix_especs_reduccion)
+        form_especificaciones_drenaje = EspecificacionesPrecalentadorAguaForm(request.POST, instance=especificaciones.get(tipo="D"), prefix=self.prefix_especs_drenaje)
+
+        return self.almacenar_datos(form_equipo, form_seccion_agua,
+                            form_seccion_vapor, form_seccion_drenaje, 
+                            form_especificaciones_condensado,
+                            form_especificaciones_reduccion,
+                            form_especificaciones_drenaje)
+        
 
 # PRECALENTADORES DE AIRE

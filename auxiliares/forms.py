@@ -324,8 +324,8 @@ class EspecificacionesPrecalentadorAguaForm(forms.ModelForm):
         caida_presion = self.data[f'{prefix}caida_presion']
         
         if(caida_presion != ''):
-            presion_unidad = int(self.data[f'{prefix}presion_unidad'])
-            caida_presion_calculada = transformar_unidades_presion([float(caida_presion)], presion_unidad)[0]
+            caida_presion_unidad = int(self.data[f'{prefix}caida_presion_unidad'])
+            caida_presion_calculada = transformar_unidades_presion([float(caida_presion)], caida_presion_unidad)[0]
 
             if(caida_presion_calculada < -101325):
                 raise forms.ValidationError("La presión no puede ser menor a la presión atmosférica negativa.")
