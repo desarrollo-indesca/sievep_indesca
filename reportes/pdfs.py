@@ -192,7 +192,7 @@ def generar_historia(request, reporte, object_list):
     if reporte == 'evaluacion_detalle':
         return detalle_evaluacion(object_list)
     
-    if reporte in ['bombas', 'ventiladores', 'turbinas_vapor', 'calderas']:
+    if reporte in ['bombas', 'ventiladores', 'turbinas_vapor', 'calderas', 'precalentadores_agua']:
         return reporte_equipos(request, object_list)
     
     if reporte == 'evaluaciones_bombas':
