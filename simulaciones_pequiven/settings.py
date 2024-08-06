@@ -286,3 +286,8 @@ INTERNAL_IPS = [
 #     },
 #     "disable_existing_loggers": False
 # }
+
+from multiprocessing.pool import ThreadPool
+import schedule, time
+from .routines import delete_copies
+schedule.every(10).seconds.do(delete_copies)
