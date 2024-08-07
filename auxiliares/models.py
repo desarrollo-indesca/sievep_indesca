@@ -1036,7 +1036,7 @@ class EvaluacionVentilador(models.Model):
         activo: bool -> Booleano que identifica si la evaluación es visible o no.
     '''
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
-    equipo = models.ForeignKey(Ventilador, on_delete=models.PROTECT)
+    equipo = models.ForeignKey(Ventilador, on_delete=models.PROTECT, related_name="evaluaciones_ventilador")
     nombre = models.CharField(max_length=50)
     fecha = models.DateTimeField(auto_now=True)
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="evaluacionventilador_creado_por")

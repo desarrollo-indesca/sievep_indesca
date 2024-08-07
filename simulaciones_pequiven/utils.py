@@ -14,7 +14,7 @@ def generate_nonexistent_tag(model, tag):
     n = 1
     new_tag = tag
     while model.objects.filter(tag=new_tag).exists():
-        new_tag = tag + f'-{n}'
+        new_tag = tag + f'-C{n}'
         n += 1
     
     return new_tag
