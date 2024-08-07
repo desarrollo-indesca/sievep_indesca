@@ -1171,8 +1171,4 @@ class EspecificacionesPrecalentadorAgua(models.Model):
         db_table = "precalentador_agua_especificaciones"
         ordering = ('tipo',)
 
-# TODO EDICIÓN
-# TODO COPIA DE EQUIPOS
-# TODO ACTUALIZACIÓN DEL SERVIDOR
-
 # MODELOS DE PRECALENTADOR DE AIRE

@@ -2078,7 +2078,7 @@ class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, Duplica
             
             self.copy(ventilador)
 
-        messages.success(request, f"Se ha creado la copia del ventilador {old_tag} como {ventilador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 12:00m.")
+        messages.success(request, f"Se ha creado la copia del ventilador {old_tag} como {ventilador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
         return redirect('/auxiliares/ventiladores/')
 
 class DuplicarBomba(SuperUserRequiredMixin, CargarBombaMixin, DuplicateView):
@@ -2112,7 +2112,7 @@ class DuplicarBomba(SuperUserRequiredMixin, CargarBombaMixin, DuplicateView):
             
             bomba = self.copy(bomba)
 
-        messages.success(request, f"Se ha creado la copia de la bomba {old_tag} como {bomba.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 12:00m.")
+        messages.success(request, f"Se ha creado la copia de la bomba {old_tag} como {bomba.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
         return redirect('/auxiliares/bombas/')
 
 class DuplicarPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAguaMixin, DuplicateView):
@@ -2136,5 +2136,5 @@ class DuplicarPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAgua
                 especificacion.precalentador = precalentador
                 self.copy(especificacion)
 
-        messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 12:00m.")
+        messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
         return redirect('/auxiliares/precalentadores/')
