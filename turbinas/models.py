@@ -174,7 +174,7 @@ class TurbinaVapor(models.Model):
         editado_al: DateTimeField -> Fecha de última edición
     """
     # Identificación de la turbina
-    tag = models.CharField(max_length=10, unique=True)
+    tag = models.CharField(max_length=25, unique=True)
     descripcion = models.CharField('Descripción', max_length=100)
     fabricante = models.CharField(max_length=45)
     modelo = models.CharField(max_length=45, null = True, blank=True)
@@ -190,6 +190,8 @@ class TurbinaVapor(models.Model):
     editado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, null = True, related_name="turbina_editada_por")
     creado_al = models.DateTimeField(auto_now_add=True)
     editado_al = models.DateTimeField(null = True)
+
+    copia = models.BooleanField(default=False, blank=True)
 
     class Meta:
         ordering = ('tag',)
@@ -299,7 +301,7 @@ class Evaluacion(models.Model):
         salida: 1:1 SalidaEvaluacion -> Datos de salida de la evaluación.
     """
     id = models.UUIDField(primary_key=True, default = uuid.uuid4)
-    equipo = models.ForeignKey(TurbinaVapor, on_delete=models.PROTECT)
+    equipo = models.ForeignKey(TurbinaVapor, on_delete=models.PROTECT, related_name='evaluaciones_turbinasvapor')
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT)
 
     nombre = models.CharField(max_length=45)

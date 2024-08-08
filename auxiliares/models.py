@@ -471,6 +471,7 @@ class Bombas(models.Model):
     detalles_construccion = models.OneToOneField(DetallesConstruccionBomba, on_delete=models.CASCADE)
     condiciones_diseno = models.OneToOneField(CondicionesDisenoBomba, on_delete=models.CASCADE)
     grafica = models.ImageField(null = True, blank = True, upload_to='auxiliares/bombas/', verbose_name = "Gráfica del Equipo")
+    copia = models.BooleanField(default=False, blank=True)
 
     instalacion_succion = models.ForeignKey(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_succion")
     instalacion_descarga = models.ForeignKey(EspecificacionesInstalacion, on_delete=models.CASCADE, related_name="instalacion_descarga")
@@ -941,6 +942,7 @@ class Ventilador(models.Model):
     
     creado_al = models.DateTimeField(auto_now_add=True)
     editado_al = models.DateTimeField(null = True)
+    copia = models.BooleanField(default=False, blank=True)
 
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="ventilador_creado_por")
     editado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, null = True, related_name="ventilador_editado_por")
@@ -1034,7 +1036,7 @@ class EvaluacionVentilador(models.Model):
         activo: bool -> Booleano que identifica si la evaluación es visible o no.
     '''
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
-    equipo = models.ForeignKey(Ventilador, on_delete=models.PROTECT)
+    equipo = models.ForeignKey(Ventilador, on_delete=models.PROTECT, related_name="evaluaciones_ventilador")
     nombre = models.CharField(max_length=50)
     fecha = models.DateTimeField(auto_now=True)
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="evaluacionventilador_creado_por")
@@ -1066,6 +1068,7 @@ class PrecalentadorAgua(models.Model):
     tag = models.CharField("Tag", max_length=45, unique=True)
     descripcion = models.CharField("Descripción", max_length=80)
     fabricante = models.CharField("Fabricante", max_length=45)
+    copia = models.BooleanField(default=False, blank=True)
 
     planta = models.ForeignKey(Planta, on_delete=models.PROTECT)
     creado_al = models.DateTimeField(auto_now_add=True)
@@ -1167,9 +1170,5 @@ class EspecificacionesPrecalentadorAgua(models.Model):
     class Meta:
         db_table = "precalentador_agua_especificaciones"
         ordering = ('tipo',)
-
-# TODO EDICIÓN
-# TODO COPIA DE EQUIPOS
-# TODO ACTUALIZACIÓN DEL SERVIDOR
 
 # MODELOS DE PRECALENTADOR DE AIRE
