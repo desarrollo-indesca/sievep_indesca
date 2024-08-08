@@ -2415,4 +2415,3 @@ class DuplicarIntercambiador(SuperUserRequiredMixin, DuplicateView):
                 return redirect("/intercambiadores/tubo_carcasa/") 
             else:
                 return redirect("/intercambiadores/doble_tubo/")
-                
