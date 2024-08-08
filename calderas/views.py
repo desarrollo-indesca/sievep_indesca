@@ -9,7 +9,8 @@ from django.contrib import messages
 from django.forms.models import model_to_dict
 from django.http import JsonResponse
 
-from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion
+from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion, DuplicateView
+from simulaciones_pequiven.utils import generate_nonexistent_tag
 from usuarios.views import SuperUserRequiredMixin 
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos, historico_evaluaciones_caldera, ficha_tecnica_caldera
@@ -1010,3 +1011,45 @@ def grafica_historica_calderas(request, pk):
         })
 
     return JsonResponse(res[:15], safe=False)
+
+class DuplicarCaldera(SuperUserRequiredMixin, CargarCalderasMixin, DuplicateView):
+    """
+    Resumen:
+        Vista para crear una copia temporal duplicada de una caldera para hacer pruebas en los equipos.
+    """
+
+    def post(self, request, pk):
+        caldera_original = Caldera.objects.select_related(
+            "sobrecalentador", "sobrecalentador__dims", "tambor",
+            "dimensiones", "especificaciones", "combustible", 
+            "chimenea", "economizador"
+        ).prefetch_related(
+            "tambor__secciones_tambor", "combustible__composicion_combustible_caldera",
+            "caracteristicas_caldera", "corrientes_caldera"
+        ).get(pk=pk)
+        
+        caldera_original.copia = True
+        caldera_original.creado_por = request.user
+        caldera_original.tag = generate_nonexistent_tag(Caldera, caldera_original.tag)
+        
+        caldera = self.copy(caldera_original)
+        caldera.sobrecalentador = self.copy(caldera_original.sobrecalentador)
+        caldera.tambor = self.copy(caldera_original.tambor)
+        caldera.sobrecalentador.dims = self.copy(caldera_original.sobrecalentador.dims)
+        caldera.dimensiones = self.copy(caldera_original.dimensiones)
+        caldera.especificaciones = self.copy(caldera_original.especificaciones)
+        caldera.chimenea = self.copy(caldera_original.chimenea)
+        caldera.economizador = self.copy(caldera_original.economizador)
+        caldera.save()
+
+        for caracteristica in caldera_original.caracteristicas_caldera.all():
+            caracteristica.caldera = caldera
+            self.copy(caracteristica)
+
+        for corriente in caldera_original.corrientes_caldera.all():
+            corriente.caldera = caldera
+            self.copy(corriente)
+
+        for corriente in caldera_original.combustible.corrientes_caldera.all():
+            corriente.caldera = caldera
+            self.copy(corriente)
