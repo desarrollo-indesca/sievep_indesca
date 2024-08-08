@@ -7,21 +7,22 @@
 {% endblock %}
 
 {% block contenido %}
+    {% with generales=intercambiador.intercambiador %}
+    <div class="row">
+        <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'consulta_evaluaciones' pk=generales.pk %}">↶ Regresar</a></div>
+        <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Nueva Evaluación para el Intercambiador {{generales.tag}}</h3></div>
+        <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
+            {% if generales.tipo.pk == 1 %}
+            {% include 'fichas/tubo_carcasa.html' %}
+            {% elif generales.tipo.pk == 2 %}
+            {% include 'fichas/doble_tubo.html' %}
+            {% endif %}
+            <button type="button" class="btn btn-danger text-dark" data-bs-toggle="modal" data-bs-target="#ficha_{{intercambiador.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica"> Ficha Técnica</button>
+        </div>
+    </div>
     <form method="post" onsubmit="return validarForm(this);">
         {% csrf_token %}
-        {% with generales=intercambiador.intercambiador %}
-        <div class="row">
-            <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="{% url 'consulta_evaluaciones' pk=generales.pk %}">↶ Regresar</a></div>
-            <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Nueva Evaluación para el Intercambiador {{generales.tag}}</h3></div>
-            <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
-                {% if generales.tipo.pk == 1 %}
-                {% include 'fichas/tubo_carcasa.html' %}
-                {% elif generales.tipo.pk == 2 %}
-                {% include 'fichas/doble_tubo.html' %}
-                {% endif %}
-                <button type="button" class="btn btn-danger text-dark" data-bs-toggle="modal" data-bs-target="#ficha_{{intercambiador.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica"> Ficha Técnica</button>
-            </div>
-        </div>
+        
         
         <hr>
 
@@ -304,7 +305,7 @@
             <button id="registrar_resultado" type="submit" class="btn btn-danger" disabled>Registrar Resultados De La Evaluación</button>
         </div>
     </form>
-    {% endwith %}
+{% endwith %}
 
     <div hidden id="spinner" class="htmx-indicator indicator-style">
         <div class="spinner-grow text-danger" style="width: 6rem; height: 6rem;">

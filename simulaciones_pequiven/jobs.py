@@ -145,12 +145,35 @@ def delete_turbinas_vapor_copies():
         especificaciones.delete()
         generador_electrico.delete()
 
+def delete_intercambiador_copies():
+    from intercambiadores.models import Intercambiador
+
+    copias = Intercambiador.objects.filter(copia=True).select_related(
+        'tipo'
+    ).prefetch_related(
+        'evaluaciones', 'datos_dobletubo', 
+        'condiciones', 'datos_tubo_carcasa'
+    )
+
+    for copia in copias:
+        print(copia.tipo.nombre)
+        print(copia.tag)
+        propiedades = copia.datos_tubo_carcasa if copia.tipo.nombre == "TUBO/CARCASA" else copia.datos_dobletubo
+        condiciones = copia.condiciones
+        evaluaciones = copia.evaluaciones
+
+        propiedades.delete()
+        condiciones.all().delete()
+        evaluaciones.all().delete()
+        copia.delete()
+
 def delete_copies():
     with transaction.atomic():
         delete_ventilador_copies()
         delete_bombas_copies()
         delete_precalentador_copies()
         delete_turbinas_vapor_copies()
+        delete_intercambiador_copies()
 
 def start_deleting_job():
     scheduler = Scheduler()
