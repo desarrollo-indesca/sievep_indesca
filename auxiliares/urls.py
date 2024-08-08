@@ -14,9 +14,11 @@ urlpatterns = [
     path('bombas/datos_fluido/', ObtencionDatosFluidosBomba.as_view(), name="datos_fluido_bomba"),
     path('bombas/evaluaciones/<int:pk>/', ConsultaEvaluacionBomba.as_view(), name = "evaluacion_bomba"),
     path('bombas/evaluar/<int:pk>/', CreacionEvaluacionBomba.as_view(), name = "crear_evaluacion_bomba"),
+    path('bombas/duplicar/<int:pk>/', DuplicarBomba.as_view(), name="duplicar_bomba"),
 
     path('bombas/evaluar/resultados/<int:pk>/', CalcularResultadosBomba.as_view(), name = "resultados_evaluacion_bombas"),
     path('bombas/evaluar/<int:pk>/historico/', GenerarGraficaBomba.as_view(), name='generar_historico_bomba'),
+
 
     # URLs de VENTILADORES
     path('ventiladores/', ConsultaVentiladores.as_view(), name="consulta_ventiladores"),
@@ -27,9 +29,11 @@ urlpatterns = [
     path('ventiladores/evaluar/<int:pk>/', CreacionEvaluacionVentilador.as_view(), name='crear_evaluacion_ventilador'),
     path('ventiladores/evaluar/<int:pk>/resultado/', CalcularResultadosVentilador.as_view(), name='resultados_evaluacion_ventilador'),
     path('ventiladores/evaluaciones/<int:pk>/historico/', GenerarGraficaVentilador.as_view(), name='generar_historico_ventilador'),
+    path('ventiladores/duplicar/<int:pk>/', DuplicarVentilador.as_view(), name="duplicar_ventilador"),
 
     # URLs de PRECALENTADORES DE AGUA
     path('precalentadores/', ConsultaPrecalentadoresAgua.as_view(), name="consulta_precalentadores_agua"),
     path('precalentadores/creacion/', CreacionPrecalentadorAgua.as_view(), name="creacion_precalentador_agua"),
     path('precalentadores/edicion/<int:pk>/', EdicionPrecalentadorAgua.as_view(), name="edicion_precalentador_agua"),
+    path('precalentadores/duplicar/<int:pk>/', DuplicarPrecalentadorAgua.as_view(), name="duplicar_precalentador_agua"),
 ]

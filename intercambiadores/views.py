@@ -14,6 +14,9 @@ from calculos.termodinamicos import calcular_cp
 from calculos.evaluaciones import evaluacion_tubo_carcasa, obtener_cambio_fase, determinar_cambio_parcial, calcular_calor_scdf, calcular_calor_cdft, calcular_calor_cdfp, calcular_tsat_hvap
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import historico_evaluaciones, reporte_intercambiadores, ficha_tecnica_tubo_carcasa_xlsx, ficha_tecnica_doble_tubo_xlsx
+from simulaciones_pequiven.views import DuplicateView
+from simulaciones_pequiven.utils import generate_nonexistent_tag
+from usuarios.views import SuperUserRequiredMixin
 from calculos.unidades import *
 import datetime
 
@@ -2384,3 +2387,31 @@ class FichaTecnicaDobleTubo(LoginRequiredMixin, View):
         except Exception as e:
             print(str(e))
             return HttpResponseNotFound(MENSAJE_ERROR)
+
+class DuplicarIntercambiador(SuperUserRequiredMixin, DuplicateView):
+    def post(self, request, pk):
+        with transaction.atomic():
+            intercambiador_previo = Intercambiador.objects.prefetch_related(
+                'datos_tubo_carcasa', 'datos_dobletubo', 'condiciones'
+            ).get(pk=pk)
+
+            intercambiador.creado_por = request.user
+            intercambiador.copia = True
+            intercambiador = self.copy(intercambiador_previo)
+
+            for condicion in intercambiador.condiciones.all():
+                condicion.intercambiador = intercambiador
+                condicion = self.copy(condicion)
+
+            for propiedades in intercambiador.datos_tubo_carcasa.all():
+                propiedades.intercambiador = intercambiador
+                propiedades = self.copy(propiedades)
+
+            for propiedades in intercambiador.datos_dobletubo.all():
+                propiedades.intercambiador = intercambiador
+                propiedades = self.copy(propiedades)
+
+            if(intercambiador.datos_tubo_carcasa.exists()):
+                return redirect("/intercambiadores/tubo_carcasa/") 
+            else:
+                return redirect("/intercambiadores/doble_tubo/")

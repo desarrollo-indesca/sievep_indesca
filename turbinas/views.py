@@ -9,7 +9,8 @@ from django.views import View
 from django.views.generic import ListView
 from django.http import JsonResponse
 from django.contrib import messages
-from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion, ReportesFichasMixin, FiltrarEvaluacionesMixin
+from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion, ReportesFichasMixin, FiltrarEvaluacionesMixin, DuplicateView
+from simulaciones_pequiven.utils import generate_nonexistent_tag
 
 from usuarios.views import SuperUserRequiredMixin
 from calculos.unidades import *
@@ -656,3 +657,22 @@ class GenerarGraficaTurbina(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
             })
 
         return JsonResponse(res[:15], safe=False)
+    
+class DuplicarTurbinaVapor(SuperUserRequiredMixin, ObtenerTurbinaVaporMixin, DuplicateView):
+    def post(self, request, pk):
+        with transaction.atomic():
+            turbina = self.get_turbina()
+            turbina_tag = turbina.tag
+            turbina.generador_electrico = self.copy(turbina.generador_electrico)
+            turbina.especificaciones = self.copy(turbina.especificaciones)
+            datos_corrientes = self.copy(turbina.datos_corrientes)
+
+            for corriente in turbina.datos_corrientes.corrientes.all():
+                corriente.datos_corriente = datos_corrientes
+                self.copy(corriente) 
+
+            turbina.datos_corrientes = datos_corrientes       
+            turbina.copia = True
+            turbina.tag = generate_nonexistent_tag(TurbinaVapor, turbina_tag)
+            self.copy(turbina)
+            return redirect('/turbinas/vapor/')
