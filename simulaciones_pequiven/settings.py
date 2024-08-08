@@ -17,6 +17,7 @@ A nivel de código el proyecto se llama 'simulaciones_pequiven' hasta que se dec
 from pathlib import Path
 import os, ldap
 from django_auth_ldap.config import LDAPSearch, ActiveDirectoryGroupType
+from .jobs import start_deleting_job
 
 # CONFIGURACIÓN DE LDAP
 
@@ -255,6 +256,9 @@ MEDIA_URL = '/media/'
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+# JOB CONFIGURATION
+start_deleting_job()
 
 # CONFIGURACIÓN DE LOS LOGS
 
