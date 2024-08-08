@@ -2395,23 +2395,25 @@ class DuplicarIntercambiador(SuperUserRequiredMixin, DuplicateView):
                 'datos_tubo_carcasa', 'datos_dobletubo', 'condiciones'
             ).get(pk=pk)
 
-            intercambiador.creado_por = request.user
-            intercambiador.copia = True
+            intercambiador_previo.creado_por = request.user
+            intercambiador_previo.copia = True
+            intercambiador_previo.tag = generate_nonexistent_tag(Intercambiador, intercambiador_previo.tag)
             intercambiador = self.copy(intercambiador_previo)
+
+            print(intercambiador.tipo.nombre)
 
             for condicion in intercambiador.condiciones.all():
                 condicion.intercambiador = intercambiador
                 condicion = self.copy(condicion)
 
-            for propiedades in intercambiador.datos_tubo_carcasa.all():
+            if(intercambiador.tipo.nombre == "TUBO/CARCASA"):
+                propiedades = intercambiador.datos_tubo_carcasa
                 propiedades.intercambiador = intercambiador
                 propiedades = self.copy(propiedades)
-
-            for propiedades in intercambiador.datos_dobletubo.all():
-                propiedades.intercambiador = intercambiador
-                propiedades = self.copy(propiedades)
-
-            if(intercambiador.datos_tubo_carcasa.exists()):
                 return redirect("/intercambiadores/tubo_carcasa/") 
-            else:
+            elif(intercambiador.tipo.nombre == "DOBLE TUBO"):
+                propiedades = intercambiador.datos_dobletubo
+                propiedades.intercambiador = intercambiador
+                propiedades = self.copy(propiedades)
                 return redirect("/intercambiadores/doble_tubo/")
+                
