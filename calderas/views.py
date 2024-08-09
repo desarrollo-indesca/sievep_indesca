@@ -464,7 +464,7 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
                 'edicion': True,
                 'titulo': self.titulo + f" {caldera.tag}",
                 'error': str(e),
-                'unidades': Unidades.objects.all().values('pk','simbolo','tipo')
+                'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
             })
         
 class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View):
@@ -1046,6 +1046,10 @@ class DuplicarCaldera(SuperUserRequiredMixin, CargarCalderasMixin, DuplicateView
         for caracteristica in caldera_original.caracteristicas_caldera.all():
             caracteristica.caldera = caldera
             self.copy(caracteristica)
+
+        for seccion in caldera_original.tambor.secciones_tambor.all():
+            seccion.tambor = caldera.tambor
+            self.copy(seccion)
 
         for corriente in caldera_original.corrientes_caldera.all():
             corriente.caldera = caldera

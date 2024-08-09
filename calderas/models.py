@@ -329,6 +329,7 @@ class Caldera(models.Model):
     modelo = models.CharField(max_length=45, null = True, blank = True)
     tipo_caldera = models.CharField("Tipo de Caldera", max_length=50, null = True, blank = True)
     accesorios = models.CharField(max_length=45, null = True, blank = True)
+    copia = models.BooleanField(default=False, blank=True)
 
     sobrecalentador = models.OneToOneField(Sobrecalentador, models.CASCADE)
     tambor = models.OneToOneField(Tambor, models.PROTECT)
