@@ -1028,19 +1028,20 @@ class DuplicarCaldera(SuperUserRequiredMixin, CargarCalderasMixin, DuplicateView
             "caracteristicas_caldera", "corrientes_caldera"
         ).get(pk=pk)
         
-        caldera_original.copia = True
-        caldera_original.creado_por = request.user
-        caldera_original.tag = generate_nonexistent_tag(Caldera, caldera_original.tag)
-        
-        caldera = self.copy(caldera_original)
+        caldera = caldera_original
+        caldera.copia = True
+        caldera.tag = generate_nonexistent_tag(Caldera, caldera.tag)
+        dims = self.copy(caldera_original.sobrecalentador.dims)
+        sobrecalentador = caldera_original.sobrecalentador
+        sobrecalentador.dims = dims
         caldera.sobrecalentador = self.copy(caldera_original.sobrecalentador)
         caldera.tambor = self.copy(caldera_original.tambor)
-        caldera.sobrecalentador.dims = self.copy(caldera_original.sobrecalentador.dims)
         caldera.dimensiones = self.copy(caldera_original.dimensiones)
         caldera.especificaciones = self.copy(caldera_original.especificaciones)
         caldera.chimenea = self.copy(caldera_original.chimenea)
         caldera.economizador = self.copy(caldera_original.economizador)
-        caldera.save()
+        caldera.combustible = self.copy(caldera_original.combustible)
+        caldera = self.copy(caldera)
 
         for caracteristica in caldera_original.caracteristicas_caldera.all():
             caracteristica.caldera = caldera
@@ -1050,6 +1051,8 @@ class DuplicarCaldera(SuperUserRequiredMixin, CargarCalderasMixin, DuplicateView
             corriente.caldera = caldera
             self.copy(corriente)
 
-        for corriente in caldera_original.combustible.corrientes_caldera.all():
-            corriente.caldera = caldera
-            self.copy(corriente)
+        for compuesto in caldera_original.combustible.composicion_combustible_caldera.all():
+            compuesto.combustible = caldera.combustible
+            self.copy(compuesto)
+
+        return redirect("/calderas")
