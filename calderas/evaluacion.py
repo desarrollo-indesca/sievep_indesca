@@ -134,8 +134,7 @@ MOLES_HIDROGENO_INDIRECTO = {
     '110-54-3': 14,
     '7783-06-4': 2,
     '124-38-9': 2,
-    '7783-06-4': 2,
-    '7440-44-0': 1
+    '7732-18-5': 2
 }
 
 ENTALPIA_FORMACION = {
@@ -505,5 +504,21 @@ def porcentajes_carbono():
 
     return porcentajes_carbono
 
+def porcentajes_hidrogeno():
+    porcentajes_hidrogeno = {}
+    peso_molecular_carbono = PESOS_MOLECULARES["7440-44-0"]
+
+    for key,mol in MOLES_HIDROGENO_INDIRECTO.items():
+       
+        if(key not in ["7783-06-4","7732-18-5"]):
+            moles_carbono = MOLES_CARBONO_INDIRECTO[key]['moles']
+            porcentajes_hidrogeno[key] = mol / (mol + peso_molecular_carbono*moles_carbono)
+        elif(key == "7783-06-4"):
+            porcentajes_hidrogeno[key] = mol / (mol + PESOS_MOLECULARES["7704-34-9"])
+        else:
+            porcentajes_hidrogeno[key] = mol / (mol + PESOS_MOLECULARES["7782-44-7"]/2)
+
+    return porcentajes_hidrogeno
+
 PORCENTAJES_CARBONO = porcentajes_carbono()
-print(PORCENTAJES_CARBONO)
+PORCENTAJES_HIDROGENO = porcentajes_hidrogeno()
