@@ -137,6 +137,32 @@ MOLES_HIDROGENO_INDIRECTO = {
     '7732-18-5': 2
 }
 
+PORCENTAJES_CARBONO = {
+    '74-82-8': 0.75, 
+    '74-84-0': 0.8, 
+    '74-98-6': 0.9429756719960654, 
+    '75-28-5': 0.8275862068965517, 
+    '106-97-8': 0.8275862068965517, 
+    '78-78-4': 0.8333333333333334, 
+    '109-66-0': 0.8333333333333334, 
+    '110-54-3': 0.8372093023255814, 
+    '124-38-9': 0.8571428571428571
+}
+
+PORCENTAJES_HIDROGENO = {
+    '74-82-8': 0.25, 
+    '74-84-0': 0.2, 
+    '74-98-6': 0.18181818181818182, 
+    '75-28-5': 0.1724137931034483, 
+    '106-97-8': 0.1724137931034483, 
+    '78-78-4': 0.16666666666666666, 
+    '109-66-0': 0.16666666666666666, 
+    '110-54-3': 0.16279069767441862, 
+    '7783-06-4': 0.05871128724497285, 
+    '124-38-9': 0.14285714285714285, 
+    '7732-18-5': 0.11111419761660048
+}
+
 ENTALPIA_FORMACION = {
     '74-82-8': -17.895,
     '74-84-0': -20.236,
@@ -483,42 +509,47 @@ def evaluar_caldera(flujo_gas: float, temperatura_gas: float, presion_gas: float
 
 # FUNCIONES DE MÉTODO INDIRECTO
 
+def calcular_pm_promedio(composiciones_combustible):
+    return sum([PESOS_MOLECULARES[compuesto['cas']]*compuesto['x'] for compuesto in composiciones_combustible])
+
+def calcular_moles_carbon(composiciones_combustible):
+    pass
+
+def calcular_moles_hidrogeno(composiciones_combustible):
+    pass
+
+def calcular_moles_oxigeno(composiciones_combustible):
+    pass
+
 def evaluar_metodo_indirecto(composiciones_combustible, temp_aire, flujo_aire, velocidad_aire,
                                 temp_gas, presion_gas, flujo_gas,  area_superficie, temperatura_superficie,
                                 temp_horno):
     
     composicion_normalizada = normalizar_composicion(composiciones_combustible)
+    flujo_molar_gas = (presion_gas*flujo_gas)/temp_gas
+    pm_promedio = calcular_pm_promedio(composicion_normalizada)
+    flujo_masico_gas = pm_promedio*flujo_molar_gas
 
-def porcentajes_carbono():
-    porcentajes_carbono = {}
-    peso_molecular_carbono = PESOS_MOLECULARES["7440-44-0"]
+    peso_molecular_oxigeno = PESOS_MOLECULARES['7782-44-7']
+    peso_molecular_carbono = PESOS_MOLECULARES['7440-44-0']
+    peso_molecular_azufre = PESOS_MOLECULARES['7704-34-9']
 
-    for key,mol in MOLES_CARBONO_INDIRECTO.items():
-        moles_hidrogeno = MOLES_HIDROGENO_INDIRECTO[key]
-        peso_molecular = peso_molecular_carbono if mol['carbono'] else PESOS_MOLECULARES[key]
+    porc_o2_co2 = (2 * peso_molecular_oxigeno) / (2 * peso_molecular_oxigeno + peso_molecular_carbono)
+    porc_o2_h2o = (1 * peso_molecular_oxigeno) / (2 * 1 + 1 * peso_molecular_oxigeno)
+    porc_s_h2s =  (1 * peso_molecular_azufre) / (2 + 1 * peso_molecular_carbono + 1 * peso_molecular_azufre)
 
-        print(mol['moles'], peso_molecular, moles_hidrogeno, moles_hidrogeno)
+    moles_carbon = calcular_moles_carbon(composicion_normalizada)
+    moles_hidrogeno = calcular_moles_hidrogeno(composicion_normalizada)
+    moles_oxigeno = calcular_moles_oxigeno(composicion_normalizada)
 
-        parcial = mol['moles']*peso_molecular 
-        porcentajes_carbono[key] = parcial / (parcial + moles_hidrogeno)
+    # Calculo aire requerido
 
-    return porcentajes_carbono
+    # Calculo flujo masico componentes
 
-def porcentajes_hidrogeno():
-    porcentajes_hidrogeno = {}
-    peso_molecular_carbono = PESOS_MOLECULARES["7440-44-0"]
+    # Calculo de composiciones masicas de los compuestos
 
-    for key,mol in MOLES_HIDROGENO_INDIRECTO.items():
-       
-        if(key not in ["7783-06-4","7732-18-5"]):
-            moles_carbono = MOLES_CARBONO_INDIRECTO[key]['moles']
-            porcentajes_hidrogeno[key] = mol / (mol + peso_molecular_carbono*moles_carbono)
-        elif(key == "7783-06-4"):
-            porcentajes_hidrogeno[key] = mol / (mol + PESOS_MOLECULARES["7704-34-9"])
-        else:
-            porcentajes_hidrogeno[key] = mol / (mol + PESOS_MOLECULARES["7782-44-7"]/2)
+    #Entalpias
 
-    return porcentajes_hidrogeno
+    #Factor de humedad
 
-PORCENTAJES_CARBONO = porcentajes_carbono()
-PORCENTAJES_HIDROGENO = porcentajes_hidrogeno()
+    # Poder Calorífico
