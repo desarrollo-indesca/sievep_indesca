@@ -79,7 +79,82 @@ PESOS_MOLECULARES = {
     '7782-44-7': 31.999,
     '124-38-9': 44.01,
     '7446-09-5': 64.065, 
-    '7727-37-9': 28.014
+    '7727-37-9': 28.014,
+    '7704-34-9': 32.065,
+    '7440-44-0': 12.000
+}
+
+MOLES_CARBONO_INDIRECTO = {
+    '74-82-8': {
+        "moles": 1,
+        "carbono": True
+    },
+    '74-84-0': {
+        "moles": 2,
+        "carbono": True
+    },
+    '74-98-6': {
+        "moles": 3,
+        "carbono": False
+    },
+    '75-28-5': {
+        "moles": 4,
+        "carbono": True
+    },
+    '106-97-8': {
+        "moles": 4,
+        "carbono": True
+    },
+    '78-78-4': {
+        "moles": 5,
+        "carbono": True
+    },
+    '109-66-0': {
+        "moles": 5,
+        "carbono": True
+    },
+    '110-54-3': {
+        "moles": 6,
+        "carbono": True
+    },
+    '124-38-9': {
+        "moles": 1,
+        "carbono": True
+    }
+}
+
+MOLES_HIDROGENO_INDIRECTO = {
+    '74-82-8': 4,
+    '74-84-0': 6,
+    '74-98-6': 8,
+    '75-28-5': 10,
+    '106-97-8': 10,
+    '78-78-4': 12,
+    '109-66-0': 12,
+    '110-54-3': 14,
+    '7783-06-4': 2,
+    '124-38-9': 2,
+    '7783-06-4': 2,
+    '7440-44-0': 1
+}
+
+ENTALPIA_FORMACION = {
+    '74-82-8': -17.895,
+    '74-84-0': -20.236,
+    '74-98-6': -24.820,
+    '75-28-5': -31.452,
+    '106-97-8': -29.812,
+    '78-78-4': -35,
+    '109-66-0': -35,
+    '110-54-3': -40,
+    '7783-06-4': -4.8159,
+    '7732-18-5': -57.7915,
+    '7782-44-7': 0,
+    '124-38-9': -93.9293,
+    '7446-09-5': -70.7695
+}
+
+PORCENTAJES_CARBONO = {
 }
 
 R = 8.3145e-5
@@ -406,3 +481,29 @@ def evaluar_caldera(flujo_gas: float, temperatura_gas: float, presion_gas: float
 
        'eficiencia': eficiencia
     }
+
+# FUNCIONES DE MÉTODO INDIRECTO
+
+def evaluar_metodo_indirecto(composiciones_combustible, temp_aire, flujo_aire, velocidad_aire,
+                                temp_gas, presion_gas, flujo_gas,  area_superficie, temperatura_superficie,
+                                temp_horno):
+    
+    composicion_normalizada = normalizar_composicion(composiciones_combustible)
+
+def porcentajes_carbono():
+    porcentajes_carbono = {}
+    peso_molecular_carbono = PESOS_MOLECULARES["7440-44-0"]
+
+    for key,mol in MOLES_CARBONO_INDIRECTO.items():
+        moles_hidrogeno = MOLES_HIDROGENO_INDIRECTO[key]
+        peso_molecular = peso_molecular_carbono if mol['carbono'] else PESOS_MOLECULARES[key]
+
+        print(mol['moles'], peso_molecular, moles_hidrogeno, moles_hidrogeno)
+
+        parcial = mol['moles']*peso_molecular 
+        porcentajes_carbono[key] = parcial / (parcial + moles_hidrogeno)
+
+    return porcentajes_carbono
+
+PORCENTAJES_CARBONO = porcentajes_carbono()
+print(PORCENTAJES_CARBONO)
