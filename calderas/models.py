@@ -531,7 +531,7 @@ class Evaluacion(models.Model):
     fecha = models.DateTimeField(auto_now=True)
     usuario = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, default=1, related_name="usuario_evaluacion_caldera")
     activo = models.BooleanField(default=True)
-    metodo = models.CharField(max_length=1, choices=METODO_CHOICES)
+    metodo = models.CharField("Método", max_length=1, choices=METODO_CHOICES)
 
     salida_flujos = models.ForeignKey(SalidaFlujosEntrada, models.PROTECT)
     salida_fracciones = models.ForeignKey(SalidaFracciones, models.PROTECT)

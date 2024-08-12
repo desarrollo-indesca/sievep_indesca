@@ -244,7 +244,7 @@
                             {{forms.form_superficie.temperatura.label_tag}}
                             <div class="input-group">
                                 {% render_field forms.form_superficie.temperatura class="form-control" placeholder="Temperatura Superficie" %}
-                                <select name="vapor-temperatura_unidad" class="form-select" id="id_vapor-temperatura_unidad">
+                                <select name="superficie-temperatura_unidad" class="form-select" id="id_superficie-temperatura_unidad">
                                     {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=forms.form_superficie.temperatura_unidad.initial.pk %}
                                 </select>
         
@@ -254,7 +254,7 @@
                             {{forms.form_superficie.area.label_tag}}
                             <div class="input-group">
                                 {% render_field forms.form_superficie.area class="form-control" placeholder="Área de la Superficie" %}
-                                <select name="vapor-area_unidad" class="form-select" id="id_vapor-area_unidad">
+                                <select name="superficie-area_unidad" class="form-select" id="id_superficie-area_unidad">
                                     {% include 'unidades.html' with unidades=unidades tipo='A' pk_selected=forms.form_superficie.area_unidad.initial.pk %}        
                                 </select>
         

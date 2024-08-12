@@ -16,7 +16,7 @@ from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos, historico_evaluaciones_caldera, ficha_tecnica_caldera
 from .forms import *
 from .constants import COMPUESTOS_AIRE
-from .evaluacion import evaluar_caldera
+from .evaluacion import evaluar_caldera, evaluar_metodo_indirecto
 from calculos.unidades import *
 
 from datetime import datetime
@@ -765,7 +765,7 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
                 'temperatura_unidad': corriente_vapor.temp_operacion_unidad if corriente_vapor else None
             }), 
 
-            'form_evaluacion': EvaluacionForm(prefix='evaluacion'),
+            'form_evaluacion': EvaluacionForm(prefix='evaluacion', initial={'metodo': 'D'}),
             'formset_composicion': formset_composicion
         }
 
@@ -918,6 +918,17 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
             'vapor-flujo': 'vapor-flujo_unidad',
             'vapor-temperatura': 'vapor-temperatura_unidad',
             'vapor-presion': 'vapor-presion_unidad',
+        } if request.POST.get('evaluacion-metodo') == "D" else {
+            'aire-temperatura': 'aire-temperatura_unidad',
+            'aire-presion': 'aire-presion_unidad',
+            'horno-temperatura': 'horno-temperatura_unidad',
+            'gas-temperatura': 'gas-temperatura_unidad',
+            'gas-presion': 'gas-presion_unidad',
+            'gas-flujo': 'gas-flujo_unidad',
+            'superficie-area': 'superficie-area_unidad',
+            'superficie-temperatura': 'superficie-temperatura_unidad',
+            'aire-velocidad': 'aire-velocidad_unidad',
+            'aire-flujo': 'aire-flujo_unidad',
         }
 
         variables_eval = {}
@@ -928,6 +939,8 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
             funcion = transformar_unidades_presion if u and ('presion' in u) else \
                 transformar_unidades_temperatura if u and ('temperatura' in u) else \
                 transformar_unidades_flujo_volumetrico if u and ('gas' in u or 'aire' in u) else \
+                transformar_unidades_area if u and ('area' in u) else \
+                transformar_unidades_velocidad_lineal if u and ('area' in u) else \
                 transformar_unidades_flujo
 
             if unidad:
@@ -959,8 +972,12 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
                     'porc_vol': parc_vol,
                     'porc_aire': parc_aire
                 })
-        
-        resultados = evaluar_caldera(**variables_eval, composiciones_combustible=composiciones)
+
+        if(request.POST['evaluacion-metodo'] == 'D'):        
+            resultados = evaluar_caldera(**variables_eval, composiciones_combustible=composiciones)
+        else:
+            resultados = evaluar_metodo_indirecto(composiciones, **variables_eval)
+
         return resultados
 
     def post(self, request, pk, *args, **kwargs):
