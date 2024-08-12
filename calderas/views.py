@@ -755,6 +755,15 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
                 'temperatura': corriente_vapor.temp_operacion if corriente_vapor else None,
                 'temperatura_unidad': corriente_vapor.temp_operacion_unidad if corriente_vapor else None
             }), 
+            'form_superficie': EntradasFluidosForm(prefix='superficie', initial={
+                'tipo': 'Z',
+                'flujo': corriente_vapor.flujo_masico if corriente_vapor else None,
+                'flujo_unidad': corriente_vapor.flujo_masico_unidad if corriente_vapor else None,
+                'presion': corriente_vapor.presion if corriente_vapor else None,
+                'presion_unidad': corriente_vapor.presion_unidad if corriente_vapor else None,
+                'temperatura': corriente_vapor.temp_operacion if corriente_vapor else None,
+                'temperatura_unidad': corriente_vapor.temp_operacion_unidad if corriente_vapor else None
+            }), 
 
             'form_evaluacion': EvaluacionForm(prefix='evaluacion'),
             'formset_composicion': formset_composicion

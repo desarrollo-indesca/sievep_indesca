@@ -6,6 +6,11 @@ from django.core.validators import MinValueValidator
 
 from intercambiadores.models import Planta, Fluido, Unidades, ClasesUnidades
 
+METODO_CHOICES = (
+    ('D', 'Directo'),
+    ('I', 'Indirecto'),
+)
+
 # Create your models here.
 
 class Tambor(models.Model):
@@ -526,6 +531,7 @@ class Evaluacion(models.Model):
     fecha = models.DateTimeField(auto_now=True)
     usuario = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, default=1, related_name="usuario_evaluacion_caldera")
     activo = models.BooleanField(default=True)
+    metodo = models.CharField(max_length=1, choices=METODO_CHOICES)
 
     salida_flujos = models.ForeignKey(SalidaFlujosEntrada, models.PROTECT)
     salida_fracciones = models.ForeignKey(SalidaFracciones, models.PROTECT)
@@ -576,6 +582,16 @@ class EntradasFluidos(models.Model):
     ])
     presion_unidad = models.ForeignKey(Unidades, models.PROTECT, related_name="presion_unidad_entrada_fluidos_caldera")
     
+    velocidad = models.FloatField(validators=[
+        MinValueValidator(0.0001)
+    ], null=True, blank=True)
+    velocidad_unidad = models.ForeignKey(Unidades, models.PROTECT, related_name="velocidad_unidad_entrada_fluidos_caldera", null=True, blank=True)
+
+    area = models.FloatField("Área", validators=[
+        MinValueValidator(0.0001)
+    ], null=True, blank=True)
+    area_unidad = models.ForeignKey(Unidades, models.PROTECT, related_name="area_unidad_entrada_fluidos_caldera", null=True, blank=True)
+
     tipo_fluido = models.CharField(max_length=1, choices=TIPOS_FLUIDOS)
     humedad_relativa = models.FloatField(null=True, blank=True, validators=[
         MinValueValidator(0)

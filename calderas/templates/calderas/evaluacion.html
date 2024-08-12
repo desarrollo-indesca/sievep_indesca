@@ -25,9 +25,14 @@
 <form method="post" enctype="multipart/form-data" hx-indicator="#spinner" hx-post="{% url 'evaluar_caldera' pk=equipo.pk %}" hx-target="#resultados">
     {% csrf_token %}
     <div class="row">
-        <div class="col-12 mb-3">
+        <div class="col-8 mb-3">
             {{forms.form_evaluacion.nombre.label_tag}}
             {% render_field forms.form_evaluacion.nombre class="form-control" %}
+        </div>
+
+        <div class="col-4 mb-3">
+            {{forms.form_evaluacion.metodo.label_tag}}
+            {% render_field forms.form_evaluacion.metodo class="form-select" %}
         </div>
 
         <div class="col-4">
@@ -117,6 +122,16 @@
                                 </select>
         
                                 <small>{{forms.form_aire.humedad_relativa.errors}}</small>
+                            </div>
+
+                            {{forms.form_aire.velocidad.label_tag}}
+                            <div class="input-group">
+                                {% render_field forms.form_aire.velocidad class="form-control" placeholder="Velocidad" required="" %}
+                                <select name="aire-velocidad_unidad" class="form-select" id="id_aire-velocidad_unidad">
+                                    {% include 'unidades.html' with unidades=unidades tipo='s' pk_selected=forms.form_aire.velocidad_unidad.initial.pk %}
+                                </select>
+        
+                                <small>{{forms.form_aire.velocidad.errors}}</small>
                             </div>
 
                             <input type="hidden" name="{{forms.form_aire.prefix}}-tipo_fluido" value="A">
@@ -220,6 +235,33 @@
                             </div>
 
                             <input type="hidden" name="{{forms.form_vapor.prefix}}-tipo_fluido" value="V">
+                        </div>
+
+                        <div class="col-12">
+                            <hr>
+                            <h4 class="text-center">Superficie de la Caldera</h4>
+               
+                            {{forms.form_superficie.temperatura.label_tag}}
+                            <div class="input-group">
+                                {% render_field forms.form_superficie.temperatura class="form-control" placeholder="Temperatura Superficie" %}
+                                <select name="vapor-temperatura_unidad" class="form-select" id="id_vapor-temperatura_unidad">
+                                    {% include 'unidades.html' with unidades=unidades tipo='T' pk_selected=forms.form_superficie.temperatura_unidad.initial.pk %}
+                                </select>
+        
+                                <small>{{forms.form_superficie.temperatura.errors}}</small>
+                            </div>
+
+                            {{forms.form_superficie.area.label_tag}}
+                            <div class="input-group">
+                                {% render_field forms.form_superficie.area class="form-control" placeholder="Área de la Superficie" %}
+                                <select name="vapor-area_unidad" class="form-select" id="id_vapor-area_unidad">
+                                    {% include 'unidades.html' with unidades=unidades tipo='A' pk_selected=forms.form_superficie.area_unidad.initial.pk %}        
+                                </select>
+        
+                                <small>{{forms.form_superficie.area.errors}}</small>
+                            </div>
+        
+                            <input type="hidden" name="{{forms.form_superficie.prefix}}-tipo_fluido" value="Z">
                         </div>
                     </div>
                 </div>                
