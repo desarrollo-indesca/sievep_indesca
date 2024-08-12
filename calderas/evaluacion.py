@@ -512,17 +512,57 @@ def evaluar_caldera(flujo_gas: float, temperatura_gas: float, presion_gas: float
 def calcular_pm_promedio(composiciones_combustible):
     return sum([PESOS_MOLECULARES[compuesto['cas']]*compuesto['x'] for compuesto in composiciones_combustible])
 
-def calcular_moles_carbon(composiciones_combustible):
-    pass
+def calcular_moles_carbon(composiciones_combustible,  flujo_molar_gas):
+    for comp in composiciones_combustible:
+        cas = comp['cas']
+        moles = comp['x'] * flujo_molar_gas
+        composiciones_combustible[cas]['moles'] = moles
 
-def calcular_moles_hidrogeno(composiciones_combustible):
-    pass
+        if(PORCENTAJES_CARBONO.get(cas)):
+            composiciones_combustible[cas]['moles_carbon'] = moles * PORCENTAJES_CARBONO[cas]
 
-def calcular_moles_oxigeno(composiciones_combustible):
-    pass
+    moles_totales_carbon = sum([comp.get('moles_carbon', 0) for comp in composiciones_combustible])
+    porcentaje_carbon = moles_totales_carbon/flujo_molar_gas * 100
+
+    return composiciones_combustible, porcentaje_carbon
+
+def calcular_moles_azufre(composiciones_combustible, porc_s_h2s):
+    composiciones_combustible['7783-06-4']['moles_azufre'] = composiciones_combustible['7783-06-4']['moles'] * porc_s_h2s
+    porcentaje_azufre = composiciones_combustible['7783-06-4']['moles_azufre']/composiciones_combustible['7783-06-4']['moles'] * 100
+
+    return composiciones_combustible, porcentaje_azufre
+
+def calcular_moles_oxigeno(composiciones_combustible, flujo_molar_gas, porc_o2_co2, porc_o2_h2o):
+    composiciones_combustible['7732-18-5']['moles_oxigeno'] =  porc_o2_h2o * composiciones_combustible['7732-18-5']['moles']
+    composiciones_combustible['124-38-9']['moles_oxigeno'] =  porc_o2_co2 * composiciones_combustible['124-38-9']['moles']
+    
+    moles_totales_oxigeno = sum([comp.get('moles_oxigeno', 0) for comp in composiciones_combustible])
+    porcentaje_oxigeno = moles_totales_oxigeno/flujo_molar_gas * 100
+
+    return composiciones_combustible, porcentaje_oxigeno
+
+def calcular_moles_hidrogeno(composiciones_combustible, flujo_molar_gas):
+    for comp in composiciones_combustible:
+        cas = comp['cas']
+
+        if(PORCENTAJES_HIDROGENO.get(cas)):
+            composiciones_combustible[cas]['moles_azufre'] = comp['x'] * PORCENTAJES_HIDROGENO[cas]
+    
+    moles_totales_hidrogeno = sum([comp.get('moles_azufre', 0) for comp in composiciones_combustible])
+    porcentaje_hidrogeno = moles_totales_hidrogeno/flujo_molar_gas * 100
+
+    return composiciones_combustible, porcentaje_hidrogeno
+
+def calcular_flujos_composiciones_masicas(composiciones_combustible, flujo_masico_gas):
+    for comp in composiciones_combustible:
+        cas = comp['cas']
+        composiciones_combustible[cas]['flujo_masico'] = comp['moles'] * PESOS_MOLECULARES[cas]
+        composiciones_combustible[cas]['y'] = composiciones_combustible[cas]['flujo_masico'] / flujo_masico_gas
+
+    return composiciones_combustible
 
 def evaluar_metodo_indirecto(composiciones_combustible, temp_aire, flujo_aire, velocidad_aire,
-                                temp_gas, presion_gas, flujo_gas,  area_superficie, temperatura_superficie,
+                                temp_gas, presion_gas, flujo_gas,  area_superficie, temp_superficie,
                                 temp_horno):
     
     composicion_normalizada = normalizar_composicion(composiciones_combustible)
@@ -538,18 +578,60 @@ def evaluar_metodo_indirecto(composiciones_combustible, temp_aire, flujo_aire, v
     porc_o2_h2o = (1 * peso_molecular_oxigeno) / (2 * 1 + 1 * peso_molecular_oxigeno)
     porc_s_h2s =  (1 * peso_molecular_azufre) / (2 + 1 * peso_molecular_carbono + 1 * peso_molecular_azufre)
 
-    moles_carbon = calcular_moles_carbon(composicion_normalizada)
-    moles_hidrogeno = calcular_moles_hidrogeno(composicion_normalizada)
-    moles_oxigeno = calcular_moles_oxigeno(composicion_normalizada)
+    composiciones_combustible, porcentaje_carbon = calcular_moles_carbon(
+        composicion_normalizada, flujo_molar_gas
+    )
 
-    # Calculo aire requerido
+    composiciones_combustible, porcentaje_hidrogeno = calcular_moles_hidrogeno(
+        composicion_normalizada, flujo_molar_gas
+    )
 
-    # Calculo flujo masico componentes
+    composiciones_combustible, porcentaje_oxigeno = calcular_moles_oxigeno(
+        composicion_normalizada, flujo_molar_gas, porc_o2_co2, porc_o2_h2o
+    )
 
-    # Calculo de composiciones masicas de los compuestos
+    composiciones_combustible, porcentaje_azufre = calcular_moles_azufre(
+        composicion_normalizada, flujo_molar_gas, porc_s_h2s
+    )
 
-    #Entalpias
+    composicion_normalizada = calcular_flujos_composiciones_masicas(
+        composicion_normalizada, flujo_masico_gas
+    )
 
-    #Factor de humedad
+    masa_agua_aire = flujo_aire * composicion_normalizada['7732-18-5']['x_aire']
+    masa_aire_seco = flujo_aire - masa_agua_aire
+    factor_humedad = masa_agua_aire/masa_aire_seco
 
-    # Poder Calorífico
+    poder_calorifico = sum([
+        comp['y']*CALORES_COMBUSTION[comp['cas']] for comp in composicion_normalizada
+    ])
+
+    aire_teorico_req = ((11.6 * porcentaje_carbon + (34.8 * (porcentaje_hidrogeno - (porcentaje_oxigeno / 8)) + 4.35 * porcentaje_azufre))) / 100
+    porc_aire_exceso = (composicion_normalizada['7732-18-5']['x'] / (21 - composicion_normalizada['7732-18-5']['x'])) * 100
+    masa_aire_suministrado = (1 + porc_aire_exceso / 100) * aire_teorico_req
+    masa_gas_seco_combustion = (composicion_normalizada['124-38-9']['x'] * 44) / (12) + composicion_normalizada['7727-37-9']['x'] + (masa_aire_suministrado * 77) / (100) + (masa_aire_suministrado - aire_teorico_req) * 23 / 100
+
+    l1 = ((masa_gas_seco_combustion * 0.23 * (temp_horno - temp_aire)) / poder_calorifico) * 100
+    l2 = ((9 * composicion_normalizada['1333-74-0']['x'] * (584 + 0.45 * (temp_horno - temp_aire))) / poder_calorifico) * 100
+    l3 = ((composicion_normalizada['7732-18-5']['x'] * (584 + 0.45 * (temp_horno - temp_aire))) / poder_calorifico) * 100
+    l4 = ((masa_aire_suministrado * factor_humedad * 0.45 * (temp_horno - temp_aire)) / poder_calorifico) * 100
+
+    if (temp_superficie != 0 and velocidad_aire != 0 and area_superficie != 0):
+        perdidas_radiacion_y_conveccion_area = (0.548 * ((pow((temp_superficie + 273, 15) / 55.55, 4)) - pow((temp_aire + 273, 15) / 55.55, 4)) + 1.957 * (temp_superficie - temp_aire) * ((196.85 * velocidad_aire + 68.9) / 68.9)**0.5) * 0.86
+        perdida_hora = perdidas_radiacion_y_conveccion_area * area_superficie
+        l6 = ((perdida_hora * 100) / (flujo_molar_gas * poder_calorifico)) * 100
+    else:
+        l6 = 3
+
+    eficiencia = 100 - l1 - l2 - l3 - l4 - l6
+
+    return {
+        'perdidas': {
+            'l1': l1,
+            'l2': l2,
+            'l3': l3,
+            'l4': l4,
+            'l6': l6
+        },
+        'eficiencia': eficiencia
+    }
