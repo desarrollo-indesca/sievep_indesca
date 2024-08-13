@@ -3077,8 +3077,8 @@ def reporte_evaluaciones_caldera(object_list, request):
     object_list = object_list.order_by('fecha')
     for evaluacion in object_list:
         eficiencia = evaluacion.eficiencia
-        calor_combustion = evaluacion.salida_balance_energia.energia_horno
-        calor_vapor = evaluacion.salida_lado_agua.energia_vapor
+        calor_combustion = evaluacion.salida_balance_energia.energia_horno if evaluacion.salida_balance_energia else None
+        calor_vapor = evaluacion.salida_lado_agua.energia_vapor if evaluacion.salida_lado_agua else None
         
         fecha = evaluacion.fecha.strftime('%d/%m/%Y %H:%M')            
 
@@ -3087,9 +3087,10 @@ def reporte_evaluaciones_caldera(object_list, request):
         calores_combustion.append(calor_combustion)
         fechas.append(fecha)
             
-        table.append([Paragraph(fecha, centrar_parrafo), Paragraph(str(round(calor_vapor, 4)), centrar_parrafo), 
-                      Paragraph(str(round(calor_combustion, 4)), centrar_parrafo), Paragraph(str(round(eficiencia, 2)), 
-                      centrar_parrafo)])
+        table.append([Paragraph(fecha, centrar_parrafo), 
+                      Paragraph(str(round(calor_vapor, 4)) if calor_vapor else '-', centrar_parrafo), 
+                      Paragraph(str(round(calor_combustion, 4)) if calor_combustion else '-', centrar_parrafo), 
+                      Paragraph(str(round(eficiencia, 2)), centrar_parrafo)])
         
     table = Table(table, colWidths=[1.8*inch, 1.8*inch, 1.8*inch, 1.8*inch])
     table.setStyle(basicTableStyle)

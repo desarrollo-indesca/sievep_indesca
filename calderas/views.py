@@ -1061,9 +1061,9 @@ def grafica_historica_calderas(request, pk):
         res.append({
             'fecha': evaluacion.fecha.__str__(),
             'eficiencia': evaluacion.eficiencia,
-            'calor_combustion_total': evaluacion.salida_balance_energia.energia_horno,
-            'calor_vapor': evaluacion.salida_lado_agua.energia_vapor,
-            'composicion': model_to_dict(evaluacion.salida_fracciones)
+            'calor_combustion_total': evaluacion.salida_balance_energia.energia_horno if evaluacion.salida_balance_energia else None,
+            'calor_vapor': evaluacion.salida_lado_agua.energia_vapor if evaluacion.salida_lado_agua else None,
+            'composicion': model_to_dict(evaluacion.salida_fracciones) if evaluacion.salida_fracciones else None
         })
 
     return JsonResponse(res[:15], safe=False)
