@@ -510,6 +510,13 @@ class SalidaFlujosEntrada(models.Model):
     flujo_combustion_vol = models.FloatField()
     porc_o2_exceso = models.FloatField()
 
+class PerdidasIndirecto(models.Model):
+    perdidas_gas_secos = models.FloatField()
+    perdidas_humedad_combustible = models.FloatField()
+    perdidas_humedad_aire = models.FloatField()
+    perdidas_h2 = models.FloatField()
+    perdidas_radiacion_conveccion = models.FloatField()
+
 class Evaluacion(models.Model):
     """
     Resumen:
@@ -533,11 +540,17 @@ class Evaluacion(models.Model):
     activo = models.BooleanField(default=True)
     metodo = models.CharField("Método", max_length=1, choices=METODO_CHOICES)
 
-    salida_flujos = models.ForeignKey(SalidaFlujosEntrada, models.PROTECT)
-    salida_fracciones = models.ForeignKey(SalidaFracciones, models.PROTECT)
-    salida_balance_energia = models.ForeignKey(SalidaBalanceEnergia, models.PROTECT)
-    salida_lado_agua = models.ForeignKey(SalidaLadoAgua, models.PROTECT)
-    equipo = models.ForeignKey(Caldera, models.PROTECT, related_name="equipo_evaluacion_caldera")
+    # Campos que no serán nulos en métodos DIRECTOS
+    salida_flujos = models.OneToOneField(SalidaFlujosEntrada, models.PROTECT, null=True)
+    salida_fracciones = models.OneToOneField(SalidaFracciones, models.PROTECT, null=True)
+    salida_balance_energia = models.OneToOneField(SalidaBalanceEnergia, models.PROTECT, null=True)
+    salida_lado_agua = models.OneToOneField(SalidaLadoAgua, models.PROTECT, null=True)
+    
+    # Campo a utilizar en el método INDIRECTO
+    perdidas_indirecto = models.OneToOneField(PerdidasIndirecto, models.PROTECT, null=True)
+    
+    # Otros
+    equipo = models.ForeignKey(Caldera, models.PROTECT, null=True, related_name="equipo_evaluacion_caldera")
     eficiencia = models.FloatField()
 
     class Meta:

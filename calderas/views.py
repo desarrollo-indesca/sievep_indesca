@@ -791,7 +791,11 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
     
     def evaluar(self):
         resultados = self.calcular_resultados()
-        return render(self.request, 'calderas/partials/resultados.html', context={
+        template = 'calderas/partials/resultados.html' \
+            if self.request.POST.get('evaluacion-metodo') == "D" \
+            else 'calderas/partials/resultados_indirecto.html'
+        
+        return render(self.request, template, context={
             'resultados': resultados
         })
     
@@ -802,6 +806,75 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
         return render(self.request, 'calderas/partials/almacenamiento_exitoso.html', context={
             'caldera': self.get_caldera(False, False)
         })
+
+    def almacenar_indirecto(self, request, resultado):
+        perdidas = PerdidasIndirecto.objects.create(
+            perdidas_gas_secos = resultado['perdidas']['l1'],
+            perdidas_humedad_combustible = resultado['perdidas']['l3'],
+            perdidas_humedad_aire = resultado['perdidas']['l4'],
+            perdidas_h2 = resultado['perdidas']['l2'],
+            perdidas_radiacion_conveccion = resultado['perdidas']['l6']
+        )
+
+        evaluacion = Evaluacion.objects.create(
+            nombre = request.POST['evaluacion-nombre'],
+            equipo = self.get_caldera(True, False),
+            usuario = request.user,
+            eficiencia = resultado['eficiencia'],
+            metodo = request.POST['evaluacion-metodo'],
+
+            perdidas_indirecto = perdidas,
+        )
+
+        raise evaluacion
+    
+    def almacenar_directo(self, request, resultado):
+        salida_fracciones = SalidaFracciones.objects.create(
+            h2o = resultado['fraccion_h2o_gas'],
+            co2 = resultado['fraccion_co2_gas'],
+            n2 = resultado['fraccion_n2_gas'],
+            so2 = resultado['fraccion_so2_gas'],
+            o2 = resultado['fraccion_o2_gas']
+        )
+
+        salida_lado_agua = SalidaLadoAgua.objects.create(
+            flujo_purga = resultado['flujo_purga'],
+            energia_vapor = resultado['energia_vapor'],
+        )
+
+        salida_flujos = SalidaFlujosEntrada.objects.create(
+            flujo_m_gas_entrada = resultado['balance_gas']['masico'],
+            flujo_n_gas_entrada = resultado['balance_gas']['molar'],
+            flujo_m_aire_entrada = resultado['balance_aire']['masico'],
+            flujo_n_aire_entrada = resultado['balance_aire']['molar'],
+            flujo_combustion = resultado['flujo_combustion_masico'],
+            flujo_combustion_vol = resultado['flujo_combustion'],
+            porc_o2_exceso = resultado['oxigeno_exceso'],
+        )
+
+        salida_balance_energia = SalidaBalanceEnergia.objects.create(
+            energia_entrada_gas = resultado['energia_gas_entrada'],
+            energia_entrada_aire = resultado['energia_aire_entrada'],
+            energia_total_entrada = resultado['energia_total_entrada'],
+            energia_total_reaccion = resultado['energia_total_reaccion'],
+            energia_horno = resultado['energia_horno'],
+            energia_total_salida = resultado['energia_total_salida']
+        )
+
+        evaluacion = Evaluacion.objects.create(
+            nombre = request.POST['evaluacion-nombre'],
+            equipo = self.get_caldera(True, False),
+            usuario = request.user,
+            eficiencia = resultado['eficiencia'],
+            metodo = request.POST['evaluacion-metodo'],
+
+            salida_flujos = salida_flujos,
+            salida_fracciones = salida_fracciones,
+            salida_lado_agua = salida_lado_agua,
+            salida_balance_energia = salida_balance_energia
+        )
+
+        return evaluacion
 
     def almacenar(self):
         request = self.request
@@ -814,7 +887,7 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
         
         forms_composicion = [
             EntradaComposicionForm(request.POST, prefix=f'composicion-{i}') 
-            for i,composicion in enumerate(composiciones)
+            for i,_ in enumerate(composiciones)
         ]
 
         form_vapor = EntradasFluidosForm(request.POST, prefix='vapor')
@@ -827,49 +900,10 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
 
         with transaction.atomic():
             if all([form_vapor.is_valid(), form_gas.is_valid(), form_aire.is_valid(), form_horno.is_valid(), form_agua.is_valid()]):
-                salida_fracciones = SalidaFracciones.objects.create(
-                    h2o = resultado['fraccion_h2o_gas'],
-                    co2 = resultado['fraccion_co2_gas'],
-                    n2 = resultado['fraccion_n2_gas'],
-                    so2 = resultado['fraccion_so2_gas'],
-                    o2 = resultado['fraccion_o2_gas']
-                )
-
-                salida_lado_agua = SalidaLadoAgua.objects.create(
-                    flujo_purga = resultado['flujo_purga'],
-                    energia_vapor = resultado['energia_vapor'],
-                )
-
-                salida_flujos = SalidaFlujosEntrada.objects.create(
-                    flujo_m_gas_entrada = resultado['balance_gas']['masico'],
-                    flujo_n_gas_entrada = resultado['balance_gas']['molar'],
-                    flujo_m_aire_entrada = resultado['balance_aire']['masico'],
-                    flujo_n_aire_entrada = resultado['balance_aire']['molar'],
-                    flujo_combustion = resultado['flujo_combustion_masico'],
-                    flujo_combustion_vol = resultado['flujo_combustion'],
-                    porc_o2_exceso = resultado['oxigeno_exceso'],
-                )
-
-                salida_balance_energia = SalidaBalanceEnergia.objects.create(
-                    energia_entrada_gas = resultado['energia_gas_entrada'],
-                    energia_entrada_aire = resultado['energia_aire_entrada'],
-                    energia_total_entrada = resultado['energia_total_entrada'],
-                    energia_total_reaccion = resultado['energia_total_reaccion'],
-                    energia_horno = resultado['energia_horno'],
-                    energia_total_salida = resultado['energia_total_salida']
-                )
-                
-                evaluacion = Evaluacion.objects.create(
-                    nombre = request.POST['evaluacion-nombre'],
-                    equipo = self.get_caldera(True, False),
-                    usuario = request.user,
-                    eficiencia = resultado['eficiencia'],
-
-                    salida_flujos = salida_flujos,
-                    salida_fracciones = salida_fracciones,
-                    salida_lado_agua = salida_lado_agua,
-                    salida_balance_energia = salida_balance_energia
-                )
+                if(request.POST['evaluacion-metodo'] == 'D'):
+                    evaluacion = self.almacenar_directo(request, resultado)
+                else:
+                    evaluacion = self.almacenar_indirecto(request, resultado)                
 
                 form_vapor.instance.evaluacion = evaluacion                
                 form_vapor.save()

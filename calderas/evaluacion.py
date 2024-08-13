@@ -599,7 +599,8 @@ def evaluar_metodo_indirecto(composiciones_combustible, temperatura_aire, flujo_
     factor_humedad = masa_agua_aire / masa_aire_seco
 
     poder_calorifico = sum([
-        comp['y']*CALORES_COMBUSTION[cas] for cas,comp in composicion_normalizada.items()
+        comp['y']*CALORES_COMBUSTION[cas] for cas,comp in composicion_normalizada.items() \
+            if cas in ["74-82-8","74-84-0","74-98-6","75-28-5","106-97-8","78-78-4","110-54-3","7783-06-4","1333-74-0"]
     ])
 
     aire_teorico_req = ((11.6 * porcentaje_carbon + (34.8 * (porcentaje_hidrogeno - (porcentaje_oxigeno / 8)) + 4.35 * porcentaje_azufre))) / 100
@@ -613,7 +614,7 @@ def evaluar_metodo_indirecto(composiciones_combustible, temperatura_aire, flujo_
     l4 = ((masa_aire_suministrado * factor_humedad * 0.45 * (temperatura_horno - temperatura_aire)) / poder_calorifico) * 100
 
     if (temperatura_superficie != 0 and velocidad_aire != 0 and area_superficie != 0):
-        perdidas_radiacion_y_conveccion_area = (0.548 * ((pow((temperatura_superficie + 273, 15) / 55.55, 4)) - pow((temperatura_aire + 273, 15) / 55.55, 4)) + 1.957 * (temp_superficie - temperatura_aire) * ((196.85 * velocidad_aire + 68.9) / 68.9)**0.5) * 0.86
+        perdidas_radiacion_y_conveccion_area = (0.548 * ((pow(temperatura_superficie/55.55, 4)) - pow(temperatura_aire/55.55, 4)) + 1.957 * (temperatura_superficie - temperatura_aire) * ((196.85 * velocidad_aire + 68.9) / 68.9)**0.5) * 0.86
         perdida_hora = perdidas_radiacion_y_conveccion_area * area_superficie
         l6 = ((perdida_hora * 100) / (flujo_molar_gas * poder_calorifico)) * 100
     else:

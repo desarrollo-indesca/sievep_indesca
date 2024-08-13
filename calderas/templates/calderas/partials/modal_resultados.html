@@ -23,6 +23,10 @@
                     <tbody>
                         {% with fluidos=evaluacion.entradas_fluidos_caldera.all %}
                         <tr>
+                            <th class="table-dark" colspan="2">Método de Evaluación</th>
+                            <td colspan="2">{% if evaluacion.metodo == "D" %}Directo{% else %}Indirecto{% endif %}</td>                            
+                        </tr>
+                        <tr>
                             <th class="table-dark" colspan="4">CONDICIONES OPERATIVAS</th>                            
                         </tr>
                         <tr>
