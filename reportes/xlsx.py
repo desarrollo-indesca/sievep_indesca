@@ -1375,22 +1375,22 @@ def historico_evaluaciones_caldera(object_list, request):
 
     for i,evaluacion in enumerate(object_list):
         fracciones = evaluacion.salida_fracciones
-        eficiencia = evaluacion.eficiencia        
-        calor_vapor = evaluacion.salida_lado_agua.energia_vapor
-        calor_combustion = evaluacion.salida_balance_energia.energia_horno
+        eficiencia = evaluacion.eficiencia       
+        calor_vapor = evaluacion.salida_lado_agua.energia_vapor if evaluacion.salida_lado_agua else None
+        calor_combustion = evaluacion.salida_balance_energia.energia_horno if evaluacion.salida_balance_energia else None
         fecha_ev = evaluacion.fecha.strftime('%d/%m/%Y %H:%M')
 
         num += 1
         worksheet.write(f'A{num}', i+1, center_bordered)
         worksheet.write(f'B{num}', fecha_ev, center_bordered)
-        worksheet.write_number(f'C{num}', eficiencia, center_bordered)
-        worksheet.write_number(f'D{num}', calor_combustion, center_bordered)
-        worksheet.write_number(f'E{num}', calor_vapor, bordered)
-        worksheet.write_number(f'F{num}', fracciones.o2, bordered)
-        worksheet.write_number(f'G{num}', fracciones.so2, bordered)
-        worksheet.write_number(f'H{num}', fracciones.n2, bordered)
-        worksheet.write_number(f'I{num}', fracciones.co2, bordered)
-        worksheet.write_number(f'J{num}', fracciones.h2o, bordered)
+        worksheet.write(f'C{num}', eficiencia, center_bordered)
+        worksheet.write(f'D{num}', calor_combustion, center_bordered)
+        worksheet.write(f'E{num}', calor_vapor, bordered)
+        worksheet.write(f'F{num}', fracciones.o2 if fracciones else None, bordered)
+        worksheet.write(f'G{num}', fracciones.so2 if fracciones else None, bordered)
+        worksheet.write(f'H{num}', fracciones.n2 if fracciones else None, bordered)
+        worksheet.write(f'I{num}', fracciones.co2 if fracciones else None, bordered)
+        worksheet.write(f'J{num}', fracciones.h2o if fracciones else None, bordered)
 
     worksheet.write(f"J{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
     worksheet.write(f"J{num+2}", "Generado por " + request.user.get_full_name(), fecha)

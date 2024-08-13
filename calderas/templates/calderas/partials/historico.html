@@ -32,6 +32,7 @@
     canvas = document.getElementById('grafica_historica1').getContext('2d');
     let datosGraficaEfic = {}, datosGraficaCalorCombustion = {}, datosGraficaCalorVapor = {}, 
         fechas = [], h2o = [], o2 = [], n2 = [], co2 = [], so2 = [];
+
     $.ajax({
         url: '{% url "generar_historico_caldera" pk=equipo.pk %}',
         data: {

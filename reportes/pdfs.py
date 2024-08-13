@@ -3122,6 +3122,7 @@ def reporte_detalle_evaluacion_caldera(evaluacion):
     story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.usuario.get_full_name()}"))
     story.append(Paragraph(f"<b>Tag del Equipo:</b> {evaluacion.equipo.tag}"))
     story.append(Paragraph(f"<b>ID de la Evaluación:</b> {evaluacion.id}"))
+    story.append(Paragraph(f"<b>Método Utilizado:</b> {'Directo' if evaluacion.metodo == 'D' else 'Indirecto'}"))
     story.append(Spacer(0,20))
 
     entradas_fluidos = evaluacion.entradas_fluidos_caldera.all()
@@ -3270,136 +3271,181 @@ def reporte_detalle_evaluacion_caldera(evaluacion):
     story.append(Spacer(0,35))
 
     # TABLA 3: SALIDA
-    salida_flujos = evaluacion.salida_flujos
-    salida_fracciones = evaluacion.salida_fracciones
-    salida_balance_energia = evaluacion.salida_balance_energia
-    salida_lado_agua = evaluacion.salida_lado_agua
+    if(evaluacion.metodo == "D"):
+        salida_flujos = evaluacion.salida_flujos
+        salida_fracciones = evaluacion.salida_fracciones
+        salida_balance_energia = evaluacion.salida_balance_energia
+        salida_lado_agua = evaluacion.salida_lado_agua
 
-    table = [
-        [
-            Paragraph("RESULTADOS DE LA EVALUACIÓN", centrar_parrafo)
-        ],
-        [
-            Paragraph("Eficiencia de la Caldera", centrar_parrafo),
-            Paragraph(f"{round(evaluacion.eficiencia, 2)} %", centrar_parrafo)
-        ],
+        table = [
+            [
+                Paragraph("<b>RESULTADOS DE LA EVALUACIÓN</b>", centrar_parrafo)
+            ],
+            [
+                Paragraph("Eficiencia de la Caldera", centrar_parrafo),
+                Paragraph(f"{round(evaluacion.eficiencia, 2)} %", centrar_parrafo)
+            ],
 
-        [
-            Paragraph("BALANCE DE MATERIALES", centrar_parrafo)
-        ],
-        [
-            Paragraph("Aire (Másico)", centrar_parrafo),
-            Paragraph(f"{round(salida_flujos.flujo_m_aire_entrada, 4)} Kg/h", centrar_parrafo),
-            Paragraph("Aire (Molar)", centrar_parrafo),
-            Paragraph(f"{round(salida_flujos.flujo_n_aire_entrada, 4)} Kg/h", centrar_parrafo)
-        ],
-        [
-            Paragraph("Gas (Másico)", centrar_parrafo),
-            Paragraph(f"{salida_flujos.flujo_m_gas_entrada} Kg/h", centrar_parrafo),
-            Paragraph("Gas (Molar)", centrar_parrafo),
-            Paragraph(f"{salida_flujos.flujo_n_gas_entrada} Kg/h", centrar_parrafo)
-        ],
+            [
+                Paragraph("BALANCE DE MATERIALES", centrar_parrafo)
+            ],
+            [
+                Paragraph("Aire (Másico)", centrar_parrafo),
+                Paragraph(f"{round(salida_flujos.flujo_m_aire_entrada, 4)} Kg/h", centrar_parrafo),
+                Paragraph("Aire (Molar)", centrar_parrafo),
+                Paragraph(f"{round(salida_flujos.flujo_n_aire_entrada, 4)} Kg/h", centrar_parrafo)
+            ],
+            [
+                Paragraph("Gas (Másico)", centrar_parrafo),
+                Paragraph(f"{salida_flujos.flujo_m_gas_entrada} Kg/h", centrar_parrafo),
+                Paragraph("Gas (Molar)", centrar_parrafo),
+                Paragraph(f"{salida_flujos.flujo_n_gas_entrada} Kg/h", centrar_parrafo)
+            ],
 
-        [
-            Paragraph("LADO COMBUSTIÓN", centrar_parrafo)
-        ],
-        [
-            Paragraph("Flujo Volumétrico de Combustión", centrar_parrafo),
-            Paragraph(f"{round(salida_flujos.flujo_combustion_vol, 4)} m³/h", centrar_parrafo),
-            Paragraph("Flujo Másico de Combustión", centrar_parrafo),
-            Paragraph(f"{round(salida_flujos.flujo_combustion, 4)} Kg/h", centrar_parrafo)
-        ],
-        [
-            Paragraph("Oxígeno en Exceso", centrar_parrafo),
-            Paragraph(f"{round(salida_flujos.porc_o2_exceso, 2)} %", centrar_parrafo)
-        ],
+            [
+                Paragraph("LADO COMBUSTIÓN", centrar_parrafo)
+            ],
+            [
+                Paragraph("Flujo Volumétrico de Combustión", centrar_parrafo),
+                Paragraph(f"{round(salida_flujos.flujo_combustion_vol, 4)} m³/h", centrar_parrafo),
+                Paragraph("Flujo Másico de Combustión", centrar_parrafo),
+                Paragraph(f"{round(salida_flujos.flujo_combustion, 4)} Kg/h", centrar_parrafo)
+            ],
+            [
+                Paragraph("Oxígeno en Exceso", centrar_parrafo),
+                Paragraph(f"{round(salida_flujos.porc_o2_exceso, 2)} %", centrar_parrafo)
+            ],
 
-        [
-            Paragraph("COMPOSICIONES DEL GAS A LA SALIDA", centrar_parrafo)
-        ],
-        [
-            Paragraph("H2O", centrar_parrafo),
-            Paragraph(f"{round(salida_fracciones.h2o, 4)}", centrar_parrafo),
-            Paragraph("CO2", centrar_parrafo),
-            Paragraph(f"{round(salida_fracciones.co2, 4)}", centrar_parrafo)
-        ],
-        [
-            Paragraph("N2", centrar_parrafo),
-            Paragraph(f"{round(salida_fracciones.o2, 4)}", centrar_parrafo),
-            Paragraph("O2", centrar_parrafo),
-            Paragraph(f"{round(salida_fracciones.o2, 4)}", centrar_parrafo)
-        ],
-        [
-            Paragraph("SO2", centrar_parrafo),
-            Paragraph(f"{round(salida_fracciones.so2, 4)}", centrar_parrafo),
-        ],
+            [
+                Paragraph("COMPOSICIONES DEL GAS A LA SALIDA", centrar_parrafo)
+            ],
+            [
+                Paragraph("H2O", centrar_parrafo),
+                Paragraph(f"{round(salida_fracciones.h2o, 4)}", centrar_parrafo),
+                Paragraph("CO2", centrar_parrafo),
+                Paragraph(f"{round(salida_fracciones.co2, 4)}", centrar_parrafo)
+            ],
+            [
+                Paragraph("N2", centrar_parrafo),
+                Paragraph(f"{round(salida_fracciones.o2, 4)}", centrar_parrafo),
+                Paragraph("O2", centrar_parrafo),
+                Paragraph(f"{round(salida_fracciones.o2, 4)}", centrar_parrafo)
+            ],
+            [
+                Paragraph("SO2", centrar_parrafo),
+                Paragraph(f"{round(salida_fracciones.so2, 4)}", centrar_parrafo),
+            ],
 
-        [
-            Paragraph("BALANCES DE ENERGÍA", centrar_parrafo)
-        ],
-        [
-            Paragraph("Energía Entrada Gas", centrar_parrafo),
-            Paragraph(f"{round(salida_balance_energia.energia_entrada_gas, 4)} kJ/h", centrar_parrafo),
-            Paragraph("Energía Entrada Aire", centrar_parrafo),
-            Paragraph(f"{round(salida_balance_energia.energia_entrada_aire, 4)} kJ/h", centrar_parrafo),
-        ],
-        [
-            Paragraph("Energía Total Entrada", centrar_parrafo),
-            Paragraph(f"{round(salida_balance_energia.energia_total_entrada, 4)} kJ/h", centrar_parrafo)
-        ],
-        [
-            Paragraph("Energía Total Reacción", centrar_parrafo),
-            Paragraph(f"{round(salida_balance_energia.energia_total_reaccion, 4)} kJ/h", centrar_parrafo),
-            Paragraph("Energía Horno", centrar_parrafo),
-            Paragraph(f"{round(salida_balance_energia.energia_horno, 4)} kJ/h", centrar_parrafo),
-        ],
-        [
-            Paragraph("Energía Total Salida", centrar_parrafo),
-            Paragraph(f"{round(salida_balance_energia.energia_total_salida, 4)} kJ/h", centrar_parrafo)
-        ],
+            [
+                Paragraph("BALANCES DE ENERGÍA", centrar_parrafo)
+            ],
+            [
+                Paragraph("Energía Entrada Gas", centrar_parrafo),
+                Paragraph(f"{round(salida_balance_energia.energia_entrada_gas, 4)} kJ/h", centrar_parrafo),
+                Paragraph("Energía Entrada Aire", centrar_parrafo),
+                Paragraph(f"{round(salida_balance_energia.energia_entrada_aire, 4)} kJ/h", centrar_parrafo),
+            ],
+            [
+                Paragraph("Energía Total Entrada", centrar_parrafo),
+                Paragraph(f"{round(salida_balance_energia.energia_total_entrada, 4)} kJ/h", centrar_parrafo)
+            ],
+            [
+                Paragraph("Energía Total Reacción", centrar_parrafo),
+                Paragraph(f"{round(salida_balance_energia.energia_total_reaccion, 4)} kJ/h", centrar_parrafo),
+                Paragraph("Energía Horno", centrar_parrafo),
+                Paragraph(f"{round(salida_balance_energia.energia_horno, 4)} kJ/h", centrar_parrafo),
+            ],
+            [
+                Paragraph("Energía Total Salida", centrar_parrafo),
+                Paragraph(f"{round(salida_balance_energia.energia_total_salida, 4)} kJ/h", centrar_parrafo)
+            ],
 
-        [
-            Paragraph("SALIDA LADO AGUA", centrar_parrafo)
-        ],
-        [
-            Paragraph("Flujo de Purga", centrar_parrafo),
-            Paragraph(f"{round(salida_lado_agua.flujo_purga, 4)} T/h", centrar_parrafo),
-            Paragraph("Energía de Vapor", centrar_parrafo),
-            Paragraph(f"{round(salida_lado_agua.energia_vapor, 4)} kJ/h", centrar_parrafo),
+            [
+                Paragraph("SALIDA LADO AGUA", centrar_parrafo)
+            ],
+            [
+                Paragraph("Flujo de Purga", centrar_parrafo),
+                Paragraph(f"{round(salida_lado_agua.flujo_purga, 4)} T/h", centrar_parrafo),
+                Paragraph("Energía de Vapor", centrar_parrafo),
+                Paragraph(f"{round(salida_lado_agua.energia_vapor, 4)} kJ/h", centrar_parrafo),
+            ]
         ]
-    ]
 
-    estilo = TableStyle([
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),  
+        estilo = TableStyle([
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),  
 
-        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
-        ('BACKGROUND', (0, 0), (0, -1), sombreado),
-        ('BACKGROUND', (0, 2), (-1, 2), sombreado),
-        ('BACKGROUND', (0, 5), (-1, 5), sombreado),
-        ('BACKGROUND', (0, 8), (-1, 8), sombreado),
-        ('BACKGROUND', (0, 12), (-1, 12), sombreado),
-        ('BACKGROUND', (2, 3), (2, 6), sombreado),
-        ('BACKGROUND', (2, 8), (2, 10), sombreado),
-        ('BACKGROUND', (2, 12), (2, 13), sombreado),
-        ('BACKGROUND', (2, 15), (2, 15), sombreado),
-        ('BACKGROUND', (2, 17), (2, 18), sombreado),
-        ('BACKGROUND', (0, 17), (-1, 17), sombreado),
-        ('BACKGROUND', (0, 17), (-1, 17), sombreado),
+            ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+            ('BACKGROUND', (0, 0), (0, -1), sombreado),
+            ('BACKGROUND', (0, 2), (-1, 2), sombreado),
+            ('BACKGROUND', (0, 5), (-1, 5), sombreado),
+            ('BACKGROUND', (0, 8), (-1, 8), sombreado),
+            ('BACKGROUND', (0, 12), (-1, 12), sombreado),
+            ('BACKGROUND', (2, 3), (2, 6), sombreado),
+            ('BACKGROUND', (2, 8), (2, 10), sombreado),
+            ('BACKGROUND', (2, 12), (2, 13), sombreado),
+            ('BACKGROUND', (2, 15), (2, 15), sombreado),
+            ('BACKGROUND', (2, 17), (2, 18), sombreado),
+            ('BACKGROUND', (0, 17), (-1, 17), sombreado),
+            ('BACKGROUND', (0, 17), (-1, 17), sombreado),
 
-        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),    
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),    
 
-        ('SPAN', (0,0), (-1,0)),
-        ('SPAN', (1,1), (-1,1)),
-        ('SPAN', (0,2), (-1,2)),
-        ('SPAN', (0,5), (-1,5)),
-        ('SPAN', (1,7), (-1,7)),
-        ('SPAN', (0,8), (-1,8)),
-        ('SPAN', (1,11), (-1,11)),
-        ('SPAN', (0,12), (-1,12)),
-        ('SPAN', (1,14), (-1,14)),
-        ('SPAN', (1,16), (-1,16)),
-        ('SPAN', (0,17), (-1,17)) 
-    ])
+            ('SPAN', (0,0), (-1,0)),
+            ('SPAN', (1,1), (-1,1)),
+            ('SPAN', (0,2), (-1,2)),
+            ('SPAN', (0,5), (-1,5)),
+            ('SPAN', (1,7), (-1,7)),
+            ('SPAN', (0,8), (-1,8)),
+            ('SPAN', (1,11), (-1,11)),
+            ('SPAN', (0,12), (-1,12)),
+            ('SPAN', (1,14), (-1,14)),
+            ('SPAN', (1,16), (-1,16)),
+            ('SPAN', (0,17), (-1,17)) 
+        ])
+    else:
+        perdidas = evaluacion.perdidas_indirecto
+
+        table = [
+            [
+                Paragraph("<b>RESULTADOS DE LA EVALUACIÓN</b>", centrar_parrafo)
+            ],
+            [
+                Paragraph("Eficiencia de la Caldera", centrar_parrafo),
+                Paragraph(f"{round(evaluacion.eficiencia, 2)} %", centrar_parrafo)
+            ],
+            [
+                Paragraph("Pérdida por Gases de Combustión Secos", centrar_parrafo),
+                Paragraph(f"{round(perdidas.perdidas_gas_secos, 2)} %", centrar_parrafo),
+                Paragraph("Pérdidas por H2", centrar_parrafo),
+                Paragraph(f"{round(perdidas.perdidas_h2, 2)} %", centrar_parrafo),
+            ],
+            [
+                Paragraph("Pérdida de Calor debido a la Humedad presente en el Combustible", centrar_parrafo),
+                Paragraph(f"{round(perdidas.perdidas_humedad_combustible, 2)} %", centrar_parrafo),
+                Paragraph("Pérdida de Calor debido a la Humedad presente en el Aire", centrar_parrafo),
+                Paragraph(f"{round(perdidas.perdidas_humedad_aire, 2)} %", centrar_parrafo),
+            ],
+            [
+                Paragraph("Pérdidas por Radiación y Convección", centrar_parrafo),
+                Paragraph(f"{round(perdidas.perdidas_radiacion_conveccion, 2)} %", centrar_parrafo),
+            ],
+        ]
+
+        estilo = TableStyle([
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),  
+
+            ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+            ('BACKGROUND', (0, 0), (0, -1), sombreado),
+            ('BACKGROUND', (2, 2), (2, 3), sombreado),
+
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),    
+
+            ('SPAN', (0,0), (-1,0)),
+            ('SPAN', (1,1), (-1,1)),
+            ('SPAN', (1,4), (-1,4)),
+        ])
+
+    
     table = Table(table)
     table.setStyle(estilo)
     story.append(table)
