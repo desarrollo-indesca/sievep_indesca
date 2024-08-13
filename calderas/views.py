@@ -826,7 +826,7 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
             perdidas_indirecto = perdidas,
         )
 
-        raise evaluacion
+        return evaluacion
     
     def almacenar_directo(self, request, resultado):
         salida_fracciones = SalidaFracciones.objects.create(
@@ -1016,11 +1016,7 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
 
     def post(self, request, pk, *args, **kwargs):
         if(request.POST.get('accion')):
-            try:
-                return self.almacenar()
-            except Exception as e:
-                print(str(e))
-                return self.almacenamiento_fallido()
+            return self.almacenar()
         else:
             return self.evaluar()
 
