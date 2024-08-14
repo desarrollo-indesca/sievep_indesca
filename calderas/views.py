@@ -963,6 +963,7 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
             'superficie-temperatura': 'superficie-temperatura_unidad',
             'aire-velocidad': 'aire-velocidad_unidad',
             'aire-flujo': 'aire-flujo_unidad',
+            'aire-humedad_relativa': None,
         }
 
         variables_eval = {}

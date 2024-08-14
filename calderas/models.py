@@ -2,7 +2,7 @@ import uuid
 
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 from intercambiadores.models import Planta, Fluido, Unidades, ClasesUnidades
 
@@ -552,6 +552,10 @@ class Evaluacion(models.Model):
     # Otros
     equipo = models.ForeignKey(Caldera, models.PROTECT, null=True, related_name="equipo_evaluacion_caldera")
     eficiencia = models.FloatField()
+    o2_gas_combustion = models.FloatField(null=True, blank=True, validators=[
+        MinValueValidator(0),
+        MaxValueValidator(100)
+    ]) # Porcentaje de O2 en Gases de Combustión
 
     class Meta:
         ordering = ('-fecha',)
