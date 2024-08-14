@@ -254,6 +254,10 @@
         <div class="modal-footer">
           {% if request.user.is_superuser %}
           <a href="{% url 'edicion_caldera' pk=caldera.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+          <form action="{% url 'duplicar_caldera' pk=caldera.pk %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>
+          </form>
           {% endif %}
           <button type="button" class="btn btn-secondary" data-bs-target="#ficha_adicional_{{caldera.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Datos Adicionales</button>
 
@@ -359,6 +363,11 @@
       <div class="modal-footer">
         {% if request.user.is_superuser %}
         <a href="{% url 'registro_adicionales_caldera' pk=caldera.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+        
+        <form action="{% url 'duplicar_caldera' pk=caldera.pk %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>
+        </form>
         {% endif %}
         <button class="btn btn-secondary" data-bs-target="#ficha_{{caldera.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Ficha Técnica</button>
 

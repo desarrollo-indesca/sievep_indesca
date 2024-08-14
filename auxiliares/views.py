@@ -1436,7 +1436,8 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
                 'form_condiciones_generales': form_condiciones_generales,
                 'recarga': True,
                 'titulo': self.titulo,
-                'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo."
+                'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo.",
+                'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
             })
 
 class EdicionVentilador(CreacionVentilador, ObtenerVentiladorMixin):
@@ -1487,7 +1488,6 @@ class EdicionVentilador(CreacionVentilador, ObtenerVentiladorMixin):
             print(form_condiciones_generales.errors)
             print(form_condiciones_trabajo.errors)
             print(form_condiciones_adicionales.errors)
-
             print(str(e))
 
             return render(request, self.template_name, context={
@@ -1498,7 +1498,8 @@ class EdicionVentilador(CreacionVentilador, ObtenerVentiladorMixin):
                 'form_condiciones_generales': form_condiciones_generales,
                 'edicion': True,
                 'titulo': self.titulo,
-                'error': "Ocurrió un error desconocido al momento de almacenar el ventilador. Revise los datos e intente de nuevo."
+                'error': "Ocurrió un error desconocido al momento de almacenar el ventilador. Revise los datos e intente de nuevo.",
+                'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
             })
         
 # Evaluaciones de Ventiladores

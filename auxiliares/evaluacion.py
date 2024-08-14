@@ -552,3 +552,6 @@ def evaluar_ventilador(presion_entrada: float, presion_salida: float, flujo: flo
         'densidad_calculada': round(densidad_calculada, 6),
         'tipo_flujo': tipo_flujo
     }
+
+# TODO: FUNCIONES EVALUACIÓN PRECALENTADOR DE AGUA
+# TODO: COMENTAR CALDERAS INDIRECTO

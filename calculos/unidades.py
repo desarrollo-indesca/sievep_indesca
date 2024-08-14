@@ -375,3 +375,27 @@ def transformar_unidades_tiempo(args: list, unidad: int, unidad_salida: int = 65
     actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
     return actualizadas
+
+def transformar_unidades_velocidad_lineal(args: list, unidad: int, unidad_salida: int = 65):
+    '''
+    Resumen:
+        Función para transformar unidades de velocidad lineal.
+
+    Parámetros:
+        args: list -> Lista de valores a transformar
+        unidad: int -> ID de la unidad de entrada
+        unidad_salida: int -> ID de la unidad de salida. De no dar ninguna devolverá en m/s.
+
+    Devuelve:
+        list -> Lista de valores transformados a la unidad de salida
+    '''
+    def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
+        return ur.kilometer/ur.hour if unidad == 90 else ur.meter/ur.second
+
+    actualizadas = []
+    unidad_salida = obtener_unidad(unidad_salida)
+    unidad = obtener_unidad(unidad)
+    
+    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
+
+    return actualizadas

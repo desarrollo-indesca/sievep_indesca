@@ -28,7 +28,7 @@
     <h5 class="text-center" style="color: #e31e24;">{{error}}</h5>
     <hr>
     {% endif %}
-    
+
     <h4 class="text-center" style="color: #e31e24;">Identificación del Ventilador</h2>
 
     <div class="row">
@@ -233,7 +233,7 @@
                 {{form_condiciones_generales.velocidad_diseno.label_tag}}
                 <div class="input-group mb-1">
                     {% render_field form_condiciones_generales.velocidad_diseno min="0.0001" class="form-control" placeholder="Velocidad de Diseño" %}
-                    <select name="id_velocidad_diseno_unidad" id="id_velocidad_diseno_unidad" class="form-select">
+                    <select name="velocidad_diseno_unidad" id="id_velocidad_diseno_unidad" class="form-select">
                         {% for unidad in unidades %}
                         {% if unidad.tipo == 'O' %}
                         <option value="{{unidad.pk}}" {% if unidad.pk == form_condiciones_generales.instance.velocidad_diseno_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
@@ -436,7 +436,7 @@
                     {{form_condiciones_adicionales.flujo.label_tag}}*
                     <div class="input-group mb-1">
                         {% render_field form_condiciones_adicionales.flujo min="0.000001" class="form-control" placeholder="Másico/Volumétrico" %}
-                        <select name="adicional" id="id_adicional-flujo_unidad" class="form-select">
+                        <select name="adicional-flujo_unidad" id="id_adicional-flujo_unidad" class="form-select">
                             {% for unidad in unidades %}
                             {% if unidad.tipo == 'F' or unidad.tipo == 'K' %}
                             <option value="{{unidad.pk}}" {% if unidad.pk == form_condiciones_adicionales.instance.flujo_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
@@ -551,7 +551,7 @@
                     {{form_condiciones_adicionales.potencia_freno.label_tag}}
                     <div class="input-group mb-1">
                         {% render_field form_condiciones_adicionales.potencia_freno placeholder="Potencia de Freno" min="0.000001" class="form-control" %}
-                        <select name="potencia_freno_unidad" id="id_potencia_freno_unidad" class="form-select" >
+                        <select name="adicional-potencia_freno_unidad" id="id_potencia_freno_unidad" class="form-select" >
                             {% for unidad in unidades %}
                             {% if unidad.tipo == 'B' %}
                             <option value="{{unidad.pk}}" {% if unidad.pk == form_condiciones_trabajo.instance.potencia_freno_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
@@ -566,7 +566,7 @@
                     {{form_condiciones_adicionales.potencia.label_tag}}
                     <div class="input-group mb-1">
                         {% render_field form_condiciones_adicionales.potencia min="0.000001" placeholder="Potencia de Ventilador" class="form-control" %}
-                        <select name="potencia_freno_unidad" id="id_potencia_freno_unidad" class="form-select" disabled>
+                        <select name="adicional-potencia_freno_unidad" id="id_potencia_freno_unidad" class="form-select" disabled>
                             {% for unidad in unidades %}
                             {% if unidad.tipo == 'B' %}
                             <option value="{{unidad.pk}}" {% if unidad.pk == form_condiciones_trabajo.instance.potencia_freno_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>

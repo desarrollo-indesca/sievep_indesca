@@ -167,6 +167,60 @@ def delete_intercambiador_copies():
         evaluaciones.all().delete()
         copia.delete()
 
+def delete_calderas_copies():
+    from calderas.models import Caldera, Evaluacion
+
+    copias = Caldera.objects.filter(copia=True).select_related(
+            "sobrecalentador", "sobrecalentador__dims", "tambor",
+            "dimensiones", "especificaciones", "combustible", 
+            "chimenea", "economizador"
+    ).prefetch_related(
+        "tambor__secciones_tambor", "combustible__composicion_combustible_caldera",
+        "caracteristicas_caldera", "corrientes_caldera",
+        Prefetch("equipo_evaluacion_caldera", Evaluacion.objects.select_related(
+                "salida_flujos", "salida_fracciones", "salida_balance_energia",
+                "salida_lado_agua"
+            ).prefetch_related(
+                "entradas_fluidos_caldera", "composiciones_evaluacion"
+            )
+        )
+    )
+
+    for copia in copias:
+        sobrecalentador = copia.sobrecalentador
+        dims_sobrecalentador = sobrecalentador.dims
+        tambor = copia.tambor
+        dimensiones = copia.dimensiones
+        especificaciones = copia.especificaciones
+        combustible = copia.combustible
+        chimenea = copia.chimenea
+        economizador = copia.economizador
+        evaluaciones = copia.equipo_evaluacion_caldera
+
+        copia.caracteristicas_caldera.all().delete()
+        copia.corrientes_caldera.all().delete()
+
+        for evaluacion in evaluaciones.all():
+            evaluacion.entradas_fluidos_caldera.all().delete()
+            evaluacion.composiciones_evaluacion.all().delete()
+            evaluacion.delete()
+            evaluacion.salida_flujos.delete()
+            evaluacion.salida_fracciones.delete()
+            evaluacion.salida_balance_energia.delete()
+            evaluacion.salida_lado_agua.delete()
+        
+        tambor.secciones_tambor.all().delete()
+        combustible.composicion_combustible_caldera.all().delete()
+        copia.delete()
+        combustible.delete()
+        tambor.delete()
+        sobrecalentador.delete()
+        dims_sobrecalentador.delete()
+        dimensiones.delete()
+        especificaciones.delete()
+        chimenea.delete()
+        economizador.delete()
+
 def delete_copies():
     with transaction.atomic():
         delete_ventilador_copies()
@@ -174,6 +228,7 @@ def delete_copies():
         delete_precalentador_copies()
         delete_turbinas_vapor_copies()
         delete_intercambiador_copies()
+        delete_calderas_copies()
 
 def start_deleting_job():
     scheduler = Scheduler()
