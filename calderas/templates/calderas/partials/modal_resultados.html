@@ -34,13 +34,13 @@
                         </tr>
                         <tr>
                             <th class="table-dark">Flujo Volumétrico</th>
-                            <td>{{fluidos.1.flujo}} {{fluidos.1.flujo_unidad}}</td>
+                            <td>{{fluidos.1.flujo|default_if_none:"-"}} {{fluidos.1.flujo_unidad|default_if_none:"-"}}</td>
                             <th class="table-dark">Temperatura de Operación</th>
-                            <td>{{fluidos.1.temperatura}} {{fluidos.1.temperatura_unidad}}</td>
+                            <td>{{fluidos.1.temperatura|default_if_none:"-"}} {{fluidos.1.temperatura_unidad|default_if_none:"-"}}</td>
                         </tr>
                         <tr>
                             <th class="table-dark" colspan="2">Presión de Operación</th>
-                            <td colspan="2">{{fluidos.1.presion}} {{fluidos.1.presion_unidad}}</td>
+                            <td colspan="2">{{fluidos.1.presion|default_if_none:"-"}} {{fluidos.1.presion_unidad|default_if_none:"-"}}</td>
                         </tr>
 
                         <tr>
@@ -48,15 +48,15 @@
                         </tr>
                         <tr>
                             <th class="table-dark">Flujo Volumétrico</th>
-                            <td>{{fluidos.0.flujo}} {{fluidos.0.flujo_unidad}}</td>
+                            <td>{{fluidos.0.flujo|default_if_none:"-"}} {{fluidos.0.flujo_unidad|default_if_none:"-"}}</td>
                             <th class="table-dark">Temperatura de Operación</th>
-                            <td>{{fluidos.0.temperatura}} {{fluidos.0.temperatura_unidad}}</td>
+                            <td>{{fluidos.0.temperatura|default_if_none:"-"}} {{fluidos.0.temperatura_unidad|default_if_none:"-"}}</td>
                         </tr>
                         <tr>
                             <th class="table-dark">Presión de Operación</th>
-                            <td>{{fluidos.0.presion}} {{fluidos.0.presion_unidad}}</td>
+                            <td>{{fluidos.0.presion|default_if_none:"-"}} {{fluidos.0.presion_unidad|default_if_none:"-"}}</td>
                             <th class="table-dark">% Humedad Relativa</th>
-                            <td>{{fluidos.0.humedad_relativa}} %</td>
+                            <td>{{fluidos.0.humedad_relativa|default_if_none:"-"}} %</td>
                         </tr>
 
                         <tr>
@@ -64,9 +64,9 @@
                         </tr>
                         <tr>
                             <th class="table-dark">Temperatura de Operación</th>
-                            <td>{{fluidos.2.temperatura}} {{fluidos.2.temperatura_unidad}}</td>
+                            <td>{{fluidos.2.temperatura|default_if_none:"-"}} {{fluidos.2.temperatura_unidad|default_if_none:"-"}}</td>
                             <th class="table-dark">Presión de Operación</th>
-                            <td>{{fluidos.2.presion}} {{fluidos.2.presion_unidad}}</td>
+                            <td>{{fluidos.2.presion|default_if_none:"-"}} {{fluidos.2.presion_unidad|default_if_none:"-"}}</td>
                         </tr>
 
                         <tr>
@@ -74,13 +74,13 @@
                         </tr>
                         <tr>
                             <th class="table-dark">Flujo Másico</th>
-                            <td>{{fluidos.4.flujo}} {{fluidos.4.flujo_unidad}}</td>
+                            <td>{{fluidos.4.flujo|default_if_none:"-"}} {{fluidos.4.flujo_unidad|default_if_none:"-"}}</td>
                             <th class="table-dark">Temperatura de Operación</th>
-                            <td>{{fluidos.4.temperatura}} {{fluidos.4.temperatura_unidad}}</td>
+                            <td>{{fluidos.4.temperatura|default_if_none:"-"}} {{fluidos.4.temperatura_unidad|default_if_none:"-"}}</td>
                         </tr>
                         <tr>
                             <th class="table-dark" colspan="2">Presión de Operación</th>
-                            <td colspan="2">{{fluidos.4.presion}} {{fluidos.4.presion_unidad}}</td>
+                            <td colspan="2">{{fluidos.4.presion|default_if_none:"-"}} {{fluidos.4.presion_unidad|default_if_none:"-"}}</td>
                         </tr>
 
                         <tr>
@@ -88,13 +88,13 @@
                         </tr>
                         <tr>
                             <th class="table-dark">Flujo Másico</th>
-                            <td>{{fluidos.3.flujo}} {{fluidos.3.flujo_unidad}}</td>
+                            <td>{{fluidos.3.flujo|default_if_none:"-"}} {{fluidos.3.flujo_unidad|default_if_none:"-"}}</td>
                             <th class="table-dark">Temperatura de Operación</th>
-                            <td>{{fluidos.3.temperatura}} {{fluidos.3.temperatura_unidad}}</td>
+                            <td>{{fluidos.3.temperatura|default_if_none:"-"}} {{fluidos.3.temperatura_unidad|default_if_none:"-"}}</td>
                         </tr>
                         <tr>
                             <th class="table-dark" colspan="2">Presión de Operación</th>
-                            <td colspan="2">{{fluidos.3.presion}} {{fluidos.3.presion_unidad}}</td>
+                            <td colspan="2">{{fluidos.3.presion|default_if_none:"-"}} {{fluidos.3.presion_unidad|default_if_none:"-"}}</td>
                         </tr>
                         {% endwith %}
                     </tbody>
@@ -118,9 +118,9 @@
                     <tbody>
                         {% for composicion in evaluacion.composiciones_evaluacion.all %}
                         <tr>
-                            <th class="table-dark text-center">{{composicion.composicion.fluido}}</th>
-                            <td>{{composicion.parc_vol}} %</td>
-                            <td>{% if composicion.parc_aire %} {{composicion.parc_aire}} % {% endif %}</td>
+                            <th class="table-dark text-center">{{composicion.composicion.fluido|default_if_none:"-"}}</th>
+                            <td>{{composicion.parc_vol|default_if_none:"-"}} %</td>
+                            <td>{% if composicion.parc_aire %} {{composicion.parc_aire|default_if_none:"-"}} % {% endif %}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -145,7 +145,7 @@
             </div>
 
           <div class="col-12 text-end">
-            <small>Evaluación creada por {{evaluacion.usuario.get_full_name|floatformat:4}} al {{evaluacion.fecha}}.</small> 
+            <small>Evaluación creada por {{evaluacion.usuario.get_full_name|floatformat:4|default_if_none:"-"}} al {{evaluacion.fecha|default_if_none:"-"}}.</small> 
           </div>
         </div>
         <div class="modal-footer">

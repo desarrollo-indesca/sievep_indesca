@@ -576,10 +576,10 @@ def calcular_flujos_composiciones_masicas(composiciones_combustible, flujo_masic
 
     return composiciones_combustible
 
-def evaluar_metodo_indirecto(composiciones_combustible, temperatura_aire, flujo_aire, velocidad_aire,
+def evaluar_metodo_indirecto(composiciones_combustible, temperatura_aire, velocidad_aire,
                                 presion_aire, temperatura_gas, presion_gas, flujo_gas,  
                                 area_superficie, temperatura_superficie, temperatura_horno,
-                                humedad_relativa_aire):
+                                humedad_relativa_aire, o2_gas_combustion_evaluacion):
     
     composicion_normalizada = normalizar_composicion(composiciones_combustible)
     flujo_molar_gas = (presion_gas*flujo_gas*3600)/(8.314*temperatura_gas)*0.001 # mol / h
@@ -606,12 +606,7 @@ def evaluar_metodo_indirecto(composiciones_combustible, temperatura_aire, flujo_
         composicion_normalizada, flujo_masico_gas
     )
 
-    flujo_molar_aire = (flujo_aire*presion_aire)/(8.314*(temperatura_aire))*0.001
-    pm_aire_promedio = (composicion_normalizada['7782-44-7']['x_aire']*32+composicion_normalizada['7727-37-9']['x_aire']*PESOS_MOLECULARES['7727-37-9']+composicion_normalizada['7732-18-5']['x_aire']*PESOS_MOLECULARES['7732-18-5'])
-    flujo_masico_aire = (flujo_molar_aire*pm_aire_promedio)
-    masa_agua_aire = composicion_normalizada['7732-18-5']['x_aire'] * flujo_masico_aire
-    masa_aire_seco = flujo_masico_aire - masa_agua_aire
-    factor_humedad = masa_agua_aire / masa_aire_seco
+    _,_,factor_humedad = calcular_composicion_aire(humedad_relativa_aire, temperatura_aire, presion_aire)
 
     poder_calorifico = sum([
         comp['y']*ENTALPIA_COMBUSTION_INDIRECTO[cas] for cas,comp in composicion_normalizada.items() \
@@ -619,8 +614,9 @@ def evaluar_metodo_indirecto(composiciones_combustible, temperatura_aire, flujo_
     ])
 
     aire_teorico_req = ((11.6 * porcentaje_carbon + (34.8 * (porcentaje_hidrogeno - (porcentaje_oxigeno / 8)) + 4.35 * porcentaje_azufre))) / 100
-    _,_,x_h2o = calcular_composicion_aire(humedad_relativa_aire, temperatura_aire, presion_aire)
-    porc_aire_exceso = (x_h2o / (21 - x_h2o)) * 100
+    porc_o2_combustion = o2_gas_combustion_evaluacion/100
+    porc_aire_exceso = (porc_o2_combustion / (21 - porc_o2_combustion)) * 100
+    print(porc_o2_combustion)
     masa_aire_suministrado = (1 + porc_aire_exceso / 100) * aire_teorico_req
     masa_gas_seco_combustion = (composicion_normalizada['124-38-9']['x_vol'] * 44) / (12) + composicion_normalizada['7727-37-9']['x_vol'] + (masa_aire_suministrado * 77) / (100) + (masa_aire_suministrado - aire_teorico_req) * 23 / 100
 

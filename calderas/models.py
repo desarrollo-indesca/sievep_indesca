@@ -552,7 +552,7 @@ class Evaluacion(models.Model):
     # Otros
     equipo = models.ForeignKey(Caldera, models.PROTECT, null=True, related_name="equipo_evaluacion_caldera")
     eficiencia = models.FloatField()
-    o2_gas_combustion = models.FloatField(null=True, blank=True, validators=[
+    o2_gas_combustion = models.FloatField("% O2 Gases Combustión", null=True, blank=True, validators=[
         MinValueValidator(0),
         MaxValueValidator(100)
     ]) # Porcentaje de O2 en Gases de Combustión
@@ -589,12 +589,12 @@ class EntradasFluidos(models.Model):
     ])
     flujo_unidad = models.ForeignKey(Unidades, models.PROTECT, null=True, blank=True, related_name="flujo_unidad_entrada_fluidos_caldera")
 
-    temperatura = models.FloatField("Temperatura de Operación", validators=[
+    temperatura = models.FloatField("Temperatura de Operación", null=True, blank=True, validators=[
         MinValueValidator(-273.15)
     ])
     temperatura_unidad = models.ForeignKey(Unidades, models.PROTECT, related_name="temperatura_unidad_entrada_fluidos_caldera")
 
-    presion = models.FloatField("Presión de Operación", validators=[
+    presion = models.FloatField("Presión de Operación", null=True, blank=True, validators=[
         MinValueValidator(0.0001)
     ])
     presion_unidad = models.ForeignKey(Unidades, models.PROTECT, related_name="presion_unidad_entrada_fluidos_caldera")
