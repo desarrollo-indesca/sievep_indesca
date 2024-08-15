@@ -2397,10 +2397,10 @@ class DuplicarIntercambiador(SuperUserRequiredMixin, DuplicateView):
 
             intercambiador_previo.creado_por = request.user
             intercambiador_previo.copia = True
+            intercambiador_previo.servicio = f"COPIA DEL INTERCAMBIADOR {intercambiador_previo.tag}"
             intercambiador_previo.tag = generate_nonexistent_tag(Intercambiador, intercambiador_previo.tag)
+           
             intercambiador = self.copy(intercambiador_previo)
-
-            print(intercambiador.tipo.nombre)
 
             for condicion in intercambiador.condiciones.all():
                 condicion.intercambiador = intercambiador

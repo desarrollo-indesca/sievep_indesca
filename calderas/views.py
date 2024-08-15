@@ -1099,6 +1099,7 @@ class DuplicarCaldera(SuperUserRequiredMixin, CargarCalderasMixin, DuplicateView
         caldera.chimenea = self.copy(caldera_original.chimenea)
         caldera.economizador = self.copy(caldera_original.economizador)
         caldera.combustible = self.copy(caldera_original.combustible)
+        caldera.descripcion = f"COPIA DE LA CALDERA {caldera_original.tag}"
         caldera = self.copy(caldera)
 
         for caracteristica in caldera_original.caracteristicas_caldera.all():
