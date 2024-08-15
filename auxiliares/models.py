@@ -1171,12 +1171,90 @@ class EspecificacionesPrecalentadorAgua(models.Model):
         db_table = "precalentador_agua_especificaciones"
         ordering = ('tipo',)
 
+class CorrientePrecalentadorAgua(models.Model):
+    '''
+    Resumen:
+        Modelo que describe una corriente que circula por el precalentador de agua.
+        Deben al menos cuatro corrientes: dos del lado carcasa, una de entrada y una de salida, 
+        y dos del lado tubos, una de entrada y una de salida.
+
+    Atributos:
+        nombre: CharField -> Nombre de la corriente
+        numero_corriente: CharField -> Número de la corriente
+        flujo: FloatField -> Flujo másico circulante
+        presion: FloatField -> Presión bajo la que circula la corriente
+        temperatura: FloatField -> Temperatura bajo la que circula la corriente
+        entalpia: FloatField -> Entalpía de la corriente
+        densidad: FloatField -> Densidad del fluido circulante
+        fase: CharField -> Fase en la que se encuentra el fluido (Líquido, Vapor o Saturado)
+        lado: CharField -> Lado del precalentador por donde circula la corriente (Carcasa o Tubos)
+        rol: CharField -> Rol que cumple la corriente en el precalentador (Entrada o Salida)
+    '''
+
+    nombre = models.CharField(max_length=60)
+    numero_corriente = models.CharField(max_length=25)
+    flujo = models.FloatField()
+    presion = models.FloatField()
+    temperatura = models.FloatField()
+    entalpia = models.FloatField()
+    densidad = models.FloatField()
+    fase = models.CharField(max_length=1, choices=[("L","Líquido"), ("V","Vapor"), ("S","Saturado")])
+    lado = models.CharField(max_length=1, choices=[("C","Carcasa"), ("T","Tubos")])
+    rol = models.CharField(max_length=1, choices=[("E","Entrada"), ("S","Salida")])
+
+    class Meta:
+        db_table = "precalentador_agua_corriente"
+        ordering = ('rol',)
+
 # Evaluación de Precalentador de Agua
+
+class CorrientesEvaluacionPrecalentadorAgua(models.Model):
+    '''
+    Resumen:
+        modelos que registra la evaluación de las corrientes de un precalentador de agua.
+
+    Atributos:
+        flujo: FloatField -> Flujo másico circulante
+        presion: FloatField -> Presión bajo la que circula la corriente
+        temperatura: FloatField -> Temperatura bajo la que circula la corriente
+        entalpia: FloatField -> Entalpía de la corriente
+        densidad: FloatField -> Densidad del fluido circulante
+        fase: CharField -> Fase en la que se encuentra el fluido (Líquido, Vapor o Saturado)
+        corriente: ForeignKey -> Corriente
+    '''
+
+    id = models.UUIDField(primary_key=True, default= uuid.uuid4)
+    flujo = models.FloatField()
+    presion = models.FloatField()
+    temperatura = models.FloatField()
+    entalpia = models.FloatField()
+    densidad = models.FloatField()
+    fase = models.CharField(max_length=1, choices=[("L","Líquido"), ("V","Vapor"), ("S","Saturado")])
+    corriente = models.ForeignKey(CorrientePrecalentadorAgua, on_delete=models.PROTECT, related_name="corrientes_evaluacion_precalentador_agua")
+
+    class Meta:
+        db_table = "precalentador_agua_evaluacion_corriente"
 
 class SalidaGeneralPrecalentadorAgua(models.Model):
     '''
     Resumen:
         modelos que registra la evaluación de un precalentador de agua.
+
+    Atributos:
+        mtd: FloatField -> Delta T Medio de Referencia
+        mtd_unidad: ForeignKey -> Unidad de mtd
+        factor_ensuciamiento: FloatField -> Factor de Ensuciamiento
+        factor_ensuciamiento_unidad: ForeignKey -> Unidad del factor de ensuciamiento
+        cmin: FloatField -> Cmin
+        cmin_unidad: ForeignKey -> Unidad del cmin
+        ntu: FloatField -> Ntu
+        u: FloatField -> U
+        u_diseno: FloatField -> U Diseño
+        u_unidad: ForeignKey -> Unidad de u
+        calor_carcasa: FloatField -> Calor de la Carcasa
+        calor_tubos: FloatField -> Calor de los Tubos
+        calor_unidad: ForeignKey -> Unidad del calor
+        eficiencia: FloatField -> Eficiencia Térmica
     '''
 
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
@@ -1202,10 +1280,20 @@ class SalidaGeneralPrecalentadorAgua(models.Model):
     
     eficiencia = models.FloatField()
 
+    class Meta:
+        db_table = "precalentador_agua_evaluacion_salida_general"
+
 class EvaluacionPrecalentadorAgua(models.Model):
     '''
     Resumen:
         Modelo que registra la evaluación de un precalentador de agua.
+
+    Atributos:
+        nombre: CharField -> Nombre de la evaluación
+        fecha: DateTimeField -> Fecha de la evaluación
+        salida_general: OneToOneField -> Salida general de la evaluación
+        usuario: ForeignKey -> Usuario que realizó la evaluación
+        precalentador: ForeignKey -> Precalentador de agua evaluado
     '''
 
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
@@ -1216,22 +1304,7 @@ class EvaluacionPrecalentadorAgua(models.Model):
     usuario = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="evaluacion_precalentador")
     precalentador = models.ForeignKey(PrecalentadorAgua, on_delete=models.PROTECT, related_name="evaluacion_precalentador")
 
-class EntradaLadoEvaluacion(models.Model):
-    '''
-    Resumen:
-        Modelo que registra los datos de entrada de cada uno de las tres secciones del precalentador.
-    '''
-
-    id = models.UUIDField(primary_key=True, default= uuid.uuid4)
-    pasos = models.IntegerField(null=True, blank=True)
-    velocidad = models.FloatField(null=True, blank=True)
-    caida_presion = models.FloatField(null=True, blank=True)
-    presion_diseno = models.FloatField(null=True, blank=True)
-    presion_entrada = models.FloatField(null=True, blank=True)
-    temperatura = models.FloatField(null=True, blank=True)
-    cp = models.FloatField(null=True)
-    flujo_masico = models.FloatField(null=True, blank=True)
-    lado = models.CharField(max_length=1, choices=TIPOS_SECCIONES_PRECALENTADOR)
-
+    class Meta:
+        db_table = "precalentador_agua_evaluacion"
 
 # MODELOS DE PRECALENTADOR DE AIRE

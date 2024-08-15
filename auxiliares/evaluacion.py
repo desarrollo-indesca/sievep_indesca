@@ -783,11 +783,11 @@ def generar_advertencias_resultados_precalentador_agua(resultados: list) -> dict
 
     for corriente in resultados['corrientes_carcasa']:
         if(corriente['p'] != corriente['fase']):
-            advertencias.append(f'La fase de operación "{corriente['fase']}" no coincide con la fase definida en la Base de Datos ({corriente['p']}) de la corriente {corriente['numero_corriente']}.')
+            advertencias.append(f'La fase de operación "{corriente["fase"]}" no coincide con la fase definida en la Base de Datos ({corriente["p"]}) de la corriente {corriente["numero_corriente"]}.')
 
     for corriente in resultados['corrientes_tubo']:
         if(corriente['p'] != corriente['fase']):
-            advertencias.append(f'La fase de operación "{corriente['fase']}" no coincide con la fase definida en la Base de Datos ({corriente['p']}) de la corriente {corriente['numero_corriente']}.')
+            advertencias.append(f'La fase de operación "{corriente["fase"]}" no coincide con la fase definida en la Base de Datos ({corriente["p"]}) de la corriente {corriente["numero_corriente"]}.')
 
     return advertencias
 
