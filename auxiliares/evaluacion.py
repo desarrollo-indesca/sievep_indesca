@@ -846,5 +846,3 @@ def evaluar_precalentador_agua(
     advertencias = generar_advertencias_resultados_precalentador_agua(resultados)
 
     return {'resultados': resultados, 'advertencias': advertencias}
-
-# TODO: COMENTAR CALDERAS INDIRECTO
