@@ -1171,4 +1171,67 @@ class EspecificacionesPrecalentadorAgua(models.Model):
         db_table = "precalentador_agua_especificaciones"
         ordering = ('tipo',)
 
+# Evaluación de Precalentador de Agua
+
+class SalidaGeneralPrecalentadorAgua(models.Model):
+    '''
+    Resumen:
+        modelos que registra la evaluación de un precalentador de agua.
+    '''
+
+    id = models.UUIDField(primary_key=True, default= uuid.uuid4)
+    
+    mtd = models.FloatField()
+    mtd_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="mtd_unidad_evaluacion_precalentador_agua")
+   
+    factor_ensuciamiento = models.FloatField()
+    factor_ensuciamiento_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="factor_ensuciamiento_unidad_evaluacion_precalentador_agua")
+    
+    cmin = models.FloatField()
+    cmin_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="cmin_unidad_evaluacion_precalentador_agua")
+    
+    ntu = models.FloatField()
+    
+    u = models.FloatField()
+    u_diseno = models.FloatField()
+    u_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="u_unidad_evaluacion_precalentador_agua")
+    
+    calor_carcasa = models.FloatField()
+    calor_tubos = models.FloatField()
+    calor_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="calor_unidad_evaluacion_precalentador_agua")
+    
+    eficiencia = models.FloatField()
+
+class EvaluacionPrecalentadorAgua(models.Model):
+    '''
+    Resumen:
+        Modelo que registra la evaluación de un precalentador de agua.
+    '''
+
+    id = models.UUIDField(primary_key=True, default= uuid.uuid4)
+    nombre = models.CharField(max_length=100)
+    fecha = models.DateTimeField(auto_now=True)
+
+    salida_general = models.OneToOneField(SalidaGeneralPrecalentadorAgua, on_delete=models.PROTECT)
+    usuario = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="evaluacion_precalentador")
+    precalentador = models.ForeignKey(PrecalentadorAgua, on_delete=models.PROTECT, related_name="evaluacion_precalentador")
+
+class EntradaLadoEvaluacion(models.Model):
+    '''
+    Resumen:
+        Modelo que registra los datos de entrada de cada uno de las tres secciones del precalentador.
+    '''
+
+    id = models.UUIDField(primary_key=True, default= uuid.uuid4)
+    pasos = models.IntegerField(null=True, blank=True)
+    velocidad = models.FloatField(null=True, blank=True)
+    caida_presion = models.FloatField(null=True, blank=True)
+    presion_diseno = models.FloatField(null=True, blank=True)
+    presion_entrada = models.FloatField(null=True, blank=True)
+    temperatura = models.FloatField(null=True, blank=True)
+    cp = models.FloatField(null=True)
+    flujo_masico = models.FloatField(null=True, blank=True)
+    lado = models.CharField(max_length=1, choices=TIPOS_SECCIONES_PRECALENTADOR)
+
+
 # MODELOS DE PRECALENTADOR DE AIRE

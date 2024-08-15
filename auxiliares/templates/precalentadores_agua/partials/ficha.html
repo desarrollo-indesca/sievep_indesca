@@ -153,11 +153,11 @@
                     {% endwith %}
                     {% endwith %}
                     <tr>
-                      <td colspan="5">Precalentador registrado por {{precalentador.creado_por}} al {{precalentador.creado_al}}.</td>
+                      <td colspan="5">Precalentador registrado por {{precalentador.creado_por.get_full_name}} al {{precalentador.creado_al}}.</td>
                     </tr>
                     {% if precalentador.editado_por %}
                     <tr>
-                      <td colspan="5">Precalentador registrado por {{precalentador.editado_por}} al {{precalentador.editado_al}}.</td>
+                      <td colspan="5">Precalentador editado por {{precalentador.editado_por.get_full_name}} al {{precalentador.editado_al}}.</td>
                     </tr>
                     {% endif %}
                   </tbody>
