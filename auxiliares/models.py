@@ -1171,6 +1171,24 @@ class EspecificacionesPrecalentadorAgua(models.Model):
         db_table = "precalentador_agua_especificaciones"
         ordering = ('tipo',)
 
+class DatosCorrientesPrecalentadorAgua(models.Model):
+    """
+    Resumen:
+        modelos que registra los datos de las corrientes del precalentador de agua.
+
+    Atributos:
+        flujo_unidad: Unidades -> Unidad del flujo
+        presion_unidad: Unidades -> Unidad de la presión
+        temperatura_unidad: Unidades -> Unidad de la temperatura
+        entalpia_unidad: Unidades -> Unidad de la entalpía
+        densidad_unidad: Unidades -> Unidad de la densidad
+    """
+    flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, default=6, related_name="flujo_unidad_corrientes_precalentador_agua")
+    presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, default=7, related_name="presion_unidad_corrientes_precalentador_agua")
+    temperatura_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, default=1, related_name="temperatura_unidad_corrientes_precalentador_agua")
+    entalpia_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, default=9, related_name="entalpia_unidad_corrientes_precalentador_agua")
+    densidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, default=5, related_name="densidad_unidad_corrientes_precalentador_agua")
+
 class CorrientePrecalentadorAgua(models.Model):
     '''
     Resumen:
@@ -1201,6 +1219,7 @@ class CorrientePrecalentadorAgua(models.Model):
     fase = models.CharField(max_length=1, choices=[("L","Líquido"), ("V","Vapor"), ("S","Saturado")])
     lado = models.CharField(max_length=1, choices=[("C","Carcasa"), ("T","Tubos")])
     rol = models.CharField(max_length=1, choices=[("E","Entrada"), ("S","Salida")])
+    datos_corriente = models.ForeignKey(DatosCorrientesPrecalentadorAgua, on_delete=models.PROTECT, related_name="corrientes_precalentador_agua")
 
     class Meta:
         db_table = "precalentador_agua_corriente"
@@ -1300,9 +1319,10 @@ class EvaluacionPrecalentadorAgua(models.Model):
     nombre = models.CharField(max_length=100)
     fecha = models.DateTimeField(auto_now=True)
 
+    activo = models.BooleanField(default=True)
     salida_general = models.OneToOneField(SalidaGeneralPrecalentadorAgua, on_delete=models.PROTECT)
     usuario = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="evaluacion_precalentador")
-    precalentador = models.ForeignKey(PrecalentadorAgua, on_delete=models.PROTECT, related_name="evaluacion_precalentador")
+    equipo = models.ForeignKey(PrecalentadorAgua, on_delete=models.PROTECT, related_name="evaluacion_precalentador")
 
     class Meta:
         db_table = "precalentador_agua_evaluacion"
