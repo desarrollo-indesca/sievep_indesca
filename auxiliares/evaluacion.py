@@ -1,6 +1,6 @@
 import math
 from calculos.unidades import transformar_unidades_longitud, transformar_unidades_viscosidad, transformar_unidades_densidad, transformar_unidades_presion, transformar_unidades_flujo_volumetrico
-from calculos.termodinamicos import DENSIDAD_DEL_AGUA_LIQUIDA_A_5C,calcular_densidad, calcular_densidad_aire, calcular_presion_vapor, calcular_viscosidad
+from calculos.termodinamicos import DENSIDAD_DEL_AGUA_LIQUIDA_A_5C, calcular_fase, calcular_cp, calcular_densidad, calcular_densidad_aire, calcular_presion_vapor, calcular_viscosidad, calcular_entalpia_coolprop
 
 GRAVEDAD = 9.81
 
@@ -554,4 +554,36 @@ def evaluar_ventilador(presion_entrada: float, presion_salida: float, flujo: flo
     }
 
 # TODO: FUNCIONES EVALUACIÓN PRECALENTADOR DE AGUA
+# Funciones de Evaluación de Precalentador de Agua
+def calcular_calor(corrientes):
+
+    q = sum([
+        corriente['flujo']*corriente['h']*(-1 if corriente['rol'] == 'A' else 1)
+        for corriente in corrientes
+    ])
+    
+    return q
+
+def calcular_datos_corrientes(corrientes):
+    for i,corriente in enumerate(corrientes):
+        corriente['h'] = calcular_entalpia_coolprop(corriente['temperatura'], corriente['presion'] if not corriente['saturado'] else None)
+        corriente['d'] = calcular_densidad("water", corriente['temperatura'], corriente['presion'])
+        corriente['c'] = calcular_cp("water",t1=corriente['temperatura'], t2=corriente['temperatura'], presion=corriente['presion'])
+        corriente['p'] = calcular_fase("water", corriente['temperatura'], corriente['temperatura'], corriente['presion']) if not corriente['saturado'] else "S"
+        corrientes[i] = corriente
+    
+    return corrientes
+
+def evaluar_precalentador_agua(
+    corrientes_carcasa_p,
+    corrientes_tubo_p
+) -> dict:
+    # Calcular Calor de Carcasa
+    corrientes_carcasa = calcular_datos_corrientes(corrientes_carcasa_p)
+    corrientes_tubo = calcular_datos_corrientes(corrientes_tubo_p)
+
+    calor_carcasa = calcular_calor(corrientes_carcasa)
+    calor_tubo = calcular_calor(corrientes_tubo)
+    
+
 # TODO: COMENTAR CALDERAS INDIRECTO
