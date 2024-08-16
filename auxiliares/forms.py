@@ -281,7 +281,7 @@ class PrecalentadorAguaForm(forms.ModelForm):
 
     class Meta:
         model = PrecalentadorAgua
-        exclude = ('id','creado_por','editado_por','creado_al','editado_al')
+        exclude = ('id','creado_por','editado_por','creado_al','editado_al', 'datos_corrientes')
 
 class SeccionesPrecalentadorAguaForm(forms.ModelForm):
     '''

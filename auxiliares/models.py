@@ -76,6 +76,10 @@ TIPOS_SECCIONES_PRECALENTADOR = [
     ("D","Drenaje")
 ]
 
+FASES_CORRIENTES_PRECALENTADOR = [("L","Líquido"), ("V","Vapor"), ("S","Saturado")]
+LADO_CORRIENTES_PRECALENTADOR = [("C","Carcasa"), ("E","Entrada")]
+ROLES_CORRIENTES_PRECALENTADOR = [("E","Entra"), ("S","Sale")]
+
 # MODELOS DE BOMBAS
 
 class MaterialTuberia(models.Model):
@@ -1221,14 +1225,23 @@ class CorrientePrecalentadorAgua(models.Model):
     temperatura = models.FloatField()
     entalpia = models.FloatField()
     densidad = models.FloatField()
-    fase = models.CharField(max_length=1, choices=[("L","Líquido"), ("V","Vapor"), ("S","Saturado")])
-    lado = models.CharField(max_length=1, choices=[("C","Carcasa"), ("T","Tubos")])
-    rol = models.CharField(max_length=1, choices=[("E","Entrada"), ("S","Salida")])
+    fase = models.CharField(max_length=1, choices=FASES_CORRIENTES_PRECALENTADOR)
+    lado = models.CharField(max_length=1, choices=LADO_CORRIENTES_PRECALENTADOR)
+    rol = models.CharField(max_length=1, choices=ROLES_CORRIENTES_PRECALENTADOR)
     datos_corriente = models.ForeignKey(DatosCorrientesPrecalentadorAgua, on_delete=models.PROTECT, related_name="corrientes_precalentador_agua")
+
+    def fase_largo(self):
+        return conseguir_largo(FASES_CORRIENTES_PRECALENTADOR, self.fase)
+    
+    def lado_largo(self):
+        return conseguir_largo(LADO_CORRIENTES_PRECALENTADOR, self.lado)
+    
+    def rol_largo(self):
+        return conseguir_largo(ROLES_CORRIENTES_PRECALENTADOR, self.rol)
 
     class Meta:
         db_table = "precalentador_agua_corriente"
-        ordering = ('rol',)
+        ordering = ('lado',)
 
 # Evaluación de Precalentador de Agua
 
