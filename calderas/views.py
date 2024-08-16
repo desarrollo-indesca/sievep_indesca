@@ -218,7 +218,7 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
     
     def almacenar_datos(self, form_caldera, form_tambor, form_chimenea, form_economizador, form_tambor_superior, form_tambor_inferior,
                             form_sobrecalentador, form_dimensiones_caldera, form_dimensiones_sobrecalentador, form_especificaciones,
-                            form_combustible, forms_composicion):
+                            form_combustible, forms_composicion, edicion=False):
         error = ""
         with transaction.atomic(): 
             # Se validan los formularios
@@ -275,7 +275,12 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
                 form_caldera.instance.sobrecalentador = form_sobrecalentador.instance
                 form_caldera.instance.dimensiones = dimensiones_caldera
                 form_caldera.instance.combustible = combustible
-                form_caldera.instance.creado_por = self.request.user
+
+                if(not edicion):
+                    form_caldera.instance.creado_por = self.request.user
+                else:
+                    form_caldera.instance.editado_por = self.request.user
+                    form_caldera.instance.editado_al = datetime.now()
 
                 form_caldera.save()
 
@@ -436,7 +441,7 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
         try:
             return self.almacenar_datos(form_caldera, form_tambor, form_chimenea, form_economizador, form_tambor_superior, form_tambor_inferior,
                                             form_sobrecalentador, form_dimensiones_caldera, form_dimensiones_sobrecalentador, form_especificaciones,
-                                            form_combustible, forms_composicion)
+                                            form_combustible, forms_composicion, edicion=True)
         except Exception as e:
             print(str(e))
 
@@ -1118,4 +1123,5 @@ class DuplicarCaldera(SuperUserRequiredMixin, CargarCalderasMixin, DuplicateView
             compuesto.combustible = caldera.combustible
             self.copy(compuesto)
 
+        messages.success(request, f"Se ha creado la copia de la caldera {caldera_original.tag} como {caldera.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
         return redirect("/calderas")

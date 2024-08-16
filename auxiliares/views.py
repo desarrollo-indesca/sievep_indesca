@@ -1906,12 +1906,17 @@ class CreacionPrecalentadorAgua(SuperUserRequiredMixin, View):
                             form_seccion_vapor, form_seccion_drenaje, 
                             form_especificaciones_condensado,
                             form_especificaciones_reduccion,
-                            form_especificaciones_drenaje):
+                            form_especificaciones_drenaje, edicion=False):
         
         with transaction.atomic():
             valid = form_equipo.is_valid()
             if(valid):
-                form_equipo.instance.creado_por = self.request.user
+                if(not edicion):
+                    form_equipo.instance.creado_por = self.request.user
+                else:
+                    form_equipo.instance.editado_por = self.request.user
+                    form_equipo.instance.editado_al = datetime.datetime.now()
+
                 precalentador = form_equipo.save()
             else:
                 print(form_equipo.errors)
@@ -2042,7 +2047,7 @@ class EdicionPrecalentadorAgua(CreacionPrecalentadorAgua, ObtenerPrecalentadorAg
                             form_seccion_vapor, form_seccion_drenaje, 
                             form_especificaciones_condensado,
                             form_especificaciones_reduccion,
-                            form_especificaciones_drenaje)
+                            form_especificaciones_drenaje, edicion=True)
         except Exception as e:
             print(str(e))
             return render(
@@ -2058,87 +2063,6 @@ class EdicionPrecalentadorAgua(CreacionPrecalentadorAgua, ObtenerPrecalentadorAg
                     'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
                     'edicion': True
                 })    
-
-# PRECALENTADORES DE AIRE
-
-# VISTAS DE DUPLICACIÓN
-class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, DuplicateView):
-
-    def post(self, request, *args, **kwargs):
-        ventilador = self.get_ventilador()
-        old_tag = ventilador.tag
-        
-        with transaction.atomic():
-            ventilador.condiciones_trabajo = self.copy(ventilador.condiciones_trabajo)
-            ventilador.condiciones_adicionales = self.copy(ventilador.condiciones_adicionales)
-            ventilador.condiciones_generales = self.copy(ventilador.condiciones_generales)
-            ventilador.especificaciones = self.copy(ventilador.especificaciones)
-            ventilador.descripcion = f"COPIA DEL VENTILADOR {ventilador.tag}"
-            ventilador.tag = generate_nonexistent_tag(Ventilador, ventilador.tag)
-            ventilador.copia = True
-            
-            self.copy(ventilador)
-
-        messages.success(request, f"Se ha creado la copia del ventilador {old_tag} como {ventilador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
-        return redirect('/auxiliares/ventiladores/')
-
-class DuplicarBomba(SuperUserRequiredMixin, CargarBombaMixin, DuplicateView):
-
-    def post(self, request, *args, **kwargs):
-        bomba_original = self.get_bomba()
-        bomba = bomba_original
-        old_tag = bomba.tag
-        
-        with transaction.atomic():
-            bomba.detalles_motor = self.copy(bomba.detalles_motor)
-            bomba.especificaciones_bomba = self.copy(bomba.especificaciones_bomba)
-            bomba.detalles_construccion = self.copy(bomba.detalles_construccion)
-            condiciones_fluido = self.copy(bomba_original.condiciones_diseno.condiciones_fluido)
-            bomba.condiciones_diseno.condiciones_fluido = condiciones_fluido
-            bomba.condiciones_diseno = self.copy(bomba.condiciones_diseno)
-            bomba.instalacion_succion = self.copy(bomba.instalacion_succion)
-            bomba.instalacion_descarga = self.copy(bomba.instalacion_descarga)
-
-            for tuberia in bomba_original.instalacion_succion.tuberias.all():
-                tuberia.instalacion = bomba.instalacion_succion
-                tuberia = self.copy(tuberia)
-
-            for tuberia in bomba_original.instalacion_descarga.tuberias.all():
-                tuberia.instalacion = bomba.instalacion_descarga
-                tuberia = self.copy(tuberia)
-
-            bomba.descripcion = f"COPIA DE LA BOMBA {bomba.tag}"
-            bomba.tag = generate_nonexistent_tag(Bombas, bomba.tag)
-            bomba.copia = True
-            
-            bomba = self.copy(bomba)
-
-        messages.success(request, f"Se ha creado la copia de la bomba {old_tag} como {bomba.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
-        return redirect('/auxiliares/bombas/')
-
-class DuplicarPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAguaMixin, DuplicateView):
-
-    def post(self, request, *args, **kwargs):
-        precalentador_original = self.get_precalentador()
-        precalentador = precalentador_original
-        old_tag = precalentador.tag
-        
-        with transaction.atomic():
-            precalentador.descripcion = f"COPIA DEL PRECALENTADOR {precalentador.tag}"
-            precalentador.tag = generate_nonexistent_tag(PrecalentadorAgua, precalentador.tag)
-            precalentador.copia = True                 
-            precalentador = self.copy(precalentador)
-
-            for seccion in precalentador_original.secciones_precalentador.all():
-                seccion.precalentador = precalentador
-                self.copy(seccion)
-
-            for especificacion in precalentador_original.especificaciones_precalentador.all():
-                especificacion.precalentador = precalentador
-                self.copy(especificacion)
-
-        messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
-        return redirect('/auxiliares/precalentadores/')
 
 class ConsultaEvaluacionPrecalentadorAgua(ConsultaEvaluacion, ObtenerPrecalentadorAguaMixin, ReportesFichasMixin):
     """
@@ -2211,3 +2135,108 @@ class ConsultaEvaluacionPrecalentadorAgua(ConsultaEvaluacion, ObtenerPrecalentad
         context['tipo'] = self.tipo
 
         return context
+    
+# PRECALENTADORES DE AIRE
+
+# VISTAS DE DUPLICACIÓN
+class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, DuplicateView):
+    """
+    Resumen:
+        Vista para duplicar un ventilador. 
+
+    Métodos:
+        post(self, request, *args, **kwargs)
+            Crea una nueva instancia del ventilador a duplicar y la retorna.
+    """
+
+    def post(self, request, *args, **kwargs):
+        ventilador = self.get_ventilador()
+        old_tag = ventilador.tag
+        
+        with transaction.atomic():
+            ventilador.condiciones_trabajo = self.copy(ventilador.condiciones_trabajo)
+            ventilador.condiciones_adicionales = self.copy(ventilador.condiciones_adicionales)
+            ventilador.condiciones_generales = self.copy(ventilador.condiciones_generales)
+            ventilador.especificaciones = self.copy(ventilador.especificaciones)
+            ventilador.descripcion = f"COPIA DEL VENTILADOR {ventilador.tag}"
+            ventilador.tag = generate_nonexistent_tag(Ventilador, ventilador.tag)
+            ventilador.copia = True
+            
+            self.copy(ventilador)
+
+        messages.success(request, f"Se ha creado la copia del ventilador {old_tag} como {ventilador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
+        return redirect('/auxiliares/ventiladores/')
+
+class DuplicarBomba(SuperUserRequiredMixin, CargarBombaMixin, DuplicateView):
+    """
+    Resumen:
+        Vista para duplicar una bomba centrífuga.
+
+    Métodos:
+        post(self, request, *args, **kwargs)
+            Crea una nueva instancia de la bomba centrífuga a duplicar y la retorna.
+    """
+
+    def post(self, request, *args, **kwargs):
+        bomba_original = self.get_bomba()
+        bomba = bomba_original
+        old_tag = bomba.tag
+        
+        with transaction.atomic():
+            bomba.detalles_motor = self.copy(bomba.detalles_motor)
+            bomba.especificaciones_bomba = self.copy(bomba.especificaciones_bomba)
+            bomba.detalles_construccion = self.copy(bomba.detalles_construccion)
+            condiciones_fluido = self.copy(bomba_original.condiciones_diseno.condiciones_fluido)
+            bomba.condiciones_diseno.condiciones_fluido = condiciones_fluido
+            bomba.condiciones_diseno = self.copy(bomba.condiciones_diseno)
+            bomba.instalacion_succion = self.copy(bomba.instalacion_succion)
+            bomba.instalacion_descarga = self.copy(bomba.instalacion_descarga)
+
+            for tuberia in bomba_original.instalacion_succion.tuberias.all():
+                tuberia.instalacion = bomba.instalacion_succion
+                tuberia = self.copy(tuberia)
+
+            for tuberia in bomba_original.instalacion_descarga.tuberias.all():
+                tuberia.instalacion = bomba.instalacion_descarga
+                tuberia = self.copy(tuberia)
+
+            bomba.descripcion = f"COPIA DE LA BOMBA {bomba.tag}"
+            bomba.tag = generate_nonexistent_tag(Bombas, bomba.tag)
+            bomba.copia = True
+            
+            bomba = self.copy(bomba)
+
+        messages.success(request, f"Se ha creado la copia de la bomba {old_tag} como {bomba.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
+        return redirect('/auxiliares/bombas/')
+
+class DuplicarPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAguaMixin, DuplicateView):
+    """
+    Resumen:
+        Vista para duplicar un precalentador de agua.
+
+    Métodos:
+        post(self, request, *args, **kwargs)
+            Crea una nueva instancia del precalentador de agua a duplicar y la retorna.
+    """
+
+    def post(self, request, *args, **kwargs):
+        precalentador_original = self.get_precalentador()
+        precalentador = precalentador_original
+        old_tag = precalentador.tag
+        
+        with transaction.atomic():
+            precalentador.descripcion = f"COPIA DEL PRECALENTADOR {precalentador.tag}"
+            precalentador.tag = generate_nonexistent_tag(PrecalentadorAgua, precalentador.tag)
+            precalentador.copia = True                 
+            precalentador = self.copy(precalentador)
+
+            for seccion in precalentador_original.secciones_precalentador.all():
+                seccion.precalentador = precalentador
+                self.copy(seccion)
+
+            for especificacion in precalentador_original.especificaciones_precalentador.all():
+                especificacion.precalentador = precalentador
+                self.copy(especificacion)
+
+        messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
+        return redirect('/auxiliares/precalentadores/')
