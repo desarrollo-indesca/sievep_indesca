@@ -1787,16 +1787,20 @@ class ObtenerPrecalentadorAguaMixin():
             precalentador = precalentador_q
 
         precalentador = precalentador.select_related(
-            'planta', 'planta__complejo', 'creado_por', 'editado_por'
+            'planta', 'planta__complejo', 'creado_por', 'editado_por',
+            'datos_corrientes', 'datos_corrientes__temperatura_unidad',
+            'datos_corrientes__presion_unidad', 'datos_corrientes__entalpia_unidad',
+            'datos_corrientes__flujo_unidad', 'datos_corrientes__densidad_unidad'
         ).prefetch_related(
             Prefetch('secciones_precalentador', SeccionesPrecalentadorAgua.objects.select_related(
                 'presion_unidad', 'entalpia_unidad', 'flujo_unidad', 
-                'temp_unidad', 'velocidad_unidad'
+                'temp_unidad', 'velocidad_unidad', 
             )),
             Prefetch('especificaciones_precalentador', EspecificacionesPrecalentadorAgua.objects.select_related(
                 'calor_unidad', 'area_unidad','coeficiente_unidad',
                 'mtd_unidad', 'caida_presion_unidad'
             )),
+            'datos_corrientes__corrientes_precalentador_agua'
         )
 
         if(not precalentador_q and precalentador):
@@ -2135,7 +2139,38 @@ class ConsultaEvaluacionPrecalentadorAgua(ConsultaEvaluacion, ObtenerPrecalentad
         context['tipo'] = self.tipo
 
         return context
+
+class CreacionCorrientesPrecalentadorAgua(ObtenerPrecalentadorAguaMixin, View):
+    template_name = "precalentadores_agua/creacion_corrientes.html"
+
+    def formset_corrientes(self, prefix):
+        return forms.modelformset_factory(
+            CorrientePrecalentadorAgua, 
+            form=CorrientePrecalentadorAgua, 
+            extra=2)(prefix=prefix)
+
+    def get_context_data(self):
+        precalentador = self.get_precalentador()
+
+        formset_corrientes_carcasa = self.formset_corrientes("carcasa")
+        formset_corrientes_tubos = self.formset_corrientes("tubos")
+
+        return {
+            'formset_corrientes_carcasa': formset_corrientes_carcasa,
+            'formset_corrientes_tubos': formset_corrientes_tubos,
+            'form_datos_corrientes': CorrientesPrecalentadorAguaForm(),
+            'precalentador': precalentador,
+        }
+
+    def get(self, *args, **kwargs):
+        return render(self.request, self.template_name, self.get_context_data())
     
+    def almacenar_datos(self, request):
+        pass
+
+    def post(self, request):
+        pass
+
 # PRECALENTADORES DE AIRE
 
 # VISTAS DE DUPLICACIÓN

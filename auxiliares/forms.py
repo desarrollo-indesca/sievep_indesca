@@ -338,3 +338,13 @@ class EspecificacionesPrecalentadorAguaForm(forms.ModelForm):
         widgets = {
             'tipo': forms.HiddenInput(),
         }
+
+class DatosCorrientesPrecalentadorAguaForm(forms.ModelForm):
+    class model:
+        model = DatosCorrientesPrecalentadorAgua
+        exclude = ('id', 'precalentador')
+
+class CorrientesPrecalentadorAguaForm(forms.ModelForm):
+    class Meta:
+        model = CorrientePrecalentadorAgua
+        exclude = ('id', 'precalentador', 'lado')
