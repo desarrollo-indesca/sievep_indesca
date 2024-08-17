@@ -49,11 +49,12 @@
                 <tbody id="forms-corrientes">
                     <tr>
                         <th class="text-center">#</th>
-                        <th class="text-center">Descripción</th>
-                        <th class="text-center">Entrada</th>
+                        <th class="text-center">Nombre</th>
+                        <th class="text-center">Entra/sale</th>
                         <th class="text-center">Flujo</th>
                         <th class="text-center">Entalpía</th>
                         <th class="text-center">Presión</th>
+                        <th class="text-center">Densidad</th>
                         <th class="text-center">Temperatura</th>
                         <th class="text-center">Fase</th>
                         <th class="text-center">+/-</th>
@@ -79,15 +80,22 @@
                             </select>
                         </td>
                         <td class="text-center">
+                            <select name="densidad_unidad" id="id_densidad_unidad" class="form-select">
+                                {% include 'unidades.html' with tipo="D" pk_selected=form_datos_corrientes.instance.densidad_unidad.pk %}
+                            </select>
+                        </td>
+                        <td class="text-center">
                             <select name="temperatura_unidad" id="id_temperatura_unidad" class="form-select">
                                 {% include 'unidades.html' with tipo="T" pk_selected=form_datos_corrientes.instance.temperatura_unidad.pk %}
                             </select>
                         </td>
-                        <td class="text-center">-</td>
+                        <td class="text-center">
+                            -
+                        </td>
                         <td class="text-center">-</td>
                     </tr>
 
-                    {% for form in forms_corrientes %}
+                    {% for form in formset_corrientes_tubos %}
                     {% for field in form.hidden_fields %}
                         {{ field }}
                     {% endfor %}
@@ -97,23 +105,12 @@
                             <small>{{form.numero_corriente.errors}}</small>
                         </td>
                         <td>
-                            {% render_field form.descripcion_corriente class="form-control" placeholder="Descripción de la Corriente" %}
-                            <small>{{form.descripcion_corriente.errors}}</small>
+                            {% render_field form.nombre class="form-control" placeholder="Descripción de la Corriente" %}
+                            <small>{{form.nombre.errors}}</small>
                         </td>
                         <td>
-                            <div class="d-flex justify-content-center align-items-center h-100">
-                                {% if form.instance %}
-                                {% if form.instance.entrada %}
-                                {% render_field form.entrada class="form-check-input entrada" min="0.00001" %}
-                                {% else %}
-                                {% render_field form.entrada class="form-check-input entrada" min="0.00001" %}
-                                {% endif %}
-                                {% else %}
-                                {% render_field form.entrada class="form-check-input entrada" min="0.00001" %}
-                                {% endif %}
-
-                            </div>
-                            <small>{{form.entrada.errors}}</small>
+                            {% render_field form.rol class="form-select" placeholder="Entra/sale" required="required" min="0.00001" %}
+                            <small>{{form.rol.errors}}</small>
                         </td>
                         <td>
                             {% render_field form.flujo class="form-control flujo" placeholder="Flujo" required="required" min="0.00001" %}
@@ -128,8 +125,8 @@
                             <small>{{form.presion.errors}}</small>
                         </td>
                         <td>
-                            {% render_field form.temperatura class="form-control" placeholder="Temperatura" required="required" min="-273.15" %}
-                            <small>{{form.temperatura.errors}}</small>
+                            {% render_field form.densidad class="form-control" placeholder="Densidad" required="required" min="-273.15" %}
+                            <small>{{form.densidad.errors}}</small>
                         </td>
                         <td>
                             {% render_field form.fase class="form-select" placeholder="Fase" required="required" %}

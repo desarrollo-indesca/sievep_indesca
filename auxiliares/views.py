@@ -2146,8 +2146,8 @@ class CreacionCorrientesPrecalentadorAgua(ObtenerPrecalentadorAguaMixin, View):
     def formset_corrientes(self, prefix):
         return forms.modelformset_factory(
             CorrientePrecalentadorAgua, 
-            form=CorrientePrecalentadorAgua, 
-            extra=2)(prefix=prefix)
+            form=CorrientesPrecalentadorAguaForm, 
+            extra=1)(prefix=prefix)
 
     def get_context_data(self):
         precalentador = self.get_precalentador()
@@ -2160,6 +2160,7 @@ class CreacionCorrientesPrecalentadorAgua(ObtenerPrecalentadorAguaMixin, View):
             'formset_corrientes_tubos': formset_corrientes_tubos,
             'form_datos_corrientes': CorrientesPrecalentadorAguaForm(),
             'precalentador': precalentador,
+            'unidades': Unidades.objects.all(),
         }
 
     def get(self, *args, **kwargs):

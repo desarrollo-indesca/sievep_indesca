@@ -210,7 +210,7 @@
         <div class="modal-footer">
           {% if request.user.is_superuser %}
           <a href="{% url 'edicion_precalentador_agua' pk=precalentador.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
-          <a href="#" class="btn btn-info d-inline-flex" style="color: black;">Editar Corrientes</a>
+          <a href="{% url 'creacion_corrientes_precalentador_agua' pk=precalentador.pk %}" class="btn btn-info d-inline-flex" style="color: black;">Editar Corrientes</a>
           <form action="{% url 'duplicar_precalentador_agua' pk=precalentador.pk %}" method="post">
             {% csrf_token %}
             <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>
