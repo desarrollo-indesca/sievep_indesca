@@ -1228,7 +1228,7 @@ class CorrientePrecalentadorAgua(models.Model):
     fase = models.CharField(max_length=1, choices=FASES_CORRIENTES_PRECALENTADOR)
     lado = models.CharField(max_length=1, choices=LADO_CORRIENTES_PRECALENTADOR)
     rol = models.CharField(max_length=1, choices=ROLES_CORRIENTES_PRECALENTADOR)
-    datos_corriente = models.ForeignKey(DatosCorrientesPrecalentadorAgua, on_delete=models.PROTECT, related_name="corrientes_precalentador_agua")
+    datos_corriente = models.ForeignKey(DatosCorrientesPrecalentadorAgua, on_delete=models.PROTECT, null=True, related_name="corrientes_precalentador_agua")
 
     def fase_largo(self):
         return conseguir_largo(FASES_CORRIENTES_PRECALENTADOR, self.fase)
