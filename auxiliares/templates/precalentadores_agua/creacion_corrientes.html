@@ -14,7 +14,7 @@
     {% csrf_token %}
     <div class="row">
         <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center">
-            <a class="btn d-block btn-secondary" href="{% url 'consulta_turbinas_vapor' %}">↶ Regresar</a>
+            <a class="btn d-block btn-secondary" href="{% url 'consulta_precalentadores_agua' %}">↶ Regresar</a>
         </div>
         <div class="col-md-6 col-lg-8">
             <h3 class="text-center" style="color: #e31e24;">Corrientes Asociadas al Precalentador {{precalentador.tag}}</h3>
@@ -92,7 +92,7 @@
                     <tr class="form">
                         <td>
                             {{form.id}}
-                            {% render_field form.numero_corriente class="form-control numero-corriente" placeholder="Número de la Corriente" %}
+                            {% render_field form.numero_corriente class="form-control numero-corriente-carcasa" placeholder="Número de la Corriente" %}
                             <small>{{form.numero_corriente.errors}}</small>
                         </td>
                         <td>
@@ -205,7 +205,7 @@
                     {% endfor %}
                     <tr class="form">
                         <td>
-                            {% render_field form.numero_corriente class="form-control numero-corriente" placeholder="Número de la Corriente" %}
+                            {% render_field form.numero_corriente class="form-control numero-corriente-tubos" placeholder="Número de la Corriente" %}
                             <small>{{form.numero_corriente.errors}}</small>
                         </td>
                         <td>
@@ -266,6 +266,7 @@
 {% endblock %}
 
 {% block extra_javascript %}
+<script src="{% static 'js/auxiliares/precalentadores_agua/creacion-corrientes.js' %}"></script>
 <script>
     $('select[name="presion_unidad"]').html($('select[name="presion_unidad"]').html().replaceAll('</option>', 'g</option>'));
 </script>
