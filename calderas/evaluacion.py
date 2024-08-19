@@ -502,7 +502,7 @@ def calcular_pm_promedio(composiciones_combustible: dict) -> float:
 
     return sum([PESOS_MOLECULARES[cas]*compuesto['x_vol'] for cas,compuesto in composiciones_combustible.items()])
 
-def calcular_moles_carbon(composiciones_combustible: dict,  flujo_molar_gas: float) -> tuple[dict, float]:
+def calcular_moles_carbon(composiciones_combustible: dict,  flujo_molar_gas: float) -> tuple:
     """
     Resumen:
         Calcula la cantidad de moles de carbono en una composición de combustible.
@@ -527,7 +527,7 @@ def calcular_moles_carbon(composiciones_combustible: dict,  flujo_molar_gas: flo
 
     return composiciones_combustible, porcentaje_carbon
 
-def calcular_moles_azufre(composiciones_combustible: dict, flujo_molar_gas: float) -> tuple[dict, float]:
+def calcular_moles_azufre(composiciones_combustible: dict, flujo_molar_gas: float) -> tuple:
     """
     Resumen:
         Calcula la cantidad de moles de azufre en una composición de combustible.
@@ -544,7 +544,7 @@ def calcular_moles_azufre(composiciones_combustible: dict, flujo_molar_gas: floa
 
     return composiciones_combustible, porcentaje_azufre
 
-def calcular_moles_oxigeno(composiciones_combustible: dict, flujo_molar_gas: float) -> tuple[dict, float]:
+def calcular_moles_oxigeno(composiciones_combustible: dict, flujo_molar_gas: float) -> tuple:
     """
     Calcular la cantidad total de moles de oxígeno en una mezcla combustible y el porcentaje de oxígeno en el flujo molar de gas.
 
@@ -563,7 +563,7 @@ def calcular_moles_oxigeno(composiciones_combustible: dict, flujo_molar_gas: flo
 
     return composiciones_combustible, porcentaje_oxigeno
 
-def calcular_moles_hidrogeno(composiciones_combustible: dict, flujo_molar_gas: float) -> tuple[dict, float]:
+def calcular_moles_hidrogeno(composiciones_combustible: dict, flujo_molar_gas: float) -> tuple:
     """
     Resumen:
         Calcula la cantidad de moles de hidrogeno en una composición de combustible.

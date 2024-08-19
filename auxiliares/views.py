@@ -2160,10 +2160,10 @@ class CreacionCorrientesPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecale
     def get_context_data(self):
         precalentador = self.get_precalentador()
 
-        formset_corrientes_carcasa = self.formset_corrientes("carcasa", 
+        formset_corrientes_carcasa = self.formset_corrientes("form-carcasa", 
             queryset=precalentador.datos_corrientes.corrientes_precalentador_agua.filter(lado="C") if precalentador.datos_corrientes else None
         )
-        formset_corrientes_tubos = self.formset_corrientes("tubos", 
+        formset_corrientes_tubos = self.formset_corrientes("form-tubos", 
             queryset=precalentador.datos_corrientes.corrientes_precalentador_agua.filter(lado="T") if precalentador.datos_corrientes else None
         )
 
@@ -2182,8 +2182,8 @@ class CreacionCorrientesPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecale
         precalentador = self.get_precalentador()
         form_datos_corrientes = DatosCorrientesPrecalentadorAguaForm(request.POST)
 
-        formset_corrientes_carcasa = self.formset_corrientes("carcasa", None)
-        formset_corrientes_tubos = self.formset_corrientes("tubos", None)
+        formset_corrientes_carcasa = self.formset_corrientes("form-carcasa", None)
+        formset_corrientes_tubos = self.formset_corrientes("form-tubos", None)
 
         with transaction.atomic():
             valid = form_datos_corrientes.is_valid()
@@ -2199,6 +2199,7 @@ class CreacionCorrientesPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecale
                 for corriente in formset_corrientes_carcasa:
                     corriente.instance.pk = None
                     corriente.instance.datos_corriente = form_datos_corrientes.instance
+                    corriente.instance.lado = "C"
                     corriente.save()
             else:
                 print([formset_corrientes_carcasa.errors])
@@ -2210,6 +2211,7 @@ class CreacionCorrientesPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecale
                 for corriente in formset_corrientes_tubos:
                     corriente.instance.pk = None
                     corriente.instance.datos_corriente = form_datos_corrientes.instance
+                    corriente.instance.lado = "T"
                     corriente.save()
             else:
                 print([formset_corrientes_tubos.errors])

@@ -36,7 +36,7 @@
         </div>
 
         <table class="table">
-                <tbody id="forms-corrientes">
+                <tbody id="form-carcasa">
                     <tr class="table-dark">
                         <th class="text-center">#</th>
                         <th class="text-center">Nombre</th>
@@ -89,14 +89,14 @@
                     {% for field in form.hidden_fields %}
                         {{ field }}
                     {% endfor %}
-                    <tr class="form">
+                    <tr class="form-carcasa">
                         <td>
                             {{form.id}}
-                            {% render_field form.numero_corriente class="form-control numero-corriente-carcasa" placeholder="Número de la Corriente" %}
+                            {% render_field form.numero_corriente class="form-control numero-corriente-carcasa" placeholder="Número de la Corriente" required="" %}
                             <small>{{form.numero_corriente.errors}}</small>
                         </td>
                         <td>
-                            {% render_field form.nombre class="form-control" placeholder="Descripción de la Corriente" %}
+                            {% render_field form.nombre class="form-control" placeholder="Descripción de la Corriente" required="" %}
                             <small>{{form.nombre.errors}}</small>
                         </td>
                         <td>
@@ -150,7 +150,7 @@
         </div>
 
         <table class="table">
-                <tbody id="forms-corrientes">
+                <tbody id="form-tubos">
                     <tr class="table-dark">
                         <th class="text-center">#</th>
                         <th class="text-center">Nombre</th>
@@ -203,7 +203,7 @@
                     {% for field in form.hidden_fields %}
                         {{ field }}
                     {% endfor %}
-                    <tr class="form">
+                    <tr class="form-tubos">
                         <td>
                             {% render_field form.numero_corriente class="form-control numero-corriente-tubos" placeholder="Número de la Corriente" %}
                             <small>{{form.numero_corriente.errors}}</small>

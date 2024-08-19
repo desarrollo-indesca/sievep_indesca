@@ -1,16 +1,18 @@
 const cargarEventListeners = (anadirListeners = true) => {
   $(".eliminar").click((e) => {
-    eliminar(e);
+    const formClass = $(e.target).closest("tr").attr("class");
+    eliminar(e, formClass);
   });
 
-  if (anadirListeners)
+  if(anadirListeners)
     $(".anadir").click((e) => {
-      anadir(e);
+      const formClass = $(e.target).closest("tr").attr("class");
+      anadir(e, formClass);
     });
 };
 
-const reindex = (anadir = false) => {
-  let forms = document.querySelectorAll(`.form`);
+const reindex = (anadir = false, formClass="form") => {
+  let forms = document.querySelectorAll(`.${formClass}`);
   let formRegex = RegExp(`form-(\\d)+-`, "g");
   let valores = {};
 
@@ -38,27 +40,26 @@ const reindex = (anadir = false) => {
   }
 };
 
-const eliminar = (e) => {
-  let forms = document.querySelectorAll(`.form`);
+const eliminar = (e, formClass) => {
+  let forms = document.querySelectorAll(`.${formClass}`);
   let formNum = forms.length - 1;
-  let totalForms = document.querySelector(`#id_form-TOTAL_FORMS`);
+  let totalForms = document.querySelector(`#id_${formClass}-TOTAL_FORMS`);
   totalForms.setAttribute("value", `${formNum}`);
   e.target.parentElement.parentElement.remove();
   reindex();
   cargarEventListeners(false);
-  $(".entrada").change();
 };
 
-const anadir = (e) => {
-  let forms = document.querySelectorAll(`.form`);
-  let formContainer = document.querySelector(`#forms-corrientes`);
-  let totalForms = document.querySelector(`#id_form-TOTAL_FORMS`);
+const anadir = (e, formClass) => {
+  let forms = document.querySelectorAll(`.${formClass}`);
+  let formContainer = document.querySelector(`#${formClass}`);
+  let totalForms = document.querySelector(`#id_${formClass}-TOTAL_FORMS`);
   let formNum = forms.length - 1;
 
   let newForm = forms[0].cloneNode(true);
-  let formRegex = RegExp(`form-(\\d)+-`, "g");
+  let formRegex = RegExp(`${formClass}-(\\d)+-`, "g");
   formNum++;
-  let formPrefix = `form-${formNum}-`;
+  let formPrefix = `${formClass}-${formNum}-`;
 
   newForm.innerHTML = newForm.innerHTML.replace(formRegex, formPrefix);
 
@@ -83,20 +84,46 @@ const anadir = (e) => {
 
   totalForms.setAttribute("value", `${formNum + 1}`);
 
-  formPrefix = `form-${formNum}-`;
+  formPrefix = `${formClass}-${formNum}-`;
   $(`#id_${formPrefix}numero_corriente`).val("");
-  $(`#id_${formPrefix}descripcion_corriente`).val("");
+  $(`#id_${formPrefix}nombre`).val("");
   $(`#id_${formPrefix}entalpia`).val("");
   $(`#id_${formPrefix}flujo`).val("");
   $(`#id_${formPrefix}presion`).val("");
   $(`#id_${formPrefix}temperatura`).val("");
   $(`#id_${formPrefix}fase`).val("");
-  $(`#id_${formPrefix}entrada`).removeAttr("checked");
-
-  $(".entrada").change();
+  $(`#id_${formPrefix}rol`).val("");
+  $(`#id_${formPrefix}densidad`).val("");
 };
 
 cargarEventListeners();
+
+const validar_flujos = (lado) => {
+  let flujo_entrada = 0;
+  let flujo_salida = 0;
+
+  const totalFlujos = $(`#id_form-${lado}-TOTAL_FORMS`).val();
+  console.log(totalFlujos);
+  
+  for (let index = 0; index < totalFlujos; index++) {
+    const flujo = $("#id_form-" + lado + "-" + index + "-flujo").val();
+    const rol = $("#id_form-" + lado + "-" + index + "-rol").val();
+
+    if(rol == "E")
+      flujo_entrada += Number(flujo);
+    else
+      flujo_salida += Number(flujo);
+  }
+
+  console.log(flujo_entrada, flujo_salida);  
+
+  if(flujo_entrada != flujo_salida) {
+    alert(`El flujo de entrada debe ser igual al flujo de salida (${lado.toUpperCase()}).`);
+    return false;
+  }
+
+  return true;
+};
 
 $("button[type=submit]").click((e) => {
   if (!confirm("¿Está seguro que desea realizar esta acción?"))
@@ -105,7 +132,16 @@ $("button[type=submit]").click((e) => {
   const arrayNumerosCarcasa = $(".numero-corriente-carcasa")
     .toArray()
     .map((x) => x.value);
-  const arrayNumerosTubos = $(".numero-corriente-tuvos")
+
+  let flujos_validos = validar_flujos("carcasa");
+  flujos_validos = flujos_validos && validar_flujos("tubos");
+
+  if(!flujos_validos){
+    e.preventDefault();
+    return;
+  }
+
+  const arrayNumerosTubos = $(".numero-corriente-tubos")
     .toArray()
     .map((x) => x.value);
   

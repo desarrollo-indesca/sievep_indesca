@@ -1241,7 +1241,7 @@ class CorrientePrecalentadorAgua(models.Model):
 
     class Meta:
         db_table = "precalentador_agua_corriente"
-        ordering = ('lado',)
+        ordering = ('lado','rol')
 
 # Evaluación de Precalentador de Agua
 
