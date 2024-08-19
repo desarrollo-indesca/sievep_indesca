@@ -29,7 +29,7 @@ from auxiliares.forms import *
 from calculos.termodinamicos import calcular_densidad, calcular_densidad_aire, calcular_presion_vapor, calcular_viscosidad, calcular_densidad_relativa
 from calculos.unidades import *
 from calculos.utils import fluido_existe, registrar_fluido
-from .evaluacion import evaluacion_bomba, evaluar_ventilador
+from .evaluacion import evaluacion_bomba, evaluar_ventilador, evaluar_precalentador_agua
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos, ficha_tecnica_ventilador, historico_evaluaciones_bombas, historico_evaluaciones_ventiladores, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga
 
@@ -2236,7 +2236,7 @@ class CreacionCorrientesPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecale
     def post(self, request, pk):
         return self.almacenar_datos(request)
 
-class EvaluacionPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAguaMixin, View):
+class EvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMixin, View):
     """
     Resumen:
         Vista para mostrar la evaluación de un precalentador de agua. 
@@ -2244,7 +2244,7 @@ class EvaluacionPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAg
     Métodos:
         get_context_data(self)
     """
-    model = EvaluacionPrecalentadorAgua
+    template_name = "precalentadores_agua/evaluacion.html"
 
     def get_context_data(self):
         precalentador = self.get_precalentador()
@@ -2252,14 +2252,14 @@ class EvaluacionPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAg
 
         corrientes_carcasa = [
             {
-                'form': CorrientesEvaluacionPrecalentadorAguaForm(initial={'corriente': corriente}),
+                'form': CorrientesEvaluacionPrecalentadorAguaForm(prefix=f"corriente-{corriente.pk}", initial={'corriente': corriente}),
                 'corriente': corriente
             } for corriente in corrientes.filter(lado="C")
         ]
 
         corrientes_tubos = [
             {
-                'form': CorrientesEvaluacionPrecalentadorAguaForm(initial={'corriente': corriente}),
+                'form': CorrientesEvaluacionPrecalentadorAguaForm(prefix=f"corriente-{corriente.pk}", initial={'corriente': corriente}),
                 'corriente': corriente
             } for corriente in corrientes.filter(lado="T")
         ]
@@ -2272,6 +2272,62 @@ class EvaluacionPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAg
             'evaluacion': EvaluacionPrecalentadorAguaForm(),
             'unidades': Unidades.objects.all(),
         }
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name, self.get_context_data())
+    
+    def crear_dict_corrientes(self, corriente):
+        return {
+            'temperatura': transformar_unidades_temperatura([corriente.temperatura], corriente.datos_corriente.temperatura_unidad.pk)[0],
+            'presion': transformar_unidades_presion([corriente.presion], corriente.datos_corriente.temperatura_unidad.pk)[0],
+            'flujo': transformar_unidades_flujo([corriente.flujo], corriente.datos_corriente.flujo_unidad.pk)[0],
+            'rol': corriente.rol,
+            'fase': corriente.fase,
+            'numero_corriente': corriente.numero_corriente,
+            'pk': corriente.pk
+        }
+
+    def calcular_resultados(self, precalentador):
+        # Transformar unidades
+        u = 0
+        a = 0
+        zonas = precalentador.especificaciones_precalentador.all()
+        for zona in zonas:
+            u += transformar_unidades_u([zona.coeficiente_transferencia if zona.coeficiente_transferencia else 0], zona.coeficiente_unidad.pk)[0]
+            a += transformar_unidades_area([zona.area if zona.area else 0], zona.area_unidad.pk)[0]
+
+        corrientes_tubo = []
+        corrientes_carcasa = []
+        for corriente in precalentador.datos_corrientes.corrientes_precalentador_agua.all():
+            if(corriente.lado == "C"):
+                corrientes_carcasa.append(self.crear_dict_corrientes(corriente))
+            else:
+                corrientes_tubo.append(self.crear_dict_corrientes(corriente))
+
+        u /= zonas.count()
+        a /= zonas.count()
+
+        resultados = evaluar_precalentador_agua(
+            corrientes_carcasa_p=corrientes_carcasa,
+            corrientes_tubo_p=corrientes_tubo,
+            area_total=a,
+            u_diseno=u
+        )
+
+        return resultados
+
+    def calcular(self):
+        precalentador = self.get_precalentador()
+        resultados = self.calcular_resultados(precalentador)
+
+        return render(self.request, "precalentadores_agua/partials/resultado_evaluacion.html", {
+            'resultados': resultados['resultados'],
+            'precalentador': precalentador
+        })
+
+    def post(self, request, *args, **kwargs):
+        if(request.POST.get('tipo') == "calcular"):
+            return self.calcular()
 
 # PRECALENTADORES DE AIRE
 

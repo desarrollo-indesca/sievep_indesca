@@ -594,10 +594,10 @@ def calcular_datos_corrientes(corrientes):
     """
 
     for i,corriente in enumerate(corrientes):
-        corriente['h'] = calcular_entalpia_coolprop(corriente['temperatura'], corriente['presion'] if not corriente['saturado'] else None)
-        corriente['d'] = calcular_densidad("water", corriente['temperatura'], corriente['presion'])
+        corriente['h'] = calcular_entalpia_coolprop(corriente['temperatura'], corriente['presion'] if corriente['rol'] == "E" else None, "water")
+        corriente['d'] = calcular_densidad("water", corriente['temperatura'], corriente['presion'])[0]
         corriente['c'] = calcular_cp("water",t1=corriente['temperatura'], t2=corriente['temperatura'], presion=corriente['presion'])
-        corriente['p'] = calcular_fase("water", corriente['temperatura'], corriente['temperatura'], corriente['presion']) if corriente['fase'] != "S" else "S"
+        corriente['p'] = calcular_fase("water", corriente['temperatura'], corriente['temperatura'], corriente['presion']) if corriente['rol'] == "E" else "S"
         corrientes[i] = corriente
     
     return corrientes
@@ -757,7 +757,8 @@ def compilar_resultados_precalentador_agua(
         'ensuciamiento': ensuciamiento,
         'cmin': cmin,
         'ntu': ntu,
-        'eficiencia': eficiencia
+        'eficiencia': eficiencia,
+        'mtd': mtd
     }
 
 def generar_advertencias_resultados_precalentador_agua(resultados: list) -> dict:
@@ -782,11 +783,11 @@ def generar_advertencias_resultados_precalentador_agua(resultados: list) -> dict
         advertencias.append('El calor de la carcasa no debería de ser mayor al del tubo.')
 
     for corriente in resultados['corrientes_carcasa']:
-        if(corriente['p'] != corriente['fase']):
+        if(corriente['rol'] != "E" and corriente['p'] != corriente['fase']):
             advertencias.append(f'La fase de operación "{corriente["fase"]}" no coincide con la fase definida en la Base de Datos ({corriente["p"]}) de la corriente {corriente["numero_corriente"]}.')
 
     for corriente in resultados['corrientes_tubo']:
-        if(corriente['p'] != corriente['fase']):
+        if(corriente['rol'] != "E" and corriente['p'] != corriente['fase']):
             advertencias.append(f'La fase de operación "{corriente["fase"]}" no coincide con la fase definida en la Base de Datos ({corriente["p"]}) de la corriente {corriente["numero_corriente"]}.')
 
     return advertencias
@@ -820,10 +821,10 @@ def evaluar_precalentador_agua(
     calor_tubo = calcular_calor(corrientes_tubo)
 
     # Calcular MTD    
-    d_tubos, d_carcasa, mtd = calcular_mtd_precalentador_agua(corrientes_tubo) 
+    d_tubos, d_carcasa, mtd = calcular_mtd_precalentador_agua(corrientes_carcasa, corrientes_tubo) 
 
     # Calcular coeficiente de transferencia de calor (U) y ensuciamiento
-    u = calcular_u_precalentador_agua(area_total, mtd)
+    u = calcular_u_precalentador_agua(calor_carcasa, area_total, mtd)
     ensuciamiento = calcular_ensuciamiento_precalentador_agua(u, u_diseno)
 
     # Calcular lmtd y ntu
