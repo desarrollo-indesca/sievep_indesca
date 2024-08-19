@@ -52,7 +52,7 @@
 </thead>
 <tbody class="text-center">
   {% if object_list.count %}
-    {% include 'edicion_precalentadores_agua/partials/tabla_evaluaciones.html' %}
+    {% include 'precalentadores_agua/partials/tabla_evaluaciones.html' %}
   {% else %}
   <td colspan="7">No se encontraron evaluaciones para este equipo con los datos proporcionados.</td>
   {% endif %}
@@ -71,7 +71,7 @@
     <button type="button" class="btn btn-warning" style="color: black;" data-bs-toggle="modal" data-bs-target="#grafica_historica"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Mostrar gráfica histórico">&nbsp;Gráfica Histórica</button>
   </form>
   {% include 'bombas/partials/historico.html' with bomba=equipo %}
-  {% include 'bombas/ficha.html' with bomba=equipo %}
+  {% include 'precalentadores_agua/partials/ficha.html' with precalentador=equipo %}
 </div>
 <footer aria-label="Page navigation example">
   <ul class="pagination">

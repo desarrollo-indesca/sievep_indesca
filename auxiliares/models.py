@@ -1317,6 +1317,21 @@ class EvaluacionPrecalentadorAgua(models.Model):
 
     class Meta:
         db_table = "precalentador_agua_evaluacion"
+        ordering = ('-fecha',)
+
+class DatosCorrientesEvaluacionPrecalentadorAgua(models.Model):
+    """
+    Resumen:
+        Modelo que registra los datos de las corrientes del precalentador de agua durante la evaluación.
+
+    Atributos:
+        flujo_unidad: Unidades -> Unidad del flujo
+        presion_unidad: Unidades -> Unidad de la presión
+        temperatura_unidad: Unidades -> Unidad de la temperatura
+    """
+    flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="flujo_unidad_corriente_evaluacion_precalentador_agua")
+    presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="presion_unidad_corriente_evaluacion_precalentador_agua")
+    temperatura_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="temperatura_unidad_corriente_evaluacion_precalentador_agua")
 
 class CorrientesEvaluacionPrecalentadorAgua(models.Model):
     '''

@@ -2236,6 +2236,43 @@ class CreacionCorrientesPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecale
     def post(self, request, pk):
         return self.almacenar_datos(request)
 
+class EvaluacionPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAguaMixin, View):
+    """
+    Resumen:
+        Vista para mostrar la evaluación de un precalentador de agua. 
+
+    Métodos:
+        get_context_data(self)
+    """
+    model = EvaluacionPrecalentadorAgua
+
+    def get_context_data(self):
+        precalentador = self.get_precalentador()
+        corrientes = precalentador.datos_corrientes.corrientes_precalentador_agua.all()
+
+        corrientes_carcasa = [
+            {
+                'form': CorrientesEvaluacionPrecalentadorAguaForm(initial={'corriente': corriente}),
+                'corriente': corriente
+            } for corriente in corrientes.filter(lado="C")
+        ]
+
+        corrientes_tubos = [
+            {
+                'form': CorrientesEvaluacionPrecalentadorAguaForm(initial={'corriente': corriente}),
+                'corriente': corriente
+            } for corriente in corrientes.filter(lado="T")
+        ]
+
+        return {
+            'precalentador': precalentador,
+            'corrientes_carcasa': corrientes_carcasa,
+            'corrientes_tubos': corrientes_tubos,
+            'datos_corrientes': DatosCorrientesPrecalentadorAguaForm(),
+            'evaluacion': EvaluacionPrecalentadorAguaForm(),
+            'unidades': Unidades.objects.all(),
+        }
+
 # PRECALENTADORES DE AIRE
 
 # VISTAS DE DUPLICACIÓN
