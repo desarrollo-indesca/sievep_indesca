@@ -1270,23 +1270,21 @@ class SalidaGeneralPrecalentadorAgua(models.Model):
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
     
     mtd = models.FloatField()
+    delta_t_tubos = models.FloatField()
+    delta_t_carcasa = models.FloatField()
     mtd_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="mtd_unidad_evaluacion_precalentador_agua")
    
     factor_ensuciamiento = models.FloatField()
-    factor_ensuciamiento_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="factor_ensuciamiento_unidad_evaluacion_precalentador_agua")
     
     cmin = models.FloatField()
-    cmin_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="cmin_unidad_evaluacion_precalentador_agua")
     
     ntu = models.FloatField()
     
     u = models.FloatField()
     u_diseno = models.FloatField()
-    u_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="u_unidad_evaluacion_precalentador_agua")
     
     calor_carcasa = models.FloatField()
     calor_tubos = models.FloatField()
-    calor_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="calor_unidad_evaluacion_precalentador_agua")
     
     eficiencia = models.FloatField()
 
@@ -1332,6 +1330,8 @@ class DatosCorrientesEvaluacionPrecalentadorAgua(models.Model):
     flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="flujo_unidad_corriente_evaluacion_precalentador_agua")
     presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="presion_unidad_corriente_evaluacion_precalentador_agua")
     temperatura_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="temperatura_unidad_corriente_evaluacion_precalentador_agua")
+    entalpia_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entalpia_unidad_corriente_evaluacion_precalentador_agua")
+    densidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="densidad_unidad_corriente_evaluacion_precalentador_agua")
 
 class CorrientesEvaluacionPrecalentadorAgua(models.Model):
     '''

@@ -2352,9 +2352,31 @@ class EvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMi
             'precalentador': precalentador
         })
 
+    def almacenar(self):
+        precalentador = self.get_precalentador()
+        resultados = self.calcular_resultados()
+        request = self.request.POST
+
+        with transaction.atomic():
+            datos_corrientes = DatosCorrientesEvaluacionPrecalentadorAgua.objects.create(
+                flujo_unidad = Unidades.objects.get(pk=request['flujo_unidad']),    
+                presion_unidad = Unidades.objects.get(pk=request['presion_unidad']),    
+                temperatura_unidad = Unidades.objects.get(pk=request['temperatura_unidad']),    
+                entalpia_unidad = Unidades.objects.get(pk=request['entalpia_unidad']),    
+                densidad_unidad = Unidades.objects.get(pk=request['densidad_unidad']),                
+            )
+
+            # Guardar Corrientes Individualmente
+            
+
+            # Guardar Salida
+
+
     def post(self, request, *args, **kwargs):
         if(request.POST.get('tipo') == "calcular"):
             return self.calcular()
+        elif(request.POST.get('tipo') == "almacenar"):
+            return self.almacenar()
 
 # PRECALENTADORES DE AIRE
 
