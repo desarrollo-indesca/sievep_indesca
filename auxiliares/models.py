@@ -1272,7 +1272,6 @@ class SalidaGeneralPrecalentadorAgua(models.Model):
     mtd = models.FloatField()
     delta_t_tubos = models.FloatField()
     delta_t_carcasa = models.FloatField()
-    mtd_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="mtd_unidad_evaluacion_precalentador_agua")
    
     factor_ensuciamiento = models.FloatField()
     
@@ -1290,6 +1289,25 @@ class SalidaGeneralPrecalentadorAgua(models.Model):
 
     class Meta:
         db_table = "precalentador_agua_evaluacion_salida_general"
+
+class DatosCorrientesEvaluacionPrecalentadorAgua(models.Model):
+    """
+    Resumen:
+        Modelo que registra los datos de las corrientes del precalentador de agua durante la evaluación.
+
+    Atributos:
+        flujo_unidad: Unidades -> Unidad del flujo
+        presion_unidad: Unidades -> Unidad de la presión
+        temperatura_unidad: Unidades -> Unidad de la temperatura
+    """
+    flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="flujo_unidad_corriente_evaluacion_precalentador_agua")
+    presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="presion_unidad_corriente_evaluacion_precalentador_agua")
+    temperatura_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="temperatura_unidad_corriente_evaluacion_precalentador_agua")
+    entalpia_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entalpia_unidad_corriente_evaluacion_precalentador_agua")
+    densidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="densidad_unidad_corriente_evaluacion_precalentador_agua")
+
+    class Meta:
+        db_table = "precalentador_agua_evaluacion_datos_corrientes"
 
 class EvaluacionPrecalentadorAgua(models.Model):
     '''
@@ -1312,26 +1330,11 @@ class EvaluacionPrecalentadorAgua(models.Model):
     salida_general = models.OneToOneField(SalidaGeneralPrecalentadorAgua, on_delete=models.PROTECT)
     usuario = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="evaluacion_precalentador")
     equipo = models.ForeignKey(PrecalentadorAgua, on_delete=models.PROTECT, related_name="evaluacion_precalentador")
+    datos_corrientes = models.OneToOneField(DatosCorrientesEvaluacionPrecalentadorAgua, on_delete=models.PROTECT)
 
     class Meta:
         db_table = "precalentador_agua_evaluacion"
         ordering = ('-fecha',)
-
-class DatosCorrientesEvaluacionPrecalentadorAgua(models.Model):
-    """
-    Resumen:
-        Modelo que registra los datos de las corrientes del precalentador de agua durante la evaluación.
-
-    Atributos:
-        flujo_unidad: Unidades -> Unidad del flujo
-        presion_unidad: Unidades -> Unidad de la presión
-        temperatura_unidad: Unidades -> Unidad de la temperatura
-    """
-    flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="flujo_unidad_corriente_evaluacion_precalentador_agua")
-    presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="presion_unidad_corriente_evaluacion_precalentador_agua")
-    temperatura_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="temperatura_unidad_corriente_evaluacion_precalentador_agua")
-    entalpia_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entalpia_unidad_corriente_evaluacion_precalentador_agua")
-    densidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="densidad_unidad_corriente_evaluacion_precalentador_agua")
 
 class CorrientesEvaluacionPrecalentadorAgua(models.Model):
     '''
@@ -1355,8 +1358,8 @@ class CorrientesEvaluacionPrecalentadorAgua(models.Model):
     entalpia = models.FloatField()
     densidad = models.FloatField()
     fase = models.CharField(max_length=1, choices=[("L","Líquido"), ("V","Vapor"), ("S","Saturado")])
+    datos_corrientes = models.ForeignKey(DatosCorrientesEvaluacionPrecalentadorAgua, on_delete=models.PROTECT, related_name="corrientes_evaluacion")
     corriente = models.ForeignKey(CorrientePrecalentadorAgua, on_delete=models.PROTECT, related_name="corrientes_evaluacion_precalentador_agua")
-    evaluacion = models.ForeignKey(EvaluacionPrecalentadorAgua, on_delete=models.PROTECT, related_name="corrientes_evaluacion_precalentador_agua")
 
     class Meta:
         db_table = "precalentador_agua_evaluacion_corriente"

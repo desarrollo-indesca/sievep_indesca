@@ -723,7 +723,7 @@ def compilar_resultados_precalentador_agua(
         calor_carcasa: float, calor_tubo: float,
         delta_t_tubos: float, delta_t_carcasa: float, mtd: float,
         u: float, ensuciamiento: float, cmin: float, ntu: float,
-        eficiencia: float):
+        eficiencia: float, u_diseno: float):
     """
     Resumen:
         Función que compila los resultados de un precalentador de agua en un diccionario.
@@ -741,6 +741,7 @@ def compilar_resultados_precalentador_agua(
         cmin (float): La capacidad térmica mínima (Cmin) [W/K].
         ntu (float): El número de unidades de transferencia (NTU).
         eficiencia (float): La eficiencia del precalentador de agua [%].
+        u_diseno (float): U de diseño para colocar en el diccionario de resultados [W/m²K].
    
      Devuelve:
         dict: Un diccionario con los resultados del precalentador de agua. Mismas llaves que los argumentos de la función.
@@ -758,7 +759,8 @@ def compilar_resultados_precalentador_agua(
         'cmin': cmin,
         'ntu': ntu,
         'eficiencia': eficiencia,
-        'mtd': mtd
+        'mtd': mtd,
+        'u_diseno': u_diseno
     }
 
 def generar_advertencias_resultados_precalentador_agua(resultados: list) -> dict:
@@ -840,7 +842,7 @@ def evaluar_precalentador_agua(
         calor_carcasa, calor_tubo,
         d_tubos, d_carcasa, mtd,
         u, ensuciamiento, cmin, ntu,
-        eficiencia
+        eficiencia, u_diseno
     )
 
     # Compilar advertencias

@@ -2124,11 +2124,14 @@ class ConsultaEvaluacionPrecalentadorAgua(ConsultaEvaluacion, ObtenerPrecalentad
         new_context = super().get_queryset()
 
         new_context = new_context.select_related(
-            'usuario', 'salida_general', 'salida_general__mtd_unidad',
-            'salida_general__factor_ensuciamiento_unidad', 'salida_general__cmin_unidad',
-            'salida_general__u_unidad', 'salida_general__calor_unidad'
+            'usuario', 'salida_general', 'datos_corrientes',
+            'datos_corrientes__entalpia_unidad',
+            'datos_corrientes__presion_unidad',
+            'datos_corrientes__temperatura_unidad',
+            'datos_corrientes__densidad_unidad',
+            'datos_corrientes__flujo_unidad'
         ).prefetch_related(
-            'corrientes_evaluacion_precalentador_agua'
+            'datos_corrientes__corrientes_evaluacion'
         )
 
         return new_context
@@ -2354,10 +2357,24 @@ class EvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMi
 
     def almacenar(self):
         precalentador = self.get_precalentador()
-        resultados = self.calcular_resultados()
+        resultados = self.calcular_resultados(precalentador)
         request = self.request.POST
 
         with transaction.atomic():
+            salida_general = SalidaGeneralPrecalentadorAgua.objects.create(
+                mtd = resultados['resultados']['mtd'],
+                delta_t_tubos = resultados['resultados']['delta_t_tubos'],
+                delta_t_carcasa = resultados['resultados']['delta_t_carcasa'],
+                factor_ensuciamiento = resultados['resultados']['ensuciamiento'],
+                cmin = resultados['resultados']['cmin'],
+                u_diseno = resultados['resultados']['u_diseno'],
+                u = resultados['resultados']['u'],
+                calor_carcasa = resultados['resultados']['calor_carcasa'],
+                calor_tubos = resultados['resultados']['calor_tubo'],
+                eficiencia = resultados['resultados']['eficiencia'],
+                ntu = resultados['resultados']['ntu'],
+            )
+            
             datos_corrientes = DatosCorrientesEvaluacionPrecalentadorAgua.objects.create(
                 flujo_unidad = Unidades.objects.get(pk=request['flujo_unidad']),    
                 presion_unidad = Unidades.objects.get(pk=request['presion_unidad']),    
@@ -2366,11 +2383,42 @@ class EvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMi
                 densidad_unidad = Unidades.objects.get(pk=request['densidad_unidad']),                
             )
 
-            # Guardar Corrientes Individualmente
+            evaluacion = EvaluacionPrecalentadorAguaForm(
+                request
+            )
+            evaluacion.instance.salida_general = salida_general
+            evaluacion.instance.usuario = self.request.user
+            evaluacion.instance.equipo = precalentador
+            evaluacion.instance.datos_corrientes = datos_corrientes
             
+            if(evaluacion.is_valid()):
+                evaluacion.save()
+            else:
+                print(evaluacion.errors)
+                raise Exception("La evaluaciòn es invàlida")
 
-            # Guardar Salida
+            # Guardar Corrientes Individualmente
 
+            corrientes = [
+                *resultados['resultados']["corrientes_carcasa"],
+                *resultados['resultados']["corrientes_tubo"]
+            ]
+
+            for corriente in corrientes:
+                form = CorrientesEvaluacionPrecalentadorAguaForm(
+                    request, prefix=f'corriente-{corriente["pk"]}'
+                )
+                form.instance.datos_corrientes = datos_corrientes
+                form.instance.evaluacion = evaluacion
+
+                if(form.is_valid()):
+                    form.save()
+                else:
+                    print(form.errors)
+
+        return render(self.request, "precalentadores_agua/partials/almacenamiento_exitoso.html", {
+            'precalentador': precalentador
+        })
 
     def post(self, request, *args, **kwargs):
         if(request.POST.get('tipo') == "calcular"):
