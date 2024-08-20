@@ -13,4 +13,6 @@ urlpatterns = [
     path('evaluacion/<int:pk>/', CreacionEvaluacionCaldera.as_view(), name="evaluar_caldera"),
 
     path('evaluacion/<int:pk>/historico/', grafica_historica_calderas, name='generar_historico_caldera'),
+
+    path('duplicar/<int:pk>/', DuplicarCaldera.as_view(), name="duplicar_caldera"),
 ]

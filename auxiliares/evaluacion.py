@@ -1,6 +1,6 @@
 import math
 from calculos.unidades import transformar_unidades_longitud, transformar_unidades_viscosidad, transformar_unidades_densidad, transformar_unidades_presion, transformar_unidades_flujo_volumetrico
-from calculos.termodinamicos import DENSIDAD_DEL_AGUA_LIQUIDA_A_5C,calcular_densidad, calcular_densidad_aire, calcular_presion_vapor, calcular_viscosidad
+from calculos.termodinamicos import DENSIDAD_DEL_AGUA_LIQUIDA_A_5C, calcular_fase, calcular_cp, calcular_densidad, calcular_densidad_aire, calcular_presion_vapor, calcular_viscosidad, calcular_entalpia_coolprop
 
 GRAVEDAD = 9.81
 
@@ -552,3 +552,298 @@ def evaluar_ventilador(presion_entrada: float, presion_salida: float, flujo: flo
         'densidad_calculada': round(densidad_calculada, 6),
         'tipo_flujo': tipo_flujo
     }
+
+# TODO: FUNCIONES EVALUACIÓN PRECALENTADOR DE AGUA
+# Funciones de Evaluación de Precalentador de Agua
+def calcular_calor(corrientes):
+    """
+    Resumen:
+	    Función que calcula el calor total de un conjunto de corrientes.
+	
+    Parámetros:
+		corrientes (list): Lista de diccionarios que representan las corrientes.
+			Cada diccionario debe contener las claves 'flujo' [Kg/s], 'h' [J/kg] y 'rol' ('S' o 'E', Salida o Entrada).
+	
+    Devuelve:
+		q (float): El calor total calculado. [W]
+	"""
+
+    q = sum([
+        corriente['flujo']*corriente['h']*(-1 if corriente['rol'] == 'S' else 1)
+        for corriente in corrientes
+    ])
+    
+    return q
+
+def calcular_datos_corrientes(corrientes):
+    """
+    Resumen:
+        Función que calcula los datos de un conjunto de corrientes.
+    
+    Parámetros:
+        corrientes (list): Lista de diccionarios que representan las corrientes.
+            Cada diccionario debe contener las claves 'temperatura' [K], 'presion' [Pa] y 'fase' ('S' o 'E', Salida o Entrada).
+    
+    Devuelve:
+        list: La lista de corrientes con los datos calculados.
+            Siendo:
+                'h' (float): Entalpía [J/kg]
+                'd' (float): Densidad [kg/m3]
+                'c' (float): Calor especifico [J/kg/K]
+                'p' (str): Fase ('S' o 'E') ('S': Salida / 'E': Entrada)
+    """
+
+    for i,corriente in enumerate(corrientes):
+        corriente['h'] = calcular_entalpia_coolprop(corriente['temperatura'], corriente['presion'] if corriente['rol'] == "E" else None, "water")
+        corriente['d'] = calcular_densidad("water", corriente['temperatura'], corriente['presion'])[0]
+        corriente['c'] = calcular_cp("water",t1=corriente['temperatura'], t2=corriente['temperatura'], presion=corriente['presion'])
+        corriente['p'] = calcular_fase("water", corriente['temperatura'], corriente['temperatura'], corriente['presion']).upper() if corriente['rol'] == "E" else "S"
+        corrientes[i] = corriente
+    
+    return corrientes
+
+def calcular_mtd_precalentador_agua(corrientes_carcasa: list, corrientes_tubo: list) -> tuple:
+    """
+    Resumen:
+        Función que calcula el delta T medio logarítmico (MTD) de un precalentador de agua.
+        Anexa además los delta T de la carcasa y del tubo.
+    
+    Parámetros:
+        corrientes_carcasa (list): Lista de diccionarios que representan las corrientes de la carcasa.
+            Cada diccionario debe contener las claves 'temperatura' [K] y 'rol' ('S' o 'E', Salida o Entrada).
+
+        corrientes_tubo (list): Lista de diccionarios que representan las corrientes del tubo.
+            Cada diccionario debe contener las claves 'temperatura' [K] y 'rol' ('S' o 'E', Salida o Entrada).
+    
+    Devuelve:
+        tuple: Un tuple que contiene el delta T del tubo [K], el delta T de la carcasa [K] y el MTD calculado [K].
+    """
+        
+    #Obtener temperaturas segun su rol y lado
+    def obtener_temperaturas_segun_rol(corrientes, rol):
+        return [corriente['temperatura'] for corriente in corrientes if corriente['rol'] == rol]
+    
+    temps_entrada_carcasa = obtener_temperaturas_segun_rol(corrientes_carcasa, 'E')
+    temps_salida_carcasa = obtener_temperaturas_segun_rol(corrientes_carcasa, 'S')
+    temps_entrada_tubo = obtener_temperaturas_segun_rol(corrientes_tubo, 'E')
+    temps_salida_tubo = obtener_temperaturas_segun_rol(corrientes_tubo, 'S')
+
+    # Calcular media de las corrientes de ENTRADA y SALIDA del tubo y la carcasa
+    def calcular_temperatura_media(temps):
+        return sum(temps)/len(temps)    
+    
+    tc1 = calcular_temperatura_media(temps_entrada_carcasa)
+    tc2 = calcular_temperatura_media(temps_salida_carcasa)
+    tt1 = calcular_temperatura_media(temps_entrada_tubo)
+    tt2 = calcular_temperatura_media(temps_salida_tubo)
+
+    # Aplicar la formula de delta T medio logarítmico
+    d_carcasa = tc1-tc2
+    d_tubo = tt1-tt2
+    mtd = abs(((tc2-tt1)-(tc1-tt2))/math.log((tc2-tt1)/(tc1-tt2)))
+
+    return d_tubo, d_carcasa, mtd
+
+def calcular_u_precalentador_agua(q: float, area: float, mtd: float) -> float:
+    """
+    Resumen:
+        Función que calcula la velocidad de transferencia de calor (U) de un precalentador de agua.
+    
+    Parámetros:
+        q (float): Cantidad de calor transferido en la carcasa [W].
+        area (float): Área total de transferencia de calor del precalentador [m²].
+        mtd (float): Delta T medio logarítmico calculado (MTD) [K].
+    
+    Devuelve:
+        float: La velocidad de transferencia de calor (U) [W/m²K].
+    """
+    return q/(area*mtd)
+
+def calcular_ensuciamiento_precalentador_agua(u: float, u_diseno: float) -> float:
+    """
+    Calcula el ensuciamiento del precalentador de agua.
+
+    Parámetros:
+        u (float): Coeficiente de transferencia calculado (U) [W/m²K].
+        u_diseno (float): Coeficiente de transferencia (U) del diseño [W/m²K].
+
+    Devuelve:
+        float: El ensuciamiento del precalentador de agua [m²K/W].
+    """
+    return 1/u - 1/u_diseno
+
+def calcular_cmin_precalentador_agua(corrientes: float, area_total: float) -> float:
+    """
+    Resumen:
+        Función que calcula el mínimo de la capacidad térmica (Cmin) de un precalentador de agua.
+    
+    Parámetros:
+        corrientes (list): Lista de diccionarios que representan las corrientes.
+            Cada diccionario debe contener las claves 'flujo' [Kg/s] y 'c' [J/KgC].
+        area_total (float): Área total del precalentador [m²].
+    
+    Devuelve:
+        float: El mínimo de la capacidad térmica (Cmin) [W/K].
+    """
+
+    flujo = [corriente['flujo'] for corriente in corrientes if corriente['rol'] == 'E'][0]
+    return flujo*sum([corriente['c'] for corriente in corrientes])/len(corrientes)
+
+def calcular_ntu_precalentador_agua(u: float, area_total: float, cmin: float) -> float:
+    """
+    Resumen:
+        Función que calcula el número de unidades de transferencia (NTU) de un precalentador de agua.
+    
+    Parámetros:
+        u (float): Coeficiente de transferencia de calor (U) [W/m²K].
+        area_total (float): Área total de transferencia de calor del precalentador [m²].
+        cmin (float): Mínimo de la capacidad térmica (Cmin) [W/K].
+    
+    Devuelve:
+        float: El número de unidades de transferencia (NTU).
+    """
+
+    return u*area_total/cmin
+
+def calcular_eficiencia_precalentador_agua(ntu: float) -> float:
+    """
+    Resumen:
+        Función que calcula la eficiencia de un precalentador de agua.
+
+    Parámetros:
+        ntu (float): Número de unidades de transferencia (NTU).
+
+    Devuelve:
+        float: La eficiencia del precalentador de agua [%].
+    """
+    return 1 - math.exp(-ntu)
+
+def compilar_resultados_precalentador_agua(
+        corrientes_carcasa: list, corrientes_tubo: list, 
+        calor_carcasa: float, calor_tubo: float,
+        delta_t_tubos: float, delta_t_carcasa: float, mtd: float,
+        u: float, ensuciamiento: float, cmin: float, ntu: float,
+        eficiencia: float):
+    """
+    Resumen:
+        Función que compila los resultados de un precalentador de agua en un diccionario.
+    
+    Parámetros:
+        corrientes_carcasa (list): El número de corrientes en la carcasa.
+        corrientes_tubo (list): El número de corrientes en el tubo.
+        calor_carcasa (float): El calor de la carcasa. [J/KgC]
+        calor_tubo (float): El calor del tubo. [W]
+        delta_t_tubos (float): La diferencia de temperatura en los tubos. [K]
+        delta_t_carcasa (float): La diferencia de temperatura en la carcasa. [K]
+        mtd (float): La media logarítmica de las diferencias de temperatura. [K]
+        u (float): El coeficiente de transferencia de calor (U) [W/m²K].
+        ensuciamiento (float): El coeficiente de ensuciamiento (Rd) [m²K/W].
+        cmin (float): La capacidad térmica mínima (Cmin) [W/K].
+        ntu (float): El número de unidades de transferencia (NTU).
+        eficiencia (float): La eficiencia del precalentador de agua [%].
+   
+     Devuelve:
+        dict: Un diccionario con los resultados del precalentador de agua. Mismas llaves que los argumentos de la función.
+    """
+
+    return {
+        'corrientes_carcasa': corrientes_carcasa,
+        'corrientes_tubo': corrientes_tubo,
+        'calor_carcasa': calor_carcasa,
+        'calor_tubo': calor_tubo,
+        'delta_t_carcasa': delta_t_carcasa,
+        'delta_t_tubos': delta_t_tubos,
+        'u': u,
+        'ensuciamiento': ensuciamiento,
+        'cmin': cmin,
+        'ntu': ntu,
+        'eficiencia': eficiencia,
+        'mtd': mtd
+    }
+
+def generar_advertencias_resultados_precalentador_agua(resultados: list) -> dict:
+    """
+    Resumen:
+        Genera una lista de advertencias basadas en el diccionario resultados dado.
+    
+    Args:
+        resultados (dict): Un diccionario que contiene los resultados de un sistema de precalentador de agua.
+            Debe tener las siguientes claves:
+            - 'calor_carcasa' (float): El calor de la carcasa. [J/KgC]
+            - 'calor_tubo' (float): El calor del tubo. [W]
+            - 'corrientes_carcasa' (list): Una lista de diccionarios que contienen la información de las corrientes en la carcasa.
+            - 'corrientes_tubo' (list): Una lista de diccionarios que contienen la información de las corrientes en el tubo.
+    
+    Returns:
+        list: Una lista de cadenas que contienen las advertencias. Cada cadena representa una advertencia y es una oración.
+    """
+    advertencias = []
+    
+    if(abs(resultados['calor_carcasa']) > abs(resultados['calor_tubo'])):
+        advertencias.append('El calor de la carcasa no debería de ser mayor al del tubo.')
+
+    for corriente in resultados['corrientes_carcasa']:
+        if(corriente['rol'] != "E" and corriente['p'] != corriente['fase']):
+            advertencias.append(f'La fase de operación "{corriente["fase"]}" no coincide con la fase definida en la Base de Datos ({corriente["p"]}) de la corriente {corriente["numero_corriente"]}.')
+
+    for corriente in resultados['corrientes_tubo']:
+        if(corriente['rol'] != "E" and corriente['p'] != corriente['fase']):
+            advertencias.append(f'La fase de operación "{corriente["fase"]}" no coincide con la fase definida en la Base de Datos ({corriente["p"]}) de la corriente {corriente["numero_corriente"]}.')
+
+    return advertencias
+
+def evaluar_precalentador_agua(
+    corrientes_carcasa_p,
+    corrientes_tubo_p, 
+    area_total, 
+    u_diseno
+) -> dict:
+    """
+    Resumen:
+        Función que evalúa un precalentador de agua basado en sus corrientes, área y coeficientes de transferencia de calor de diseño.
+    
+    Parámetros:
+        corrientes_carcasa_p: Parámetros de las corrientes en la carcasa.
+        corrientes_tubo_p: Parámetros de las corrientes en el tubo.
+        area_total: Área total del precalentador de agua.
+        u_diseno: Coeficiente de transferencia de calor de diseño (U) [W/m²K].
+    
+    Devuelve:
+        dict: Un diccionario con los resultados y advertencias de la evaluación del precalentador de agua.
+    """
+
+    # Calcular datos termodinámicos necesarios
+    corrientes_carcasa = calcular_datos_corrientes(corrientes_carcasa_p)
+    corrientes_tubo = calcular_datos_corrientes(corrientes_tubo_p)
+
+    # Calcular calor intercambiado  
+    calor_carcasa = calcular_calor(corrientes_carcasa)
+    calor_tubo = calcular_calor(corrientes_tubo)
+
+    # Calcular MTD    
+    d_tubos, d_carcasa, mtd = calcular_mtd_precalentador_agua(corrientes_carcasa, corrientes_tubo) 
+
+    # Calcular coeficiente de transferencia de calor (U) y ensuciamiento
+    u = calcular_u_precalentador_agua(calor_carcasa, area_total, mtd)
+    ensuciamiento = calcular_ensuciamiento_precalentador_agua(u, u_diseno)
+
+    # Calcular lmtd y ntu
+    cmin = calcular_cmin_precalentador_agua(corrientes_tubo, area_total)
+    ntu = calcular_ntu_precalentador_agua(u, area_total, cmin)
+
+    # Calcular eficiencia    
+    eficiencia = calcular_eficiencia_precalentador_agua(ntu)
+
+    # Compilar resultados
+    resultados = compilar_resultados_precalentador_agua(
+        corrientes_carcasa, corrientes_tubo, 
+        calor_carcasa, calor_tubo,
+        d_tubos, d_carcasa, mtd,
+        u, ensuciamiento, cmin, ntu,
+        eficiencia
+    )
+
+    # Compilar advertencias
+    advertencias = generar_advertencias_resultados_precalentador_agua(resultados)
+
+    return {'resultados': resultados, 'advertencias': advertencias}

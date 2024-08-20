@@ -76,6 +76,10 @@ TIPOS_SECCIONES_PRECALENTADOR = [
     ("D","Drenaje")
 ]
 
+FASES_CORRIENTES_PRECALENTADOR = [("L","Líquido"), ("V","Vapor"), ("S","Saturado")]
+LADO_CORRIENTES_PRECALENTADOR = [("C","Carcasa"), ("T","Tubos")]
+ROLES_CORRIENTES_PRECALENTADOR = [("E","Entra"), ("S","Sale")]
+
 # MODELOS DE BOMBAS
 
 class MaterialTuberia(models.Model):
@@ -1049,6 +1053,28 @@ class EvaluacionVentilador(models.Model):
         ordering = ('-fecha',)
 
 # MODELOS DE PRECALENTADOR DE AGUA
+
+class DatosCorrientesPrecalentadorAgua(models.Model):
+    """
+    Resumen:
+        modelos que registra los datos de las corrientes del precalentador de agua.
+
+    Atributos:
+        flujo_unidad: Unidades -> Unidad del flujo
+        presion_unidad: Unidades -> Unidad de la presión
+        temperatura_unidad: Unidades -> Unidad de la temperatura
+        entalpia_unidad: Unidades -> Unidad de la entalpía
+        densidad_unidad: Unidades -> Unidad de la densidad
+    """
+    flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, default=6, related_name="flujo_unidad_corrientes_precalentador_agua")
+    presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, default=7, related_name="presion_unidad_corrientes_precalentador_agua")
+    temperatura_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, default=1, related_name="temperatura_unidad_corrientes_precalentador_agua")
+    entalpia_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, default=9, related_name="entalpia_unidad_corrientes_precalentador_agua")
+    densidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, default=5, related_name="densidad_unidad_corrientes_precalentador_agua")
+
+    class Meta:
+        db_table = "precalentador_agua_datos_corriente"
+
 class PrecalentadorAgua(models.Model):
     '''
     Resumen:
@@ -1076,6 +1102,7 @@ class PrecalentadorAgua(models.Model):
 
     creado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="precalentador_agua_creado_por")
     editado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, null = True, related_name="precalentador_agua_editado_por")
+    datos_corrientes = models.OneToOneField(DatosCorrientesPrecalentadorAgua, null=True, on_delete=models.PROTECT, related_name="precalentador_agua")
 
     class Meta:
         db_table = "precalentador_agua"
@@ -1170,5 +1197,168 @@ class EspecificacionesPrecalentadorAgua(models.Model):
     class Meta:
         db_table = "precalentador_agua_especificaciones"
         ordering = ('tipo',)
+
+class CorrientePrecalentadorAgua(models.Model):
+    '''
+    Resumen:
+        Modelo que describe una corriente que circula por el precalentador de agua.
+        Deben al menos cuatro corrientes: dos del lado carcasa, una de entrada y una de salida, 
+        y dos del lado tubos, una de entrada y una de salida.
+
+    Atributos:
+        nombre: CharField -> Nombre de la corriente
+        numero_corriente: CharField -> Número de la corriente
+        flujo: FloatField -> Flujo másico circulante
+        presion: FloatField -> Presión bajo la que circula la corriente
+        temperatura: FloatField -> Temperatura bajo la que circula la corriente
+        entalpia: FloatField -> Entalpía de la corriente
+        densidad: FloatField -> Densidad del fluido circulante
+        fase: CharField -> Fase en la que se encuentra el fluido (Líquido, Vapor o Saturado)
+        lado: CharField -> Lado del precalentador por donde circula la corriente (Carcasa o Tubos)
+        rol: CharField -> Rol que cumple la corriente en el precalentador (Entrada o Salida)
+    '''
+
+    nombre = models.CharField(max_length=60)
+    numero_corriente = models.CharField(max_length=25)
+    flujo = models.FloatField()
+    presion = models.FloatField()
+    temperatura = models.FloatField()
+    entalpia = models.FloatField()
+    densidad = models.FloatField()
+    fase = models.CharField(max_length=1, choices=FASES_CORRIENTES_PRECALENTADOR)
+    lado = models.CharField(max_length=1, choices=LADO_CORRIENTES_PRECALENTADOR)
+    rol = models.CharField(max_length=1, choices=ROLES_CORRIENTES_PRECALENTADOR)
+    datos_corriente = models.ForeignKey(DatosCorrientesPrecalentadorAgua, on_delete=models.PROTECT, null=True, related_name="corrientes_precalentador_agua")
+
+    def fase_largo(self):
+        return conseguir_largo(FASES_CORRIENTES_PRECALENTADOR, self.fase)
+    
+    def lado_largo(self):
+        return conseguir_largo(LADO_CORRIENTES_PRECALENTADOR, self.lado)
+    
+    def rol_largo(self):
+        return conseguir_largo(ROLES_CORRIENTES_PRECALENTADOR, self.rol)
+
+    class Meta:
+        db_table = "precalentador_agua_corriente"
+        ordering = ('lado','rol')
+
+# Evaluación de Precalentador de Agua
+
+class SalidaGeneralPrecalentadorAgua(models.Model):
+    '''
+    Resumen:
+        modelos que registra la evaluación de un precalentador de agua.
+
+    Atributos:
+        mtd: FloatField -> Delta T Medio de Referencia
+        mtd_unidad: ForeignKey -> Unidad de mtd
+        factor_ensuciamiento: FloatField -> Factor de Ensuciamiento
+        factor_ensuciamiento_unidad: ForeignKey -> Unidad del factor de ensuciamiento
+        cmin: FloatField -> Cmin
+        cmin_unidad: ForeignKey -> Unidad del cmin
+        ntu: FloatField -> Ntu
+        u: FloatField -> U
+        u_diseno: FloatField -> U Diseño
+        u_unidad: ForeignKey -> Unidad de u
+        calor_carcasa: FloatField -> Calor de la Carcasa
+        calor_tubos: FloatField -> Calor de los Tubos
+        calor_unidad: ForeignKey -> Unidad del calor
+        eficiencia: FloatField -> Eficiencia Térmica
+    '''
+
+    id = models.UUIDField(primary_key=True, default= uuid.uuid4)
+    
+    mtd = models.FloatField()
+    delta_t_tubos = models.FloatField()
+    delta_t_carcasa = models.FloatField()
+    mtd_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="mtd_unidad_evaluacion_precalentador_agua")
+   
+    factor_ensuciamiento = models.FloatField()
+    
+    cmin = models.FloatField()
+    
+    ntu = models.FloatField()
+    
+    u = models.FloatField()
+    u_diseno = models.FloatField()
+    
+    calor_carcasa = models.FloatField()
+    calor_tubos = models.FloatField()
+    
+    eficiencia = models.FloatField()
+
+    class Meta:
+        db_table = "precalentador_agua_evaluacion_salida_general"
+
+class EvaluacionPrecalentadorAgua(models.Model):
+    '''
+    Resumen:
+        Modelo que registra la evaluación de un precalentador de agua.
+
+    Atributos:
+        nombre: CharField -> Nombre de la evaluación
+        fecha: DateTimeField -> Fecha de la evaluación
+        salida_general: OneToOneField -> Salida general de la evaluación
+        usuario: ForeignKey -> Usuario que realizó la evaluación
+        precalentador: ForeignKey -> Precalentador de agua evaluado
+    '''
+
+    id = models.UUIDField(primary_key=True, default= uuid.uuid4)
+    nombre = models.CharField(max_length=100)
+    fecha = models.DateTimeField(auto_now=True)
+
+    activo = models.BooleanField(default=True)
+    salida_general = models.OneToOneField(SalidaGeneralPrecalentadorAgua, on_delete=models.PROTECT)
+    usuario = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="evaluacion_precalentador")
+    equipo = models.ForeignKey(PrecalentadorAgua, on_delete=models.PROTECT, related_name="evaluacion_precalentador")
+
+    class Meta:
+        db_table = "precalentador_agua_evaluacion"
+        ordering = ('-fecha',)
+
+class DatosCorrientesEvaluacionPrecalentadorAgua(models.Model):
+    """
+    Resumen:
+        Modelo que registra los datos de las corrientes del precalentador de agua durante la evaluación.
+
+    Atributos:
+        flujo_unidad: Unidades -> Unidad del flujo
+        presion_unidad: Unidades -> Unidad de la presión
+        temperatura_unidad: Unidades -> Unidad de la temperatura
+    """
+    flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="flujo_unidad_corriente_evaluacion_precalentador_agua")
+    presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="presion_unidad_corriente_evaluacion_precalentador_agua")
+    temperatura_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="temperatura_unidad_corriente_evaluacion_precalentador_agua")
+    entalpia_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="entalpia_unidad_corriente_evaluacion_precalentador_agua")
+    densidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="densidad_unidad_corriente_evaluacion_precalentador_agua")
+
+class CorrientesEvaluacionPrecalentadorAgua(models.Model):
+    '''
+    Resumen:
+        modelos que registra la evaluación de las corrientes de un precalentador de agua.
+
+    Atributos:
+        flujo: FloatField -> Flujo másico circulante
+        presion: FloatField -> Presión bajo la que circula la corriente
+        temperatura: FloatField -> Temperatura bajo la que circula la corriente
+        entalpia: FloatField -> Entalpía de la corriente
+        densidad: FloatField -> Densidad del fluido circulante
+        fase: CharField -> Fase en la que se encuentra el fluido (Líquido, Vapor o Saturado)
+        corriente: ForeignKey -> Corriente
+    '''
+
+    id = models.UUIDField(primary_key=True, default= uuid.uuid4)
+    flujo = models.FloatField()
+    presion = models.FloatField()
+    temperatura = models.FloatField()
+    entalpia = models.FloatField()
+    densidad = models.FloatField()
+    fase = models.CharField(max_length=1, choices=[("L","Líquido"), ("V","Vapor"), ("S","Saturado")])
+    corriente = models.ForeignKey(CorrientePrecalentadorAgua, on_delete=models.PROTECT, related_name="corrientes_evaluacion_precalentador_agua")
+    evaluacion = models.ForeignKey(EvaluacionPrecalentadorAgua, on_delete=models.PROTECT, related_name="corrientes_evaluacion_precalentador_agua")
+
+    class Meta:
+        db_table = "precalentador_agua_evaluacion_corriente"
 
 # MODELOS DE PRECALENTADOR DE AIRE

@@ -29,7 +29,7 @@ from auxiliares.forms import *
 from calculos.termodinamicos import calcular_densidad, calcular_densidad_aire, calcular_presion_vapor, calcular_viscosidad, calcular_densidad_relativa
 from calculos.unidades import *
 from calculos.utils import fluido_existe, registrar_fluido
-from .evaluacion import evaluacion_bomba, evaluar_ventilador
+from .evaluacion import evaluacion_bomba, evaluar_ventilador, evaluar_precalentador_agua
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos, ficha_tecnica_ventilador, historico_evaluaciones_bombas, historico_evaluaciones_ventiladores, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga
 
@@ -1436,7 +1436,8 @@ class CreacionVentilador(SuperUserRequiredMixin, CalculoPropiedadesVentilador):
                 'form_condiciones_generales': form_condiciones_generales,
                 'recarga': True,
                 'titulo': self.titulo,
-                'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo."
+                'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo.",
+                'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
             })
 
 class EdicionVentilador(CreacionVentilador, ObtenerVentiladorMixin):
@@ -1487,7 +1488,6 @@ class EdicionVentilador(CreacionVentilador, ObtenerVentiladorMixin):
             print(form_condiciones_generales.errors)
             print(form_condiciones_trabajo.errors)
             print(form_condiciones_adicionales.errors)
-
             print(str(e))
 
             return render(request, self.template_name, context={
@@ -1498,7 +1498,8 @@ class EdicionVentilador(CreacionVentilador, ObtenerVentiladorMixin):
                 'form_condiciones_generales': form_condiciones_generales,
                 'edicion': True,
                 'titulo': self.titulo,
-                'error': "Ocurrió un error desconocido al momento de almacenar el ventilador. Revise los datos e intente de nuevo."
+                'error': "Ocurrió un error desconocido al momento de almacenar el ventilador. Revise los datos e intente de nuevo.",
+                'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
             })
         
 # Evaluaciones de Ventiladores
@@ -1786,16 +1787,20 @@ class ObtenerPrecalentadorAguaMixin():
             precalentador = precalentador_q
 
         precalentador = precalentador.select_related(
-            'planta', 'planta__complejo', 'creado_por', 'editado_por'
+            'planta', 'planta__complejo', 'creado_por', 'editado_por',
+            'datos_corrientes', 'datos_corrientes__temperatura_unidad',
+            'datos_corrientes__presion_unidad', 'datos_corrientes__entalpia_unidad',
+            'datos_corrientes__flujo_unidad', 'datos_corrientes__densidad_unidad'
         ).prefetch_related(
             Prefetch('secciones_precalentador', SeccionesPrecalentadorAgua.objects.select_related(
                 'presion_unidad', 'entalpia_unidad', 'flujo_unidad', 
-                'temp_unidad', 'velocidad_unidad'
+                'temp_unidad', 'velocidad_unidad', 
             )),
             Prefetch('especificaciones_precalentador', EspecificacionesPrecalentadorAgua.objects.select_related(
                 'calor_unidad', 'area_unidad','coeficiente_unidad',
                 'mtd_unidad', 'caida_presion_unidad'
             )),
+            'datos_corrientes__corrientes_precalentador_agua'
         )
 
         if(not precalentador_q and precalentador):
@@ -1905,12 +1910,17 @@ class CreacionPrecalentadorAgua(SuperUserRequiredMixin, View):
                             form_seccion_vapor, form_seccion_drenaje, 
                             form_especificaciones_condensado,
                             form_especificaciones_reduccion,
-                            form_especificaciones_drenaje):
+                            form_especificaciones_drenaje, edicion=False):
         
         with transaction.atomic():
             valid = form_equipo.is_valid()
             if(valid):
-                form_equipo.instance.creado_por = self.request.user
+                if(not edicion):
+                    form_equipo.instance.creado_por = self.request.user
+                else:
+                    form_equipo.instance.editado_por = self.request.user
+                    form_equipo.instance.editado_al = datetime.datetime.now()
+
                 precalentador = form_equipo.save()
             else:
                 print(form_equipo.errors)
@@ -2041,7 +2051,7 @@ class EdicionPrecalentadorAgua(CreacionPrecalentadorAgua, ObtenerPrecalentadorAg
                             form_seccion_vapor, form_seccion_drenaje, 
                             form_especificaciones_condensado,
                             form_especificaciones_reduccion,
-                            form_especificaciones_drenaje)
+                            form_especificaciones_drenaje, edicion=True)
         except Exception as e:
             print(str(e))
             return render(
@@ -2058,10 +2068,328 @@ class EdicionPrecalentadorAgua(CreacionPrecalentadorAgua, ObtenerPrecalentadorAg
                     'edicion': True
                 })    
 
+class ConsultaEvaluacionPrecalentadorAgua(ConsultaEvaluacion, ObtenerPrecalentadorAguaMixin, ReportesFichasMixin):
+    """
+    Resumen:
+        Vista para la consulta de evaluaciones de Ventiladores de Calderas.
+        Hereda de ConsultaEvaluacion para el ahorro de trabajo en términos de consulta.
+        Utiliza los Mixin para obtener ventiladores y de generación de reportes de fichas de ventiladores.
+
+    Atributos:
+        model: EvaluacionBomba -> Modelo de la vista
+        model_equipment -> Modelo del equipo
+        clase_equipo -> Complemento del título de la vista
+        tipo -> Tipo de equipo. Necesario para la renderización correcta de nombres y links.
+    
+    Métodos:
+        get_context_data(self) -> dict
+            Añade al contexto original el equipo.
+
+        get_queryset(self) -> QuerySet
+            Hace el prefetching correspondiente al queryset de las evaluaciones.
+
+        post(self) -> HttpResponse
+            Contiene la lógica de eliminación (ocultación) de una evaluación y de generación de reportes.
+    """
+    model = EvaluacionPrecalentadorAgua
+    model_equipment = PrecalentadorAgua
+    clase_equipo = "l Precalentador de Agua"
+    tipo = 'precalentadores_agua'
+    template_name = 'precalentadores_agua/consulta_evaluaciones.html'
+
+    def post(self, request, **kwargs):
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha):
+            return reporte_ficha
+            
+        if(request.user.is_superuser and request.POST.get('evaluacion')): # Lógica de "Eliminación"
+            evaluacion = self.model.objects.get(pk=request.POST['evaluacion'])
+            evaluacion.activo = False
+            evaluacion.save()
+            messages.success(request, "Evaluación eliminada exitosamente.")
+        elif(request.POST.get('evaluacion') and not request.user.is_superuser):
+            messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
+
+        if(request.POST.get('tipo') == 'pdf'):
+            return generar_pdf(request, self.get_queryset(), f"Evaluaciones del Precalentador de Agua {self.get_precalentador().tag}", "reporte_evaluaciones_precalentador")
+        elif(request.POST.get('tipo') == 'xlsx'):
+            return historico_evaluaciones_precalentador_agua(self.get_queryset(), request)
+
+        if(request.POST.get('detalle')):
+            return generar_pdf(request, self.model.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Precalentador de Agua", "detalle_evaluacion_precalentador")
+
+        return self.get(request, **kwargs)
+    
+    def get_queryset(self):
+        new_context = super().get_queryset()
+
+        new_context = new_context.select_related(
+            'usuario', 'salida_general', 'salida_general__mtd_unidad',
+            'salida_general__factor_ensuciamiento_unidad', 'salida_general__cmin_unidad',
+            'salida_general__u_unidad', 'salida_general__calor_unidad'
+        ).prefetch_related(
+            'corrientes_evaluacion_precalentador_agua'
+        )
+
+        return new_context
+
+    def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
+        context = super().get_context_data(**kwargs)
+        context['equipo'] = self.get_precalentador()
+        context['tipo'] = self.tipo
+
+        return context
+
+class CreacionCorrientesPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAguaMixin, View):
+    template_name = "precalentadores_agua/creacion_corrientes.html"
+
+    def formset_corrientes(self, prefix, queryset):
+        formset = forms.modelformset_factory(
+            model=CorrientePrecalentadorAgua, 
+            form=CorrientesPrecalentadorAguaForm, 
+            extra=0 if queryset and queryset.count() else 1)
+         
+        if(self.request.POST.__len__() > 0):
+            formset = formset(self.request.POST, prefix=prefix)
+        else:
+            formset = formset(queryset=queryset, prefix=prefix)
+
+        return formset
+       
+
+    def get_context_data(self):
+        precalentador = self.get_precalentador()
+
+        formset_corrientes_carcasa = self.formset_corrientes("form-carcasa", 
+            queryset=precalentador.datos_corrientes.corrientes_precalentador_agua.filter(lado="C") if precalentador.datos_corrientes else None
+        )
+        formset_corrientes_tubos = self.formset_corrientes("form-tubos", 
+            queryset=precalentador.datos_corrientes.corrientes_precalentador_agua.filter(lado="T") if precalentador.datos_corrientes else None
+        )
+
+        return {
+            'formset_corrientes_carcasa': formset_corrientes_carcasa,
+            'formset_corrientes_tubos': formset_corrientes_tubos,
+            'form_datos_corrientes': DatosCorrientesPrecalentadorAguaForm(),
+            'precalentador': precalentador,
+            'unidades': Unidades.objects.all(),
+        }
+
+    def get(self, *args, **kwargs):
+        return render(self.request, self.template_name, self.get_context_data())
+    
+    def almacenar_datos(self, request):
+        precalentador = self.get_precalentador()
+        form_datos_corrientes = DatosCorrientesPrecalentadorAguaForm(request.POST)
+
+        formset_corrientes_carcasa = self.formset_corrientes("form-carcasa", None)
+        formset_corrientes_tubos = self.formset_corrientes("form-tubos", None)
+
+        with transaction.atomic():
+            valid = form_datos_corrientes.is_valid()
+            if(form_datos_corrientes.is_valid()):
+                form_datos_corrientes.instance.pk = None
+                form_datos_corrientes.save()
+            else:
+                print(form_datos_corrientes.errors)
+
+            valid = valid and formset_corrientes_carcasa.is_valid()
+
+            if(valid):
+                for corriente in formset_corrientes_carcasa:
+                    corriente.instance.pk = None
+                    corriente.instance.datos_corriente = form_datos_corrientes.instance
+                    corriente.instance.lado = "C"
+                    corriente.save()
+            else:
+                print([formset_corrientes_carcasa.errors])
+
+
+            valid = valid and formset_corrientes_tubos.is_valid()
+                
+            if(valid):
+                for corriente in formset_corrientes_tubos:
+                    corriente.instance.pk = None
+                    corriente.instance.datos_corriente = form_datos_corrientes.instance
+                    corriente.instance.lado = "T"
+                    corriente.save()
+            else:
+                print([formset_corrientes_tubos.errors])
+
+            if(valid):
+                precalentador.datos_corrientes = form_datos_corrientes.instance
+                precalentador.save()
+            else:
+                print("Algo salio mal")
+                return render(request, self.template_name, {
+                    'formset_corrientes_carcasa': formset_corrientes_carcasa,
+                    'formset_corrientes_tubos': formset_corrientes_tubos,
+                    'form_datos_corrientes': form_datos_corrientes,
+                    'precalentador': precalentador,
+                    'unidades': Unidades.objects.all(),
+                    'error': "No se ha podido almacenar la información."
+                })
+
+        messages.success(request, f'Corrientes del precalentador {precalentador.tag} guardadas correctamente.')
+        return redirect("consulta_precalentadores_agua")            
+
+    def post(self, request, pk):
+        return self.almacenar_datos(request)
+
+class EvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMixin, View):
+    """
+    Resumen:
+        Vista para mostrar la evaluación de un precalentador de agua. 
+
+    Métodos:
+        get_context_data(self)
+    """
+    template_name = "precalentadores_agua/evaluacion.html"
+
+    def get_context_data(self):
+        precalentador = self.get_precalentador()
+        corrientes = precalentador.datos_corrientes.corrientes_precalentador_agua.all()
+
+        corrientes_carcasa = [
+            {
+                'form': CorrientesEvaluacionPrecalentadorAguaForm(prefix=f"corriente-{corriente.pk}", initial={'corriente': corriente}),
+                'corriente': corriente
+            } for corriente in corrientes.filter(lado="C")
+        ]
+
+        corrientes_tubos = [
+            {
+                'form': CorrientesEvaluacionPrecalentadorAguaForm(prefix=f"corriente-{corriente.pk}", initial={'corriente': corriente}),
+                'corriente': corriente
+            } for corriente in corrientes.filter(lado="T")
+        ]
+
+        return {
+            'precalentador': precalentador,
+            'corrientes_carcasa': corrientes_carcasa,
+            'corrientes_tubos': corrientes_tubos,
+            'datos_corrientes': DatosCorrientesPrecalentadorAguaForm(),
+            'evaluacion': EvaluacionPrecalentadorAguaForm(),
+            'unidades': Unidades.objects.all(),
+        }
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name, self.get_context_data())
+    
+    def crear_dict_corrientes(self, corriente):
+        return {
+            'temperatura': transformar_unidades_temperatura([corriente.temperatura], corriente.datos_corriente.temperatura_unidad.pk)[0],
+            'presion': transformar_unidades_presion([corriente.presion], corriente.datos_corriente.temperatura_unidad.pk)[0],
+            'flujo': transformar_unidades_flujo([corriente.flujo], corriente.datos_corriente.flujo_unidad.pk)[0],
+            'rol': corriente.rol,
+            'fase': corriente.fase,
+            'numero_corriente': corriente.numero_corriente,
+            'pk': corriente.pk
+        }
+
+    def calcular_resultados(self, precalentador):
+        # Transformar unidades
+        u = 0
+        a = 0
+        zonas = precalentador.especificaciones_precalentador.all()
+        for zona in zonas:
+            u += transformar_unidades_u([zona.coeficiente_transferencia if zona.coeficiente_transferencia else 0], zona.coeficiente_unidad.pk)[0]
+            a += transformar_unidades_area([zona.area if zona.area else 0], zona.area_unidad.pk)[0]
+
+        corrientes_tubo = []
+        corrientes_carcasa = []
+        for corriente in precalentador.datos_corrientes.corrientes_precalentador_agua.all():
+            if(corriente.lado == "C"):
+                corrientes_carcasa.append(self.crear_dict_corrientes(corriente))
+            else:
+                corrientes_tubo.append(self.crear_dict_corrientes(corriente))
+
+        u /= zonas.count()
+        a /= zonas.count()
+
+        resultados = evaluar_precalentador_agua(
+            corrientes_carcasa_p=corrientes_carcasa,
+            corrientes_tubo_p=corrientes_tubo,
+            area_total=a,
+            u_diseno=u
+        )
+
+        # Unidades de Salida
+        entalpia_unidad = int(self.request.POST.get('entalpia_unidad'))
+        densidad_unidad = int(self.request.POST.get('densidad_unidad'))
+        temperatura_unidad = int(self.request.POST.get('temperatura_unidad'))
+
+        corrientes_carcasa = []
+        for corriente in resultados['resultados']['corrientes_carcasa']:
+            corriente["entalpia"] = transformar_unidades_entalpia_masica([corriente["h"]], 60, entalpia_unidad)[0]
+            corriente["entalpia"] = transformar_unidades_densidad([corriente["d"]], 30, densidad_unidad)[0]
+            corrientes_carcasa.append(corriente)
+
+        corrientes_tubo = []
+        for corriente in resultados['resultados']['corrientes_tubo']:
+            corriente["entalpia"] = transformar_unidades_entalpia_masica([corriente["h"]], 60, entalpia_unidad)[0]
+            corriente["entalpia"] = transformar_unidades_densidad([corriente["d"]], 30, densidad_unidad)[0]
+            corrientes_tubo.append(corriente)
+
+        resultados['resultados']["corrientes_carcasa"] = corrientes_carcasa
+        resultados['resultados']["corrientes_tubo"] = corrientes_tubo    
+
+        if(temperatura_unidad > 7):   
+            resultados['resultados']['mtd'] = transformar_unidades_temperatura([resultados['resultados']['mtd']], 1, temperatura_unidad)[0]
+            resultados['resultados']['delta_t_tubos'] = transformar_unidades_temperatura([resultados['resultados']['delta_t_tubos']], 1, temperatura_unidad)[0]
+            resultados['resultados']['delta_t_carcasa'] = transformar_unidades_temperatura([resultados['resultados']['delta_t_carcasa']], 1, temperatura_unidad)[0]
+        
+        resultados['resultados']['temperatura_unidad'] = Unidades.objects.get(pk=temperatura_unidad)
+
+        return resultados
+
+    def calcular(self):
+        precalentador = self.get_precalentador()
+        resultados = self.calcular_resultados(precalentador)
+
+        return render(self.request, "precalentadores_agua/partials/resultado_evaluacion.html", {
+            'resultados': resultados['resultados'],
+            'precalentador': precalentador
+        })
+
+    def almacenar(self):
+        precalentador = self.get_precalentador()
+        resultados = self.calcular_resultados()
+        request = self.request.POST
+
+        with transaction.atomic():
+            datos_corrientes = DatosCorrientesEvaluacionPrecalentadorAgua.objects.create(
+                flujo_unidad = Unidades.objects.get(pk=request['flujo_unidad']),    
+                presion_unidad = Unidades.objects.get(pk=request['presion_unidad']),    
+                temperatura_unidad = Unidades.objects.get(pk=request['temperatura_unidad']),    
+                entalpia_unidad = Unidades.objects.get(pk=request['entalpia_unidad']),    
+                densidad_unidad = Unidades.objects.get(pk=request['densidad_unidad']),                
+            )
+
+            # Guardar Corrientes Individualmente
+            
+
+            # Guardar Salida
+
+
+    def post(self, request, *args, **kwargs):
+        if(request.POST.get('tipo') == "calcular"):
+            return self.calcular()
+        elif(request.POST.get('tipo') == "almacenar"):
+            return self.almacenar()
+
 # PRECALENTADORES DE AIRE
 
 # VISTAS DE DUPLICACIÓN
 class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, DuplicateView):
+    """
+    Resumen:
+        Vista para duplicar un ventilador. 
+
+    Métodos:
+        post(self, request, *args, **kwargs)
+            Crea una nueva instancia del ventilador a duplicar y la retorna.
+    """
 
     def post(self, request, *args, **kwargs):
         ventilador = self.get_ventilador()
@@ -2082,6 +2410,14 @@ class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, Duplica
         return redirect('/auxiliares/ventiladores/')
 
 class DuplicarBomba(SuperUserRequiredMixin, CargarBombaMixin, DuplicateView):
+    """
+    Resumen:
+        Vista para duplicar una bomba centrífuga.
+
+    Métodos:
+        post(self, request, *args, **kwargs)
+            Crea una nueva instancia de la bomba centrífuga a duplicar y la retorna.
+    """
 
     def post(self, request, *args, **kwargs):
         bomba_original = self.get_bomba()
@@ -2116,6 +2452,14 @@ class DuplicarBomba(SuperUserRequiredMixin, CargarBombaMixin, DuplicateView):
         return redirect('/auxiliares/bombas/')
 
 class DuplicarPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAguaMixin, DuplicateView):
+    """
+    Resumen:
+        Vista para duplicar un precalentador de agua.
+
+    Métodos:
+        post(self, request, *args, **kwargs)
+            Crea una nueva instancia del precalentador de agua a duplicar y la retorna.
+    """
 
     def post(self, request, *args, **kwargs):
         precalentador_original = self.get_precalentador()
@@ -2125,7 +2469,14 @@ class DuplicarPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAgua
         with transaction.atomic():
             precalentador.descripcion = f"COPIA DEL PRECALENTADOR {precalentador.tag}"
             precalentador.tag = generate_nonexistent_tag(PrecalentadorAgua, precalentador.tag)
-            precalentador.copia = True                 
+            precalentador.copia = True
+
+            datos_corrientes = self.copy(precalentador_original.datos_corrientes)
+            for corriente in precalentador_original.datos_corrientes.corrientes_precalentador_agua.all():
+                corriente.datos_corriente = datos_corrientes
+                self.copy(corriente)
+
+            precalentador.datos_corrientes = datos_corrientes
             precalentador = self.copy(precalentador)
 
             for seccion in precalentador_original.secciones_precalentador.all():

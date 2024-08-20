@@ -2,9 +2,14 @@ import uuid
 
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 from intercambiadores.models import Planta, Fluido, Unidades, ClasesUnidades
+
+METODO_CHOICES = (
+    ('D', 'Directo'),
+    ('I', 'Indirecto'),
+)
 
 # Create your models here.
 
@@ -329,6 +334,7 @@ class Caldera(models.Model):
     modelo = models.CharField(max_length=45, null = True, blank = True)
     tipo_caldera = models.CharField("Tipo de Caldera", max_length=50, null = True, blank = True)
     accesorios = models.CharField(max_length=45, null = True, blank = True)
+    copia = models.BooleanField(default=False, blank=True)
 
     sobrecalentador = models.OneToOneField(Sobrecalentador, models.CASCADE)
     tambor = models.OneToOneField(Tambor, models.PROTECT)
@@ -504,6 +510,25 @@ class SalidaFlujosEntrada(models.Model):
     flujo_combustion_vol = models.FloatField()
     porc_o2_exceso = models.FloatField()
 
+class PerdidasIndirecto(models.Model):
+    """
+    Resumen:
+        Modelo para almacenar la información de salida de evaluación correspondiente a las pérdidas calculadas en la eficiencia utilizando el método indirecto.
+        Esta información se almacena en evaluaciones que utilizan el método indirecto.
+
+    Atributos:
+        perdidas_gas_secos: models.FloatField -> Perdidas por gas secos
+        perdidas_humedad_combustible: models.FloatField -> Perdidas por humedad del combustible
+        perdidas_humedad_aire: models.FloatField -> Perdidas por humedad del aire
+        perdidas_h2: models.FloatField -> Perdidas por H2
+        perdidas_radiacion_conveccion: models.FloatField -> Perdidas por la radiación convectiva
+    """
+    perdidas_gas_secos = models.FloatField()
+    perdidas_humedad_combustible = models.FloatField()
+    perdidas_humedad_aire = models.FloatField()
+    perdidas_h2 = models.FloatField()
+    perdidas_radiacion_conveccion = models.FloatField()
+
 class Evaluacion(models.Model):
     """
     Resumen:
@@ -525,13 +550,24 @@ class Evaluacion(models.Model):
     fecha = models.DateTimeField(auto_now=True)
     usuario = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, default=1, related_name="usuario_evaluacion_caldera")
     activo = models.BooleanField(default=True)
+    metodo = models.CharField("Método", max_length=1, choices=METODO_CHOICES)
 
-    salida_flujos = models.ForeignKey(SalidaFlujosEntrada, models.PROTECT)
-    salida_fracciones = models.ForeignKey(SalidaFracciones, models.PROTECT)
-    salida_balance_energia = models.ForeignKey(SalidaBalanceEnergia, models.PROTECT)
-    salida_lado_agua = models.ForeignKey(SalidaLadoAgua, models.PROTECT)
-    equipo = models.ForeignKey(Caldera, models.PROTECT, related_name="equipo_evaluacion_caldera")
+    # Campos que no serán nulos en métodos DIRECTOS
+    salida_flujos = models.OneToOneField(SalidaFlujosEntrada, models.PROTECT, null=True)
+    salida_fracciones = models.OneToOneField(SalidaFracciones, models.PROTECT, null=True)
+    salida_balance_energia = models.OneToOneField(SalidaBalanceEnergia, models.PROTECT, null=True)
+    salida_lado_agua = models.OneToOneField(SalidaLadoAgua, models.PROTECT, null=True)
+    
+    # Campo a utilizar en el método INDIRECTO
+    perdidas_indirecto = models.OneToOneField(PerdidasIndirecto, models.PROTECT, null=True)
+    
+    # Otros
+    equipo = models.ForeignKey(Caldera, models.PROTECT, null=True, related_name="equipo_evaluacion_caldera")
     eficiencia = models.FloatField()
+    o2_gas_combustion = models.FloatField("% O2 Gases Combustión", null=True, blank=True, validators=[
+        MinValueValidator(0),
+        MaxValueValidator(100)
+    ]) # Porcentaje de O2 en Gases de Combustión
 
     class Meta:
         ordering = ('-fecha',)
@@ -565,16 +601,26 @@ class EntradasFluidos(models.Model):
     ])
     flujo_unidad = models.ForeignKey(Unidades, models.PROTECT, null=True, blank=True, related_name="flujo_unidad_entrada_fluidos_caldera")
 
-    temperatura = models.FloatField("Temperatura de Operación", validators=[
+    temperatura = models.FloatField("Temperatura de Operación", null=True, blank=True, validators=[
         MinValueValidator(-273.15)
     ])
     temperatura_unidad = models.ForeignKey(Unidades, models.PROTECT, related_name="temperatura_unidad_entrada_fluidos_caldera")
 
-    presion = models.FloatField("Presión de Operación", validators=[
+    presion = models.FloatField("Presión de Operación", null=True, blank=True, validators=[
         MinValueValidator(0.0001)
     ])
     presion_unidad = models.ForeignKey(Unidades, models.PROTECT, related_name="presion_unidad_entrada_fluidos_caldera")
     
+    velocidad = models.FloatField(validators=[
+        MinValueValidator(0.0001)
+    ], null=True, blank=True)
+    velocidad_unidad = models.ForeignKey(Unidades, models.PROTECT, related_name="velocidad_unidad_entrada_fluidos_caldera", null=True, blank=True)
+
+    area = models.FloatField("Área", validators=[
+        MinValueValidator(0.0001)
+    ], null=True, blank=True)
+    area_unidad = models.ForeignKey(Unidades, models.PROTECT, related_name="area_unidad_entrada_fluidos_caldera", null=True, blank=True)
+
     tipo_fluido = models.CharField(max_length=1, choices=TIPOS_FLUIDOS)
     humedad_relativa = models.FloatField(null=True, blank=True, validators=[
         MinValueValidator(0)

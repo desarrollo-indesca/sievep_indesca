@@ -23,6 +23,10 @@
                     <tbody>
                         {% with fluidos=evaluacion.entradas_fluidos_caldera.all %}
                         <tr>
+                            <th class="table-dark" colspan="2">Método de Evaluación</th>
+                            <td colspan="2">{% if evaluacion.metodo == "D" %}Directo{% else %}Indirecto{% endif %}</td>                            
+                        </tr>
+                        <tr>
                             <th class="table-dark" colspan="4">CONDICIONES OPERATIVAS</th>                            
                         </tr>
                         <tr>
@@ -30,13 +34,13 @@
                         </tr>
                         <tr>
                             <th class="table-dark">Flujo Volumétrico</th>
-                            <td>{{fluidos.1.flujo}} {{fluidos.1.flujo_unidad}}</td>
+                            <td>{{fluidos.1.flujo|default_if_none:"-"}} {{fluidos.1.flujo_unidad|default_if_none:"-"}}</td>
                             <th class="table-dark">Temperatura de Operación</th>
-                            <td>{{fluidos.1.temperatura}} {{fluidos.1.temperatura_unidad}}</td>
+                            <td>{{fluidos.1.temperatura|default_if_none:"-"}} {{fluidos.1.temperatura_unidad|default_if_none:"-"}}</td>
                         </tr>
                         <tr>
                             <th class="table-dark" colspan="2">Presión de Operación</th>
-                            <td colspan="2">{{fluidos.1.presion}} {{fluidos.1.presion_unidad}}</td>
+                            <td colspan="2">{{fluidos.1.presion|default_if_none:"-"}} {{fluidos.1.presion_unidad|default_if_none:"-"}}</td>
                         </tr>
 
                         <tr>
@@ -44,15 +48,15 @@
                         </tr>
                         <tr>
                             <th class="table-dark">Flujo Volumétrico</th>
-                            <td>{{fluidos.0.flujo}} {{fluidos.0.flujo_unidad}}</td>
+                            <td>{{fluidos.0.flujo|default_if_none:"-"}} {{fluidos.0.flujo_unidad|default_if_none:"-"}}</td>
                             <th class="table-dark">Temperatura de Operación</th>
-                            <td>{{fluidos.0.temperatura}} {{fluidos.0.temperatura_unidad}}</td>
+                            <td>{{fluidos.0.temperatura|default_if_none:"-"}} {{fluidos.0.temperatura_unidad|default_if_none:"-"}}</td>
                         </tr>
                         <tr>
                             <th class="table-dark">Presión de Operación</th>
-                            <td>{{fluidos.0.presion}} {{fluidos.0.presion_unidad}}</td>
+                            <td>{{fluidos.0.presion|default_if_none:"-"}} {{fluidos.0.presion_unidad|default_if_none:"-"}}</td>
                             <th class="table-dark">% Humedad Relativa</th>
-                            <td>{{fluidos.0.humedad_relativa}} %</td>
+                            <td>{{fluidos.0.humedad_relativa|default_if_none:"-"}} %</td>
                         </tr>
 
                         <tr>
@@ -60,9 +64,9 @@
                         </tr>
                         <tr>
                             <th class="table-dark">Temperatura de Operación</th>
-                            <td>{{fluidos.2.temperatura}} {{fluidos.2.temperatura_unidad}}</td>
+                            <td>{{fluidos.2.temperatura|default_if_none:"-"}} {{fluidos.2.temperatura_unidad|default_if_none:"-"}}</td>
                             <th class="table-dark">Presión de Operación</th>
-                            <td>{{fluidos.2.presion}} {{fluidos.2.presion_unidad}}</td>
+                            <td>{{fluidos.2.presion|default_if_none:"-"}} {{fluidos.2.presion_unidad|default_if_none:"-"}}</td>
                         </tr>
 
                         <tr>
@@ -70,13 +74,13 @@
                         </tr>
                         <tr>
                             <th class="table-dark">Flujo Másico</th>
-                            <td>{{fluidos.4.flujo}} {{fluidos.4.flujo_unidad}}</td>
+                            <td>{{fluidos.4.flujo|default_if_none:"-"}} {{fluidos.4.flujo_unidad|default_if_none:"-"}}</td>
                             <th class="table-dark">Temperatura de Operación</th>
-                            <td>{{fluidos.4.temperatura}} {{fluidos.4.temperatura_unidad}}</td>
+                            <td>{{fluidos.4.temperatura|default_if_none:"-"}} {{fluidos.4.temperatura_unidad|default_if_none:"-"}}</td>
                         </tr>
                         <tr>
                             <th class="table-dark" colspan="2">Presión de Operación</th>
-                            <td colspan="2">{{fluidos.4.presion}} {{fluidos.4.presion_unidad}}</td>
+                            <td colspan="2">{{fluidos.4.presion|default_if_none:"-"}} {{fluidos.4.presion_unidad|default_if_none:"-"}}</td>
                         </tr>
 
                         <tr>
@@ -84,13 +88,13 @@
                         </tr>
                         <tr>
                             <th class="table-dark">Flujo Másico</th>
-                            <td>{{fluidos.3.flujo}} {{fluidos.3.flujo_unidad}}</td>
+                            <td>{{fluidos.3.flujo|default_if_none:"-"}} {{fluidos.3.flujo_unidad|default_if_none:"-"}}</td>
                             <th class="table-dark">Temperatura de Operación</th>
-                            <td>{{fluidos.3.temperatura}} {{fluidos.3.temperatura_unidad}}</td>
+                            <td>{{fluidos.3.temperatura|default_if_none:"-"}} {{fluidos.3.temperatura_unidad|default_if_none:"-"}}</td>
                         </tr>
                         <tr>
                             <th class="table-dark" colspan="2">Presión de Operación</th>
-                            <td colspan="2">{{fluidos.3.presion}} {{fluidos.3.presion_unidad}}</td>
+                            <td colspan="2">{{fluidos.3.presion|default_if_none:"-"}} {{fluidos.3.presion_unidad|default_if_none:"-"}}</td>
                         </tr>
                         {% endwith %}
                     </tbody>
@@ -114,9 +118,9 @@
                     <tbody>
                         {% for composicion in evaluacion.composiciones_evaluacion.all %}
                         <tr>
-                            <th class="table-dark text-center">{{composicion.composicion.fluido}}</th>
-                            <td>{{composicion.parc_vol}} %</td>
-                            <td>{% if composicion.parc_aire %} {{composicion.parc_aire}} % {% endif %}</td>
+                            <th class="table-dark text-center">{{composicion.composicion.fluido|default_if_none:"-"}}</th>
+                            <td>{{composicion.parc_vol|default_if_none:"-"}} %</td>
+                            <td>{% if composicion.parc_aire %} {{composicion.parc_aire|default_if_none:"-"}} % {% endif %}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -132,161 +136,16 @@
                         </tr>
                     </thead>
             
-                    <tbody>
-                        <tr>
-                            <th class="table-dark">Eficiencia de la Caldera</th>
-                            <td colspan="3">{{evaluacion.eficiencia|floatformat:2}} %</td>
-                        </tr>
-                        <tr>
-                            <th class="table-dark" colspan="4">Balance de Materiales</th>
-                        </tr>
-                        {% with flujos=evaluacion.salida_flujos %}
-                        <tr>
-                            <th class="table-dark">Aire (Másico)</th>
-                            <td>{{flujos.flujo_m_aire_entrada|floatformat:4}} Kg/h</td>
-                            <th class="table-dark">Aire (Molar)</th>
-                            <td>{{flujos.flujo_n_aire_entrada|floatformat:4}} kmol/h</td>
-                        </tr>
-                        <tr>
-                            <th class="table-dark">Gas (Másico)</th>
-                            <td>{{flujos.flujo_m_gas_entrada|floatformat:4}} Kg/h</td>
-                            <th class="table-dark">Gas (Molar)</th>
-                            <td>{{flujos.flujo_n_gas_entrada|floatformat:4}} kmol/h</td>
-                        </tr>
-
-                        <tr>
-                            <th class="table-dark" colspan="4">Lado Combustión</th>
-                        </tr>
-
-                        <tr>
-                            <th class="table-dark">Flujo de Combustión Volumétrico</th>
-                            <td>{{flujos.flujo_combustion_vol|floatformat:4}} m³/h</td>
-                            <th class="table-dark">Flujo de Combustión Molar</th>
-                            <td>{{flujos.flujo_combustion|floatformat:4}} kmol/h</td>
-                        </tr>
-                        <tr>
-                            <th class="table-dark">Oxígeno en Exceso</th>
-                            <td colspan="3">{{flujos.porc_o2_exceso|floatformat:4}} %</td>
-                        </tr>
-                        {% endwith %}
-
-                        <tr>
-                            <th class="table-dark" colspan="4">Composiciones de Gas a la Salida</th>
-                        </tr>
-                        {% with fracciones=evaluacion.salida_fracciones %}
-                        <tr>
-                            <th class="table-dark">
-                                H2O
-                            </th>
-                            <td>
-                                {{fracciones.h2o|floatformat:4}}
-                            </td>
-                            <th class="table-dark">
-                                CO2
-                            </th>
-                            <td>
-                                {{fracciones.co2|floatformat:4}}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="table-dark">
-                                N2
-                            </th>
-                            <td>
-                                {{fracciones.n2|floatformat:4}}
-                            </td>
-                            <th class="table-dark">
-                                O2
-                            </th>
-                            <td>
-                                {{fracciones.o2|floatformat:4}}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="table-dark">
-                                SO2
-                            </th>
-                            <td colspan="3">
-                                {{fracciones.so2|floatformat:4}}
-                            </td>
-                        </tr>
-                        {% endwith %}
-
-                        {% with balances_energia=evaluacion.salida_balance_energia %}
-                        <tr>
-                            <th class="table-dark" colspan="4">Balances de Energía</th>
-                        </tr>
-                        <tr>
-                            <th class="table-dark">
-                                Energía Entrada Gas
-                            </th>
-                            <td>
-                                {{balances_energia.energia_entrada_gas|floatformat:4}} kJ/h
-                            </td>
-                            <th class="table-dark">
-                                Energía Entrada Aire
-                            </th>
-                            <td>
-                                {{balances_energia.energia_entrada_aire|floatformat:4}} kJ/h
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="table-dark">
-                                Energía Total Entrada
-                            </th>
-                            <td colspan="3">
-                                {{balances_energia.energia_total_entrada|floatformat:4}} kJ/h
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="table-dark">
-                                Energía Total Reacción
-                            </th>
-                            <td>
-                                {{balances_energia.energia_total_reaccion|floatformat:4}} kJ/h
-                            </td>
-                            <th class="table-dark">
-                                Energía Horno
-                            </th>
-                            <td>
-                                {{balances_energia.energia_horno|floatformat:4}} kJ/h
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="table-dark">
-                                Energía Total Salida
-                            </th>
-                            <td colspan="3">
-                                {{balances_energia.energia_total_salida|floatformat:4}} kJ/h
-                            </td>
-                        </tr>                    
-                        {% endwith %}
-
-                        {% with lado_agua=evaluacion.salida_lado_agua %}
-                        <tr>
-                            <th class="table-dark" colspan="4">Lado Agua</th>
-                        </tr>
-                        <tr>
-                            <th class="table-dark">
-                                Flujo de Purga
-                            </th>
-                            <td>
-                                {{lado_agua.flujo_purga|floatformat:4}} T/h                                
-                            </td>
-                            <th class="table-dark">
-                                Energía de Vapor
-                            </th>
-                            <td>
-                                {{lado_agua.energia_vapor|floatformat:4}} kJ/h                                
-                            </td>
-                        </tr>
-                        {% endwith %}
-                    </tbody>
+                    {% if evaluacion.metodo == 'D' %}
+                    {% include 'calderas/partials/tabla_resultados_directo.html' %}
+                    {% else %}
+                    {% include 'calderas/partials/tabla_resultados_indirecto.html' %}
+                    {% endif %}
                 </table>
             </div>
 
           <div class="col-12 text-end">
-            <small>Evaluación creada por {{evaluacion.usuario.get_full_name|floatformat:4}} al {{evaluacion.fecha}}.</small> 
+            <small>Evaluación creada por {{evaluacion.usuario.get_full_name|floatformat:4|default_if_none:"-"}} al {{evaluacion.fecha|default_if_none:"-"}}.</small> 
           </div>
         </div>
         <div class="modal-footer">
