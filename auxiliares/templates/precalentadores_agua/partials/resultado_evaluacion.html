@@ -1,3 +1,4 @@
+{% load l10n %}
 <div id="resultados" hx-swap-oob="true">
     <table class="table table-hover">
         <thead>
@@ -57,17 +58,17 @@
     <tbody>
         <td id="entalpia-corriente-{{corriente.pk}}" hx-swap-oob="true">
             {{corriente.h|floatformat:4}}
-            <input type="hidden" name="corriente-{{corriente.pk}}-entalpia" value="{{corriente.h}}">
+            <input type="hidden" name="corriente-{{corriente.pk}}-entalpia" value="{{corriente.h|unlocalize}}">
         </td>
 
         <td id="densidad-corriente-{{corriente.pk}}" hx-swap-oob="true">
             {{corriente.d|floatformat:4}}
-            <input type="hidden" name="corriente-{{corriente.pk}}-densidad" value="{{corriente.d}}">
+            <input type="hidden" name="corriente-{{corriente.pk}}-densidad" value="{{corriente.d|unlocalize}}">
         </td>
 
         <td id="fase-corriente-{{corriente.pk}}" hx-swap-oob="true">
             {{corriente.p}}
-            <input type="hidden" name="corriente-{{corriente.pk}}-fase" value="{{corriente.p}}">
+            <input type="hidden" name="corriente-{{corriente.pk}}-fase" value="{{corriente.p|unlocalize}}">
         </td>
     </tbody>
 </table>
@@ -78,17 +79,17 @@
     <tbody>
         <td id="entalpia-corriente-{{corriente.pk}}" hx-swap-oob="true">
             {{corriente.h|floatformat:4}}
-            <input type="hidden" name="corriente-{{corriente.pk}}-entalpia" value="{{corriente.h}}">
+            <input type="hidden" name="corriente-{{corriente.pk}}-entalpia" value="{{corriente.h|unlocalize}}">
         </td>
 
         <td id="densidad-corriente-{{corriente.pk}}" hx-swap-oob="true">
             {{corriente.d|floatformat:4}}
-            <input type="hidden" name="corriente-{{corriente.pk}}-densidad" value="{{corriente.d}}">
+            <input type="hidden" name="corriente-{{corriente.pk}}-densidad" value="{{corriente.d|unlocalize}}">
         </td>
 
         <td id="fase-corriente-{{corriente.pk}}" hx-swap-oob="true">
             {{corriente.p}}
-            <input type="hidden" name="corriente-{{corriente.pk}}-fase" value="{{corriente.p}}">
+            <input type="hidden" name="corriente-{{corriente.pk}}-fase" value="{{corriente.p|unlocalize}}">
         </td>
     </tbody>
 </table>

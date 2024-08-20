@@ -16,7 +16,7 @@
                 <table class="table table-responsive">
                     <thead>
                         <tr>
-                            <th class="text-center table-success" colspan="8">
+                            <th class="text-center table-success" colspan="9">
                                 DATOS DE LAS CORRIENTES DE LA CARCASA
                             </th>
                         </tr>
@@ -46,7 +46,8 @@
                             <td> {{corriente.entalpia}} </td>
                             <td> {{corriente.densidad}} </td>
                             <td> {{corriente.fase_largo}} </td>
-                        </tr>   
+                        </tr>
+                        {% endif %}
                         {% endfor %}
                     </tbody>
                 </table>
@@ -55,7 +56,7 @@
                 <table class="table table-responsive">
                     <thead>
                         <tr>
-                            <th class="text-center table-success" colspan="8">
+                            <th class="text-center table-success" colspan="9">
                                 DATOS DE LAS CORRIENTES DE LOS TUBOS
                             </th>
                         </tr>
@@ -85,7 +86,8 @@
                             <td> {{corriente.entalpia}} </td>
                             <td> {{corriente.densidad}} </td>
                             <td> {{corriente.fase_largo}} </td>
-                        </tr>   
+                        </tr>
+                        {% endif %}
                         {% endfor %}
                     </tbody>
                 </table>
@@ -113,7 +115,7 @@
                             </tr>
                             <tr>
                                 <th class="table-dark w-50">Calor Tubo (W)</th>
-                                <td class="w-50">{{evaluacion.salida_general.calor_tubo|floatformat:4}}</td>
+                                <td class="w-50">{{evaluacion.salida_general.calor_tubos|floatformat:4}}</td>
                             </tr>
                             <tr>
                                 <th class="table-dark w-50">Coeficiente Global de Transferencia U (W/m²K)</th>
@@ -133,7 +135,7 @@
                             </tr>
                             <tr>
                                 <th class="table-dark w-50">Ensuciamiento (m²K/W)</th>
-                                <td class="w-50">{{evaluacion.salida_general.ensuciamiento|floatformat:4}}</td>
+                                <td class="w-50">{{evaluacion.salida_general.factor_ensuciamiento|floatformat:4}}</td>
                             </tr>
                             <tr>
                                 <th class="table-dark w-50">NTU</th>

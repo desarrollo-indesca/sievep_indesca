@@ -2131,7 +2131,7 @@ class ConsultaEvaluacionPrecalentadorAgua(ConsultaEvaluacion, ObtenerPrecalentad
             'datos_corrientes__densidad_unidad',
             'datos_corrientes__flujo_unidad'
         ).prefetch_related(
-            Prefetch('datos_corrientes__corrientes_evaluacion', CorrientePrecalentadorAgua.objects.select_related(
+            Prefetch('datos_corrientes__corrientes_evaluacion', CorrientesEvaluacionPrecalentadorAgua.objects.select_related(
                 'corriente'
             ))
         )
@@ -2412,6 +2412,7 @@ class EvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMi
                 )
                 form.instance.datos_corrientes = datos_corrientes
                 form.instance.evaluacion = evaluacion
+                form.instance.corriente = CorrientePrecalentadorAgua.objects.get(pk=corriente['pk'])
 
                 if(form.is_valid()):
                     form.save()

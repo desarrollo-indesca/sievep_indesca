@@ -76,7 +76,7 @@ TIPOS_SECCIONES_PRECALENTADOR = [
     ("D","Drenaje")
 ]
 
-FASES_CORRIENTES_PRECALENTADOR = [("L","Líquido"), ("V","Vapor"), ("S","Saturado")]
+FASES_CORRIENTES_PRECALENTADOR = [("L","Líquido"), ("G","Vapor"), ("S","Saturado")]
 LADO_CORRIENTES_PRECALENTADOR = [("C","Carcasa"), ("T","Tubos")]
 ROLES_CORRIENTES_PRECALENTADOR = [("E","Entra"), ("S","Sale")]
 
@@ -1330,7 +1330,7 @@ class EvaluacionPrecalentadorAgua(models.Model):
     salida_general = models.OneToOneField(SalidaGeneralPrecalentadorAgua, on_delete=models.PROTECT)
     usuario = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="evaluacion_precalentador")
     equipo = models.ForeignKey(PrecalentadorAgua, on_delete=models.PROTECT, related_name="evaluacion_precalentador")
-    datos_corrientes = models.OneToOneField(DatosCorrientesEvaluacionPrecalentadorAgua, on_delete=models.PROTECT)
+    datos_corrientes = models.ForeignKey(DatosCorrientesEvaluacionPrecalentadorAgua, on_delete=models.PROTECT, related_name="datos_corrientes_evaluacion")
 
     class Meta:
         db_table = "precalentador_agua_evaluacion"

@@ -352,12 +352,12 @@ class CorrientesPrecalentadorAguaForm(forms.ModelForm):
 class CorrientesEvaluacionPrecalentadorAguaForm(forms.ModelForm):
     class Meta:
         model = CorrientesEvaluacionPrecalentadorAgua
-        exclude = ('id', 'evaluacion', 'entalpia', 'densidad', 'fase')
+        exclude = ('id', 'evaluacion', 'corriente', 'datos_corrientes')
 
 class DatosCorrientesEvaluacionPrecalentadorAguaForm(forms.ModelForm):
     class Meta:
         model = DatosCorrientesPrecalentadorAgua
-        exclude = ('id', 'corriente', 'datos_corrientes')
+        exclude = ('id', )
 
 class EvaluacionPrecalentadorAguaForm(forms.ModelForm):
     class Meta:
