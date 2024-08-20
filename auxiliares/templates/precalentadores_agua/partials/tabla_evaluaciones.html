@@ -14,7 +14,7 @@
     <td>{{evaluacion.usuario.get_full_name}}</td>
     <td>
       <button data-bs-toggle="modal" id="boton_resultados_{{evaluacion.pk}}" data-bs-target="#resultados_{{evaluacion.pk}}" class="btn btn-danger"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Ícono de Resultados"></button>
-      {% include 'ventiladores/partials/modal_resultados.html' %}
+      {% include 'precalentadores_agua/partials/modal_resultados.html' %}
     </td>
   </tr>
 {% endfor %}

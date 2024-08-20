@@ -2131,7 +2131,9 @@ class ConsultaEvaluacionPrecalentadorAgua(ConsultaEvaluacion, ObtenerPrecalentad
             'datos_corrientes__densidad_unidad',
             'datos_corrientes__flujo_unidad'
         ).prefetch_related(
-            'datos_corrientes__corrientes_evaluacion'
+            Prefetch('datos_corrientes__corrientes_evaluacion', CorrientePrecalentadorAgua.objects.select_related(
+                'corriente'
+            ))
         )
 
         return new_context
