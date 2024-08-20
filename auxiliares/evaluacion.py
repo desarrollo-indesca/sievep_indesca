@@ -597,7 +597,7 @@ def calcular_datos_corrientes(corrientes):
         corriente['h'] = calcular_entalpia_coolprop(corriente['temperatura'], corriente['presion'] if corriente['rol'] == "E" else None, "water")
         corriente['d'] = calcular_densidad("water", corriente['temperatura'], corriente['presion'])[0]
         corriente['c'] = calcular_cp("water",t1=corriente['temperatura'], t2=corriente['temperatura'], presion=corriente['presion'])
-        corriente['p'] = calcular_fase("water", corriente['temperatura'], corriente['temperatura'], corriente['presion']) if corriente['rol'] == "E" else "S"
+        corriente['p'] = calcular_fase("water", corriente['temperatura'], corriente['temperatura'], corriente['presion']).upper() if corriente['rol'] == "E" else "S"
         corrientes[i] = corriente
     
     return corrientes

@@ -1,40 +1,4 @@
-<!-- Resultados termodinámicos -->
-{% for corriente in resultados.resultados.corrientes_carcasa %}
-<td id="entalpia-corriente-{{corriente.pk}}" hx-swap-oob="true">
-    {{corriente.h}}
-    <input type="hidden" name="corriente-{{corriente.pk}}-entalpia" value="{{corriente.h}}">
-</td>
-
-<td id="densidad-corriente-{{corriente.pk}}" hx-swap-oob="true">
-    {{corriente.d}}
-    <input type="hidden" name="corriente-{{corriente.pk}}-densidad" value="{{corriente.d}}">
-</td>
-
-<td id="fase-corriente-{{corriente.pk}}" hx-swap-oob="true">
-    {{corriente.f}}
-    <input type="hidden" name="corriente-{{corriente.pk}}-fase" value="{{corriente.f}}">
-</td>
-{% endfor %}
-
-{% for corriente in resultados.resultados.corrientes_tubos %}
-<td id="entalpia-corriente-{{corriente.pk}}" hx-swap-oob="true">
-    {{corriente.h}}
-    <input type="hidden" name="corriente-{{corriente.pk}}-entalpia" value="{{corriente.h}}">
-</td>
-
-<td id="densidad-corriente-{{corriente.pk}}" hx-swap-oob="true">
-    {{corriente.d}}
-    <input type="hidden" name="corriente-{{corriente.pk}}-densidad" value="{{corriente.d}}">
-</td>
-
-<td id="fase-corriente-{{corriente.pk}}" hx-swap-oob="true">
-    {{corriente.f}}
-    <input type="hidden" name="corriente-{{corriente.pk}}-fase" value="{{corriente.f}}">
-</td>
-{% endfor %}
-
 <div id="resultados" hx-swap-oob="true">
-    {{resultados.corrientes_carcasa}}
     <table class="table table-hover">
         <thead>
             <tr>
@@ -44,44 +8,88 @@
         <tbody>
             <tr>
                 <th class="table-dark w-50">Eficiencia (%)</th>
-                <td class="w-50">{{resultados.resultados.eficiencia}}</td>
+                <td class="w-50">{{resultados.eficiencia|floatformat:4}}</td>
             </tr>
             <tr>
-                <th class="table-dark w-50">Calor Carcasa ()</th>
-                <td class="w-50">{{resultados.resultados.calor_carcasa}}</td>
+                <th class="table-dark w-50">Calor Carcasa (W)</th>
+                <td class="w-50">{{resultados.calor_carcasa|floatformat:4}}</td>
             </tr>
             <tr>
-                <th class="table-dark w-50">Calor Tubo ()</th>
-                <td class="w-50">{{resultados.resultados.calor_tubo}}</td>
+                <th class="table-dark w-50">Calor Tubo (W)</th>
+                <td class="w-50">{{resultados.calor_tubo|floatformat:4}}</td>
             </tr>
             <tr>
-                <th class="table-dark w-50">Coeficiente Global de Transferencia U ()</th>
-                <td class="w-50">{{resultados.resultados.u}}</td>
+                <th class="table-dark w-50">Coeficiente Global de Transferencia U (W/m²K)</th>
+                <td class="w-50">{{resultados.u|floatformat:4}}</td>
             </tr>
             <tr>
-                <th class="table-dark w-50">Delta T Tubos ()</th>
-                <td class="w-50">{{resultados.resultados.delta_t_tubos}}</td>
+                <th class="table-dark w-50">Delta T Tubos ({{resultados.temperatura_unidad}})</th>
+                <td class="w-50">{{resultados.delta_t_tubos|floatformat:4}}</td>
             </tr>
             <tr>
-                <th class="table-dark w-50">Delta T Carcasa ()</th>
-                <td class="w-50">{{resultados.resultados.delta_t_carcasa}}</td>
+                <th class="table-dark w-50">Delta T Carcasa ({{resultados.temperatura_unidad}})</th>
+                <td class="w-50">{{resultados.delta_t_carcasa|floatformat:4}}</td>
             </tr>
             <tr>
-                <th class="table-dark w-50">MTD ()</th>
-                <td class="w-50">{{resultados.resultados.mtd}}</td>
+                <th class="table-dark w-50">MTD ({{resultados.temperatura_unidad}})</th>
+                <td class="w-50">{{resultados.mtd|floatformat:4}}</td>
             </tr>
             <tr>
-                <th class="table-dark w-50">Ensuciamiento ()</th>
-                <td class="w-50">{{resultados.resultados.ensuciamiento}}</td>
+                <th class="table-dark w-50">Ensuciamiento (m²K/W)</th>
+                <td class="w-50">{{resultados.ensuciamiento|floatformat:4}}</td>
             </tr>
             <tr>
                 <th class="table-dark w-50">NTU</th>
-                <td class="w-50">{{resultados.resultados.ntu}}</td>
+                <td class="w-50">{{resultados.ntu|floatformat:4}}</td>
             </tr>
             <tr>
-                <th class="table-dark w-50">Cmín ()</th>
-                <td class="w-50">{{resultados.resultados.cmin}}</td>
+                <th class="table-dark w-50">Cmín (W)</th>
+                <td class="w-50">{{resultados.cmin|floatformat:4}}</td>
             </tr>
         </tbody>
     </table>
+
+    {{resultados.corrienes_carcasa}}
 </div>
+
+{% for corriente in resultados.corrientes_carcasa %}
+<table>
+    <tbody>
+        <td id="entalpia-corriente-{{corriente.pk}}" hx-swap-oob="true">
+            {{corriente.h|floatformat:4}}
+            <input type="hidden" name="corriente-{{corriente.pk}}-entalpia" value="{{corriente.h}}">
+        </td>
+
+        <td id="densidad-corriente-{{corriente.pk}}" hx-swap-oob="true">
+            {{corriente.d|floatformat:4}}
+            <input type="hidden" name="corriente-{{corriente.pk}}-densidad" value="{{corriente.d}}">
+        </td>
+
+        <td id="fase-corriente-{{corriente.pk}}" hx-swap-oob="true">
+            {{corriente.p}}
+            <input type="hidden" name="corriente-{{corriente.pk}}-fase" value="{{corriente.p}}">
+        </td>
+    </tbody>
+</table>
+{% endfor %}
+
+{% for corriente in resultados.corrientes_tubo %}
+<table>
+    <tbody>
+        <td id="entalpia-corriente-{{corriente.pk}}" hx-swap-oob="true">
+            {{corriente.h|floatformat:4}}
+            <input type="hidden" name="corriente-{{corriente.pk}}-entalpia" value="{{corriente.h}}">
+        </td>
+
+        <td id="densidad-corriente-{{corriente.pk}}" hx-swap-oob="true">
+            {{corriente.d|floatformat:4}}
+            <input type="hidden" name="corriente-{{corriente.pk}}-densidad" value="{{corriente.d}}">
+        </td>
+
+        <td id="fase-corriente-{{corriente.pk}}" hx-swap-oob="true">
+            {{corriente.p}}
+            <input type="hidden" name="corriente-{{corriente.pk}}-fase" value="{{corriente.p}}">
+        </td>
+    </tbody>
+</table>
+{% endfor %}

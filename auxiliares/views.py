@@ -2314,6 +2314,33 @@ class EvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMi
             u_diseno=u
         )
 
+        # Unidades de Salida
+        entalpia_unidad = int(self.request.POST.get('entalpia_unidad'))
+        densidad_unidad = int(self.request.POST.get('densidad_unidad'))
+        temperatura_unidad = int(self.request.POST.get('temperatura_unidad'))
+
+        corrientes_carcasa = []
+        for corriente in resultados['resultados']['corrientes_carcasa']:
+            corriente["entalpia"] = transformar_unidades_entalpia_masica([corriente["h"]], 60, entalpia_unidad)[0]
+            corriente["entalpia"] = transformar_unidades_densidad([corriente["d"]], 30, densidad_unidad)[0]
+            corrientes_carcasa.append(corriente)
+
+        corrientes_tubo = []
+        for corriente in resultados['resultados']['corrientes_tubo']:
+            corriente["entalpia"] = transformar_unidades_entalpia_masica([corriente["h"]], 60, entalpia_unidad)[0]
+            corriente["entalpia"] = transformar_unidades_densidad([corriente["d"]], 30, densidad_unidad)[0]
+            corrientes_tubo.append(corriente)
+
+        resultados['resultados']["corrientes_carcasa"] = corrientes_carcasa
+        resultados['resultados']["corrientes_tubo"] = corrientes_tubo    
+
+        if(temperatura_unidad > 7):   
+            resultados['resultados']['mtd'] = transformar_unidades_temperatura([resultados['resultados']['mtd']], 1, temperatura_unidad)[0]
+            resultados['resultados']['delta_t_tubos'] = transformar_unidades_temperatura([resultados['resultados']['delta_t_tubos']], 1, temperatura_unidad)[0]
+            resultados['resultados']['delta_t_carcasa'] = transformar_unidades_temperatura([resultados['resultados']['delta_t_carcasa']], 1, temperatura_unidad)[0]
+        
+        resultados['resultados']['temperatura_unidad'] = Unidades.objects.get(pk=temperatura_unidad)
+
         return resultados
 
     def calcular(self):
