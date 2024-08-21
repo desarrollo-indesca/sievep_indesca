@@ -2242,7 +2242,7 @@ class CreacionCorrientesPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecale
     def post(self, request, pk):
         return self.almacenar_datos(request)
 
-class EvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMixin, View):
+class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMixin, View):
     """
     Resumen:
         Vista para mostrar la evaluación de un precalentador de agua. 
@@ -2440,6 +2440,34 @@ class EvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMi
             except:
                 return render(request, "precalentadores_agua/partials/almacenamiento_fallido.html")
 
+class GenerarGraficaPrecalentadorAire(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
+    """
+    Resumen:
+        Vista AJAX que envía los datos necesarios para la gráfica histórica de evaluaciones de precalentadores de aire.
+    
+    Métodos:
+        get(self, request, pk) -> JsonResponse
+            Obtiene los datos y envía el Json correspondiente de respuesta
+    """
+    def get(self, request, pk):
+        bomba = PrecalentadorAgua.objects.get(pk=pk)
+        evaluaciones = EvaluacionPrecalentadorAgua.objects.filter(activo = True, equipo = bomba).select_related('salida_general').order_by('fecha')
+        
+        evaluaciones = self.filtrar(request, evaluaciones)
+        
+        res = []
+
+        for evaluacion in evaluaciones:
+            salida = evaluacion.salida_general
+            res.append({
+                'fecha': evaluacion.fecha.__str__(),
+                'u': salida.u,
+                'eficiencia': salida.eficiencia,
+                'ensuciamiento': salida.factor_ensuciamiento,
+            })
+
+        return JsonResponse(res[:15], safe=False)
+  
 # PRECALENTADORES DE AIRE
 
 # VISTAS DE DUPLICACIÓN

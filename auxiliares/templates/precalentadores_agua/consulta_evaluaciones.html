@@ -70,7 +70,7 @@
     <button type="button" class="btn btn-secondary" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{equipo.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button>
     <button type="button" class="btn btn-warning" style="color: black;" data-bs-toggle="modal" data-bs-target="#grafica_historica"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Mostrar gráfica histórico">&nbsp;Gráfica Histórica</button>
   </form>
-  {% include 'bombas/partials/historico.html' with bomba=equipo %}
+  {% include 'precalentadores_agua/partials/historico.html' with precalentador=equipo %}
   {% include 'precalentadores_agua/partials/ficha.html' with precalentador=equipo %}
 </div>
 <footer aria-label="Page navigation example">
