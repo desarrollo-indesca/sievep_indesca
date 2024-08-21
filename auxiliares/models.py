@@ -1357,6 +1357,7 @@ class CorrientesEvaluacionPrecalentadorAgua(models.Model):
     temperatura = models.FloatField()
     entalpia = models.FloatField()
     densidad = models.FloatField()
+    cp = models.FloatField()
     fase = models.CharField(max_length=1, choices=FASES_CORRIENTES_PRECALENTADOR)
     datos_corrientes = models.ForeignKey(DatosCorrientesEvaluacionPrecalentadorAgua, on_delete=models.PROTECT, related_name="corrientes_evaluacion")
     corriente = models.ForeignKey(CorrientePrecalentadorAgua, on_delete=models.PROTECT, related_name="corrientes_evaluacion_precalentador_agua")

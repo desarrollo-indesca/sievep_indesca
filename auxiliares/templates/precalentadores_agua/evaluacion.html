@@ -46,7 +46,8 @@
                                 <th class="text-center">Temperatura</th>
                                 <th class="text-center">Presión</th>
                                 <th class="text-center">Entalpía</th>
-                                <th class="text-center">Densidad</th>                        
+                                <th class="text-center">Densidad</th>
+                                <th class="text-center">Cp</th>                        
                                 <th class="text-center">Fase</th>
                             </tr>
         
@@ -56,28 +57,31 @@
                                 <td class="text-center">-</td>
                                 <td class="text-center">
                                     <select name="flujo_unidad" id="id_flujo_unidad" class="form-select">
-                                        {% include 'unidades.html' with tipo="F" pk_selected=form_datos_corrientes.instance.flujo_unidad.pk %}
+                                        {% include 'unidades.html' with tipo="F" pk_selected=datos_corrientes.initial.flujo_unidad.pk %}
                                     </select>
                                 </td>
                                 <td class="text-center">
                                     <select name="temperatura_unidad" id="id_temperatura_unidad" class="form-select">
-                                        {% include 'unidades.html' with tipo="T" pk_selected=form_datos_corrientes.instance.temperatura_unidad.pk %}
+                                        {% include 'unidades.html' with tipo="T" pk_selected=datos_corrientes.initial.temperatura_unidad.pk %}
                                     </select>
                                 </td>
                                 <td class="text-center">
                                     <select name="presion_unidad" id="id_presion_unidad" class="form-select">
-                                        {% include 'unidades.html' with tipo="P" pk_selected=form_datos_corrientes.instance.presion_unidad.pk %}
+                                        {% include 'unidades.html' with tipo="P" pk_selected=datos_corrientes.initial.presion_unidad.pk %}
                                     </select>
                                 </td>
                                 <td class="text-center">
                                     <select name="entalpia_unidad" id="id_entalpia_unidad" class="form-select">
-                                        {% include 'unidades.html' with tipo="n" pk_selected=form_datos_corrientes.instance.entalpia_unidad.pk %}
+                                        {% include 'unidades.html' with tipo="n" pk_selected=datos_corrientes.initial.entalpia_unidad.pk %}
                                     </select>
                                 </td>
                                 <td class="text-center">
                                     <select name="densidad_unidad" id="id_densidad_unidad" class="form-select">
-                                        {% include 'unidades.html' with tipo="D" pk_selected=form_datos_corrientes.instance.densidad_unidad.pk %}
+                                        {% include 'unidades.html' with tipo="D" pk_selected=datos_corrientes.initial.densidad_unidad.pk %}
                                     </select>
+                                </td>
+                                <td class="text-center">
+                                    kJ/Kg
                                 </td>
                                 <td class="text-center">
                                     -
@@ -115,6 +119,8 @@
                                 </td>
                                 <td class="change-blank" id="densidad-corriente-{{form.corriente.pk}}">
                                 </td>
+                                <td class="change-blank" id="cp-corriente-{{form.corriente.pk}}">
+                                </td>
                                 <td class="change-blank" id="fase-corriente-{{form.corriente.pk}}">
                                 </td>
                             </tr>
@@ -133,10 +139,11 @@
                                 <th class="text-center">Nombre</th>
                                 <th class="text-center">Entra/sale</th>
                                 <th class="text-center">Flujo</th>
-                                <th class="text-center">Entalpía</th>
-                                <th class="text-center">Presión</th>
-                                <th class="text-center">Densidad</th>
                                 <th class="text-center">Temperatura</th>
+                                <th class="text-center">Presión</th>
+                                <th class="text-center">Entalpía</th>
+                                <th class="text-center">Densidad</th>
+                                <th class="text-center">Cp</th>                        
                                 <th class="text-center">Fase</th>
                             </tr>
         
@@ -146,28 +153,31 @@
                                 <td class="text-center">-</td>
                                 <td class="text-center">
                                     <select name="flujo_unidad" id="id_flujo_unidad" class="form-select" disabled>
-                                        {% include 'unidades.html' with tipo="F" pk_selected=form_datos_corrientes.instance.flujo_unidad.pk %}
+                                        {% include 'unidades.html' with tipo="F" pk_selected=datos_corrientes.initial.flujo_unidad.pk %}
                                     </select>
                                 </td>
                                 <td class="text-center">
                                     <select name="temperatura_unidad" id="id_temperatura_unidad" class="form-select" disabled>
-                                        {% include 'unidades.html' with tipo="T" pk_selected=form_datos_corrientes.instance.temperatura_unidad.pk %}
+                                        {% include 'unidades.html' with tipo="T" pk_selected=datos_corrientes.initial.temperatura_unidad.pk %}
                                     </select>
                                 </td>
                                 <td class="text-center">
                                     <select name="presion_unidad" id="id_presion_unidad" class="form-select" disabled>
-                                        {% include 'unidades.html' with tipo="P" pk_selected=form_datos_corrientes.instance.presion_unidad.pk %}
+                                        {% include 'unidades.html' with tipo="P" pk_selected=datos_corrientes.initial.presion_unidad.pk %}
                                     </select>
                                 </td>
                                 <td class="text-center">
                                     <select name="entalpia_unidad" id="id_entalpia_unidad" class="form-select" disabled>
-                                        {% include 'unidades.html' with tipo="n" pk_selected=form_datos_corrientes.instance.entalpia_unidad.pk %}
+                                        {% include 'unidades.html' with tipo="n" pk_selected=datos_corrientes.initial.entalpia_unidad.pk %}
                                     </select>
                                 </td>
                                 <td class="text-center">
                                     <select name="densidad_unidad" id="id_densidad_unidad" class="form-select" disabled>
-                                        {% include 'unidades.html' with tipo="D" pk_selected=form_datos_corrientes.instance.densidad_unidad.pk %}
+                                        {% include 'unidades.html' with tipo="D" pk_selected=datos_corrientes.initial.densidad_unidad.pk %}
                                     </select>
+                                </td>
+                                <td class="text-center">
+                                    kJ/Kg
                                 </td>
                                 <td class="text-center">
                                     -
@@ -204,6 +214,8 @@
                                 <td class="change-blank" id="entalpia-corriente-{{form.corriente.pk}}">
                                 </td>
                                 <td class="change-blank" id="densidad-corriente-{{form.corriente.pk}}">
+                                </td>
+                                <td class="change-blank" id="cp-corriente-{{form.corriente.pk}}">
                                 </td>
                                 <td class="change-blank" id="fase-corriente-{{form.corriente.pk}}">
                                 </td>

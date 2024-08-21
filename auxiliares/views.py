@@ -2335,13 +2335,13 @@ class EvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMi
         corrientes_carcasa = []
         for corriente in resultados['resultados']['corrientes_carcasa']:
             corriente["entalpia"] = transformar_unidades_entalpia_masica([corriente["h"]], 60, entalpia_unidad)[0]
-            corriente["entalpia"] = transformar_unidades_densidad([corriente["d"]], 30, densidad_unidad)[0]
+            corriente["densidad"] = transformar_unidades_densidad([corriente["d"]], 30, densidad_unidad)[0]
             corrientes_carcasa.append(corriente)
 
         corrientes_tubo = []
         for corriente in resultados['resultados']['corrientes_tubo']:
             corriente["entalpia"] = transformar_unidades_entalpia_masica([corriente["h"]], 60, entalpia_unidad)[0]
-            corriente["entalpia"] = transformar_unidades_densidad([corriente["d"]], 30, densidad_unidad)[0]
+            corriente["densidad"] = transformar_unidades_densidad([corriente["d"]], 30, densidad_unidad)[0]
             corrientes_tubo.append(corriente)
 
         resultados['resultados']["corrientes_carcasa"] = corrientes_carcasa

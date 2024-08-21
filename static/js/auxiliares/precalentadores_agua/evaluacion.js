@@ -39,3 +39,48 @@ $('#submit').click(e => {
     if(!confirm("¿Está seguro que desea realizar esta acción?"))
         e.preventDefault();
 });
+
+$("#id_flujo_unidad").change((e) => {
+    const array = $('select[name="flujo_unidad"]').toArray().slice(1);
+  
+    array.map((x) => {
+      x.innerHTML =
+        "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+    });
+  });
+
+  $("#id_temperatura_unidad").change((e) => {
+    const array = $('select[name="temperatura_unidad"]').toArray().slice(1);
+  
+    array.map((x) => {
+      x.innerHTML =
+        "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+    });
+  });
+
+$("#id_presion_unidad").change((e) => {
+    const array = $('select[name="presion_unidad"]').toArray().slice(1);
+  
+    array.map((x) => {
+      x.innerHTML =
+        "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+    });
+});
+
+$("#id_entalpia_unidad").change((e) => {
+    const array = $('select[name="entalpia_unidad"]').toArray().slice(1);
+  
+    array.map((x) => {
+      x.innerHTML =
+        "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+    });
+});
+
+$("#id_densidad_unidad").change((e) => {
+    const array = $('select[name="densidad_unidad"]').toArray().slice(1);
+  
+    array.map((x) => {
+      x.innerHTML =
+        "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+    });
+});

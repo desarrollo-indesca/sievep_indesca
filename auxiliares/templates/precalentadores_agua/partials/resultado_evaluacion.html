@@ -70,6 +70,11 @@
             {{corriente.p}}
             <input type="hidden" name="corriente-{{corriente.pk}}-fase" value="{{corriente.p|unlocalize}}">
         </td>
+
+        <td id="cp-corriente-{{corriente.pk}}" hx-swap-oob="true">
+            {{corriente.c}}
+            <input type="hidden" name="corriente-{{corriente.pk}}-cp" value="{{corriente.c|unlocalize}}">
+        </td>
     </tbody>
 </table>
 {% endfor %}
@@ -90,6 +95,11 @@
         <td id="fase-corriente-{{corriente.pk}}" hx-swap-oob="true">
             {{corriente.p}}
             <input type="hidden" name="corriente-{{corriente.pk}}-fase" value="{{corriente.p|unlocalize}}">
+        </td>
+
+        <td id="cp-corriente-{{corriente.pk}}" hx-swap-oob="true">
+            {{corriente.c}}
+            <input type="hidden" name="corriente-{{corriente.pk}}-cp" value="{{corriente.c|unlocalize}}">
         </td>
     </tbody>
 </table>
