@@ -1,7 +1,15 @@
+const cambio = () => {
+  $("#resultados").html("");
+  $(".change-blank").html("");
+  $("#tipo_operacion").val("calcular");
+}
+
+$("form").keyup((e) => {
+  cambio();    
+});
+
 $("form").change((e) => {
-    $("#resultados").html("");
-    $(".change-blank").html("");
-    $("#tipo_operacion").val("calcular");
+  cambio();    
 });
 
 document.body.addEventListener("htmx:beforeRequest", function (evt) {

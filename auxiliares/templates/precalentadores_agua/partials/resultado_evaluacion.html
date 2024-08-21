@@ -44,7 +44,7 @@
                 <td class="w-50">{{resultados.ntu|floatformat:4}}</td>
             </tr>
             <tr>
-                <th class="table-dark w-50">Cmín (W)</th>
+                <th class="table-dark w-50">Cmín (W/K)</th>
                 <td class="w-50">{{resultados.cmin|floatformat:4}}</td>
             </tr>
         </tbody>
@@ -56,22 +56,22 @@
 {% for corriente in resultados.corrientes_carcasa %}
 <table>
     <tbody>
-        <td id="entalpia-corriente-{{corriente.pk}}" hx-swap-oob="true">
+        <td id="entalpia-corriente-{{corriente.pk}}" class="change-blank" hx-swap-oob="true">
             {{corriente.h|floatformat:4}}
             <input type="hidden" name="corriente-{{corriente.pk}}-entalpia" value="{{corriente.h|unlocalize}}">
         </td>
 
-        <td id="densidad-corriente-{{corriente.pk}}" hx-swap-oob="true">
+        <td class="change-blank" id="densidad-corriente-{{corriente.pk}}" hx-swap-oob="true">
             {{corriente.d|floatformat:4}}
             <input type="hidden" name="corriente-{{corriente.pk}}-densidad" value="{{corriente.d|unlocalize}}">
         </td>
 
-        <td id="fase-corriente-{{corriente.pk}}" hx-swap-oob="true">
+        <td class="change-blank" id="fase-corriente-{{corriente.pk}}" hx-swap-oob="true">
             {{corriente.p}}
             <input type="hidden" name="corriente-{{corriente.pk}}-fase" value="{{corriente.p|unlocalize}}">
         </td>
 
-        <td id="cp-corriente-{{corriente.pk}}" hx-swap-oob="true">
+        <td class="change-blank" id="cp-corriente-{{corriente.pk}}" hx-swap-oob="true">
             {{corriente.c}}
             <input type="hidden" name="corriente-{{corriente.pk}}-cp" value="{{corriente.c|unlocalize}}">
         </td>
@@ -82,22 +82,22 @@
 {% for corriente in resultados.corrientes_tubo %}
 <table>
     <tbody>
-        <td id="entalpia-corriente-{{corriente.pk}}" hx-swap-oob="true">
+        <td class="change-blank" id="entalpia-corriente-{{corriente.pk}}" hx-swap-oob="true">
             {{corriente.h|floatformat:4}}
             <input type="hidden" name="corriente-{{corriente.pk}}-entalpia" value="{{corriente.h|unlocalize}}">
         </td>
 
-        <td id="densidad-corriente-{{corriente.pk}}" hx-swap-oob="true">
+        <td class="change-blank" id="densidad-corriente-{{corriente.pk}}" hx-swap-oob="true">
             {{corriente.d|floatformat:4}}
             <input type="hidden" name="corriente-{{corriente.pk}}-densidad" value="{{corriente.d|unlocalize}}">
         </td>
 
-        <td id="fase-corriente-{{corriente.pk}}" hx-swap-oob="true">
+        <td class="change-blank" id="fase-corriente-{{corriente.pk}}" hx-swap-oob="true">
             {{corriente.p}}
             <input type="hidden" name="corriente-{{corriente.pk}}-fase" value="{{corriente.p|unlocalize}}">
         </td>
 
-        <td id="cp-corriente-{{corriente.pk}}" hx-swap-oob="true">
+        <td class="change-blank" id="cp-corriente-{{corriente.pk}}" hx-swap-oob="true">
             {{corriente.c}}
             <input type="hidden" name="corriente-{{corriente.pk}}-cp" value="{{corriente.c|unlocalize}}">
         </td>

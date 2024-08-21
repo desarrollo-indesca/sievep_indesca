@@ -20,7 +20,6 @@
                 <button type="button" class="btn btn-success" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{precalentador.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button>
                 {% include 'precalentadores_agua/partials/ficha.html' with precalentador=precalentador %}
             </div>
-        </div>
     </div>
 
     <form method="post" enctype="multipart/form-data" hx-post="{% url 'evaluar_precalentador_agua' pk=precalentador.pk %}#resultados" hx-indicator="#spinner" hx-swap="none">
@@ -81,7 +80,7 @@
                                     </select>
                                 </td>
                                 <td class="text-center">
-                                    kJ/Kg
+                                    J/KgK
                                 </td>
                                 <td class="text-center">
                                     -
@@ -177,7 +176,7 @@
                                     </select>
                                 </td>
                                 <td class="text-center">
-                                    kJ/Kg
+                                    J/KgK
                                 </td>
                                 <td class="text-center">
                                     -

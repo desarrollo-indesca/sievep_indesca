@@ -399,3 +399,5 @@ def transformar_unidades_velocidad_lineal(args: list, unidad: int, unidad_salida
     actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
     return actualizadas
+
+print(transformar_unidades_u([3616.9469], 27, 999))

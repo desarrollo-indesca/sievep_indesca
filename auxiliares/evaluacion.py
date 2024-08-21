@@ -1,6 +1,6 @@
 import math
 from calculos.unidades import transformar_unidades_longitud, transformar_unidades_viscosidad, transformar_unidades_densidad, transformar_unidades_presion, transformar_unidades_flujo_volumetrico
-from calculos.termodinamicos import DENSIDAD_DEL_AGUA_LIQUIDA_A_5C, calcular_fase, calcular_cp, calcular_densidad, calcular_densidad_aire, calcular_presion_vapor, calcular_viscosidad, calcular_entalpia_coolprop
+from calculos.termodinamicos import DENSIDAD_DEL_AGUA_LIQUIDA_A_5C, calcular_densidad_coolprop, calcular_fase, calcular_cp, calcular_densidad, calcular_densidad_aire, calcular_presion_vapor, calcular_viscosidad, calcular_entalpia_coolprop
 
 GRAVEDAD = 9.81
 
@@ -553,7 +553,6 @@ def evaluar_ventilador(presion_entrada: float, presion_salida: float, flujo: flo
         'tipo_flujo': tipo_flujo
     }
 
-# TODO: FUNCIONES EVALUACIÓN PRECALENTADOR DE AGUA
 # Funciones de Evaluación de Precalentador de Agua
 def calcular_calor(corrientes):
     """
@@ -575,7 +574,7 @@ def calcular_calor(corrientes):
     
     return q
 
-def calcular_datos_corrientes(corrientes):
+def calcular_datos_corrientes(corrientes, carcasa = False):
     """
     Resumen:
         Función que calcula los datos de un conjunto de corrientes.
@@ -593,11 +592,16 @@ def calcular_datos_corrientes(corrientes):
                 'p' (str): Fase ('S' o 'E') ('S': Salida / 'E': Entrada)
     """
 
+    corrientes_entrada = 0
     for i,corriente in enumerate(corrientes):
-        corriente['h'] = calcular_entalpia_coolprop(corriente['temperatura'], corriente['presion'] if corriente['rol'] == "E" else None, "water")
-        corriente['d'] = calcular_densidad("water", corriente['temperatura'], corriente['presion'])[0]
+        print(corriente['temperatura'])
+        if(corriente['rol'] == 'E'):
+            corrientes_entrada += 1
+        saturar = carcasa and (corriente['rol'] == "S" or corrientes_entrada > 1 and corriente['rol'] == "E")
+        corriente['h'] = calcular_entalpia_coolprop(corriente['temperatura'], corriente['presion'] if not saturar else None, "water")
+        corriente['d'] = calcular_densidad_coolprop(corriente['temperatura'], corriente['presion'], "water")
         corriente['c'] = calcular_cp("water",t1=corriente['temperatura'], t2=corriente['temperatura'], presion=corriente['presion'])
-        corriente['p'] = calcular_fase("water", corriente['temperatura'], corriente['temperatura'], corriente['presion']).upper() if corriente['rol'] == "E" else "S"
+        corriente['p'] = calcular_fase("water", corriente['temperatura'], corriente['temperatura'], corriente['presion']).upper() if not saturar else "S"
         corrientes[i] = corriente
     
     return corrientes
@@ -672,7 +676,7 @@ def calcular_ensuciamiento_precalentador_agua(u: float, u_diseno: float) -> floa
     """
     return 1/u - 1/u_diseno
 
-def calcular_cmin_precalentador_agua(corrientes: float, area_total: float) -> float:
+def calcular_cmin_precalentador_agua(corrientes: float) -> float:
     """
     Resumen:
         Función que calcula el mínimo de la capacidad térmica (Cmin) de un precalentador de agua.
@@ -680,7 +684,6 @@ def calcular_cmin_precalentador_agua(corrientes: float, area_total: float) -> fl
     Parámetros:
         corrientes (list): Lista de diccionarios que representan las corrientes.
             Cada diccionario debe contener las claves 'flujo' [Kg/s] y 'c' [J/KgC].
-        area_total (float): Área total del precalentador [m²].
     
     Devuelve:
         float: El mínimo de la capacidad térmica (Cmin) [W/K].
@@ -716,7 +719,7 @@ def calcular_eficiencia_precalentador_agua(ntu: float) -> float:
     Devuelve:
         float: La eficiencia del precalentador de agua [%].
     """
-    return 1 - math.exp(-ntu)
+    return (1 - math.exp(-ntu))*100
 
 def compilar_resultados_precalentador_agua(
         corrientes_carcasa: list, corrientes_tubo: list, 
@@ -815,7 +818,7 @@ def evaluar_precalentador_agua(
     """
 
     # Calcular datos termodinámicos necesarios
-    corrientes_carcasa = calcular_datos_corrientes(corrientes_carcasa_p)
+    corrientes_carcasa = calcular_datos_corrientes(corrientes_carcasa_p, True)
     corrientes_tubo = calcular_datos_corrientes(corrientes_tubo_p)
 
     # Calcular calor intercambiado  
@@ -830,7 +833,7 @@ def evaluar_precalentador_agua(
     ensuciamiento = calcular_ensuciamiento_precalentador_agua(u, u_diseno)
 
     # Calcular lmtd y ntu
-    cmin = calcular_cmin_precalentador_agua(corrientes_tubo, area_total)
+    cmin = calcular_cmin_precalentador_agua(corrientes_tubo)
     ntu = calcular_ntu_precalentador_agua(u, area_total, cmin)
 
     # Calcular eficiencia    

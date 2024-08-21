@@ -2291,9 +2291,9 @@ class EvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMi
     
     def crear_dict_corrientes(self, corriente):
         return {
-            'temperatura': transformar_unidades_temperatura([corriente.temperatura], corriente.datos_corriente.temperatura_unidad.pk)[0],
-            'presion': transformar_unidades_presion([corriente.presion], corriente.datos_corriente.temperatura_unidad.pk)[0],
-            'flujo': transformar_unidades_flujo([corriente.flujo], corriente.datos_corriente.flujo_unidad.pk)[0],
+            'temperatura': transformar_unidades_temperatura([float(self.request.POST.get(f'corriente-{corriente.pk}-temperatura'))], int(self.request.POST.get('temperatura_unidad')))[0],
+            'presion': transformar_unidades_presion([float(self.request.POST.get(f'corriente-{corriente.pk}-presion'))], int(self.request.POST.get('presion_unidad')))[0],
+            'flujo': transformar_unidades_flujo([float(self.request.POST.get(f'corriente-{corriente.pk}-flujo'))], int(self.request.POST.get('flujo_unidad')))[0],
             'rol': corriente.rol,
             'fase': corriente.fase,
             'numero_corriente': corriente.numero_corriente,
@@ -2317,7 +2317,6 @@ class EvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMi
             else:
                 corrientes_tubo.append(self.crear_dict_corrientes(corriente))
 
-        u /= zonas.count()
         a /= zonas.count()
 
         resultados = evaluar_precalentador_agua(

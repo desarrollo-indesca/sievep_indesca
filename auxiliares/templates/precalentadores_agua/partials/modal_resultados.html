@@ -13,10 +13,10 @@
         <div class="modal-body text-start small">
           <div class="row">
             <div class="col-12">
-                <table class="table table-responsive">
+                <table class="table table-responsive text-center">
                     <thead>
                         <tr>
-                            <th class="text-center table-success" colspan="9">
+                            <th class="text-center table-success" colspan="10">
                                 DATOS DE LAS CORRIENTES DE LA CARCASA
                             </th>
                         </tr>
@@ -29,6 +29,7 @@
                             <th class="text-center table-dark">FLUJO ({{evaluacion.datos_corrientes.flujo_unidad}})</th>
                             <th class="text-center table-dark">ENTALPIA ({{evaluacion.datos_corrientes.entalpia_unidad}})</th>
                             <th class="text-center table-dark">DENSIDAD ({{evaluacion.datos_corrientes.densidad_unidad}})</th>
+                            <th class="text-center table-dark">CP (J/KgK)</th>
                             <th class="text-center table-dark">FASE</th>
                         </tr>
                     </thead>
@@ -40,11 +41,12 @@
                             <td> {{corriente.corriente.numero_corriente}} </td>
                             <td> {{corriente.corriente.nombre}} </td>
                             <td> {{corriente.corriente.rol_largo}} </td>
-                            <td> {{corriente.temperatura}} </td>
-                            <td> {{corriente.presion}} </td>
-                            <td> {{corriente.flujo}} </td>
-                            <td> {{corriente.entalpia}} </td>
-                            <td> {{corriente.densidad}} </td>
+                            <td> {{corriente.temperatura|floatformat:4}} </td>
+                            <td> {{corriente.presion|floatformat:4}} </td>
+                            <td> {{corriente.flujo|floatformat:4}} </td>
+                            <td> {{corriente.entalpia|floatformat:4}} </td>
+                            <td> {{corriente.densidad|floatformat:4}} </td>
+                            <td> {{corriente.cp|floatformat:4}} </td>
                             <td> {{corriente.fase_largo}} </td>
                         </tr>
                         {% endif %}
@@ -53,10 +55,10 @@
                 </table>
             </div>
             <div class="col-12">
-                <table class="table table-responsive">
+                <table class="table table-responsive text-center">
                     <thead>
                         <tr>
-                            <th class="text-center table-success" colspan="9">
+                            <th class="text-center table-success" colspan="10">
                                 DATOS DE LAS CORRIENTES DE LOS TUBOS
                             </th>
                         </tr>
@@ -69,6 +71,7 @@
                             <th class="text-center table-dark">FLUJO ({{evaluacion.datos_corrientes.flujo_unidad}})</th>
                             <th class="text-center table-dark">ENTALPIA ({{evaluacion.datos_corrientes.entalpia_unidad}})</th>
                             <th class="text-center table-dark">DENSIDAD ({{evaluacion.datos_corrientes.densidad_unidad}})</th>
+                            <th class="text-center table-dark">CP (J/KgK)</th>
                             <th class="text-center table-dark">FASE</th>
                         </tr>
                     </thead>
@@ -80,11 +83,12 @@
                             <td> {{corriente.corriente.numero_corriente}} </td>
                             <td> {{corriente.corriente.nombre}} </td>
                             <td> {{corriente.corriente.rol_largo}} </td>
-                            <td> {{corriente.temperatura}} </td>
-                            <td> {{corriente.presion}} </td>
-                            <td> {{corriente.flujo}} </td>
-                            <td> {{corriente.entalpia}} </td>
-                            <td> {{corriente.densidad}} </td>
+                            <td> {{corriente.temperatura|floatformat:4}} </td>
+                            <td> {{corriente.presion|floatformat:4}} </td>
+                            <td> {{corriente.flujo|floatformat:4}} </td>
+                            <td> {{corriente.entalpia|floatformat:4}} </td>
+                            <td> {{corriente.densidad|floatformat:4}} </td>
+                            <td> {{corriente.cp|floatformat:4}} </td>
                             <td> {{corriente.fase_largo}} </td>
                         </tr>
                         {% endif %}
@@ -142,7 +146,7 @@
                                 <td class="w-50">{{evaluacion.salida_general.ntu|floatformat:4}}</td>
                             </tr>
                             <tr>
-                                <th class="table-dark w-50">Cmín (W)</th>
+                                <th class="table-dark w-50">Cmín (W/K)</th>
                                 <td class="w-50">{{evaluacion.salida_general.cmin|floatformat:4}}</td>
                             </tr>
                         </tbody>
