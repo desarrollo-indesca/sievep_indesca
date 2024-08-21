@@ -2175,9 +2175,10 @@ class CreacionCorrientesPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecale
         return {
             'formset_corrientes_carcasa': formset_corrientes_carcasa,
             'formset_corrientes_tubos': formset_corrientes_tubos,
-            'form_datos_corrientes': DatosCorrientesPrecalentadorAguaForm(),
+            'form_datos_corrientes': DatosCorrientesPrecalentadorAguaForm() if not precalentador.datos_corrientes else DatosCorrientesPrecalentadorAguaForm(instance=precalentador.datos_corrientes),
             'precalentador': precalentador,
             'unidades': Unidades.objects.all(),
+            'titulo': f"Corrientes del precalentador {precalentador.tag}"
         }
 
     def get(self, *args, **kwargs):
@@ -2273,9 +2274,16 @@ class EvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMi
             'precalentador': precalentador,
             'corrientes_carcasa': corrientes_carcasa,
             'corrientes_tubos': corrientes_tubos,
-            'datos_corrientes': DatosCorrientesPrecalentadorAguaForm(),
+            'datos_corrientes': DatosCorrientesPrecalentadorAguaForm(initial={
+                'entalpia_unidad': precalentador.datos_corrientes.entalpia_unidad,
+                'presion_unidad': precalentador.datos_corrientes.presion_unidad,
+                'temperatura_unidad': precalentador.datos_corrientes.temperatura_unidad,
+                'flujo_unidad': precalentador.datos_corrientes.flujo_unidad,
+                'densidad_unidad': precalentador.datos_corrientes.densidad_unidad,
+            }),
             'evaluacion': EvaluacionPrecalentadorAguaForm(),
             'unidades': Unidades.objects.all(),
+            "titulo": f"Evaluación al precalentador {precalentador.tag}"
         }
 
     def get(self, request, *args, **kwargs):
@@ -2397,7 +2405,7 @@ class EvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMi
                 evaluacion.save()
             else:
                 print(evaluacion.errors)
-                raise Exception("La evaluaciòn es invàlida")
+                raise Exception("La evaluación es inválida.")
 
             # Guardar Corrientes Individualmente
 
@@ -2418,6 +2426,7 @@ class EvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMi
                     form.save()
                 else:
                     print(form.errors)
+                    raise Exception("La evaluación es inválida.")
 
         return render(self.request, "precalentadores_agua/partials/almacenamiento_exitoso.html", {
             'precalentador': precalentador
@@ -2427,7 +2436,10 @@ class EvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMi
         if(request.POST.get('tipo') == "calcular"):
             return self.calcular()
         elif(request.POST.get('tipo') == "almacenar"):
-            return self.almacenar()
+            try:
+                return self.almacenar()
+            except:
+                return render(request, "precalentadores_agua/partials/almacenamiento_fallido.html")
 
 # PRECALENTADORES DE AIRE
 

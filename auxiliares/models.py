@@ -1220,8 +1220,8 @@ class CorrientePrecalentadorAgua(models.Model):
 
     nombre = models.CharField(max_length=60)
     numero_corriente = models.CharField(max_length=25)
-    flujo = models.FloatField()
-    presion = models.FloatField()
+    flujo = models.FloatField(validators=[MinValueValidator(0.00001)])
+    presion = models.FloatField(validators=[MinValueValidator(0.00001)])
     temperatura = models.FloatField()
     entalpia = models.FloatField()
     densidad = models.FloatField()
@@ -1352,8 +1352,8 @@ class CorrientesEvaluacionPrecalentadorAgua(models.Model):
     '''
 
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
-    flujo = models.FloatField()
-    presion = models.FloatField()
+    flujo = models.FloatField(validators=[MinValueValidator(0.00001)])
+    presion = models.FloatField(validators=[MinValueValidator(0.00001)])
     temperatura = models.FloatField()
     entalpia = models.FloatField()
     densidad = models.FloatField()
@@ -1366,5 +1366,6 @@ class CorrientesEvaluacionPrecalentadorAgua(models.Model):
 
     class Meta:
         db_table = "precalentador_agua_evaluacion_corriente"
+        ordering = ("corriente__rol",)
 
 # MODELOS DE PRECALENTADOR DE AIRE
