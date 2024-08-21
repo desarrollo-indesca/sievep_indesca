@@ -2361,7 +2361,8 @@ class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorA
 
         return render(self.request, "precalentadores_agua/partials/resultado_evaluacion.html", {
             'resultados': resultados['resultados'],
-            'precalentador': precalentador
+            'precalentador': precalentador,
+            'advertencias': resultados['advertencias']
         })
 
     def almacenar(self):
