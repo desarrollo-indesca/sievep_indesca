@@ -32,13 +32,11 @@ headerStyle = ParagraphStyle(
             textTransform='uppercase'
     )
 
-estiloMontos = TableStyle(
-        [
-            ('LINEABOVE', (0,1), (-1, 1), 1 ,colors.black),
-            ('LINEABOVE', (0,2), (-1,-1), 1 ,colors.black, None, (2,2)),
-            ('LINEBELOW', (0,2), (-1,-1), 1 ,colors.black, None, (2,2)),
-            ('LINEBELOW', (0,2), (-2,-2), 1 ,colors.black, None, (2,2)),
-        ])
+estiloMontos = ParagraphStyle(
+    'estiloMontos',
+    fontSize=8,
+    alignment=1
+)
 
 centrar_parrafo = ParagraphStyle('', alignment=1)
 parrafo_tabla = ParagraphStyle('', fontSize=9)
@@ -3492,8 +3490,16 @@ def ficha_tecnica_precalentador_agua(precalentador):
             Paragraph("<b>Condiciones de las Secciones</b>", centrar_parrafo)
         ],
         [
-            Paragraph("<b>Caracasa</b>", centrar_parrafo),
+            '',
+            Paragraph("<b>Carcasa</b>", centrar_parrafo),
+            '',
             Paragraph("<b>Tubos</b>", centrar_parrafo)
+        ],
+        [
+            '',
+            Paragraph("<b>Vapor</b>", centrar_parrafo),
+            Paragraph("<b>Drenaje</b>", centrar_parrafo),
+            Paragraph("<b>Agua</b>", centrar_parrafo)
         ],
         [
             Paragraph(f"Flujo Másico Entrada", centrar_parrafo),
@@ -3598,48 +3604,105 @@ def ficha_tecnica_precalentador_agua(precalentador):
         ],
     ]
 
-    story.append(
-        Table(
-            table,
-        )
-    )
+    estilo = [
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
 
-    table = [
-        [
-            Paragraph("CORRIENTES", centrar_parrafo),
-        ], [
-            Paragraph("#", centrar_parrafo),
-            Paragraph("NOMBRE", centrar_parrafo),
-            Paragraph("LADO", centrar_parrafo),
-            Paragraph("ENTRA/SALE", centrar_parrafo),
-            Paragraph(f"FLUJO ({datos_corrientes.flujo_unidad})", centrar_parrafo),
-            Paragraph(f"PRESIÓN ({datos_corrientes.presion_unidad})", centrar_parrafo),
-            Paragraph(f"TEMPERATURA ({datos_corrientes.temperatura_unidad})", centrar_parrafo),
-            Paragraph(f"ENTALPÍA ({datos_corrientes.entalpia_unidad})", centrar_parrafo),
-            Paragraph(f"DENSIDAD ({datos_corrientes.densidad_unidad})", centrar_parrafo),
-            Paragraph(f"FASE", centrar_parrafo),
-        ],
-        *[
-            [
-                corriente.numero_corriente,
-                corriente.nombre,
-                corriente.lado_largo(),
-                corriente.rol_largo(),
-                corriente.flujo,
-                corriente.presion,
-                corriente.temperatura,
-                corriente.entalpia,
-                corriente.densidad,
-                corriente.fase_largo()
-            ] for corriente in corrientes
-        ]
+        ('SPAN', (1,2), (-1,2)),
+        ('SPAN', (0,3), (-1,3)),
+        ('SPAN', (1,4), (2,4)),
+        ('SPAN', (0,4), (0,5)),
+        ('SPAN', (0,15), (-1,15)),
+        
+        ('BACKGROUND', (0, 0), (0, -1), sombreado),
+        ('BACKGROUND', (2, 0), (2, 1), sombreado),
+        ('BACKGROUND', (0,3), (-1, 5), sombreado),
+        ('BACKGROUND', (0,15), (-1,15), sombreado),
     ]
 
     story.append(
         Table(
             table,
+            style=estilo
         )
     )
+
+    table = [
+        [
+            Paragraph(f"U Balance General ({precalentador.u_unidad})"),
+            Paragraph(f"{precalentador.u if precalentador.u else '-'}", centrar_parrafo)
+        ]
+    ]
+
+    estilo = [
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        
+        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+    ]
+
+    story.append(
+        Table(table, style=estilo)
+    )
+
+    table = [
+        [
+            Paragraph("CORRIENTES", estiloMontos),
+        ], [
+            Paragraph("#", estiloMontos),
+            Paragraph("NOMBRE", estiloMontos),
+            Paragraph("LADO", estiloMontos),
+            Paragraph("ROL", estiloMontos),
+            Paragraph(f"FLUJO ({datos_corrientes.flujo_unidad})", estiloMontos),
+            Paragraph(f"PRESIÓN ({datos_corrientes.presion_unidad})", estiloMontos),
+            Paragraph(f"TEMPERATURA ({datos_corrientes.temperatura_unidad})", estiloMontos),
+            Paragraph(f"ENTALPÍA ({datos_corrientes.entalpia_unidad})", estiloMontos),
+            Paragraph(f"DENSIDAD ({datos_corrientes.densidad_unidad})", estiloMontos),
+            Paragraph(f"FASE", estiloMontos),
+        ],
+        *[
+            [
+                Paragraph(corriente.numero_corriente, estiloMontos),
+                Paragraph(corriente.nombre, estiloMontos),
+                Paragraph(corriente.lado, estiloMontos),
+                Paragraph(corriente.rol, estiloMontos),
+                Paragraph(str(corriente.flujo), estiloMontos),
+                Paragraph(str(corriente.presion), estiloMontos),
+                Paragraph(str(corriente.temperatura), estiloMontos),
+                Paragraph(str(corriente.entalpia), estiloMontos),
+                Paragraph(str(corriente.densidad), estiloMontos),
+                Paragraph(str(corriente.fase), estiloMontos) 
+            ] for corriente in corrientes
+        ]
+    ]
+
+    estilo = [
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+
+        ('SPAN', (0,0), (-1,0)),
+        
+        ('BACKGROUND', (0, 0), (-1, 1), sombreado),
+    ]
+
+    story.append(Spacer(0,10))
+    
+    story.append(
+        Table(
+            table,
+            style=estilo,
+            colWidths=(0.3*inch, 1.5*inch, 0.5*inch, 0.5*inch, 0.8*inch, 1*inch, 1.2*inch, 0.8*inch, 0.8*inch, 0.5*inch)
+        )
+    )
+
+    story.append(
+        Paragraph(f"Precalentador de Agua registrado por {precalentador.creado_por.get_full_name()} al {precalentador.creado_al}.")
+    )
+
+    if(precalentador.editado_por):
+        story.append(
+            Paragraph(f"Precalentador de Agua editado por {precalentador.editado_por.get_full_name()} al {precalentador.editado_al}.")
+        )
 
     return [story, None]
 
