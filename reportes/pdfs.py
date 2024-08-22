@@ -234,6 +234,9 @@ def generar_historia(request, reporte, object_list):
     if reporte == 'reporte_evaluaciones_caldera':
         return reporte_evaluaciones_caldera(object_list, request)
 
+    if reporte == 'ficha_tecnica_precalentadores_agua':
+        return ficha_tecnica_precalentador_agua(object_list)
+
 # GENERALES
 def reporte_equipos(request, object_list):
     '''
@@ -3451,3 +3454,194 @@ def reporte_detalle_evaluacion_caldera(evaluacion):
     story.append(table)
 
     return [story, None]
+
+# Reportes Precalentadores de Agua
+
+def ficha_tecnica_precalentador_agua(precalentador):
+    '''
+    Resumen:
+        Crea un reporte con la ficha técnica del precalentador de agua.
+    '''
+
+    story = []
+    story.append(Spacer(0,90))
+
+    especificaciones = precalentador.especificaciones_precalentador.all()
+    secciones = precalentador.secciones_precalentador.all()
+    datos_corrientes = precalentador.datos_corrientes
+    corrientes = datos_corrientes.corrientes_precalentador_agua.all()
+
+    table = [
+        [
+            Paragraph("Tag", centrar_parrafo), 
+            Paragraph(f"{precalentador.tag}", centrar_parrafo), 
+            Paragraph("Planta", centrar_parrafo),
+            Paragraph(f"{precalentador.planta.nombre}", centrar_parrafo)
+        ],
+        [
+            Paragraph("Fabricante", centrar_parrafo), 
+            Paragraph(f"{precalentador.fabricante}", centrar_parrafo),
+            Paragraph("Tipo", centrar_parrafo), 
+            Paragraph(f"Precalentador de Agua", centrar_parrafo)
+        ],
+        [
+            Paragraph("Descripción", centrar_parrafo), 
+            Paragraph(f"{precalentador.descripcion}", centrar_parrafo)
+        ],
+        [
+            Paragraph("<b>Condiciones de las Secciones</b>", centrar_parrafo)
+        ],
+        [
+            Paragraph("<b>Caracasa</b>", centrar_parrafo),
+            Paragraph("<b>Tubos</b>", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Flujo Másico Entrada", centrar_parrafo),
+            *[
+                Paragraph(f"{seccion.flujo_masico_entrada if seccion.flujo_masico_entrada else '-'} {seccion.flujo_unidad}", centrar_parrafo)
+                    for seccion in secciones
+            ]
+        ],
+        [
+            Paragraph(f"Flujo Másico Salida", centrar_parrafo),
+            *[
+                Paragraph(f"{seccion.flujo_masico_salida if seccion.flujo_masico_salida else '—'} {seccion.flujo_unidad}", centrar_parrafo)
+                    for seccion in secciones
+            ]
+        ],
+        [
+            Paragraph(f"Entalpía de Entrada", centrar_parrafo),
+            *[
+                Paragraph(f"{seccion.entalpia_entrada if seccion.entalpia_entrada else '—'} {seccion.entalpia_unidad}", centrar_parrafo)
+                    for seccion in secciones
+            ]
+        ],
+        [
+            Paragraph(f"Entalpía de Salida", centrar_parrafo),
+            *[
+                Paragraph(f"{seccion.entalpia_salida if seccion.entalpia_salida else '—'} {seccion.entalpia_unidad}", centrar_parrafo)
+                    for seccion in secciones
+            ]
+        ],
+        [
+            Paragraph(f"Temperatura de Entrada", centrar_parrafo),
+            *[
+                Paragraph(f"{seccion.temp_entrada if seccion.temp_entrada else '—'} {seccion.temp_unidad}", centrar_parrafo)
+                    for seccion in secciones
+            ]
+        ],
+        [
+            Paragraph(f"Temperatura de Salida", centrar_parrafo),
+            *[
+                Paragraph(f"{seccion.temp_salida if seccion.temp_salida else '—'} {seccion.temp_unidad}", centrar_parrafo)
+                    for seccion in secciones
+            ]
+        ],
+        [
+            Paragraph(f"Presión de Entrada", centrar_parrafo),
+            *[
+                Paragraph(f"{seccion.presion_entrada if seccion.presion_entrada else '—'} {seccion.presion_unidad}", centrar_parrafo)
+                    for seccion in secciones
+            ]
+        ],
+        [
+           Paragraph(f"Caída de Presión", centrar_parrafo),
+            *[
+                Paragraph(f"{seccion.caida_presion if seccion.caida_presion else '—'} {seccion.presion_unidad}", centrar_parrafo)
+                    for seccion in secciones
+            ]
+        ],
+        [
+           Paragraph(f"Velocidad Promedio", centrar_parrafo),
+            *[
+                Paragraph(f"{seccion.velocidad_promedio if seccion.velocidad_promedio else '—'} {seccion.velocidad_unidad}", centrar_parrafo)
+                    for seccion in secciones
+            ]
+        ],
+        [
+            Paragraph("<b>Datos de las Zonas</b>", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Calor", centrar_parrafo),
+            *[
+                Paragraph(f"{especificacion.calor if especificacion.calor else '-'} {especificacion.calor_unidad}", centrar_parrafo)
+                    for especificacion in especificaciones
+            ]
+        ],
+        [
+            Paragraph(f"Área", centrar_parrafo),
+            *[
+                Paragraph(f"{especificacion.area if especificacion.area else '-'} {especificacion.area_unidad}", centrar_parrafo)
+                    for especificacion in especificaciones
+            ]
+        ],
+        [
+            Paragraph(f"Calor", centrar_parrafo),
+            *[
+                Paragraph(f"{especificacion.coeficiente_transferencia if especificacion.coeficiente_transferencia else '-'} {especificacion.coeficiente_unidad}", centrar_parrafo)
+                    for especificacion in especificaciones
+            ]
+        ],
+        [
+            Paragraph(f"MTD", centrar_parrafo),
+            *[
+                Paragraph(f"{especificacion.mtd if especificacion.mtd else '-'} {especificacion.mtd_unidad}", centrar_parrafo)
+                    for especificacion in especificaciones
+            ]
+        ],
+        [
+            Paragraph(f"Caída Presión", centrar_parrafo),
+            *[
+                Paragraph(f"{especificacion.caida_presion if especificacion.caida_presion else '-'} {especificacion.caida_presion_unidad}", centrar_parrafo)
+                    for especificacion in especificaciones
+            ]
+        ],
+    ]
+
+    story.append(
+        Table(
+            table,
+        )
+    )
+
+    table = [
+        [
+            Paragraph("CORRIENTES", centrar_parrafo),
+        ], [
+            Paragraph("#", centrar_parrafo),
+            Paragraph("NOMBRE", centrar_parrafo),
+            Paragraph("LADO", centrar_parrafo),
+            Paragraph("ENTRA/SALE", centrar_parrafo),
+            Paragraph(f"FLUJO ({datos_corrientes.flujo_unidad})", centrar_parrafo),
+            Paragraph(f"PRESIÓN ({datos_corrientes.presion_unidad})", centrar_parrafo),
+            Paragraph(f"TEMPERATURA ({datos_corrientes.temperatura_unidad})", centrar_parrafo),
+            Paragraph(f"ENTALPÍA ({datos_corrientes.entalpia_unidad})", centrar_parrafo),
+            Paragraph(f"DENSIDAD ({datos_corrientes.densidad_unidad})", centrar_parrafo),
+            Paragraph(f"FASE", centrar_parrafo),
+        ],
+        *[
+            [
+                corriente.numero_corriente,
+                corriente.nombre,
+                corriente.lado_largo(),
+                corriente.rol_largo(),
+                corriente.flujo,
+                corriente.presion,
+                corriente.temperatura,
+                corriente.entalpia,
+                corriente.densidad,
+                corriente.fase_largo()
+            ] for corriente in corrientes
+        ]
+    ]
+
+    story.append(
+        Table(
+            table,
+        )
+    )
+
+    return [story, None]
+
+def evaluaciones_precalentadores_agua(object_list):
+    pass

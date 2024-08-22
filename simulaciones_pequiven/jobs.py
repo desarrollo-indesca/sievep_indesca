@@ -243,5 +243,5 @@ def delete_copies():
 
 def start_deleting_job():
     scheduler = Scheduler()
-    scheduler.every(10).seconds.do(delete_copies)
+    scheduler.every().day.at("06:00").do(delete_copies)
     scheduler.run_continuously()

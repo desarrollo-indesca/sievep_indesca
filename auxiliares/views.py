@@ -1809,7 +1809,21 @@ class ObtenerPrecalentadorAguaMixin():
         
         return precalentador
 
-class ConsultaPrecalentadoresAgua(ObtenerPrecalentadorAguaMixin, FiltradoSimpleMixin, LoginRequiredMixin, ListView, ReportesFichasVentiladoresMixin):
+class ReportesFichasPrecalentadoresAguaMixin():
+    model_ficha = Ventilador
+    reporte_ficha_xlsx = ficha_tecnica_ventilador
+    titulo_reporte_ficha = "Ficha Técnica del Precalentador de Agua"
+    codigo_reporte_ficha = "ficha_tecnica_precalentadores_agua"
+
+    def reporte_ficha(self, request):
+        if(request.POST.get('ficha')): # FICHA TÉCNICA
+            precalentador = self.get_precalentador(PrecalentadorAgua.objects.filter(pk = request.POST.get('ficha'))).first()
+            if(request.POST.get('tipo') == 'pdf'):
+                return generar_pdf(request,precalentador, f"Ficha Técnica del Precalentador de Agua {precalentador.tag}", "ficha_tecnica_precalentadores_agua")
+            if(request.POST.get('tipo') == 'xlsx'):
+                return ficha_tecnica_precalentador_agua(precalentador, request)
+
+class ConsultaPrecalentadoresAgua(ObtenerPrecalentadorAguaMixin, FiltradoSimpleMixin, LoginRequiredMixin, ListView, ReportesFichasPrecalentadoresAguaMixin):
     '''
     Resumen:
         Vista para la consulta de precalentadores de agua.
