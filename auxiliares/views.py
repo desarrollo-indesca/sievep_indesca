@@ -2439,7 +2439,6 @@ class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorA
         elif(request.POST.get('tipo') == "almacenar"):
                 return self.almacenar()
             
-
 class GenerarGraficaPrecalentadorAire(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
     """
     Resumen:

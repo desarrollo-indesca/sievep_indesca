@@ -106,10 +106,13 @@ def delete_precalentador_copies():
     for copia in copias:        
         for evaluacion in copia.evaluacion_precalentador.all():
             salida = evaluacion.salida_general
-            evaluacion.corrientes_evaluacion_precalentador_agua.all().delete()
+            datos_corrientes = evaluacion.datos_corrientes
+            datos_corrientes.corrientes_evaluacion.all().delete()
+            evaluacion.delete()
             salida.delete()
+            datos_corrientes.delete()
 
-        copia.datos_corrientes.corrientes_evaluacion_precalentador_agua.all().delete()
+        copia.datos_corrientes.corrientes_precalentador_agua.all().delete()
         datos_corrientes = copia.datos_corrientes
         copia.secciones_precalentador.all().delete()
         copia.especificaciones_precalentador.all().delete()
@@ -240,5 +243,5 @@ def delete_copies():
 
 def start_deleting_job():
     scheduler = Scheduler()
-    scheduler.every().day.at("06:00").do(delete_copies)
+    scheduler.every(10).seconds.do(delete_copies)
     scheduler.run_continuously()

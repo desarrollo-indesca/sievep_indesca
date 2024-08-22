@@ -1104,7 +1104,7 @@ class PrecalentadorAgua(models.Model):
     editado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, null = True, related_name="precalentador_agua_editado_por")
     datos_corrientes = models.OneToOneField(DatosCorrientesPrecalentadorAgua, null=True, on_delete=models.PROTECT, related_name="precalentador_agua")
 
-    u = models.FloatField("Coeficiente Global de Transferencia por Balance General")
+    u = models.FloatField("Coeficiente Global de Transferencia por Balance General", null=True, blank=True)
     u_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="precalentador_agua_u_unidad")
 
     class Meta:
