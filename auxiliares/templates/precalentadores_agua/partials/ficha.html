@@ -1,15 +1,20 @@
 {% load static %}
 
 <div class="modal fade" id="ficha_{{precalentador.pk|default_if_none:'-'}}" tabindex="-1" aria-labelledby="ficha_{{precalentador.pk|default_if_none:'-'}}Label" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
       <div class="modal-content text-dark">
         <div class="modal-header">
-          <h5 class="modal-title" id="ficha_{{precalentador.pk|default_if_none:'-'}}Label">Ficha Técnica Ventilador ({{precalentador.tag|default_if_none:'-'}})</h5>
+          <h5 class="modal-title" id="ficha_{{precalentador.pk|default_if_none:'-'}}Label">Ficha Técnica Precalentador de Agua ({{precalentador.tag|default_if_none:'-'}})</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body text-start small">
           <div class="row">
             <div class="col-12">
+              {% if not precalentador.datos_corrientes or not precalentador.u %}
+              <div class="alert alert-warning">
+                <p class="text-center">Debe definir un Coeficiente Global de Transferencia de Calor (U) por balance general y las corrientes del equipo para poder realizar evaluaciones.</p>
+              </div>
+              {% endif %}
               <div class="d-flex flex-column">
                 <table class="table table-light text-center table-bordered tabla_ficha mb-0">
                   <tbody id="tabla_ficha_body">
@@ -153,15 +158,60 @@
                     {% endwith %}
                     {% endwith %}
                     <tr>
-                      <td colspan="5">Precalentador registrado por {{precalentador.creado_por}} al {{precalentador.creado_al}}.</td>
+                      <th colspan="2" class="table-dark">Coeficiente Global de Transferencia por Balance General ({{precalentador.u_unidad}})</td>
+                      <td colspan="3">{{precalentador.u}}</td>
+                    </tr>
+                    <tr>
+                      <td colspan="5">Precalentador registrado por {{precalentador.creado_por.get_full_name}} al {{precalentador.creado_al}}.</td>
                     </tr>
                     {% if precalentador.editado_por %}
                     <tr>
-                      <td colspan="5">Precalentador registrado por {{precalentador.editado_por}} al {{precalentador.editado_al}}.</td>
+                      <td colspan="5">Precalentador editado por {{precalentador.editado_por.get_full_name}} al {{precalentador.editado_al}}.</td>
                     </tr>
                     {% endif %}
                   </tbody>
                 </table>
+
+                {% if precalentador.datos_corrientes %}
+                <small>
+                  <table class="table text-center table-hover">
+                    <thead class="table-dark">
+                      <tr>
+                        <th colspan="10" class="table-dark">Corrientes</th>
+                      </tr>
+                      <tr>
+                        <th>#</th>
+                        <th>NOMBRE</th>
+                        <th>LADO</th>
+                        <th>ENTRA/SALE</th>
+                        <th>FLUJO ({{precalentador.datos_corrientes.flujo_unidad}})</th>
+                        <th>PRESIÓN ({{precalentador.datos_corrientes.presion_unidad}})</th>
+                        <th>TEMPERATURA ({{precalentador.datos_corrientes.temperatura_unidad}})</th>
+                        <th>ENTALPÍA ({{precalentador.datos_corrientes.entalpia_unidad}})</th>
+                        <th>DENSIDAD ({{precalentador.datos_corrientes.densidad_unidad}})</th>
+                        <th>FASE</th>                      
+                      </tr>
+                    </thead> 
+                    
+                    <tbody>
+                      {% for corriente in precalentador.datos_corrientes.corrientes_precalentador_agua.all %}
+                      <tr>
+                        <td>{{corriente.numero_corriente}}</td>
+                        <td>{{corriente.nombre}}</td>
+                        <td>{{corriente.lado_largo}}</td>
+                        <td>{{corriente.rol_largo}}</td>
+                        <td>{{corriente.flujo|default:'-'}}</td>
+                        <td>{{corriente.presion|default:'-'}}</td>
+                        <td>{{corriente.temperatura|default:'-'}}</td>
+                        <td>{{corriente.entalpia|default:'-'}}</td>
+                        <td>{{corriente.densidad|default:'-'}}</td>
+                        <td>{{corriente.fase_largo}}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </small>
+                {% endif %}
               </div>
             </div>
           </div>
@@ -169,6 +219,7 @@
         <div class="modal-footer">
           {% if request.user.is_superuser %}
           <a href="{% url 'edicion_precalentador_agua' pk=precalentador.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+          <a href="{% url 'creacion_corrientes_precalentador_agua' pk=precalentador.pk %}" class="btn btn-info d-inline-flex" style="color: black;">Editar Corrientes</a>
           <form action="{% url 'duplicar_precalentador_agua' pk=precalentador.pk %}" method="post">
             {% csrf_token %}
             <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>

@@ -186,6 +186,7 @@ class EvaluacionForm(forms.ModelForm):
     Resumen:
         Form para el registro de los datos de evaluación de una caldera.
     """
+
     class Meta:
         model = Evaluacion
         exclude = ["id", "salido_flujos", "salida_balance_molar",

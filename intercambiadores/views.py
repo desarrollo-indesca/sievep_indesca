@@ -2389,29 +2389,42 @@ class FichaTecnicaDobleTubo(LoginRequiredMixin, View):
             return HttpResponseNotFound(MENSAJE_ERROR)
 
 class DuplicarIntercambiador(SuperUserRequiredMixin, DuplicateView):
+    '''
+    Resumen:
+        Vista utilizada para duplicar un Intercambiador existente creando un nuevo registro
+        con los mismos datos y añadiendo el usuario que lo crea como creador.
+
+    Métodos:
+        post(self, request, pk)
+            Recibe la PK del intercambiador que se va a duplicar y crea un nuevo intercambiador
+            con los mismos datos que el original. Además, añade el usuario que realiza la solicitud
+            como creador del nuevo intercambiador.
+    '''
     def post(self, request, pk):
         with transaction.atomic():
             intercambiador_previo = Intercambiador.objects.prefetch_related(
                 'datos_tubo_carcasa', 'datos_dobletubo', 'condiciones'
             ).get(pk=pk)
 
-            intercambiador.creado_por = request.user
-            intercambiador.copia = True
+            intercambiador_previo.creado_por = request.user
+            intercambiador_previo.copia = True
+            intercambiador_previo.servicio = f"COPIA DEL INTERCAMBIADOR {intercambiador_previo.tag}"
+            intercambiador_previo.tag = generate_nonexistent_tag(Intercambiador, intercambiador_previo.tag)
+           
             intercambiador = self.copy(intercambiador_previo)
 
             for condicion in intercambiador.condiciones.all():
                 condicion.intercambiador = intercambiador
                 condicion = self.copy(condicion)
 
-            for propiedades in intercambiador.datos_tubo_carcasa.all():
+            if(intercambiador.tipo.nombre == "TUBO/CARCASA"):
+                propiedades = intercambiador.datos_tubo_carcasa
                 propiedades.intercambiador = intercambiador
                 propiedades = self.copy(propiedades)
-
-            for propiedades in intercambiador.datos_dobletubo.all():
-                propiedades.intercambiador = intercambiador
-                propiedades = self.copy(propiedades)
-
-            if(intercambiador.datos_tubo_carcasa.exists()):
                 return redirect("/intercambiadores/tubo_carcasa/") 
-            else:
+            elif(intercambiador.tipo.nombre == "DOBLE TUBO"):
+                propiedades = intercambiador.datos_dobletubo
+                propiedades.intercambiador = intercambiador
+                propiedades = self.copy(propiedades)
                 return redirect("/intercambiadores/doble_tubo/")
+                

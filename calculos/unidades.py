@@ -125,9 +125,9 @@ def transformar_unidades_u(args: list, unidad: int, unidad_salida: int = 27) -> 
     '''
     actualizadas = []
     unidad_salida = ur.watt/ur.meter**2/ur.kelvin if unidad_salida == 27 else ur.Btu_it/ur.hour/ur.feet**2/ur.delta_degF \
-        if unidad_salida == 23 else ur.kcal/ur.hour/ur.delta_degC/ur.meter**2
+        if unidad_salida == 23 else ur.megajoule/ur.hour/ur.meter**2/ur.delta_degC if unidad_salida == 92 else ur.kcal/ur.hour/ur.delta_degC/ur.meter**2
     unidad = ur.watt/ur.meter**2/ur.kelvin if unidad == 27 else ur.Btu_it/ur.hour/ur.feet**2/ur.delta_degF \
-        if unidad == 23 else ur.kcal/ur.hour/ur.delta_degC/ur.meter**2
+        if unidad == 23 else ur.megajoule/ur.hour/ur.meter**2/ur.delta_degC if unidad == 92 else ur.kcal/ur.hour/ur.delta_degC/ur.meter**2
 
     actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
@@ -367,6 +367,30 @@ def transformar_unidades_tiempo(args: list, unidad: int, unidad_salida: int = 65
     '''
     def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
         return ur.hour if unidad == 63 else ur.minute if unidad == 64 else ur.second
+
+    actualizadas = []
+    unidad_salida = obtener_unidad(unidad_salida)
+    unidad = obtener_unidad(unidad)
+    
+    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
+
+    return actualizadas
+
+def transformar_unidades_velocidad_lineal(args: list, unidad: int, unidad_salida: int = 65):
+    '''
+    Resumen:
+        Función para transformar unidades de velocidad lineal.
+
+    Parámetros:
+        args: list -> Lista de valores a transformar
+        unidad: int -> ID de la unidad de entrada
+        unidad_salida: int -> ID de la unidad de salida. De no dar ninguna devolverá en m/s.
+
+    Devuelve:
+        list -> Lista de valores transformados a la unidad de salida
+    '''
+    def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
+        return ur.kilometer/ur.hour if unidad == 90 else ur.meter/ur.second
 
     actualizadas = []
     unidad_salida = obtener_unidad(unidad_salida)

@@ -640,6 +640,3 @@ class DuplicateView(View):
         objeto.save()
 
         return objeto
-    
-    def post(self, request, *args, **kwargs):
-        pass
