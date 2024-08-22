@@ -152,6 +152,18 @@
                         </tbody>
                     </tbody>
                 </table>
+
+                {% if evaluacion.salida_general.perdida_ambiente %}
+                <div class="alert alert-danger" role="alert">
+                    <h5 class="text-center">PERDIDA DE ENERGIA EN EL AMBIENTE</h5>
+                </div>
+                {% endif %}
+
+                {% if evaluacion.salida_general.invalido %}
+                <div class="alert alert-danger" role="alert">
+                    <h5 class="text-center">Las resultados podrían ser inconsistentes debido a datos de entrada que no se ajustaban al modelo.</h5>
+                </div>
+                {% endif %}
             </div>
           </div>
 

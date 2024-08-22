@@ -513,6 +513,16 @@
         </div>
     </div>
 
+    <hr>
+
+    {{form_equipo.u.label_tag}}
+    <div class="input-group">
+        {% render_field form_equipo.u class="form-control" placeholder="Coeficiente Global de Transferencia por Balance General" %}
+        <select name="u_unidad" id="u_unidad" class="form-select">
+            {% include 'unidades.html' with unidades=unidades tipo='U' pk_selected=form_equipo.instance.u_unidad.pk %}
+        </select>
+    </div>
+
     <div class="w-100 mt-3 mb-3 d-flex justify-content-center">
         <button class="btn btn-danger">Enviar Formulario</button>
     </div>

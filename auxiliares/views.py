@@ -1790,7 +1790,8 @@ class ObtenerPrecalentadorAguaMixin():
             'planta', 'planta__complejo', 'creado_por', 'editado_por',
             'datos_corrientes', 'datos_corrientes__temperatura_unidad',
             'datos_corrientes__presion_unidad', 'datos_corrientes__entalpia_unidad',
-            'datos_corrientes__flujo_unidad', 'datos_corrientes__densidad_unidad'
+            'datos_corrientes__flujo_unidad', 'datos_corrientes__densidad_unidad',
+            'u_unidad'
         ).prefetch_related(
             Prefetch('secciones_precalentador', SeccionesPrecalentadorAgua.objects.select_related(
                 'presion_unidad', 'entalpia_unidad', 'flujo_unidad', 
@@ -2302,11 +2303,11 @@ class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorA
 
     def calcular_resultados(self, precalentador):
         # Transformar unidades
-        u = 0
+        u = transformar_unidades_u([precalentador.u], precalentador.u_unidad.pk)[0]
         a = 0
+
         zonas = precalentador.especificaciones_precalentador.all()
         for zona in zonas:
-            u += transformar_unidades_u([zona.coeficiente_transferencia if zona.coeficiente_transferencia else 0], zona.coeficiente_unidad.pk)[0]
             a += transformar_unidades_area([zona.area if zona.area else 0], zona.area_unidad.pk)[0]
 
         corrientes_tubo = []
@@ -2316,8 +2317,6 @@ class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorA
                 corrientes_carcasa.append(self.crear_dict_corrientes(corriente))
             else:
                 corrientes_tubo.append(self.crear_dict_corrientes(corriente))
-
-        a /= zonas.count()
 
         resultados = evaluar_precalentador_agua(
             corrientes_carcasa_p=corrientes_carcasa,
@@ -2383,6 +2382,8 @@ class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorA
                 calor_tubos = resultados['resultados']['calor_tubo'],
                 eficiencia = resultados['resultados']['eficiencia'],
                 ntu = resultados['resultados']['ntu'],
+                perdida_ambiente = bool(resultados['resultados'].get('perdida_ambiente')),
+                invalido = bool(resultados['resultados'].get('invalido'))
             )
             
             datos_corrientes = DatosCorrientesEvaluacionPrecalentadorAgua.objects.create(
@@ -2436,10 +2437,8 @@ class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorA
         if(request.POST.get('tipo') == "calcular"):
             return self.calcular()
         elif(request.POST.get('tipo') == "almacenar"):
-            try:
                 return self.almacenar()
-            except:
-                return render(request, "precalentadores_agua/partials/almacenamiento_fallido.html")
+            
 
 class GenerarGraficaPrecalentadorAire(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
     """

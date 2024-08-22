@@ -783,25 +783,32 @@ def generar_advertencias_resultados_precalentador_agua(resultados: list) -> dict
         list: Una lista de cadenas que contienen las advertencias. Cada cadena representa una advertencia y es una oración.
     """
     advertencias = []
-    
-    if(abs(resultados['calor_carcasa']) > abs(resultados['calor_tubo'])):
-        advertencias.append('El calor de la carcasa no debería de ser mayor al del tubo.')
 
     for corriente in resultados['corrientes_carcasa']:
         if(corriente['rol'] != "E" and corriente['p'] != "S" and corriente['p'] != corriente['fase']):
             advertencias.append(f'La fase de operación "{corriente["p"]}" no coincide con la fase definida en la Base de Datos ({corriente["fase"]}) de la corriente {corriente["numero_corriente"]}.')
+            resultados['invalido'] = True
 
     for corriente in resultados['corrientes_tubo']:
         if(corriente['rol'] != "E" and corriente['p'] != "S" and corriente['p'] != corriente['fase']):
             advertencias.append(f'La fase de operación "{corriente["p"]}" no coincide con la fase definida en la Base de Datos ({corriente["fase"]}) de la corriente {corriente["numero_corriente"]}.')
+            resultados['invalido'] = True
+
+    if (abs(resultados['calor_carcasa'] + resultados['calor_tubo']) > 10000):
+        if(abs(resultados['calor_carcasa'])>abs(resultados['calor_tubo'])):
+            advertencias.append("Se presenta perdida de calor al ambiente.")
+            resultados['perdida_ambiente'] = True
+        else:
+            advertencias.append("La combinación de datos de entrada no es correcta de acuerdo al modelo de evaluación.")
+            resultados['invalido'] = True
 
     return advertencias
 
 def evaluar_precalentador_agua(
-    corrientes_carcasa_p,
-    corrientes_tubo_p, 
-    area_total, 
-    u_diseno
+    corrientes_carcasa_p: list,
+    corrientes_tubo_p: list, 
+    area_total: float, 
+    u_diseno : float
 ) -> dict:
     """
     Resumen:
