@@ -511,6 +511,18 @@ class SalidaFlujosEntrada(models.Model):
     porc_o2_exceso = models.FloatField()
 
 class PerdidasIndirecto(models.Model):
+    """
+    Resumen:
+        Modelo para almacenar la información de salida de evaluación correspondiente a las pérdidas calculadas en la eficiencia utilizando el método indirecto.
+        Esta información se almacena en evaluaciones que utilizan el método indirecto.
+
+    Atributos:
+        perdidas_gas_secos: models.FloatField -> Perdidas por gas secos
+        perdidas_humedad_combustible: models.FloatField -> Perdidas por humedad del combustible
+        perdidas_humedad_aire: models.FloatField -> Perdidas por humedad del aire
+        perdidas_h2: models.FloatField -> Perdidas por H2
+        perdidas_radiacion_conveccion: models.FloatField -> Perdidas por la radiación convectiva
+    """
     perdidas_gas_secos = models.FloatField()
     perdidas_humedad_combustible = models.FloatField()
     perdidas_humedad_aire = models.FloatField()

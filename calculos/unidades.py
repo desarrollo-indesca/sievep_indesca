@@ -125,9 +125,9 @@ def transformar_unidades_u(args: list, unidad: int, unidad_salida: int = 27) -> 
     '''
     actualizadas = []
     unidad_salida = ur.watt/ur.meter**2/ur.kelvin if unidad_salida == 27 else ur.Btu_it/ur.hour/ur.feet**2/ur.delta_degF \
-        if unidad_salida == 23 else ur.kcal/ur.hour/ur.delta_degC/ur.meter**2
+        if unidad_salida == 23 else ur.megajoule/ur.hour/ur.meter**2/ur.delta_degC if unidad_salida == 92 else ur.kcal/ur.hour/ur.delta_degC/ur.meter**2
     unidad = ur.watt/ur.meter**2/ur.kelvin if unidad == 27 else ur.Btu_it/ur.hour/ur.feet**2/ur.delta_degF \
-        if unidad == 23 else ur.kcal/ur.hour/ur.delta_degC/ur.meter**2
+        if unidad == 23 else ur.megajoule/ur.hour/ur.meter**2/ur.delta_degC if unidad == 92 else ur.kcal/ur.hour/ur.delta_degC/ur.meter**2
 
     actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 

@@ -99,14 +99,25 @@ def delete_bombas_copies():
 def delete_precalentador_copies():
     from auxiliares.models import PrecalentadorAgua
 
-    copias = PrecalentadorAgua.objects.filter(copia=True).prefetch_related(
+    copias = PrecalentadorAgua.objects.filter(copia=True).select_related('datos_corrientes').prefetch_related(
         'secciones_precalentador', 'especificaciones_precalentador'
     )
 
-    for copia in copias:
+    for copia in copias:        
+        for evaluacion in copia.evaluacion_precalentador.all():
+            salida = evaluacion.salida_general
+            datos_corrientes = evaluacion.datos_corrientes
+            datos_corrientes.corrientes_evaluacion.all().delete()
+            evaluacion.delete()
+            salida.delete()
+            datos_corrientes.delete()
+
+        copia.datos_corrientes.corrientes_precalentador_agua.all().delete()
+        datos_corrientes = copia.datos_corrientes
         copia.secciones_precalentador.all().delete()
         copia.especificaciones_precalentador.all().delete()
         copia.delete()
+        datos_corrientes.delete()
 
 def delete_turbinas_vapor_copies():
     from turbinas.models import TurbinaVapor, Evaluacion, CorrienteEvaluacion

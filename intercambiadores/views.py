@@ -2389,6 +2389,17 @@ class FichaTecnicaDobleTubo(LoginRequiredMixin, View):
             return HttpResponseNotFound(MENSAJE_ERROR)
 
 class DuplicarIntercambiador(SuperUserRequiredMixin, DuplicateView):
+    '''
+    Resumen:
+        Vista utilizada para duplicar un Intercambiador existente creando un nuevo registro
+        con los mismos datos y añadiendo el usuario que lo crea como creador.
+
+    Métodos:
+        post(self, request, pk)
+            Recibe la PK del intercambiador que se va a duplicar y crea un nuevo intercambiador
+            con los mismos datos que el original. Además, añade el usuario que realiza la solicitud
+            como creador del nuevo intercambiador.
+    '''
     def post(self, request, pk):
         with transaction.atomic():
             intercambiador_previo = Intercambiador.objects.prefetch_related(
@@ -2397,10 +2408,10 @@ class DuplicarIntercambiador(SuperUserRequiredMixin, DuplicateView):
 
             intercambiador_previo.creado_por = request.user
             intercambiador_previo.copia = True
+            intercambiador_previo.servicio = f"COPIA DEL INTERCAMBIADOR {intercambiador_previo.tag}"
             intercambiador_previo.tag = generate_nonexistent_tag(Intercambiador, intercambiador_previo.tag)
+           
             intercambiador = self.copy(intercambiador_previo)
-
-            print(intercambiador.tipo.nombre)
 
             for condicion in intercambiador.condiciones.all():
                 condicion.intercambiador = intercambiador

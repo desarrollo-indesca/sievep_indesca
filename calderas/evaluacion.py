@@ -3,6 +3,7 @@ from CoolProp import CoolProp as CP
 
 import math
 
+# COMPUESTOS EN ESTE FORMATO: {'CAS':objeto_compuesto}, OBTENIDOS DESDE THERMO
 COMPUESTOS = {
     '74-82-8': Chemical('74-82-8'), '74-84-0': Chemical('74-84-0'), '74-98-6': Chemical('74-98-6'), 
     '124-38-9': Chemical('124-38-9'), '106-97-8': Chemical('106-97-8'), '75-28-5': Chemical('75-28-5'), 
@@ -12,6 +13,7 @@ COMPUESTOS = {
     '1333-74-0': Chemical('1333-74-0'), '7446-09-5': Chemical('7446-09-5'),
 }
 
+# NOMBRE DE COMPUESTOS EN COOLPROP EN ESTE FORMATO: {'CAS':nombre_compuesto}
 COMPUESTOS_COOLPROP = {
     '74-82-8': 'Methane', '74-84-0': 'Ethane', '74-98-6': 'Propane', 
     '124-38-9': 'CarbonDioxide', '106-97-8': 'Butane', '75-28-5': 'IsoButane', 
@@ -21,6 +23,7 @@ COMPUESTOS_COOLPROP = {
     '1333-74-0': "Hydrogen", '7446-09-5': "SulfurDioxide"
 }
 
+# CAS DE LOS COMPUESTOS DE COMBUSTIÓN
 COMPUESTOS_COMBUSTION = [
     '74-82-8', '74-84-0', '74-98-6', '106-97-8',
     '75-28-5', '109-66-0', '110-54-3',
@@ -28,22 +31,26 @@ COMPUESTOS_COMBUSTION = [
     '7783-06-4'
 ]
 
+# CAS DE LOS COMPUESTOS DE AIRE
 COMPUESTOS_AIRE = [
     '7782-44-7', '7727-37-9',
     '7732-18-5'
 ]
 
+# CAS DE LOS COMPUESTOS DE HORNO
 COMPUESTOS_HORNO = [
     '7782-44-7', '124-38-9',
     '7732-18-5', '7446-09-5',
     '7727-37-9'
 ]
 
+# CAS DE LOS COMPUESTOS RESULTANTES DE COMBUSTION
 COMPUESTOS_RESULTANTES_COMBUSTION = [
     '7782-44-7', '124-38-9', 
     '7732-18-5', '7446-09-5'
 ]
 
+# MATRIZ DE ESTEQUIOMETRIA (MÉTODO DIRECTO)
 MATRIZ_ESTEQUIOMETRICA = [	
     [2, 7/2, 5, 13/2, 13/2, 8, 8, 19/2,  3/2, 1/2,],
 	[1,   2, 3,    4,    4, 5, 5,    6,    0, 0,  ],
@@ -51,6 +58,7 @@ MATRIZ_ESTEQUIOMETRICA = [
 	[0,   0, 0,    0,    0, 0, 0,    0,    1, 0,  ]
 ]
 
+# CALORES DE COMBUSTIÓN (MÉTODO DIRECTO)
 CALORES_COMBUSTION = {
     '74-82-8': -802.6,
     '74-84-0': -1428.6,
@@ -64,6 +72,7 @@ CALORES_COMBUSTION = {
     '7783-06-4': -518,
 }
 
+# PESOS MOLECULARES DE LOS COMPUESTOS UTILIZADOS EN LAS CALDERAS
 PESOS_MOLECULARES = {
     '74-82-8': 16.043,
     '74-84-0': 30.07,
@@ -84,59 +93,7 @@ PESOS_MOLECULARES = {
     '7440-44-0': 12.000
 }
 
-MOLES_CARBONO_INDIRECTO = {
-    '74-82-8': {
-        "moles": 1,
-        "carbono": True
-    },
-    '74-84-0': {
-        "moles": 2,
-        "carbono": True
-    },
-    '74-98-6': {
-        "moles": 3,
-        "carbono": False
-    },
-    '75-28-5': {
-        "moles": 4,
-        "carbono": True
-    },
-    '106-97-8': {
-        "moles": 4,
-        "carbono": True
-    },
-    '78-78-4': {
-        "moles": 5,
-        "carbono": True
-    },
-    '109-66-0': {
-        "moles": 5,
-        "carbono": True
-    },
-    '110-54-3': {
-        "moles": 6,
-        "carbono": True
-    },
-    '124-38-9': {
-        "moles": 1,
-        "carbono": True
-    }
-}
-
-MOLES_HIDROGENO_INDIRECTO = {
-    '74-82-8': 4,
-    '74-84-0': 6,
-    '74-98-6': 8,
-    '75-28-5': 10,
-    '106-97-8': 10,
-    '78-78-4': 12,
-    '109-66-0': 12,
-    '110-54-3': 14,
-    '7783-06-4': 2,
-    '124-38-9': 2,
-    '7732-18-5': 2
-}
-
+# PORCENTAJES DE CARBONO EN LOS COMPUESTOS
 PORCENTAJES_CARBONO = {
     '74-82-8': 0.75, 
     '74-84-0': 0.8, 
@@ -149,6 +106,7 @@ PORCENTAJES_CARBONO = {
     '124-38-9': 0.8571428571428571
 }
 
+# PORCENTAJES DE HIDROGENO EN LOS COMPUESTOS
 PORCENTAJES_HIDROGENO = {
     '74-82-8': 0.25, 
     '74-84-0': 0.2, 
@@ -163,6 +121,7 @@ PORCENTAJES_HIDROGENO = {
     '7732-18-5': 0.11111419761660048
 }
 
+# ENTALPÍAS DE COMBUSTION (MÉTODO INDIRECTO)
 ENTALPIA_COMBUSTION_INDIRECTO = {
     "74-82-8": 11946.21571072319,
     "74-84-0": 11340.109743930829,
@@ -176,11 +135,12 @@ ENTALPIA_COMBUSTION_INDIRECTO = {
     "1333-74-0": 28895.75
 }
 
-porc_o2_co2 = 0.7272603300150007 
-porc_o2_h2o = 0.9931026396436042 
-porc_s_h2s = 0.9412887127550271
 
-R = 8.3145e-5
+PORC_O_CO2 = 0.7272603300150007 # Porcentaje de O en CO2
+PORC_O_H2O = 0.9931026396436042 # Porcentaje de O en H2O
+PORC_S_H2S = 0.9412887127550271 # Porcentaje de S en H2S
+
+R = 8.3145e-5 # CONSTANTE DE LOS GASES IDEALES [J/(mol*K)]
 
 def obtener_moles_reaccion(composicion: list):
     """
@@ -528,10 +488,33 @@ def evaluar_caldera(flujo_gas: float, temperatura_gas: float, presion_gas: float
 
 # FUNCIONES DE MÉTODO INDIRECTO
 
-def calcular_pm_promedio(composiciones_combustible):
+def calcular_pm_promedio(composiciones_combustible: dict) -> float:
+    """
+    Resumen:
+        Calcula el peso molecular promedio de una composición.
+    
+    Argumentos:
+        composiciones_combustible (dict): Un diccionario de composiciones donde cada clave es un número CAS y cada valor es un diccionario que contiene las propiedades de la composición.
+    
+    Devuelve:
+        float: El peso molecular promedio de la composición.
+    """
+
     return sum([PESOS_MOLECULARES[cas]*compuesto['x_vol'] for cas,compuesto in composiciones_combustible.items()])
 
-def calcular_moles_carbon(composiciones_combustible,  flujo_molar_gas):
+def calcular_moles_carbon(composiciones_combustible: dict,  flujo_molar_gas: float) -> tuple:
+    """
+    Resumen:
+        Calcula la cantidad de moles de carbono en una composición de combustible.
+    
+    Parámetros:
+        composiciones_combustible (dict): Un diccionario de composiciones donde cada clave es un número CAS y cada valor es un diccionario que contiene las propiedades de la composición.
+        flujo_molar_gas (float): El flujo molar del gas. [kmol/h]
+    
+    Devuelve:
+        tuple: Un tuple que contiene el diccionario de composiciones con los moles de carbono agregados y el porcentaje de carbono en la composición.
+    """
+
     for cas,comp in composiciones_combustible.items():
         moles = comp['x_vol'] * flujo_molar_gas
         composiciones_combustible[cas]['moles'] = moles
@@ -544,22 +527,55 @@ def calcular_moles_carbon(composiciones_combustible,  flujo_molar_gas):
 
     return composiciones_combustible, porcentaje_carbon
 
-def calcular_moles_azufre(composiciones_combustible, flujo_molar_gas, porc_s_h2s):
-    composiciones_combustible['7783-06-4']['moles_azufre'] = composiciones_combustible['7783-06-4']['moles'] * porc_s_h2s
+def calcular_moles_azufre(composiciones_combustible: dict, flujo_molar_gas: float) -> tuple:
+    """
+    Resumen:
+        Calcula la cantidad de moles de azufre en una composición de combustible.
+    
+    Parámetros:
+        composiciones_combustible (dict): Un diccionario de composiciones donde cada clave es un número CAS y cada valor es un diccionario que contiene las propiedades de la composición.
+        flujo_molar_gas (float): El flujo molar del gas. [kmol/h]
+    
+    Devuelve:
+        tuple: Un tuple que contiene el diccionario de composiciones con los moles de azufre agregados y el porcentaje de azufre en la composición.
+    """
+    composiciones_combustible['7783-06-4']['moles_azufre'] = composiciones_combustible['7783-06-4']['moles'] * PORC_S_H2S
     porcentaje_azufre = composiciones_combustible['7783-06-4']['moles_azufre']/flujo_molar_gas * 100
 
     return composiciones_combustible, porcentaje_azufre
 
-def calcular_moles_oxigeno(composiciones_combustible, flujo_molar_gas, porc_o2_co2, porc_o2_h2o):
-    composiciones_combustible['7732-18-5']['moles_oxigeno'] =  porc_o2_h2o * composiciones_combustible['7732-18-5']['moles']
-    composiciones_combustible['124-38-9']['moles_oxigeno'] =  porc_o2_co2 * composiciones_combustible['124-38-9']['moles']
+def calcular_moles_oxigeno(composiciones_combustible: dict, flujo_molar_gas: float) -> tuple:
+    """
+    Calcular la cantidad total de moles de oxígeno en una mezcla combustible y el porcentaje de oxígeno en el flujo molar de gas.
+
+    Parámetros:
+        composiciones_combustible (dict): Un diccionario de composiciones combustibles, donde cada clave es un número CAS y cada valor es un diccionario que contiene las propiedades de la composición.
+        flujo_molar_gas (float): La tasa de flujo molar de gas. [kmol/h]
+
+    Retorna:
+        tuple: Una tupla que contiene el diccionario actualizado de composiciones combustibles y el porcentaje de oxígeno en el flujo molar de gas.
+    """
+    composiciones_combustible['7732-18-5']['moles_oxigeno'] =  PORC_O_H2O * composiciones_combustible['7732-18-5']['moles']
+    composiciones_combustible['124-38-9']['moles_oxigeno'] =  PORC_O_CO2 * composiciones_combustible['124-38-9']['moles']
     
     moles_totales_oxigeno = sum([comp.get('moles_oxigeno', 0) for comp in composiciones_combustible.values()])
     porcentaje_oxigeno = moles_totales_oxigeno/flujo_molar_gas * 100
 
     return composiciones_combustible, porcentaje_oxigeno
 
-def calcular_moles_hidrogeno(composiciones_combustible, flujo_molar_gas):
+def calcular_moles_hidrogeno(composiciones_combustible: dict, flujo_molar_gas: float) -> tuple:
+    """
+    Resumen:
+        Calcula la cantidad de moles de hidrogeno en una composición de combustible.
+    
+    Parámetros:
+        composiciones_combustible (dict): Un diccionario de composiciones donde cada clave es un número CAS y cada valor es un diccionario que contiene las propiedades de la composición.
+        flujo_molar_gas (float): El flujo molar del gas. [kmol/h]
+    
+    Devuelve:
+        tuple: Un tuple que contiene el diccionario de composiciones con los moles de hidrogeno agregados y el porcentaje de hidrogeno en la composición.
+    """
+
     for cas,comp in composiciones_combustible.items():
         if(PORCENTAJES_HIDROGENO.get(cas)):
             composiciones_combustible[cas]['moles_hidrogeno'] = comp['moles'] * PORCENTAJES_HIDROGENO[cas]
@@ -569,20 +585,53 @@ def calcular_moles_hidrogeno(composiciones_combustible, flujo_molar_gas):
 
     return composiciones_combustible, porcentaje_hidrogeno
 
-def calcular_flujos_composiciones_masicas(composiciones_combustible, flujo_masico_gas):
+def calcular_flujos_composiciones_masicas(composiciones_combustible: dict, flujo_masico_gas: float) -> float:
+    """
+    Resumen:
+        Calcula los flujos masicos y las fracciones masicas de las composiciones combustibles.
+    
+    Parámetros:
+        composiciones_combustible (dict): Un diccionario de composiciones donde cada clave es un número CAS y cada valor es un diccionario que contiene las propiedades de la composición.
+        flujo_masico_gas (float): El flujo masicos del gas. [kg/h]
+    
+    Devuelve:
+        dict: El diccionario de composiciones con los flujos masicos y las fracciones masicas agregados.
+    """
+
     for cas,comp in composiciones_combustible.items():
         composiciones_combustible[cas]['flujo_masico'] = comp['moles'] * PESOS_MOLECULARES[cas]
         composiciones_combustible[cas]['y'] = composiciones_combustible[cas]['flujo_masico'] / flujo_masico_gas
 
     return composiciones_combustible
 
-def evaluar_metodo_indirecto(composiciones_combustible, temperatura_aire, velocidad_aire,
-                                presion_aire, temperatura_gas, presion_gas, flujo_gas,  
-                                area_superficie, temperatura_superficie, temperatura_horno,
-                                humedad_relativa_aire, o2_gas_combustion_evaluacion):
+def evaluar_metodo_indirecto(composiciones_combustible: dict, temperatura_aire: float, velocidad_aire: float,
+                                presion_aire: float, temperatura_gas: float, presion_gas: float, flujo_gas: float,  
+                                area_superficie: float, temperatura_superficie: float, temperatura_horno: float,
+                                humedad_relativa_aire: float, o2_gas_combustion_evaluacion: float) -> dict:
+    """
+    Resumen:
+        Evalúa una caldera utilizado el método indirecto para calcular su eficiencia térmica.
+
+    Parámetros:
+        composiciones_combustible (dict): Un diccionario de composiciones de combustible donde cada clave es un número CAS y cada valor es otro diccionario que contiene las propiedades de la composición.
+        temperatura_aire (float): La temperatura del aire. [K]
+        velocidad_aire (float): La velocidad del aire. [m/s]
+        presion_aire (float): La presión del aire. [Pa]
+        temperatura_gas (float): La temperatura del gas. [K]
+        presion_gas (float): La presión del gas. [Pa]
+        flujo_gas (float): La tasa de flujo del gas. [m³/s]
+        area_superficie (float): El área superficial. [m²]
+        temperatura_superficie (float): La temperatura superficial. [K]
+        temperatura_horno (float): La temperatura del horno. [K]
+        humedad_relativa_aire (float): La humedad relativa del aire. [%]
+        o2_gas_combustion_evaluacion (float): El porcentaje de oxígeno en el gas de combustión. [%]
+
+    Devuelve:
+        dict: Un diccionario que contiene las pérdidas y la eficiencia del proceso de combustión.
+    """
     
     composicion_normalizada = normalizar_composicion(composiciones_combustible)
-    flujo_molar_gas = (presion_gas*flujo_gas*3600)/(8.314*temperatura_gas)*0.001 # mol / h
+    flujo_molar_gas = (presion_gas*flujo_gas*3600)/(8.314*temperatura_gas)*0.001 # kmol / h
     pm_promedio = calcular_pm_promedio(composicion_normalizada) # Kg / kmol
     flujo_masico_gas = pm_promedio*flujo_molar_gas # Kg / h
 
@@ -595,11 +644,11 @@ def evaluar_metodo_indirecto(composiciones_combustible, temperatura_aire, veloci
     )
 
     composiciones_combustible, porcentaje_oxigeno = calcular_moles_oxigeno(
-        composicion_normalizada, flujo_molar_gas, porc_o2_co2, porc_o2_h2o
+        composicion_normalizada, flujo_molar_gas
     )
 
     composiciones_combustible, porcentaje_azufre = calcular_moles_azufre(
-        composicion_normalizada, flujo_molar_gas, porc_s_h2s
+        composicion_normalizada, flujo_molar_gas
     )
 
     composicion_normalizada = calcular_flujos_composiciones_masicas(
@@ -616,7 +665,6 @@ def evaluar_metodo_indirecto(composiciones_combustible, temperatura_aire, veloci
     aire_teorico_req = ((11.6 * porcentaje_carbon + (34.8 * (porcentaje_hidrogeno - (porcentaje_oxigeno / 8)) + 4.35 * porcentaje_azufre))) / 100
     porc_o2_combustion = o2_gas_combustion_evaluacion/100
     porc_aire_exceso = (porc_o2_combustion / (21 - porc_o2_combustion)) * 100
-    print(porc_o2_combustion)
     masa_aire_suministrado = (1 + porc_aire_exceso / 100) * aire_teorico_req
     masa_gas_seco_combustion = (composicion_normalizada['124-38-9']['x_vol'] * 44) / (12) + composicion_normalizada['7727-37-9']['x_vol'] + (masa_aire_suministrado * 77) / (100) + (masa_aire_suministrado - aire_teorico_req) * 23 / 100
 
