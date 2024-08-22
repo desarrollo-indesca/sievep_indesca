@@ -3706,5 +3706,71 @@ def ficha_tecnica_precalentador_agua(precalentador):
 
     return [story, None]
 
-def evaluaciones_precalentadores_agua(object_list):
-    pass
+def evaluaciones_precalentadores_agua(object_list, request):
+    story = [Spacer(0, 90)]
+
+    if(len(request.GET) >= 2 and (request.GET['desde'] or request.GET['hasta'] or request.GET['usuario'] or request.GET['nombre'])):
+        story.append(Paragraph("Datos de Filtrado", centrar_parrafo))
+        table = [[Paragraph("Desde", centrar_parrafo), Paragraph("Hasta", centrar_parrafo), Paragraph("Usuario", centrar_parrafo), Paragraph("Nombre Ev.", centrar_parrafo)]]
+        table.append([
+            Paragraph(request.GET.get('desde'), parrafo_tabla),
+            Paragraph(request.GET.get('hasta'), parrafo_tabla),
+            Paragraph(request.GET.get('usuario'), parrafo_tabla),
+            Paragraph(request.GET.get('nombre'), parrafo_tabla),
+        ])
+
+        table = Table(table)
+        table.setStyle(basicTableStyle)
+
+        story.append(table)
+        story.append(Spacer(0,7))
+
+    table = [
+        Paragraph("Fecha", centrar_parrafo),
+        Paragraph("Eficiencia (%)", centrar_parrafo),
+        Paragraph("U (W/m²K)", centrar_parrafo),
+        Paragraph("Ensuciamiento (m²K/W)", centrar_parrafo),
+    ]
+
+    eficiencias = []
+    us = []
+    ensuciamientos = []
+    fechas = []
+
+    for evaluacion in object_list:
+        table.append([
+            Paragraph(evaluacion.fecha, centrar_parrafo),
+            Paragraph(str(evaluacion.salida_general.eficiencia), centrar_parrafo),
+            Paragraph(str(evaluacion.salida_general.u), centrar_parrafo),
+            Paragraph(str(evaluacion.salida_general.ensuciamiento), centrar_parrafo),
+        ])
+
+        ensuciamientos.append(evaluacion.salida_general.ensuciamiento)
+        eficiencias.append(evaluacion.salida_general.eficiencia)
+        us.append(evaluacion.salida_general.u)
+        fechas.append(evaluacion.fecha.strftime('%d/%m/%Y %H:%M'))
+
+    estilo = TableStyle([
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+
+        ('BACKGROUND', (0, 0), (0, -1), sombreado),
+    ])
+
+    table = Table(
+        table,
+        style=estilo
+    )
+
+    sub = "Fechas" # Subtítulo de las evaluaciones
+    if(len(fechas) >= 5):
+        fechas = list(range(1,len(fechas)+1))
+        sub = "Evaluaciones"
+
+    # Generación de Gráficas históricas. Todas las magnitudes deben encontrarse en la misma unidad.
+    if(len(object_list) > 1):
+        story, grafica1 = anadir_grafica(story, eficiencias, fechas, sub, "Eficiencia", "Eficiencias (%)")
+        story, grafica2 = anadir_grafica(story, us, fechas, sub, "U (W/m²K)", "U (W/m²K)")
+        story, grafica3 = anadir_grafica(story, ensuciamientos, fechas, sub, "Ensuciamiento (m²K/W)", f"Ensuciamiento (m²K/W)")
+
+        return [story, [grafica1, grafica2, grafica3]]    

@@ -2083,7 +2083,7 @@ class EdicionPrecalentadorAgua(CreacionPrecalentadorAgua, ObtenerPrecalentadorAg
                     'edicion': True
                 })    
 
-class ConsultaEvaluacionPrecalentadorAgua(ConsultaEvaluacion, ObtenerPrecalentadorAguaMixin, ReportesFichasMixin):
+class ConsultaEvaluacionPrecalentadorAgua(ConsultaEvaluacion, ObtenerPrecalentadorAguaMixin, ReportesFichasPrecalentadoresAguaMixin):
     """
     Resumen:
         Vista para la consulta de evaluaciones de Ventiladores de Calderas.
