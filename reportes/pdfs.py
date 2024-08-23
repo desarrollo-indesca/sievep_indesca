@@ -235,6 +235,9 @@ def generar_historia(request, reporte, object_list):
     if reporte == 'ficha_tecnica_precalentadores_agua':
         return ficha_tecnica_precalentador_agua(object_list)
 
+    if reporte == 'reporte_evaluaciones_precalentador':
+        return evaluaciones_precalentadores_agua(object_list, request)
+
 # GENERALES
 def reporte_equipos(request, object_list):
     '''
@@ -3726,10 +3729,12 @@ def evaluaciones_precalentadores_agua(object_list, request):
         story.append(Spacer(0,7))
 
     table = [
-        Paragraph("Fecha", centrar_parrafo),
-        Paragraph("Eficiencia (%)", centrar_parrafo),
-        Paragraph("U (W/m²K)", centrar_parrafo),
-        Paragraph("Ensuciamiento (m²K/W)", centrar_parrafo),
+        [
+            Paragraph("Fecha", centrar_parrafo),
+            Paragraph("Eficiencia (%)", centrar_parrafo),
+            Paragraph("U (W/m²K)", centrar_parrafo),
+            Paragraph("Ensuciamiento (m²K/W)", centrar_parrafo),
+        ]
     ]
 
     eficiencias = []
@@ -3738,29 +3743,34 @@ def evaluaciones_precalentadores_agua(object_list, request):
     fechas = []
 
     for evaluacion in object_list:
+        fecha = evaluacion.fecha.strftime('%d/%m/%Y %H:%M')
+
         table.append([
-            Paragraph(evaluacion.fecha, centrar_parrafo),
-            Paragraph(str(evaluacion.salida_general.eficiencia), centrar_parrafo),
-            Paragraph(str(evaluacion.salida_general.u), centrar_parrafo),
-            Paragraph(str(evaluacion.salida_general.ensuciamiento), centrar_parrafo),
+            Paragraph(fecha, centrar_parrafo),
+            Paragraph(str(round(evaluacion.salida_general.eficiencia, 4)), centrar_parrafo),
+            Paragraph(str(round(evaluacion.salida_general.u, 4)), centrar_parrafo),
+            Paragraph(str(round(evaluacion.salida_general.factor_ensuciamiento, 4)), centrar_parrafo),
         ])
 
-        ensuciamientos.append(evaluacion.salida_general.ensuciamiento)
+        ensuciamientos.append(evaluacion.salida_general.factor_ensuciamiento)
         eficiencias.append(evaluacion.salida_general.eficiencia)
         us.append(evaluacion.salida_general.u)
-        fechas.append(evaluacion.fecha.strftime('%d/%m/%Y %H:%M'))
+        fechas.append(fecha)
 
     estilo = TableStyle([
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
 
-        ('BACKGROUND', (0, 0), (0, -1), sombreado),
+        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
     ])
 
     table = Table(
         table,
-        style=estilo
+        style=estilo,
+        colWidths=(1.8*inch, 1.8*inch, 1.8*inch, 1.8*inch)
     )
+
+    story.append(table)
 
     sub = "Fechas" # Subtítulo de las evaluaciones
     if(len(fechas) >= 5):
