@@ -3,9 +3,8 @@ Este módulo corresponde a las vistas de los equipos auxiliares.
 
 - BOMBAS
 - VENTILADORES
-- PRECALENTADORES DE AIRE
 - PRECALENTADORES DE AGUA
-- ECONOMIZADORES
+- PRECALENTADORES DE AIRE
 """
 
 from typing import Any
@@ -31,7 +30,7 @@ from calculos.unidades import *
 from calculos.utils import fluido_existe, registrar_fluido
 from .evaluacion import evaluacion_bomba, evaluar_ventilador, evaluar_precalentador_agua
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import reporte_equipos, ficha_tecnica_ventilador, historico_evaluaciones_bombas, historico_evaluaciones_ventiladores, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga
+from reportes.xlsx import reporte_equipos, ficha_tecnica_ventilador, historico_evaluaciones_bombas, historico_evaluaciones_ventiladores, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga, historico_evaluaciones_precalentador_agua, ficha_tecnica_precalentador_agua
 
 # Create your views here.
 
@@ -2257,7 +2256,7 @@ class CreacionCorrientesPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecale
     def post(self, request, pk):
         return self.almacenar_datos(request)
 
-class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMixin, View):
+class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMixin, ReportesFichasPrecalentadoresAguaMixin, View):
     """
     Resumen:
         Vista para mostrar la evaluación de un precalentador de agua. 
