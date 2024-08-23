@@ -1809,8 +1809,13 @@ class ObtenerPrecalentadorAguaMixin():
         return precalentador
 
 class ReportesFichasPrecalentadoresAguaMixin():
+    """
+    Resumen:
+        Mixin para la reutilización del código para la generación de fichas
+        de precalentadores de agua.
+    """
     model_ficha = Ventilador
-    reporte_ficha_xlsx = ficha_tecnica_ventilador
+    reporte_ficha_xlsx = ficha_tecnica_precalentador_agua
     titulo_reporte_ficha = "Ficha Técnica del Precalentador de Agua"
     codigo_reporte_ficha = "ficha_tecnica_precalentadores_agua"
 
