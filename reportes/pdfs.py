@@ -237,6 +237,9 @@ def generar_historia(request, reporte, object_list):
 
     if reporte == 'reporte_evaluaciones_precalentador':
         return evaluaciones_precalentadores_agua(object_list, request)
+    
+    if reporte == 'detalle_evaluacion_precalentador':
+        return detalle_evaluacion_precalentadores_agua(object_list)
 
 # GENERALES
 def reporte_equipos(request, object_list):
@@ -3449,7 +3452,6 @@ def reporte_detalle_evaluacion_caldera(evaluacion):
             ('SPAN', (1,4), (-1,4)),
         ])
 
-    
     table = Table(table)
     table.setStyle(estilo)
     story.append(table)
@@ -3710,6 +3712,10 @@ def ficha_tecnica_precalentador_agua(precalentador):
     return [story, None]
 
 def evaluaciones_precalentadores_agua(object_list, request):
+    '''
+    Resumen:
+        Genera un reporte PDF de una evaluación de un precalentador de agua.
+    '''  
     story = [Spacer(0, 90)]
 
     if(len(request.GET) >= 2 and (request.GET['desde'] or request.GET['hasta'] or request.GET['usuario'] or request.GET['nombre'])):
@@ -3783,4 +3789,165 @@ def evaluaciones_precalentadores_agua(object_list, request):
         story, grafica2 = anadir_grafica(story, us, fechas, sub, "U (W/m²K)", "U (W/m²K)")
         story, grafica3 = anadir_grafica(story, ensuciamientos, fechas, sub, "Ensuciamiento (m²K/W)", f"Ensuciamiento (m²K/W)")
 
-        return [story, [grafica1, grafica2, grafica3]]    
+        return [story, [grafica1, grafica2, grafica3]]  
+
+    return [story, None]
+
+def detalle_evaluacion_precalentadores_agua(evaluacion):
+    """
+    Resumen:
+        Esta función genera un reporte en formato PDf del detalle de una evaluación realizada a un precalentador de agua.
+        No genera gráfica.
+    """
+
+    story = [Spacer(0,70)]
+
+    story.append(Paragraph(f"<b>Fecha de la Evaluación:</b> {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Creado por:</b> {evaluacion.usuario.get_full_name()}"))
+    story.append(Paragraph(f"<b>Tag del Equipo:</b> {evaluacion.equipo.tag}"))
+    story.append(Paragraph(f"<b>ID de la Evaluación:</b> {evaluacion.id}"))
+    story.append(Spacer(0,20))
+
+    # TABLA 1: DATOS DE LAS CORRIENTES DE CARCASA
+    datos_corrientes = evaluacion.datos_corrientes
+    corrientes_carcasa = datos_corrientes.corrientes_evaluacion.filter(corriente__lado="C")
+    corrientes_tubo = datos_corrientes.corrientes_evaluacion.filter(corriente__lado="T")
+
+    table = [
+        [
+            Paragraph("DATOS DE LAS CORRIENTES DE LA CARCASA", estiloMontos),
+        ], [
+            Paragraph("#", estiloMontos),
+            Paragraph("NOMBRE", estiloMontos),
+            Paragraph("ROL", estiloMontos),
+            Paragraph(f"FLUJO ({datos_corrientes.flujo_unidad})", estiloMontos),
+            Paragraph(f"PRESIÓN ({datos_corrientes.presion_unidad})", estiloMontos),
+            Paragraph(f"TEMPERATURA ({datos_corrientes.temperatura_unidad})", estiloMontos),
+            Paragraph(f"ENTALPÍA ({datos_corrientes.entalpia_unidad})", estiloMontos),
+            Paragraph(f"DENSIDAD ({datos_corrientes.densidad_unidad})", estiloMontos),
+            Paragraph(f"FASE", estiloMontos),
+        ],
+        *[
+            [
+                Paragraph(corriente.corriente.numero_corriente, estiloMontos),
+                Paragraph(corriente.corriente.nombre, estiloMontos),
+                Paragraph(corriente.corriente.rol, estiloMontos),
+                Paragraph(str(round(corriente.flujo, 2)), estiloMontos),
+                Paragraph(str(round(corriente.presion, 2)), estiloMontos),
+                Paragraph(str(round(corriente.temperatura, 2)), estiloMontos),
+                Paragraph(str(round(corriente.entalpia, 2)), estiloMontos),
+                Paragraph(str(round(corriente.densidad, 2)), estiloMontos),
+                Paragraph(corriente.fase, estiloMontos) 
+            ] for corriente in corrientes_carcasa
+        ]
+    ]
+
+    estilo = [
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+
+        ('SPAN', (0,0), (-1,0)),
+        
+        ('BACKGROUND', (0, 0), (-1, 1), sombreado),
+    ]
+
+    table = Table(table, style=estilo, colWidths=(0.5*inch, 1.8*inch, 0.5*inch, 0.8*inch, 0.8*inch, 1.1*inch, 0.9*inch, 0.9*inch, 0.5*inch))
+    story.append(table)
+    story.append(Spacer(0,35))
+
+    # TABLA 2: DATOS DE LAS CORRIENTES DE LOS TUBOS
+    table = [
+        [
+            Paragraph("DATOS DE LAS CORRIENTES DE LOS TUBOS", estiloMontos),
+        ], [
+            Paragraph("#", estiloMontos),
+            Paragraph("NOMBRE", estiloMontos),
+            Paragraph("ROL", estiloMontos),
+            Paragraph(f"FLUJO ({datos_corrientes.flujo_unidad})", estiloMontos),
+            Paragraph(f"PRESIÓN ({datos_corrientes.presion_unidad})", estiloMontos),
+            Paragraph(f"TEMPERATURA ({datos_corrientes.temperatura_unidad})", estiloMontos),
+            Paragraph(f"ENTALPÍA ({datos_corrientes.entalpia_unidad})", estiloMontos),
+            Paragraph(f"DENSIDAD ({datos_corrientes.densidad_unidad})", estiloMontos),
+            Paragraph(f"FASE", estiloMontos),
+        ],
+        *[
+            [
+                Paragraph(corriente.corriente.numero_corriente, estiloMontos),
+                Paragraph(corriente.corriente.nombre, estiloMontos),
+                Paragraph(corriente.corriente.rol, estiloMontos),
+                Paragraph(str(round(corriente.flujo, 2)), estiloMontos),
+                Paragraph(str(round(corriente.presion, 2)), estiloMontos),
+                Paragraph(str(round(corriente.temperatura, 2)), estiloMontos),
+                Paragraph(str(round(corriente.entalpia, 2)), estiloMontos),
+                Paragraph(str(round(corriente.densidad, 2)), estiloMontos),
+                Paragraph(corriente.fase, estiloMontos) 
+            ] for corriente in corrientes_tubo
+        ]
+    ]
+
+    table = Table(table, style=estilo, colWidths=(0.5*inch, 1.8*inch, 0.5*inch, 0.8*inch, 0.8*inch, 1.1*inch, 0.9*inch, 0.9*inch, 0.5*inch))
+    story.append(table)
+    story.append(Spacer(0,35))
+
+    # TABLA 3: SALIDA GENERAL
+    salida = evaluacion.salida_general
+    table = [
+        [
+            Paragraph("RESULTADOS DE LA EVALUACIÓN", centrar_parrafo),
+        ],
+        [
+            Paragraph("Eficiencia (%)", centrar_parrafo),
+            Paragraph(f"{round(salida.eficiencia, 2)}", centrar_parrafo)
+        ],
+        [
+            Paragraph("Calor Carcasa (W)", centrar_parrafo),
+            Paragraph(f"{round(salida.calor_carcasa, 2)}", centrar_parrafo)
+        ],
+        [
+            Paragraph("Calor Tubos (W)", centrar_parrafo),
+            Paragraph(f"{round(salida.calor_tubos, 2)}", centrar_parrafo)
+        ],
+        [
+            Paragraph("Coeficiente U Calculado/Diseño (W/m²K)", centrar_parrafo),
+            Paragraph(f"{round(salida.u, 2)} / {round(salida.u_diseno, 2)}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Delta T Tubos ({datos_corrientes.temperatura_unidad})", centrar_parrafo),
+            Paragraph(f"{round(salida.delta_t_tubos, 2)}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Delta T Carcasa ({datos_corrientes.temperatura_unidad})", centrar_parrafo),
+            Paragraph(f"{round(salida.delta_t_carcasa, 2)}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"MTD ({datos_corrientes.temperatura_unidad})", centrar_parrafo),
+            Paragraph(f"{round(salida.mtd, 2)}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Ensuciamiento (m²K/W)", centrar_parrafo),
+            Paragraph(f"{round(salida.factor_ensuciamiento, 2)}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"NTU", centrar_parrafo),
+            Paragraph(f"{round(salida.ntu, 2)}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Cmín (W/K)", centrar_parrafo),
+            Paragraph(f"{round(salida.cmin, 2)}", centrar_parrafo)
+        ],
+    ]
+
+    estilo = [
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+
+        ('SPAN', (0,0), (-1,0)),
+        
+        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+        ('BACKGROUND', (0, 1), (0, -1), sombreado),
+    ]
+
+    table = Table(table, style=estilo)
+    story.append(table)
+    story.append(Spacer(0,35))
+    
+    return [story, None]
