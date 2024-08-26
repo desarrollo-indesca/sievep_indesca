@@ -1488,3 +1488,88 @@ class Composicion(models.Model):
     condicion = models.ForeignKey(CondicionFluido, on_delete=models.CASCADE, related_name="composicion")
     fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE, related_name="composicion")
 
+# Modelos de la Evaluación de Precalentadores de Aire
+
+class SalidaEvaluacionPrecalentadorAire(models.Model):
+    '''
+    Resumen:
+        Modelos que registra la salida de los precalentadores de aire.
+
+    Atributos:
+        calor_aire: FloatField -> Calor transferido al aire.
+        calor_gas: FloatField -> Calor transferido al gas.
+        calor_perdido: FloatField -> Calor perdido sistema.
+        lmtd: FloatField -> Logaritmo medio de la diferencia de temperaturas.
+        u: FloatField -> Coeficiente de transferencia de calor.
+        ensuciamiento: FloatField -> Factor de ensuciamiento.
+        ntu: FloatField -> Número de unidades de transferencia.
+        eficiencia: FloatField -> Eficiencia del precalentador de aire.
+        u_diseno: FloatField -> Coeficiente de transferencia de calor para el diseno.
+        cp_aire_entrada: FloatField -> Presión de calor del aire de entrada.
+        cp_aire_salida: FloatField -> Presión de calor del aire de salida.
+        cp_gas_entrada: FloatField -> Presión de calor del gas de entrada.
+        cp_aire_salida: FloatField -> Presión de calor del gas de salida.
+    '''
+    calor_aire = models.FloatField()
+    calor_gas = models.FloatField()
+    calor_perdido = models.FloatField()
+    lmtd = models.FloatField()
+    u = models.FloatField()
+    ensuciamiento = models.FloatField()
+    ntu = models.FloatField()
+    eficiencia = models.FloatField()
+    u_diseno = models.FloatField()
+    cp_aire_entrada = models.FloatField()
+    cp_aire_salida = models.FloatField()
+    cp_gas_entrada = models.FloatField()
+    cp_aire_salida = models.FloatField()
+
+class EvaluacionPrecalentadorAire(models.Model):
+    '''
+    Resumen:
+        Modelos que registra la evaluación de los precalentadores de aire.
+    
+    Atributos:
+        nombre: CharField -> Nombre de la evaluacion.
+        fecha: DateTimeField -> Fecha de la evaluacion.
+        precalentador: PrecalentadorAire -> Precalentador de Aire asociado.
+        salida: SalidaEvaluacionPrecalentadorAire -> Datos de Salida de la evaluacion.
+    '''
+    nombre = models.CharField(max_length=100)
+    fecha = models.DateTimeField(auto_now=True)
+    precalentador = models.ForeignKey(PrecalentadorAire, on_delete=models.CASCADE, related_name="evaluacion_precalentador")
+    salida = models.ForeignKey(SalidaEvaluacionPrecalentadorAire, on_delete=models.CASCADE, related_name="evaluacion_precalentador")
+
+class EntradaLado(models.Model):
+    '''
+    Resumen:
+        Modelo que describe la entrada de un lado de un precalentador de aire.
+    
+    Atributos:
+        flujo: FloatField -> Flujo másico del lado de entrada.
+        temp_entrada: FloatField -> Temperatura de entrada del lado.
+        temp_salida: FloatField -> Temperatura de Salida del lado.
+        cp_prom: FloatField -> Capacidad calorífica promedio del lado.
+        lado: CharField -> Lado del precalentador al que se refiere la entrada (Aire o Gases).
+        evaluacion: ForeignKey -> Evaluación del precalentador de aire a la que se refiere la entrada.
+    '''
+    flujo = models.FloatField()
+    temp_entrada = models.FloatField()
+    temp_salida = models.FloatField()
+    cp_prom = models.FloatField()
+    lado = models.CharField(choices=(("A","Aire"),("G","Gases")))
+    evaluacion = models.ForeignKey(EvaluacionPrecalentadorAire, on_delete=models.CASCADE, related_name="entrada_lado")
+
+class SalidaLado(models.Model):
+    '''
+    Resumen:
+        Modelo que describe la Salida del lado de un precalentador de aire.
+    
+    Atributos:
+        porcentaje: FloatField -> Porcentaje de fluido que sale del precalentador de aire.
+        entrada: ForeignKey -> Entrada del lado del precalentador al que se refiere la Salida.
+        fluido: ForeignKey -> Fluidos que se encuentran en la Salida del lado del precalentador.
+    '''
+    porcentaje = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(100)])
+    entrada = models.ForeignKey(EntradaLado, on_delete=models.CASCADE, related_name="salida_lado")
+    fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE, related_name="salida_lado")
