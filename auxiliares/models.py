@@ -1381,3 +1381,110 @@ class CorrientesEvaluacionPrecalentadorAgua(models.Model):
         ordering = ("corriente__rol",)
 
 # MODELOS DE PRECALENTADOR DE AIRE
+
+class EspecificacionesPrecalentadorAire(models.Model):
+    '''
+    Resumen:
+        Modelo que describe las especificaciones del precalentador de aire.
+
+    Atributos:
+        material: CharField -> Material del precalentador
+        espesor: FloatField -> Espesor del precalentador
+        diametro: FloatField -> Diámetro del precalentador
+        altura: FloatField -> Altura del precalentador
+        longitud_unidad: ForeignKey -> Unidad de la longitud del precalentador
+        superficie_calentamiento: FloatField -> Superficie de calentamiento del precalentador
+        area_transferencia: FloatField -> Área de transferencia de calor del precalentador
+        area_unidad: ForeignKey -> Unidad del área de transferencia de calor
+    '''
+    material = models.CharField(max_length=45)
+    espesor = models.FloatField()
+    diametro = models.FloatField()
+    altura = models.FloatField()
+    longitud_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="especificaciones_precalentador_aire_longitud_unidad")
+    superficie_calentamiento = models.FloatField(null = True, blank = True)
+    area_transferencia = models.FloatField(null = True, blank = True)
+    area_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="especificaciones_precalentador_aire_area_unidad")
+    temp_operacion = models.FloatField(null = True, blank = True)
+    temp_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="especificaciones_precalentador_aire_temp_unidad")
+    presion_operacion = models.FloatField(null = True, blank = True)
+    u = models.FloatField(null = True, blank = True)
+
+    class Meta:
+        db_table = "precalentador_aire_especificaciones"
+
+class PrecalentadorAire(models.Model):
+    '''
+    Resumen:
+        Modelo que registra la información de los precalentadores de aire.
+
+    Atributos:
+        tag: CharField -> Tag único para el precalentador de aire.
+        descripcion: CharField -> Descripción del servicio o funciones del equipo.
+        fabricante: CharField -> Nombre del fabricante del equipo.
+        modelo: CharField -> Número de modelo del precalentador de aire.
+        tipo: CharField -> Tipo de precalentador de aire.
+        especificaciones: OneToOneField -> Referencia a las especificaciones del precalentador.
+    '''
+    tag = models.CharField(max_length=45)
+    descripcion = models.CharField("Descripción del Equipo", max_length=80)
+    fabricante = models.CharField(max_length=45, null=True, blank=True)
+    modelo = models.CharField(max_length=45, null=True, blank=True)
+    tipo = models.CharField(max_length=45, null=True, blank=True)
+    copia = models.BooleanField(default=False, blank=True)
+    especificaciones = models.OneToOneField(EspecificacionesPrecalentadorAire, on_delete=models.PROTECT, related_name="especificaciones_precalentador_aire")
+
+    planta = models.ForeignKey(Planta, on_delete=models.PROTECT)
+    creado_al = models.DateTimeField(auto_now_add=True)
+    editado_al = models.DateTimeField(null = True)
+    creado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="precalentador_aire_creado_por")
+    editado_por = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, null = True, related_name="precalentador_aire_editado_por")
+    
+    class Meta:
+        db_table = "precalentador_aire"
+        ordering = ('tag',)
+
+class CondicionFluido(models.Model):
+    '''
+    Resumen:
+        Modelo que registra las condiciones de los fluidos que ingresan y salen de los precalentadores de aire.
+
+    Atributos:
+        precalentador: ForeignKey -> Referencia al precalentador de aire.
+        fluido: CharField -> Especifica si es fluido de entrada o salida.
+        flujo: FloatField -> Flujo del fluido de entrada o salida.
+        flujo_unidad: ForeignKey -> Unidad de medida del flujo.
+        temp_entrada: FloatField -> Temperatura de entrada del fluido.
+        temp_salida: FloatField -> Temperatura de salida del fluido.
+    '''
+    precalentador = models.ForeignKey(PrecalentadorAire, on_delete=models.CASCADE, related_name="condicion_fluido")
+    fluido = models.CharField(max_length=1, choices=(("A", "Aire"), ("G", "Gases")))
+    flujo = models.FloatField(null=True, blank=True)
+    flujo_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="condicion_fluido_flujo_unidad")
+
+    temp_entrada = models.FloatField(null=True, blank=True)
+    temp_salida = models.FloatField(null=True, blank=True)
+    temp_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="condicion_fluido_temp_unidad")
+    
+    presion_entrada = models.FloatField(null=True, blank=True)
+    presion_salida = models.FloatField(null=True, blank=True)
+    caida_presion = models.FloatField(null=True, blank=True)
+    presion_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="condicion_fluido_presion_unidad")
+
+    class Meta:
+        db_table = "precalentador_aire_condicionfluido"
+
+class Composicion(models.Model):
+    '''
+    Resumen:
+        Modelo que registra la composicion de los fluidos que ingresan o salen de los precalentadores de aire.
+
+    Atributos:
+        porcentaje: FloatField -> Porcentaje del fluido en la composicion 0-100.
+        condicion: ForeignKey -> Referencia a la condicion de fluido asociada.
+        fluido: ForeignKey -> Referencia al fluido asociado a la composicion.
+    '''
+    porcentaje = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(100)])
+    condicion = models.ForeignKey(CondicionFluido, on_delete=models.CASCADE, related_name="composicion")
+    fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE, related_name="composicion")
+
