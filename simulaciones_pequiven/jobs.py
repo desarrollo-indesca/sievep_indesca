@@ -4,6 +4,13 @@ from django.db import transaction
 from django.db.models import Prefetch
 
 def run_continuously(self, interval=1):
+    """
+    Run all scheduled tasks in this scheduler every `interval` seconds.
+
+    :param interval: The number of seconds between each run. Defaults to 1.
+    :return: A threading.Event which can be used to stop the scheduler.
+    """
+    
     cease_continuous_run = threading.Event()
 
     class ScheduleThread(threading.Thread):
@@ -22,6 +29,11 @@ def run_continuously(self, interval=1):
 Scheduler.run_continuously = run_continuously
 
 def delete_ventilador_copies():
+    """
+    Resumen:
+        Borra todas las copias de ventiladores existentes en la base de datos. Las copias se caracterizan por tener el campo 'copia' en True.
+        Borra todas las evaluaciones de los ventiladores y todas sus propiedades asociadas.
+    """
     from auxiliares.models import Ventilador, EvaluacionVentilador
     copias = Ventilador.objects.filter(copia=True).select_related(
         'condiciones_trabajo', 'condiciones_adicionales', 
@@ -51,6 +63,11 @@ def delete_ventilador_copies():
         especificaciones.delete()
 
 def delete_bombas_copies():
+    """
+    Resumen:
+        Borra todas las copias de bombas existentes en la base de datos. Las copias se caracterizan por tener el campo 'copia' en True.
+        Borra todas las evaluaciones de los bombas y todas sus propiedades asociadas.
+    """
     from auxiliares.models import Bombas, EvaluacionBomba, SalidaSeccionesEvaluacionBomba
 
     copias = Bombas.objects.filter(copia=True).select_related(
@@ -97,6 +114,12 @@ def delete_bombas_copies():
         instalacion_descarga.delete()
 
 def delete_precalentador_copies():
+    """
+    Resumen:
+        Borra todas las copias de precalentadores de agua existentes en la base de datos. Las copias se caracterizan por tener el campo 'copia' en True.
+        Borra todas las evaluaciones de los precalentadores de agua y todas sus propiedades asociadas.
+    """
+
     from auxiliares.models import PrecalentadorAgua
 
     copias = PrecalentadorAgua.objects.filter(copia=True).select_related('datos_corrientes').prefetch_related(
@@ -120,6 +143,11 @@ def delete_precalentador_copies():
         datos_corrientes.delete()
 
 def delete_turbinas_vapor_copies():
+    """
+    Resumen:
+        Borra todas las copias de turbinas de vapor existentes en la base de datos. Las copias se caracterizan por tener el campo 'copia' en True.
+        Borra todas las evaluaciones de las copias de turbinas de vapor y todas sus propiedades asociadas.
+    """
     from turbinas.models import TurbinaVapor, Evaluacion, CorrienteEvaluacion
 
     copias = TurbinaVapor.objects.filter(copia=True).select_related('especificaciones', 'generador_electrico', 'datos_corrientes').prefetch_related(
@@ -157,6 +185,11 @@ def delete_turbinas_vapor_copies():
         generador_electrico.delete()
 
 def delete_intercambiador_copies():
+    """
+    Resumen:
+        Borra todas las copias de intercambiadores de calor existentes en la base de datos. Las copias se caracterizan por tener el campo 'copia' en True.
+        Borra todas las evaluaciones de las copias de intercambiadores de calor y todas sus propiedades asociadas.
+    """
     from intercambiadores.models import Intercambiador
 
     copias = Intercambiador.objects.filter(copia=True).select_related(
@@ -179,6 +212,11 @@ def delete_intercambiador_copies():
         copia.delete()
 
 def delete_calderas_copies():
+    """
+    Resumen:
+        Borra todas las copias de calderas existentes en la base de datos. Las copias se caracterizan por tener el campo 'copia' en True.
+        Borra todas las evaluaciones de  copias de las calderas y todas sus propiedades asociadas.
+    """
     from calderas.models import Caldera, Evaluacion
 
     copias = Caldera.objects.filter(copia=True).select_related(
@@ -233,6 +271,13 @@ def delete_calderas_copies():
         economizador.delete()
 
 def delete_copies():
+    """
+    Resumen:
+        Borrar todas las copias de los equipos.
+
+        Borra todas las evaluaciones y sus propiedades asociadas de los equipos que tienen
+        el campo 'copia' en True.
+    """
     with transaction.atomic():
         delete_ventilador_copies()
         delete_bombas_copies()
@@ -242,6 +287,11 @@ def delete_copies():
         delete_calderas_copies()
 
 def start_deleting_job():
+    """
+    Resumen:
+        Inicia el scheduler para borrar todas las copias de los equipos diariamente a las 6am.
+    """
+    
     scheduler = Scheduler()
     scheduler.every().day.at("06:00").do(delete_copies)
     scheduler.run_continuously()
