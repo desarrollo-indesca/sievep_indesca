@@ -3,9 +3,8 @@ Este módulo corresponde a las vistas de los equipos auxiliares.
 
 - BOMBAS
 - VENTILADORES
-- PRECALENTADORES DE AIRE
 - PRECALENTADORES DE AGUA
-- ECONOMIZADORES
+- PRECALENTADORES DE AIRE
 """
 
 from typing import Any
@@ -31,7 +30,7 @@ from calculos.unidades import *
 from calculos.utils import fluido_existe, registrar_fluido
 from .evaluacion import evaluacion_bomba, evaluar_ventilador, evaluar_precalentador_agua
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import reporte_equipos, ficha_tecnica_ventilador, historico_evaluaciones_bombas, historico_evaluaciones_ventiladores, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga
+from reportes.xlsx import reporte_equipos, ficha_tecnica_ventilador, historico_evaluaciones_bombas, historico_evaluaciones_ventiladores, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga, historico_evaluaciones_precalentador_agua, ficha_tecnica_precalentador_agua
 
 # Create your views here.
 
@@ -1809,7 +1808,26 @@ class ObtenerPrecalentadorAguaMixin():
         
         return precalentador
 
-class ConsultaPrecalentadoresAgua(ObtenerPrecalentadorAguaMixin, FiltradoSimpleMixin, LoginRequiredMixin, ListView, ReportesFichasVentiladoresMixin):
+class ReportesFichasPrecalentadoresAguaMixin():
+    """
+    Resumen:
+        Mixin para la reutilización del código para la generación de fichas
+        de precalentadores de agua.
+    """
+    model_ficha = Ventilador
+    reporte_ficha_xlsx = ficha_tecnica_precalentador_agua
+    titulo_reporte_ficha = "Ficha Técnica del Precalentador de Agua"
+    codigo_reporte_ficha = "ficha_tecnica_precalentadores_agua"
+
+    def reporte_ficha(self, request):
+        if(request.POST.get('ficha')): # FICHA TÉCNICA
+            precalentador = self.get_precalentador(PrecalentadorAgua.objects.filter(pk = request.POST.get('ficha'))).first()
+            if(request.POST.get('tipo') == 'pdf'):
+                return generar_pdf(request,precalentador, f"Ficha Técnica del Precalentador de Agua {precalentador.tag}", "ficha_tecnica_precalentadores_agua")
+            if(request.POST.get('tipo') == 'xlsx'):
+                return ficha_tecnica_precalentador_agua(precalentador, request)
+
+class ConsultaPrecalentadoresAgua(ObtenerPrecalentadorAguaMixin, FiltradoSimpleMixin, LoginRequiredMixin, ListView, ReportesFichasPrecalentadoresAguaMixin):
     '''
     Resumen:
         Vista para la consulta de precalentadores de agua.
@@ -2069,7 +2087,7 @@ class EdicionPrecalentadorAgua(CreacionPrecalentadorAgua, ObtenerPrecalentadorAg
                     'edicion': True
                 })    
 
-class ConsultaEvaluacionPrecalentadorAgua(ConsultaEvaluacion, ObtenerPrecalentadorAguaMixin, ReportesFichasMixin):
+class ConsultaEvaluacionPrecalentadorAgua(ConsultaEvaluacion, ObtenerPrecalentadorAguaMixin, ReportesFichasPrecalentadoresAguaMixin):
     """
     Resumen:
         Vista para la consulta de evaluaciones de Ventiladores de Calderas.
@@ -2243,7 +2261,7 @@ class CreacionCorrientesPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecale
     def post(self, request, pk):
         return self.almacenar_datos(request)
 
-class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMixin, View):
+class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorAguaMixin, ReportesFichasPrecalentadoresAguaMixin, View):
     """
     Resumen:
         Vista para mostrar la evaluación de un precalentador de agua. 

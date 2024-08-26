@@ -1156,6 +1156,9 @@ class SeccionesPrecalentadorAgua(models.Model):
     tipo = models.CharField(max_length=1, choices=TIPOS_SECCIONES_PRECALENTADOR)
     precalentador = models.ForeignKey(PrecalentadorAgua, default=89, on_delete=models.PROTECT, related_name="secciones_precalentador")
 
+    def tipo_largo(self):
+        return conseguir_largo(TIPOS_SECCIONES_PRECALENTADOR, self.tipo)
+
     class Meta:
         db_table = "precalentador_agua_secciones"
         ordering = ('tipo',)
@@ -1196,6 +1199,9 @@ class EspecificacionesPrecalentadorAgua(models.Model):
 
     tipo = models.CharField(max_length=1, choices=TIPOS_ELEMENTOS_PRECALENTADOR)
     precalentador = models.ForeignKey(PrecalentadorAgua, on_delete=models.PROTECT, related_name="especificaciones_precalentador")
+
+    def tipo_largo(self):
+        return conseguir_largo(TIPOS_ELEMENTOS_PRECALENTADOR, self.tipo)
 
     class Meta:
         db_table = "precalentador_agua_especificaciones"

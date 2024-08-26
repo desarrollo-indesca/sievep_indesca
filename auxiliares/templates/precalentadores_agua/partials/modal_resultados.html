@@ -122,8 +122,8 @@
                                 <td class="w-50">{{evaluacion.salida_general.calor_tubos|floatformat:4}}</td>
                             </tr>
                             <tr>
-                                <th class="table-dark w-50">Coeficiente Global de Transferencia U (W/m²K)</th>
-                                <td class="w-50">{{evaluacion.salida_general.u|floatformat:4}}</td>
+                                <th class="table-dark w-50">Coeficiente Global de Transferencia U Calc./Diseño (W/m²K)</th>
+                                <td class="w-50">{{evaluacion.salida_general.u|floatformat:4}} / {{evaluacion.salida_general.u_diseno|floatformat:4}}</td>
                             </tr>
                             <tr>
                                 <th class="table-dark w-50">Delta T Tubos ({{evaluacion.datos_corrientes.temperatura_unidad}})</th>
