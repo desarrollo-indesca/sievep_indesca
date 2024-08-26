@@ -1557,7 +1557,7 @@ class EntradaLado(models.Model):
     temp_entrada = models.FloatField()
     temp_salida = models.FloatField()
     cp_prom = models.FloatField()
-    lado = models.CharField(choices=(("A","Aire"),("G","Gases")))
+    lado = models.CharField(max_length=1, choices=(("A","Aire"),("G","Gases")))
     evaluacion = models.ForeignKey(EvaluacionPrecalentadorAire, on_delete=models.CASCADE, related_name="entrada_lado")
 
 class SalidaLado(models.Model):
