@@ -340,26 +340,50 @@ class EspecificacionesPrecalentadorAguaForm(forms.ModelForm):
         }
 
 class DatosCorrientesPrecalentadorAguaForm(forms.ModelForm):
+    '''
+    Resumen:
+        Formulario para el registro de los datos de las corrientes de fluido en el precalentador.
+    '''
     class Meta:
         model = DatosCorrientesPrecalentadorAgua
         exclude = ('id', 'precalentador')
 
 class CorrientesPrecalentadorAguaForm(forms.ModelForm):
+    '''
+    Resumen:
+        Formulario para el registro de los datos de las condiciones de diseño en las secciones en una parte del precalentador.
+        Debe haber al menos una de entrada y una de salida. Y al menos dos en cada lado.
+    '''
     class Meta:
         model = CorrientePrecalentadorAgua
         exclude = ('id', 'datos_corriente', 'lado')
 
 class CorrientesEvaluacionPrecalentadorAguaForm(forms.ModelForm):
+    '''
+    Resumen:
+        Formulario para el registro de los datos de las condiciones de diseño en las secciones en una parte del precalentador.
+        Se toman las mismas corrientes que las del diseño pero cambian los datos de entrada (temperatura y presiòn principalmente).
+    '''
     class Meta:
         model = CorrientesEvaluacionPrecalentadorAgua
         exclude = ('id', 'evaluacion', 'corriente', 'datos_corrientes')
 
 class DatosCorrientesEvaluacionPrecalentadorAguaForm(forms.ModelForm):
+    '''
+    Resumen:
+        Centraliza y guarda las unidades de las corrientes registradas en la evaluacion y sus resultados.
+    '''
+
     class Meta:
         model = DatosCorrientesPrecalentadorAgua
         exclude = ('id', )
 
 class EvaluacionPrecalentadorAguaForm(forms.ModelForm):
+    '''
+    Resumen:
+        Formulario para el registro de los datos de identificacion de una evaluacion en el precalentador.
+    '''
+    
     class Meta:
         model = EvaluacionPrecalentadorAgua
         fields = ("nombre", )

@@ -509,7 +509,6 @@ class PlantasPorComplejo(LoginRequiredMixin, View):
         selected_planta_id = request.GET.get('planta')
         plantas = Planta.objects.filter(complejo_id=complejo_id)
         selected_planta = int(selected_planta_id) if selected_planta_id else None
-        print(complejo_id, selected_planta_id)
         context = {
             'plantas': plantas,
             'selected_planta': selected_planta,
@@ -640,3 +639,67 @@ class DuplicateView(View):
         objeto.save()
 
         return objeto
+    
+# Vistas de CRUD de Plantas
+
+class ConsultaPlantas(ListView):
+    '''
+    Resumen:
+        Vista de consulta de plantas.
+
+        Esta vista permite visualizar una lista de todas las plantas que se encuentran en la base de datos.
+        El usuario puede filtrar las plantas por completo, hacer búsquedas por tag o descripción y
+        ordenar los resultados por tag o descripción.
+
+    Atributos:
+        model: Model
+            Modelo de la consulta. En este caso, Planta.
+
+        template_name: str
+            Nombre de la plantilla a renderizar.
+
+        titulo: str
+            Título de la vista.
+
+        paginate_by: int
+            Número de registros a mostrar por página.
+
+    Métodos:
+        get_context_data(self, **kwargs)
+            Genera el contexto para la plantilla. Agrega el título de la vista, la lista
+            de complejos y el QuerySet filtrado.
+
+        get_queryset(self)
+            Retorna el QuerySet filtrado.
+    '''
+
+    model = Planta
+    template_name = 'plantas/consulta_plantas.html'
+    titulo = "Consulta de Plantas"
+    paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['complejos'] = Complejo.objects.all()
+        context['titulo'] = 'SIEVEP - ' + self.titulo
+        return context
+
+    def get_queryset(self):
+        queryset = Planta.objects.select_related('complejo').all()
+
+        if(self.request.GET.get('complejo')):
+            queryset = queryset.filter(complejo__pk = self.request.GET.get('complejo'))
+        
+        if(self.request.GET.get('nombre')):
+            queryset = queryset.filter(nombre = self.request.GET.get('nombre'))
+
+        return queryset
+    
+class CreacionPlanta(...):
+    ...
+
+class EdicionPlanta(...):
+    ...
+
+class EliminacionPlanta(...):
+    ...
