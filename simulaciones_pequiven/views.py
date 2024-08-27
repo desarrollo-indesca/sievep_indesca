@@ -3,9 +3,10 @@ from intercambiadores.models import Planta
 from reportes.pdfs import generar_pdf
 
 from simulaciones_pequiven.settings import BASE_DIR
+from usuarios.views import SuperUserRequiredMixin 
 from django.views import View
 from django.db.models import Q
-from django.views.generic import ListView
+from django.views.generic import ListView, FormView
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView
@@ -15,6 +16,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.http import HttpResponse, HttpRequest
 from django.contrib import messages
+from .forms import *
 
 class Login(LoginView):
     """
@@ -642,35 +644,8 @@ class DuplicateView(View):
     
 # Vistas de CRUD de Plantas
 
-class ConsultaPlantas(ListView):
+class ConsultaPlantas(SuperUserRequiredMixin, ListView):
     '''
-    Resumen:
-        Vista de consulta de plantas.
-
-        Esta vista permite visualizar una lista de todas las plantas que se encuentran en la base de datos.
-        El usuario puede filtrar las plantas por completo, hacer búsquedas por tag o descripción y
-        ordenar los resultados por tag o descripción.
-
-    Atributos:
-        model: Model
-            Modelo de la consulta. En este caso, Planta.
-
-        template_name: str
-            Nombre de la plantilla a renderizar.
-
-        titulo: str
-            Título de la vista.
-
-        paginate_by: int
-            Número de registros a mostrar por página.
-
-    Métodos:
-        get_context_data(self, **kwargs)
-            Genera el contexto para la plantilla. Agrega el título de la vista, la lista
-            de complejos y el QuerySet filtrado.
-
-        get_queryset(self)
-            Retorna el QuerySet filtrado.
     '''
 
     model = Planta
@@ -682,6 +657,8 @@ class ConsultaPlantas(ListView):
         context = super().get_context_data(**kwargs)
         context['complejos'] = Complejo.objects.all()
         context['titulo'] = 'SIEVEP - ' + self.titulo
+        context['nombre_planta'] = self.request.GET.get('nombre_planta', '')
+        context['complejo_pk'] = self.request.GET.get('complejo')
         return context
 
     def get_queryset(self):
@@ -690,16 +667,36 @@ class ConsultaPlantas(ListView):
         if(self.request.GET.get('complejo')):
             queryset = queryset.filter(complejo__pk = self.request.GET.get('complejo'))
         
-        if(self.request.GET.get('nombre')):
-            queryset = queryset.filter(nombre = self.request.GET.get('nombre'))
+        if(self.request.GET.get('nombre_planta')):
+            queryset = queryset.filter(nombre__icontains = self.request.GET.get('nombre_planta'))
 
         return queryset
     
-class CreacionPlanta(...):
-    ...
+class CreacionPlanta(SuperUserRequiredMixin, FormView):
+    """
+    Vista para la creación de plantas.
+    """
 
-class EdicionPlanta(...):
-    ...
+    template_name = 'plantas/form.html'
+    form_class = PlantaForm
+    success_url = '/plantas/consulta'
 
-class EliminacionPlanta(...):
-    ...
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = 'SIEVEP - Creación de Planta'
+        return context
+
+# class EdicionPlanta(SuperUserRequiredMixin, UpdateView):
+#     """
+#     Vista para la edición de plantas.
+#     """
+#     model = Planta
+#     fields = ['nombre', 'complejo', 'localidad', 'distrito', 'municipio', 'estado', 'fecha_inicio', 'fecha_fin', 'observaciones']
+#     template_name = 'plantas/form.html'
+
+# class EliminacionPlanta(...):
+#     ...

@@ -40,5 +40,6 @@ urlpatterns = [
     path("__debug__/", include("debug_toolbar.urls")),
 
     path('plantas/consulta/', ConsultaPlantas.as_view(), name="consulta_plantas"),
+    path('plantas/creacion/', CreacionPlanta.as_view(), name="creacion_planta"),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
