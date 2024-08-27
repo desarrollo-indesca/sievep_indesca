@@ -24,7 +24,7 @@
 {% endfor %}
 {% endif %}
 
-<form id="filtrado" hx-get="" hx-target="main" hx-swap="outerHTML" hx-select="main" hx-vals="js:{tag: document.getElementById('tag').value, servicio: document.getElementById('servicio').value,planta: document.getElementById('planta').value,complejo: document.getElementById('complejo').value}">
+<form id="filtrado" hx-get="" hx-target="main" hx-swap="outerHTML" hx-select="main" hx-vals="js:{tag: document.getElementById('tag').value, servicio: document.getElementById('servicio').value,planta: document.getElementById('planta').value,complejo: document.getElementById('complejo').value}, nombre: document.getElementById('nombre')">
   <div class="row mb-2">
       {% block formulario_filtrado %}
       {% endblock %}
