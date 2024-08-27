@@ -681,6 +681,7 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion, CargarBombaMixin, ReportesFich
     model = EvaluacionBomba
     model_equipment = Bombas
     clase_equipo = " la Bomba"
+    template_name = "bombas/consulta_evaluaciones.html"
 
     def post(self, request, **kwargs):
         if(request.user.is_superuser and request.POST.get('evaluacion')): # Lógica de "Eliminación"
@@ -1502,7 +1503,6 @@ class EdicionVentilador(CreacionVentilador, ObtenerVentiladorMixin):
             })
         
 # Evaluaciones de Ventiladores
-
 class ConsultaEvaluacionVentilador(ConsultaEvaluacion, ObtenerVentiladorMixin, ReportesFichasVentiladoresMixin):
     """
     Resumen:
@@ -1530,6 +1530,7 @@ class ConsultaEvaluacionVentilador(ConsultaEvaluacion, ObtenerVentiladorMixin, R
     model_equipment = Ventilador
     clase_equipo = "l Ventilador"
     tipo = 'ventilador'
+    template_name = 'ventiladores/consulta_evaluaciones.html'
 
     def post(self, request, **kwargs):
         reporte_ficha = self.reporte_ficha(request)
