@@ -38,4 +38,7 @@ urlpatterns = [
     path('', include('pwa.urls')),
     path('manual/', ManualDeUsuario.as_view(), name="manual"),
     path("__debug__/", include("debug_toolbar.urls")),
+
+    path('plantas/consulta/', ConsultaPlantas.as_view(), name="consulta_plantas"),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
