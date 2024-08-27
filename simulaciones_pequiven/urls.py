@@ -41,5 +41,5 @@ urlpatterns = [
 
     path('plantas/consulta/', ConsultaPlantas.as_view(), name="consulta_plantas"),
     path('plantas/creacion/', CreacionPlanta.as_view(), name="creacion_planta"),
-
+    path('plantas/edicion/<int:pk>', EdicionPlanta.as_view(), name="edicion_planta"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

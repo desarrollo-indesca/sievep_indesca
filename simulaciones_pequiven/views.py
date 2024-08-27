@@ -689,14 +689,33 @@ class CreacionPlanta(SuperUserRequiredMixin, FormView):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'SIEVEP - Creación de Planta'
         return context
+    
+class EdicionPlanta(SuperUserRequiredMixin, FormView):
+    """
+    Vista para la edición de plantas.
+    """
+    template_name = 'plantas/form.html'
+    form_class = PlantaForm
+    success_url = '/plantas/consulta'
 
-# class EdicionPlanta(SuperUserRequiredMixin, UpdateView):
-#     """
-#     Vista para la edición de plantas.
-#     """
-#     model = Planta
-#     fields = ['nombre', 'complejo', 'localidad', 'distrito', 'municipio', 'estado', 'fecha_inicio', 'fecha_fin', 'observaciones']
-#     template_name = 'plantas/form.html'
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
 
-# class EliminacionPlanta(...):
-#     ...
+    def get_instance(self):
+        return Planta.objects.get(pk=self.kwargs.get('pk'))
+    
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, 'Planta editada con éxito.')
+        return super().form_valid(form)
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['instance'] = self.get_instance()
+        return kwargs
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context['planta'] = self.get_instance()
+        context['edicion'] = True
+        return context

@@ -12,8 +12,7 @@
     <td>{{planta}}</td>
     <td>{{planta.complejo}}</td>
     <td>
-        <a class="btn btn-primary" href="#">Editar</a>
-        <a class="btn btn-danger" href="#">Eliminar</a>
+        <a class="btn btn-primary" href="{% url 'edicion_planta' pk=planta.pk %}">Editar</a>
     </td>
 </tr>
 {% endfor %}
