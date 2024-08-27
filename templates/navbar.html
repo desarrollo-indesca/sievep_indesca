@@ -32,8 +32,8 @@
               <li><a class="dropdown-item" href="{% url 'consultar_usuarios' %}">Administrar Usuarios</a></li>
               {% endif %}
               {% if request.user.is_superuser %}
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'consulta_plantas' %}">Administrar Plantas</a>
+              <li>
+                <a class="dropdown-item" href="{% url 'consulta_plantas' %}">Administrar Plantas</a>
               </li>
               {% endif %}
               <li><a class="dropdown-item" target="_blank" href="{% url 'manual' %}">Manual de Usuario</a></li>
