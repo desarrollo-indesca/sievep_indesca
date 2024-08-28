@@ -2487,6 +2487,48 @@ class GenerarGraficaPrecalentadorAire(LoginRequiredMixin, View, FiltrarEvaluacio
         return JsonResponse(res[:15], safe=False)
   
 # PRECALENTADORES DE AIRE
+class ObtenerPrecalentadorAireMixin():
+    '''
+    Resumen:
+        Mixin para obtener un precalentador de aire de la base de datos de acuerdo a la PK correspondiente y su prefetching.
+
+    Métodos:
+        get_precalentador(self) -> QuerySet
+            Obtiene un precalentador en un queryset con todo el prefetching necesario por cuestiones de eficiencia.
+            El parámetro "precalentador_q" funciona para saber si la función se usará sobre ese QuerySet o no.
+    '''
+    def get_precalentador(self, precalentador_q = None):
+        if(not precalentador_q):
+            if(self.kwargs.get('pk')):
+                precalentador = PrecalentadorAire.objects.filter(pk = self.kwargs.get('pk'))
+            else:
+                precalentador = PrecalentadorAire.objects.none()
+        else:
+            precalentador = precalentador_q
+
+        precalentador = precalentador.select_related(
+            'planta', 'planta__complejo', 'creado_por', 'editado_por',
+            'especificaciones', 'especificaciones__longitud_unidad',
+            'especificaciones__area_unidad', 'especificaciones__area_unidad',
+            'especificaciones__temp_unidad', 'especificaciones__u_unidad',
+        ).prefetch_related(
+            Prefetch('condicion_fluido', CondicionFluido.objects.select_related(
+                'flujo_unidad', 'temp_unidad', 'presion_unidad',
+            ).prefetch_related(
+                'composicion',
+            )),
+        )
+
+        if(not precalentador_q and precalentador):
+            return precalentador[0]
+        
+        return precalentador
+
+class ConsultaPrecalentadorAire(LoginRequiredMixin, FiltradoSimpleMixin, ObtenerPrecalentadorAireMixin, ListView):
+    model = PrecalentadorAire
+    template_name = 'precalentadores_aire/consulta.html'
+    titulo = "SIEVEP - Consulta de Precalentadores de Aire"
+    paginate_by = 10
 
 # VISTAS DE DUPLICACIÓN
 class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, DuplicateView):
