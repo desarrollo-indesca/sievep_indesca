@@ -27,24 +27,24 @@ class Command(BaseCommand):
 
         with transaction.atomic():
             for equipo in data:
-                if not PrecalentadorAire.objects.filter(tag=equipo['tag']).exists():
+                if not PrecalentadorAire.objects.filter(tag=equipo.get('tag')).exists():
                     especificaciones = EspecificacionesPrecalentadorAire.objects.create(
-                        material = equipo['material'],
-                        espesor = equipo['espesor'],
-                        diametro = equipo['diametro'],
-                        altura = equipo['altura'],
-                        superficie_calentamiento = equipo['superficie_calentamiento'],
-                        area_transferencia = equipo['area_total_transferencia'],
-                        temp_operacion = equipo['temperatura_operacion'],
-                        presion_operacion = equipo['presion_operacion'],
+                        material = equipo.get('material') if equipo.get('material') != "" else None,
+                        espesor = equipo.get('espesor') if equipo.get('espesor') != "" else None,
+                        diametro = equipo.get('diametro') if equipo.get('diametro') != "" else None,
+                        altura = equipo.get('altura') if equipo.get('altura') != "" else None,
+                        superficie_calentamiento = equipo.get('superficie_calentamiento') if equipo.get('superficie_calentamiento') != "" else None,
+                        area_transferencia = equipo.get('area_total_transferencia') if equipo.get('area_total_transferencia') != "" else None,
+                        temp_operacion = equipo.get('temperatura_operacion') if equipo.get('temperatura_operacion') != "" else None,
+                        presion_operacion = equipo.get('presion_operacion') if equipo.get('presion_operacion') != "" else None,
                     )
 
                     precalentador = PrecalentadorAire.objects.create(
-                        tag = equipo['tag'],
-                        fabricante = equipo['fabricante'],
-                        descripcion = equipo['descripcion'],
-                        modelo = equipo['modelo'],
-                        tipo = equipo['tipo'],
+                        tag = equipo.get('tag') if equipo.get('tag') != "" else None,
+                        fabricante = equipo.get('fabricante') if equipo.get('fabricante') != "" else None,
+                        descripcion = equipo.get('descripcion') if equipo.get('descripcion') != "" else None,
+                        modelo = equipo.get('modelo') if equipo.get('modelo') != "" else None,
+                        tipo = equipo.get('tipo') if equipo.get('tipo') != "" else None,
 
                         especificaciones = especificaciones,
                         planta = Planta.objects.get(pk=3),
@@ -54,34 +54,34 @@ class Command(BaseCommand):
                     condicion_aire = CondicionFluido.objects.create(
                         fluido = "A",
                         precalentador = precalentador,
-                        temp_entrada = equipo['temp_entrada_aire'],                        
-                        temp_salida = equipo['temp_salida_aire'],
-                        presion_entrada = equipo['presion_entrada_aire'],                        
-                        presion_salida = equipo['presion_salida_aire'],
-                        caida_presion = equipo['caida_presion_aire'],
+                        temp_entrada = equipo.get('temp_entrada_aire') if equipo.get('temp_entrada_aire') != "" else None,                        
+                        temp_salida = equipo.get('temp_salida_aire') if equipo.get('temp_salida_aire') != "" else None,
+                        presion_entrada = equipo.get('presion_entrada_aire') if equipo.get('presion_entrada_aire') != "" else None,                        
+                        presion_salida = equipo.get('presion_salida_aire') if equipo.get('presion_salida_aire') != "" else None,
+                        caida_presion = equipo.get('caida_presion_aire') if equipo.get('caida_presion_aire') != "" else None,
                     )
 
                     condicion_gas = CondicionFluido.objects.create(
                         fluido = "G",
                         precalentador = precalentador,
-                        temp_entrada = equipo['temp_entrada_gases'],                        
-                        temp_salida = equipo['temp_salida_gases'],
-                        presion_entrada = equipo['presion_entrada_gases'],                        
-                        presion_salida = equipo['presion_salida_gases'],
-                        caida_presion = equipo['caida_presion_gases'],
+                        temp_entrada = equipo.get('temp_entrada_gases') if equipo.get('temp_entrada_gases') != "" else None,                        
+                        temp_salida = equipo.get('temp_salida_gases') if equipo.get('temp_salida_gases') != "" else None,
+                        presion_entrada = equipo.get('presion_entrada_gases') if equipo.get('presion_entrada_gases') != "" else None,                        
+                        presion_salida = equipo.get('presion_salida_gases') if equipo.get('presion_salida_gases') != "" else None,
+                        caida_presion = equipo.get('caida_presion_gases') if equipo.get('caida_presion_gases') != "" else None,
                     )
 
                     for compuesto in COMPOSICIONES_GAS:
                         Composicion.objects.create(
                             condicion = condicion_gas,
-                            fluido = Fluido.objects.get(cas=compuesto['cas']),
-                            porcentaje = compuesto['porcentaje'],
+                            fluido = Fluido.objects.get(cas=compuesto.get('cas')),
+                            porcentaje = compuesto.get('porcentaje') if compuesto.get('porcentaje') != "" else None,
                         )
 
                     for compuesto in COMPOSICIONES_AIRE:
                         Composicion.objects.create(
                             condicion = condicion_gas,
-                            fluido = Fluido.objects.get(cas=compuesto['cas']),
-                            porcentaje = compuesto['porcentaje'],
+                            fluido = Fluido.objects.get(cas=compuesto.get('cas')),
+                            porcentaje = compuesto.get('porcentaje') if compuesto.get('porcentaje') != "" else None,
                         )
                    
