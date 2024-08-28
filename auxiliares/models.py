@@ -1409,6 +1409,7 @@ class EspecificacionesPrecalentadorAire(models.Model):
     temp_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="especificaciones_precalentador_aire_temp_unidad")
     presion_operacion = models.FloatField(null = True, blank = True)
     u = models.FloatField(null = True, blank = True)
+    u_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="especificaciones_precalentador_aire_u_unidad")
 
     class Meta:
         db_table = "precalentador_aire_especificaciones"
@@ -1488,6 +1489,9 @@ class Composicion(models.Model):
     condicion = models.ForeignKey(CondicionFluido, on_delete=models.CASCADE, related_name="composicion")
     fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE, related_name="composicion")
 
+    class Meta:
+        db_table = "precalentador_aire_composicion"
+
 # Modelos de la Evaluación de Precalentadores de Aire
 
 class SalidaEvaluacionPrecalentadorAire(models.Model):
@@ -1524,6 +1528,9 @@ class SalidaEvaluacionPrecalentadorAire(models.Model):
     cp_gas_entrada = models.FloatField()
     cp_aire_salida = models.FloatField()
 
+    class Meta:
+        db_table = "precalentador_aire_evaluacion_salida"
+
 class EvaluacionPrecalentadorAire(models.Model):
     '''
     Resumen:
@@ -1539,6 +1546,9 @@ class EvaluacionPrecalentadorAire(models.Model):
     fecha = models.DateTimeField(auto_now=True)
     precalentador = models.ForeignKey(PrecalentadorAire, on_delete=models.CASCADE, related_name="evaluacion_precalentador")
     salida = models.ForeignKey(SalidaEvaluacionPrecalentadorAire, on_delete=models.CASCADE, related_name="evaluacion_precalentador")
+
+    class Meta:
+        db_table = "precalentador_aire_evaluacion"
 
 class EntradaLado(models.Model):
     '''
@@ -1560,6 +1570,9 @@ class EntradaLado(models.Model):
     lado = models.CharField(max_length=1, choices=(("A","Aire"),("G","Gases")))
     evaluacion = models.ForeignKey(EvaluacionPrecalentadorAire, on_delete=models.CASCADE, related_name="entrada_lado")
 
+    class Meta:
+        db_table = "precalentador_aire_entradalado"
+
 class SalidaLado(models.Model):
     '''
     Resumen:
@@ -1573,3 +1586,6 @@ class SalidaLado(models.Model):
     porcentaje = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(100)])
     entrada = models.ForeignKey(EntradaLado, on_delete=models.CASCADE, related_name="salida_lado")
     fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE, related_name="salida_lado")
+
+    class Meta:
+        db_table = "precalentador_aire_salidalado"
