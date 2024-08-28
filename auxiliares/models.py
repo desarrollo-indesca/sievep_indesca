@@ -1474,6 +1474,7 @@ class CondicionFluido(models.Model):
 
     class Meta:
         db_table = "precalentador_aire_condicionfluido"
+        ordering = ("fluido", )
 
 class Composicion(models.Model):
     '''
