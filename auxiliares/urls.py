@@ -44,5 +44,5 @@ urlpatterns = [
 
     # URLs de PRECALENTADORES DE AGUA
     path('precalentadores-aire/', ConsultaPrecalentadorAire.as_view(), name="consulta_precalentador_aire"),
-
+    path('precalentadores-aire/duplicar/<int:pk>/', DuplicarPrecalentadorAire.as_view(), name="duplicar_precalentador_aire"),
 ]

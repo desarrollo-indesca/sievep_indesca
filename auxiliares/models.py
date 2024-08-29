@@ -1427,7 +1427,7 @@ class PrecalentadorAire(models.Model):
         tipo: CharField -> Tipo de precalentador de aire.
         especificaciones: OneToOneField -> Referencia a las especificaciones del precalentador.
     '''
-    tag = models.CharField(max_length=45)
+    tag = models.CharField(max_length=45, unique=True)
     descripcion = models.CharField("Descripción del Equipo", max_length=80)
     fabricante = models.CharField(max_length=45, null=True, blank=True)
     modelo = models.CharField(max_length=45, null=True, blank=True)

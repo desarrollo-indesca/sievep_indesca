@@ -2515,7 +2515,9 @@ class ObtenerPrecalentadorAireMixin():
             Prefetch('condicion_fluido', CondicionFluido.objects.select_related(
                 'flujo_unidad', 'temp_unidad', 'presion_unidad',
             ).prefetch_related(
-                'composiciones',
+                Prefetch('composiciones', Composicion.objects.select_related(
+                    'fluido'
+                    )),
             )),
         )
 
@@ -2640,6 +2642,37 @@ class DuplicarPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAgua
             for especificacion in precalentador_original.especificaciones_precalentador.all():
                 especificacion.precalentador = precalentador
                 self.copy(especificacion)
+
+        messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
+        return redirect('/auxiliares/precalentadores/')
+
+class DuplicarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAireMixin, DuplicateView):
+    def post(self, request, *args, **kwargs):
+        precalentador_original = self.get_precalentador()
+        precalentador = precalentador_original
+        old_tag = precalentador.tag
+        
+        with transaction.atomic():
+            especificaciones = self.copy(precalentador_original.especificaciones)
+
+            precalentador.especificaciones = especificaciones
+            precalentador = self.copy(precalentador)
+
+            condicion_aire_original = precalentador_original.condicion_fluido.first()
+            condicion_aire_original.precalentador = precalentador
+            condicion_aire = self.copy(condicion_aire_original)
+
+            condicion_gases_original = precalentador_original.condicion_fluido.last()
+            condicion_aire_original.precalentador = precalentador
+            condicion_gases = self.copy(condicion_gases_original)
+
+            for composicion in condicion_gases_original.composiciones.all():
+                composicion.condicion = condicion_gases
+                self.copy(composicion)
+
+            for composicion in condicion_aire_original.composiciones.all():
+                composicion.condicion = condicion_aire
+                self.copy(composicion)
 
         messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
         return redirect('/auxiliares/precalentadores/')
