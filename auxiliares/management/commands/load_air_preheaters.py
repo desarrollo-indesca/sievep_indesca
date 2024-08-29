@@ -80,7 +80,7 @@ class Command(BaseCommand):
 
                     for compuesto in COMPOSICIONES_AIRE:
                         Composicion.objects.create(
-                            condicion = condicion_gas,
+                            condicion = condicion_aire,
                             fluido = Fluido.objects.get(cas=compuesto.get('cas')),
                             porcentaje = compuesto.get('porcentaje') if compuesto.get('porcentaje') != "" else None,
                         )

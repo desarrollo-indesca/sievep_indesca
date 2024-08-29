@@ -1401,7 +1401,7 @@ class EspecificacionesPrecalentadorAire(models.Model):
     espesor = models.FloatField(null=True, blank=True)
     diametro = models.FloatField(null=True, blank=True)
     altura = models.FloatField(null=True, blank=True)
-    longitud_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, default=1, related_name="especificaciones_precalentador_aire_longitud_unidad")
+    longitud_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, default=4, related_name="especificaciones_precalentador_aire_longitud_unidad")
     superficie_calentamiento = models.FloatField(null = True, blank = True)
     area_transferencia = models.FloatField(null = True, blank = True)
     area_unidad = models.ForeignKey(Unidades, default=3, on_delete=models.CASCADE, related_name="especificaciones_precalentador_aire_area_unidad")
@@ -1487,7 +1487,7 @@ class Composicion(models.Model):
         fluido: ForeignKey -> Referencia al fluido asociado a la composicion.
     '''
     porcentaje = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(100)])
-    condicion = models.ForeignKey(CondicionFluido, on_delete=models.CASCADE, related_name="composicion")
+    condicion = models.ForeignKey(CondicionFluido, on_delete=models.CASCADE, related_name="composiciones")
     fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE, related_name="composicion")
 
     class Meta:

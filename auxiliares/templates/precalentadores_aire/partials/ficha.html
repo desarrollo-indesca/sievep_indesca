@@ -4,7 +4,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
       <div class="modal-content text-dark">
         <div class="modal-header">
-          <h5 class="modal-title" id="ficha_{{precalentador.pk|default_if_none:'-'}}Label">Ficha Técnica Precalentador de Agua ({{precalentador.tag|default_if_none:'-'}})</h5>
+          <h5 class="modal-title" id="ficha_{{precalentador.pk|default_if_none:'-'}}Label">Ficha Técnica Precalentador de Aire ({{precalentador.tag|default_if_none:'-'}})</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body text-start small">
@@ -40,17 +40,17 @@
                       <th class="table-dark">Descripción</th>
                       <td colspan="4">{{precalentador.descripcion|default_if_none:'-'}}</td>
                     </tr>
-                    {% with seccion_aire=precalentador.seccion_aire %}
-                    {% with seccion_gases=precalentador.seccion_gases %}
+                    {% with seccion_aire=precalentador.condicion_fluido.first %}
+                    {% with seccion_gases=precalentador.condicion_fluido.last %}
                     <tr>
-                        <th></th>
+                      <th class="table-dark"></th>
                       <th class="table-dark" colspan="2">AIRE</th>
                       <th class="table-dark" colspan="2">GASES</th>
                     </tr>
                     <tr>
                       <th class="table-dark">Flujo Másico</th>
-                      <td colspan="2">{{seccion_aire.flujo_masico_entrada|default:'-'}} {{seccion_vapor.flujo_unidad|default:'-'}}</td>
-                      <td colspan="2">{{seccion_gases.flujo_masico_entrada|default:'-'}} {{seccion_drenaje.flujo_unidad|default:'-'}}</td>
+                      <td colspan="2">{{seccion_aire.flujo|default:'-'}} {{seccion_vapor.flujo_unidad|default:'-'}}</td>
+                      <td colspan="2">{{seccion_gases.flujo|default:'-'}} {{seccion_drenaje.flujo_unidad|default:'-'}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark">Temperatura de Entrada</th>
@@ -64,42 +64,47 @@
                     </tr>
                     <tr>
                       <th class="table-dark">Presión de Entrada</th>
-                      <td colspan="2">{{seccion_aire.presion_entrada|default:'-'}} {{seccion_aire.presion_unidad|default:'-'}}g</td>
-                      <td colspan="2">{{seccion_gases.presion_entrada|default:'-'}} {{seccion_gases.presion_unidad|default:'-'}}g</td>
+                      <td colspan="2">{{seccion_aire.presion_entrada|default:'-'}} {{seccion_aire.presion_unidad|default:'-'}}</td>
+                      <td colspan="2">{{seccion_gases.presion_entrada|default:'-'}} {{seccion_gases.presion_unidad|default:'-'}}</td>
                     </tr>
                     <tr>
                         <th class="table-dark">Presión de Entrada</th>
-                        <td colspan="2">{{seccion_aire.presion_salida|default:'-'}} {{seccion_aire.presion_unidad|default:'-'}}g</td>
-                        <td colspan="2">{{seccion_gases.presion_salida|default:'-'}} {{seccion_gases.presion_unidad|default:'-'}}g</td>
+                        <td colspan="2">{{seccion_aire.presion_salida|default:'-'}} {{seccion_aire.presion_unidad|default:'-'}}</td>
+                        <td colspan="2">{{seccion_gases.presion_salida|default:'-'}} {{seccion_gases.presion_unidad|default:'-'}}</td>
                       </tr>
                     <tr>
                       <th class="table-dark">Caída de Presión</th>
-                      <td colspan="2">{{seccion_aire.caida_presion|default:'-'}} {{seccion_aire.presion_unidad|default:'-'}}g</td>
-                      <td colspan="2">{{seccion_gases.caida_presion|default:'-'}} {{seccion_gases.presion_unidad|default:'-'}}g</td>
+                      <td colspan="2">{{seccion_aire.caida_presion|default:'-'}} {{seccion_aire.presion_unidad|default:'-'}}</td>
+                      <td colspan="2">{{seccion_gases.caida_presion|default:'-'}} {{seccion_gases.presion_unidad|default:'-'}}</td>
+                    </tr>
+                    <tr>
+                      <th colspan="4" class="table-dark">
+                        ESPECIFICACIONES DEL PRECALENTADOR DE AIRE
+                      </th>
                     </tr>
                     <tr>
                         <th colspan="2" class="table-dark">Material</td>
-                        <th colspan="3">{{precalentador.especificaciones.material}}</td>
+                        <th colspan="3">{{precalentador.especificaciones.material|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                         <th colspan="2" class="table-dark">Espesor ({{precalentador.especificaciones.longitud_unidad}})</td>
-                        <th colspan="3">{{precalentador.especificaciones.espesor}}</td>
+                        <th colspan="3">{{precalentador.especificaciones.espesor|default_if_none:'-'}}</td>
                     </tr>                    
                     <tr>
                         <th colspan="2" class="table-dark">Diámetro ({{precalentador.especificaciones.longitud_unidad}})</td>
-                        <th colspan="3">{{precalentador.especificaciones.diametro}}</td>
+                        <th colspan="3">{{precalentador.especificaciones.diametro|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                         <th colspan="2" class="table-dark">Altura ({{precalentador.especificaciones.longitud_unidad}})</td>
-                        <th colspan="3">{{precalentador.especificaciones.altura}}</td>
+                        <th colspan="3">{{precalentador.especificaciones.altura|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                         <th colspan="2" class="table-dark">Superficie de Calentamiento ({{precalentador.especificaciones.area_unidad}})</td>
-                        <th colspan="3">{{precalentador.especificaciones.superficie_calentamiento}}</td>
+                        <th colspan="3">{{precalentador.especificaciones.superficie_calentamiento|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                         <th colspan="2" class="table-dark">Área de Transferencia ({{precalentador.especificaciones.area_unidad}})</td>
-                        <th colspan="3">{{precalentador.especificaciones.area_transferencia}}</td>
+                        <th colspan="3">{{precalentador.especificaciones.area_transferencia|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                       <th colspan="2" class="table-dark">Coeficiente Global de Transferencia por Balance General ({{precalentador.especificaciones.u_unidad}})</td>
@@ -130,11 +135,11 @@
                     </thead> 
                     
                     <tbody>
-                      {% for corriente in seccion_aire.composicion.all %}
+                      {% for fluido in seccion_aire.composiciones.all %}
                       <tr>
                         <td>{{forloop.counter}}</td>
-                        <td>{{seccion_aire.fluido}}</td>
-                        <td>{{seccion_aire.porcentaje}}</td>
+                        <td>{{fluido.fluido}}</td>
+                        <td>{{fluido.porcentaje}}</td>
                       </tr>
                       {% endfor %}
                     </tbody>
@@ -155,11 +160,11 @@
                       </thead> 
                       
                       <tbody>
-                        {% for corriente in seccion_gases.composicion.all %}
+                        {% for fluido in seccion_gases.composiciones.all %}
                         <tr>
                           <td>{{forloop.counter}}</td>
-                          <td>{{seccion_aire.fluido}}</td>
-                          <td>{{seccion_aire.porcentaje}}</td>
+                          <td>{{fluido.fluido}}</td>
+                          <td>{{fluido.porcentaje}}</td>
                         </tr>
                         {% endfor %}
                       </tbody>

@@ -2515,7 +2515,7 @@ class ObtenerPrecalentadorAireMixin():
             Prefetch('condicion_fluido', CondicionFluido.objects.select_related(
                 'flujo_unidad', 'temp_unidad', 'presion_unidad',
             ).prefetch_related(
-                'composicion',
+                'composiciones',
             )),
         )
 
