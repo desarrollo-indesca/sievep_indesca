@@ -2530,6 +2530,10 @@ class ConsultaPrecalentadorAire(LoginRequiredMixin, FiltradoSimpleMixin, Obtener
     titulo = "SIEVEP - Consulta de Precalentadores de Aire"
     paginate_by = 10
 
+    def get_queryset(self):
+        new_context = self.get_precalentador(self.filtrar_equipos())
+        return new_context   
+
 # VISTAS DE DUPLICACIÓN
 class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, DuplicateView):
     """
