@@ -387,3 +387,25 @@ class EvaluacionPrecalentadorAguaForm(forms.ModelForm):
     class Meta:
         model = EvaluacionPrecalentadorAgua
         fields = ("nombre", )
+
+# FORMS PRECALENTADOR DE AIRE
+
+class PrecalentadorAireForm(forms.ModelForm):
+    class Meta:
+        model = PrecalentadorAire
+        fields = ("tag", "descripcion", "tipo", "fabricante", "modelo", "planta")
+
+class EspecificacionesPrecalentadorAireForm(forms.ModelForm):
+    class Meta:
+        model = EspecificacionesPrecalentadorAire
+        exclude = ("pk", )
+
+class CondicionFluidoForm(forms.ModelForm):
+    class Meta:
+        model = CondicionFluido
+        exclude = ("precalentador", "fluido")
+
+class ComposicionForm(forms.ModelForm):
+    class Meta:
+        model = Composicion
+        fields = ("porcentaje", )

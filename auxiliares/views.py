@@ -2536,6 +2536,9 @@ class ConsultaPrecalentadorAire(LoginRequiredMixin, FiltradoSimpleMixin, Obtener
         new_context = self.get_precalentador(self.filtrar_equipos())
         return new_context   
 
+class CreacionPrecalentadorAire(SuperUserRequiredMixin, View):
+    ...
+
 # VISTAS DE DUPLICACIÓN
 class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, DuplicateView):
     """
