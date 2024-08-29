@@ -1397,18 +1397,19 @@ class EspecificacionesPrecalentadorAire(models.Model):
         area_transferencia: FloatField -> Área de transferencia de calor del precalentador
         area_unidad: ForeignKey -> Unidad del área de transferencia de calor
     '''
-    material = models.CharField(max_length=45)
-    espesor = models.FloatField()
-    diametro = models.FloatField()
-    altura = models.FloatField()
-    longitud_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="especificaciones_precalentador_aire_longitud_unidad")
+    material = models.CharField(max_length=45, null=True, blank=True)
+    espesor = models.FloatField(null=True, blank=True)
+    diametro = models.FloatField(null=True, blank=True)
+    altura = models.FloatField(null=True, blank=True)
+    longitud_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, default=1, related_name="especificaciones_precalentador_aire_longitud_unidad")
     superficie_calentamiento = models.FloatField(null = True, blank = True)
     area_transferencia = models.FloatField(null = True, blank = True)
-    area_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="especificaciones_precalentador_aire_area_unidad")
+    area_unidad = models.ForeignKey(Unidades, default=3, on_delete=models.CASCADE, related_name="especificaciones_precalentador_aire_area_unidad")
     temp_operacion = models.FloatField(null = True, blank = True)
-    temp_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="especificaciones_precalentador_aire_temp_unidad")
+    temp_unidad = models.ForeignKey(Unidades, default=1, on_delete=models.CASCADE, related_name="especificaciones_precalentador_aire_temp_unidad")
     presion_operacion = models.FloatField(null = True, blank = True)
     u = models.FloatField(null = True, blank = True)
+    u_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, default=27, related_name="especificaciones_precalentador_aire_u_unidad")
 
     class Meta:
         db_table = "precalentador_aire_especificaciones"
@@ -1460,19 +1461,20 @@ class CondicionFluido(models.Model):
     precalentador = models.ForeignKey(PrecalentadorAire, on_delete=models.CASCADE, related_name="condicion_fluido")
     fluido = models.CharField(max_length=1, choices=(("A", "Aire"), ("G", "Gases")))
     flujo = models.FloatField(null=True, blank=True)
-    flujo_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="condicion_fluido_flujo_unidad")
+    flujo_unidad = models.ForeignKey(Unidades, default=6, on_delete=models.CASCADE, related_name="condicion_fluido_flujo_unidad")
 
     temp_entrada = models.FloatField(null=True, blank=True)
     temp_salida = models.FloatField(null=True, blank=True)
-    temp_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="condicion_fluido_temp_unidad")
+    temp_unidad = models.ForeignKey(Unidades, default=1, on_delete=models.CASCADE, related_name="condicion_fluido_temp_unidad")
     
     presion_entrada = models.FloatField(null=True, blank=True)
     presion_salida = models.FloatField(null=True, blank=True)
     caida_presion = models.FloatField(null=True, blank=True)
-    presion_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="condicion_fluido_presion_unidad")
+    presion_unidad = models.ForeignKey(Unidades, default=33, on_delete=models.CASCADE, related_name="condicion_fluido_presion_unidad")
 
     class Meta:
         db_table = "precalentador_aire_condicionfluido"
+        ordering = ("fluido", )
 
 class Composicion(models.Model):
     '''
@@ -1487,6 +1489,9 @@ class Composicion(models.Model):
     porcentaje = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(100)])
     condicion = models.ForeignKey(CondicionFluido, on_delete=models.CASCADE, related_name="composicion")
     fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE, related_name="composicion")
+
+    class Meta:
+        db_table = "precalentador_aire_composicion"
 
 # Modelos de la Evaluación de Precalentadores de Aire
 
@@ -1524,6 +1529,9 @@ class SalidaEvaluacionPrecalentadorAire(models.Model):
     cp_gas_entrada = models.FloatField()
     cp_aire_salida = models.FloatField()
 
+    class Meta:
+        db_table = "precalentador_aire_evaluacion_salida"
+
 class EvaluacionPrecalentadorAire(models.Model):
     '''
     Resumen:
@@ -1539,6 +1547,9 @@ class EvaluacionPrecalentadorAire(models.Model):
     fecha = models.DateTimeField(auto_now=True)
     precalentador = models.ForeignKey(PrecalentadorAire, on_delete=models.CASCADE, related_name="evaluacion_precalentador")
     salida = models.ForeignKey(SalidaEvaluacionPrecalentadorAire, on_delete=models.CASCADE, related_name="evaluacion_precalentador")
+
+    class Meta:
+        db_table = "precalentador_aire_evaluacion"
 
 class EntradaLado(models.Model):
     '''
@@ -1560,6 +1571,9 @@ class EntradaLado(models.Model):
     lado = models.CharField(max_length=1, choices=(("A","Aire"),("G","Gases")))
     evaluacion = models.ForeignKey(EvaluacionPrecalentadorAire, on_delete=models.CASCADE, related_name="entrada_lado")
 
+    class Meta:
+        db_table = "precalentador_aire_entradalado"
+
 class SalidaLado(models.Model):
     '''
     Resumen:
@@ -1573,3 +1587,6 @@ class SalidaLado(models.Model):
     porcentaje = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(100)])
     entrada = models.ForeignKey(EntradaLado, on_delete=models.CASCADE, related_name="salida_lado")
     fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE, related_name="salida_lado")
+
+    class Meta:
+        db_table = "precalentador_aire_salidalado"

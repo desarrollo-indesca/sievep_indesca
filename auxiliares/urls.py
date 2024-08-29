@@ -40,5 +40,9 @@ urlpatterns = [
 
     path('precalentadores/evaluaciones/<int:pk>/', ConsultaEvaluacionPrecalentadorAgua.as_view(), name="evaluaciones_precalentador_agua"),
     path('precalentadores/evaluaciones/evaluar/<int:pk>/', CrearEvaluacionPrecalentadorAgua.as_view(), name="evaluar_precalentador_agua"),
-    path('precalentadores/evaluaciones/grafica/<int:pk>/', GenerarGraficaPrecalentadorAire.as_view(), name="grafica_precalentadores")
+    path('precalentadores/evaluaciones/grafica/<int:pk>/', GenerarGraficaPrecalentadorAire.as_view(), name="grafica_precalentadores"),
+
+    # URLs de PRECALENTADORES DE AGUA
+    path('precalentadores-aire/', ConsultaPrecalentadorAire.as_view(), name="consulta_precalentador_aire"),
+
 ]
