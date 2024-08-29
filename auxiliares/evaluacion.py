@@ -4,6 +4,20 @@ from calculos.termodinamicos import DENSIDAD_DEL_AGUA_LIQUIDA_A_5C, calcular_den
 
 GRAVEDAD = 9.81
 
+COMPOSICIONES_GAS = [
+    {'cas': '124-38-9', 'porcentaje': 13.22},
+    {'cas': '7446-09-5', 'porcentaje': 0.00},
+    {'cas': '7727-37-9', 'porcentaje': 73.02},
+    {'cas': '7782-44-7', 'porcentaje': 4.82},
+    {'cas': '7732-18-5', 'porcentaje': 8.94},
+]
+
+COMPOSICIONES_AIRE = [
+    {'cas': '7727-37-9', 'porcentaje': 76.70},
+    {'cas': '7782-44-7', 'porcentaje': 23.30},
+    {'cas': '7732-18-5', 'porcentaje': 0.0},
+]
+
 def calcular_eficiencia(potencia_real: float, potencia_calculada: float):
     '''
     Resumen:

@@ -28,7 +28,7 @@ from auxiliares.forms import *
 from calculos.termodinamicos import calcular_densidad, calcular_densidad_aire, calcular_presion_vapor, calcular_viscosidad, calcular_densidad_relativa
 from calculos.unidades import *
 from calculos.utils import fluido_existe, registrar_fluido
-from .evaluacion import evaluacion_bomba, evaluar_ventilador, evaluar_precalentador_agua
+from .evaluacion import COMPOSICIONES_AIRE, COMPOSICIONES_GAS, evaluacion_bomba, evaluar_ventilador, evaluar_precalentador_agua
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos, ficha_tecnica_ventilador, historico_evaluaciones_bombas, historico_evaluaciones_ventiladores, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga, historico_evaluaciones_precalentador_agua, ficha_tecnica_precalentador_agua
 
@@ -2537,7 +2537,42 @@ class ConsultaPrecalentadorAire(LoginRequiredMixin, FiltradoSimpleMixin, Obtener
         return new_context   
 
 class CreacionPrecalentadorAire(SuperUserRequiredMixin, View):
-    ...
+    def get_forms(self):
+        form_equipo = PrecalentadorAireForm()
+        form_especificaciones = EspecificacionesPrecalentadorAireForm()
+        form_aire = CondicionFluidoForm(prefix="aire")
+        form_gases = CondicionFluidoForm(prefix="gases")
+        forms_aire = []
+        forms_gases = []
+
+        for compuesto in COMPOSICIONES_GAS:
+            fluido = Fluido.objects.get(cas=compuesto['cas'])
+            forms_gases.append({
+                'form': ComposicionForm(initial={'fluido': fluido}),
+                'fluido': fluido
+            })
+
+        for compuesto in COMPOSICIONES_AIRE:
+            fluido = Fluido.objects.get(cas=compuesto['cas'])
+            forms_aire.append({
+                'form': ComposicionForm(initial={'fluido': fluido}),
+                'fluido': fluido
+            })
+
+        return {
+            'form_equipo': form_equipo,
+            'form_especificaciones': form_especificaciones,
+            'form_aire': form_aire,
+            'form_gases': form_gases,
+        }
+
+    def get_context_data(self):
+        return {
+            'forms': self.get_forms()
+        }
+
+    def get(self, request):
+        return render(request, "precalentadores_aire/creacion.html", context=self.get_context_data())
 
 # VISTAS DE DUPLICACIÓN
 class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, DuplicateView):

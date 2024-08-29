@@ -391,6 +391,8 @@ class EvaluacionPrecalentadorAguaForm(forms.ModelForm):
 # FORMS PRECALENTADOR DE AIRE
 
 class PrecalentadorAireForm(forms.ModelForm):
+    complejo = forms.ModelChoiceField(queryset=Complejo.objects.all(), initial=1)
+    
     class Meta:
         model = PrecalentadorAire
         fields = ("tag", "descripcion", "tipo", "fabricante", "modelo", "planta")
@@ -403,7 +405,7 @@ class EspecificacionesPrecalentadorAireForm(forms.ModelForm):
 class CondicionFluidoForm(forms.ModelForm):
     class Meta:
         model = CondicionFluido
-        exclude = ("precalentador", "fluido")
+        exclude = ("precalentador", )
 
 class ComposicionForm(forms.ModelForm):
     class Meta:

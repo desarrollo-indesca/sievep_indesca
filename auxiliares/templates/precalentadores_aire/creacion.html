@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block head %}
+<script src="/static/js/htmx.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_precalentadores_agua' %}">↶ Regresar</a></div>
+        <div class="col-md-6 col-lg-8">
+            {% if not edicion %}
+            <h3 class="text-center" style="color: #e31e24;">Nuevo Precalentador de Aire</h3>
+            {% else %}
+            <h3 class="text-center" style="color: #e31e24;">Edición de Precalentador de Aire</h3>
+            {% endif %}
+        </div>
+        <div class="col-3"></div>
+    </div>
+
+    <hr>
+    
+    <h4 class="text-center" style="color: #e31e24;">Identificación del Precalentador</h4>
+
+    <div class="row">
+        <div class="col-3">
+            {{form_equipo.tag.label_tag}}
+            {% render_field form_equipo.tag class="form-control" placeholder="Tag del Precalentador de Agua" %}
+            <small>{{form_equipo.tag.errors}}</small>
+        </div>
+        <div class="col-3">
+            {{form_equipo.complejo.label_tag}}
+            {% render_field form_equipo.complejo class="form-select" hx-get="/plantas/" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none" %}
+            <small>{{form_equipo.complejo.errors}}</small>
+        </div>
+        <div class="col-3">
+            {{form_equipo.planta.label_tag}}
+            {% render_field form_equipo.planta class="form-select" %}
+            <small>{{form_equipo.planta.errors}}</small>
+        </div>
+        <div class="col-3">
+            {{form_equipo.fabricante.label_tag}}
+            {% render_field form_equipo.fabricante class="form-control" placeholder="Fabricante del Precalentador de Agua" %}
+            <small>{{form_equipo.fabricante.errors}}</small>
+        </div>
+        <div class="col-6">
+            {{form_equipo.tipo.label_tag}}
+            {% render_field form_equipo.tipo class="form-select" %}
+            <small>{{form_equipo.tipo.errors}}</small>
+        </div>
+        <div class="col-6">
+            {{form_equipo.modelo.label_tag}}
+            {% render_field form_equipo.modelo class="form-control" placeholder="Fabricante del Precalentador de Agua" %}
+            <small>{{form_equipo.modelo.errors}}</small>
+        </div>
+
+        <div class="col-12">
+            {{form_equipo.descripcion.label_tag}}
+            {% render_field form_equipo.descripcion class="form-control" placeholder="Modelo del Precalentador de Agua" %}
+            <small>{{form_equipo.descripcion.errors}}</small>
+        </div>
+    </div>
+
+    <hr>
+
+    <h4 class="text-center mt-3 mb-3" style="color: #e31e24;">Especificaciones del Precalentador</h4>
+
+    <div class="row">
+        <div class="col-4">
+            {{form_especificaciones.material.label_tag}}
+            {% render_field form_especificaciones.material class="form-control" placeholder="Material del Precalentador" %}
+            <small>{{form_especificaciones.material.errores}}</small>
+        </div>
+        <div class="col-4">
+            {{form_especificaciones.espesor.label_tag}}
+            <div class="input-group">
+                {% render_field form_especificaciones.espesor class="form-control" placeholder="Espesor de las tuberías" %}
+                {% render_field form_especificaciones.longitud_unidad class="form-select" %}
+            </div>
+            <small>{{form_especificaciones.espesor.errores}}</small>
+        </div>
+        <div class="col-4">
+            {{form_especificaciones.diametro.label_tag}}
+            <div class="input-group">
+                {% render_field form_especificaciones.diametro class="form-control" placeholder="Diámetro de las tuberías" %}
+                {% render_field form_especificaciones.longitud_unidad class="form-select" disabled="" %}
+            </div>
+            <small>{{form_especificaciones.diametro.errores}}</small>
+        </div>
+        
+        <div class="col-4">
+            {{form_especificaciones.altura.label_tag}}
+            <div class="input-group">
+                {% render_field form_especificaciones.altura class="form-control" placeholder="Diámetro de las tuberías" %}
+                {% render_field form_especificaciones.longitud_unidad class="form-select" disabled="" %}
+            </div>
+            <small>{{form_especificaciones.altura.errores}}</small>
+        </div>
+        <div class="col-4">
+            {{form_especificaciones.superficie_calentamiento.label_tag}}
+            <div class="input-group">
+                {% render_field form_especificaciones.superficie_calentamiento class="form-control" placeholder="Diámetro de las tuberías" %}
+                {% render_field form_especificaciones.longitud_unidad class="form-select" disabled="" %}
+            </div>
+            <small>{{form_especificaciones.superficie_calentamiento.errores}}</small>
+        </div>
+        <div class="col-4">
+            {{form_especificaciones.area_transferencia.label_tag}}
+            <div class="input-group">
+                {% render_field form_especificaciones.area_transferencia class="form-control" placeholder="Diámetro de las tuberías" %}
+                {% render_field form_especificaciones.longitud_unidad class="form-select" disabled="" %}
+            </div>
+            <small>{{form_especificaciones.area_transferencia.errores}}</small>
+        </div>
+
+        <div class="col-4">
+            {{form_especificaciones.temp_operacion.label_tag}}
+            <div class="input-group">
+                {% render_field form_especificaciones.temp_operacion class="form-control" placeholder="Diámetro de las tuberías" %}
+                {% render_field form_especificaciones.longitud_unidad class="form-select" disabled="" %}
+            </div>
+            <small>{{form_especificaciones.temp_operacion.errores}}</small>
+        </div>
+        <div class="col-4">
+            {{form_especificaciones.superficie_calentamiento.label_tag}}
+            <div class="input-group">
+                {% render_field form_especificaciones.superficie_calentamiento class="form-control" placeholder="Diámetro de las tuberías" %}
+                {% render_field form_especificaciones.longitud_unidad class="form-select" disabled="" %}
+            </div>
+            <small>{{form_especificaciones.superficie_calentamiento.errores}}</small>
+        </div>
+        <div class="col-4">
+            {{form_especificaciones.area_transferencia.label_tag}}
+            <div class="input-group">
+                {% render_field form_especificaciones.area_transferencia class="form-control" placeholder="Diámetro de las tuberías" %}
+                {% render_field form_especificaciones.longitud_unidad class="form-select" disabled="" %}
+            </div>
+            <small>{{form_especificaciones.area_transferencia.errores}}</small>
+        </div>
+
+        <div class="col-4">
+            {{form_especificaciones.area_transferencia.label_tag}}
+            <div class="input-group">
+                {% render_field form_especificaciones.area_transferencia class="form-control" placeholder="Área de Transferencia" %}
+                {% render_field form_especificaciones.longitud_unidad class="form-select" disabled="" %}
+            </div>
+            <small>{{form_especificaciones.area_transferencia.errores}}</small>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="w-100 mt-3 mb-3 d-flex justify-content-center">
+        <button class="btn btn-danger">Enviar Formulario</button>
+    </div>
+
+</form>
+
+<div id="spinner" class="htmx-indicator indicator-style">
+    <div class="spinner-grow text-danger" style="width: 6rem; height: 6rem;">
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_javascript %}
+<script src="/static/js/auxiliares/precalentadores_agua/creacion.js"></script>
+{% endblock %}
