@@ -270,6 +270,32 @@ def delete_calderas_copies():
         chimenea.delete()
         economizador.delete()
 
+def delete_precalentadores_aire_copies():
+    from auxiliares.models import PrecalentadorAire, CondicionFluido, Composicion
+
+    precalentadores = PrecalentadorAire.objects.filter(copia=True).select_related(
+            'planta', 'planta__complejo', 'creado_por', 'editado_por',
+            'especificaciones', 'especificaciones__longitud_unidad',
+            'especificaciones__area_unidad', 'especificaciones__area_unidad',
+            'especificaciones__temp_unidad', 'especificaciones__u_unidad',
+        ).prefetch_related(
+            Prefetch('condicion_fluido', CondicionFluido.objects.select_related(
+                    'flujo_unidad', 'temp_unidad', 'presion_unidad',
+                ).prefetch_related(
+                    Prefetch('composiciones', Composicion.objects.select_related(
+                        'fluido'
+                )),
+            )),
+        )
+    
+    for precalentador in precalentadores:
+        for condicion in precalentador.condicion_fluido.all():
+            condicion.composiciones.all().delete()
+
+        precalentador.condicion_fluido.all().delete()
+        precalentador.delete()
+        precalentador.especificaciones.delete()
+
 def delete_copies():
     """
     Resumen:
@@ -282,6 +308,7 @@ def delete_copies():
         delete_ventilador_copies()
         delete_bombas_copies()
         delete_precalentador_copies()
+        delete_precalentadores_aire_copies()
         delete_turbinas_vapor_copies()
         delete_intercambiador_copies()
         delete_calderas_copies()
@@ -293,5 +320,5 @@ def start_deleting_job():
     """
     
     scheduler = Scheduler()
-    scheduler.every().day.at("06:00").do(delete_copies)
+    scheduler.every(10).seconds.do(delete_copies)
     scheduler.run_continuously()

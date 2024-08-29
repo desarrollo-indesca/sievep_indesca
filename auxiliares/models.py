@@ -1572,7 +1572,7 @@ class EntradaLado(models.Model):
     evaluacion = models.ForeignKey(EvaluacionPrecalentadorAire, on_delete=models.CASCADE, related_name="entrada_lado")
 
     class Meta:
-        db_table = "precalentador_aire_entradalado"
+        db_table = "precalentador_aire_evaluacion_entradalado"
 
 class SalidaLado(models.Model):
     '''
@@ -1589,4 +1589,4 @@ class SalidaLado(models.Model):
     fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE, related_name="salida_lado")
 
     class Meta:
-        db_table = "precalentador_aire_salidalado"
+        db_table = "precalentador_aire_evaluacion_salidalado"

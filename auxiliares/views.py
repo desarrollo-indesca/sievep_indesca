@@ -2656,6 +2656,7 @@ class DuplicarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAire
             especificaciones = self.copy(precalentador_original.especificaciones)
 
             precalentador.especificaciones = especificaciones
+            precalentador.copia = True
             precalentador = self.copy(precalentador)
 
             condicion_aire_original = precalentador_original.condicion_fluido.first()
@@ -2675,4 +2676,4 @@ class DuplicarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAire
                 self.copy(composicion)
 
         messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
-        return redirect('/auxiliares/precalentadores/')
+        return redirect('/auxiliares/precalentadores-aire/')
