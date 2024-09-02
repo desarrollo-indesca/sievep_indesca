@@ -2268,7 +2268,18 @@ class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorA
         Vista para mostrar la evaluación de un precalentador de agua. 
 
     Métodos:
-        get_context_data(self)
+        get_context_data(self) -> dict
+            Genera el contexto necesario para la plantilla de la vista.
+        
+        
+        get(self, request, *args, **kwargs)
+            Maneja el verbo GET de la petición.
+        
+        post(self, request, *args, **kwargs)
+            Maneja el verbo POST de la petición.
+        
+        almacenar(self)
+            Almacena los datos de la evaluación en la base de datos.
     """
     template_name = "precalentadores_agua/evaluacion.html"
 
@@ -2517,7 +2528,7 @@ class ObtenerPrecalentadorAireMixin():
             ).prefetch_related(
                 Prefetch('composiciones', Composicion.objects.select_related(
                     'fluido'
-                    )),
+                )),
             )),
         )
 
@@ -2533,8 +2544,7 @@ class ConsultaPrecalentadorAire(LoginRequiredMixin, FiltradoSimpleMixin, Obtener
     paginate_by = 10
 
     def get_queryset(self):
-        new_context = self.get_precalentador(self.filtrar_equipos())
-        return new_context   
+        return self.get_precalentador(self.filtrar_equipos())  
 
 class CreacionPrecalentadorAire(SuperUserRequiredMixin, View):
     def get_forms(self):
