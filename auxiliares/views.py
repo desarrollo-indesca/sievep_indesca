@@ -2591,6 +2591,7 @@ class CreacionPrecalentadorAire(SuperUserRequiredMixin, View):
             'forms': self.get_forms(),
             'unidades': Unidades.objects.all()
         }
+    
     def almacenar_datos(self, form_equipo, form_especificaciones,
                         form_aire, form_gases, forms_aire,
                         forms_gases, edicion=False):
@@ -2670,13 +2671,109 @@ class CreacionPrecalentadorAire(SuperUserRequiredMixin, View):
                 'fluido': fluido
             })
 
+        try:
             return self.almacenar_datos(form_equipo, form_especificaciones,
                                         form_aire, form_gases,
                                         forms_aire, forms_gases)
-            
+        except:
+            return render(
+                request, self.template_name, {
+                    'forms': {
+                        'form_equipo': form_equipo,
+                        'form_especificaciones': form_especificaciones,
+                        'form_aire': form_aire,
+                        'form_gases': form_gases,
+                        'forms_aire': forms_aire,
+                        'forms_gases': forms_gases
+                    },
+                    'unidades': Unidades.objects.all(),
+                    'titulo': self.titulo
+                }
+            )
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         return render(request, self.template_name, context=self.get_context_data())
+
+class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalentadorAire):
+    def get_forms(self):
+        precalentador = self.get_precalentador()
+        form_equipo = PrecalentadorAireForm(instance=precalentador)
+        form_especificaciones = EspecificacionesPrecalentadorAireForm(instance=precalentador.especificaciones)
+        condiciones = precalentador.condicion_fluido.all()
+        form_aire = CondicionFluidoForm(prefix=self.prefix_aire, instance=condiciones.first())
+        form_gases = CondicionFluidoForm(prefix=self.prefix_gases, instance=condiciones.last())
+        forms_aire = []
+        forms_gases = []
+
+        for composicion in form_aire.instance.composiciones.all():
+            fluido = composicion.fluido
+            forms_aire.append({
+                'form': ComposicionForm(prefix=f"{self.prefix_composiciones_gases}-{fluido.pk}", instance=composicion),
+                'fluido': fluido
+            })
+
+        for composicion in form_gases.instance.composiciones.all():
+            fluido = composicion.fluido
+            forms_gases.append({
+                'form': ComposicionForm(prefix=f"{self.prefix_composiciones_gases}-{fluido.pk}", instance=composicion),
+                'fluido': fluido
+            })
+
+        return {
+            'form_equipo': form_equipo,
+            'form_especificaciones': form_especificaciones,
+            'form_aire': form_aire,
+            'form_gases': form_gases,
+            'forms_aire': forms_aire,
+            'forms_gases': forms_gases
+        }
+
+    def post(self, request, *args, **kwargs):
+        precalentador = self.get_precalentador()
+        form_equipo = PrecalentadorAireForm(request.POST, instance=precalentador)
+        form_especificaciones = EspecificacionesPrecalentadorAireForm(request.POST, instance=precalentador.especificaciones)
+        condiciones = precalentador.condicion_fluido.all()
+        form_aire = CondicionFluidoForm(request.POST, prefix=self.prefix_aire, instance=condiciones.first())
+        form_gases = CondicionFluidoForm(request.POST, prefix=self.prefix_gases, instance=condiciones.last())
+                
+        forms_gases = []
+        for compuesto in form_gases.instance.composiciones.all():
+            fluido = Fluido.objects.get(cas=compuesto['cas'])
+            forms_gases.append({
+                'form': ComposicionForm(request.POST, prefix=f"{self.prefix_composiciones_gases}-{fluido.pk}", instance=compuesto),
+                'fluido': fluido
+            })
+
+        forms_aire = []
+        for compuesto in form_aire.instance.composiciones.all():
+            fluido = Fluido.objects.get(cas=compuesto['cas'])
+            forms_aire.append({
+                'form': ComposicionForm(request.POST, prefix=f"{self.prefix_composiciones_aire}-{fluido.pk}", instance=compuesto),
+                'fluido': fluido
+            })
+
+        try:
+            return self.almacenar_datos(form_equipo, form_especificaciones,
+                                        form_aire, form_gases,
+                                        forms_aire, forms_gases, edicion=True)
+        except:
+            return render(
+                request, self.template_name, {
+                    'forms': {
+                        'form_equipo': form_equipo,
+                        'form_especificaciones': form_especificaciones,
+                        'form_aire': form_aire,
+                        'form_gases': form_gases,
+                        'forms_aire': forms_aire,
+                        'forms_gases': forms_gases
+                    },
+                    'unidades': Unidades.objects.all(),
+                    'titulo': self.titulo
+                }
+            )
+
+
+
 
 # VISTAS DE DUPLICACIÓN
 class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, DuplicateView):
