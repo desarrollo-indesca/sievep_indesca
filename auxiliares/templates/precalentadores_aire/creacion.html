@@ -28,40 +28,40 @@
 
     <div class="row">
         <div class="col-3">
-            {{form_equipo.tag.label_tag}}
-            {% render_field form_equipo.tag class="form-control" placeholder="Tag del Precalentador de Agua" %}
-            <small>{{form_equipo.tag.errors}}</small>
+            {{forms.form_equipo.tag.label_tag}}
+            {% render_field forms.form_equipo.tag class="form-control" placeholder="Tag del Precalentador de Agua" %}
+            <small>{{forms.form_equipo.tag.errors}}</small>
         </div>
         <div class="col-3">
-            {{form_equipo.complejo.label_tag}}
-            {% render_field form_equipo.complejo class="form-select" hx-get="/plantas/" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none" %}
-            <small>{{form_equipo.complejo.errors}}</small>
+            {{forms.form_equipo.complejo.label_tag}}
+            {% render_field forms.form_equipo.complejo class="form-select" hx-get="/plantas/" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none" %}
+            <small>{{forms.form_equipo.complejo.errors}}</small>
         </div>
         <div class="col-3">
-            {{form_equipo.planta.label_tag}}
-            {% render_field form_equipo.planta class="form-select" %}
-            <small>{{form_equipo.planta.errors}}</small>
+            {{forms.form_equipo.planta.label_tag}}
+            {% render_field forms.form_equipo.planta class="form-select" %}
+            <small>{{forms.form_equipo.planta.errors}}</small>
         </div>
         <div class="col-3">
-            {{form_equipo.fabricante.label_tag}}
-            {% render_field form_equipo.fabricante class="form-control" placeholder="Fabricante del Precalentador de Agua" %}
-            <small>{{form_equipo.fabricante.errors}}</small>
+            {{forms.form_equipo.fabricante.label_tag}}
+            {% render_field forms.form_equipo.fabricante class="form-control" placeholder="Fabricante del Precalentador de Agua" %}
+            <small>{{forms.form_equipo.fabricante.errors}}</small>
         </div>
         <div class="col-6">
-            {{form_equipo.tipo.label_tag}}
-            {% render_field form_equipo.tipo class="form-select" %}
-            <small>{{form_equipo.tipo.errors}}</small>
+            {{forms.form_equipo.tipo.label_tag}}
+            {% render_field forms.form_equipo.tipo class="form-control" %}
+            <small>{{forms.form_equipo.tipo.errors}}</small>
         </div>
         <div class="col-6">
-            {{form_equipo.modelo.label_tag}}
-            {% render_field form_equipo.modelo class="form-control" placeholder="Fabricante del Precalentador de Agua" %}
-            <small>{{form_equipo.modelo.errors}}</small>
+            {{forms.form_equipo.modelo.label_tag}}
+            {% render_field forms.form_equipo.modelo class="form-control" placeholder="Fabricante del Precalentador de Agua" %}
+            <small>{{forms.form_equipo.modelo.errors}}</small>
         </div>
 
         <div class="col-12">
-            {{form_equipo.descripcion.label_tag}}
-            {% render_field form_equipo.descripcion class="form-control" placeholder="Modelo del Precalentador de Agua" %}
-            <small>{{form_equipo.descripcion.errors}}</small>
+            {{forms.form_equipo.descripcion.label_tag}}
+            {% render_field forms.form_equipo.descripcion class="form-control" placeholder="Modelo del Precalentador de Agua" %}
+            <small>{{forms.form_equipo.descripcion.errors}}</small>
         </div>
     </div>
 
@@ -71,85 +71,255 @@
 
     <div class="row">
         <div class="col-4">
-            {{form_especificaciones.material.label_tag}}
-            {% render_field form_especificaciones.material class="form-control" placeholder="Material del Precalentador" %}
-            <small>{{form_especificaciones.material.errores}}</small>
+            {{forms.form_especificaciones.material.label_tag}}
+            {% render_field forms.form_especificaciones.material class="form-control" placeholder="Material del Precalentador" %}
+            <small>{{forms.form_especificaciones.material.errores}}</small>
         </div>
         <div class="col-4">
-            {{form_especificaciones.espesor.label_tag}}
+            {{forms.form_especificaciones.espesor.label_tag}}
             <div class="input-group">
-                {% render_field form_especificaciones.espesor class="form-control" placeholder="Espesor de las tuberías" %}
-                {% render_field form_especificaciones.longitud_unidad class="form-select" %}
+                {% render_field forms.form_especificaciones.espesor class="form-control" placeholder="Espesor de las tuberías" %}
+                {% render_field forms.form_especificaciones.longitud_unidad class="form-select" %}
             </div>
-            <small>{{form_especificaciones.espesor.errores}}</small>
+            <small>{{forms.form_especificaciones.espesor.errores}}</small>
         </div>
         <div class="col-4">
-            {{form_especificaciones.diametro.label_tag}}
+            {{forms.form_especificaciones.diametro.label_tag}}
             <div class="input-group">
-                {% render_field form_especificaciones.diametro class="form-control" placeholder="Diámetro de las tuberías" %}
-                {% render_field form_especificaciones.longitud_unidad class="form-select" disabled="" %}
+                {% render_field forms.form_especificaciones.diametro class="form-control" placeholder="Diámetro de las tuberías" %}
+                {% render_field forms.form_especificaciones.longitud_unidad class="form-select" disabled="" %}
             </div>
-            <small>{{form_especificaciones.diametro.errores}}</small>
+            <small>{{forms.form_especificaciones.diametro.errores}}</small>
         </div>
         
         <div class="col-4">
-            {{form_especificaciones.altura.label_tag}}
+            {{forms.form_especificaciones.altura.label_tag}}
             <div class="input-group">
-                {% render_field form_especificaciones.altura class="form-control" placeholder="Diámetro de las tuberías" %}
-                {% render_field form_especificaciones.longitud_unidad class="form-select" disabled="" %}
+                {% render_field forms.form_especificaciones.altura class="form-control" placeholder="Altura" %}
+                {% render_field forms.form_especificaciones.longitud_unidad class="form-select" disabled="" %}
             </div>
-            <small>{{form_especificaciones.altura.errores}}</small>
+            <small>{{forms.form_especificaciones.altura.errores}}</small>
         </div>
         <div class="col-4">
-            {{form_especificaciones.superficie_calentamiento.label_tag}}
+            {{forms.form_especificaciones.superficie_calentamiento.label_tag}}
             <div class="input-group">
-                {% render_field form_especificaciones.superficie_calentamiento class="form-control" placeholder="Diámetro de las tuberías" %}
-                {% render_field form_especificaciones.longitud_unidad class="form-select" disabled="" %}
+                {% render_field forms.form_especificaciones.superficie_calentamiento class="form-control" placeholder="Superficie de Calentamiento" %}
+                {% render_field forms.form_especificaciones.area_unidad class="form-select" %}
             </div>
-            <small>{{form_especificaciones.superficie_calentamiento.errores}}</small>
+            <small>{{forms.form_especificaciones.superficie_calentamiento.errores}}</small>
         </div>
         <div class="col-4">
-            {{form_especificaciones.area_transferencia.label_tag}}
+            {{forms.form_especificaciones.area_transferencia.label_tag}}
             <div class="input-group">
-                {% render_field form_especificaciones.area_transferencia class="form-control" placeholder="Diámetro de las tuberías" %}
-                {% render_field form_especificaciones.longitud_unidad class="form-select" disabled="" %}
+                {% render_field forms.form_especificaciones.area_transferencia class="form-control" placeholder="Área de Transferencia" %}
+                {% render_field forms.form_especificaciones.area_unidad class="form-select" disabled="" %}
             </div>
-            <small>{{form_especificaciones.area_transferencia.errores}}</small>
+            <small>{{forms.form_especificaciones.area_transferencia.errores}}</small>
         </div>
 
-        <div class="col-4">
-            {{form_especificaciones.temp_operacion.label_tag}}
+        <div class="col-6">
+            {{forms.form_especificaciones.temp_operacion.label_tag}}
             <div class="input-group">
-                {% render_field form_especificaciones.temp_operacion class="form-control" placeholder="Diámetro de las tuberías" %}
-                {% render_field form_especificaciones.longitud_unidad class="form-select" disabled="" %}
+                {% render_field forms.form_especificaciones.temp_operacion class="form-control" placeholder="Temperatura de Operación" %}
+                {% render_field forms.form_especificaciones.temp_unidad class="form-select" %}
             </div>
-            <small>{{form_especificaciones.temp_operacion.errores}}</small>
+            <small>{{forms.form_especificaciones.temp_operacion.errores}}</small>
         </div>
-        <div class="col-4">
-            {{form_especificaciones.superficie_calentamiento.label_tag}}
+        <div class="col-6">
+            {{forms.form_especificaciones.presion_operacion.label_tag}}
             <div class="input-group">
-                {% render_field form_especificaciones.superficie_calentamiento class="form-control" placeholder="Diámetro de las tuberías" %}
-                {% render_field form_especificaciones.longitud_unidad class="form-select" disabled="" %}
+                {% render_field forms.form_especificaciones.presion_operacion class="form-control" placeholder="Presión de Operación" %}
+                {% render_field forms.form_especificaciones.presion_unidad class="form-select" %}
             </div>
-            <small>{{form_especificaciones.superficie_calentamiento.errores}}</small>
+            <small>{{forms.form_especificaciones.presion_operacion.errores}}</small>
         </div>
-        <div class="col-4">
-            {{form_especificaciones.area_transferencia.label_tag}}
+        <div class="col-6">
+            {{forms.form_especificaciones.u.label_tag}}
             <div class="input-group">
-                {% render_field form_especificaciones.area_transferencia class="form-control" placeholder="Diámetro de las tuberías" %}
-                {% render_field form_especificaciones.longitud_unidad class="form-select" disabled="" %}
+                {% render_field forms.form_especificaciones.u class="form-control" placeholder="Coeficiente Global de Transferencia" %}
+                {% render_field forms.form_especificaciones.u_unidad class="form-select" %}
             </div>
-            <small>{{form_especificaciones.area_transferencia.errores}}</small>
+            <small>{{forms.form_especificaciones.u.errores}}</small>
         </div>
 
-        <div class="col-4">
-            {{form_especificaciones.area_transferencia.label_tag}}
+        <div class="col-6">
+            {{forms.form_especificaciones.area_transferencia.label_tag}}
             <div class="input-group">
-                {% render_field form_especificaciones.area_transferencia class="form-control" placeholder="Área de Transferencia" %}
-                {% render_field form_especificaciones.longitud_unidad class="form-select" disabled="" %}
+                {% render_field forms.form_especificaciones.area_transferencia class="form-control" placeholder="Área de Transferencia" %}
+                {% render_field forms.form_especificaciones.longitud_unidad class="form-select" %}
             </div>
-            <small>{{form_especificaciones.area_transferencia.errores}}</small>
+            <small>{{forms.form_especificaciones.area_transferencia.errores}}</small>
         </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-center">Condiciones del Precalentador</h2>
+        </div>
+        <div class="col-6">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="text-center">Aire</h2>
+                    {{forms.form_aire.flujo.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_aire.flujo class="form-control" placeholder="Flujo Másico" %}
+                        {% render_field forms.form_aire.flujo_unidad class="form-select" %}
+                    </div>
+                    <small>{{forms.form_aire.flujo.errores}}</small>
+                </div>
+
+                <div class="col-6">
+                    {{forms.form_aire.temp_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_aire.temp_entrada class="form-control" placeholder="Temp. Entrada" %}
+                        {% render_field forms.form_aire.temp_unidad class="form-select" %}
+                    </div>
+                    <small>{{forms.form_aire.temp_entrada.errores}}</small>
+                </div>
+
+                <div class="col-6">
+                    {{forms.form_aire.temp_salida.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_aire.temp_salida class="form-control" placeholder="Temp. Salida" %}
+                        {% render_field forms.form_aire.temp_unidad class="form-select" disabled="" %}
+                    </div>
+                    <small>{{forms.form_aire.temp_salida.errores}}</small>
+                </div>
+
+                <div class="col-6">
+                    {{forms.form_aire.presion_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_aire.presion_entrada class="form-control" placeholder="Presión de Entrada" %}
+                        {% render_field forms.form_aire.presion_unidad class="form-select" %}
+                    </div>
+                    <small>{{forms.form_aire.presion_entrada.errores}}</small>
+                </div>
+
+                <div class="col-6">
+                    {{forms.form_aire.presion_salida.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_aire.presion_salida class="form-control" placeholder="Presión de Salida" %}
+                        {% render_field forms.form_aire.presion_unidad class="form-select" disabled="" %}
+                    </div>
+                    <small>{{forms.form_aire.presion_salida.errores}}</small>
+                </div>
+
+                <div class="col-12">
+                    {{forms.form_aire.caida_presion.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_aire.caida_presion class="form-control" placeholder="Caída de Presión" %}
+                        {% render_field forms.form_aire.temp_unidad class="form-select" disabled="" %}
+                    </div>
+                    <small>{{forms.form_aire.caida_presion.errores}}</small>
+                </div>
+
+                <div class="col-12 p-3">
+                    <h4 class="text-center mb-2">Composiciones</h4>
+                    <table class="table text-center table-bordered table-hover">
+                        <thead>
+                            <tr class="table-dark">
+                                <th>Compuesto</th>
+                                <th>% Volumen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{forms_aire}}
+                            {% for form in forms.forms_aire %}
+                            <tr>
+                                <th>{{form.fluido}}</th>
+                                <td>
+                                    {% render_field form.form.porcentaje class="form-control" placeholder="% Volumen Gas" %}
+                                    {% render_field form.form.fluido %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>    
+        <div class="col-6">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="text-center">Gases</h2>
+                    {{forms.form_gases.flujo.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_gases.flujo class="form-control" placeholder="Flujo Másico" %}
+                        {% render_field forms.form_gases.flujo_unidad class="form-select" %}
+                    </div>
+                    <small>{{forms.form_gases.flujo.errores}}</small>
+                </div>
+
+                <div class="col-6">
+                    {{forms.form_gases.temp_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_gases.temp_entrada class="form-control" placeholder="Temp. Entrada" %}
+                        {% render_field forms.form_gases.temp_unidad class="form-select" %}
+                    </div>
+                    <small>{{forms.form_gases.temp_entrada.errores}}</small>
+                </div>
+
+                <div class="col-6">
+                    {{forms.form_gases.temp_salida.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_gases.temp_salida class="form-control" placeholder="Temp. Salida" %}
+                        {% render_field forms.form_gases.temp_unidad class="form-select" disabled="" %}
+                    </div>
+                    <small>{{forms.form_gases.temp_salida.errores}}</small>
+                </div>
+
+                <div class="col-6">
+                    {{forms.form_gases.presion_entrada.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_gases.presion_entrada class="form-control" placeholder="Presión de Entrada" %}
+                        {% render_field forms.form_gases.presion_unidad class="form-select" %}
+                    </div>
+                    <small>{{forms.form_gases.presion_entrada.errores}}</small>
+                </div>
+
+                <div class="col-6">
+                    {{forms.form_gases.presion_salida.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_gases.presion_salida class="form-control" placeholder="Presión de Salida" %}
+                        {% render_field forms.form_gases.presion_unidad class="form-select" disabled="" %}
+                    </div>
+                    <small>{{forms.form_gases.presion_salida.errores}}</small>
+                </div>
+
+                <div class="col-12">
+                    {{forms.form_gases.caida_presion.label_tag}}
+                    <div class="input-group">
+                        {% render_field forms.form_gases.caida_presion class="form-control" placeholder="Caída de Presión" %}
+                        {% render_field forms.form_gases.temp_unidad class="form-select" disabled="" %}
+                    </div>
+                    <small>{{forms.form_gases.caida_presion.errores}}</small>
+                </div>
+
+                <div class="col-12 p-3">
+                    <h4 class="text-center mb-2">Composiciones</h4>
+                    <table class="table text-center table-bordered table-hover">
+                        <thead>
+                            <tr class="table-dark">
+                                <th>Compuesto</th>
+                                <th>% Volumen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for form in forms.forms_gases %}
+                            <tr>
+                                <th>{{form.fluido}}</th>
+                                <td>
+                                    {% render_field form.form.porcentaje class="form-control" placeholder="% Volumen Gas" %}
+                                    {% render_field form.form.fluido %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>    
     </div>
 
     <hr>

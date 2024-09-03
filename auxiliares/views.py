@@ -2574,11 +2574,14 @@ class CreacionPrecalentadorAire(SuperUserRequiredMixin, View):
             'form_especificaciones': form_especificaciones,
             'form_aire': form_aire,
             'form_gases': form_gases,
+            'forms_aire': forms_aire,
+            'forms_gases': forms_gases
         }
 
     def get_context_data(self):
         return {
-            'forms': self.get_forms()
+            'forms': self.get_forms(),
+            'unidades': Unidades.objects.all()
         }
 
     def get(self, request):

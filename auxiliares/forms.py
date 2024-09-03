@@ -410,4 +410,7 @@ class CondicionFluidoForm(forms.ModelForm):
 class ComposicionForm(forms.ModelForm):
     class Meta:
         model = Composicion
-        fields = ("porcentaje", )
+        fields = ("porcentaje", "fluido")
+        widgets = {
+            'fluido': forms.HiddenInput()
+        }
