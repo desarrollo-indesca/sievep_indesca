@@ -2547,25 +2547,33 @@ class ConsultaPrecalentadorAire(LoginRequiredMixin, FiltradoSimpleMixin, Obtener
         return self.get_precalentador(self.filtrar_equipos())  
 
 class CreacionPrecalentadorAire(SuperUserRequiredMixin, View):
+    titulo = "Creación de Precalentador de Aire"
+    prefix_aire = "aire"
+    prefix_gases = "gases"
+    prefix_composiciones_aire = "composiciones-aire"
+    prefix_composiciones_gases = "composiciones-gases"
+    template_name = "precalentadores_aire/creacion.html"
+    success_message = "Se ha registrado correctamente el precalentador."
+
     def get_forms(self):
         form_equipo = PrecalentadorAireForm()
         form_especificaciones = EspecificacionesPrecalentadorAireForm()
-        form_aire = CondicionFluidoForm(prefix="aire")
-        form_gases = CondicionFluidoForm(prefix="gases")
+        form_aire = CondicionFluidoForm(prefix=self.prefix_aire)
+        form_gases = CondicionFluidoForm(prefix=self.prefix_gases)
         forms_aire = []
         forms_gases = []
 
         for compuesto in COMPOSICIONES_GAS:
             fluido = Fluido.objects.get(cas=compuesto['cas'])
             forms_gases.append({
-                'form': ComposicionForm(initial={'fluido': fluido}),
+                'form': ComposicionForm(prefix=f"{self.prefix_composiciones_gases}-{fluido.pk}", initial={'fluido': fluido}),
                 'fluido': fluido
             })
 
         for compuesto in COMPOSICIONES_AIRE:
             fluido = Fluido.objects.get(cas=compuesto['cas'])
             forms_aire.append({
-                'form': ComposicionForm(initial={'fluido': fluido}),
+                'form': ComposicionForm(prefix=f"{self.prefix_composiciones_aire}-{fluido.pk}", initial={'fluido': fluido}),
                 'fluido': fluido
             })
 
@@ -2583,9 +2591,92 @@ class CreacionPrecalentadorAire(SuperUserRequiredMixin, View):
             'forms': self.get_forms(),
             'unidades': Unidades.objects.all()
         }
+    def almacenar_datos(self, form_equipo, form_especificaciones,
+                        form_aire, form_gases, forms_aire,
+                        forms_gases, edicion=False):
+        
+        with transaction.atomic():
+            valid = form_especificaciones.is_valid()
+            if(valid):
+                form_especificaciones.save()
+            else:
+                print(form_especificaciones.errors)
+                raise Exception("Ocurrió un error al validar los datos de las especificaciones.")
+            
+            valid = valid and form_equipo.is_valid()
+            if(valid):
+                if(not edicion):
+                    form_equipo.instance.creado_por = self.request.user
+                else:
+                    form_equipo.instance.editado_por = self.request.user
+                    form_equipo.instance.editado_al = datetime.datetime.now()
+
+                form_equipo.instance.especificaciones = form_especificaciones.instance
+                precalentador = form_equipo.save()
+            else:
+                print(form_equipo.errors)
+                raise Exception("Ocurrió un error al validar los datos del precalentador.")
+            
+            valid = valid and form_aire.is_valid()
+            if(valid):
+                form_aire.instance.precalentador = precalentador
+                form_aire.instance.fluido = "A"
+                form_aire.save()
+
+                for form in forms_aire:
+                    if(form['form'].is_valid()):
+                        form['form'].instance.condicion = form_aire.instance
+                        form['form'].save()
+            else:
+                print(form_aire.errors)
+                raise Exception("Ocurrió un error al validar los datos de las condiciones del aire.")
+
+            valid = valid and form_gases.is_valid()
+            if(valid):
+                form_gases.instance.precalentador = precalentador
+                form_gases.instance.fluido = "G"
+                form_gases.save()
+
+                for form in forms_gases:
+                    if(form['form'].is_valid()):
+                        form['form'].instance.condicion = form_gases.instance
+                        form['form'].save()
+            else:
+                print(form_gases.errors)
+                raise Exception("Ocurrió un error al validar los datos de las condiciones de los gases.")
+
+            messages.success(self.request, self.success_message)
+            return redirect('/auxiliares/precalentadores-aire/')
+    
+    def post(self, request, *args, **kwargs):
+        form_equipo = PrecalentadorAireForm(request.POST)
+        form_especificaciones = EspecificacionesPrecalentadorAireForm(request.POST)
+        form_aire = CondicionFluidoForm(request.POST, prefix=self.prefix_aire)
+        form_gases = CondicionFluidoForm(request.POST, prefix=self.prefix_gases)
+        
+        forms_gases = []
+        for compuesto in COMPOSICIONES_GAS:
+            fluido = Fluido.objects.get(cas=compuesto['cas'])
+            forms_gases.append({
+                'form': ComposicionForm(request.POST, prefix=f"{self.prefix_composiciones_gases}-{fluido.pk}"),
+                'fluido': fluido
+            })
+
+        forms_aire = []
+        for compuesto in COMPOSICIONES_AIRE:
+            fluido = Fluido.objects.get(cas=compuesto['cas'])
+            forms_aire.append({
+                'form': ComposicionForm(request.POST, prefix=f"{self.prefix_composiciones_aire}-{fluido.pk}"),
+                'fluido': fluido
+            })
+
+            return self.almacenar_datos(form_equipo, form_especificaciones,
+                                        form_aire, form_gases,
+                                        forms_aire, forms_gases)
+            
 
     def get(self, request):
-        return render(request, "precalentadores_aire/creacion.html", context=self.get_context_data())
+        return render(request, self.template_name, context=self.get_context_data())
 
 # VISTAS DE DUPLICACIÓN
 class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, DuplicateView):

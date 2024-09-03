@@ -405,7 +405,7 @@ class EspecificacionesPrecalentadorAireForm(forms.ModelForm):
 class CondicionFluidoForm(forms.ModelForm):
     class Meta:
         model = CondicionFluido
-        exclude = ("precalentador", )
+        exclude = ("precalentador", "fluido")
 
 class ComposicionForm(forms.ModelForm):
     class Meta:
