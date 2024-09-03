@@ -2695,6 +2695,8 @@ class CreacionPrecalentadorAire(SuperUserRequiredMixin, View):
         return render(request, self.template_name, context=self.get_context_data())
 
 class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalentadorAire):
+    success_message = "Se ha modificado el precalentador exitosamente."
+
     def get_forms(self):
         precalentador = self.get_precalentador()
         form_equipo = PrecalentadorAireForm(instance=precalentador)
@@ -2738,7 +2740,7 @@ class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalenta
                 
         forms_gases = []
         for compuesto in form_gases.instance.composiciones.all():
-            fluido = Fluido.objects.get(cas=compuesto['cas'])
+            fluido = compuesto.fluido
             forms_gases.append({
                 'form': ComposicionForm(request.POST, prefix=f"{self.prefix_composiciones_gases}-{fluido.pk}", instance=compuesto),
                 'fluido': fluido
@@ -2746,7 +2748,7 @@ class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalenta
 
         forms_aire = []
         for compuesto in form_aire.instance.composiciones.all():
-            fluido = Fluido.objects.get(cas=compuesto['cas'])
+            fluido = compuesto.fluido
             forms_aire.append({
                 'form': ComposicionForm(request.POST, prefix=f"{self.prefix_composiciones_aire}-{fluido.pk}", instance=compuesto),
                 'fluido': fluido
@@ -2771,9 +2773,6 @@ class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalenta
                     'titulo': self.titulo
                 }
             )
-
-
-
 
 # VISTAS DE DUPLICACIÓN
 class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, DuplicateView):
