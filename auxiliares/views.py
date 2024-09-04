@@ -2091,12 +2091,12 @@ class EdicionPrecalentadorAgua(CreacionPrecalentadorAgua, ObtenerPrecalentadorAg
 class ConsultaEvaluacionPrecalentadorAgua(ConsultaEvaluacion, ObtenerPrecalentadorAguaMixin, ReportesFichasPrecalentadoresAguaMixin):
     """
     Resumen:
-        Vista para la consulta de evaluaciones de Ventiladores de Calderas.
+        Vista para la consulta de evaluaciones de precalentadores de agua.
         Hereda de ConsultaEvaluacion para el ahorro de trabajo en términos de consulta.
-        Utiliza los Mixin para obtener ventiladores y de generación de reportes de fichas de ventiladores.
+        Utiliza los Mixin para obtener precalentadores de agua y de generación de reportes de fichas de precalentadores de agua.
 
     Atributos:
-        model: EvaluacionBomba -> Modelo de la vista
+        model: EvaluacionPrecalentadorAgua -> Modelo de la vista
         model_equipment -> Modelo del equipo
         clase_equipo -> Complemento del título de la vista
         tipo -> Tipo de equipo. Necesario para la renderización correcta de nombres y links.
@@ -2538,6 +2538,22 @@ class ObtenerPrecalentadorAireMixin():
         return precalentador
 
 class ConsultaPrecalentadorAire(LoginRequiredMixin, FiltradoSimpleMixin, ObtenerPrecalentadorAireMixin, ListView):
+    """
+    Resumen:
+        Vista para la consulta de evaluaciones de precalentadores de aire de Calderas.
+        Hereda de ConsultaEvaluacion para el ahorro de trabajo en términos de consulta.
+        Utiliza los Mixin para obtener precalentadores de aire y de generación de reportes de fichas de precalentadores de aire.
+
+    Atributos:
+        model: PrecalentadorAire -> Modelo de la vista
+        template_name -> Plantilla a utilizar
+        titulo -> Tìtulo de la vista
+        paginate_by -> Número de elementos a mostrar por página.
+    
+    Métodos:
+        get_queryset(self) -> QuerySet
+            Hace el prefetching correspondiente al queryset de precalentadores de aire.
+    """
     model = PrecalentadorAire
     template_name = 'precalentadores_aire/consulta.html'
     titulo = "SIEVEP - Consulta de Precalentadores de Aire"
@@ -2547,6 +2563,41 @@ class ConsultaPrecalentadorAire(LoginRequiredMixin, FiltradoSimpleMixin, Obtener
         return self.get_precalentador(self.filtrar_equipos())  
 
 class CreacionPrecalentadorAire(SuperUserRequiredMixin, View):
+    """
+    Resumen:
+        Vista para la creación o registro de nuevos precalentadores de aire.
+        Solo puede ser accedido por superusuarios.
+
+    Atributos:
+        titulo: str -> Título de la vista
+        prefix_aire: str -> Prefijo para el formulario de aire
+        prefix_gases: str -> Prefijo para el formulario de gases
+        prefix_composiciones_aire: str -> Prefijo base para los formularios de composición de aire 
+        prefix_composiciones_gases: str -> Prefijo base para los formularios de composición de gases
+        template_name: str -> Plantilla utilizada en la renderización
+        success_message: str -> Mensaje de éxito de creación exitosa
+        
+    Métodos:
+        get_forms(self) -> dict
+            Crea instancias de los formularios a ser utilizados.
+
+        get_context_data(self) -> dict
+            Genera el contexto de la renderización de la plantilla.
+
+        get(self, request, **kwargs) -> HttpResponse
+            Renderiza el formulario con la plantilla correspondiente.
+
+        almacenar_datos(self, form_bomba, form_detalles_motor, form_condiciones_fluido,
+                            form_detalles_construccion, form_condiciones_diseno, 
+                            form_especificaciones) -> HttpResponse
+
+            Valida y almacena los datos de acuerdo a la lógica requerida para el almacenamiento de precalentadores de agua por medio de los formularios.
+            Si hay errores se levantará una Exception.
+
+        post(self) -> HttpResponse
+            Envía el request a los formularios y envía la respuesta al cliente.
+    """
+
     titulo = "Creación de Precalentador de Aire"
     prefix_aire = "aire"
     prefix_gases = "gases"
@@ -2696,6 +2747,11 @@ class CreacionPrecalentadorAire(SuperUserRequiredMixin, View):
         return render(request, self.template_name, context=self.get_context_data())
 
 class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalentadorAire):
+    '''
+    Resumen:
+        Vista para la edición de un precalentador de agua. Sigue la misma lógica que la creación pero envía un contexto con las instancias previas.
+        Para más información revisar la superclase CreacionPrecalentadorAire. 
+    '''
     success_message = "Se ha modificado el precalentador exitosamente."
     titulo = "Edición de Precalentador de Aire"
 
@@ -2887,6 +2943,14 @@ class DuplicarPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAgua
         return redirect('/auxiliares/precalentadores/')
 
 class DuplicarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAireMixin, DuplicateView):
+    """
+    Resumen:
+        Vista para duplicar un precalentador de aire.
+
+    Métodos:
+        post(self, request, *args, **kwargs)
+            Crea una nueva instancia del precalentador de aire a duplicar y la retorna.
+    """
     def post(self, request, *args, **kwargs):
         precalentador_original = self.get_precalentador()
         precalentador = precalentador_original
