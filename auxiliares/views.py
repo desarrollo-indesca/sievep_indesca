@@ -2589,7 +2589,8 @@ class CreacionPrecalentadorAire(SuperUserRequiredMixin, View):
     def get_context_data(self):
         return {
             'forms': self.get_forms(),
-            'unidades': Unidades.objects.all()
+            'unidades': Unidades.objects.all(),
+            'titulo': self.titulo
         }
     
     def almacenar_datos(self, form_equipo, form_especificaciones,
@@ -2696,6 +2697,7 @@ class CreacionPrecalentadorAire(SuperUserRequiredMixin, View):
 
 class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalentadorAire):
     success_message = "Se ha modificado el precalentador exitosamente."
+    titulo = "Edición de Precalentador de Aire"
 
     def get_forms(self):
         precalentador = self.get_precalentador()
@@ -2710,7 +2712,7 @@ class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalenta
         for composicion in form_aire.instance.composiciones.all():
             fluido = composicion.fluido
             forms_aire.append({
-                'form': ComposicionForm(prefix=f"{self.prefix_composiciones_gases}-{fluido.pk}", instance=composicion),
+                'form': ComposicionForm(prefix=f"{self.prefix_composiciones_aire}-{fluido.pk}", instance=composicion),
                 'fluido': fluido
             })
 
