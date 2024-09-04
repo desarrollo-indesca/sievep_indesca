@@ -2578,6 +2578,9 @@ class CreacionPrecalentadorAire(SuperUserRequiredMixin, View):
         success_message: str -> Mensaje de éxito de creación exitosa
         
     Métodos:
+        obtener_forms_composiciones(self, composiciones, prefix)
+            Crea instancias de los formularios de composición de aire o de gases.
+
         get_forms(self) -> dict
             Crea instancias de los formularios a ser utilizados.
 
@@ -2606,6 +2609,17 @@ class CreacionPrecalentadorAire(SuperUserRequiredMixin, View):
     template_name = "precalentadores_aire/creacion.html"
     success_message = "Se ha registrado correctamente el precalentador."
 
+    def obtener_forms_composiciones(self, composiciones, prefix):
+        forms = []
+        for compuesto in composiciones:
+            fluido = Fluido.objects.get(cas=compuesto['cas'])
+            forms.append({
+                'form': ComposicionForm(self.request.POST if self.request.method =="POST" else None, prefix=f"{prefix}-{fluido.pk}", initial={'fluido': fluido}),
+                'fluido': fluido
+            })
+
+        return forms
+
     def get_forms(self):
         form_equipo = PrecalentadorAireForm()
         form_especificaciones = EspecificacionesPrecalentadorAireForm()
@@ -2614,20 +2628,9 @@ class CreacionPrecalentadorAire(SuperUserRequiredMixin, View):
         forms_aire = []
         forms_gases = []
 
-        for compuesto in COMPOSICIONES_GAS:
-            fluido = Fluido.objects.get(cas=compuesto['cas'])
-            forms_gases.append({
-                'form': ComposicionForm(prefix=f"{self.prefix_composiciones_gases}-{fluido.pk}", initial={'fluido': fluido}),
-                'fluido': fluido
-            })
-
-        for compuesto in COMPOSICIONES_AIRE:
-            fluido = Fluido.objects.get(cas=compuesto['cas'])
-            forms_aire.append({
-                'form': ComposicionForm(prefix=f"{self.prefix_composiciones_aire}-{fluido.pk}", initial={'fluido': fluido}),
-                'fluido': fluido
-            })
-
+        forms_aire = self.obtener_forms_composiciones(COMPOSICIONES_AIRE, self.prefix_composiciones_aire)
+        forms_gases = self.obtener_forms_composiciones(COMPOSICIONES_GAS, self.prefix_composiciones_gases)
+        
         return {
             'form_equipo': form_equipo,
             'form_especificaciones': form_especificaciones,
@@ -2707,21 +2710,8 @@ class CreacionPrecalentadorAire(SuperUserRequiredMixin, View):
         form_aire = CondicionFluidoForm(request.POST, prefix=self.prefix_aire)
         form_gases = CondicionFluidoForm(request.POST, prefix=self.prefix_gases)
         
-        forms_gases = []
-        for compuesto in COMPOSICIONES_GAS:
-            fluido = Fluido.objects.get(cas=compuesto['cas'])
-            forms_gases.append({
-                'form': ComposicionForm(request.POST, prefix=f"{self.prefix_composiciones_gases}-{fluido.pk}"),
-                'fluido': fluido
-            })
-
-        forms_aire = []
-        for compuesto in COMPOSICIONES_AIRE:
-            fluido = Fluido.objects.get(cas=compuesto['cas'])
-            forms_aire.append({
-                'form': ComposicionForm(request.POST, prefix=f"{self.prefix_composiciones_aire}-{fluido.pk}"),
-                'fluido': fluido
-            })
+        forms_gases = self.obtener_forms_composiciones(COMPOSICIONES_GAS, self.prefix_composiciones_gases)
+        forms_aire = self.obtener_forms_composiciones(COMPOSICIONES_AIRE, self.prefix_composiciones_aire)
 
         try:
             return self.almacenar_datos(form_equipo, form_especificaciones,
@@ -2751,6 +2741,8 @@ class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalenta
     Resumen:
         Vista para la edición de un precalentador de agua. Sigue la misma lógica que la creación pero envía un contexto con las instancias previas.
         Para más información revisar la superclase CreacionPrecalentadorAire. 
+
+        Se añade el método de obtener forms instanciados para la consititución de los forms de composiciones.
     '''
     success_message = "Se ha modificado el precalentador exitosamente."
     titulo = "Edición de Precalentador de Aire"
@@ -2762,22 +2754,9 @@ class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalenta
         condiciones = precalentador.condicion_fluido.all()
         form_aire = CondicionFluidoForm(prefix=self.prefix_aire, instance=condiciones.first())
         form_gases = CondicionFluidoForm(prefix=self.prefix_gases, instance=condiciones.last())
-        forms_aire = []
-        forms_gases = []
 
-        for composicion in form_aire.instance.composiciones.all():
-            fluido = composicion.fluido
-            forms_aire.append({
-                'form': ComposicionForm(prefix=f"{self.prefix_composiciones_aire}-{fluido.pk}", instance=composicion),
-                'fluido': fluido
-            })
-
-        for composicion in form_gases.instance.composiciones.all():
-            fluido = composicion.fluido
-            forms_gases.append({
-                'form': ComposicionForm(prefix=f"{self.prefix_composiciones_gases}-{fluido.pk}", instance=composicion),
-                'fluido': fluido
-            })
+        forms_gases = self.obtener_forms_instanciados(form_gases.instance.composiciones.all(), self.prefix_composiciones_gases)
+        forms_aire = self.obtener_forms_instanciados(form_aire.instance.composiciones.all(), self.prefix_composiciones_aire)
 
         return {
             'form_equipo': form_equipo,
@@ -2788,6 +2767,18 @@ class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalenta
             'forms_gases': forms_gases
         }
 
+    def obtener_forms_instanciados(self, queryset, prefix):
+        forms = []
+        for compuesto in queryset:
+            fluido = compuesto.fluido
+            forms.append({
+                'form': ComposicionForm(self.request.POST if self.request.method == 'POST' else None, prefix=f"{prefix}-{fluido.pk}", instance=compuesto),
+                'fluido': fluido
+            })
+
+        print(forms)
+        return forms
+
     def post(self, request, *args, **kwargs):
         precalentador = self.get_precalentador()
         form_equipo = PrecalentadorAireForm(request.POST, instance=precalentador)
@@ -2796,21 +2787,8 @@ class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalenta
         form_aire = CondicionFluidoForm(request.POST, prefix=self.prefix_aire, instance=condiciones.first())
         form_gases = CondicionFluidoForm(request.POST, prefix=self.prefix_gases, instance=condiciones.last())
                 
-        forms_gases = []
-        for compuesto in form_gases.instance.composiciones.all():
-            fluido = compuesto.fluido
-            forms_gases.append({
-                'form': ComposicionForm(request.POST, prefix=f"{self.prefix_composiciones_gases}-{fluido.pk}", instance=compuesto),
-                'fluido': fluido
-            })
-
-        forms_aire = []
-        for compuesto in form_aire.instance.composiciones.all():
-            fluido = compuesto.fluido
-            forms_aire.append({
-                'form': ComposicionForm(request.POST, prefix=f"{self.prefix_composiciones_aire}-{fluido.pk}", instance=compuesto),
-                'fluido': fluido
-            })
+        forms_gases = self.obtener_forms_instanciados(form_gases.instance.composiciones.all(), self.prefix_composiciones_gases)
+        forms_aire = self.obtener_forms_instanciados(form_aire.instance.composiciones.all(), self.prefix_composiciones_aire)
 
         try:
             return self.almacenar_datos(form_equipo, form_especificaciones,
