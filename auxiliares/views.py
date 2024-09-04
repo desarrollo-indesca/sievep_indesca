@@ -2810,7 +2810,7 @@ class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalenta
                 }
             )
 
-class ConsultaEvaluacionPrecalentadorAgua(ConsultaEvaluacion, ObtenerPrecalentadorAireMixin):
+class ConsultaEvaluacionPrecalentadorAire(ConsultaEvaluacion, ObtenerPrecalentadorAireMixin):
     """
     Resumen:
         Vista para la consulta de evaluaciones de precalentadores de aire.

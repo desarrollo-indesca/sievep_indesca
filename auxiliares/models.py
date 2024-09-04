@@ -1548,6 +1548,8 @@ class EvaluacionPrecalentadorAire(models.Model):
     fecha = models.DateTimeField(auto_now=True)
     precalentador = models.ForeignKey(PrecalentadorAire, on_delete=models.CASCADE, related_name="evaluacion_precalentador")
     salida = models.ForeignKey(SalidaEvaluacionPrecalentadorAire, on_delete=models.CASCADE, related_name="evaluacion_precalentador")
+    usuario = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="evaluacion_precalentador_aire_usuario")
+    activo = models.BooleanField(default=True)
 
     class Meta:
         db_table = "precalentador_aire_evaluacion"
