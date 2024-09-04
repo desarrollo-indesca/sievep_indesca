@@ -2810,6 +2810,79 @@ class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalenta
                 }
             )
 
+class ConsultaEvaluacionPrecalentadorAgua(ConsultaEvaluacion, ObtenerPrecalentadorAireMixin):
+    """
+    Resumen:
+        Vista para la consulta de evaluaciones de precalentadores de aire.
+        Hereda de ConsultaEvaluacion para el ahorro de trabajo en términos de consulta.
+        Utiliza los Mixin para obtener precalentadores de aire y de generación de reportes de fichas de precalentadores de aire.
+
+    Atributos:
+        model: EvaluacionPrecalentadorAire -> Modelo de la vista
+        model_equipment -> Modelo del equipo
+        clase_equipo -> Complemento del título de la vista
+        tipo -> Tipo de equipo. Necesario para la renderización correcta de nombres y links.
+    
+    Métodos:
+        get_context_data(self) -> dict
+            Añade al contexto original el equipo.
+
+        get_queryset(self) -> QuerySet
+            Hace el prefetching correspondiente al queryset de las evaluaciones.
+
+        post(self) -> HttpResponse
+            Contiene la lógica de eliminación (ocultación) de una evaluación y de generación de reportes.
+    """
+    model = EvaluacionPrecalentadorAire
+    model_equipment = PrecalentadorAire
+    clase_equipo = "l Precalentador de Agua"
+    tipo = 'precalentadores_agua'
+    template_name = 'precalentadores_aire/consulta_evaluaciones.html'
+
+    def post(self, request, **kwargs):
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha):
+            return reporte_ficha
+            
+        if(request.user.is_superuser and request.POST.get('evaluacion')): # Lógica de "Eliminación"
+            evaluacion = self.model.objects.get(pk=request.POST['evaluacion'])
+            evaluacion.activo = False
+            evaluacion.save()
+            messages.success(request, "Evaluación eliminada exitosamente.")
+        elif(request.POST.get('evaluacion') and not request.user.is_superuser):
+            messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
+
+        if(request.POST.get('tipo') == 'pdf'):
+            return generar_pdf(request, self.get_queryset(), f"Evaluaciones del Precalentador de Agua {self.get_precalentador().tag}", "reporte_evaluaciones_precalentador")
+        elif(request.POST.get('tipo') == 'xlsx'):
+            return historico_evaluaciones_precalentador_agua(self.get_queryset(), request)
+
+        if(request.POST.get('detalle')):
+            return generar_pdf(request, self.model.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Precalentador de Agua", "detalle_evaluacion_precalentador")
+
+        return self.get(request, **kwargs)
+    
+    def get_queryset(self):
+        new_context = super().get_queryset()
+
+        new_context = new_context.select_related(
+            'salida'
+        ).prefetch_related(
+            Prefetch('entrada_lado', EntradaLado.objects.select_related(
+                'temp_unidad', 'flujo_unidad',
+            )),
+            'salida_lado'
+        )
+
+        return new_context
+
+    def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
+        context = super().get_context_data(**kwargs)
+        context['equipo'] = self.get_precalentador()
+        context['tipo'] = self.tipo
+
+        return context
+
 # VISTAS DE DUPLICACIÓN
 class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, DuplicateView):
     """
