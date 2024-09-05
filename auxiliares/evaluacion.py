@@ -996,8 +996,13 @@ def evaluar_precalentador_aire(t1_aire: float, t2_aire: float,
         'ntu': ntu,
         'ensuciamiento': rf,
         'perdida_calor': perdida_calor,
-        'cmin': cmin,
-        'minimo': minimo,
-        'c': c,
-        'lmtd': lmtd
+        'u': u,
+        'lmtd': lmtd,
+        'q_aire': q_aire,
+        'q_gas': q_gases,
+        'perdida_calor': perdida_calor,
+        'cp_promedio_aire_entrada': cp_aire_entrada,
+        'cp_promedio_aire_salida': cp_aire_salida,
+        'cp_promedio_gas_entrada': cp_gas_entrada,
+        'cp_promedio_gas_salida': cp_gas_salida
     }

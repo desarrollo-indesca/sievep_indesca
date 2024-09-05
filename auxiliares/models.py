@@ -1579,20 +1579,19 @@ class EntradaLado(models.Model):
     class Meta:
         db_table = "precalentador_aire_evaluacion_entradalado"
 
-class SalidaLado(models.Model):
+class ComposicionesEvaluacionPrecalentadorAire(models.Model):
     '''
     Resumen:
-        Modelo que describe la Salida del lado de un precalentador de aire.
+        Modelos que registra la composición de combustible de los precalentadores de aire.
     
     Atributos:
-        cp_promedio: FloatField -> CP Promedio de la Salida.
-        entrada: ForeignKey -> Entrada del lado del precalentador al que se refiere la Salida.
-        fluido: ForeignKey -> Fluidos que se encuentran en la Salida del lado del precalentador.
+        evaluacion: ForeignKey -> Evaluación del precalentador de aire a la que se refiere la composición.
+        fluido: ForeignKey -> Fluidos que se encuentran en la composición.
+        porcentaje: FloatField -> Porcentaje de la composición.
     '''
-    cp_promedio = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(100)])
-    tipo = models.CharField("Tipo", max_length=1, choices=(("E","Enrada"),("S","Salida")))
-    entrada = models.ForeignKey(EntradaLado, on_delete=models.CASCADE, related_name="salida_lado")
-    fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE, related_name="salida_lado")
+    fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE, related_name="composicion_combustible")
+    entrada = models.ForeignKey(EntradaLado, on_delete=models.CASCADE, related_name="composicion_combustible")
+    porcentaje = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(100)])
 
     class Meta:
-        db_table = "precalentador_aire_evaluacion_salidalado"
+        db_table = "precalentador_aire_evaluacion_composiciones"
