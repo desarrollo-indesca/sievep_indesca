@@ -14,7 +14,7 @@
     <td>{{precalentador.planta.complejo}}</td>
     <td>{{precalentador.descripcion}}</td>
     <td>
-      <a class="btn btn-danger" href="{% url 'evaluaciones_precalentador_agua' pk=precalentador.pk %}"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
+      <a class="btn btn-danger" href="{% url 'evaluaciones_precalentador_aire' pk=precalentador.pk %}"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
     </td>
     <td>
       {% include 'precalentadores_aire/partials/ficha.html' %}

@@ -1546,7 +1546,7 @@ class EvaluacionPrecalentadorAire(models.Model):
     '''
     nombre = models.CharField(max_length=100)
     fecha = models.DateTimeField(auto_now=True)
-    precalentador = models.ForeignKey(PrecalentadorAire, on_delete=models.CASCADE, related_name="evaluacion_precalentador")
+    equipo = models.ForeignKey(PrecalentadorAire, on_delete=models.CASCADE, related_name="evaluacion_precalentador")
     salida = models.ForeignKey(SalidaEvaluacionPrecalentadorAire, on_delete=models.CASCADE, related_name="evaluacion_precalentador")
     usuario = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name="evaluacion_precalentador_aire_usuario")
     activo = models.BooleanField(default=True)
@@ -1585,11 +1585,12 @@ class SalidaLado(models.Model):
         Modelo que describe la Salida del lado de un precalentador de aire.
     
     Atributos:
-        porcentaje: FloatField -> Porcentaje de fluido que sale del precalentador de aire.
+        cp_promedio: FloatField -> CP Promedio de la Salida.
         entrada: ForeignKey -> Entrada del lado del precalentador al que se refiere la Salida.
         fluido: ForeignKey -> Fluidos que se encuentran en la Salida del lado del precalentador.
     '''
-    porcentaje = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(100)])
+    cp_promedio = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(100)])
+    tipo = models.CharField("Tipo", max_length=1, choices=(("E","Enrada"),("S","Salida")))
     entrada = models.ForeignKey(EntradaLado, on_delete=models.CASCADE, related_name="salida_lado")
     fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE, related_name="salida_lado")
 

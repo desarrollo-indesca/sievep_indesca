@@ -873,3 +873,131 @@ def evaluar_precalentador_agua(
     advertencias = generar_advertencias_resultados_precalentador_agua(resultados)
 
     return {'resultados': resultados, 'advertencias': advertencias}
+
+# Evaluaciones de Precalentadores de Aire
+def calcular_cps(t: float, tipo: str, composicion: dict) -> dict:
+    for i,compuesto in enumerate(composicion):
+        composicion[i][f'cp_´{tipo}'] = calcular_cp(compuesto['cas'], t, t)
+    
+    return composicion
+
+def normalizar_composicion(composicion) -> list:
+    suma = sum([x['composicion'] for x in composicion])
+
+    for i,compuesto in enumerate(composicion):
+        composicion[i]['composicion'] = compuesto['composicion']/suma 
+
+def calcular_eficiencia_precalentador_aire(c, ntu, minimo): 
+    """
+    Calcula la eficiencia del precalentador de aire.
+
+    Parámetros:
+        c (float): Factor de capacidad del precalentador.
+        ntu (float): Número de unidades de transferencia de calor.
+        minimo (str): Minimo entre la capacidad calorífica del gas y la del aire.
+
+    Devuelve:
+        float: La eficiencia del precalentador.
+    """
+    if(minimo == "T"):
+        eficiencia = 1/c*(1-math.exp(-1*c*(1-1*math.exp(-1*ntu))));
+    else:
+        eficiencia = 1-math.exp(-1/c*math.exp(1-math.exp(-1*ntu*c)));
+
+    return eficiencia
+
+def calcular_cp_promedio(composicion: dict, tipo: str) -> float:
+    """
+    """
+    return sum([x[f'cp_entrada']*x['x'] for x in composicion]), sum([x[f'cp_salida']*x['x'] for x in composicion])
+
+def calcular_factor_lmtd(t1_aire, t2_aire, t1_gas, t2_gas):
+    P=abs((t2_aire-t1_aire)/(t1_gas-t2_aire))
+    R=abs((t1_gas-t2_gas)/(t2_aire-t1_aire))
+    a=1.4284
+    b=-0.2616
+    c=-0.8447
+    d=0.0385
+    e=0.0501
+
+    factor = a+b*R+c*P+d*R**2+e*P**2
+
+    lmtd = abs(((t1_gas-t1_aire)-(t2_gas-t2_aire))/math.log((t1_gas-t1_aire)/(t2_gas-t2_aire)))
+
+    return lmtd, factor
+
+def calcular_cs(flujo_aire, flujo_gas, cp_aire_entrada, cp_aire_salida, cp_gas_entrada, cp_gas_salida) -> dict:
+    ct = flujo_aire*(cp_aire_salida-cp_aire_entrada)/2
+    cc = flujo_gas*(cp_gas_salida-cp_gas_entrada)/2
+    if(ct<cc):
+        cmin = ct
+        cmax = cc
+        c = cmin/cmax
+        minimo = "T"
+    else:
+        cmin = cc
+        cmax = ct
+        c = cmin/cmax
+        minimo = "C"
+
+    return c, cmin, minimo
+
+def evaluar_precalentador_aire(t1_aire: float, t2_aire: float, 
+                               t1_gas: float, t2_gas: float,
+                               flujo_aire: float, flujo_gas: float,
+                               u: float, area_total: float, composicion_gas: dict, 
+                               composicion_aire: dict) -> dict:
+    """
+    Evalúa el precalentador de aire.
+
+    Parámetros:
+        t1_aire (float): Temperatura de entrada del aire [K].
+        t2_aire (float): Temperatura de salida del aire [K].
+        t1_gas (float): Temperatura de entrada del gas [K].
+        t2_gas (float): Temperatura de salida del gas [K].
+        flujo_aire (float): Flujo del aire [kg/s].
+        flujo_gas (float): Flujo del gas [kg/s].
+        u (float): Coeficiente de transferencia de calor [W/m2K].
+        area_total (float): Área total del intercambiador [m2].
+        composicion_gas (dict): Composición del gas.
+        composicion_aire (dict): Composición del aire.
+
+    Devuelve:
+        dict: Contiene los resultados de la evaluación.
+    """
+    composicion_gas = calcular_cps(t1_gas, 'entrada', composicion_gas)
+    composicion_gas = calcular_cps(t2_gas, 'salida', composicion_gas)
+    composicion_aire = calcular_cps(t1_aire, 'entrada', composicion_aire)
+    composicion_aire = calcular_cps(t2_aire, 'salida', composicion_aire)
+
+    composicion_aire = normalizar_composicion(composicion_gas)
+    composicion_gas = normalizar_composicion(composicion_gas)
+
+    cp_aire_entrada,cp_aire_salida = calcular_cp_promedio(composicion_aire)
+    cp_gas_entrada,cp_gas_salida = calcular_cp_promedio(composicion_gas)  
+
+    q_aire = (cp_aire_salida+cp_aire_entrada)/(2*flujo_aire*abs(t1_aire-t2_aire))
+    q_gases = (cp_gas_salida+cp_gas_entrada)/(2*flujo_gas*abs(t1_gas-t2_gas))
+    perdida_calor = q_gases-q_aire if q_gases > q_aire else None
+
+    factor,lmtd = calcular_factor_lmtd(t1_aire, t2_aire, t1_gas, t2_gas)    
+
+    ucalc = q_aire/(area_total*lmtd*factor)
+    rf = 1/ucalc - 1/u
+
+    c, cmin, minimo = calcular_cs(flujo_aire, flujo_gas, cp_aire_entrada, cp_aire_salida, cp_gas_entrada, cp_gas_salida)
+
+    eficiencia = calcular_eficiencia_precalentador_aire(ntu, c, minimo)
+
+    ntu = ucalc*area_total/cmin
+
+    return {
+        'eficiencia': eficiencia,
+        'ntu': ntu,
+        'ensuciamiento': rf,
+        'perdida_calor': perdida_calor,
+        'cmin': cmin,
+        'minimo': minimo,
+        'c': c,
+        'lmtd': lmtd
+    }
