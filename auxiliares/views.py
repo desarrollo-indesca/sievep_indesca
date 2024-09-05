@@ -2835,8 +2835,8 @@ class ConsultaEvaluacionPrecalentadorAire(ConsultaEvaluacion, ObtenerPrecalentad
     """
     model = EvaluacionPrecalentadorAire
     model_equipment = PrecalentadorAire
-    clase_equipo = "l Precalentador de Agua"
-    tipo = 'precalentadores_agua'
+    clase_equipo = "l Precalentador de Aire"
+    tipo = 'precalentadores_aire'
     template_name = 'precalentadores_aire/consulta_evaluaciones.html'
 
     def post(self, request, **kwargs):
@@ -2882,6 +2882,31 @@ class ConsultaEvaluacionPrecalentadorAire(ConsultaEvaluacion, ObtenerPrecalentad
         context['tipo'] = self.tipo
 
         return context
+
+class EvaluarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAireMixin, View):
+    """
+    Resumen:
+        Vista para la evaluación de un precalentador de aire. 
+        Hereda de EvaluarView para el ahorro de trabajo en cálculos de evaluación.
+    """
+    template_name = "precalentadores_aire/evaluacion.html"
+
+    def get_precalentador(self, precalentador):
+        # TODO
+        forms = {
+
+        }
+
+        return forms
+
+    def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
+        context = super().get_context_data(**kwargs)
+        context['precalentador'] = self.get_precalentador()
+        context['forms'] = self.get_forms(context['precalentador'])
+        return context
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name, context=self.get_context_data())
 
 # VISTAS DE DUPLICACIÓN
 class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, DuplicateView):

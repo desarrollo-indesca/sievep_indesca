@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block head %}
+<script src="/static/js/htmx.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div id="form">
+    <div class="row p-3">
+            <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center">
+                <a class="btn d-block btn-secondary" href="{% url 'evaluaciones_precalentador_aire' pk=equipo.pk %}">↶ Regresar</a>
+            </div>
+            <div class="col-md-6 col-lg-8">
+                <h3 class="text-center" style="color: #e31e24;">Evaluación del Precalentador {{equipo.tag}}</h3>
+            </div>
+            <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center">
+                <button type="button" class="btn btn-success" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{precalentador.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button>
+                {% include 'precalentadores_aire/partials/ficha.html' with precalentador=equipo %}
+            </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" hx-post="{% url 'evaluar_precalentador_aire' pk=equipo.pk %}#resultados" hx-indicator="#spinner" hx-swap="none">
+        <div class="row">
+            {% csrf_token %}
+            <div class="col-6">
+                <div class="row">
+                    <div class="col-12">
+                        <h3 class="text-center">AIRE</h3>
+                    </div>
+                    <div class="col-6">
+                        <div class="input-group">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="row">
+                    <div class="col-12">
+                        <h3 class="text-center">GASES</h3>
+                    </div>
+                    <div class="col-6">
+                        <div class="input-group">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="spinner" class="htmx-indicator indicator-style">
+    <div class="spinner-grow text-danger" style="width: 6rem; height: 6rem;">
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_javascript %}
+{% endblock %}

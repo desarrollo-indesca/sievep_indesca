@@ -414,3 +414,23 @@ class ComposicionForm(forms.ModelForm):
         widgets = {
             'fluido': forms.HiddenInput()
         }
+
+# EVALUACIONES DE PRECALENTADOR DE AIRE
+
+class EvaluacionPrecalentadorAireForm(forms.ModelForm):
+    class Meta:
+        model = EvaluacionPrecalentadorAire
+        fields = ("nombre", )
+
+class EntradaLadoForm(forms.ModelForm):
+    class Meta:
+        model = EntradaLado
+        exclude = ("pk", "evaluacion", "lado", "cp_prom")
+
+class ComposicionesEvaluacionPrecalentadorAireForm(forms.ModelForm):
+    class Meta:
+        model = ComposicionesEvaluacionPrecalentadorAire
+        fields = ("porcentaje", "fluido")
+        widgets = {
+            'fluido': forms.HiddenInput()
+        }

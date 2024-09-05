@@ -1516,6 +1516,7 @@ class SalidaEvaluacionPrecalentadorAire(models.Model):
         cp_gas_entrada: FloatField -> Presión de calor del gas de entrada.
         cp_aire_salida: FloatField -> Presión de calor del gas de salida.
     '''
+    id = models.UUIDField(primary_key=True, default = uuid.uuid4)
     calor_aire = models.FloatField()
     calor_gas = models.FloatField()
     calor_perdido = models.FloatField()
@@ -1544,6 +1545,7 @@ class EvaluacionPrecalentadorAire(models.Model):
         precalentador: PrecalentadorAire -> Precalentador de Aire asociado.
         salida: SalidaEvaluacionPrecalentadorAire -> Datos de Salida de la evaluacion.
     '''
+    id = models.UUIDField(primary_key=True, default = uuid.uuid4)
     nombre = models.CharField(max_length=100)
     fecha = models.DateTimeField(auto_now=True)
     equipo = models.ForeignKey(PrecalentadorAire, on_delete=models.CASCADE, related_name="evaluacion_precalentador")
@@ -1567,6 +1569,7 @@ class EntradaLado(models.Model):
         lado: CharField -> Lado del precalentador al que se refiere la entrada (Aire o Gases).
         evaluacion: ForeignKey -> Evaluación del precalentador de aire a la que se refiere la entrada.
     '''
+    id = models.UUIDField(primary_key=True, default = uuid.uuid4)
     flujo = models.FloatField()
     flujo_unidad = models.ForeignKey(Unidades, models.CASCADE, related_name="entrada_lado_flujo_unidad")
     temp_entrada = models.FloatField()
@@ -1589,6 +1592,7 @@ class ComposicionesEvaluacionPrecalentadorAire(models.Model):
         fluido: ForeignKey -> Fluidos que se encuentran en la composición.
         porcentaje: FloatField -> Porcentaje de la composición.
     '''
+    id = models.UUIDField(primary_key=True, default = uuid.uuid4)
     fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE, related_name="composicion_combustible")
     entrada = models.ForeignKey(EntradaLado, on_delete=models.CASCADE, related_name="composicion_combustible")
     porcentaje = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(100)])
