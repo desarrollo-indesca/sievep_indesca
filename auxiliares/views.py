@@ -2890,19 +2890,53 @@ class EvaluarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAireM
         Hereda de EvaluarView para el ahorro de trabajo en cálculos de evaluación.
     """
     template_name = "precalentadores_aire/evaluacion.html"
+ 
+    def get_forms(self, precalentador):
+        forms_composicion_aire = []
+        forms_composicion_gases = []
 
-    def get_precalentador(self, precalentador):
-        # TODO
+        for compuesto in precalentador.condicion_fluido.first().composiciones.all():
+            forms_composicion_aire.append(
+                {
+                    'form': ComposicionesEvaluacionPrecalentadorAireForm(
+                        prefix=f"composicion-aire-{compuesto.id}",
+                        initial={
+                        'porcentaje': compuesto.porcentaje,
+                        'fluido': compuesto.fluido,
+                    }),
+                    'fluido': compuesto.fluido
+                }
+            )
+
+        for compuesto in precalentador.condicion_fluido.last().composiciones.all():
+            forms_composicion_gases.append(
+                {
+                    'form': ComposicionesEvaluacionPrecalentadorAireForm(
+                        prefix=f"composicion-gases-{compuesto.id}",
+                        initial={
+                        'porcentaje': compuesto.porcentaje,
+                        'fluido': compuesto.fluido,
+                    }),
+                    'fluido': compuesto.fluido
+                }
+            )
+  
         forms = {
-
+            'form_evaluacion': EvaluacionPrecalentadorAireForm(instance=precalentador),
+            'form_entrada_aire': EntradaLadoForm(prefix="aire", initial={'lado': "A"}),
+            'form_entrada_gases': EntradaLadoForm(prefix="gases", initial={'lado': "G"}),
+            'forms_composicion_gases': forms_composicion_gases,
+            'forms_composicion_aire': forms_composicion_aire,
         }
 
         return forms
 
     def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
-        context = super().get_context_data(**kwargs)
+        context = {}
         context['precalentador'] = self.get_precalentador()
         context['forms'] = self.get_forms(context['precalentador'])
+        context['unidades'] = Unidades.objects.all().values('pk', 'simbolo', 'tipo')
+        context['titulo'] = f"Evaluación de Precalentador de Aire {context['precalentador'].tag}"
         return context
 
     def get(self, request, *args, **kwargs):

@@ -1570,10 +1570,10 @@ class EntradaLado(models.Model):
         evaluacion: ForeignKey -> Evaluación del precalentador de aire a la que se refiere la entrada.
     '''
     id = models.UUIDField(primary_key=True, default = uuid.uuid4)
-    flujo = models.FloatField()
+    flujo = models.FloatField("Flujo Másico")
     flujo_unidad = models.ForeignKey(Unidades, models.CASCADE, related_name="entrada_lado_flujo_unidad")
-    temp_entrada = models.FloatField()
-    temp_salida = models.FloatField()
+    temp_entrada = models.FloatField("Temperatura de Entrada")
+    temp_salida = models.FloatField("Temperatura de Salida")
     temp_unidad = models.ForeignKey(Unidades, models.CASCADE, related_name="entrada_lado_temp_unidad")
     cp_prom = models.FloatField()
     lado = models.CharField(max_length=1, choices=(("A","Aire"),("G","Gases")))
