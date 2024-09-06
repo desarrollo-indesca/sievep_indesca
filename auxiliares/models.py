@@ -1592,7 +1592,7 @@ class ComposicionesEvaluacionPrecalentadorAire(models.Model):
         porcentaje: FloatField -> Porcentaje de la composición.
     '''
     id = models.UUIDField(primary_key=True, default = uuid.uuid4)
-    fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE, related_name="composicion_combustible")
+    fluido = models.ForeignKey(Fluido, on_delete=models.CASCADE)
     entrada = models.ForeignKey(EntradaLado, on_delete=models.CASCADE, related_name="composicion_combustible")
     porcentaje = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(100)])
 

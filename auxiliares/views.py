@@ -2869,8 +2869,9 @@ class ConsultaEvaluacionPrecalentadorAire(ConsultaEvaluacion, ObtenerPrecalentad
         ).prefetch_related(
             Prefetch('entrada_lado', EntradaLado.objects.select_related(
                 'temp_unidad', 'flujo_unidad',
+            ).prefetch_related(
+                'composicion_combustible'
             )),
-            'salida_lado'
         )
 
         return new_context
