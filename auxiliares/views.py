@@ -28,10 +28,9 @@ from auxiliares.forms import *
 from calculos.termodinamicos import calcular_densidad, calcular_densidad_aire, calcular_presion_vapor, calcular_viscosidad, calcular_densidad_relativa
 from calculos.unidades import *
 from calculos.utils import fluido_existe, registrar_fluido
-from .evaluacion import COMPOSICIONES_AIRE, COMPOSICIONES_GAS, evaluacion_bomba, evaluar_ventilador, evaluar_precalentador_agua
+from .evaluacion import COMPOSICIONES_AIRE, COMPOSICIONES_GAS, evaluacion_bomba, evaluar_ventilador, evaluar_precalentador_agua, evaluar_precalentador_aire
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos, ficha_tecnica_ventilador, historico_evaluaciones_bombas, historico_evaluaciones_ventiladores, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga, historico_evaluaciones_precalentador_agua, ficha_tecnica_precalentador_agua
-
 # Create your views here.
 
 class SeleccionEquipo(LoginRequiredMixin, View):
@@ -2931,6 +2930,65 @@ class EvaluarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAireM
 
         return forms
 
+    def calcular_resultados(self, precalentador):
+        request = self.request.POST
+
+        temp_unidad_aire = int(request.get('aire-temp_unidad'))
+        flujo_unidad_aire = int(request.get('aire-flujo_unidad'))
+        temp_unidad_gas = int(request.get('gases-temp_unidad'))
+        flujo_unidad_gas = int(request.get('gases-flujo_unidad'))  
+
+        t1_aire, t2_aire = transformar_unidades_temperatura(
+            [float(request.get('aire-temp_entrada')), 
+             float(request.get('aire-temp_salida'))],
+            temp_unidad_aire,
+        )
+
+        t1_gas, t2_gas = transformar_unidades_temperatura(
+            [float(request.get('gases-temp_entrada')), 
+             float(request.get('gases-temp_salida'))],
+            temp_unidad_gas,
+        )
+
+        flujo_aire = transformar_unidades_flujo(
+            [float(request.get('aire-flujo'))],
+            flujo_unidad_aire
+        )[0]
+        flujo_gas = transformar_unidades_flujo(
+            [float(request.get('gases-flujo'))],
+            flujo_unidad_gas
+        )[0]
+
+        u = transformar_unidades_u(
+            [precalentador.especificaciones.u], 
+            precalentador.especificaciones.u_unidad.pk
+        )[0]
+        area_transferencia = transformar_unidades_area(
+            [precalentador.especificaciones.area_transferencia], 
+            precalentador.especificaciones.area_unidad.pk
+        )[0]
+
+        compsosicion_gas = [
+            {
+                'porcentaje': float(request.get(f'composicion-gases-{compuesto.id}-porcentaje')),
+                'fluido': compuesto.fluido
+            } for compuesto in precalentador.condicion_fluido.last().composiciones.all()
+        ]
+        composicion_aire = [
+            {
+                'porcentaje': float(request.get(f'composicion-aire-{compuesto.id}-porcentaje')),
+                'fluido': compuesto.fluido
+            } for compuesto in precalentador.condicion_fluido.first().composiciones.all()
+        ]    
+
+        resultados = evaluar_precalentador_aire(
+            t1_aire, t2_aire, t1_gas, t2_gas,
+            flujo_aire, flujo_gas, u, area_transferencia,
+            compsosicion_gas, composicion_aire            
+        )
+
+        return resultados
+
     def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
         context = {}
         context['precalentador'] = self.get_precalentador()
@@ -2941,6 +2999,28 @@ class EvaluarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAireM
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name, context=self.get_context_data())
+
+    def calcular(self):
+        precalentador = self.get_precalentador()
+        
+        context = self.get_context_data()
+        context['resultados'] = self.calcular_resultados(precalentador)
+        
+        return render(self.request, 'precalentadores_aire/partials/resultados.html', context)
+    
+    def almacenar(self):
+        precalentador = self.get_precalentador()
+        resultados = self.calcular_resultados(precalentador)
+
+        # TODO Proceso de almacenamiento 
+        
+        return render(self.request, self.template_name, {
+            'precalentador': precalentador, 
+            'resultados': resultados
+        })
+
+    def post(self, request, *args, **kwargs):
+        return self.calcular()
 
 # VISTAS DE DUPLICACIÓN
 class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, DuplicateView):

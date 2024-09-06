@@ -22,7 +22,7 @@
             </div>
     </div>
 
-    <form method="post" enctype="multipart/form-data" hx-post="{% url 'evaluar_precalentador_aire' pk=precalentador.pk %}#resultados" hx-indicator="#spinner" hx-swap="none">
+    <form method="post" enctype="multipart/form-data" hx-post="{% url 'evaluar_precalentador_aire' pk=precalentador.pk %}" hx-indicator="#spinner" hx-swap="none">
         <div class="row">
             {% csrf_token %}
             <div class="col-12 mb-3">
@@ -146,8 +146,12 @@
 
             <hr>
 
+            <div id="resultados">
+                
+            </div>
+
             <div class="col-12 d-flex justify-content-center align-items-center">
-                <button id="submit" type="submit" class="btn btn-danger">Calcular Resultados</button>
+                <button value="calcular" name="submit" id="submit" type="submit" class="btn btn-danger">Calcular Resultados</button>
             </div>
         </div>
     </form>
