@@ -38,7 +38,7 @@
         </tbody>
     </table>
 
-    <table class="table table-hover">
+    <table class="table table-hover text-center">
         <thead>
             <tr class="table-dark">
                 <th colspan="3" class="text-center">Capacidades Caloríficas</th>
@@ -63,9 +63,9 @@
         </tbody>
     </table>
 
-    <div class="alert alert-warning" role="alert">
-        {% if resultados.perdida_calor < 0 %}
-        La pérdida de calor no es válida de acuerdo a las leyes termodinámicas. 
+    <div class="alert alert-danger" role="alert">
+        {% if 0 > resultados.perdida_calor %}
+        La pérdida de calor no es válida de acuerdo a las leyes termodinámicas. Revise antes de almacenar.
         {% endif %}
     </div>
 </div>

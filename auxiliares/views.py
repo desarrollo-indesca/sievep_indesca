@@ -3012,15 +3012,77 @@ class EvaluarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAireM
         precalentador = self.get_precalentador()
         resultados = self.calcular_resultados(precalentador)
 
-        # TODO Proceso de almacenamiento 
+        salida = SalidaEvaluacionPrecalentadorAire.objects.create(
+            calor_aire = resultados['q_aire'],
+            calor_gas = resultados['q_gas'],
+            eficiencia = resultados['eficiencia'],
+            ntu = resultados['ntu'],
+            calor_perdido = resultados['perdida_calor'],
+            u = resultados['u'],
+            ensuciamiento = resultados['ensuciamiento'],
+            u_diseno = resultados['u_diseno'],
+            lmtd = resultados['lmtd'],
+        )
+
+        evaluacion = EvaluacionPrecalentadorAireForm(
+            self.request.POST
+        )
+        if(evaluacion.is_valid()):
+            evaluacion.instance.salida = salida
+            evaluacion.instance.equipo = precalentador
+            evaluacion.instance.usuario = self.request.user
+            evaluacion = evaluacion.save()
+
+        entrada_aire = EntradaLadoForm(
+            self.request.POST,
+            prefix='aire'
+        )
+        if(entrada_aire.is_valid()):
+            entrada_aire.instance.evaluacion = evaluacion
+            entrada_aire.instance.lado = 'A'
+            entrada_aire.instance.cp_entrada = resultados['cp_promedio_aire_entrada']
+            entrada_aire.instance.cp_salida = resultados['cp_promedio_aire_salida']
+            entrada_aire = entrada_aire.save()
+
+        entrada_gas = EntradaLadoForm(
+            self.request.POST,
+            prefix='aire'
+        )
+        if(entrada_gas.is_valid()):
+            entrada_gas.instance.evaluacion = evaluacion
+            entrada_gas.instance.lado = 'G'
+            entrada_gas.instance.cp_entrada = resultados['cp_promedio_gas_entrada']
+            entrada_gas.instance.cp_salida = resultados['cp_promedio_gas_salida']
+            entrada_gas = entrada_gas.save()
         
+        for compuesto in precalentador.condicion_fluido.last().composiciones.all():
+            form = ComposicionesEvaluacionPrecalentadorAireForm(
+                self.request.POST,
+                prefix=f"composicion-gases-{compuesto.id}",
+            )
+            form.instance.evaluacion = evaluacion
+            form.instance.compuesto = compuesto
+            form.save()
+
+        for compuesto in precalentador.condicion_fluido.first().composiciones.all():
+            form = ComposicionesEvaluacionPrecalentadorAireForm(
+                self.request.POST,
+                prefix=f"composicion-aire-{compuesto.id}",
+            )
+            form.instance.evaluacion = evaluacion
+            form.instance.compuesto = compuesto
+            form.save()
+
         return render(self.request, self.template_name, {
             'precalentador': precalentador, 
             'resultados': resultados
         })
 
     def post(self, request, *args, **kwargs):
-        return self.calcular()
+        if(request.POST.get('submit') == 'calcular'):
+            return self.calcular()
+        elif(request.POST.get('submit') == 'almacenar'):
+            return self.almacenar()
 
 # VISTAS DE DUPLICACIÓN
 class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, DuplicateView):

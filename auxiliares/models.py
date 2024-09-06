@@ -1525,7 +1525,7 @@ class SalidaEvaluacionPrecalentadorAire(models.Model):
     ensuciamiento = models.FloatField()
     ntu = models.FloatField()
     eficiencia = models.FloatField()
-    u_diseno = models.FloatField()
+    u_diseno = models.FloatField(null=True)
     cp_aire_entrada = models.FloatField()
     cp_aire_salida = models.FloatField()
     cp_gas_entrada = models.FloatField()
@@ -1575,7 +1575,8 @@ class EntradaLado(models.Model):
     temp_entrada = models.FloatField("Temperatura de Entrada")
     temp_salida = models.FloatField("Temperatura de Salida")
     temp_unidad = models.ForeignKey(Unidades, models.CASCADE, related_name="entrada_lado_temp_unidad")
-    cp_prom = models.FloatField()
+    cp_entrada = models.FloatField()
+    cp_salida = models.FloatField()
     lado = models.CharField(max_length=1, choices=(("A","Aire"),("G","Gases")))
     evaluacion = models.ForeignKey(EvaluacionPrecalentadorAire, on_delete=models.CASCADE, related_name="entrada_lado")
 
