@@ -425,7 +425,7 @@ class EvaluacionPrecalentadorAireForm(forms.ModelForm):
 class EntradaLadoForm(forms.ModelForm):
     class Meta:
         model = EntradaLado
-        exclude = ("pk", "evaluacion", "lado", "cp_prom")
+        exclude = ("id", "evaluacion", "lado", "cp_prom")
 
 class ComposicionesEvaluacionPrecalentadorAireForm(forms.ModelForm):
     class Meta:
