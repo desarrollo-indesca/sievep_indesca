@@ -26,20 +26,20 @@
                 </thead>
                 <tbody>
                   {% with lado_aire=evaluacion.entrada_lado.first %}
-                  {% with lado_aire=evaluacion.entrada_lado.last %}
+                  {% with lado_gas=evaluacion.entrada_lado.last %}
                   <tr>                  
                     <th>Flujo Másico</th>
-                    <td>{{lado_aire.flujo|floatformat:4}} {{lado_aire.flujo_unidad}}</td>
+                    <td>{{lado_aire.flujo}} {{lado_aire.flujo_unidad}}</td>
                     <td>{{lado_gas.flujo}} {{lado_gas.flujo_unidad}}</td>
                   </tr>
                   <tr>                  
                     <th>Temp. Entrada</th>
-                    <td>{{lado_aire.temp_entrada|floatformat:4}} {{lado_aire.temp_unidad}}</td>
+                    <td>{{lado_aire.temp_entrada}} {{lado_aire.temp_unidad}}</td>
                     <td>{{lado_gas.temp_entrada}} {{lado_gas.temp_unidad}}</td>                
                   </tr>
                   <tr>                  
                     <th>Temp. Salida</th>
-                    <td>{{lado_aire.temp_salida|floatformat:4}} {{lado_aire.temp_unidad}}</td>
+                    <td>{{lado_aire.temp_salida}} {{lado_aire.temp_unidad}}</td>
                     <td>{{lado_gas.temp_salida}} {{lado_gas.temp_unidad}}</td>                
                   </tr>
                   {% endwith %}
@@ -61,7 +61,8 @@
                 <tbody>
                   {% with lado_aire=evaluacion.entrada_lado.first %}
                   {% with lado_gases=evaluacion.entrada_lado.last %}
-                  {% for composicion in lado_gases.composiciones %}
+                  {{lado_aire.composiciones}}
+                  {% for composicion in lado_gases.composicion_combustible.all %}
                   <tr>
                     <th class="table-dark">{{composicion.fluido}}</th>
                     <td>{{composicion.porcentaje}}</td>
@@ -74,7 +75,7 @@
                     <th>Fluido</th>
                     <th>% Volumen</th>
                   </tr>
-                  {% for composicion in lado_aire.composiciones %}
+                  {% for composicion in lado_aire.composicion_combustible.all %}
                   <tr>
                     <th class="table-dark">{{composicion.fluido}}</th>
                     <td>{{composicion.porcentaje}}</td>

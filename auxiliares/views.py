@@ -3033,7 +3033,8 @@ class EvaluarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAireM
             evaluacion = EvaluacionPrecalentadorAireForm(
                 self.request.POST
             )
-            if(evaluacion.is_valid()):
+            valid = evaluacion.is_valid()
+            if(valid):
                 evaluacion.instance.salida = salida
                 evaluacion.instance.equipo = precalentador
                 evaluacion.instance.usuario = self.request.user
@@ -3043,7 +3044,8 @@ class EvaluarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAireM
                 self.request.POST,
                 prefix='aire'
             )
-            if(entrada_aire.is_valid()):
+            valid = valid and entrada_aire.is_valid()
+            if(valid):
                 entrada_aire.instance.evaluacion = evaluacion.instance
                 entrada_aire.instance.lado = 'A'
                 entrada_aire = entrada_aire.save()
@@ -3052,9 +3054,10 @@ class EvaluarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAireM
 
             entrada_gas = EntradaLadoForm(
                 self.request.POST,
-                prefix='aire'
+                prefix='gases'
             )
-            if(entrada_gas.is_valid()):
+            valid = valid and entrada_gas.is_valid()
+            if(valid):
                 entrada_gas.instance.evaluacion = evaluacion.instance
                 entrada_gas.instance.lado = 'G'
                 entrada_gas = entrada_gas.save()
@@ -3068,7 +3071,9 @@ class EvaluarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAireM
                 )
                 form.instance.entrada = entrada_gas
                 form.instance.compuesto = compuesto
-                form.save()
+                valid = valid and form.is_valid()
+                if form.is_valid():
+                    form.save()
 
             for compuesto in precalentador.condicion_fluido.first().composiciones.all():
                 form = ComposicionesEvaluacionPrecalentadorAireForm(
@@ -3077,7 +3082,12 @@ class EvaluarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAireM
                 )
                 form.instance.entrada = entrada_aire
                 form.instance.compuesto = compuesto
-                form.save()
+                valid = valid and form.is_valid()
+                if form.is_valid():
+                    form.save()
+
+            if(not valid):
+                raise Exception("No se pudo almacenar la evaluación.")
 
         return render(self.request, 'precalentadores_aire/partials/almacenamiento_exitoso.html', context={
             'precalentador': precalentador,

@@ -1555,6 +1555,7 @@ class EvaluacionPrecalentadorAire(models.Model):
 
     class Meta:
         db_table = "precalentador_aire_evaluacion"
+        ordering = ('-fecha', )
 
 class EntradaLado(models.Model):
     '''
@@ -1580,6 +1581,7 @@ class EntradaLado(models.Model):
 
     class Meta:
         db_table = "precalentador_aire_evaluacion_entradalado"
+        ordering = ('lado',)
 
 class ComposicionesEvaluacionPrecalentadorAire(models.Model):
     '''
