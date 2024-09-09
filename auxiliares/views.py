@@ -2468,7 +2468,7 @@ class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorA
         elif(request.POST.get('tipo') == "almacenar"):
                 return self.almacenar()
             
-class GenerarGraficaPrecalentadorAire(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
+class GenerarGraficaPrecalentadorAgua(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
     """
     Resumen:
         Vista AJAX que envía los datos necesarios para la gráfica histórica de evaluaciones de precalentadores de aire.
@@ -3087,7 +3087,9 @@ class EvaluarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAireM
                     form.save()
 
             if(not valid):
-                raise Exception("No se pudo almacenar la evaluación.")
+                return render(self.request, 'precalentadores_aire/partials/almacenamiento_fallido.html', context={
+                    'precalentador': precalentador,
+                })
 
         return render(self.request, 'precalentadores_aire/partials/almacenamiento_exitoso.html', context={
             'precalentador': precalentador,
@@ -3098,6 +3100,33 @@ class EvaluarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAireM
             return self.calcular()
         elif(request.POST.get('submit') == 'almacenar'):
             return self.almacenar()
+
+class GenerarGraficaPrecalentadorAire(SuperUserRequiredMixin, FiltrarEvaluacionesMixin, ObtenerPrecalentadorAireMixin, View):
+    """
+    Resumen:
+        Vista para generar la grafica de la eficiencia de un precalentador de aire. 
+
+    Métodos:
+        get(self, request, *args, **kwargs)
+    """
+
+    def get(self, request, *args, **kwargs):
+        precalentador = self.get_precalentador()
+        evaluaciones = EvaluacionPrecalentadorAire.objects.filter(activo = True, equipo = precalentador).select_related('salida').order_by('fecha')
+        
+        evaluaciones = self.filtrar(request, evaluaciones)
+        
+        res = []
+        for evaluacion in evaluaciones:
+            salida = evaluacion.salida
+            res.append({
+                'fecha': evaluacion.fecha.__str__(),
+                'u': salida.u,
+                'eficiencia': salida.eficiencia,
+                'ensuciamiento': salida.ensuciamiento,
+            })
+
+        return JsonResponse(res[:15], safe=False)
 
 # VISTAS DE DUPLICACIÓN
 class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, DuplicateView):
