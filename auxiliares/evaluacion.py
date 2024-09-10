@@ -933,8 +933,7 @@ def calcular_factor_lmtd(t1_aire, t2_aire, t1_gas, t2_gas):
     e=0.0501
 
     factor = a+b*R+c*P+d*R**2+e*P**2
-
-    lmtd = abs(((t1_gas-t1_aire)-(t2_gas-t2_aire))/math.log((t1_gas-t1_aire)/(t2_gas-t2_aire)))
+    lmtd = abs(((t1_gas-t2_aire)-(t2_gas-t1_aire))/math.log((t1_gas-t2_aire)/(t2_gas-t1_aire)))
 
     return lmtd, factor
 
@@ -982,17 +981,17 @@ def evaluar_precalentador_aire(t1_aire: float, t2_aire: float,
     composicion_aire = calcular_cps(t1_aire, 'entrada', composicion_aire)
     composicion_aire = calcular_cps(t2_aire, 'salida', composicion_aire)
 
-    composicion_aire = normalizar_composicion(composicion_gas)
+    composicion_aire = normalizar_composicion(composicion_aire)
     composicion_gas = normalizar_composicion(composicion_gas)
 
     cp_aire_entrada,cp_aire_salida = calcular_cp_promedio(composicion_aire)
     cp_gas_entrada,cp_gas_salida = calcular_cp_promedio(composicion_gas)  
 
-    q_aire = (cp_aire_salida+cp_aire_entrada)/(2*flujo_aire*abs(t1_aire-t2_aire))
-    q_gases = (cp_gas_salida+cp_gas_entrada)/(2*flujo_gas*abs(t1_gas-t2_gas))
+    q_aire = (cp_aire_salida+cp_aire_entrada)/2*flujo_aire*abs(t1_aire-t2_aire)
+    q_gases = (cp_gas_salida+cp_gas_entrada)/2*flujo_gas*abs(t1_gas-t2_gas)
     
     perdida_calor = q_gases-q_aire
-    factor,lmtd = calcular_factor_lmtd(t1_aire, t2_aire, t1_gas, t2_gas)    
+    lmtd,factor = calcular_factor_lmtd(t1_aire, t2_aire, t1_gas, t2_gas)    
     
     area_total = area_total if area_total else 1
     ucalc = q_aire/(area_total*lmtd*factor)
