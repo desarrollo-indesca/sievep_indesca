@@ -2536,7 +2536,26 @@ class ObtenerPrecalentadorAireMixin():
         
         return precalentador
 
-class ConsultaPrecalentadorAire(LoginRequiredMixin, FiltradoSimpleMixin, ObtenerPrecalentadorAireMixin, ListView):
+class ReportesFichasPrecalentadoresAireMixin():
+    """
+    Resumen:
+        Mixin para la reutilización del código para la generación de fichas
+        de precalentadores de aire.
+    """
+    model_ficha = PrecalentadorAire
+    reporte_ficha_xlsx = None
+    titulo_reporte_ficha = "Ficha Técnica del Precalentador de Aire"
+    codigo_reporte_ficha = "ficha_tecnica_precalentadores_aire"
+
+    def reporte_ficha(self, request):
+        if(request.POST.get('ficha')): # FICHA TÉCNICA
+            precalentador = self.get_precalentador(PrecalentadorAire.objects.filter(pk = request.POST.get('ficha'))).first()
+            if(request.POST.get('tipo') == 'pdf'):
+                return generar_pdf(request,precalentador, f"Ficha Técnica del Precalentador de Aire {precalentador.tag}", "ficha_tecnica_precalentadores_aire")
+            if(request.POST.get('tipo') == 'xlsx'):
+                return ficha_tecnica_precalentador_aire(precalentador, request)
+
+class ConsultaPrecalentadorAire(LoginRequiredMixin, ReportesFichasPrecalentadoresAireMixin, FiltradoSimpleMixin, ObtenerPrecalentadorAireMixin, ListView):
     """
     Resumen:
         Vista para la consulta de evaluaciones de precalentadores de aire de Calderas.
@@ -2560,6 +2579,17 @@ class ConsultaPrecalentadorAire(LoginRequiredMixin, FiltradoSimpleMixin, Obtener
 
     def get_queryset(self):
         return self.get_precalentador(self.filtrar_equipos())  
+
+    def post(self, request, *args, **kwargs):
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha): # Si se está deseando generar un reporte de ficha, se genera
+            return reporte_ficha
+
+        if(request.POST.get('tipo') == 'pdf'): # Reporte de Precalentadores en PDF
+            return generar_pdf(request, self.get_queryset(), 'Reporte de Precalentadores de Aire', 'precalentadores_aire')
+        
+        if(request.POST.get('tipo') == 'xlsx'): # reporte de precalentadores en XLSX
+            return reporte_equipos(request, self.get_queryset(), 'Listado de Precalentadores de Aire', 'listado_precalentadores')
 
 class CreacionPrecalentadorAire(SuperUserRequiredMixin, View):
     """
@@ -2809,7 +2839,7 @@ class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalenta
                 }
             )
 
-class ConsultaEvaluacionPrecalentadorAire(ConsultaEvaluacion, ObtenerPrecalentadorAireMixin):
+class ConsultaEvaluacionPrecalentadorAire(ConsultaEvaluacion, ReportesFichasPrecalentadoresAireMixin, ObtenerPrecalentadorAireMixin):
     """
     Resumen:
         Vista para la consulta de evaluaciones de precalentadores de aire.
@@ -2852,7 +2882,7 @@ class ConsultaEvaluacionPrecalentadorAire(ConsultaEvaluacion, ObtenerPrecalentad
             messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
 
         if(request.POST.get('tipo') == 'pdf'):
-            return generar_pdf(request, self.get_queryset(), f"Evaluaciones del Precalentador de Agua {self.get_precalentador().tag}", "reporte_evaluaciones_precalentador")
+            return generar_pdf(request, self.get_queryset(), f"Evaluaciones del Precalentador de Aire {self.get_precalentador().tag}", "reporte_evaluaciones_precalentador")
         elif(request.POST.get('tipo') == 'xlsx'):
             return historico_evaluaciones_precalentador_agua(self.get_queryset(), request)
 

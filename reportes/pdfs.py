@@ -190,7 +190,7 @@ def generar_historia(request, reporte, object_list):
     if reporte == 'evaluacion_detalle':
         return detalle_evaluacion(object_list)
     
-    if reporte in ['bombas', 'ventiladores', 'turbinas_vapor', 'calderas', 'precalentadores_agua']:
+    if reporte in ['bombas', 'ventiladores', 'turbinas_vapor', 'calderas', 'precalentadores_agua', 'precalentadores_aire']:
         return reporte_equipos(request, object_list)
     
     if reporte == 'evaluaciones_bombas':
@@ -3750,17 +3750,26 @@ def evaluaciones_precalentadores_agua(object_list, request):
 
     for evaluacion in object_list:
         fecha = evaluacion.fecha.strftime('%d/%m/%Y %H:%M')
+        try:
+            salida = evaluacion.salida_general
+            ensuciamiento = salida.factor_ensuciamiento
+        except:
+            salida = evaluacion.salida
+            ensuciamiento = salida.ensuciamiento
+
+        eficiencia = salida.eficiencia
+        u = salida.u
 
         table.append([
             Paragraph(fecha, centrar_parrafo),
-            Paragraph(str(round(evaluacion.salida_general.eficiencia, 4)), centrar_parrafo),
-            Paragraph(str(round(evaluacion.salida_general.u, 4)), centrar_parrafo),
-            Paragraph(str(round(evaluacion.salida_general.factor_ensuciamiento, 4)), centrar_parrafo),
+            Paragraph(str(round(eficiencia, 4)), centrar_parrafo),
+            Paragraph(str(round(u, 4)), centrar_parrafo),
+            Paragraph(str(round(ensuciamiento, 4)), centrar_parrafo),
         ])
 
-        ensuciamientos.append(evaluacion.salida_general.factor_ensuciamiento)
-        eficiencias.append(evaluacion.salida_general.eficiencia)
-        us.append(evaluacion.salida_general.u)
+        ensuciamientos.append(ensuciamiento)
+        eficiencias.append(eficiencia)
+        us.append(u)
         fechas.append(fecha)
 
     estilo = TableStyle([
@@ -3951,3 +3960,11 @@ def detalle_evaluacion_precalentadores_agua(evaluacion):
     story.append(Spacer(0,35))
     
     return [story, None]
+
+# Reportes Precalentadores de Aire
+
+def ficha_tecnica_precalentador_aire(precalentador):
+    ...
+
+def detalle_evaluacion_precalentador_aire(precalentador):
+    ...

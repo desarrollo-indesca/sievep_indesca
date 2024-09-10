@@ -1685,7 +1685,13 @@ def historico_evaluaciones_precalentador_agua(object_list, request):
     worksheet.write(f'E{num}', "Ensuciamiento (m²K/W)", bold_bordered)
 
     for i,evaluacion in enumerate(object_list):
-        salida = evaluacion.salida_general
+        try:
+            salida = evaluacion.salida_general
+            ensuciamiento = salida.factor_ensuciamiento
+        except:
+            salida = evaluacion.salida
+            ensuciamiento = salida.ensuciamiento
+
         fecha_ev = evaluacion.fecha.strftime('%d/%m/%Y %H:%M')
 
         num += 1
@@ -1693,7 +1699,7 @@ def historico_evaluaciones_precalentador_agua(object_list, request):
         worksheet.write(f'B{num}', fecha_ev, center_bordered)
         worksheet.write(f'C{num}', salida.eficiencia, center_bordered)
         worksheet.write(f'D{num}', salida.u, center_bordered)
-        worksheet.write(f'E{num}', salida.factor_ensuciamiento, center_bordered)
+        worksheet.write(f'E{num}', ensuciamiento, center_bordered)
 
     worksheet.write(f"J{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
     worksheet.write(f"J{num+2}", "Generado por " + request.user.get_full_name(), fecha)
