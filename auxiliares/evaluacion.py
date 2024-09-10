@@ -994,7 +994,7 @@ def evaluar_precalentador_aire(t1_aire: float, t2_aire: float,
     perdida_calor = q_gases-q_aire
     lmtd,factor = calcular_factor_lmtd(t1_aire, t2_aire, t1_gas, t2_gas)  
         
-    area_total = 1489
+    area_total = area_total if area_total else 1
     ucalc = q_aire/(area_total*lmtd*factor)
     rf = 1/ucalc - 1/u if u else 0
 

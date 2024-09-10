@@ -27,7 +27,7 @@
             {% csrf_token %}
             <div class="col-12 mb-3">
                 {{forms.form_evaluacion.nombre.label_tag}}
-                {% render_field forms.form_evaluacion.nombre class="form-control" %}
+                {% render_field forms.form_evaluacion.nombre class="form-control" placeholder="Nombre descriptivo de la evaluación" %}
             </div>
             <div class="col-6">
                 <div class="row">
@@ -39,7 +39,7 @@
                     <div class="col-12">
                         {{forms.form_entrada_aire.flujo.label_tag}}
                         <div class="input-group">
-                            {% render_field forms.form_entrada_aire.flujo class="form-control" placeholder="Flujo Másico" %}
+                            {% render_field forms.form_entrada_aire.flujo class="form-control" placeholder="Flujo Másico" min="0" %}
                             <select name="aire-flujo_unidad" class="form-select" id="id_aire-flujo_unidad">
                                 {% include 'unidades.html' with unidades=unidades tipo='F' %}
                             </select>
@@ -48,7 +48,7 @@
                     <div class="col-6">
                         {{forms.form_entrada_aire.temp_entrada.label_tag}}
                         <div class="input-group">
-                            {% render_field forms.form_entrada_aire.temp_entrada class="form-control" placeholder="Temp. Salida"  %}
+                            {% render_field forms.form_entrada_aire.temp_entrada class="form-control" placeholder="Temp. Salida" min="-273.15" %}
                             <select name="aire-temp_unidad" class="form-select" id="id_aire-temp_unidad">
                                 {% include 'unidades.html' with unidades=unidades tipo='T' %}
                             </select>
@@ -57,7 +57,7 @@
                     <div class="col-6">
                         {{forms.form_entrada_aire.temp_salida.label_tag}}
                         <div class="input-group">
-                            {% render_field forms.form_entrada_aire.temp_salida class="form-control" placeholder="Temp. Entrada"  %}
+                            {% render_field forms.form_entrada_aire.temp_salida class="form-control" placeholder="Temp. Entrada" min="-273.15" %}
                             <select name="aire-temp_salida_unidad" class="form-select" id="id_aire-temp_entrada_unidad">
                                 {% include 'unidades.html' with unidades=unidades tipo='T' %}
                             </select>
@@ -77,7 +77,7 @@
                                 <tr>
                                     <th>{{form.fluido}}</th>
                                     <td>
-                                        {% render_field form.form.porcentaje class="form-control porc-vol" placeholder="% Volumen Aire" %}
+                                        {% render_field form.form.porcentaje class="form-control porc-aire" placeholder="% Volumen Aire" min="0" %}
                                         {% render_field form.form.fluido %}
                                     </td>
                                 </tr>
@@ -96,7 +96,7 @@
                     <div class="col-12">
                         {{forms.form_entrada_gases.flujo.label_tag}}
                         <div class="input-group">
-                            {% render_field forms.form_entrada_gases.flujo class="form-control" placeholder="Flujo Másico" %}
+                            {% render_field forms.form_entrada_gases.flujo class="form-control" placeholder="Flujo Másico" min="0.0001" %}
                             <select name="gases-flujo_unidad" class="form-select" id="id_gases-flujo_unidad">
                                 {% include 'unidades.html' with unidades=unidades tipo='F' %}
                             </select>
@@ -105,7 +105,7 @@
                     <div class="col-6">
                         {{forms.form_entrada_gases.temp_entrada.label_tag}}
                         <div class="input-group">
-                            {% render_field forms.form_entrada_gases.temp_entrada class="form-control" placeholder="Temp. Salida"  %}
+                            {% render_field forms.form_entrada_gases.temp_entrada class="form-control" placeholder="Temp. Salida" min="-273.15"  %}
                             <select name="gases-temp_unidad" class="form-select" id="id_gases-temp_unidad">
                                 {% include 'unidades.html' with unidades=unidades tipo='T' %}
                             </select>
@@ -114,7 +114,7 @@
                     <div class="col-6">
                         {{forms.form_entrada_gases.temp_salida.label_tag}}
                         <div class="input-group">
-                            {% render_field forms.form_entrada_gases.temp_salida class="form-control" placeholder="Temp. Entrada"  %}
+                            {% render_field forms.form_entrada_gases.temp_salida class="form-control" placeholder="Temp. Entrada" min="-273.15" %}
                             <select name="gases-temp_salida_unidad" class="form-select" id="id_gases-temp_entrada_unidad">
                                 {% include 'unidades.html' with unidades=unidades tipo='T' %}
                             </select>
@@ -133,7 +133,7 @@
                                 <tr>
                                     <th>{{form.fluido}}</th>
                                     <td>
-                                        {% render_field form.form.porcentaje class="form-control porc-vol" placeholder="% Volumen Aire" %}
+                                        {% render_field form.form.porcentaje class="form-control porc-vol" placeholder="% Volumen Aire" min="0" %}
                                         {% render_field form.form.fluido %}
                                     </td>
                                 </tr>
@@ -163,5 +163,6 @@
 </div>
 {% endblock %}
 
-{% block extra_javascript %}
+{% block extra_javascript %}^
+<script src="/static/js/auxiliares/precalentadores_aire/evaluacion.js"></script>
 {% endblock %}
