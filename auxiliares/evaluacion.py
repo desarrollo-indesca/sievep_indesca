@@ -911,12 +911,13 @@ def calcular_eficiencia_precalentador_aire(c, ntu, minimo):
     Devuelve:
         float: La eficiencia del precalentador.
     """
+    print(minimo)
     if(minimo == "T"):
-        eficiencia = 1/c*(1-math.exp(-1*c*(1-1*math.exp(-1*ntu))));
+        eficiencia = 1/c*(1-math.exp(-1*c*(1-1*math.exp(-1*ntu))))
     else:
-        eficiencia = 1-math.exp(-1/c*math.exp(1-math.exp(-1*ntu*c)));
+        eficiencia = 1-math.exp(-1/c*math.exp(1-math.exp(-1*ntu*c)))
 
-    return eficiencia
+    return eficiencia*100
 
 def calcular_cp_promedio(composicion: dict) -> float:
     """
@@ -924,13 +925,13 @@ def calcular_cp_promedio(composicion: dict) -> float:
     return sum([x[f'cp_entrada']*x['composicion'] for x in composicion]), sum([x[f'cp_salida']*x['composicion'] for x in composicion])
 
 def calcular_factor_lmtd(t1_aire, t2_aire, t1_gas, t2_gas):
-    P=abs((t2_aire-t1_aire)/(t1_gas-t2_aire))
-    R=abs((t1_gas-t2_gas)/(t2_aire-t1_aire))
-    a=1.4284
-    b=-0.2616
-    c=-0.8447
-    d=0.0385
-    e=0.0501
+    P = abs((t2_aire-t1_aire)/(t1_gas-t1_aire))
+    R = abs((t1_gas-t2_gas)/(t2_aire-t1_aire))
+    a = 1.4284
+    b = -0.2616
+    c = -0.8447
+    d = 0.0385
+    e = 0.0501
 
     factor = a+b*R+c*P+d*R**2+e*P**2
     lmtd = abs(((t1_gas-t2_aire)-(t2_gas-t1_aire))/math.log((t1_gas-t2_aire)/(t2_gas-t1_aire)))
@@ -938,8 +939,8 @@ def calcular_factor_lmtd(t1_aire, t2_aire, t1_gas, t2_gas):
     return lmtd, factor
 
 def calcular_cs(flujo_aire, flujo_gas, cp_aire_entrada, cp_aire_salida, cp_gas_entrada, cp_gas_salida) -> dict:
-    ct = flujo_aire*(cp_aire_salida-cp_aire_entrada)/2
-    cc = flujo_gas*(cp_gas_salida-cp_gas_entrada)/2
+    ct = flujo_aire*(cp_aire_salida+cp_aire_entrada)/2
+    cc = flujo_gas*(cp_gas_salida+cp_gas_entrada)/2
     if(ct<cc):
         cmin = ct
         cmax = cc
@@ -991,16 +992,16 @@ def evaluar_precalentador_aire(t1_aire: float, t2_aire: float,
     q_gases = (cp_gas_salida+cp_gas_entrada)/2*flujo_gas*abs(t1_gas-t2_gas)
     
     perdida_calor = q_gases-q_aire
-    lmtd,factor = calcular_factor_lmtd(t1_aire, t2_aire, t1_gas, t2_gas)    
-    
-    area_total = area_total if area_total else 1
+    lmtd,factor = calcular_factor_lmtd(t1_aire, t2_aire, t1_gas, t2_gas)  
+        
+    area_total = 1489
     ucalc = q_aire/(area_total*lmtd*factor)
     rf = 1/ucalc - 1/u if u else 0
 
     c, cmin, minimo = calcular_cs(flujo_aire, flujo_gas, cp_aire_entrada, cp_aire_salida, cp_gas_entrada, cp_gas_salida)
     ntu = ucalc*area_total/cmin
     
-    eficiencia = calcular_eficiencia_precalentador_aire(ntu, c, minimo)
+    eficiencia = calcular_eficiencia_precalentador_aire(c, ntu, minimo)
 
     return {
         'eficiencia': eficiencia,

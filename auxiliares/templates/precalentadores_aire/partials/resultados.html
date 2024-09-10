@@ -63,11 +63,11 @@
         </tbody>
     </table>
 
+    {% if 0 > resultados.perdida_calor %}
     <div class="alert alert-danger" role="alert">
-        {% if 0 > resultados.perdida_calor %}
         La pérdida de calor no es válida de acuerdo a las leyes termodinámicas. Revise antes de almacenar.
-        {% endif %}
     </div>
+    {% endif %}
 </div>
 
 <button value="almacenar" name="submit" id="submit" type="submit" class="btn btn-danger" hx-swap-oob="true">Almacenar Resultados</button>
