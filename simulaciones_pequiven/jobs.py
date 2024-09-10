@@ -271,7 +271,7 @@ def delete_calderas_copies():
         economizador.delete()
 
 def delete_precalentadores_aire_copies():
-    from auxiliares.models import PrecalentadorAire, CondicionFluido, Composicion
+    from auxiliares.models import PrecalentadorAire, CondicionFluido, Composicion, EvaluacionPrecalentadorAire
 
     precalentadores = PrecalentadorAire.objects.filter(copia=True).select_related(
             'planta', 'planta__complejo', 'creado_por', 'editado_por',
@@ -286,11 +286,26 @@ def delete_precalentadores_aire_copies():
                         'fluido'
                 )),
             )),
+            Prefetch('evaluacion_precalentador', EvaluacionPrecalentadorAire.objects.select_related(
+                'salida'
+            ).prefetch_related(
+                'evaluacion_precalentador__entrada_lado',
+                'evaluacion_precalentador__composicion_combustible'
+            )),
+            
         )
     
     for precalentador in precalentadores:
         for condicion in precalentador.condicion_fluido.all():
             condicion.composiciones.all().delete()
+
+        for evaluacion in precalentador.evaluacion_precalentador.all():
+            for entrada in evaluacion.entrada_lado.all():
+                entrada.composicion_combustible.all().delete()
+                
+            evaluacion.entrada_lado.all().delete()
+            evaluacion.delete()
+            evaluacion.salida.delete()
 
         precalentador.condicion_fluido.all().delete()
         precalentador.delete()
