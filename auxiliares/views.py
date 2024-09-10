@@ -3257,6 +3257,7 @@ class DuplicarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAire
 
             precalentador.especificaciones = especificaciones
             precalentador.copia = True
+            precalentador.tag = generate_nonexistent_tag(PrecalentadorAire, precalentador.tag)
             precalentador = self.copy(precalentador)
 
             condicion_aire_original = precalentador_original.condicion_fluido.first()

@@ -289,8 +289,8 @@ def delete_precalentadores_aire_copies():
             Prefetch('evaluacion_precalentador', EvaluacionPrecalentadorAire.objects.select_related(
                 'salida'
             ).prefetch_related(
-                'evaluacion_precalentador__entrada_lado',
-                'evaluacion_precalentador__composicion_combustible'
+                'entrada_lado',
+                'entrada_lado__composicion_combustible'
             )),
             
         )
@@ -335,5 +335,5 @@ def start_deleting_job():
     """
     
     scheduler = Scheduler()
-    scheduler.every(10).seconds.do(delete_copies)
+    scheduler.every().day.at("06:00").do(delete_copies)
     scheduler.run_continuously()
