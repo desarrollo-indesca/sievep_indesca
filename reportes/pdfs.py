@@ -4323,19 +4323,19 @@ def detalle_evaluacion_precalentador_aire(evaluacion):
             Paragraph(f"{round(salida.ntu, 2)}", centrar_parrafo),
         ],
         [
-            Paragraph("CP Aire Entrada (J/Kg)", centrar_parrafo),
+            Paragraph("CP Aire Entrada (J/KgK)", centrar_parrafo),
             Paragraph(f"{round(salida.cp_aire_entrada, 2)}", centrar_parrafo),
         ],
         [
-            Paragraph("CP Aire Salida (J/Kg)", centrar_parrafo),
+            Paragraph("CP Aire Salida (J/KgK)", centrar_parrafo),
             Paragraph(f"{round(salida.cp_aire_entrada, 2)}", centrar_parrafo),
         ],
         [
-            Paragraph("CP Gas Entrada (J/Kg)", centrar_parrafo),
+            Paragraph("CP Gas Entrada (J/KgK)", centrar_parrafo),
             Paragraph(f"{round(salida.cp_gas_entrada, 2)}", centrar_parrafo),
         ],
         [
-            Paragraph("CP Gas Salida (J/Kg)", centrar_parrafo),
+            Paragraph("CP Gas Salida (J/KgK)", centrar_parrafo),
             Paragraph(f"{round(salida.cp_gas_salida, 2)}", centrar_parrafo),
         ],
     ]

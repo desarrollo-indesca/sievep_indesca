@@ -41,7 +41,10 @@ $("form").change((e) => {
 });
 
 document.body.addEventListener("htmx:beforeRequest", function (evt) {
-    document.body.style.opacity = 0.8;
+    if(confirm("¿Está seguro de que desea realizar esta acción?"))
+        document.body.style.opacity = 0.8;
+    else
+        evt.preventDefault();
 });
 
 document.body.addEventListener("htmx:afterRequest", function (evt) {

@@ -1084,11 +1084,15 @@ class PrecalentadorAgua(models.Model):
         tag: models.CharField -> Tag único para el precalentador de agua.
         descripcion: models.CharField -> Descripción del servicio o funciones del equipo.
         fabricante: models.CharField -> Nombre del fabricante del equipo.
+        copia: models.BooleanField -> Indica si es una copia de un precalentador de agua existente. Las copias se eliminan a las 6am.
         planta: Planta -> Planta donde se encuenta el precalentador de agua.
         creado_al: models.DateTimeField -> Tiempo de creación del equipo.
         editado_al: models.DateTimeField -> Tiempo de última edición del equipo.
         creado_por: Usuario -> Usuario que creó el equipo.
         editado_por: Usuario -> Usuario que editó el equipo por última vez.
+        datos_corrientes: DatosCorrientesPrecalentadorAgua -> Datos de las corrientes del precalentador de agua
+        u: models.FloatField -> Coeficiente Global de Transferencia por Balance General
+        u_unidad: Unidades -> Unidad del coeficiente Global de Transferencia por Balance General
     '''
 
     tag = models.CharField("Tag", max_length=45, unique=True)
@@ -1225,6 +1229,7 @@ class CorrientePrecalentadorAgua(models.Model):
         fase: CharField -> Fase en la que se encuentra el fluido (Líquido, Vapor o Saturado)
         lado: CharField -> Lado del precalentador por donde circula la corriente (Carcasa o Tubos)
         rol: CharField -> Rol que cumple la corriente en el precalentador (Entrada o Salida)
+        datos_corriente: ForeignKey -> Datos de la corriente
     '''
 
     nombre = models.CharField(max_length=60)
@@ -1274,6 +1279,8 @@ class SalidaGeneralPrecalentadorAgua(models.Model):
         calor_tubos: FloatField -> Calor de los Tubos
         calor_unidad: ForeignKey -> Unidad del calor
         eficiencia: FloatField -> Eficiencia Térmica
+        perdida_ambiente: BooleanField -> Perdida de Ambiente
+        invalido: BooleanField -> Bandera que indica si los resultados pueden ser invalidos en base a leyes termodinámicas
     '''
 
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
@@ -1310,6 +1317,8 @@ class DatosCorrientesEvaluacionPrecalentadorAgua(models.Model):
         flujo_unidad: Unidades -> Unidad del flujo
         presion_unidad: Unidades -> Unidad de la presión
         temperatura_unidad: Unidades -> Unidad de la temperatura
+        entalpia_unidad: Unidades -> Unidad de la entalpía
+        densidad_unidad: Unidades -> Unidad de la densidad
     """
     flujo_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="flujo_unidad_corriente_evaluacion_precalentador_agua")
     presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="presion_unidad_corriente_evaluacion_precalentador_agua")
@@ -1330,7 +1339,10 @@ class EvaluacionPrecalentadorAgua(models.Model):
         fecha: DateTimeField -> Fecha de la evaluación
         salida_general: OneToOneField -> Salida general de la evaluación
         usuario: ForeignKey -> Usuario que realizó la evaluación
-        precalentador: ForeignKey -> Precalentador de agua evaluado
+        equipo: ForeignKey -> Precalentador de agua evaluado
+        datos_corrientes: ForeignKey -> Datos de las corrientes de la evaluación
+        usuario: ForeignKey -> Usuario que realizó la evaluación
+        activo: BooleanField -> Evaluación activa o inactiva
     '''
 
     id = models.UUIDField(primary_key=True, default= uuid.uuid4)
@@ -1358,7 +1370,9 @@ class CorrientesEvaluacionPrecalentadorAgua(models.Model):
         temperatura: FloatField -> Temperatura bajo la que circula la corriente
         entalpia: FloatField -> Entalpía de la corriente
         densidad: FloatField -> Densidad del fluido circulante
+        cp: FloatField -> Capacidad Calorifica del fluido
         fase: CharField -> Fase en la que se encuentra el fluido (Líquido, Vapor o Saturado)
+        datos_corrientes: ForeignKey -> Datos de las corrientes de la evaluación
         corriente: ForeignKey -> Corriente
     '''
 
@@ -1381,7 +1395,6 @@ class CorrientesEvaluacionPrecalentadorAgua(models.Model):
         ordering = ("corriente__rol",)
 
 # MODELOS DE PRECALENTADOR DE AIRE
-
 class EspecificacionesPrecalentadorAire(models.Model):
     '''
     Resumen:
@@ -1395,7 +1408,13 @@ class EspecificacionesPrecalentadorAire(models.Model):
         longitud_unidad: ForeignKey -> Unidad de la longitud del precalentador
         superficie_calentamiento: FloatField -> Superficie de calentamiento del precalentador
         area_transferencia: FloatField -> Área de transferencia de calor del precalentador
-        area_unidad: ForeignKey -> Unidad del área de transferencia de calor
+        area_unidad: ForeignKey -> Unidad del área de transferencia de calor.
+        temp_operacion: FloatField -> Temperatura de operación del precalentador
+        temp_unidad: ForeignKey -> Unidad de la temperatura de operación del precalentador
+        presion_operacion: FloatField -> Presión de operación del precalentador
+        presion_unidad: ForeignKey -> Unidad de la presión del precalentador
+        u: FloatField -> Coeficiente de transferencia de calor del precalentador
+        u_unidad: ForeignKey -> Unidad del coeficiente de transferencia de calor        
     '''
     material = models.CharField(max_length=45, null=True, blank=True)
     espesor = models.FloatField("Espesor de las Tuberías", null=True, blank=True)
@@ -1426,7 +1445,9 @@ class PrecalentadorAire(models.Model):
         fabricante: CharField -> Nombre del fabricante del equipo.
         modelo: CharField -> Número de modelo del precalentador de aire.
         tipo: CharField -> Tipo de precalentador de aire.
+        copia: BooleanField -> Indica si es una copia de un precalentador de aire existente. Las copias se eliminan a las 6am.
         especificaciones: OneToOneField -> Referencia a las especificaciones del precalentador.
+        * Los demás datos son simplemente de control.
     '''
     tag = models.CharField(max_length=45, unique=True)
     descripcion = models.CharField("Descripción del Equipo", max_length=80)
@@ -1502,22 +1523,22 @@ class Composicion(models.Model):
 class SalidaEvaluacionPrecalentadorAire(models.Model):
     '''
     Resumen:
-        Modelos que registra la salida de los precalentadores de aire.
+        Modelo que registra la salida de los precalentadores de aire.
 
     Atributos:
-        calor_aire: FloatField -> Calor transferido al aire.
-        calor_gas: FloatField -> Calor transferido al gas.
-        calor_perdido: FloatField -> Calor perdido sistema.
-        lmtd: FloatField -> Logaritmo medio de la diferencia de temperaturas.
-        u: FloatField -> Coeficiente de transferencia de calor.
-        ensuciamiento: FloatField -> Factor de ensuciamiento.
+        calor_aire: FloatField -> Calor transferido al aire [W].
+        calor_gas: FloatField -> Calor transferido al gas [W].
+        calor_perdido: FloatField -> Calor perdido sistema [W]. No debe ser negativo en la mayoría de los casos, pero es a juicio del usuario.
+        lmtd: FloatField -> Logaritmo medio de la diferencia de temperaturas. [°C].
+        u: FloatField -> Coeficiente de transferencia de calor. [W/m^2/K].
+        ensuciamiento: FloatField -> Factor de ensuciamiento. [m^2*K/W].
         ntu: FloatField -> Número de unidades de transferencia.
-        eficiencia: FloatField -> Eficiencia del precalentador de aire.
-        u_diseno: FloatField -> Coeficiente de transferencia de calor para el diseno.
-        cp_aire_entrada: FloatField -> Presión de calor del aire de entrada.
-        cp_aire_salida: FloatField -> Presión de calor del aire de salida.
-        cp_gas_entrada: FloatField -> Presión de calor del gas de entrada.
-        cp_aire_salida: FloatField -> Presión de calor del gas de salida.
+        eficiencia: FloatField -> Eficiencia del precalentador de aire. [%].
+        u_diseno: FloatField -> Coeficiente de transferencia de calor para el diseno. Se toma de la BDD. [W/m^2/K].
+        cp_aire_entrada: FloatField -> Capacidad Calorífica del aire de entrada. [J/KgK].
+        cp_aire_salida: FloatField -> Capacidad Calorífica del aire de salida. [J/KgK].
+        cp_gas_entrada: FloatField -> Capacidad Calorífica del gas de entrada. [J/KgK].
+        cp_gas_salida: FloatField -> Capacidad Calorífica del gas de salida. [J/KgK].
     '''
     id = models.UUIDField(primary_key=True, default = uuid.uuid4)
     calor_aire = models.FloatField()
@@ -1540,13 +1561,15 @@ class SalidaEvaluacionPrecalentadorAire(models.Model):
 class EvaluacionPrecalentadorAire(models.Model):
     '''
     Resumen:
-        Modelos que registra la evaluación de los precalentadores de aire.
+        Modelo que registra la evaluación de los precalentadores de aire.
     
     Atributos:
         nombre: CharField -> Nombre de la evaluacion.
         fecha: DateTimeField -> Fecha de la evaluacion.
-        precalentador: PrecalentadorAire -> Precalentador de Aire asociado.
+        equipo: PrecalentadorAire -> Precalentador de Aire asociado.
         salida: SalidaEvaluacionPrecalentadorAire -> Datos de Salida de la evaluacion.
+        usuario: Usuario -> Usuario que realizó la evaluación.
+        activo: BooleanField -> Evaluación activa o inactiva.
     '''
     id = models.UUIDField(primary_key=True, default = uuid.uuid4)
     nombre = models.CharField(max_length=100)
@@ -1592,7 +1615,7 @@ class ComposicionesEvaluacionPrecalentadorAire(models.Model):
         Modelos que registra la composición de combustible de los precalentadores de aire.
     
     Atributos:
-        evaluacion: ForeignKey -> Evaluación del precalentador de aire a la que se refiere la composición.
+        entrada: ForeignKey -> Dato de entrada relacionado al fluido del precalentador de aire a la que se refiere la composición.
         fluido: ForeignKey -> Fluidos que se encuentran en la composición.
         porcentaje: FloatField -> Porcentaje de la composición.
     '''
