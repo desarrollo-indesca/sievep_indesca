@@ -4234,8 +4234,8 @@ def detalle_evaluacion_precalentador_aire(evaluacion):
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
 
-        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
-        ('BACKGROUND', (0, 0), (1, -1), sombreado),
+        ('BACKGROUND', (0, 0), (-1, 1), sombreado),
+        ('BACKGROUND', (0, 0), (0, -1), sombreado),
 
         ('SPAN', (0,0), (-1,0)),
     ])
@@ -4272,17 +4272,6 @@ def detalle_evaluacion_precalentador_aire(evaluacion):
         ],
     ]
 
-    estilo = TableStyle([
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-
-        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
-        ('BACKGROUND', (0, 0), (1, -1), sombreado),
-        ('BACKGROUND', (7, 0), (8, -1), sombreado),
-
-        ('SPAN', (0,0), (-1,0)),
-    ])
-
     table = Table(table, style=estilo)
 
     story.append(table)
@@ -4299,67 +4288,57 @@ def detalle_evaluacion_precalentador_aire(evaluacion):
         ],
         [
             Paragraph("Calor Aire (W)", centrar_parrafo),
-            Paragraph(f"{salida.calor_aire}", centrar_parrafo),
+            Paragraph(f"{round(salida.calor_aire, 2)}", centrar_parrafo),
         ],
         [
             Paragraph("Calor Gases (W)", centrar_parrafo),
-            Paragraph(f"{salida.calor_gas}", centrar_parrafo),
+            Paragraph(f"{round(salida.calor_gas, 2)}", centrar_parrafo),
         ],
         [
             Paragraph("Calor Perdido (W)", centrar_parrafo),
-            Paragraph(f"{salida.calor_perdido}", centrar_parrafo),
+            Paragraph(f"{round(salida.calor_perdido, 2)}", centrar_parrafo),
         ],
         [
             Paragraph("LMTD (°C)", centrar_parrafo),
-            Paragraph(f"{salida.lmtd}", centrar_parrafo),
+            Paragraph(f"{round(salida.lmtd, 2)}", centrar_parrafo),
         ],
         [
             Paragraph("Coeficiente Global de Transferencia U Calculado (W/m²K)", centrar_parrafo),
-            Paragraph(f"{salida.u}", centrar_parrafo),
+            Paragraph(f"{round(salida.u, 2)}", centrar_parrafo),
         ],
         [
             Paragraph("Coeficiente Global de Transferencia U Diseño (W/m²K)", centrar_parrafo),
-            Paragraph(f"{salida.u_diseno if salida.u_diseno else '—'}", centrar_parrafo),
+            Paragraph(f"{round(salida.u_diseno, 2) if salida.u_diseno else '—'}", centrar_parrafo),
         ],
         [
             Paragraph("Ensuciamiento (m²K/W)", centrar_parrafo),
-            Paragraph(f"{salida.ensuciamiento}", centrar_parrafo),
+            Paragraph(f"{round(salida.ensuciamiento, 2)}", centrar_parrafo),
         ],
         [
             Paragraph("Eficiencia (%)", centrar_parrafo),
-            Paragraph(f"{salida.eficiencia}", centrar_parrafo),
+            Paragraph(f"{round(salida.eficiencia, 2)}", centrar_parrafo),
         ],
         [
             Paragraph("NTU", centrar_parrafo),
-            Paragraph(f"{salida.ntu}", centrar_parrafo),
+            Paragraph(f"{round(salida.ntu, 2)}", centrar_parrafo),
         ],
         [
             Paragraph("CP Aire Entrada (J/Kg)", centrar_parrafo),
-            Paragraph(f"{salida.cp_aire_entrada}", centrar_parrafo),
+            Paragraph(f"{round(salida.cp_aire_entrada, 2)}", centrar_parrafo),
         ],
         [
             Paragraph("CP Aire Salida (J/Kg)", centrar_parrafo),
-            Paragraph(f"{salida.cp_aire_entrada}", centrar_parrafo),
+            Paragraph(f"{round(salida.cp_aire_entrada, 2)}", centrar_parrafo),
         ],
         [
             Paragraph("CP Gas Entrada (J/Kg)", centrar_parrafo),
-            Paragraph(f"{salida.cp_gas_entrada}", centrar_parrafo),
+            Paragraph(f"{round(salida.cp_gas_entrada, 2)}", centrar_parrafo),
         ],
         [
             Paragraph("CP Gas Salida (J/Kg)", centrar_parrafo),
-            Paragraph(f"{salida.cp_gas_salida}", centrar_parrafo),
+            Paragraph(f"{round(salida.cp_gas_salida, 2)}", centrar_parrafo),
         ],
     ]
-
-    estilo = TableStyle([
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-
-        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
-        ('BACKGROUND', (0, 0), (1, -1), sombreado),
-
-        ('SPAN', (0,0), (-1,0)),
-    ])
 
     table = Table(table, style=estilo)
 
