@@ -1708,6 +1708,16 @@ def historico_evaluaciones_precalentador_agua(object_list, request):
     return enviar_response('historico_evaluaciones_precalentador', excel_io, fecha)
 
 def ficha_tecnica_precalentador_agua(precalentador, request):
+    """
+    Genera un archivo XLSX con la ficha técnica del precalentador de agua seleccionado.
+
+    Parámetros:
+        precalentador: El precalentador de agua del cual se va a generar la ficha técnica.
+        request: El objeto request que contiene la información de la petición.
+    
+    Devuelve:
+        Un archivo XLSX con la ficha técnica del precalentador de agua de tipo django.http.HttpResponse
+    """
     excel_io = BytesIO()
     workbook = xlsxwriter.Workbook(excel_io)    
     worksheet = workbook.add_worksheet()
@@ -1861,4 +1871,135 @@ def ficha_tecnica_precalentador_agua(precalentador, request):
     return enviar_response(f'ficha_tecnica_precalentador_agua_{precalentador.tag}', excel_io, fecha)
 
 # REPORTES PRECALENTADOR DE AIRE
-    # TODO
+def ficha_tecnica_precalentador_aire(precalentador, request):
+    """
+    Genera un archivo XLSX con la ficha técnica del precalentador de aire seleccionado.
+
+    Parámetros:
+        precalentador: El precalentador de aire del cual se va a generar la ficha técnica.
+        request: El objeto request que contiene la información de la petición.
+    
+    Devuelve:
+        Un archivo XLSX con la ficha técnica del precalentador de agua de tipo django.http.HttpResponse
+    """
+    excel_io = BytesIO()
+    workbook = xlsxwriter.Workbook(excel_io)    
+    worksheet = workbook.add_worksheet()
+
+    worksheet.set_column('B:B', 20)
+    worksheet.set_column('C:C', 20)
+    worksheet.set_column('D:D', 20)
+    worksheet.set_column('E:E', 40)
+
+    bold = workbook.add_format({'bold': True})
+    bold_bordered = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'yellow'})
+    center_bordered = workbook.add_format({'border': 1})
+    fecha =  workbook.add_format({'border': 1})
+
+    fecha.set_align('right')
+    bold_bordered.set_align('vcenter')
+    center_bordered.set_align('vcenter')
+    bold_bordered.set_align('center')
+    center_bordered.set_align('center')
+
+    worksheet.insert_image(0, 0, LOGO_PEQUIVEN, {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.write('C1', 'Ficha Técnica de Precalentador de Aire', bold)
+    worksheet.insert_image(0, 4, LOGO_INDESCA, {'x_scale': 0.1, 'y_scale': 0.1})
+
+    num = 8
+    especificaciones = precalentador.especificaciones
+    worksheet.write(f'A{num}', 'Tag', bold_bordered)
+    worksheet.write(f'B{num}', 'Complejo', bold_bordered)
+    worksheet.write(f'C{num}', 'Planta', bold_bordered)
+    worksheet.write(f'D{num}', 'Tipo', bold_bordered)
+    worksheet.write(f'E{num}', 'Fabricante', bold_bordered)
+    worksheet.write(f'F{num}', 'Modelo', bold_bordered)
+    worksheet.write(f'G{num}', 'Descripción', bold_bordered)
+    worksheet.write(f'H{num}', 'Material', bold_bordered)
+    worksheet.write(f'I{num}', f'Espesor ({especificaciones.longitud_unidad})', bold_bordered)
+    worksheet.write(f'J{num}', f'Diámetro ({especificaciones.longitud_unidad})', bold_bordered)
+    worksheet.write(f'K{num}', f'Altura ({especificaciones.longitud_unidad})', bold_bordered)
+    worksheet.write(f'L{num}', f'Superficie de Calentamiento ({especificaciones.area_unidad})', bold_bordered)
+    worksheet.write(f'M{num}', f'Área de Transferencia ({especificaciones.area_unidad})', bold_bordered)
+    worksheet.write(f'N{num}', f'Temp. Operación ({especificaciones.temp_unidad})', bold_bordered)
+    worksheet.write(f'O{num}', f'Presión ({especificaciones.presion_unidad})', bold_bordered)
+    worksheet.write(f'P{num}', f'U ({especificaciones.u_unidad})', bold_bordered)
+    
+    num += 1
+
+    worksheet.write(f'A{num}', f'{precalentador.tag}', center_bordered)
+    worksheet.write(f'B{num}', f'{precalentador.planta.complejo}', center_bordered)
+    worksheet.write(f'C{num}', f'{precalentador.planta}', center_bordered)
+    worksheet.write(f'D{num}', f'{precalentador.tipo}', center_bordered)
+    worksheet.write(f'E{num}', f'{precalentador.fabricante}', center_bordered)
+    worksheet.write(f'F{num}', f'{precalentador.modelo}', center_bordered)
+    worksheet.write(f'G{num}', f'{precalentador.descripcion}', center_bordered)
+    worksheet.write(f'H{num}', f'{especificaciones.material}', center_bordered)
+    worksheet.write(f'I{num}', f'{especificaciones.espesor}', center_bordered)
+    worksheet.write(f'J{num}', f'{especificaciones.diametro}', center_bordered)
+    worksheet.write(f'K{num}', f'{especificaciones.altura}', center_bordered)
+    worksheet.write(f'L{num}', f'{especificaciones.superficie_calentamiento}', center_bordered)
+    worksheet.write(f'M{num}', f'{especificaciones.area_transferencia}', center_bordered)
+    worksheet.write(f'N{num}', f'{especificaciones.temp_operacion}', center_bordered)
+    worksheet.write(f'M{num}', f'{especificaciones.presion_operacion}', center_bordered)
+    worksheet.write(f'N{num}', f'{especificaciones.u}', center_bordered)
+
+    num += 2
+
+    worksheet.write(f'A{num}', 'Lado/Fluido', bold_bordered)
+    worksheet.write(f'B{num}', f'Flujo', bold_bordered)
+    worksheet.write(f'C{num}', 'Unidad Flujo', bold_bordered)
+    worksheet.write(f'D{num}', 'Temp. Entrada', bold_bordered)
+    worksheet.write(f'E{num}', 'Temp. Salida', bold_bordered)
+    worksheet.write(f'F{num}', 'Temp. Unidad', bold_bordered)
+    worksheet.write(f'G{num}', 'Presión Entrada', bold_bordered)
+    worksheet.write(f'H{num}', 'Presión Salida', bold_bordered)
+    worksheet.write(f'I{num}', 'Caída Presión', bold_bordered)
+    worksheet.write(f'J{num}', 'Presión Unidad', bold_bordered)
+
+    lado_aire = precalentador.condicion_fluido.get(fluido="A")
+    lado_gases = precalentador.condicion_fluido.get(fluido="G")
+
+    for lado in precalentador.condicion_fluido.all():
+        num += 1
+        worksheet.write(f'A{num}', f'{lado.fluido_largo()}', center_bordered)
+        worksheet.write(f'B{num}', f'{lado.flujo}', center_bordered)
+        worksheet.write(f'C{num}', f'{lado.flujo_unidad}', center_bordered)
+        worksheet.write(f'D{num}', f'{lado.temp_entrada}', center_bordered)
+        worksheet.write(f'E{num}', f'{lado.temp_salida}', center_bordered)
+        worksheet.write(f'F{num}', f'{lado.temp_unidad}', center_bordered)
+        worksheet.write(f'G{num}', f'{lado.presion_entrada}', center_bordered)
+        worksheet.write(f'H{num}', f'{lado.presion_salida}', center_bordered)
+        worksheet.write(f'I{num}', f'{lado.caida_presion}', center_bordered)
+        worksheet.write(f'J{num}', f'{lado.presion_unidad}', center_bordered)
+
+    num += 2
+    worksheet.write(f'A{num}', 'Composición del Aire', bold_bordered)
+    
+    num += 1
+    worksheet.write(f'A{num}', 'Compuesto', bold_bordered)
+    worksheet.write(f'B{num}', '% Volumen', bold_bordered)
+
+    for compuesto in lado_aire.composiciones.all():
+        num += 1
+        worksheet.write(f'A{num}', f'{compuesto.fluido}', center_bordered)
+        worksheet.write(f'B{num}', f'{compuesto.porcentaje}', center_bordered)
+
+    num += 2
+
+    worksheet.write(f'A{num}', 'Composición de los Gases', bold_bordered)
+    
+    num += 1
+    worksheet.write(f'A{num}', 'Compuesto', bold_bordered)
+    worksheet.write(f'B{num}', '% Volumen', bold_bordered)
+
+    for compuesto in lado_gases.composiciones.all():
+        num += 1
+        worksheet.write(f'A{num}', f'{compuesto.fluido}', center_bordered)
+        worksheet.write(f'B{num}', f'{compuesto.porcentaje}', center_bordered)
+
+    worksheet.write(f"J{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
+    worksheet.write(f"J{num+2}", "Generado por " + request.user.get_full_name(), fecha)
+    workbook.close()
+
+    return enviar_response(f'ficha_tecnica_precalentador_aire_{precalentador.tag}', excel_io, fecha)

@@ -3811,7 +3811,7 @@ def evaluaciones_precalentadores_agua(object_list, request):
 def detalle_evaluacion_precalentadores_agua(evaluacion):
     """
     Resumen:
-        Esta función genera un reporte en formato PDf del detalle de una evaluación realizada a un precalentador de agua.
+        Esta función genera un reporte en formato PDF del detalle de una evaluación realizada a un precalentador de agua.
         No genera gráfica.
     """
 

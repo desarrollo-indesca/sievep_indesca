@@ -30,7 +30,7 @@ from calculos.unidades import *
 from calculos.utils import fluido_existe, registrar_fluido
 from .evaluacion import COMPOSICIONES_AIRE, COMPOSICIONES_GAS, evaluacion_bomba, evaluar_ventilador, evaluar_precalentador_agua, evaluar_precalentador_aire
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import reporte_equipos, ficha_tecnica_ventilador, historico_evaluaciones_bombas, historico_evaluaciones_ventiladores, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga, historico_evaluaciones_precalentador_agua, ficha_tecnica_precalentador_agua
+from reportes.xlsx import ficha_tecnica_precalentador_aire, reporte_equipos, ficha_tecnica_ventilador, historico_evaluaciones_bombas, historico_evaluaciones_ventiladores, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga, historico_evaluaciones_precalentador_agua, ficha_tecnica_precalentador_agua
 # Create your views here.
 
 class SeleccionEquipo(LoginRequiredMixin, View):

@@ -77,7 +77,7 @@ TIPOS_SECCIONES_PRECALENTADOR = [
 ]
 
 FASES_CORRIENTES_PRECALENTADOR = [("L","Líquido"), ("G","Vapor"), ("S","Saturado")]
-LADO_CORRIENTES_PRECALENTADOR = [("C","Carcasa"), ("T","Tubos")]
+LADO_CORRIENTES_PRECALENTADOR = [("C","Carcasa"), ("T","Tubos"), ("A", "Aire"), ("G", "Gases")]
 ROLES_CORRIENTES_PRECALENTADOR = [("E","Entra"), ("S","Sale")]
 
 # MODELOS DE BOMBAS
@@ -1472,6 +1472,9 @@ class CondicionFluido(models.Model):
     presion_salida = models.FloatField(null=True, blank=True)
     caida_presion = models.FloatField(null=True, blank=True)
     presion_unidad = models.ForeignKey(Unidades, default=33, on_delete=models.CASCADE, related_name="condicion_fluido_presion_unidad")
+
+    def fluido_largo(self):
+        return conseguir_largo(LADO_CORRIENTES_PRECALENTADOR, self.fluido)
 
     class Meta:
         db_table = "precalentador_aire_condicionfluido"
