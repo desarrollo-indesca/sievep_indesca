@@ -240,6 +240,9 @@ def generar_historia(request, reporte, object_list):
     
     if reporte == 'detalle_evaluacion_precalentador':
         return detalle_evaluacion_precalentadores_agua(object_list)
+    
+    if(reporte == 'ficha_tecnica_precalentador_aire'):
+        return ficha_tecnica_precalentador_aire(object_list)
 
 # GENERALES
 def reporte_equipos(request, object_list):
@@ -3964,7 +3967,221 @@ def detalle_evaluacion_precalentadores_agua(evaluacion):
 # Reportes Precalentadores de Aire
 
 def ficha_tecnica_precalentador_aire(precalentador):
-    ...
+    '''
+    Resumen:
+        Crea un reporte con la ficha técnica del precalentador de Aire.
+    '''
+
+    story = []
+    story.append(Spacer(0,90))
+
+    especificaciones = precalentador.especificaciones
+
+    table = [
+        [
+            Paragraph("Tag", centrar_parrafo), 
+            Paragraph(f"{precalentador.tag}", centrar_parrafo), 
+            Paragraph("Planta", centrar_parrafo),
+            Paragraph(f"{precalentador.planta.nombre}", centrar_parrafo)
+        ],
+        [
+            Paragraph("Fabricante", centrar_parrafo), 
+            Paragraph(f"{precalentador.fabricante if precalentador.fabricante else '—'}", centrar_parrafo),
+            Paragraph("Tipo", centrar_parrafo), 
+            Paragraph(precalentador.tipo if precalentador.tipo else '—', centrar_parrafo)
+        ],
+        [
+            Paragraph("Modelo", centrar_parrafo), 
+            Paragraph(f"{precalentador.modelo if precalentador.modelo else '—'}", centrar_parrafo),
+            '', ''
+        ],
+        [
+            Paragraph("Descripción", centrar_parrafo), 
+            Paragraph(f"{precalentador.descripcion if precalentador.descripcion else '—'}", centrar_parrafo),
+            '', '',
+        ],
+        [
+            Paragraph("<b>Especificaciones Técnicas del Equipo</b>", centrar_parrafo),
+            '', '', ''
+        ],
+        [
+            Paragraph(f"Material", centrar_parrafo),
+            Paragraph(f"{especificaciones.material if especificaciones.material else '—'}", centrar_parrafo),
+            Paragraph(f"Espesor ({especificaciones.longitud_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.espesor if especificaciones.espesor else '—'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Diámetro ({especificaciones.longitud_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.diametro if especificaciones.diametro else '—'}", centrar_parrafo),
+            Paragraph(f"Altura ({especificaciones.longitud_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.altura if especificaciones.altura else '—'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Superficie Calentamiento ({especificaciones.area_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.superficie_calentamiento if especificaciones.superficie_calentamiento else '—'}", centrar_parrafo),
+            Paragraph(f"Área de Transferencia ({especificaciones.area_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.area_transferencia if especificaciones.area_transferencia else '—'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Temp. Operación ({especificaciones.temp_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.temp_operacion if especificaciones.temp_operacion else '—'}", centrar_parrafo),
+            Paragraph(f"Presión Operación ({especificaciones.presion_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.presion_unidad if especificaciones.presion_unidad else '—'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"U ({especificaciones.u_unidad})", centrar_parrafo),
+            Paragraph(f"{especificaciones.u if especificaciones.u else '—'}", centrar_parrafo),
+            '',''
+        ],
+    ]
+
+    estilo = [
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+
+        ('SPAN', (1,2), (-1,2)),
+        ('SPAN', (1,3), (-1,3)),
+        ('SPAN', (0,4), (-1,4)),
+        ('SPAN', (1, 9), (-1, 9)),
+        
+        ('BACKGROUND', (0, 0), (0, -1), sombreado),
+        ('BACKGROUND', (2, 0), (2, 1), sombreado),
+        ('BACKGROUND', (0, 4), (-1, 4), sombreado),
+        ('BACKGROUND', (2, 4), (2, 8), sombreado),
+    ]
+
+    story.append(
+        Table(
+            table,
+            style=estilo
+        )
+    )
+
+    lado_aire = precalentador.condicion_fluido.first()
+    lado_gases = precalentador.condicion_fluido.last()
+
+    story.append(Spacer(0,10))
+
+    table = [
+        [
+            Paragraph("<b>Propiedad</b>", centrar_parrafo), 
+            Paragraph(f"<b>Lado Aire / Tubo</b>", centrar_parrafo), 
+            Paragraph("<b>Lado Gases / Carcasa</b>", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Flujo Másico", centrar_parrafo), 
+            Paragraph(f"{lado_aire.flujo if lado_aire.flujo else '—'} {lado_aire.flujo_unidad}", centrar_parrafo), 
+            Paragraph(f"{lado_gases.flujo if lado_gases.flujo else '—'} {lado_gases.flujo_unidad}", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Temp. Entrada", centrar_parrafo), 
+            Paragraph(f"{lado_aire.temp_entrada if lado_aire.temp_entrada else '—'} {lado_aire.temp_unidad}", centrar_parrafo), 
+            Paragraph(f"{lado_gases.temp_entrada if lado_gases.temp_entrada else '—'} {lado_gases.temp_unidad}", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Temp. Salida", centrar_parrafo), 
+            Paragraph(f"{lado_aire.temp_salida if lado_aire.temp_salida else '—'} {lado_aire.temp_unidad}", centrar_parrafo), 
+            Paragraph(f"{lado_gases.temp_salida if lado_gases.temp_salida else '—'} {lado_gases.temp_unidad}", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Presión Entrada", centrar_parrafo), 
+            Paragraph(f"{lado_aire.presion_entrada if lado_aire.presion_entrada else '—'} {lado_aire.presion_unidad}", centrar_parrafo), 
+            Paragraph(f"{lado_gases.presion_entrada if lado_gases.presion_entrada else '—'} {lado_gases.presion_unidad}", centrar_parrafo),
+        ],
+        [
+            Paragraph(f"Presión Salida", centrar_parrafo), 
+            Paragraph(f"{lado_aire.presion_salida if lado_aire.presion_salida else '—'} {lado_aire.presion_unidad}", centrar_parrafo), 
+            Paragraph(f"{lado_gases.presion_salida if lado_gases.presion_salida else '—'} {lado_gases.presion_unidad}", centrar_parrafo),
+        ]
+        ,
+        [
+            Paragraph(f"Caída Presión", centrar_parrafo), 
+            Paragraph(f"{lado_aire.caida_presion if lado_aire.caida_presion else '—'} {lado_aire.presion_unidad}", centrar_parrafo), 
+            Paragraph(f"{lado_gases.caida_presion if lado_gases.caida_presion else '—'} {lado_gases.presion_unidad}", centrar_parrafo),
+        ]
+    ]
+
+    estilo = [
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+
+        ('SPAN', (1,2), (-1,2)),
+        
+        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+        ('BACKGROUND', (0, 0), (0, -1), sombreado),
+    ]
+
+    story.append(
+        Table(
+            table,
+            style=estilo
+        )
+    )
+
+    story.append(Spacer(0,10))
+
+    table = [
+        [
+            Paragraph("<b>Composición de los Gases</b>", centrar_parrafo),
+            '',
+        ],
+        [
+            Paragraph("<b>Fluido</b>", centrar_parrafo), 
+            Paragraph(f"<b> % Vol</b>", centrar_parrafo),
+        ],
+        *[
+            [
+                Paragraph(f"{compuesto.fluido if compuesto.fluido else '—'}", centrar_parrafo), 
+                Paragraph(f"{compuesto.porcentaje if compuesto.porcentaje else '—'} %", centrar_parrafo),
+            ] for compuesto in lado_aire.composiciones.all()
+        ],
+        [
+            Paragraph("<b>Composición del Aire</b>", centrar_parrafo),
+            '',
+        ],
+        [
+            Paragraph("<b>Fluido</b>", centrar_parrafo), 
+            Paragraph(f"<b> % Vol</b>", centrar_parrafo),
+        ],
+        *[
+            [
+                Paragraph(f"{compuesto.fluido if compuesto.fluido else '—'}", centrar_parrafo), 
+                Paragraph(f"{compuesto.porcentaje if compuesto.porcentaje else '—'} %", centrar_parrafo),
+            ] for compuesto in lado_gases.composiciones.all()
+        ],
+    ]
+
+    estilo = [
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+
+        ('SPAN', (0, 0), (-1, 0)),
+        ('SPAN', (0, 5), (-1, 5)),
+        
+        ('BACKGROUND', (0, 0), (-1, 1), sombreado),
+        ('BACKGROUND', (0, 5), (-1, 6), sombreado),
+        ('BACKGROUND', (0, 0), (0, -1), sombreado),
+    ]
+
+    story.append(
+        Table(
+            table,
+            style=estilo
+        )
+    )
+
+    story.append(Spacer(0,10))
+
+    story.append(
+        Paragraph(f"Precalentador de Aire registrado por {precalentador.creado_por.get_full_name()} al {precalentador.creado_al}.", centrar_parrafo)
+    )
+
+    if(precalentador.editado_por):
+        story.append(
+            Paragraph(f"Precalentador de Aire editado por {precalentador.editado_por.get_full_name()} al {precalentador.editado_al}.", centrar_parrafo)
+        )
+
+    return [story, None]
 
 def detalle_evaluacion_precalentador_aire(precalentador):
     ...

@@ -2551,7 +2551,7 @@ class ReportesFichasPrecalentadoresAireMixin():
         if(request.POST.get('ficha')): # FICHA TÉCNICA
             precalentador = self.get_precalentador(PrecalentadorAire.objects.filter(pk = request.POST.get('ficha'))).first()
             if(request.POST.get('tipo') == 'pdf'):
-                return generar_pdf(request,precalentador, f"Ficha Técnica del Precalentador de Aire {precalentador.tag}", "ficha_tecnica_precalentadores_aire")
+                return generar_pdf(request, precalentador, f"Ficha Técnica del Precalentador de Aire {precalentador.tag}", "ficha_tecnica_precalentador_aire")
             if(request.POST.get('tipo') == 'xlsx'):
                 return ficha_tecnica_precalentador_aire(precalentador, request)
 
@@ -2895,13 +2895,15 @@ class ConsultaEvaluacionPrecalentadorAire(ConsultaEvaluacion, ReportesFichasPrec
         new_context = super().get_queryset()
 
         new_context = new_context.select_related(
-            'salida'
+            'salida', 'usuario'
         ).prefetch_related(
             Prefetch('entrada_lado', EntradaLado.objects.select_related(
                 'temp_unidad', 'flujo_unidad',
             ).prefetch_related(
-                'composicion_combustible'
-            )),
+                Prefetch('composicion_combustible', ComposicionesEvaluacionPrecalentadorAire.objects.select_related(
+                'fluido'
+            ))),
+            ),
         )
 
         return new_context
