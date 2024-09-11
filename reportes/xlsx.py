@@ -1705,7 +1705,7 @@ def historico_evaluaciones_precalentador_agua(object_list, request):
     worksheet.write(f"J{num+2}", "Generado por " + request.user.get_full_name(), fecha)
     workbook.close()
         
-    return enviar_response('historico_evaluaciones_precalentador_agua', excel_io, fecha)
+    return enviar_response('historico_evaluaciones_precalentador', excel_io, fecha)
 
 def ficha_tecnica_precalentador_agua(precalentador, request):
     excel_io = BytesIO()

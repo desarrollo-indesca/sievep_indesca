@@ -2887,7 +2887,7 @@ class ConsultaEvaluacionPrecalentadorAire(ConsultaEvaluacion, ReportesFichasPrec
             return historico_evaluaciones_precalentador_agua(self.get_queryset(), request)
 
         if(request.POST.get('detalle')):
-            return generar_pdf(request, self.model.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Precalentador de Agua", "detalle_evaluacion_precalentador")
+            return generar_pdf(request, self.model.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Precalentador de Aire", "detalle_evaluacion_precalentador_aire")
 
         return self.get(request, **kwargs)
     
