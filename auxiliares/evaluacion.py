@@ -4,6 +4,20 @@ from calculos.termodinamicos import DENSIDAD_DEL_AGUA_LIQUIDA_A_5C, calcular_den
 
 GRAVEDAD = 9.81
 
+COMPOSICIONES_GAS = [
+    {'cas': '124-38-9', 'porcentaje': 13.22},
+    {'cas': '7446-09-5', 'porcentaje': 0.00},
+    {'cas': '7727-37-9', 'porcentaje': 73.02},
+    {'cas': '7782-44-7', 'porcentaje': 4.82},
+    {'cas': '7732-18-5', 'porcentaje': 8.94},
+]
+
+COMPOSICIONES_AIRE = [
+    {'cas': '7727-37-9', 'porcentaje': 76.70},
+    {'cas': '7782-44-7', 'porcentaje': 23.30},
+    {'cas': '7732-18-5', 'porcentaje': 0.0},
+]
+
 def calcular_eficiencia(potencia_real: float, potencia_calculada: float):
     '''
     Resumen:
@@ -859,3 +873,199 @@ def evaluar_precalentador_agua(
     advertencias = generar_advertencias_resultados_precalentador_agua(resultados)
 
     return {'resultados': resultados, 'advertencias': advertencias}
+
+# Evaluaciones de Precalentadores de Aire
+def calcular_cps(t: float, tipo: str, composicion: dict) -> dict:
+    """
+    Resumen:
+        Calcula la capacidad calorífica promedio de los compuestos del combustible a una temperatura dada.
+
+    Parámetros:
+        t: float -> Temperatura a la que se calculará el cp promedio.
+        tipo: str -> Tipo de cp a calcular, puede ser 'entrada' o 'salida'.
+        composicion: dict -> Diccionario con la composición de los compuestos del combustible.
+
+    Devuelve:
+        dict: Diccionario con la composición de los compuestos del combustible y su cp promedio.
+    """
+
+    for i,compuesto in enumerate(composicion):
+        composicion[i][f'cp_{tipo}'] = calcular_cp(compuesto['fluido'].cas, t, t)
+    
+    return composicion
+
+def normalizar_composicion(composicion) -> list:
+    """
+    Resumen:
+        Normaliza la composición de los compuestos del combustible.
+    
+    Parámetros:
+        composicion: list -> Lista de diccionarios, donde cada diccionario tiene la estructura {'fluido':objeto_fluido, 'porc_vol': porcentaje_volumen, 'porc_aire': porcentaje_aire}
+    
+    Devuelve:
+        list: La lista de composiciones normalizadas, con la estructura {'fluido':objeto_fluido, 'composicion': composicion_normalizada}
+    """
+
+    suma = sum([x['porcentaje'] for x in composicion])
+
+    for i,compuesto in enumerate(composicion):
+        composicion[i]['composicion'] = compuesto['porcentaje']/suma 
+
+    return composicion
+
+def calcular_eficiencia_precalentador_aire(c, ntu, minimo): 
+    """
+    Resumen:
+        Calcula la eficiencia del precalentador de aire.
+
+    Parámetros:
+        c (float): Factor de capacidad del precalentador.
+        ntu (float): Número de unidades de transferencia de calor.
+        minimo (str): Minimo entre la capacidad calorífica del gas y la del aire.
+
+    Devuelve:
+        float: La eficiencia del precalentador.
+    """
+    if(minimo == "T"):
+        eficiencia = 1/c*(1-math.exp(-1*c*(1-1*math.exp(-1*ntu))))
+    else:
+        eficiencia = 1-math.exp(-1/c*math.exp(1-math.exp(-1*ntu*c)))
+
+    return eficiencia*100
+
+def calcular_cp_promedio(composicion: dict) -> float:
+    """
+    Resumen:
+        Calcula el calor específico promedio de una composición.
+
+    Parámetros:
+        composicion (dict): Diccionario con las composiciones de los compuestos del fluido.
+
+    Devuelve:
+        tuple: Tupla con dos elementos. El primer elemento es el calor específico promedio de entrada [J/kgK] y el segundo es el calor específico promedio de salida [J/kgK].
+    """
+    return sum([x[f'cp_entrada']*x['composicion'] for x in composicion]), sum([x[f'cp_salida']*x['composicion'] for x in composicion])
+
+def calcular_factor_lmtd(t1_aire, t2_aire, t1_gas, t2_gas):
+    """
+    Resumen:
+        Calcula el factor de corrección y el lmtd del precalentador de aire.
+
+    Parámetros:
+        t1_aire (float): Temperatura de entrada del aire [K].
+        t2_aire (float): Temperatura de salida del aire [K].
+        t1_gas (float): Temperatura de entrada del gas [K].
+        t2_gas (float): Temperatura de salida del gas [K].
+
+    Devuelve:
+        tuple: Contiene el lmtd [K] y el factor de corrección.
+    """
+    P = abs((t2_aire-t1_aire)/(t1_gas-t1_aire))
+    R = abs((t1_gas-t2_gas)/(t2_aire-t1_aire))
+    a = 1.4284
+    b = -0.2616
+    c = -0.8447
+    d = 0.0385
+    e = 0.0501
+
+    factor = a+b*R+c*P+d*R**2+e*P**2
+    lmtd = abs(((t1_gas-t2_aire)-(t2_gas-t1_aire))/math.log((t1_gas-t2_aire)/(t2_gas-t1_aire)))
+
+    return lmtd, factor
+
+def calcular_cs(flujo_aire, flujo_gas, cp_aire_entrada, cp_aire_salida, cp_gas_entrada, cp_gas_salida) -> dict:
+    """
+    Resumen:
+        Calcula los parámetros necesarios para determinar la eficiencia del precalentador de aire.
+    
+    Parámetros:
+        flujo_aire: float -> Flujo másico del aire (Kg/s).
+        flujo_gas: float -> Flujo másico del gas (Kg/s).
+        cp_aire_entrada: float -> Cp del aire a la entrada del precalentador (J/KgK).
+        cp_aire_salida: float -> Cp del aire a la salida del precalentador (J/KgK).
+        cp_gas_entrada: float -> Cp del gas a la entrada del precalentador (J/KgK).
+        cp_gas_salida: float -> Cp del gas a la salida del precalentador (J/KgK).
+    
+    Devuelve:
+        tuple: C [J/Kg], C mínimo [J/Kg] y Lado donde ocurre el calor mínimo 
+    """
+    ct = flujo_aire*(cp_aire_salida+cp_aire_entrada)/2
+    cc = flujo_gas*(cp_gas_salida+cp_gas_entrada)/2
+    if(ct<cc):
+        cmin = ct
+        cmax = cc
+        c = cmin/cmax
+        minimo = "T"
+    else:
+        cmin = cc
+        cmax = ct
+        c = cmin/cmax
+        minimo = "C"
+
+    return c, cmin, minimo
+
+def evaluar_precalentador_aire(t1_aire: float, t2_aire: float, 
+                               t1_gas: float, t2_gas: float,
+                               flujo_aire: float, flujo_gas: float,
+                               u: float, area_total: float, composicion_gas: dict, 
+                               composicion_aire: dict) -> dict:
+    """
+    Resumen:
+        Evalúa el precalentador de aire. Todos los campos deben estar preferiblemente en sistema internacional.
+
+    Parámetros:
+        t1_aire: float -> Temperatura de entrada del aire [K].
+        t2_aire: float -> Temperatura de salida del aire [K].
+        t1_gas: float -> Temperatura de entrada del gas [K].
+        t2_gas: float -> Temperatura de salida del gas [K].
+        flujo_aire: float -> Flujo del aire [kg/s].
+        flujo_gas: float -> Flujo del gas [kg/s].
+        u: float -> Coeficiente de transferencia de calor [W/m2K].
+        area_total: float -> Área total del intercambiador [m2].
+        composicion_gas: dict -> Composición del gas con las llaves 'fluido' conteniendo una instancia del fluido y 'porcentaje'.
+        composicion_aire: dict -> Composición del aire con las llaves 'fluido' conteniendo una instancia del fluido y 'porcentaje'.
+
+    Devuelve:
+        dict: Contiene los resultados de la evaluación.
+    """
+    composicion_gas = calcular_cps(t1_gas, 'entrada', composicion_gas)
+    composicion_gas = calcular_cps(t2_gas, 'salida', composicion_gas)
+    composicion_aire = calcular_cps(t1_aire, 'entrada', composicion_aire)
+    composicion_aire = calcular_cps(t2_aire, 'salida', composicion_aire)
+
+    composicion_aire = normalizar_composicion(composicion_aire)
+    composicion_gas = normalizar_composicion(composicion_gas)
+
+    cp_aire_entrada,cp_aire_salida = calcular_cp_promedio(composicion_aire)
+    cp_gas_entrada,cp_gas_salida = calcular_cp_promedio(composicion_gas)  
+
+    q_aire = (cp_aire_salida+cp_aire_entrada)/2*flujo_aire*abs(t1_aire-t2_aire)
+    q_gases = (cp_gas_salida+cp_gas_entrada)/2*flujo_gas*abs(t1_gas-t2_gas)
+    
+    perdida_calor = q_gases-q_aire
+    lmtd,factor = calcular_factor_lmtd(t1_aire, t2_aire, t1_gas, t2_gas)  
+        
+    area_total = area_total if area_total else 1
+    ucalc = q_aire/(area_total*lmtd*factor)
+    rf = 1/ucalc - 1/u if u else 0
+
+    c, cmin, minimo = calcular_cs(flujo_aire, flujo_gas, cp_aire_entrada, cp_aire_salida, cp_gas_entrada, cp_gas_salida)
+    ntu = ucalc*area_total/cmin
+    
+    eficiencia = calcular_eficiencia_precalentador_aire(c, ntu, minimo)
+
+    return {
+        'eficiencia': eficiencia,
+        'ntu': ntu,
+        'ensuciamiento': rf,
+        'u': ucalc,
+        'u_diseno': u,
+        'lmtd': lmtd,
+        'q_aire': q_aire,
+        'q_gas': q_gases,
+        'perdida_calor': perdida_calor,
+        'cp_promedio_aire_entrada': cp_aire_entrada,
+        'cp_promedio_aire_salida': cp_aire_salida,
+        'cp_promedio_gas_entrada': cp_gas_entrada,
+        'cp_promedio_gas_salida': cp_gas_salida
+    }
