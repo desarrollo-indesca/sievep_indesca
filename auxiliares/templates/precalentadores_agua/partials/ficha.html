@@ -10,10 +10,8 @@
         <div class="modal-body text-start small">
           <div class="row">
             <div class="col-12">
-              {% if not precalentador.datos_corrientes or not precalentador.u %}
-              <div class="alert alert-warning">
-                <p class="text-center">Debe definir un Coeficiente Global de Transferencia de Calor (U) por balance general y las corrientes del equipo para poder realizar evaluaciones.</p>
-              </div>
+              {% if not precalentador.u or not precalentador.datos_corrientes %}
+              <p class="text-center text-danger">Debe definir un Coeficiente Global de Transferencia de Calor (U) por balance general y las corrientes del equipo para poder realizar evaluaciones.</p>
               {% endif %}
               <div class="d-flex flex-column">
                 <table class="table table-light text-center table-bordered tabla_ficha mb-0">

@@ -557,30 +557,33 @@ class FiltradoSimpleMixin():
         descripcion = self.request.GET.get('descripcion', self.request.GET.get('servicio', ''))
         complejo = self.request.GET.get('complejo', '')
         planta = self.request.GET.get('planta', '')
-
         new_context = None
 
-        if(planta != '' and complejo != ''): # Filtrar por planta
-            new_context = self.model.objects.filter(
-                planta__pk=planta
-            )
-        elif(complejo != ''): # Filtrar por complejo
+        if(complejo and complejo != ''): # Filtrar por complejo
             new_context = new_context.filter(
                 planta__complejo__pk=complejo
             ) if new_context else self.model.objects.filter(
                 planta__complejo__pk=complejo
             )
 
-        if(not(new_context is None)): # Si filtros fueron aplicados previamente...
-            if(self.request.GET.get('descripcion')):
+        if(planta and planta != ''): # Filtrar por planta
+            new_context = self.model.objects.filter(
+                planta__pk=planta
+            )
+
+        if(new_context is not None): # Si filtros fueron aplicados previamente...
+            if(tag and tag != ''):
                 new_context = new_context.filter(
-                    descripcion__icontains = descripcion,
                     tag__icontains = tag
                 )
-            elif(self.request.GET.get('servicio')):
+
+            if(self.request.GET.get('descripcion') and self.request.GET.get('descripcion') != ''):
                 new_context = new_context.filter(
-                    servicio__icontains = descripcion,
-                    tag__icontains = tag
+                    descripcion__icontains = descripcion
+                )
+            elif(self.request.GET.get('servicio') and self.request.GET.get('servicio') != ''):
+                new_context = new_context.filter(
+                    servicio__icontains = descripcion
                 )
         else: # Si ningún filtro fue aplicado previamente
             new_context = self.model.objects.filter(

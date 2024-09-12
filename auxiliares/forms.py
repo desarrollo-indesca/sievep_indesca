@@ -387,3 +387,79 @@ class EvaluacionPrecalentadorAguaForm(forms.ModelForm):
     class Meta:
         model = EvaluacionPrecalentadorAgua
         fields = ("nombre", )
+
+# FORMS PRECALENTADOR DE AIRE
+
+class PrecalentadorAireForm(forms.ModelForm):
+    """
+    Resumen:
+        Form para el registro de los datos generales del precalentador de aire.
+    """
+    complejo = forms.ModelChoiceField(queryset=Complejo.objects.all(), initial=1)
+    
+    class Meta:
+        model = PrecalentadorAire
+        fields = ("tag", "descripcion", "tipo", "fabricante", "modelo", "planta")
+
+class EspecificacionesPrecalentadorAireForm(forms.ModelForm):
+    """
+    Resumen:
+        Form para el registro de los datos de las especificaciones de un precalentador de aire.
+    """
+    class Meta:
+        model = EspecificacionesPrecalentadorAire
+        exclude = ("pk", )
+
+class CondicionFluidoForm(forms.ModelForm):
+    """
+    Resumen:
+        Form para el registro de las propiedades de las distintas condicion de fluido.
+        Se deben utilizar dos fluidos: "A" para aire, y "G" para los gases. Se deben asignar en la instancia del form.
+    """
+    class Meta:
+        model = CondicionFluido
+        exclude = ("precalentador", "fluido")
+
+class ComposicionForm(forms.ModelForm):
+    """
+    Resumen:
+        Form para el registro de las composiciones de un fluido dentro de un precalentador de aire.
+    """
+    class Meta:
+        model = Composicion
+        fields = ("porcentaje", "fluido")
+        widgets = {
+            'fluido': forms.HiddenInput()
+        }
+
+# EVALUACIONES DE PRECALENTADOR DE AIRE
+class EvaluacionPrecalentadorAireForm(forms.ModelForm):
+    """
+    Resumen:
+        Form para el registro de los datos de identificación de una evaluación en el precalentador de aire.
+    """
+    class Meta:
+        model = EvaluacionPrecalentadorAire
+        fields = ("nombre", )
+
+class EntradaLadoForm(forms.ModelForm):
+    """
+    Resumen:
+        Form para el registro de los datos de entrada por lado (A y G) para una evaluación en el precalentador de aire.
+    """
+    class Meta:
+        model = EntradaLado
+        exclude = ("id", "evaluacion", "lado", "cp_prom")
+
+class ComposicionesEvaluacionPrecalentadorAireForm(forms.ModelForm):
+    """
+    Resumen:
+        Form para el registro de las composiciones de un fluido circulante por un lado del precalentador de aire en una evaluación.
+        Debe haber un form por fluido componente según las constantes definidas en el archivo de evaluación.
+    """
+    class Meta:
+        model = ComposicionesEvaluacionPrecalentadorAire
+        fields = ("porcentaje", "fluido")
+        widgets = {
+            'fluido': forms.HiddenInput()
+        }

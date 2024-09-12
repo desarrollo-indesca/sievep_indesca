@@ -28,10 +28,9 @@ from auxiliares.forms import *
 from calculos.termodinamicos import calcular_densidad, calcular_densidad_aire, calcular_presion_vapor, calcular_viscosidad, calcular_densidad_relativa
 from calculos.unidades import *
 from calculos.utils import fluido_existe, registrar_fluido
-from .evaluacion import evaluacion_bomba, evaluar_ventilador, evaluar_precalentador_agua
+from .evaluacion import COMPOSICIONES_AIRE, COMPOSICIONES_GAS, evaluacion_bomba, evaluar_ventilador, evaluar_precalentador_agua, evaluar_precalentador_aire
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import reporte_equipos, ficha_tecnica_ventilador, historico_evaluaciones_bombas, historico_evaluaciones_ventiladores, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga, historico_evaluaciones_precalentador_agua, ficha_tecnica_precalentador_agua
-
+from reportes.xlsx import ficha_tecnica_precalentador_aire, reporte_equipos, ficha_tecnica_ventilador, historico_evaluaciones_bombas, historico_evaluaciones_ventiladores, ficha_instalacion_bomba_centrifuga, ficha_tecnica_bomba_centrifuga, historico_evaluaciones_precalentador_agua, ficha_tecnica_precalentador_agua
 # Create your views here.
 
 class SeleccionEquipo(LoginRequiredMixin, View):
@@ -2091,12 +2090,12 @@ class EdicionPrecalentadorAgua(CreacionPrecalentadorAgua, ObtenerPrecalentadorAg
 class ConsultaEvaluacionPrecalentadorAgua(ConsultaEvaluacion, ObtenerPrecalentadorAguaMixin, ReportesFichasPrecalentadoresAguaMixin):
     """
     Resumen:
-        Vista para la consulta de evaluaciones de Ventiladores de Calderas.
+        Vista para la consulta de evaluaciones de precalentadores de agua.
         Hereda de ConsultaEvaluacion para el ahorro de trabajo en términos de consulta.
-        Utiliza los Mixin para obtener ventiladores y de generación de reportes de fichas de ventiladores.
+        Utiliza los Mixin para obtener precalentadores de agua y de generación de reportes de fichas de precalentadores de agua.
 
     Atributos:
-        model: EvaluacionBomba -> Modelo de la vista
+        model: EvaluacionPrecalentadorAgua -> Modelo de la vista
         model_equipment -> Modelo del equipo
         clase_equipo -> Complemento del título de la vista
         tipo -> Tipo de equipo. Necesario para la renderización correcta de nombres y links.
@@ -2268,7 +2267,18 @@ class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorA
         Vista para mostrar la evaluación de un precalentador de agua. 
 
     Métodos:
-        get_context_data(self)
+        get_context_data(self) -> dict
+            Genera el contexto necesario para la plantilla de la vista.
+        
+        
+        get(self, request, *args, **kwargs)
+            Maneja el verbo GET de la petición.
+        
+        post(self, request, *args, **kwargs)
+            Maneja el verbo POST de la petición.
+        
+        almacenar(self)
+            Almacena los datos de la evaluación en la base de datos.
     """
     template_name = "precalentadores_agua/evaluacion.html"
 
@@ -2458,7 +2468,7 @@ class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorA
         elif(request.POST.get('tipo') == "almacenar"):
                 return self.almacenar()
             
-class GenerarGraficaPrecalentadorAire(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
+class GenerarGraficaPrecalentadorAgua(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
     """
     Resumen:
         Vista AJAX que envía los datos necesarios para la gráfica histórica de evaluaciones de precalentadores de aire.
@@ -2487,6 +2497,668 @@ class GenerarGraficaPrecalentadorAire(LoginRequiredMixin, View, FiltrarEvaluacio
         return JsonResponse(res[:15], safe=False)
   
 # PRECALENTADORES DE AIRE
+class ObtenerPrecalentadorAireMixin():
+    '''
+    Resumen:
+        Mixin para obtener un precalentador de aire de la base de datos de acuerdo a la PK correspondiente y su prefetching.
+
+    Métodos:
+        get_precalentador(self) -> QuerySet
+            Obtiene un precalentador en un queryset con todo el prefetching necesario por cuestiones de eficiencia.
+            El parámetro "precalentador_q" funciona para saber si la función se usará sobre ese QuerySet o no.
+    '''
+    def get_precalentador(self, precalentador_q = None):
+        if(not precalentador_q):
+            if(self.kwargs.get('pk')):
+                precalentador = PrecalentadorAire.objects.filter(pk = self.kwargs.get('pk'))
+            else:
+                precalentador = PrecalentadorAire.objects.none()
+        else:
+            precalentador = precalentador_q
+
+        precalentador = precalentador.select_related(
+            'planta', 'planta__complejo', 'creado_por', 'editado_por',
+            'especificaciones', 'especificaciones__longitud_unidad',
+            'especificaciones__area_unidad', 'especificaciones__area_unidad',
+            'especificaciones__temp_unidad', 'especificaciones__u_unidad',
+        ).prefetch_related(
+            Prefetch('condicion_fluido', CondicionFluido.objects.select_related(
+                'flujo_unidad', 'temp_unidad', 'presion_unidad',
+            ).prefetch_related(
+                Prefetch('composiciones', Composicion.objects.select_related(
+                    'fluido'
+                )),
+            )),
+        )
+
+        if(not precalentador_q and precalentador):
+            return precalentador[0]
+        
+        return precalentador
+
+class ReportesFichasPrecalentadoresAireMixin():
+    """
+    Resumen:
+        Mixin para la reutilización del código para la generación de fichas
+        de precalentadores de aire.
+    """
+    model_ficha = PrecalentadorAire
+    reporte_ficha_xlsx = None
+    titulo_reporte_ficha = "Ficha Técnica del Precalentador de Aire"
+    codigo_reporte_ficha = "ficha_tecnica_precalentadores_aire"
+
+    def reporte_ficha(self, request):
+        if(request.POST.get('ficha')): # FICHA TÉCNICA
+            precalentador = self.get_precalentador(PrecalentadorAire.objects.filter(pk = request.POST.get('ficha'))).first()
+            if(request.POST.get('tipo') == 'pdf'):
+                return generar_pdf(request, precalentador, f"Ficha Técnica del Precalentador de Aire {precalentador.tag}", "ficha_tecnica_precalentador_aire")
+            if(request.POST.get('tipo') == 'xlsx'):
+                return ficha_tecnica_precalentador_aire(precalentador, request)
+
+class ConsultaPrecalentadorAire(LoginRequiredMixin, ReportesFichasPrecalentadoresAireMixin, FiltradoSimpleMixin, ObtenerPrecalentadorAireMixin, ListView):
+    """
+    Resumen:
+        Vista para la consulta de evaluaciones de precalentadores de aire de Calderas.
+        Hereda de ConsultaEvaluacion para el ahorro de trabajo en términos de consulta.
+        Utiliza los Mixin para obtener precalentadores de aire y de generación de reportes de fichas de precalentadores de aire.
+
+    Atributos:
+        model: PrecalentadorAire -> Modelo de la vista
+        template_name -> Plantilla a utilizar
+        titulo -> Tìtulo de la vista
+        paginate_by -> Número de elementos a mostrar por página.
+    
+    Métodos:
+        get_queryset(self) -> QuerySet
+            Hace el prefetching correspondiente al queryset de precalentadores de aire.
+    """
+    model = PrecalentadorAire
+    template_name = 'precalentadores_aire/consulta.html'
+    titulo = "SIEVEP - Consulta de Precalentadores de Aire"
+    paginate_by = 10
+
+    def get_queryset(self):
+        return self.get_precalentador(self.filtrar_equipos())  
+
+    def post(self, request, *args, **kwargs):
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha): # Si se está deseando generar un reporte de ficha, se genera
+            return reporte_ficha
+
+        if(request.POST.get('tipo') == 'pdf'): # Reporte de Precalentadores en PDF
+            return generar_pdf(request, self.get_queryset(), 'Reporte de Precalentadores de Aire', 'precalentadores_aire')
+        
+        if(request.POST.get('tipo') == 'xlsx'): # reporte de precalentadores en XLSX
+            return reporte_equipos(request, self.get_queryset(), 'Listado de Precalentadores de Aire', 'listado_precalentadores')
+
+class CreacionPrecalentadorAire(SuperUserRequiredMixin, View):
+    """
+    Resumen:
+        Vista para la creación o registro de nuevos precalentadores de aire.
+        Solo puede ser accedido por superusuarios.
+
+    Atributos:
+        titulo: str -> Título de la vista
+        prefix_aire: str -> Prefijo para el formulario de aire
+        prefix_gases: str -> Prefijo para el formulario de gases
+        prefix_composiciones_aire: str -> Prefijo base para los formularios de composición de aire 
+        prefix_composiciones_gases: str -> Prefijo base para los formularios de composición de gases
+        template_name: str -> Plantilla utilizada en la renderización
+        success_message: str -> Mensaje de éxito de creación exitosa
+        
+    Métodos:
+        obtener_forms_composiciones(self, composiciones, prefix)
+            Crea instancias de los formularios de composición de aire o de gases.
+
+        get_forms(self) -> dict
+            Crea instancias de los formularios a ser utilizados.
+
+        get_context_data(self) -> dict
+            Genera el contexto de la renderización de la plantilla.
+
+        get(self, request, **kwargs) -> HttpResponse
+            Renderiza el formulario con la plantilla correspondiente.
+
+        almacenar_datos(self, form_bomba, form_detalles_motor, form_condiciones_fluido,
+                            form_detalles_construccion, form_condiciones_diseno, 
+                            form_especificaciones) -> HttpResponse
+
+            Valida y almacena los datos de acuerdo a la lógica requerida para el almacenamiento de precalentadores de agua por medio de los formularios.
+            Si hay errores se levantará una Exception.
+
+        post(self) -> HttpResponse
+            Envía el request a los formularios y envía la respuesta al cliente.
+    """
+
+    titulo = "Creación de Precalentador de Aire"
+    prefix_aire = "aire"
+    prefix_gases = "gases"
+    prefix_composiciones_aire = "composiciones-aire"
+    prefix_composiciones_gases = "composiciones-gases"
+    template_name = "precalentadores_aire/creacion.html"
+    success_message = "Se ha registrado correctamente el precalentador."
+
+    def obtener_forms_composiciones(self, composiciones, prefix):
+        forms = []
+        for compuesto in composiciones:
+            fluido = Fluido.objects.get(cas=compuesto['cas'])
+            forms.append({
+                'form': ComposicionForm(self.request.POST if self.request.method =="POST" else None, prefix=f"{prefix}-{fluido.pk}", initial={'fluido': fluido}),
+                'fluido': fluido
+            })
+
+        return forms
+
+    def get_forms(self):
+        form_equipo = PrecalentadorAireForm()
+        form_especificaciones = EspecificacionesPrecalentadorAireForm()
+        form_aire = CondicionFluidoForm(prefix=self.prefix_aire)
+        form_gases = CondicionFluidoForm(prefix=self.prefix_gases)
+        forms_aire = []
+        forms_gases = []
+
+        forms_aire = self.obtener_forms_composiciones(COMPOSICIONES_AIRE, self.prefix_composiciones_aire)
+        forms_gases = self.obtener_forms_composiciones(COMPOSICIONES_GAS, self.prefix_composiciones_gases)
+        
+        return {
+            'form_equipo': form_equipo,
+            'form_especificaciones': form_especificaciones,
+            'form_aire': form_aire,
+            'form_gases': form_gases,
+            'forms_aire': forms_aire,
+            'forms_gases': forms_gases
+        }
+
+    def get_context_data(self):
+        return {
+            'forms': self.get_forms(),
+            'unidades': Unidades.objects.all(),
+            'titulo': self.titulo
+        }
+    
+    def almacenar_datos(self, form_equipo, form_especificaciones,
+                        form_aire, form_gases, forms_aire,
+                        forms_gases, edicion=False):
+        
+        with transaction.atomic():
+            valid = form_especificaciones.is_valid()
+            if(valid):
+                form_especificaciones.save()
+            else:
+                print(form_especificaciones.errors)
+                raise Exception("Ocurrió un error al validar los datos de las especificaciones.")
+            
+            valid = valid and form_equipo.is_valid()
+            if(valid):
+                if(not edicion):
+                    form_equipo.instance.creado_por = self.request.user
+                else:
+                    form_equipo.instance.editado_por = self.request.user
+                    form_equipo.instance.editado_al = datetime.datetime.now()
+
+                form_equipo.instance.especificaciones = form_especificaciones.instance
+                precalentador = form_equipo.save()
+            else:
+                print(form_equipo.errors)
+                raise Exception("Ocurrió un error al validar los datos del precalentador.")
+            
+            valid = valid and form_aire.is_valid()
+            if(valid):
+                form_aire.instance.precalentador = precalentador
+                form_aire.instance.fluido = "A"
+                form_aire.save()
+
+                for form in forms_aire:
+                    if(form['form'].is_valid()):
+                        form['form'].instance.condicion = form_aire.instance
+                        form['form'].save()
+            else:
+                print(form_aire.errors)
+                raise Exception("Ocurrió un error al validar los datos de las condiciones del aire.")
+
+            valid = valid and form_gases.is_valid()
+            if(valid):
+                form_gases.instance.precalentador = precalentador
+                form_gases.instance.fluido = "G"
+                form_gases.save()
+
+                for form in forms_gases:
+                    if(form['form'].is_valid()):
+                        form['form'].instance.condicion = form_gases.instance
+                        form['form'].save()
+            else:
+                print(form_gases.errors)
+                raise Exception("Ocurrió un error al validar los datos de las condiciones de los gases.")
+
+            messages.success(self.request, self.success_message)
+            return redirect('/auxiliares/precalentadores-aire/')
+    
+    def post(self, request, *args, **kwargs):
+        form_equipo = PrecalentadorAireForm(request.POST)
+        form_especificaciones = EspecificacionesPrecalentadorAireForm(request.POST)
+        form_aire = CondicionFluidoForm(request.POST, prefix=self.prefix_aire)
+        form_gases = CondicionFluidoForm(request.POST, prefix=self.prefix_gases)
+        
+        forms_gases = self.obtener_forms_composiciones(COMPOSICIONES_GAS, self.prefix_composiciones_gases)
+        forms_aire = self.obtener_forms_composiciones(COMPOSICIONES_AIRE, self.prefix_composiciones_aire)
+
+        try:
+            return self.almacenar_datos(form_equipo, form_especificaciones,
+                                        form_aire, form_gases,
+                                        forms_aire, forms_gases)
+        except:
+            return render(
+                request, self.template_name, {
+                    'forms': {
+                        'form_equipo': form_equipo,
+                        'form_especificaciones': form_especificaciones,
+                        'form_aire': form_aire,
+                        'form_gases': form_gases,
+                        'forms_aire': forms_aire,
+                        'forms_gases': forms_gases
+                    },
+                    'unidades': Unidades.objects.all(),
+                    'titulo': self.titulo
+                }
+            )
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name, context=self.get_context_data())
+
+class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalentadorAire):
+    '''
+    Resumen:
+        Vista para la edición de un precalentador de agua. Sigue la misma lógica que la creación pero envía un contexto con las instancias previas.
+        Para más información revisar la superclase CreacionPrecalentadorAire. 
+
+        Se añade el método de obtener forms instanciados para la consititución de los forms de composiciones.
+    '''
+    success_message = "Se ha modificado el precalentador exitosamente."
+    titulo = "Edición de Precalentador de Aire"
+
+    def get_forms(self):
+        precalentador = self.get_precalentador()
+        form_equipo = PrecalentadorAireForm(instance=precalentador)
+        form_especificaciones = EspecificacionesPrecalentadorAireForm(instance=precalentador.especificaciones)
+        condiciones = precalentador.condicion_fluido.all()
+        form_aire = CondicionFluidoForm(prefix=self.prefix_aire, instance=condiciones.first())
+        form_gases = CondicionFluidoForm(prefix=self.prefix_gases, instance=condiciones.last())
+
+        forms_gases = self.obtener_forms_instanciados(form_gases.instance.composiciones.all(), self.prefix_composiciones_gases)
+        forms_aire = self.obtener_forms_instanciados(form_aire.instance.composiciones.all(), self.prefix_composiciones_aire)
+
+        return {
+            'form_equipo': form_equipo,
+            'form_especificaciones': form_especificaciones,
+            'form_aire': form_aire,
+            'form_gases': form_gases,
+            'forms_aire': forms_aire,
+            'forms_gases': forms_gases
+        }
+
+    def obtener_forms_instanciados(self, queryset, prefix):
+        forms = []
+        for compuesto in queryset:
+            fluido = compuesto.fluido
+            forms.append({
+                'form': ComposicionForm(self.request.POST if self.request.method == 'POST' else None, prefix=f"{prefix}-{fluido.pk}", instance=compuesto),
+                'fluido': fluido
+            })
+
+        print(forms)
+        return forms
+
+    def post(self, request, *args, **kwargs):
+        precalentador = self.get_precalentador()
+        form_equipo = PrecalentadorAireForm(request.POST, instance=precalentador)
+        form_especificaciones = EspecificacionesPrecalentadorAireForm(request.POST, instance=precalentador.especificaciones)
+        condiciones = precalentador.condicion_fluido.all()
+        form_aire = CondicionFluidoForm(request.POST, prefix=self.prefix_aire, instance=condiciones.first())
+        form_gases = CondicionFluidoForm(request.POST, prefix=self.prefix_gases, instance=condiciones.last())
+                
+        forms_gases = self.obtener_forms_instanciados(form_gases.instance.composiciones.all(), self.prefix_composiciones_gases)
+        forms_aire = self.obtener_forms_instanciados(form_aire.instance.composiciones.all(), self.prefix_composiciones_aire)
+
+        try:
+            return self.almacenar_datos(form_equipo, form_especificaciones,
+                                        form_aire, form_gases,
+                                        forms_aire, forms_gases, edicion=True)
+        except:
+            return render(
+                request, self.template_name, {
+                    'forms': {
+                        'form_equipo': form_equipo,
+                        'form_especificaciones': form_especificaciones,
+                        'form_aire': form_aire,
+                        'form_gases': form_gases,
+                        'forms_aire': forms_aire,
+                        'forms_gases': forms_gases
+                    },
+                    'unidades': Unidades.objects.all(),
+                    'titulo': self.titulo
+                }
+            )
+
+class ConsultaEvaluacionPrecalentadorAire(ConsultaEvaluacion, ReportesFichasPrecalentadoresAireMixin, ObtenerPrecalentadorAireMixin):
+    """
+    Resumen:
+        Vista para la consulta de evaluaciones de precalentadores de aire.
+        Hereda de ConsultaEvaluacion para el ahorro de trabajo en términos de consulta.
+        Utiliza los Mixin para obtener precalentadores de aire y de generación de reportes de fichas de precalentadores de aire.
+
+    Atributos:
+        model: EvaluacionPrecalentadorAire -> Modelo de la vista
+        model_equipment -> Modelo del equipo
+        clase_equipo -> Complemento del título de la vista
+        tipo -> Tipo de equipo. Necesario para la renderización correcta de nombres y links.
+    
+    Métodos:
+        get_context_data(self) -> dict
+            Añade al contexto original el equipo.
+
+        get_queryset(self) -> QuerySet
+            Hace el prefetching correspondiente al queryset de las evaluaciones.
+
+        post(self) -> HttpResponse
+            Contiene la lógica de eliminación (ocultación) de una evaluación y de generación de reportes.
+    """
+    model = EvaluacionPrecalentadorAire
+    model_equipment = PrecalentadorAire
+    clase_equipo = "l Precalentador de Aire"
+    tipo = 'precalentadores_aire'
+    template_name = 'precalentadores_aire/consulta_evaluaciones.html'
+
+    def post(self, request, **kwargs):
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha):
+            return reporte_ficha
+            
+        if(request.user.is_superuser and request.POST.get('evaluacion')): # Lógica de "Eliminación"
+            evaluacion = self.model.objects.get(pk=request.POST['evaluacion'])
+            evaluacion.activo = False
+            evaluacion.save()
+            messages.success(request, "Evaluación eliminada exitosamente.")
+        elif(request.POST.get('evaluacion') and not request.user.is_superuser):
+            messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
+
+        if(request.POST.get('tipo') == 'pdf'):
+            return generar_pdf(request, self.get_queryset(), f"Evaluaciones del Precalentador de Aire {self.get_precalentador().tag}", "reporte_evaluaciones_precalentador")
+        elif(request.POST.get('tipo') == 'xlsx'):
+            return historico_evaluaciones_precalentador_agua(self.get_queryset(), request)
+
+        if(request.POST.get('detalle')):
+            return generar_pdf(request, self.model.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Precalentador de Aire", "detalle_evaluacion_precalentador_aire")
+
+        return self.get(request, **kwargs)
+    
+    def get_queryset(self):
+        new_context = super().get_queryset()
+
+        new_context = new_context.select_related(
+            'salida', 'usuario'
+        ).prefetch_related(
+            Prefetch('entrada_lado', EntradaLado.objects.select_related(
+                'temp_unidad', 'flujo_unidad',
+            ).prefetch_related(
+                Prefetch('composicion_combustible', ComposicionesEvaluacionPrecalentadorAire.objects.select_related(
+                'fluido'
+            ))),
+            ),
+        )
+
+        return new_context
+
+    def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
+        context = super().get_context_data(**kwargs)
+        context['equipo'] = self.get_precalentador()
+        context['tipo'] = self.tipo
+
+        return context
+
+class EvaluarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAireMixin, View):
+    """
+    Resumen:
+        Vista para la evaluación de un precalentador de aire. 
+        Hereda de EvaluarView para el ahorro de trabajo en cálculos de evaluación.
+    """
+    template_name = "precalentadores_aire/evaluacion.html"
+ 
+    def get_forms(self, precalentador):
+        forms_composicion_aire = []
+        forms_composicion_gases = []
+
+        for compuesto in precalentador.condicion_fluido.first().composiciones.all():
+            forms_composicion_aire.append(
+                {
+                    'form': ComposicionesEvaluacionPrecalentadorAireForm(
+                        prefix=f"composicion-aire-{compuesto.id}",
+                        initial={
+                        'porcentaje': compuesto.porcentaje,
+                        'fluido': compuesto.fluido,
+                    }),
+                    'fluido': compuesto.fluido
+                }
+            )
+
+        for compuesto in precalentador.condicion_fluido.last().composiciones.all():
+            forms_composicion_gases.append(
+                {
+                    'form': ComposicionesEvaluacionPrecalentadorAireForm(
+                        prefix=f"composicion-gases-{compuesto.id}",
+                        initial={
+                        'porcentaje': compuesto.porcentaje,
+                        'fluido': compuesto.fluido,
+                    }),
+                    'fluido': compuesto.fluido
+                }
+            )
+  
+        forms = {
+            'form_evaluacion': EvaluacionPrecalentadorAireForm(instance=precalentador),
+            'form_entrada_aire': EntradaLadoForm(prefix="aire", initial={'lado': "A"}),
+            'form_entrada_gases': EntradaLadoForm(prefix="gases", initial={'lado': "G"}),
+            'forms_composicion_gases': forms_composicion_gases,
+            'forms_composicion_aire': forms_composicion_aire,
+        }
+
+        return forms
+
+    def calcular_resultados(self, precalentador):
+        request = self.request.POST
+
+        temp_unidad_aire = int(request.get('aire-temp_unidad'))
+        flujo_unidad_aire = int(request.get('aire-flujo_unidad'))
+        temp_unidad_gas = int(request.get('gases-temp_unidad'))
+        flujo_unidad_gas = int(request.get('gases-flujo_unidad'))  
+
+        t1_aire, t2_aire = transformar_unidades_temperatura(
+            [float(request.get('aire-temp_entrada')), 
+             float(request.get('aire-temp_salida'))],
+            temp_unidad_aire,
+        )
+
+        t1_gas, t2_gas = transformar_unidades_temperatura(
+            [float(request.get('gases-temp_entrada')), 
+             float(request.get('gases-temp_salida'))],
+            temp_unidad_gas,
+        )
+
+        flujo_aire = transformar_unidades_flujo(
+            [float(request.get('aire-flujo'))],
+            flujo_unidad_aire
+        )[0]
+        flujo_gas = transformar_unidades_flujo(
+            [float(request.get('gases-flujo'))],
+            flujo_unidad_gas
+        )[0]
+
+        u = transformar_unidades_u(
+            [precalentador.especificaciones.u], 
+            precalentador.especificaciones.u_unidad.pk
+        )[0]
+        area_transferencia = transformar_unidades_area(
+            [precalentador.especificaciones.area_transferencia], 
+            precalentador.especificaciones.area_unidad.pk
+        )[0]
+
+        compsosicion_gas = [
+            {
+                'porcentaje': float(request.get(f'composicion-gases-{compuesto.id}-porcentaje')),
+                'fluido': compuesto.fluido
+            } for compuesto in precalentador.condicion_fluido.last().composiciones.all()
+        ]
+        composicion_aire = [
+            {
+                'porcentaje': float(request.get(f'composicion-aire-{compuesto.id}-porcentaje')),
+                'fluido': compuesto.fluido
+            } for compuesto in precalentador.condicion_fluido.first().composiciones.all()
+        ]    
+
+        resultados = evaluar_precalentador_aire(
+            t1_aire, t2_aire, t1_gas, t2_gas,
+            flujo_aire, flujo_gas, u, area_transferencia,
+            compsosicion_gas, composicion_aire            
+        )
+
+        return resultados
+
+    def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
+        context = {}
+        context['precalentador'] = self.get_precalentador()
+        context['forms'] = self.get_forms(context['precalentador'])
+        context['unidades'] = Unidades.objects.all().values('pk', 'simbolo', 'tipo')
+        context['titulo'] = f"Evaluación de Precalentador de Aire {context['precalentador'].tag}"
+        return context
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name, context=self.get_context_data())
+
+    def calcular(self):
+        precalentador = self.get_precalentador()
+        
+        context = self.get_context_data()
+        context['resultados'] = self.calcular_resultados(precalentador)
+        
+        return render(self.request, 'precalentadores_aire/partials/resultados.html', context)
+    
+    def almacenar(self):
+        precalentador = self.get_precalentador()
+        resultados = self.calcular_resultados(precalentador)
+
+        with transaction.atomic():
+            salida = SalidaEvaluacionPrecalentadorAire.objects.create(
+                calor_aire = resultados['q_aire'],
+                calor_gas = resultados['q_gas'],
+                eficiencia = resultados['eficiencia'],
+                ntu = resultados['ntu'],
+                calor_perdido = resultados['perdida_calor'],
+                u = resultados['u'],
+                ensuciamiento = resultados['ensuciamiento'],
+                u_diseno = resultados['u_diseno'],
+                lmtd = resultados['lmtd'],
+                cp_aire_entrada = resultados['cp_promedio_aire_entrada'],
+                cp_aire_salida = resultados['cp_promedio_aire_salida'],
+                cp_gas_entrada = resultados['cp_promedio_gas_entrada'],
+                cp_gas_salida = resultados['cp_promedio_gas_salida'],
+            )
+
+            evaluacion = EvaluacionPrecalentadorAireForm(
+                self.request.POST
+            )
+            valid = evaluacion.is_valid()
+            if(valid):
+                evaluacion.instance.salida = salida
+                evaluacion.instance.equipo = precalentador
+                evaluacion.instance.usuario = self.request.user
+                evaluacion.save()
+
+            entrada_aire = EntradaLadoForm(
+                self.request.POST,
+                prefix='aire'
+            )
+            valid = valid and entrada_aire.is_valid()
+            if(valid):
+                entrada_aire.instance.evaluacion = evaluacion.instance
+                entrada_aire.instance.lado = 'A'
+                entrada_aire = entrada_aire.save()
+            else:
+                print(entrada_aire.errors)
+
+            entrada_gas = EntradaLadoForm(
+                self.request.POST,
+                prefix='gases'
+            )
+            valid = valid and entrada_gas.is_valid()
+            if(valid):
+                entrada_gas.instance.evaluacion = evaluacion.instance
+                entrada_gas.instance.lado = 'G'
+                entrada_gas = entrada_gas.save()
+            else:
+                print(entrada_gas.errors)
+            
+            for compuesto in precalentador.condicion_fluido.last().composiciones.all():
+                form = ComposicionesEvaluacionPrecalentadorAireForm(
+                    self.request.POST,
+                    prefix=f"composicion-gases-{compuesto.id}",
+                )
+                form.instance.entrada = entrada_gas
+                form.instance.compuesto = compuesto
+                valid = valid and form.is_valid()
+                if form.is_valid():
+                    form.save()
+
+            for compuesto in precalentador.condicion_fluido.first().composiciones.all():
+                form = ComposicionesEvaluacionPrecalentadorAireForm(
+                    self.request.POST,
+                    prefix=f"composicion-aire-{compuesto.id}",
+                )
+                form.instance.entrada = entrada_aire
+                form.instance.compuesto = compuesto
+                valid = valid and form.is_valid()
+                if form.is_valid():
+                    form.save()
+
+            if(not valid):
+                return render(self.request, 'precalentadores_aire/partials/almacenamiento_fallido.html', context={
+                    'precalentador': precalentador,
+                })
+
+        return render(self.request, 'precalentadores_aire/partials/almacenamiento_exitoso.html', context={
+            'precalentador': precalentador,
+        })
+
+    def post(self, request, *args, **kwargs):
+        if(request.POST.get('submit') == 'calcular'):
+            return self.calcular()
+        elif(request.POST.get('submit') == 'almacenar'):
+            return self.almacenar()
+
+class GenerarGraficaPrecalentadorAire(SuperUserRequiredMixin, FiltrarEvaluacionesMixin, ObtenerPrecalentadorAireMixin, View):
+    """
+    Resumen:
+        Vista para generar la grafica de la eficiencia de un precalentador de aire. 
+
+    Métodos:
+        get(self, request, *args, **kwargs)
+    """
+
+    def get(self, request, *args, **kwargs):
+        precalentador = self.get_precalentador()
+        evaluaciones = EvaluacionPrecalentadorAire.objects.filter(activo = True, equipo = precalentador).select_related('salida').order_by('fecha')
+        
+        evaluaciones = self.filtrar(request, evaluaciones)
+        
+        res = []
+        for evaluacion in evaluaciones:
+            salida = evaluacion.salida
+            res.append({
+                'fecha': evaluacion.fecha.__str__(),
+                'u': salida.u,
+                'eficiencia': salida.eficiencia,
+                'ensuciamiento': salida.ensuciamiento,
+            })
+
+        return JsonResponse(res[:15], safe=False)
 
 # VISTAS DE DUPLICACIÓN
 class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, DuplicateView):
@@ -2597,3 +3269,44 @@ class DuplicarPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAgua
 
         messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
         return redirect('/auxiliares/precalentadores/')
+
+class DuplicarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAireMixin, DuplicateView):
+    """
+    Resumen:
+        Vista para duplicar un precalentador de aire.
+
+    Métodos:
+        post(self, request, *args, **kwargs)
+            Crea una nueva instancia del precalentador de aire a duplicar y la retorna.
+    """
+    def post(self, request, *args, **kwargs):
+        precalentador_original = self.get_precalentador()
+        precalentador = precalentador_original
+        old_tag = precalentador.tag
+        
+        with transaction.atomic():
+            especificaciones = self.copy(precalentador_original.especificaciones)
+
+            precalentador.especificaciones = especificaciones
+            precalentador.copia = True
+            precalentador.tag = generate_nonexistent_tag(PrecalentadorAire, precalentador.tag)
+            precalentador = self.copy(precalentador)
+
+            condicion_aire_original = precalentador_original.condicion_fluido.first()
+            condicion_aire_original.precalentador = precalentador
+            condicion_aire = self.copy(condicion_aire_original)
+
+            condicion_gases_original = precalentador_original.condicion_fluido.last()
+            condicion_aire_original.precalentador = precalentador
+            condicion_gases = self.copy(condicion_gases_original)
+
+            for composicion in condicion_gases_original.composiciones.all():
+                composicion.condicion = condicion_gases
+                self.copy(composicion)
+
+            for composicion in condicion_aire_original.composiciones.all():
+                composicion.condicion = condicion_aire
+                self.copy(composicion)
+
+        messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
+        return redirect('/auxiliares/precalentadores-aire/')

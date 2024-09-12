@@ -40,5 +40,16 @@ urlpatterns = [
 
     path('precalentadores/evaluaciones/<int:pk>/', ConsultaEvaluacionPrecalentadorAgua.as_view(), name="evaluaciones_precalentador_agua"),
     path('precalentadores/evaluaciones/evaluar/<int:pk>/', CrearEvaluacionPrecalentadorAgua.as_view(), name="evaluar_precalentador_agua"),
-    path('precalentadores/evaluaciones/grafica/<int:pk>/', GenerarGraficaPrecalentadorAire.as_view(), name="grafica_precalentadores")
+    path('precalentadores/evaluaciones/grafica/<int:pk>/', GenerarGraficaPrecalentadorAgua.as_view(), name="grafica_precalentadores"),
+
+    # URLs de PRECALENTADORES DE AGUA
+    path('precalentadores-aire/', ConsultaPrecalentadorAire.as_view(), name="consulta_precalentador_aire"),
+    path('precalentadores-aire/creacion/', CreacionPrecalentadorAire.as_view(), name="creacion_precalentador_aire"),
+    path('precalentadores-aire/edicion/<int:pk>/', EdicionPrecalentadorAire.as_view(), name="edicion_precalentador_aire"),
+    
+    path('precalentadores-aire/evaluaciones/<int:pk>/', ConsultaEvaluacionPrecalentadorAire.as_view(), name="evaluaciones_precalentador_aire"),
+    path('precalentadores-aire/evaluar/<int:pk>/', EvaluarPrecalentadorAire.as_view(), name="evaluar_precalentador_aire"),
+
+    path('precalentadores-aire/evaluaciones/grafica/<int:pk>/', GenerarGraficaPrecalentadorAire.as_view(), name="grafica_precalentadores_aire"),    
+    path('precalentadores-aire/duplicar/<int:pk>/', DuplicarPrecalentadorAire.as_view(), name="duplicar_precalentador_aire"),
 ]
