@@ -6,6 +6,8 @@ from django.shortcuts import render, redirect
 from django.db import transaction
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
+from usuarios.forms import RespuestaForm
+from usuarios.models import *
 
 # Create your views here.
 
@@ -282,3 +284,38 @@ class CambiarContrasena(SuperUserRequiredMixin, View):
         usuario = self.modelo.objects.get(pk=pk)
 
         return render(request, 'cambiar_contrasena.html', context={'usuario': usuario, 'edicion': True, **self.context})
+
+class EncuestaSatisfaccion(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Vista del formulario de encuesta de satisfacción.
+
+    Método:
+        get_context_data(self, **kwargs)
+            Contiene la lógica de renderizado del formulario.
+
+        get(self, request)
+            Contiene la lógica de renderizado del formulario.
+    """
+    def get_context_data(self, **kwargs):
+        encuesta = Encuesta.objects.first()
+        forms = []
+
+        for seccion in encuesta.secciones.all():
+            forms.append({
+                'seccion': seccion,
+                'preguntas': [
+                    {
+                        'pregunta': pregunta,
+                        'form': RespuestaForm(initial={'pregunta': pregunta})
+                    } for pregunta in seccion.preguntas.all()
+                ]
+            })
+
+        return {
+            'forms': forms,
+            'encuesta': encuesta
+        }
+
+    def get(self, request):
+        return render(request, 'encuesta.html', self.get_context_data())
