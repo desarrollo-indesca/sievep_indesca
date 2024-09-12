@@ -77,6 +77,18 @@ def reporte_equipos(request, object_list, titulo: str, nombre: str):
     return enviar_response(nombre, excel_io, fecha)
 
 def enviar_response(nombre, archivo, fecha):
+    """
+    Resumen:
+        Envía una respuesta HTTP con un archivo XLSX anexado y con el nombre especificado.
+    
+    Parámetros:
+        nombre: str -> El nombre del archivo, sin la extensión.
+        archivo: BytesIO -> El archivo XLSX en memoria.
+        fecha: datetime.datetime -> La fecha del archivo, en formato datetime.
+    
+    Devuelve:
+        HttpResponse: La respuesta HTTP con el archivo anexado.
+    """
     response = HttpResponse(content_type='application/ms-excel', content=archivo.getvalue())
     fecha = datetime.datetime.now()
     response['Content-Disposition'] = f'attachment; filename="{nombre}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
