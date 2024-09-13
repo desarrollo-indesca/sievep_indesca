@@ -301,21 +301,42 @@ class EncuestaSatisfaccion(LoginRequiredMixin, View):
         encuesta = Encuesta.objects.first()
         forms = []
 
+        request = self.request.POST
+
         for seccion in encuesta.secciones.all():
             forms.append({
                 'seccion': seccion,
                 'preguntas': [
                     {
                         'pregunta': pregunta,
-                        'form': RespuestaForm(initial={'pregunta': pregunta})
+                        'form': RespuestaForm(request if len(request) else None, prefix=f"pregunta-{pregunta.id}", initial={'pregunta': pregunta})
                     } for pregunta in seccion.preguntas.all()
                 ]
             })
 
         return {
             'forms': forms,
-            'encuesta': encuesta
+            'encuesta': encuesta,
+            'titulo': 'Encuesta de Satisfacción del SIEVEP'
         }
 
+    def post(self, request):
+        with transaction.atomic():
+            encuesta = Encuesta.objects.first()
+            envio = Envio.objects.create(encuesta=encuesta, usuario=request.user)
+
+            for seccion in encuesta.secciones.all():
+                for pregunta in seccion.preguntas.all():
+                    form = RespuestaForm(request.POST, prefix=f"pregunta-{pregunta.id}")
+                    if(form.is_valid()):
+                        form.instance.envio = envio
+                        form.save()
+                    else:
+                        print(form.errors)
+                    
+                    return render(request, 'form_encuesta.html', self.get_context_data())
+
+        return redirect("/")
+
     def get(self, request):
-        return render(request, 'encuesta.html', self.get_context_data())
+        return render(request, 'form_encuesta.html', self.get_context_data())

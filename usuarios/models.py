@@ -33,7 +33,7 @@ class Pregunta(models.Model):
     """
     nombre = models.CharField(max_length=150)
     tipo = models.CharField(max_length=1)
-    seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
+    seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE, related_name='preguntas')
 
 class Envio(models.Model):
     """
@@ -51,6 +51,6 @@ class Respuesta(models.Model):
         Modelo de registro de una respuesta de una encuesta por parte de un usuario.
     """
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
-    nombre = models.CharField(max_length=50)
+    respuesta = models.CharField(max_length=150, null=True, blank=True)
     pregunta = models.ForeignKey(Pregunta, on_delete=models.CASCADE)
     envio = models.ForeignKey(Envio, on_delete=models.CASCADE)
