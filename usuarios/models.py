@@ -41,9 +41,12 @@ class Envio(models.Model):
         Modelo de registro de un envio de una encuesta por parte de un usuario.
     """
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
-    encuesta = models.ForeignKey(Encuesta, on_delete=models.CASCADE)
+    encuesta = models.ForeignKey(Encuesta, on_delete=models.CASCADE, related_name="envios")
     fecha = models.DateTimeField(auto_now_add=True)
     usuario = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ('-fecha',)
 
 class Respuesta(models.Model):
     """
@@ -53,4 +56,7 @@ class Respuesta(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     respuesta = models.CharField(max_length=150, null=True, blank=True)
     pregunta = models.ForeignKey(Pregunta, on_delete=models.CASCADE)
-    envio = models.ForeignKey(Envio, on_delete=models.CASCADE)
+    envio = models.ForeignKey(Envio, on_delete=models.CASCADE, related_name="respuestas")
+    
+    class Meta:
+        unique_together = ('envio', 'pregunta')

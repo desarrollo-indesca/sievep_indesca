@@ -1,3 +1,4 @@
+from django.db.models.query import QuerySet, Q, Prefetch
 from django.views.generic.list import ListView
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -339,4 +340,62 @@ class EncuestaSatisfaccion(LoginRequiredMixin, View):
         return redirect("/")
 
     def get(self, request):
+        if(Envio.objects.filter(encuesta=Encuesta.objects.first(), usuario=request.user).exists()):
+            return redirect("/usuarios/encuesta/resultados/")
+        
         return render(request, 'form_encuesta.html', self.get_context_data())
+
+class ConsultaEncuestas(LoginRequiredMixin, ListView):
+    """
+    Resumen:
+        Vista de la lista de encuestas existentes. 
+        Únicamente pueden acceder superusuarios.
+
+    Atributos:
+        modelo: Model
+            modelos (User) de la creación.
+
+        context: dict
+            Diccionario que contiene la data contextual de la vista.
+            Incluye inicialmente el título.
+    
+    Métodos:
+        get_context_data(self, **kwargs)
+            Contiene la lógica de renderizado del formulario.
+    """
+    model = Envio
+    paginate_by = 10
+    template_name = 'consulta_encuesta.html'
+
+    def filtrar(self, queryset):
+        desde = self.request.GET.get('desde', '')
+        hasta = self.request.GET.get('hasta', '')
+        usuario = self.request.GET.get('usuario', '')
+
+        # Lógica de filtrado según valor del parámetro
+        if(desde != ''):
+            queryset = queryset.filter(
+                fecha__gte = desde
+            )
+
+        if(hasta != ''):
+            queryset = queryset.filter(
+                fecha__lte=hasta
+            )
+
+        if(usuario != ''):
+            queryset = queryset.filter(
+                Q(usuario__first_name__icontains = usuario) |
+                Q(usuario__last_name__icontains = usuario)
+            )
+
+        return queryset
+
+    def get_queryset(self) -> QuerySet:
+        return self.filtrar(self.model.objects.filter(
+            encuesta=Encuesta.objects.first()
+        ).select_related(
+            'usuario'
+        ).prefetch_related(
+            Prefetch('respuestas', Respuesta.objects.select_related('pregunta', 'pregunta__seccion'))
+        ))
