@@ -48,6 +48,7 @@
 {% block opciones %}
 <div>
   {% if object_list.count %}
+    {% include 'modals/grafica.html' %}
     <button type="button" class="btn btn-warning" style="color: black;" data-bs-toggle="modal" data-bs-target="#grafica_historica"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Mostrar gráfica histórico">&nbsp;Gráfica Histórica</button>
   {% endif %}
 </div>

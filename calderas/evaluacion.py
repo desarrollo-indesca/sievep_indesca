@@ -676,7 +676,7 @@ def evaluar_metodo_indirecto(composiciones_combustible: dict, temperatura_aire: 
     if (temperatura_superficie != 0 and velocidad_aire != 0 and area_superficie != 0):
         perdidas_radiacion_y_conveccion_area = (0.548 * ((pow(temperatura_superficie/55.55, 4)) - pow(temperatura_aire/55.55, 4)) + 1.957 * (temperatura_superficie - temperatura_aire) * ((196.85 * velocidad_aire + 68.9) / 68.9)**0.5) * 0.86
         perdida_hora = perdidas_radiacion_y_conveccion_area * area_superficie
-        l6 = ((perdida_hora * 100) / (flujo_molar_gas * poder_calorifico)) * 100
+        l6 = ((perdida_hora) / (flujo_molar_gas * poder_calorifico)) * 100
     else:
         l6 = 3
 

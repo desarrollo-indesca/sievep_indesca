@@ -8,6 +8,7 @@ from django.db import transaction
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from usuarios.forms import RespuestaForm
+from django.http import JsonResponse
 from usuarios.models import *
 
 # Create your views here.
@@ -333,9 +334,8 @@ class EncuestaSatisfaccion(LoginRequiredMixin, View):
                         form.instance.envio = envio
                         form.save()
                     else:
-                        print(form.errors)
-                    
-                    return render(request, 'form_encuesta.html', self.get_context_data())
+                        print(form.errors)                    
+                        return render(request, 'form_encuesta.html', self.get_context_data())
 
         return redirect("/")
 
@@ -391,11 +391,34 @@ class ConsultaEncuestas(LoginRequiredMixin, ListView):
 
         return queryset
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['titulo'] = 'Encuestas de Satisfacción'
+
+        return ctx
+
     def get_queryset(self) -> QuerySet:
         return self.filtrar(self.model.objects.filter(
             encuesta=Encuesta.objects.first()
         ).select_related(
-            'usuario'
+            'usuario', 'encuesta',
         ).prefetch_related(
+            Prefetch('encuesta__secciones', Seccion.objects.prefetch_related('preguntas')),
             Prefetch('respuestas', Respuesta.objects.select_related('pregunta', 'pregunta__seccion'))
         ))
+    
+def graficas_encuestas(request):
+    respuestas = Respuesta.objects.all().select_related('pregunta')
+    questions = {}
+    for respuesta in respuestas:
+        if respuesta.pregunta.tipo != "3":
+            if respuesta.pregunta.pk not in questions:
+                questions[respuesta.pregunta.pk] = {}
+            if respuesta.respuesta not in questions[respuesta.pregunta.pk]:
+                questions[respuesta.pregunta.pk][respuesta.respuesta] = 1
+            else:
+                questions[respuesta.pregunta.pk][respuesta.respuesta] += 1
+
+            questions[respuesta.pregunta.pk]['pregunta'] = respuesta.pregunta.nombre 
+
+    return JsonResponse(questions)

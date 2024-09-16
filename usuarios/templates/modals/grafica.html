@@ -4,32 +4,35 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
       <div class="modal-content text-dark">
         <div class="modal-header">
-          <h5 class="modal-title" id="grafica_historicaLabel">Gráficas Históricas de las Evaluaciones</h5>
+          <h5 class="modal-title" id="grafica_historicaLabel">Gráficas de los Resultados</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
         <div class="modal-body text-start small">
             <div class="row">
-                <div class="col-6">
-                    <canvas width="100%" id="grafica_historica3"></canvas>
+                {% for seccion in object_list.first.encuesta.secciones.all %}
+                {% if not forloop.first %}
+                <hr>
+                {% endif %}
+                <h3 class="text-center text-danger">— {{seccion.nombre}} —</h3>
+                <hr>
+                {% for pregunta in seccion.preguntas.all %}
+                {% if pregunta.tipo != "3" %}
+                <div class="col-md-6 col-sm-12">
+                    <canvas width="100%" id="grafica_{{pregunta.pk}}"></canvas>
                 </div>
-                <div class="col-6">
-                    <canvas width="100%" id="grafica_historica2"></canvas>
-                </div>
-                <div class="col-12">
-                    <canvas width="100%" id="grafica_historica1"></canvas>
-                </div>
+                {% endif %}
+                {% endfor %}
+                {% endfor %}
             </div>
         </div>
       </div>
     </div>
 </div>
 
-<script>
-    canvas = document.getElementById('grafica_historica1').getContext('2d');
-    let datosGraficaEfic = {}, datosGraficaCabezal = {}, datosGraficaNPSHa = {};
+<script>    
     $.ajax({
-        url: '{% url "generar_historico_bomba" pk=equipo.pk %}',
+        url: '{% url "grafica_encuesta" %}',
         data: {
             desde: $('#desde').val(),
             hasta: $('#hasta').val(),
@@ -37,105 +40,41 @@
             nombre: $('#nombre').val(),
         },
         success: (res) => {
-            for (let i = 0; i < res.length; i++) {
-                const element = res[i];
-                const fecha = new Date(Date.parse(element.fecha));
-                const fecha_str = `${fecha.getDate()}/${fecha.getMonth()+1}/${fecha.getFullYear()} ${fecha.getHours()}:${fecha.getMinutes()}:${fecha.getSeconds()}`;
+            Object.entries(res).forEach(([key, value]) => {
+                console.log(key);
+                let canvas = document.getElementById(`grafica_${key}`).getContext('2d');
+                $(`#grafica_${key}`).removeAttr('hidden');               
+
+                chart = new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        datasets: [
+                            {
+                                label: `${value.pregunta}`,
+                                data: Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'pregunta')),
+                                backgroundColor: ['#00F'],
+                                borderColor: ['#00F']
+                            },
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: `${value.pregunta}`,
+                                position: 'top'
+                            },
+                            legend: {
+                                display: true
+                            }
+                        }        
+                    }
+                });
+            });
                 
-                datosGraficaEfic[fecha_str] = element.salida__eficiencia;
-                datosGraficaCabezal[fecha_str] = element.salida__cabezal_total;
-                datosGraficaNPSHa[fecha_str] = element.salida__npsha;
+            for (let i = 0; i < res.length; i++) {
             }
-
-            let canvas = document.getElementById('grafica_historica1').getContext('2d');
-            $('#grafica_historica1').removeAttr('hidden');
-
-            chart = new Chart(canvas, {
-                type: 'line',
-                data: {
-                    datasets: [
-                        {
-                            label: "Eficiencia (%)",
-                            data: datosGraficaEfic,
-                            backgroundColor: ['#F00'],
-                            borderColor: ['#F44']
-                        },
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Histórico de Eficiencia',
-                            position: 'top'
-                        },
-                        legend: {
-                            display: true
-                        }
-                    }        
-                }
-            });
-
-            canvas = document.getElementById('grafica_historica2').getContext('2d');
-            $('#grafica_historica2').removeAttr('hidden');
-
-            chart = new Chart(canvas, {
-                type: 'line',
-                data: {
-                    datasets: [
-                        {
-                            label: "NPSHa ({{bomba.condiciones_diseno.npsha_unidad}})",
-                            data: datosGraficaNPSHa,
-                            backgroundColor: ['#0F0'],
-                            borderColor: ['#4F4']
-                        },
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Histórico de NPSHa',
-                            position: 'top'
-                        },
-                        legend: {
-                            display: true
-                        }
-                    }        
-                }
-            });
-
-            canvas = document.getElementById('grafica_historica3').getContext('2d');
-            $('#grafica_historica3').removeAttr('hidden');
-
-            chart = new Chart(canvas, {
-                type: 'line',
-                data: {
-                    datasets: [
-                        {
-                            label: "Cabezal Total ({{bomba.especificaciones_bomba.cabezal_unidad}})",
-                            data: datosGraficaCabezal,
-                            backgroundColor: ['#00F'],
-                            borderColor: ['#44F']
-                        },
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Histórico de Cabezal Total',
-                            position: 'top'
-                        },
-                        legend: {
-                            display: true
-                        }
-                    }        
-                }
-            });
         }
     });
 </script>
