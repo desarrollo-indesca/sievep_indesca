@@ -1,3 +1,4 @@
+from django.db.models.query import QuerySet, Q, Prefetch
 from django.views.generic.list import ListView
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -6,6 +7,9 @@ from django.shortcuts import render, redirect
 from django.db import transaction
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
+from usuarios.forms import RespuestaForm
+from django.http import JsonResponse
+from usuarios.models import *
 
 # Create your views here.
 
@@ -282,3 +286,139 @@ class CambiarContrasena(SuperUserRequiredMixin, View):
         usuario = self.modelo.objects.get(pk=pk)
 
         return render(request, 'cambiar_contrasena.html', context={'usuario': usuario, 'edicion': True, **self.context})
+
+class EncuestaSatisfaccion(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Vista del formulario de encuesta de satisfacción.
+
+    Método:
+        get_context_data(self, **kwargs)
+            Contiene la lógica de renderizado del formulario.
+
+        get(self, request)
+            Contiene la lógica de renderizado del formulario.
+    """
+    def get_context_data(self, **kwargs):
+        encuesta = Encuesta.objects.first()
+        forms = []
+
+        request = self.request.POST
+
+        for seccion in encuesta.secciones.all():
+            forms.append({
+                'seccion': seccion,
+                'preguntas': [
+                    {
+                        'pregunta': pregunta,
+                        'form': RespuestaForm(request if len(request) else None, prefix=f"pregunta-{pregunta.id}", initial={'pregunta': pregunta})
+                    } for pregunta in seccion.preguntas.all()
+                ]
+            })
+
+        return {
+            'forms': forms,
+            'encuesta': encuesta,
+            'titulo': 'Encuesta de Satisfacción del SIEVEP'
+        }
+
+    def post(self, request):
+        with transaction.atomic():
+            encuesta = Encuesta.objects.first()
+            envio = Envio.objects.create(encuesta=encuesta, usuario=request.user)
+
+            for seccion in encuesta.secciones.all():
+                for pregunta in seccion.preguntas.all():
+                    form = RespuestaForm(request.POST, prefix=f"pregunta-{pregunta.id}")
+                    if(form.is_valid()):
+                        form.instance.envio = envio
+                        form.save()
+                    else:
+                        print(form.errors)                    
+                        return render(request, 'form_encuesta.html', self.get_context_data())
+
+        return redirect("/")
+
+    def get(self, request):
+        if(Envio.objects.filter(encuesta=Encuesta.objects.first(), usuario=request.user).exists()):
+            return redirect("/usuarios/encuesta/resultados/")
+        
+        return render(request, 'form_encuesta.html', self.get_context_data())
+
+class ConsultaEncuestas(LoginRequiredMixin, ListView):
+    """
+    Resumen:
+        Vista de la lista de encuestas existentes. 
+        Únicamente pueden acceder superusuarios.
+
+    Atributos:
+        modelo: Model
+            modelos (User) de la creación.
+
+        context: dict
+            Diccionario que contiene la data contextual de la vista.
+            Incluye inicialmente el título.
+    
+    Métodos:
+        get_context_data(self, **kwargs)
+            Contiene la lógica de renderizado del formulario.
+    """
+    model = Envio
+    paginate_by = 10
+    template_name = 'consulta_encuesta.html'
+
+    def filtrar(self, queryset):
+        desde = self.request.GET.get('desde', '')
+        hasta = self.request.GET.get('hasta', '')
+        usuario = self.request.GET.get('usuario', '')
+
+        # Lógica de filtrado según valor del parámetro
+        if(desde != ''):
+            queryset = queryset.filter(
+                fecha__gte = desde
+            )
+
+        if(hasta != ''):
+            queryset = queryset.filter(
+                fecha__lte=hasta
+            )
+
+        if(usuario != ''):
+            queryset = queryset.filter(
+                Q(usuario__first_name__icontains = usuario) |
+                Q(usuario__last_name__icontains = usuario)
+            )
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['titulo'] = 'Encuestas de Satisfacción'
+
+        return ctx
+
+    def get_queryset(self) -> QuerySet:
+        return self.filtrar(self.model.objects.filter(
+            encuesta=Encuesta.objects.first()
+        ).select_related(
+            'usuario', 'encuesta',
+        ).prefetch_related(
+            Prefetch('encuesta__secciones', Seccion.objects.prefetch_related('preguntas')),
+            Prefetch('respuestas', Respuesta.objects.select_related('pregunta', 'pregunta__seccion'))
+        ))
+    
+def graficas_encuestas(request):
+    respuestas = Respuesta.objects.all().select_related('pregunta')
+    questions = {}
+    for respuesta in respuestas:
+        if respuesta.pregunta.tipo != "3":
+            if respuesta.pregunta.pk not in questions:
+                questions[respuesta.pregunta.pk] = {}
+            if respuesta.respuesta not in questions[respuesta.pregunta.pk]:
+                questions[respuesta.pregunta.pk][respuesta.respuesta] = 1
+            else:
+                questions[respuesta.pregunta.pk][respuesta.respuesta] += 1
+
+            questions[respuesta.pregunta.pk]['pregunta'] = respuesta.pregunta.nombre 
+
+    return JsonResponse(questions)

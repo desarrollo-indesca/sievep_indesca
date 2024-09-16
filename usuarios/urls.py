@@ -8,4 +8,7 @@ urlpatterns = [
     # path('crear/', CrearNuevoUsuario.as_view(), name="crear_nuevo_usuario"),
     # path('editar/<int:pk>/', EditarUsuario.as_view(), name="editar_usuario"),
     # path('cambiar_contrasena/<int:pk>/', CambiarContrasena.as_view(), name="cambiar_contrasena")
+    path('encuesta', EncuestaSatisfaccion.as_view(), name="encuesta_satisfaccion"),
+    path('encuesta/resultados/', ConsultaEncuestas.as_view(), name="consulta_encuesta"),
+    path('encuesta/grafica/', graficas_encuestas, name="grafica_encuesta"),
 ]
