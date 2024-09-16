@@ -12,7 +12,7 @@
     <td>{{encuesta.usuario.get_full_name}}</td>
     <td>{{encuesta.fecha}}</td>
     <td>
-        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#resultados{{encuesta.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Resultados de este envío"></button>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#respuestas{{encuesta.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Resultados de este envío"></button>
         {% include 'modals/encuesta.html' %}
     </td>
   </tr>

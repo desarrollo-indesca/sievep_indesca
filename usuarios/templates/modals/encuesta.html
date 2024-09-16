@@ -6,10 +6,17 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body text-start small p-3">
-          {% for respuesta in encuesta.respuestas.all %}
-          <h3>{{respuesta.pregunta.nombre|default_if_none:"— NO RESPONDIÓ —"}}</h3>
-          <p>{{respuesta.respuesta|default_if_none:"— NO RESPONDIÓ —"}}</p>
+          {% regroup encuesta.respuestas.all by pregunta.seccion as secciones %}
+          {% for seccion in secciones %}
+          {%  if not forloop.first %}
           <hr>
+          {% endif %}
+          <h3 class="text-center text-danger">— {{seccion.grouper.nombre}} —</h3>
+          <hr>
+          {% for respuesta in seccion.list %}
+          <h5>{{forloop.counter}}) {{respuesta.pregunta.nombre|default_if_none:"— NO RESPONDIÓ —"}}</h5>
+          <p><b>Respuesta:</b> {{respuesta.respuesta|default_if_none:"— NO RESPONDIÓ —"}}</p>
+          {% endfor %}
           {% endfor %}
         </div>
       </div>

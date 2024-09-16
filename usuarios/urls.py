@@ -10,4 +10,5 @@ urlpatterns = [
     # path('cambiar_contrasena/<int:pk>/', CambiarContrasena.as_view(), name="cambiar_contrasena")
     path('encuesta', EncuestaSatisfaccion.as_view(), name="encuesta_satisfaccion"),
     path('encuesta/resultados/', ConsultaEncuestas.as_view(), name="consulta_encuesta"),
+    path('encuesta/grafica/', graficas_encuestas, name="grafica_encuesta"),
 ]
