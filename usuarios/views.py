@@ -391,6 +391,12 @@ class ConsultaEncuestas(LoginRequiredMixin, ListView):
 
         return queryset
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['titulo'] = 'Encuestas de Satisfacción'
+
+        return ctx
+
     def get_queryset(self) -> QuerySet:
         return self.filtrar(self.model.objects.filter(
             encuesta=Encuesta.objects.first()
