@@ -941,7 +941,7 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
         self.context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
         self.context['complejos'] = Complejo.objects.all()
         self.context['tipos'] = TiposDeTubo.objects.all()
-        self.context['plantas'] = Planta.objects.filter(complejo__pk=1)
+        self.context['plantas'] = Planta.objects.all()
         self.context['tipos'] = TiposDeTubo.objects.all()
         self.context['temas'] = Tema.objects.filter(tipo_intercambiador__pk=1).order_by('codigo')
         self.context['fluidos'] = Fluido.objects.all()
@@ -1766,7 +1766,7 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
                 if(request.POST.get('tipo_cp_tubo') == 'A'):
                     # Calcular todo de la misma forma que en el almacenamiento
                     fluido = intercambiador.fluido_tubo.cas if type(intercambiador) == PropiedadesTuboCarcasa else intercambiador.fluido_in.cas
-                    t1,t2 = transformar_unidades_temperatura([Ti,Ts], int(request.POST.get('unidad_temperaturas')))
+                    t1,t2 = transformar_unidades_temperatura([ti,ts], int(request.POST.get('unidad_temperaturas')))
                     presion = transformar_unidades_presion([float(cond_tubo.presion_entrada)], cond_tubo.unidad_presion.pk)[0]
                     cp_liquido_tubo,cp_gas_tubo = self.obtener_cps(t1,t2,presion,float(cond_tubo.flujo_liquido_entrada),float(cond_tubo.flujo_liquido_salida),
                                                             float(cond_tubo.flujo_vapor_entrada),float(cond_tubo.flujo_vapor_salida),
@@ -1781,8 +1781,11 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
                 if(request.POST.get('tipo_cp_carcasa') == 'A'):
                     # Calcular todo de la misma forma que en el almacenamiento
                     fluido = intercambiador.fluido_carcasa.cas if type(intercambiador) == PropiedadesTuboCarcasa else intercambiador.fluido_ex.cas
-                    t1,t2 = transformar_unidades_temperatura([ti,ts], int(request.POST.get('unidad_temperaturas')))
+                    t1,t2 = transformar_unidades_temperatura([Ti,Ts], int(request.POST.get('unidad_temperaturas')))
                     presion = transformar_unidades_presion([float(cond_carcasa.presion_entrada)], cond_carcasa.unidad_presion.pk)[0]
+                    print(t1,t2,presion,float(cond_carcasa.flujo_liquido_entrada),float(cond_carcasa.flujo_liquido_salida),
+                                                            float(cond_carcasa.flujo_vapor_entrada),float(cond_carcasa.flujo_vapor_salida),
+                                                            fluido,cond_carcasa.cambio_de_fase,unidad_cp)
                     cp_liquido_carcasa,cp_gas_carcasa = self.obtener_cps(t1,t2,presion,float(cond_carcasa.flujo_liquido_entrada),float(cond_carcasa.flujo_liquido_salida),
                                                             float(cond_carcasa.flujo_vapor_entrada),float(cond_carcasa.flujo_vapor_salida),
                                                             fluido,cond_carcasa.cambio_de_fase,unidad_cp)
@@ -1793,7 +1796,7 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
                     cp_gas_carcasa = float(cond_carcasa.fluido_cp_gas) if cond_carcasa.fluido_cp_gas else None
                     cp_liquido_carcasa = float(cond_carcasa.fluido_cp_liquido) if cond_carcasa.fluido_cp_liquido else None
                 
-                cp_gas_tubo2,cp_liquido_tubo2,cp_gas_carcasa2,cp_liquido_carcasa2 =  transformar_unidades_cp([cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa], unidad=unidad_cp, unidad_salida=29)
+                cp_gas_tubo2,cp_liquido_tubo2,cp_gas_carcasa2,cp_liquido_carcasa2 = transformar_unidades_cp([cp_gas_tubo,cp_liquido_tubo,cp_gas_carcasa,cp_liquido_carcasa], unidad=unidad_cp, unidad_salida=29)
 
                 if(type(intercambiador) == PropiedadesTuboCarcasa):
                     resultados = evaluacion_tubo_carcasa(intercambiador, ti, ts, Ti, Ts, ft, fc, nt, cp_gas_tubo2, cp_liquido_tubo2, cp_gas_carcasa2, cp_liquido_carcasa2, unidad_temp=unidad, unidad_flujo = unidad_flujo)
@@ -2122,7 +2125,6 @@ class ConsultaCP(LoginRequiredMixin, ObtencionParametrosMixin, View):
         cambio_fase = request.GET['cambio_fase'] if request.GET.get('cambio_fase') else 'S'
         unidad_presiones = int(request.GET['unidad_presiones']) if request.GET.get('unidad_presiones') else 33
         presion = transformar_unidades_presion([float(request.GET.get('presion'))], unidad_presiones)[0] if request.GET.get('presion') else 1e5
-        print(presion)
         t1,t2 = transformar_unidades_temperatura([t1,t2], unidad=unidad)      
 
         if(fluido != ''):
@@ -2162,6 +2164,7 @@ class ConsultaCP(LoginRequiredMixin, ObtencionParametrosMixin, View):
                     'flujo_liquido_out': float(condiciones.flujo_liquido_salida)                    
                 }
 
+            print(t1, t2, presion, flujos['flujo_liquido_in'], flujos['flujo_liquido_out'], flujos['flujo_vapor_in'], flujos['flujo_vapor_out'], cas, cambio_fase, unidad_salida)
             cp_liq, cp_gas = self.obtener_cps(t1, t2, presion, flujos['flujo_liquido_in'], flujos['flujo_liquido_out'], flujos['flujo_vapor_in'], flujos['flujo_vapor_out'], cas, cambio_fase, unidad_salida)       
         else: # En caso de ser un fluido no registrado...
             return JsonResponse({'cp': ''})
@@ -2421,10 +2424,12 @@ class DuplicarIntercambiador(SuperUserRequiredMixin, DuplicateView):
                 propiedades = intercambiador.datos_tubo_carcasa
                 propiedades.intercambiador = intercambiador
                 propiedades = self.copy(propiedades)
+                messages.add_message(request, messages.SUCCESS, f"Copia {intercambiador.tag} creada con exito.")
                 return redirect("/intercambiadores/tubo_carcasa/") 
             elif(intercambiador.tipo.nombre == "DOBLE TUBO"):
                 propiedades = intercambiador.datos_dobletubo
                 propiedades.intercambiador = intercambiador
                 propiedades = self.copy(propiedades)
+                messages.add_message(request, messages.SUCCESS, f"Copia {intercambiador.tag} creada con exito.")
                 return redirect("/intercambiadores/doble_tubo/")
                 

@@ -888,10 +888,6 @@ def ficha_tecnica_tubo_carcasa(object_list):
             f'Arr. Paralelo', Paragraph(f"{propiedades.arreglo_paralelo}", centrar_parrafo), '',
         ],
         [
-            f'Arr. Serie', Paragraph(f"{propiedades.arreglo_serie}", centrar_parrafo), '',
-            f'Arr. Paralelo', Paragraph(f"{propiedades.arreglo_paralelo}", centrar_parrafo), '',
-        ],
-        [
             f'No. Tubos', Paragraph(f"{propiedades.numero_tubos}", centrar_parrafo), '',
             f'Longitud ({propiedades.longitud_tubos_unidad})', Paragraph(f"{propiedades.longitud_tubos}", centrar_parrafo), '',
         ],
@@ -922,8 +918,7 @@ def ficha_tecnica_tubo_carcasa(object_list):
             ('SPAN', (1,4), (2,4)), ('SPAN', (4,4), (5,4)),
             ('SPAN', (1,5), (2,5)), ('SPAN', (4,5), (5,5)),
             ('SPAN', (1,6), (2,6)), ('SPAN', (4,6), (5,6)),
-            ('SPAN', (1,7), (2,7)), ('SPAN', (4,7), (5,7)),
-            ('SPAN', (1,8), (-1,8)),
+            ('SPAN', (1,7), (-1,7)),
 
             ('BACKGROUND', (0,0), (0,-1), sombreado),
             ('BACKGROUND', (3,0), (3,-2), sombreado)

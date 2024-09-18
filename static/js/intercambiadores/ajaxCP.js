@@ -439,7 +439,7 @@ function actualizar_tipos(lado = "T") { // Actualización de Tipos de Cálculo d
     const id_tsat_hvap = lado === 'T' ? '#sat_tubo' : '#sat_carcasa';
     $(id).empty();
 
-    if($(id_fluido).val() === '' || $(id_fluido).val().includes("*") && !$(id_fluido).val().split('*')[1].includes('-')){
+    if($(id_fluido).val() === '' || $(id_fluido).val().includes("*")){
         $(id).html(`
             <option value="M">Manual</option>
         `);
@@ -468,7 +468,11 @@ function actualizar_tipos(lado = "T") { // Actualización de Tipos de Cálculo d
         const id_cp_gas = lado === 'T' ? '#cp_gas_tubo' : '#cp_gas_carcasa';
         $(id_tsat_hvap).attr('hidden', true);
         $(id_cp_liq).attr('disabled', true);  
-        $(id_cp_gas).attr('disabled', true);            
+        $(id_cp_gas).attr('disabled', true);  
+        if(lado == "C")
+            ajaxCPCarcasa();
+        else
+            ajaxCPTubo          
     }
 }
 
