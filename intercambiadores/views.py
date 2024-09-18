@@ -1463,7 +1463,7 @@ class CrearIntercambiadorDobleTubo(CrearIntercambiadorTuboCarcasa):
                 condiciones_diseno_in = self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad.pk, fluido_in, 'tubo', 'I')
 
                 # Condiciones de Diseño de la Tubo Externo
-                condiciones_diseno_ex =  self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad.pk, fluido_in, 'carcasa', 'E')
+                condiciones_diseno_ex =  self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad.pk, fluido_ex, 'carcasa', 'E')
 
                 try:
                     diseno = propiedades.calcular_diseno
@@ -2311,7 +2311,6 @@ class ValidarCambioDeFaseExistenteEvaluacion(LoginRequiredMixin, ValidacionCambi
         unidad_cp = condicion.unidad_cp.pk
         cp_gas, cp_liquido = float(request.GET['cp_gas']) if request.GET['cp_gas'] != '' else None, float(request.GET['cp_liquido']) if request.GET['cp_liquido'] != '' else None
         cp_gas, cp_liquido = transformar_unidades_cp([cp_gas,cp_liquido], unidad=unidad_cp, unidad_salida=29)
-
         quimico = Chemical(fluido.cas, T= t1, P=presion)
         tsat = round(quimico.Tsat(presion), 2)
         
