@@ -965,7 +965,7 @@ def ficha_tecnica_doble_tubo(object_list):
             Paragraph("Flujo", centrar_parrafo), 
             Paragraph(f"{intercambiador.flujo_largo()}", centrar_parrafo), 
             Paragraph("Tipo", centrar_parrafo), 
-            Paragraph(f"Tubo/Carcasa", centrar_parrafo), 
+            Paragraph(f"Doble Tubo", centrar_parrafo), 
         ],
         [
             Paragraph("Servicio", centrar_parrafo), 
@@ -2344,7 +2344,7 @@ def detalle_evaluacion_ventilador(evaluacion):
         [
             Paragraph("RESULTADO", centrar_parrafo),
             Paragraph("EVALUACIÓN", centrar_parrafo),
-            Paragraph(f"FICHA", centrar_parrafo)
+            Paragraph(f"FICHA (Trab./Adic.)", centrar_parrafo)
         ],
         [
             f'Eficiencia',

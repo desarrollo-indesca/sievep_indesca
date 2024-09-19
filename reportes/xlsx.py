@@ -1149,9 +1149,10 @@ def ficha_tecnica_ventilador(_, ventilador, request):
     worksheet.write(f"J{num+2}", "Generado por " + request.user.get_full_name(), fecha)
 
     worksheet.write(f"A{num+2}", "Datos de Identificación", identificacion)
-    worksheet.write(f"A{num+3}", "Condiciones de Trabajo", condiciones_trabajo_estilo)
-    worksheet.write(f"A{num+4}", "Condiciones Adicionales", condiciones_adicionales_estilo)
-    worksheet.write(f"A{num+5}", "Especificaciones del Ventilador", especificaciones_estilo)
+    worksheet.write(f"A{num+3}", "Condiciones Generales", condiciones_generales_estilo)
+    worksheet.write(f"A{num+4}", "Condiciones de Trabajo", condiciones_trabajo_estilo)
+    worksheet.write(f"A{num+5}", "Condiciones Adicionales", condiciones_adicionales_estilo)
+    worksheet.write(f"A{num+6}", "Especificaciones del Ventilador", especificaciones_estilo)
     workbook.close()
         
     return enviar_response(f'ficha_tecnica_ventilador_{ventilador.tag}', excel_io, fecha)
@@ -1974,7 +1975,7 @@ def ficha_tecnica_precalentador_aire(precalentador, request):
 
     for lado in precalentador.condicion_fluido.all():
         num += 1
-        worksheet.write(f'A{num}', f'{lado.fluido_largo if lado.fluido_largo else "—"()}', center_bordered)
+        worksheet.write(f'A{num}', f'{lado.fluido_largo if lado.fluido_largo else "—"}', center_bordered)
         worksheet.write(f'B{num}', f'{lado.flujo if lado.flujo else "—"}', center_bordered)
         worksheet.write(f'C{num}', f'{lado.flujo_unidad if lado.flujo_unidad else "—"}', center_bordered)
         worksheet.write(f'D{num}', f'{lado.temp_entrada if lado.temp_entrada else "—"}', center_bordered)
