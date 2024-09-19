@@ -839,7 +839,7 @@ def ficha_tecnica_bomba_centrifuga(bomba, request):
     worksheet.write(f'AQ{num}', f'{motor.potencia_motor if motor.potencia_motor else ""}', bordered)
     worksheet.write(f'AR{num}', f'{motor.velocidad_motor if motor.velocidad_motor else ""}', bordered)
     worksheet.write(f'AS{num}', f'{motor.factor_de_servicio if motor.factor_de_servicio else ""}', bordered)
-    worksheet.write(f'AT{num}', f'{motor.posicion_largo() if motor.posicion_largo else ""}', bordered)
+    worksheet.write(f'AT{num}', f'{motor.posicion_largo() if motor.posicion_largo() else ""}', bordered)
     worksheet.write(f'AU{num}', f'{motor.voltaje if motor.voltaje else ""}', bordered)
     worksheet.write(f'AV{num}', f'{motor.fases if motor.fases else ""}', bordered)
     worksheet.write(f'AW{num}', f'{motor.frecuencia if motor.frecuencia else ""}', bordered)
