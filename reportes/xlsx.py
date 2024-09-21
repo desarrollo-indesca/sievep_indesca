@@ -920,7 +920,7 @@ def historico_evaluaciones_bombas(object_list, request):
     worksheet.write(f"J{num}", f"Unidad NPSHa", bold_bordered)
     worksheet.write(f"K{num}", f"Cavita", bold_bordered)
 
-    for i,evaluacion in enumerate(object_list):
+    for i,evaluacion in enumerate(object_list.order_by('fecha')):
         salida = evaluacion.salida
         entrada = evaluacion.entrada
         eficiencia = salida.eficiencia

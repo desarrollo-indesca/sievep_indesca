@@ -650,6 +650,8 @@ class CreacionInstalacionBomba(SuperUserRequiredMixin, View, CargarBombaMixin):
                                                                 'forms_instalacion': formset_instalacion,
                                                                 'forms_tuberia_succion': formset_tuberias_succion,
                                                                 'forms_tuberia_descarga': formset_tuberias_descarga,
+                                                                'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
+                                                                'materiales': MaterialTuberia.objects.all().values('pk', 'nombre'),
                                                                 'error': 'Ocurrió un error desconocido al momento de registrar los datos de instalación. Revise e intente de nuevo.'}) 
 
     def get(self, request, **kwargs):
@@ -878,6 +880,8 @@ class CalcularResultadosBomba(LoginRequiredMixin, View):
                 form_entrada.instance.nombre_fluido = condicion_fluido.nombre_fluido
                 form_entrada.save()
 
+                print(res['cavita'])
+
                 salida = SalidaEvaluacionBombaGeneral.objects.create(
                     cabezal_total = res['cabezal_total'][0],
                     cabezal_total_unidad = especificaciones.cabezal_unidad,
@@ -887,7 +891,7 @@ class CalcularResultadosBomba(LoginRequiredMixin, View):
                     velocidad = res['velocidad_especifica'],
                     velocidad_unidad = especificaciones.velocidad_unidad,
                     npsha = res['npsha'][0],
-                    cavita = None if res['cavita'] == 'D' else res['cavita'] == 'S'
+                    cavita = None if res['cavita'] == 'D' else res['cavita'] == 'C'
                 )
 
                 form_evaluacion.instance.equipo = self.bomba
