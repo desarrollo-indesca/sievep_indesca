@@ -4024,7 +4024,7 @@ def ficha_tecnica_precalentador_aire(precalentador):
             Paragraph(f"Temp. Operación ({especificaciones.temp_unidad})", centrar_parrafo),
             Paragraph(f"{especificaciones.temp_operacion if especificaciones.temp_operacion else '—'}", centrar_parrafo),
             Paragraph(f"Presión Operación ({especificaciones.presion_unidad})", centrar_parrafo),
-            Paragraph(f"{especificaciones.presion_unidad if especificaciones.presion_unidad else '—'}", centrar_parrafo)
+            Paragraph(f"{especificaciones.presion_operacion if especificaciones.presion_operacion else '—'}", centrar_parrafo)
         ],
         [
             Paragraph(f"U ({especificaciones.u_unidad})", centrar_parrafo),
@@ -4102,8 +4102,6 @@ def ficha_tecnica_precalentador_aire(precalentador):
     estilo = [
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-
-        ('SPAN', (1,2), (-1,2)),
         
         ('BACKGROUND', (0, 0), (-1, 0), sombreado),
         ('BACKGROUND', (0, 0), (0, -1), sombreado),
@@ -4236,8 +4234,19 @@ def detalle_evaluacion_precalentador_aire(evaluacion):
     ])
 
     table = Table(table, style=estilo)
-
     story.append(table)
+
+    estilo = TableStyle([
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+
+        ('BACKGROUND', (0, 0), (-1, 1), sombreado),
+        ('BACKGROUND', (0, 0), (0, -1), sombreado),
+        ('BACKGROUND', (0, 7), (-1, 7), sombreado),
+
+        ('SPAN', (0,0), (-1,0)),
+        ('SPAN', (0,7), (-1,7)),
+    ])
 
     # TABLA 2: COMPOSICIÓN DEL COMBUSTIBLE
     table = [
@@ -4270,6 +4279,15 @@ def detalle_evaluacion_precalentador_aire(evaluacion):
     table = Table(table, style=estilo)
 
     story.append(table)
+    estilo = TableStyle([
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+
+        ('BACKGROUND', (0, 0), (-1, 1), sombreado),
+        ('BACKGROUND', (0, 0), (0, -1), sombreado),
+
+        ('SPAN', (0,0), (-1,0)),
+    ])
 
     # TABLA 3: SALIDA GENERAL
     salida = evaluacion.salida
@@ -4278,8 +4296,8 @@ def detalle_evaluacion_precalentador_aire(evaluacion):
             Paragraph("Salida de la Evaluación", centrar_parrafo)
         ],
         [
-            Paragraph("Parámetro", centrar_parrafo),
-            Paragraph("% Volumen", centrar_parrafo),
+            Paragraph("Parámetro (Unidad)", centrar_parrafo),
+            Paragraph("Valor", centrar_parrafo),
         ],
         [
             Paragraph("Calor Aire (W)", centrar_parrafo),

@@ -5,6 +5,18 @@ const cambio = () => {
     $("#submit").html("Calcular Resultados");
 }
 
+const anadir_listeners_dropboxes = (magnitud, prefix) => {
+    const selector = prefix ? `select[name='${prefix}-${magnitud}_unidad']` : `select[name='${magnitud}_unidad']`
+    $(selector).change((e) => {
+        const array = $(selector).toArray().slice(1);
+    
+        array.map((x) => {
+          x.innerHTML =
+            "<option>" + $(`#${e.target.id} option:selected`).html() + "</option>";
+        });
+    });    
+}
+
 const listeners_submit = () => {
     $("#submit").click((e) => {
         const suma_volumen = $('.porc-vol').toArray().reduce((acc, el) => {
@@ -57,3 +69,6 @@ document.body.addEventListener("htmx:afterRequest", function (evt) {
 });
 
 listeners_submit();
+
+anadir_listeners_dropboxes('temp', 'aire');
+anadir_listeners_dropboxes('temp', 'gases');

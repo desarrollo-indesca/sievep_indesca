@@ -139,8 +139,8 @@ def historico_evaluaciones(object_list, request):
     worksheet.write('F5', 'Equipo', bold_bordered)
 
     worksheet.write('B6', request.GET.get('desde', ''), center_bordered)
-    worksheet.write('C6', Planta.objects.get(pk=request.GET.get('hasta')).nombre if request.GET.get('hasta') else '', center_bordered)
-    worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('usuario')).nombre if request.GET.get('usuario') else '', center_bordered)
+    worksheet.write('C6', request.GET.get('hasta', '') if request.GET.get('hasta') else '', center_bordered)
+    worksheet.write('D6',request.GET.get('usuario'), center_bordered)
     worksheet.write('E6', request.GET.get('nombre', ''), center_bordered)
     worksheet.write('F6', intercambiador.tag.upper(), center_bordered)
     num = 8
@@ -902,8 +902,8 @@ def historico_evaluaciones_bombas(object_list, request):
     worksheet.write('F5', 'Equipo', bold_bordered)
 
     worksheet.write('B6', request.GET.get('desde', ''), center_bordered)
-    worksheet.write('C6', Planta.objects.get(pk=request.GET.get('hasta')).nombre if request.GET.get('hasta') else '', center_bordered)
-    worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('usuario')).nombre if request.GET.get('usuario') else '', center_bordered)
+    worksheet.write('C6', request.GET.get('hasta', '') if request.GET.get('hasta') else '', center_bordered)
+    worksheet.write('D6',request.GET.get('usuario'), center_bordered)
     worksheet.write('E6', request.GET.get('nombre', ''), center_bordered)
     worksheet.write('F6', bomba.tag.upper(), center_bordered)
     num = 8
@@ -994,8 +994,8 @@ def historico_evaluaciones_ventiladores(object_list, request):
     worksheet.write('F5', 'Equipo', bold_bordered)
 
     worksheet.write('B6', request.GET.get('desde', ''), center_bordered)
-    worksheet.write('C6', Planta.objects.get(pk=request.GET.get('hasta')).nombre if request.GET.get('hasta') else '', center_bordered)
-    worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('usuario')).nombre if request.GET.get('usuario') else '', center_bordered)
+    worksheet.write('C6', request.GET.get('hasta', '') if request.GET.get('hasta') else '', center_bordered)
+    worksheet.write('D6',request.GET.get('usuario'), center_bordered)
     worksheet.write('E6', request.GET.get('nombre', ''), center_bordered)
     worksheet.write('F6', ventilador.tag.upper(), center_bordered)
     num = 8
@@ -1197,8 +1197,8 @@ def historico_evaluaciones_turbinas_vapor(object_list, request):
     worksheet.write('F5', 'Equipo', bold_bordered)
 
     worksheet.write('B6', request.GET.get('desde', ''), center_bordered)
-    worksheet.write('C6', Planta.objects.get(pk=request.GET.get('hasta')).nombre if request.GET.get('hasta') else '', center_bordered)
-    worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('usuario')).nombre if request.GET.get('usuario') else '', center_bordered)
+    worksheet.write('C6', request.GET.get('hasta', '') if request.GET.get('hasta') else '', center_bordered)
+    worksheet.write('D6',request.GET.get('usuario'), center_bordered)
     worksheet.write('E6', request.GET.get('nombre', ''), center_bordered)
     worksheet.write('F6', ventilador.tag.upper(), center_bordered)
     num = 8
@@ -1368,8 +1368,8 @@ def historico_evaluaciones_caldera(object_list, request):
     worksheet.write('F5', 'Equipo', bold_bordered)
 
     worksheet.write('B6', request.GET.get('desde', ''), center_bordered)
-    worksheet.write('C6', Planta.objects.get(pk=request.GET.get('hasta')).nombre if request.GET.get('hasta') else '', center_bordered)
-    worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('usuario')).nombre if request.GET.get('usuario') else '', center_bordered)
+    worksheet.write('C6', request.GET.get('hasta', '') if request.GET.get('hasta') else '', center_bordered)
+    worksheet.write('D6',request.GET.get('usuario'), center_bordered)
     worksheet.write('E6', request.GET.get('nombre', ''), center_bordered)
     worksheet.write('F6', ventilador.tag.upper(), center_bordered)
     num = 8
@@ -1685,8 +1685,8 @@ def historico_evaluaciones_precalentador_agua(object_list, request):
     worksheet.write('F5', 'Equipo', bold_bordered)
 
     worksheet.write('B6', request.GET.get('desde', ''), center_bordered)
-    worksheet.write('C6', Planta.objects.get(pk=request.GET.get('hasta')).nombre if request.GET.get('hasta') else '', center_bordered)
-    worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('usuario')).nombre if request.GET.get('usuario') else '', center_bordered)
+    worksheet.write('C6', request.GET.get('hasta', '') if request.GET.get('hasta') else '', center_bordered)
+    worksheet.write('D6',request.GET.get('usuario'), center_bordered)
     worksheet.write('E6', request.GET.get('nombre', ''), center_bordered)
     worksheet.write('F6', precalentador.tag.upper(), center_bordered)
     num = 8
