@@ -8,6 +8,7 @@ import uuid
 from .models import *
 from django.views.generic.list import ListView
 from django.db import transaction
+from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
 from thermo.chemical import search_chemical, Chemical
 from calculos.termodinamicos import calcular_cp
@@ -2010,7 +2011,8 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
 
         if(usuario != ''):
             new_context = new_context.filter(
-                creado_por__first_name__icontains = usuario
+                Q(creado_por__first_name__icontains = usuario)
+                | Q(creado_por__last_name__icontains = usuario)
             )
 
         if(nombre != ''):
