@@ -78,7 +78,7 @@
                 <div class="col-6">
                     {{form_seccion_agua.flujo_masico_entrada.label_tag}}
                     <div class="input-group">
-                        {% render_field form_seccion_agua.flujo_masico_entrada placeholder="Flujo Másico Entrada Agua" class="form-control" %}
+                        {% render_field form_seccion_agua.flujo_masico_entrada placeholder="Flujo Másico Entrada Agua" class="form-control" required="" %}
                         <select name="seccion-agua-flujo_unidad" id="id_seccion-agua-flujo_unidad" class="form-select">
                             {% include 'unidades.html' with unidades=unidades tipo='F' pk_selected=form_seccion_agua.instance.flujo_unidad.pk %}
                         </select>
@@ -89,7 +89,7 @@
                 <div class="col-6">
                     {{form_seccion_drenaje.flujo_masico_entrada.label_tag}}
                     <div class="input-group">
-                        {% render_field form_seccion_drenaje.flujo_masico_entrada placeholder="Flujo Másico Entrada ADrenajegua" class="form-control" %}
+                        {% render_field form_seccion_drenaje.flujo_masico_entrada placeholder="Flujo Másico Entrada Drenaje" class="form-control" required="" %}
                         <select name="seccion-drenaje-flujo_unidad" id="id_seccion-drenaje-flujo_unidad" class="form-select">
                             {% include 'unidades.html' with unidades=unidades tipo='F' pk_selected=form_seccion_drenaje.instance.flujo_unidad.pk %}
                         </select>
@@ -102,7 +102,7 @@
                 <div class="col-6">
                     {{form_seccion_drenaje.flujo_masico_salida.label_tag}}
                     <div class="input-group">
-                        {% render_field form_seccion_drenaje.flujo_masico_salida placeholder="Flujo Másico Salida Drenaje" class="form-control" %}
+                        {% render_field form_seccion_drenaje.flujo_masico_salida placeholder="Flujo Másico Salida Drenaje" class="form-control" required="" %}
                         <select name="seccion-drenaje-flujo_unidad" id="id_seccion-drenaje-flujo_unidad" class="form-select" disabled>
                             {% include 'unidades.html' with unidades=unidades tipo='F' pk_selected=form_seccion_drenaje.instance.flujo_unidad.pk %}
                         </select>

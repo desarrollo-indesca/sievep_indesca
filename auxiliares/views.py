@@ -2782,7 +2782,7 @@ class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalenta
 
     def get_forms(self):
         precalentador = self.get_precalentador()
-        form_equipo = PrecalentadorAireForm(instance=precalentador)
+        form_equipo = PrecalentadorAireForm(instance=precalentador, initial={'complejo': precalentador.planta.complejo})
         form_especificaciones = EspecificacionesPrecalentadorAireForm(instance=precalentador.especificaciones)
         condiciones = precalentador.condicion_fluido.all()
         form_aire = CondicionFluidoForm(prefix=self.prefix_aire, instance=condiciones.first())
@@ -2809,7 +2809,6 @@ class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalenta
                 'fluido': fluido
             })
 
-        print(forms)
         return forms
 
     def post(self, request, *args, **kwargs):
