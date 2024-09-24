@@ -3255,12 +3255,14 @@ class DuplicarPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAgua
             precalentador.tag = generate_nonexistent_tag(PrecalentadorAgua, precalentador.tag)
             precalentador.copia = True
 
-            datos_corrientes = self.copy(precalentador_original.datos_corrientes)
-            for corriente in precalentador_original.datos_corrientes.corrientes_precalentador_agua.all():
-                corriente.datos_corriente = datos_corrientes
-                self.copy(corriente)
+            if precalentador_original.datos_corrientes:
+                datos_corrientes = self.copy(precalentador_original.datos_corrientes)
+                for corriente in precalentador_original.datos_corrientes.corrientes_precalentador_agua.all():
+                    corriente.datos_corriente = datos_corrientes
+                    self.copy(corriente)
 
-            precalentador.datos_corrientes = datos_corrientes
+                precalentador.datos_corrientes = datos_corrientes
+            
             precalentador = self.copy(precalentador)
 
             for seccion in precalentador_original.secciones_precalentador.all():
