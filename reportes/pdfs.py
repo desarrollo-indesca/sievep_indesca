@@ -2489,6 +2489,7 @@ def ficha_tecnica_turbina_vapor(turbina):
     story.append(Spacer(0,150))
 
     especificaciones = turbina.especificaciones
+    generador = turbina.generador_electrico
     datos_corrientes = turbina.datos_corrientes    
 
     # Primera Tabla: Datos Generales y Especificaciones
@@ -2530,6 +2531,33 @@ def ficha_tecnica_turbina_vapor(turbina):
             Paragraph(f"Contra Presión ({especificaciones.contra_presion_unidad if especificaciones.contra_presion_unidad else '-'})", centrar_parrafo),
             Paragraph(f"{especificaciones.contra_presion if especificaciones.contra_presion else '-'}", centrar_parrafo)
         ],
+        [
+            Paragraph("<b>ESPECIFICACIONES DEL GENERADOR ELÉCTRICO</b>", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Polos ", centrar_parrafo),
+            Paragraph(f"{generador.polos if generador.polos else '-'}", centrar_parrafo),
+            Paragraph(f"Ciclos ({generador.ciclos_unidad})", centrar_parrafo),
+            Paragraph(f"{generador.ciclos if generador.ciclos else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Velocidad ({generador.velocidad_unidad})", centrar_parrafo),
+            Paragraph(f"{generador.velocidad if generador.velocidad else '-'}", centrar_parrafo),
+            Paragraph(f"Potencia Real ({generador.potencia_real_unidad})", centrar_parrafo),
+            Paragraph(f"{generador.potencia_real if generador.potencia_real else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Potencia Aparente ({generador.potencia_aparente_unidad})", centrar_parrafo),
+            Paragraph(f"{generador.potencia_aparente if generador.potencia_aparente else '-'}", centrar_parrafo),
+            Paragraph(f"Contra Presión ({generador.corriente_electrica_unidad if generador.corriente_electrica_unidad else '-'})", centrar_parrafo),
+            Paragraph(f"{generador.corriente_electrica if generador.corriente_electrica else '-'}", centrar_parrafo)
+        ],
+        [
+            Paragraph(f"Fases", centrar_parrafo),
+            Paragraph(f"{generador.fases if generador.fases else '-'}", centrar_parrafo),
+            Paragraph(f"Voltaje ({generador.voltaje_unidad if generador.voltaje_unidad else '-'})", centrar_parrafo),
+            Paragraph(f"{generador.voltaje if generador.voltaje else '-'}", centrar_parrafo)
+        ],
     ]
 
     estilo = TableStyle(
@@ -2540,9 +2568,11 @@ def ficha_tecnica_turbina_vapor(turbina):
             ('BACKGROUND', (2, 0), (2, 1), sombreado),
             ('BACKGROUND', (2, 3), (2, -1), sombreado),
             ('BACKGROUND', (0, 3), (-1, 3), sombreado),
+            ('BACKGROUND', (0, 7), (-1, 7), sombreado),
 
             ('SPAN', (0, 3), (-1,3)),
             ('SPAN', (1, 2), (-1,2)),
+            ('SPAN', (0, 7), (-1,7)),
 
             ('VALIGN', (0,0), (-1,-1), 'MIDDLE')
         ]

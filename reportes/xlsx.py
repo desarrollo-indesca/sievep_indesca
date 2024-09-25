@@ -1804,7 +1804,7 @@ def ficha_tecnica_precalentador_agua(precalentador, request):
         worksheet.write(f'D{num}', f'{seccion.flujo_unidad.simbolo if seccion.flujo_unidad.simbolo else "—"}', center_bordered)
         worksheet.write(f'E{num}', f'{seccion.entalpia_entrada if seccion.entalpia_entrada else "—"}', center_bordered)
         worksheet.write(f'F{num}', f'{seccion.entalpia_salida if seccion.entalpia_salida else "—"}', center_bordered)
-        worksheet.write(f'G{num}', f'{seccion.entalpia_unidad.simbolo if seccion.                                                   entalpia_unidad.simbolo else "—"}', center_bordered)
+        worksheet.write(f'G{num}', f'{seccion.entalpia_unidad.simbolo if seccion.entalpia_unidad.simbolo else "—"}', center_bordered)
         worksheet.write(f'H{num}', f'{seccion.temp_entrada if seccion.temp_entrada else "—"}', center_bordered)
         worksheet.write(f'I{num}', f'{seccion.temp_salida if seccion.temp_salida else "—"}', center_bordered)
         worksheet.write(f'J{num}', f'{seccion.temp_unidad.simbolo if seccion.temp_unidad.simbolo else "—"}', center_bordered)
