@@ -217,3 +217,12 @@ $("#id_potencia_unidad").change((e) => {
 $("form").submit((e) => {
   $("#submit").attr("disabled", "disabled");
 });
+
+const anadir_presion_manometrica = () => {
+  const selector =  `select[name='presion_entrada_unidad']`;
+  $(selector).find('option').each((i, e) => {
+      e.textContent += 'g';
+  });
+}
+
+anadir_presion_manometrica();

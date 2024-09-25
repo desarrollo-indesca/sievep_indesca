@@ -336,6 +336,7 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
                 'form_datos_corrientes': form_datos_corrientes,
                 'forms_corrientes': forms_corrientes,
                 'titulo': self.titulo,
+                'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
                 'error': "Ocurrió un error desconocido al momento de almacenar la turbina de vapor. Revise los datos e intente de nuevo."
             })
         

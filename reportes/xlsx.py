@@ -1243,6 +1243,7 @@ def ficha_tecnica_turbina_vapor(_, turbina, request):
     identificacion = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'yellow'})
     especificaciones_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'red'})
     corrientes_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'cyan'})
+    generador_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'green'})
     center_bordered = workbook.add_format({'border': 1})
     fecha =  workbook.add_format({'border': 1})
 
@@ -1259,6 +1260,7 @@ def ficha_tecnica_turbina_vapor(_, turbina, request):
     num = 6
 
     especificaciones = turbina.especificaciones
+    generador = turbina.generador_electrico
 
     worksheet.write(f'A{num}', 'Tag', identificacion)
     worksheet.write(f'B{num}', 'Complejo', identificacion)
@@ -1272,6 +1274,14 @@ def ficha_tecnica_turbina_vapor(_, turbina, request):
     worksheet.write(f'J{num}', f'Presión de Entrada ({especificaciones.presion_entrada_unidad}g)', especificaciones_estilo)
     worksheet.write(f'K{num}', f'Temperatura de Entrada ({especificaciones.temperatura_entrada_unidad})', especificaciones_estilo)
     worksheet.write(f'L{num}', f'Contra Presión ({especificaciones.contra_presion_unidad})', especificaciones_estilo)
+    worksheet.write(f'M{num}', f'Polos', generador_estilo)
+    worksheet.write(f'N{num}', f'Fases', generador_estilo)
+    worksheet.write(f'O{num}', f'Ciclos ({generador.ciclos_unidad})', generador_estilo)
+    worksheet.write(f'P{num}', f'Potencia Real ({generador.potencia_real_unidad})', generador_estilo)
+    worksheet.write(f'Q{num}', f'Potencia Aparente ({generador.potencia_aparente_unidad})', generador_estilo)
+    worksheet.write(f'R{num}', f'Velocidad ({generador.velocidad_unidad})', generador_estilo)
+    worksheet.write(f'S{num}', f'Corriente Eléctrica ({generador.corriente_electrica_unidad})', generador_estilo)
+    worksheet.write(f'T{num}', f'Voltaje ({generador.voltaje_unidad})', generador_estilo)
 
     num += 1
     
@@ -1287,6 +1297,14 @@ def ficha_tecnica_turbina_vapor(_, turbina, request):
     worksheet.write(f'J{num}', especificaciones.presion_entrada, center_bordered)
     worksheet.write(f'K{num}', especificaciones.temperatura_entrada, center_bordered)
     worksheet.write(f'L{num}', especificaciones.contra_presion, center_bordered)
+    worksheet.write(f'M{num}', f'{generador.polos}', center_bordered)
+    worksheet.write(f'N{num}', f'{generador.fases}', center_bordered)
+    worksheet.write(f'O{num}', f'{generador.ciclos}', center_bordered)
+    worksheet.write(f'P{num}', f'{generador.potencia_real}', center_bordered)
+    worksheet.write(f'Q{num}', f'{generador.potencia_aparente}', center_bordered)
+    worksheet.write(f'R{num}', f'{generador.velocidad}', center_bordered)
+    worksheet.write(f'S{num}', f'{generador.corriente_electrica}', center_bordered)
+    worksheet.write(f'T{num}', f'{generador.voltaje}', center_bordered)
 
     num += 2
     worksheet.write(f'A{num}', "Datos de las Corrientes Circulantes por la Turbina", corrientes_estilo)
