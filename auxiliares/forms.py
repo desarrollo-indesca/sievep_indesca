@@ -307,15 +307,15 @@ class SeccionesPrecalentadorAguaForm(forms.ModelForm):
     def clean_flujo_masico_salida(self):
         flujo_masico_salida = None
         if('drenaje' in self.prefix and self.data.get(f'seccion-agua-flujo_masico_entrada') and self.data.get(f'seccion-drenaje-flujo_masico_entrada') and self.data.get(f'seccion-drenaje-flujo_masico_salida')):
-            seccion_agua_flujo_masico_entrada = float(self.data[f'seccion-agua-flujo_masico_entrada'])
+            seccion_vapor_flujo_masico_entrada = float(self.data[f'seccion-vapor-flujo_masico_entrada'])
             seccion_drenaje_flujo_unidad = int(self.data[f'seccion-drenaje-flujo_unidad'])
-            seccion_agua_flujo_unidad = int(self.data[f'seccion-agua-flujo_unidad'])
+            seccion_vapor_flujo_unidad = int(self.data[f'seccion-vapor-flujo_unidad'])
             seccion_drenaje_flujo_masico_entrada = float(self.data[f'seccion-drenaje-flujo_masico_entrada'])
-            seccion_agua_flujo_masico_entrada_transformado = transformar_unidades_flujo([seccion_agua_flujo_masico_entrada], seccion_agua_flujo_unidad, seccion_drenaje_flujo_unidad)[0]
+            seccion_vapor_flujo_masico_entrada_transformado = transformar_unidades_flujo([seccion_vapor_flujo_masico_entrada], seccion_vapor_flujo_unidad, seccion_drenaje_flujo_unidad)[0]
             flujo_masico_salida = float(self.data[f'seccion-drenaje-flujo_masico_salida'])
 
-            if(flujo_masico_salida != seccion_agua_flujo_masico_entrada_transformado + seccion_drenaje_flujo_masico_entrada):
-                raise forms.ValidationError("El flujo másico de salida debe ser igual a la suma del flujo másico de entrada en la sección de agua y la sección de drenaje.")
+            if(flujo_masico_salida != seccion_vapor_flujo_masico_entrada_transformado + seccion_drenaje_flujo_masico_entrada):
+                raise forms.ValidationError("El flujo másico de salida debe ser igual a la suma del flujo másico de entrada en la sección de vapor y la sección de drenaje.")
         
         return flujo_masico_salida
 
@@ -410,7 +410,7 @@ class PrecalentadorAireForm(forms.ModelForm):
     Resumen:
         Form para el registro de los datos generales del precalentador de aire.
     """
-    complejo = forms.ModelChoiceField(queryset=Complejo.objects.all(), initial=1)
+    complejo = forms.ModelChoiceField(queryset=Complejo.objects.all())
     
     class Meta:
         model = PrecalentadorAire

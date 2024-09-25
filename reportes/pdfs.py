@@ -3471,7 +3471,7 @@ def ficha_tecnica_precalentador_agua(precalentador):
     story.append(Spacer(0,90))
 
     especificaciones = precalentador.especificaciones_precalentador.all()
-    secciones = precalentador.secciones_precalentador.all()
+    secciones = precalentador.secciones_precalentador.all().order_by('-tipo')
     datos_corrientes = precalentador.datos_corrientes
     corrientes = datos_corrientes.corrientes_precalentador_agua.all()
 
@@ -3552,14 +3552,14 @@ def ficha_tecnica_precalentador_agua(precalentador):
         [
             Paragraph(f"Presión de Entrada", centrar_parrafo),
             *[
-                Paragraph(f"{seccion.presion_entrada if seccion.presion_entrada else '—'} {seccion.presion_unidad}", centrar_parrafo)
+                Paragraph(f"{seccion.presion_entrada if seccion.presion_entrada else '—'} {seccion.presion_unidad}g", centrar_parrafo)
                     for seccion in secciones
             ]
         ],
         [
            Paragraph(f"Caída de Presión", centrar_parrafo),
             *[
-                Paragraph(f"{seccion.caida_presion if seccion.caida_presion else '—'} {seccion.presion_unidad}", centrar_parrafo)
+                Paragraph(f"{seccion.caida_presion if seccion.caida_presion else '—'} {seccion.presion_unidad}g", centrar_parrafo)
                     for seccion in secciones
             ]
         ],
@@ -3572,6 +3572,12 @@ def ficha_tecnica_precalentador_agua(precalentador):
         ],
         [
             Paragraph("<b>Datos de las Zonas</b>", centrar_parrafo)
+        ],
+        [
+            '',
+            Paragraph("<b>ZONA DE CONDENSADO</b>", centrar_parrafo),
+            Paragraph("<b>ZONA DE DRENAJE</b>", centrar_parrafo),
+            Paragraph("<b>RED. DE SOBRECALENTAMIENTO</b>", centrar_parrafo),
         ],
         [
             Paragraph(f"Calor", centrar_parrafo),
@@ -3604,7 +3610,7 @@ def ficha_tecnica_precalentador_agua(precalentador):
         [
             Paragraph(f"Caída Presión", centrar_parrafo),
             *[
-                Paragraph(f"{especificacion.caida_presion if especificacion.caida_presion else '-'} {especificacion.caida_presion_unidad}", centrar_parrafo)
+                Paragraph(f"{especificacion.caida_presion if especificacion.caida_presion else '-'} {especificacion.caida_presion_unidad}g", centrar_parrafo)
                     for especificacion in especificaciones
             ]
         ],
@@ -3623,7 +3629,7 @@ def ficha_tecnica_precalentador_agua(precalentador):
         ('BACKGROUND', (0, 0), (0, -1), sombreado),
         ('BACKGROUND', (2, 0), (2, 1), sombreado),
         ('BACKGROUND', (0,3), (-1, 5), sombreado),
-        ('BACKGROUND', (0,15), (-1,15), sombreado),
+        ('BACKGROUND', (0,15), (-1,16), sombreado),
     ]
 
     story.append(

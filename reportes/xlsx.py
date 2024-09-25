@@ -1774,8 +1774,8 @@ def ficha_tecnica_precalentador_agua(precalentador, request):
     worksheet.write(f'D{num}', f'PRECALENTADOR DE AGUA', center_bordered)
     worksheet.write(f'E{num}', f'{precalentador.fabricante}', center_bordered)
     worksheet.write(f'F{num}', f'{precalentador.descripcion}', center_bordered)
-    worksheet.write(f'E{num}', f'{precalentador.u}', center_bordered)
-    worksheet.write(f'F{num}', f'{precalentador.u_unidad}', center_bordered)
+    worksheet.write(f'G{num}', f'{precalentador.u}', center_bordered)
+    worksheet.write(f'H{num}', f'{precalentador.u_unidad}', center_bordered)
 
     num += 2
 
@@ -1810,7 +1810,7 @@ def ficha_tecnica_precalentador_agua(precalentador, request):
         worksheet.write(f'J{num}', f'{seccion.temp_unidad.simbolo if seccion.temp_unidad.simbolo else "—"}', center_bordered)
         worksheet.write(f'K{num}', f'{seccion.presion_entrada if seccion.presion_entrada else "—"}', center_bordered)
         worksheet.write(f'L{num}', f'{seccion.caida_presion if seccion.caida_presion else "—"}', center_bordered)
-        worksheet.write(f'M{num}', f'{seccion.presion_unidad if seccion.presion_unidad else "—"}', center_bordered)
+        worksheet.write(f'M{num}', f'{seccion.presion_unidad if seccion.presion_unidad else "—"}g', center_bordered)
         worksheet.write(f'N{num}', f'{seccion.velocidad_promedio if seccion.velocidad_promedio else "—"}', center_bordered)
         worksheet.write(f'O{num}', f'{seccion.velocidad_unidad if seccion.velocidad_unidad else "—"}', center_bordered)
         

@@ -2044,7 +2044,7 @@ class EdicionPrecalentadorAgua(CreacionPrecalentadorAgua, ObtenerPrecalentadorAg
         especificaciones = precalentador.especificaciones_precalentador.all()
 
         return {
-            'form_equipo': PrecalentadorAguaForm(instance=precalentador), 
+            'form_equipo': PrecalentadorAguaForm(instance=precalentador, initial={'complejo': precalentador.planta.complejo.pk}), 
             'form_seccion_agua': SeccionesPrecalentadorAguaForm(instance=secciones.get(tipo="A"), prefix=self.prefix_seccion_agua, initial={'tipo': 'A'}), 
             'form_seccion_vapor': SeccionesPrecalentadorAguaForm(instance=secciones.get(tipo="V"), prefix=self.prefix_seccion_vapor, initial={'tipo':'V'}),
             'form_seccion_drenaje': SeccionesPrecalentadorAguaForm(instance=secciones.get(tipo="D"), prefix=self.prefix_seccion_drenaje, initial={'tipo':'D'}),
@@ -2189,10 +2189,10 @@ class CreacionCorrientesPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecale
         precalentador = self.get_precalentador()
 
         formset_corrientes_carcasa = self.formset_corrientes("form-carcasa", 
-            queryset=precalentador.datos_corrientes.corrientes_precalentador_agua.filter(lado="C") if precalentador.datos_corrientes else None
+            queryset=precalentador.datos_corrientes.corrientes_precalentador_agua.filter(lado="C") if precalentador.datos_corrientes else CorrientePrecalentadorAgua.objects.none()
         )
         formset_corrientes_tubos = self.formset_corrientes("form-tubos", 
-            queryset=precalentador.datos_corrientes.corrientes_precalentador_agua.filter(lado="T") if precalentador.datos_corrientes else None
+            queryset=precalentador.datos_corrientes.corrientes_precalentador_agua.filter(lado="T") if precalentador.datos_corrientes else CorrientePrecalentadorAgua.objects.none()
         )
 
         return {
@@ -2365,14 +2365,14 @@ class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorA
 
         corrientes_carcasa = []
         for corriente in resultados['resultados']['corrientes_carcasa']:
-            corriente["entalpia"] = transformar_unidades_entalpia_masica([corriente["h"]], 60, entalpia_unidad)[0]
-            corriente["densidad"] = transformar_unidades_densidad([corriente["d"]], 30, densidad_unidad)[0]
+            corriente["h"] = transformar_unidades_entalpia_masica([corriente["h"]], 60, entalpia_unidad)[0]
+            corriente["d"] = transformar_unidades_densidad([corriente["d"]], 30, densidad_unidad)[0]
             corrientes_carcasa.append(corriente)
 
         corrientes_tubo = []
         for corriente in resultados['resultados']['corrientes_tubo']:
-            corriente["entalpia"] = transformar_unidades_entalpia_masica([corriente["h"]], 60, entalpia_unidad)[0]
-            corriente["densidad"] = transformar_unidades_densidad([corriente["d"]], 30, densidad_unidad)[0]
+            corriente["h"] = transformar_unidades_entalpia_masica([corriente["h"]], 60, entalpia_unidad)[0]
+            corriente["d"] = transformar_unidades_densidad([corriente["d"]], 30, densidad_unidad)[0]
             corrientes_tubo.append(corriente)
 
         resultados['resultados']["corrientes_carcasa"] = corrientes_carcasa
@@ -2782,7 +2782,7 @@ class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalenta
 
     def get_forms(self):
         precalentador = self.get_precalentador()
-        form_equipo = PrecalentadorAireForm(instance=precalentador, initial={'complejo': precalentador.planta.complejo})
+        form_equipo = PrecalentadorAireForm(instance=precalentador, initial={'complejo': precalentador.planta.complejo.pk})
         form_especificaciones = EspecificacionesPrecalentadorAireForm(instance=precalentador.especificaciones)
         condiciones = precalentador.condicion_fluido.all()
         form_aire = CondicionFluidoForm(prefix=self.prefix_aire, instance=condiciones.first())
