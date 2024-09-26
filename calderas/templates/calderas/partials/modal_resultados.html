@@ -58,6 +58,10 @@
                             <th class="table-dark">% Humedad Relativa</th>
                             <td>{{fluidos.0.humedad_relativa|default_if_none:"-"}} %</td>
                         </tr>
+                        <tr>
+                            <th class="table-dark" colspan="2">Velocidad</th>
+                            <td colspan="2">{{fluidos.0.velocidad|default_if_none:"-"}} {{fluidos.0.velocidad_unidad|default_if_none:"-"}}</td>
+                        </tr>
 
                         <tr>
                             <th class="table-dark" colspan="4">HORNO</th>                            
@@ -70,7 +74,21 @@
                         </tr>
 
                         <tr>
-                            <th class="table-dark" colspan="4">AGUA DE ENTRADA</th>                            
+                            <th class="table-dark" colspan="4">SUPERFICIE DE LA CALDERA</th>                            
+                        </tr>
+                        <tr>
+                            <th class="table-dark">Temperatura de Operación</th>
+                            <td>{{fluidos.3.temperatura|default_if_none:"-"}} {{fluidos.3.temperatura_unidad|default_if_none:"-"}}</td>
+                            <th class="table-dark">Área</th>
+                            <td>{{fluidos.3.area|default_if_none:"-"}} {{fluidos.3.area_unidad|default_if_none:"-"}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark" colspan="2">% O2 Gases Combustión:</th>
+                            <td colspan="2">{{evaluacion.o2_gas_combustion|default_if_none:"-"}}</td>
+                        </tr>
+
+                        <tr>
+                            <th class="table-dark" colspan="4">VAPOR PRODUCIDO</th>                            
                         </tr>
                         <tr>
                             <th class="table-dark">Flujo Másico</th>
@@ -84,17 +102,17 @@
                         </tr>
 
                         <tr>
-                            <th class="table-dark" colspan="4">VAPOR PRODUCIDO</th>                            
+                            <th class="table-dark" colspan="4">AGUA DE ENTRADA</th>                            
                         </tr>
                         <tr>
                             <th class="table-dark">Flujo Másico</th>
-                            <td>{{fluidos.3.flujo|default_if_none:"-"}} {{fluidos.3.flujo_unidad|default_if_none:"-"}}</td>
+                            <td>{{fluidos.5.flujo|default_if_none:"-"}} {{fluidos.5.flujo_unidad|default_if_none:"-"}}</td>
                             <th class="table-dark">Temperatura de Operación</th>
-                            <td>{{fluidos.3.temperatura|default_if_none:"-"}} {{fluidos.3.temperatura_unidad|default_if_none:"-"}}</td>
+                            <td>{{fluidos.5.temperatura|default_if_none:"-"}} {{fluidos.5.temperatura_unidad|default_if_none:"-"}}</td>
                         </tr>
                         <tr>
                             <th class="table-dark" colspan="2">Presión de Operación</th>
-                            <td colspan="2">{{fluidos.3.presion|default_if_none:"-"}} {{fluidos.3.presion_unidad|default_if_none:"-"}}</td>
+                            <td colspan="2">{{fluidos.5.presion|default_if_none:"-"}} {{fluidos.3.presion_unidad|default_if_none:"-"}}</td>
                         </tr>
                         {% endwith %}
                     </tbody>

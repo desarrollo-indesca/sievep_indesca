@@ -37,7 +37,7 @@ const inicializarEventListeners = () => {
             return;
         }
 
-        if (!Array.from(document.querySelectorAll(`${$('#id_evaluacion-metodo').val() === 'D' ? '.directo-field' : '.indirecto-field'}`)).every(el => el.checkValidity())) {
+        if (!Array.from(document.querySelectorAll(`${$('#id_evaluacion-metodo').val() === 'D' ? '.directo-field' : '.indirecto-field'}`)).every(el => el.value != '')){
             e.preventDefault();
             alert("Todos los campos en verde deben ser llenados para poder realizar los cálculos correspondientes.");
             return;
@@ -87,6 +87,9 @@ document.addEventListener("htmx:beforeRequest", function (evt) {
 document.addEventListener("htmx:afterRequest", function (evt) {
   document.body.style.opacity = 1.0;
   inicializarEventListeners();
+
+  if(evt.detail.failed)
+    alert("Ha ocurrido un error al momento de realizar los cálculos. Por favor revise e intente de nuevo.");
 });
 
 $("#id_evaluacion-metodo").change();

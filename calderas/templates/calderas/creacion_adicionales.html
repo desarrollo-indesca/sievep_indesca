@@ -168,7 +168,6 @@
                     <div class="input-group mb-1">
                         {% render_field form.carga_25 class="form-control" placeholder="Valor al 25%" %}
                         <select name="form-{{forloop.counter0}}-unidad" id="id_form-{{forloop.counter0}}-unidad" class="form-select">
-                            <option value="">----------------</option>
                             {% for unidad in unidades %}
                             {% if unidad.tipo == form.instance.tipo_unidad.pk %}
                             <option value="{{unidad.pk}}" {% if unidad.pk == form.instance.unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>

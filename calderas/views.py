@@ -185,13 +185,14 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
     template_name = 'calderas/creacion.html'
 
     def get_context(self):
-        combustibles = ComposicionCombustible.objects.select_related('fluido').values('fluido', 'fluido__nombre').distinct()
+        combustibles = ComposicionCombustible.objects.values('fluido').distinct()
+        combustibles = Fluido.objects.filter(pk__in = [x['fluido'] for x in combustibles])
         combustible_forms = []
 
         for i,x in enumerate(combustibles):
-            form = ComposicionCombustibleForm(prefix=f'combustible-{i}', initial={'fluido': x['fluido']})
+            form = ComposicionCombustibleForm(prefix=f'combustible-{i}', initial={'fluido': x.pk})
             combustible_forms.append({
-                'combustible': x['fluido__nombre'],
+                'combustible': x,
                 'form': form
             })
             
@@ -554,6 +555,7 @@ class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View
                     else:
                         all_valid = False
             else:
+                print(form_caracteristicas.errors)
                 raise Exception("Ocurrió un Error de Validación General.")
 
             if all_valid:
@@ -829,6 +831,7 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
             metodo = request.POST['evaluacion-metodo'],
 
             perdidas_indirecto = perdidas,
+            o2_gas_combustion = request.POST['evaluacion-o2_gas_combustion'] if request.POST.get('evaluacion-o2_gas_combustion') != "" else None,
         )
 
         return evaluacion
@@ -876,7 +879,8 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
             salida_flujos = salida_flujos,
             salida_fracciones = salida_fracciones,
             salida_lado_agua = salida_lado_agua,
-            salida_balance_energia = salida_balance_energia
+            salida_balance_energia = salida_balance_energia,
+            o2_gas_combustion = request.POST['evaluacion-o2_gas_combustion'] if request.POST.get('evaluacion-o2_gas_combustion') != "" else None,
         )
 
         return evaluacion
@@ -900,11 +904,12 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
         form_aire = EntradasFluidosForm(request.POST, prefix='aire')
         form_horno = EntradasFluidosForm(request.POST, prefix='horno')
         form_agua = EntradasFluidosForm(request.POST, prefix='agua')
+        form_superficie = EntradasFluidosForm(request.POST, prefix='superficie')
 
         resultado = self.calcular_resultados()
 
         with transaction.atomic():
-            if all([form_vapor.is_valid(), form_gas.is_valid(), form_aire.is_valid(), form_horno.is_valid(), form_agua.is_valid()]):
+            if all([form_vapor.is_valid(), form_superficie.is_valid(), form_gas.is_valid(), form_aire.is_valid(), form_horno.is_valid(), form_agua.is_valid()]):
                 if(request.POST['evaluacion-metodo'] == 'D'):
                     evaluacion = self.almacenar_directo(request, resultado)
                 else:
@@ -925,6 +930,9 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
                 form_agua.instance.evaluacion = evaluacion
                 form_agua.save()
 
+                form_superficie.instance.evaluacion = evaluacion
+                form_superficie.save()
+
                 for form_composicion in forms_composicion:
                     if form_composicion.is_valid():
                         form_composicion.instance.evaluacion = evaluacion
@@ -935,7 +943,7 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
 
                 return self.almacenamiento_exitoso()
             else:
-                print([form.errors for form in [form_vapor, form_gas, form_aire, form_horno, form_agua]])
+                print([form.errors for form in [form_vapor, form_superficie, form_gas, form_aire, form_horno, form_agua]])
                 return self.almacenamiento_fallido()
 
     def calcular_resultados(self):
@@ -967,7 +975,6 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
             'superficie-area': 'superficie-area_unidad',
             'superficie-temperatura': 'superficie-temperatura_unidad',
             'aire-velocidad': 'aire-velocidad_unidad',
-            # 'aire-flujo': 'aire-flujo_unidad',
             'aire-humedad_relativa': None,
             'evaluacion-o2_gas_combustion': None
         }

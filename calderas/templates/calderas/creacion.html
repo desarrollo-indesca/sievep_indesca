@@ -544,7 +544,7 @@
                                 <tr>
                                     <th class="table-dark">
                                         {{form.combustible}}
-                                        <input type="hidden" name="combustible-{{forloop.counter0}}-fluido" id="id_combustible-{{forloop.counter0}}-fluido" value="{{form.form.fluido.initial}}">
+                                        <input type="hidden" name="combustible-{{forloop.counter0}}-fluido" id="id_combustible-{{forloop.counter0}}-fluido" value="{{form.combustible.pk}}">
                                         <small>{{form.form.fluido.errors}}</small>
                                     </th>
                                     <td>
@@ -554,7 +554,7 @@
                                     <td>
                                         {% if form.combustible.pk in compuestos_aire %}
                                         {% render_field form.form.porc_aire min="0" class="form-control porc-aire" placeholder="% Aire" %}
-                                        <small>{{form.form.porc_aire.errors}}</small>
+                                        <small>{{form.form.porc_aire.errors}}</small>    
                                         {% endif %}
                                     </td>
                                 </tr>

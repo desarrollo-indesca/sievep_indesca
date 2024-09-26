@@ -93,7 +93,7 @@ const anadir = (e) => {
     $(`#id_${formPrefix}carga_75`).val("");
     $(`#id_${formPrefix}carga_100`).val("");
     $(`#id_${formPrefix}unidad`).val("");
-    $(`#id_${formPrefix}unidad`).html("<option>---------------</option>");
+    $(`#id_${formPrefix}unidad`).html("<option value=\"\"></option>");
     $(`.${formPrefix}unidad`).html("");
 
     htmx.process(`#id_form-${formNum}-tipo_unidad`);

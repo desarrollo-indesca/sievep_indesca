@@ -590,6 +590,7 @@ class EntradasFluidos(models.Model):
         ("G","Gas"),
         ("A","Aire"),
         ("H","Horno"),
+        ("S","Superficie de la Caldera"),
         ("W","Agua de Entrada a la Caldera"),
         ("V","Vapor Producido")
     ]
@@ -609,7 +610,7 @@ class EntradasFluidos(models.Model):
     presion = models.FloatField("Presión de Operación", null=True, blank=True, validators=[
         MinValueValidator(0.0001)
     ])
-    presion_unidad = models.ForeignKey(Unidades, models.PROTECT, related_name="presion_unidad_entrada_fluidos_caldera")
+    presion_unidad = models.ForeignKey(Unidades, models.PROTECT, null=True, blank=True, related_name="presion_unidad_entrada_fluidos_caldera")
     
     velocidad = models.FloatField(validators=[
         MinValueValidator(0.0001)
