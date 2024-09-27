@@ -135,7 +135,7 @@ $("#submit").click(async (e) => {
     
     if ((new Set(array_nombres)).size !== array_nombres.length){
       e.preventDefault();
-      alert("Todas las características adicionales deben tener nombres distintos");
+      alert("Todas las características adicionales deben tener nombres distintos.");
       return;
     }
 
@@ -145,7 +145,7 @@ $("#submit").click(async (e) => {
     
     if ((new Set(array_numeros)).size !== array_numeros.length){
       e.preventDefault();
-      alert("Todas las corrientes deben tener números distintos");
+      alert("Todas las corrientes deben tener números distintos.");
       return;
     }
 
