@@ -419,6 +419,14 @@ def graficas_encuestas(request):
             else:
                 questions[respuesta.pregunta.pk][respuesta.respuesta] += 1
 
-            questions[respuesta.pregunta.pk]['pregunta'] = respuesta.pregunta.nombre 
+    for question, keys in questions.items():
+        if 'Sí' in keys or 'No' in keys:
+            for key in ['Sí','No']:
+                if key not in keys:
+                    questions[question][key] = 0
+        else:
+            for j in range(1, 6):
+                if str(j) not in keys:
+                    questions[question][str(j)] = 0
 
     return JsonResponse(questions)

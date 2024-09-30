@@ -118,7 +118,7 @@
                 {% render_field form_especificaciones.npshr min="0.0001" class="form-control" placeholder="Cap. de Succión Req." %}
                 <select name="npshr_unidad" id="id_npshr_unidad" class="form-select">
                     {% for unidad in unidades %}
-                    {% if unidad.tipo == 'O' %}
+                    {% if unidad.tipo == 'L' %}
                     <option value="{{unidad.pk}}" {% if unidad.pk == form_especificaciones.instance.npshr_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
                     {% endif %}
                     {% endfor %}
@@ -216,7 +216,7 @@
                 <div class="input-group mb-1">
                     {% render_field form_condiciones_diseno.npsha min="0.0001" class="form-control" placeholder="Cap. de succión disp." %}
                     <select name="npsha_unidad" id="id_npsha_unidad" class="form-select">
-                        {% include 'unidades.html' with unidades=unidades tipo='O' pk_selected=form_condiciones_diseno.instance.npsha_unidad.pk %}
+                        {% include 'unidades.html' with unidades=unidades tipo='L' pk_selected=form_condiciones_diseno.instance.npsha_unidad.pk %}
                     </select>
                 </div>
                 <small>{{form_condiciones_diseno.npsha.errors}}</small>
