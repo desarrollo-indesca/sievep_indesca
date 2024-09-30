@@ -93,7 +93,7 @@ const anadir = (e) => {
     $(`#id_${formPrefix}carga_75`).val("");
     $(`#id_${formPrefix}carga_100`).val("");
     $(`#id_${formPrefix}unidad`).val("");
-    $(`#id_${formPrefix}unidad`).html("<option>---------------</option>");
+    $(`#id_${formPrefix}unidad`).html("<option value=\"\"></option>");
     $(`.${formPrefix}unidad`).html("");
 
     htmx.process(`#id_form-${formNum}-tipo_unidad`);
@@ -127,6 +127,28 @@ const confirmSubmit = () => {
 };
 
 $("#submit").click(async (e) => {
+    const array_nombres = Array.from(document.querySelectorAll(`.nombre-caracteristica`))
+    .filter(x => x.value !== '')  
+    .map(x => x.value);
+
+    console.log((new Set(array_nombres)).size, array_nombres.length);
+    
+    if ((new Set(array_nombres)).size !== array_nombres.length){
+      e.preventDefault();
+      alert("Todas las características adicionales deben tener nombres distintos.");
+      return;
+    }
+
+    const array_numeros = Array.from(document.querySelectorAll(`.numero`))
+    .filter(x => x.value !== '')  
+    .map(x => x.value);
+    
+    if ((new Set(array_numeros)).size !== array_numeros.length){
+      e.preventDefault();
+      alert("Todas las corrientes deben tener números distintos.");
+      return;
+    }
+
     if(!confirm("¿Está seguro que desea realizar esta acción?")) 
         e.preventDefault();
 });

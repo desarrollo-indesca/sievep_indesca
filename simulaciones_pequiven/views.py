@@ -494,7 +494,7 @@ class FiltrarEvaluacionesMixin():
             evaluaciones = evaluaciones.filter(fecha__lte = request.GET.get('hasta'))
 
         if(request.GET.get('usuario')):
-            evaluaciones = evaluaciones.filter(creado_por__first_name__icontains = request.GET.get('hasta'))
+            evaluaciones = evaluaciones.filter(Q(creado_por__first_name__icontains = request.GET.get('usuario')) | Q(creado_por__last_name__icontains = request.GET.get('usuario')))
 
         if(request.GET.get('nombre')):
             evaluaciones = evaluaciones.filter(nombre__icontains = request.GET.get('nombre'))

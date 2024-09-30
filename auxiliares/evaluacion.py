@@ -354,7 +354,7 @@ def construir_resultados_bomba(densidad, viscosidad, presion_vapor, cabezal, pot
         eficiencia: float (%) -> Eficiencia calculada
         ns: float (RPM) -> Velocidad específica calculada
         npsha: float (m) -> NPSHa calculado
-        cavita: str -> La bomba cavita: Sí ('S'), No ('N') o No se sabe ('D').
+        cavita: str -> La bomba cavita: Sí ('C'), No ('N') o No se sabe ('D').
         velocidades_succion: list[float] -> Velocidades en cada tramo de las tuberías de la succión.
         velocidades_descarga: list[float] -> Velocidades en cada tramo de las tuberías de la descarga.
         flujos_succion: list[float] -> Tipo de flujo en cada tramo de la succión.

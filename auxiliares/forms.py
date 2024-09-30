@@ -1,7 +1,7 @@
 from django import forms
 from intercambiadores.models import Complejo
 from auxiliares.models import *
-from calculos.unidades import transformar_unidades_presion
+from calculos.unidades import transformar_unidades_presion, transformar_unidades_flujo
 from simulaciones_pequiven.unidades import *
 
 class FormConUnidades(forms.ModelForm):
@@ -304,6 +304,21 @@ class SeccionesPrecalentadorAguaForm(forms.ModelForm):
         
         return float(presion_entrada) if presion_entrada != '' else None
 
+    def clean_flujo_masico_salida(self):
+        flujo_masico_salida = None
+        if('drenaje' in self.prefix and self.data.get(f'seccion-agua-flujo_masico_entrada') and self.data.get(f'seccion-drenaje-flujo_masico_entrada') and self.data.get(f'seccion-drenaje-flujo_masico_salida')):
+            seccion_vapor_flujo_masico_entrada = float(self.data[f'seccion-vapor-flujo_masico_entrada'])
+            seccion_drenaje_flujo_unidad = int(self.data[f'seccion-drenaje-flujo_unidad'])
+            seccion_vapor_flujo_unidad = int(self.data[f'seccion-vapor-flujo_unidad'])
+            seccion_drenaje_flujo_masico_entrada = float(self.data[f'seccion-drenaje-flujo_masico_entrada'])
+            seccion_vapor_flujo_masico_entrada_transformado = transformar_unidades_flujo([seccion_vapor_flujo_masico_entrada], seccion_vapor_flujo_unidad, seccion_drenaje_flujo_unidad)[0]
+            flujo_masico_salida = float(self.data[f'seccion-drenaje-flujo_masico_salida'])
+
+            if(flujo_masico_salida != seccion_vapor_flujo_masico_entrada_transformado + seccion_drenaje_flujo_masico_entrada):
+                raise forms.ValidationError("El flujo másico de salida debe ser igual a la suma del flujo másico de entrada en la sección de vapor y la sección de drenaje.")
+        
+        return flujo_masico_salida
+
     class Meta:
         model = SeccionesPrecalentadorAgua
         exclude = ('id', 'precalentador')
@@ -395,7 +410,7 @@ class PrecalentadorAireForm(forms.ModelForm):
     Resumen:
         Form para el registro de los datos generales del precalentador de aire.
     """
-    complejo = forms.ModelChoiceField(queryset=Complejo.objects.all(), initial=1)
+    complejo = forms.ModelChoiceField(queryset=Complejo.objects.all())
     
     class Meta:
         model = PrecalentadorAire

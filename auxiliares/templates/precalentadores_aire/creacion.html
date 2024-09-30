@@ -140,7 +140,7 @@
         <div class="col-4">
             {{forms.form_especificaciones.presion_operacion.label_tag}}
             <div class="input-group">
-                {% render_field forms.form_especificaciones.presion_operacion class="form-control" placeholder="Presión de Operación" %}
+                {% render_field forms.form_especificaciones.presion_operacion class="form-control" placeholder="Presión de Operación" min="0" %}
                 <select name="presion_unidad" id="id_presion_unidad" class="form-select">
                     {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_especificaciones.instance.presion_unidad.pk %}
                 </select>
@@ -202,7 +202,7 @@
                 <div class="col-6">
                     {{forms.form_aire.presion_entrada.label_tag}}
                     <div class="input-group">
-                        {% render_field forms.form_aire.presion_entrada class="form-control" placeholder="Presión de Entrada" %}
+                        {% render_field forms.form_aire.presion_entrada class="form-control" placeholder="Presión de Entrada" min="0.0001" %}
                         <select name="aire-presion_unidad" id="id_aire-presion_unidad" class="form-select">
                             {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_aire.instance.presion_unidad.pk %}
                         </select>
@@ -213,7 +213,7 @@
                 <div class="col-6">
                     {{forms.form_aire.presion_salida.label_tag}}
                     <div class="input-group">
-                        {% render_field forms.form_aire.presion_salida class="form-control" placeholder="Presión de Salida" %}
+                        {% render_field forms.form_aire.presion_salida class="form-control" placeholder="Presión de Salida" min="0.0001" %}
                         <select name="aire-presion_unidad" id="id_aire-presion_unidad" class="form-select" disabled>
                             {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_aire.instance.presion_unidad.pk %}
                         </select>
@@ -224,7 +224,7 @@
                 <div class="col-12">
                     {{forms.form_aire.caida_presion.label_tag}}
                     <div class="input-group">
-                        {% render_field forms.form_aire.caida_presion class="form-control" placeholder="Caída de Presión" %}
+                        {% render_field forms.form_aire.caida_presion class="form-control" placeholder="Caída de Presión" min="0" %}
                         <select name="aire-presion_unidad" id="id_aire-presion_unidad" class="form-select" disabled>
                             {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_aire.instance.presion_unidad.pk %}
                         </select>
@@ -296,7 +296,7 @@
                 <div class="col-6">
                     {{forms.form_gases.presion_entrada.label_tag}}
                     <div class="input-group">
-                        {% render_field forms.form_gases.presion_entrada class="form-control" placeholder="Presión de Entrada" %}
+                        {% render_field forms.form_gases.presion_entrada class="form-control" placeholder="Presión de Entrada" min="0.0001" %}
                         <select name="gases-presion_unidad" id="id_gases-presion_unidad" class="form-select">
                             {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_gases.instance.presion_unidad.pk %}
                         </select>
@@ -307,7 +307,7 @@
                 <div class="col-6">
                     {{forms.form_gases.presion_salida.label_tag}}
                     <div class="input-group">
-                        {% render_field forms.form_gases.presion_salida class="form-control" placeholder="Presión de Salida" %}
+                        {% render_field forms.form_gases.presion_salida class="form-control" placeholder="Presión de Salida" min="0.0001" %}
                         <select name="gases-presion_unidad" id="id_gases-presion_unidad" class="form-select" disabled>
                             {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_gases.instance.presion_unidad.pk %}
                         </select>
@@ -318,7 +318,7 @@
                 <div class="col-12">
                     {{forms.form_gases.caida_presion.label_tag}}
                     <div class="input-group">
-                        {% render_field forms.form_gases.caida_presion class="form-control" placeholder="Caída de Presión" %}
+                        {% render_field forms.form_gases.caida_presion class="form-control" placeholder="Caída de Presión" min="0" %}
                         <select name="gases-presion_unidad" id="id_gases-presion_unidad" class="form-select" disabled>
                             {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_gases.instance.presion_unidad.pk %}
                         </select>

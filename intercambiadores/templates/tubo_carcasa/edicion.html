@@ -820,6 +820,7 @@
 
 {% block extra_javascript %}
 <script src="{% static 'js/intercambiadores/ajaxCP.js' %}"></script>
+<script src="{% static 'js/intercambiadores/cambio_fase.js' %}"></script>
 <script>
     {% include 'scripts/validaciones_flujo.js' %}
 
@@ -829,5 +830,4 @@
 
     $('#complejo').change();
 </script>
-<script src="{% static 'js/intercambiadores/cambio_fase.js' %}"></script>
 {% endblock %}

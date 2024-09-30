@@ -650,6 +650,8 @@ class CreacionInstalacionBomba(SuperUserRequiredMixin, View, CargarBombaMixin):
                                                                 'forms_instalacion': formset_instalacion,
                                                                 'forms_tuberia_succion': formset_tuberias_succion,
                                                                 'forms_tuberia_descarga': formset_tuberias_descarga,
+                                                                'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
+                                                                'materiales': MaterialTuberia.objects.all().values('pk', 'nombre'),
                                                                 'error': 'Ocurrió un error desconocido al momento de registrar los datos de instalación. Revise e intente de nuevo.'}) 
 
     def get(self, request, **kwargs):
@@ -878,6 +880,8 @@ class CalcularResultadosBomba(LoginRequiredMixin, View):
                 form_entrada.instance.nombre_fluido = condicion_fluido.nombre_fluido
                 form_entrada.save()
 
+                print(res['cavita'])
+
                 salida = SalidaEvaluacionBombaGeneral.objects.create(
                     cabezal_total = res['cabezal_total'][0],
                     cabezal_total_unidad = especificaciones.cabezal_unidad,
@@ -887,7 +891,7 @@ class CalcularResultadosBomba(LoginRequiredMixin, View):
                     velocidad = res['velocidad_especifica'],
                     velocidad_unidad = especificaciones.velocidad_unidad,
                     npsha = res['npsha'][0],
-                    cavita = None if res['cavita'] == 'D' else res['cavita'] == 'S'
+                    cavita = None if res['cavita'] == 'D' else res['cavita'] == 'C'
                 )
 
                 form_evaluacion.instance.equipo = self.bomba
@@ -2040,7 +2044,7 @@ class EdicionPrecalentadorAgua(CreacionPrecalentadorAgua, ObtenerPrecalentadorAg
         especificaciones = precalentador.especificaciones_precalentador.all()
 
         return {
-            'form_equipo': PrecalentadorAguaForm(instance=precalentador), 
+            'form_equipo': PrecalentadorAguaForm(instance=precalentador, initial={'complejo': precalentador.planta.complejo.pk}), 
             'form_seccion_agua': SeccionesPrecalentadorAguaForm(instance=secciones.get(tipo="A"), prefix=self.prefix_seccion_agua, initial={'tipo': 'A'}), 
             'form_seccion_vapor': SeccionesPrecalentadorAguaForm(instance=secciones.get(tipo="V"), prefix=self.prefix_seccion_vapor, initial={'tipo':'V'}),
             'form_seccion_drenaje': SeccionesPrecalentadorAguaForm(instance=secciones.get(tipo="D"), prefix=self.prefix_seccion_drenaje, initial={'tipo':'D'}),
@@ -2185,10 +2189,10 @@ class CreacionCorrientesPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecale
         precalentador = self.get_precalentador()
 
         formset_corrientes_carcasa = self.formset_corrientes("form-carcasa", 
-            queryset=precalentador.datos_corrientes.corrientes_precalentador_agua.filter(lado="C") if precalentador.datos_corrientes else None
+            queryset=precalentador.datos_corrientes.corrientes_precalentador_agua.filter(lado="C") if precalentador.datos_corrientes else CorrientePrecalentadorAgua.objects.none()
         )
         formset_corrientes_tubos = self.formset_corrientes("form-tubos", 
-            queryset=precalentador.datos_corrientes.corrientes_precalentador_agua.filter(lado="T") if precalentador.datos_corrientes else None
+            queryset=precalentador.datos_corrientes.corrientes_precalentador_agua.filter(lado="T") if precalentador.datos_corrientes else CorrientePrecalentadorAgua.objects.none()
         )
 
         return {
@@ -2361,14 +2365,14 @@ class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorA
 
         corrientes_carcasa = []
         for corriente in resultados['resultados']['corrientes_carcasa']:
-            corriente["entalpia"] = transformar_unidades_entalpia_masica([corriente["h"]], 60, entalpia_unidad)[0]
-            corriente["densidad"] = transformar_unidades_densidad([corriente["d"]], 30, densidad_unidad)[0]
+            corriente["h"] = transformar_unidades_entalpia_masica([corriente["h"]], 60, entalpia_unidad)[0]
+            corriente["d"] = transformar_unidades_densidad([corriente["d"]], 30, densidad_unidad)[0]
             corrientes_carcasa.append(corriente)
 
         corrientes_tubo = []
         for corriente in resultados['resultados']['corrientes_tubo']:
-            corriente["entalpia"] = transformar_unidades_entalpia_masica([corriente["h"]], 60, entalpia_unidad)[0]
-            corriente["densidad"] = transformar_unidades_densidad([corriente["d"]], 30, densidad_unidad)[0]
+            corriente["h"] = transformar_unidades_entalpia_masica([corriente["h"]], 60, entalpia_unidad)[0]
+            corriente["d"] = transformar_unidades_densidad([corriente["d"]], 30, densidad_unidad)[0]
             corrientes_tubo.append(corriente)
 
         resultados['resultados']["corrientes_carcasa"] = corrientes_carcasa
@@ -2778,7 +2782,7 @@ class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalenta
 
     def get_forms(self):
         precalentador = self.get_precalentador()
-        form_equipo = PrecalentadorAireForm(instance=precalentador)
+        form_equipo = PrecalentadorAireForm(instance=precalentador, initial={'complejo': precalentador.planta.complejo.pk})
         form_especificaciones = EspecificacionesPrecalentadorAireForm(instance=precalentador.especificaciones)
         condiciones = precalentador.condicion_fluido.all()
         form_aire = CondicionFluidoForm(prefix=self.prefix_aire, instance=condiciones.first())
@@ -2805,7 +2809,6 @@ class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalenta
                 'fluido': fluido
             })
 
-        print(forms)
         return forms
 
     def post(self, request, *args, **kwargs):
@@ -3251,12 +3254,14 @@ class DuplicarPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAgua
             precalentador.tag = generate_nonexistent_tag(PrecalentadorAgua, precalentador.tag)
             precalentador.copia = True
 
-            datos_corrientes = self.copy(precalentador_original.datos_corrientes)
-            for corriente in precalentador_original.datos_corrientes.corrientes_precalentador_agua.all():
-                corriente.datos_corriente = datos_corrientes
-                self.copy(corriente)
+            if precalentador_original.datos_corrientes:
+                datos_corrientes = self.copy(precalentador_original.datos_corrientes)
+                for corriente in precalentador_original.datos_corrientes.corrientes_precalentador_agua.all():
+                    corriente.datos_corriente = datos_corrientes
+                    self.copy(corriente)
 
-            precalentador.datos_corrientes = datos_corrientes
+                precalentador.datos_corrientes = datos_corrientes
+            
             precalentador = self.copy(precalentador)
 
             for seccion in precalentador_original.secciones_precalentador.all():

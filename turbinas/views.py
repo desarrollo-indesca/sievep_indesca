@@ -336,6 +336,7 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
                 'form_datos_corrientes': form_datos_corrientes,
                 'forms_corrientes': forms_corrientes,
                 'titulo': self.titulo,
+                'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
                 'error': "Ocurrió un error desconocido al momento de almacenar la turbina de vapor. Revise los datos e intente de nuevo."
             })
         
@@ -675,4 +676,5 @@ class DuplicarTurbinaVapor(SuperUserRequiredMixin, ObtenerTurbinaVaporMixin, Dup
             turbina.copia = True
             turbina.tag = generate_nonexistent_tag(TurbinaVapor, turbina_tag)
             self.copy(turbina)
+            messages.add_message(request, messages.SUCCESS, f'Turbina {turbina_tag} duplicada exitosamente en la turbina {turbina.tag}. Recuerde que todas las copias son eliminadas diariamente a las 6:00am.')
             return redirect('/turbinas/vapor/')

@@ -125,7 +125,7 @@
                         <td colspan="3">
                             <b>
                                 {% if condiciones_fluido.nombre_fluido %}
-                                {{condiciones_fluido.nombre_fluido|default_if_none:'-'}}
+                                {{condiciones_fluido.nombre_fluido.upper|default_if_none:'-'}}
                                 {% else %}
                                 {{condiciones_fluido.fluido|default_if_none:'-'}}
                                 {% endif %}
