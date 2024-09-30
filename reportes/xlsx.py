@@ -139,8 +139,8 @@ def historico_evaluaciones(object_list, request):
     worksheet.write('F5', 'Equipo', bold_bordered)
 
     worksheet.write('B6', request.GET.get('desde', ''), center_bordered)
-    worksheet.write('C6', Planta.objects.get(pk=request.GET.get('hasta')).nombre if request.GET.get('hasta') else '', center_bordered)
-    worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('usuario')).nombre if request.GET.get('usuario') else '', center_bordered)
+    worksheet.write('C6', request.GET.get('hasta', '') if request.GET.get('hasta') else '', center_bordered)
+    worksheet.write('D6',request.GET.get('usuario'), center_bordered)
     worksheet.write('E6', request.GET.get('nombre', ''), center_bordered)
     worksheet.write('F6', intercambiador.tag.upper(), center_bordered)
     num = 8
@@ -839,7 +839,7 @@ def ficha_tecnica_bomba_centrifuga(bomba, request):
     worksheet.write(f'AQ{num}', f'{motor.potencia_motor if motor.potencia_motor else ""}', bordered)
     worksheet.write(f'AR{num}', f'{motor.velocidad_motor if motor.velocidad_motor else ""}', bordered)
     worksheet.write(f'AS{num}', f'{motor.factor_de_servicio if motor.factor_de_servicio else ""}', bordered)
-    worksheet.write(f'AT{num}', f'{motor.posicion_largo() if motor.posicion_largo else ""}', bordered)
+    worksheet.write(f'AT{num}', f'{motor.posicion_largo() if motor.posicion_largo() else ""}', bordered)
     worksheet.write(f'AU{num}', f'{motor.voltaje if motor.voltaje else ""}', bordered)
     worksheet.write(f'AV{num}', f'{motor.fases if motor.fases else ""}', bordered)
     worksheet.write(f'AW{num}', f'{motor.frecuencia if motor.frecuencia else ""}', bordered)
@@ -902,8 +902,8 @@ def historico_evaluaciones_bombas(object_list, request):
     worksheet.write('F5', 'Equipo', bold_bordered)
 
     worksheet.write('B6', request.GET.get('desde', ''), center_bordered)
-    worksheet.write('C6', Planta.objects.get(pk=request.GET.get('hasta')).nombre if request.GET.get('hasta') else '', center_bordered)
-    worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('usuario')).nombre if request.GET.get('usuario') else '', center_bordered)
+    worksheet.write('C6', request.GET.get('hasta', '') if request.GET.get('hasta') else '', center_bordered)
+    worksheet.write('D6',request.GET.get('usuario'), center_bordered)
     worksheet.write('E6', request.GET.get('nombre', ''), center_bordered)
     worksheet.write('F6', bomba.tag.upper(), center_bordered)
     num = 8
@@ -920,7 +920,7 @@ def historico_evaluaciones_bombas(object_list, request):
     worksheet.write(f"J{num}", f"Unidad NPSHa", bold_bordered)
     worksheet.write(f"K{num}", f"Cavita", bold_bordered)
 
-    for i,evaluacion in enumerate(object_list):
+    for i,evaluacion in enumerate(object_list.order_by('fecha')):
         salida = evaluacion.salida
         entrada = evaluacion.entrada
         eficiencia = salida.eficiencia
@@ -994,8 +994,8 @@ def historico_evaluaciones_ventiladores(object_list, request):
     worksheet.write('F5', 'Equipo', bold_bordered)
 
     worksheet.write('B6', request.GET.get('desde', ''), center_bordered)
-    worksheet.write('C6', Planta.objects.get(pk=request.GET.get('hasta')).nombre if request.GET.get('hasta') else '', center_bordered)
-    worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('usuario')).nombre if request.GET.get('usuario') else '', center_bordered)
+    worksheet.write('C6', request.GET.get('hasta', '') if request.GET.get('hasta') else '', center_bordered)
+    worksheet.write('D6',request.GET.get('usuario'), center_bordered)
     worksheet.write('E6', request.GET.get('nombre', ''), center_bordered)
     worksheet.write('F6', ventilador.tag.upper(), center_bordered)
     num = 8
@@ -1149,9 +1149,10 @@ def ficha_tecnica_ventilador(_, ventilador, request):
     worksheet.write(f"J{num+2}", "Generado por " + request.user.get_full_name(), fecha)
 
     worksheet.write(f"A{num+2}", "Datos de Identificación", identificacion)
-    worksheet.write(f"A{num+3}", "Condiciones de Trabajo", condiciones_trabajo_estilo)
-    worksheet.write(f"A{num+4}", "Condiciones Adicionales", condiciones_adicionales_estilo)
-    worksheet.write(f"A{num+5}", "Especificaciones del Ventilador", especificaciones_estilo)
+    worksheet.write(f"A{num+3}", "Condiciones Generales", condiciones_generales_estilo)
+    worksheet.write(f"A{num+4}", "Condiciones de Trabajo", condiciones_trabajo_estilo)
+    worksheet.write(f"A{num+5}", "Condiciones Adicionales", condiciones_adicionales_estilo)
+    worksheet.write(f"A{num+6}", "Especificaciones del Ventilador", especificaciones_estilo)
     workbook.close()
         
     return enviar_response(f'ficha_tecnica_ventilador_{ventilador.tag}', excel_io, fecha)
@@ -1196,8 +1197,8 @@ def historico_evaluaciones_turbinas_vapor(object_list, request):
     worksheet.write('F5', 'Equipo', bold_bordered)
 
     worksheet.write('B6', request.GET.get('desde', ''), center_bordered)
-    worksheet.write('C6', Planta.objects.get(pk=request.GET.get('hasta')).nombre if request.GET.get('hasta') else '', center_bordered)
-    worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('usuario')).nombre if request.GET.get('usuario') else '', center_bordered)
+    worksheet.write('C6', request.GET.get('hasta', '') if request.GET.get('hasta') else '', center_bordered)
+    worksheet.write('D6',request.GET.get('usuario'), center_bordered)
     worksheet.write('E6', request.GET.get('nombre', ''), center_bordered)
     worksheet.write('F6', ventilador.tag.upper(), center_bordered)
     num = 8
@@ -1242,6 +1243,7 @@ def ficha_tecnica_turbina_vapor(_, turbina, request):
     identificacion = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'yellow'})
     especificaciones_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'red'})
     corrientes_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'cyan'})
+    generador_estilo = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'green'})
     center_bordered = workbook.add_format({'border': 1})
     fecha =  workbook.add_format({'border': 1})
 
@@ -1258,6 +1260,7 @@ def ficha_tecnica_turbina_vapor(_, turbina, request):
     num = 6
 
     especificaciones = turbina.especificaciones
+    generador = turbina.generador_electrico
 
     worksheet.write(f'A{num}', 'Tag', identificacion)
     worksheet.write(f'B{num}', 'Complejo', identificacion)
@@ -1271,6 +1274,14 @@ def ficha_tecnica_turbina_vapor(_, turbina, request):
     worksheet.write(f'J{num}', f'Presión de Entrada ({especificaciones.presion_entrada_unidad}g)', especificaciones_estilo)
     worksheet.write(f'K{num}', f'Temperatura de Entrada ({especificaciones.temperatura_entrada_unidad})', especificaciones_estilo)
     worksheet.write(f'L{num}', f'Contra Presión ({especificaciones.contra_presion_unidad})', especificaciones_estilo)
+    worksheet.write(f'M{num}', f'Polos', generador_estilo)
+    worksheet.write(f'N{num}', f'Fases', generador_estilo)
+    worksheet.write(f'O{num}', f'Ciclos ({generador.ciclos_unidad})', generador_estilo)
+    worksheet.write(f'P{num}', f'Potencia Real ({generador.potencia_real_unidad})', generador_estilo)
+    worksheet.write(f'Q{num}', f'Potencia Aparente ({generador.potencia_aparente_unidad})', generador_estilo)
+    worksheet.write(f'R{num}', f'Velocidad ({generador.velocidad_unidad})', generador_estilo)
+    worksheet.write(f'S{num}', f'Corriente Eléctrica ({generador.corriente_electrica_unidad})', generador_estilo)
+    worksheet.write(f'T{num}', f'Voltaje ({generador.voltaje_unidad})', generador_estilo)
 
     num += 1
     
@@ -1286,6 +1297,14 @@ def ficha_tecnica_turbina_vapor(_, turbina, request):
     worksheet.write(f'J{num}', especificaciones.presion_entrada, center_bordered)
     worksheet.write(f'K{num}', especificaciones.temperatura_entrada, center_bordered)
     worksheet.write(f'L{num}', especificaciones.contra_presion, center_bordered)
+    worksheet.write(f'M{num}', f'{generador.polos}', center_bordered)
+    worksheet.write(f'N{num}', f'{generador.fases}', center_bordered)
+    worksheet.write(f'O{num}', f'{generador.ciclos}', center_bordered)
+    worksheet.write(f'P{num}', f'{generador.potencia_real}', center_bordered)
+    worksheet.write(f'Q{num}', f'{generador.potencia_aparente}', center_bordered)
+    worksheet.write(f'R{num}', f'{generador.velocidad}', center_bordered)
+    worksheet.write(f'S{num}', f'{generador.corriente_electrica}', center_bordered)
+    worksheet.write(f'T{num}', f'{generador.voltaje}', center_bordered)
 
     num += 2
     worksheet.write(f'A{num}', "Datos de las Corrientes Circulantes por la Turbina", corrientes_estilo)
@@ -1367,8 +1386,8 @@ def historico_evaluaciones_caldera(object_list, request):
     worksheet.write('F5', 'Equipo', bold_bordered)
 
     worksheet.write('B6', request.GET.get('desde', ''), center_bordered)
-    worksheet.write('C6', Planta.objects.get(pk=request.GET.get('hasta')).nombre if request.GET.get('hasta') else '', center_bordered)
-    worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('usuario')).nombre if request.GET.get('usuario') else '', center_bordered)
+    worksheet.write('C6', request.GET.get('hasta', '') if request.GET.get('hasta') else '', center_bordered)
+    worksheet.write('D6',request.GET.get('usuario'), center_bordered)
     worksheet.write('E6', request.GET.get('nombre', ''), center_bordered)
     worksheet.write('F6', ventilador.tag.upper(), center_bordered)
     num = 8
@@ -1684,8 +1703,8 @@ def historico_evaluaciones_precalentador_agua(object_list, request):
     worksheet.write('F5', 'Equipo', bold_bordered)
 
     worksheet.write('B6', request.GET.get('desde', ''), center_bordered)
-    worksheet.write('C6', Planta.objects.get(pk=request.GET.get('hasta')).nombre if request.GET.get('hasta') else '', center_bordered)
-    worksheet.write('D6', Complejo.objects.get(pk=request.GET.get('usuario')).nombre if request.GET.get('usuario') else '', center_bordered)
+    worksheet.write('C6', request.GET.get('hasta', '') if request.GET.get('hasta') else '', center_bordered)
+    worksheet.write('D6',request.GET.get('usuario'), center_bordered)
     worksheet.write('E6', request.GET.get('nombre', ''), center_bordered)
     worksheet.write('F6', precalentador.tag.upper(), center_bordered)
     num = 8
@@ -1773,8 +1792,8 @@ def ficha_tecnica_precalentador_agua(precalentador, request):
     worksheet.write(f'D{num}', f'PRECALENTADOR DE AGUA', center_bordered)
     worksheet.write(f'E{num}', f'{precalentador.fabricante}', center_bordered)
     worksheet.write(f'F{num}', f'{precalentador.descripcion}', center_bordered)
-    worksheet.write(f'E{num}', f'{precalentador.u}', center_bordered)
-    worksheet.write(f'F{num}', f'{precalentador.u_unidad}', center_bordered)
+    worksheet.write(f'G{num}', f'{precalentador.u}', center_bordered)
+    worksheet.write(f'H{num}', f'{precalentador.u_unidad}', center_bordered)
 
     num += 2
 
@@ -1803,13 +1822,13 @@ def ficha_tecnica_precalentador_agua(precalentador, request):
         worksheet.write(f'D{num}', f'{seccion.flujo_unidad.simbolo if seccion.flujo_unidad.simbolo else "—"}', center_bordered)
         worksheet.write(f'E{num}', f'{seccion.entalpia_entrada if seccion.entalpia_entrada else "—"}', center_bordered)
         worksheet.write(f'F{num}', f'{seccion.entalpia_salida if seccion.entalpia_salida else "—"}', center_bordered)
-        worksheet.write(f'G{num}', f'{seccion.entalpia_unidad.simbolo if seccion.                                                   entalpia_unidad.simbolo else "—"}', center_bordered)
+        worksheet.write(f'G{num}', f'{seccion.entalpia_unidad.simbolo if seccion.entalpia_unidad.simbolo else "—"}', center_bordered)
         worksheet.write(f'H{num}', f'{seccion.temp_entrada if seccion.temp_entrada else "—"}', center_bordered)
         worksheet.write(f'I{num}', f'{seccion.temp_salida if seccion.temp_salida else "—"}', center_bordered)
         worksheet.write(f'J{num}', f'{seccion.temp_unidad.simbolo if seccion.temp_unidad.simbolo else "—"}', center_bordered)
         worksheet.write(f'K{num}', f'{seccion.presion_entrada if seccion.presion_entrada else "—"}', center_bordered)
         worksheet.write(f'L{num}', f'{seccion.caida_presion if seccion.caida_presion else "—"}', center_bordered)
-        worksheet.write(f'M{num}', f'{seccion.presion_unidad if seccion.presion_unidad else "—"}', center_bordered)
+        worksheet.write(f'M{num}', f'{seccion.presion_unidad if seccion.presion_unidad else "—"}g', center_bordered)
         worksheet.write(f'N{num}', f'{seccion.velocidad_promedio if seccion.velocidad_promedio else "—"}', center_bordered)
         worksheet.write(f'O{num}', f'{seccion.velocidad_unidad if seccion.velocidad_unidad else "—"}', center_bordered)
         
@@ -1974,7 +1993,7 @@ def ficha_tecnica_precalentador_aire(precalentador, request):
 
     for lado in precalentador.condicion_fluido.all():
         num += 1
-        worksheet.write(f'A{num}', f'{lado.fluido_largo if lado.fluido_largo else "—"()}', center_bordered)
+        worksheet.write(f'A{num}', f'{lado.fluido_largo if lado.fluido_largo else "—"}', center_bordered)
         worksheet.write(f'B{num}', f'{lado.flujo if lado.flujo else "—"}', center_bordered)
         worksheet.write(f'C{num}', f'{lado.flujo_unidad if lado.flujo_unidad else "—"}', center_bordered)
         worksheet.write(f'D{num}', f'{lado.temp_entrada if lado.temp_entrada else "—"}', center_bordered)

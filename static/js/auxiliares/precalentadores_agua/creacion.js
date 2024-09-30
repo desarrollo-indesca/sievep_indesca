@@ -18,11 +18,13 @@ const anadir_presion_manometrica = (magnitud, seccion, parte = 'seccion') => {
 }
 
 anadir_listeners_dropboxes('entalpia', 'drenaje');
-anadir_listeners_dropboxes('entalpia', 'vapor');
+anadir_listeners_dropboxes('entalpia', 'agua');
 
 anadir_listeners_dropboxes('temp', 'drenaje');
 anadir_listeners_dropboxes('temp', 'agua');
 anadir_listeners_dropboxes('temp', 'vapor');
+
+anadir_listeners_dropboxes('flujo', 'drenaje');
 
 anadir_listeners_dropboxes('presion', 'drenaje');
 anadir_listeners_dropboxes('presion', 'agua');
@@ -31,6 +33,7 @@ anadir_listeners_dropboxes('presion', 'vapor');
 anadir_presion_manometrica('presion', 'drenaje');
 anadir_presion_manometrica('presion', 'agua');
 anadir_presion_manometrica('presion', 'vapor');
+
 
 anadir_presion_manometrica('caida_presion', 'drenaje', 'especs');
 anadir_presion_manometrica('caida_presion', 'condensado', 'especs');

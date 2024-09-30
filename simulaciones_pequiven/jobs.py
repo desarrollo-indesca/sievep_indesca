@@ -135,12 +135,15 @@ def delete_precalentador_copies():
             salida.delete()
             datos_corrientes.delete()
 
-        copia.datos_corrientes.corrientes_precalentador_agua.all().delete()
-        datos_corrientes = copia.datos_corrientes
+        if(copia.datos_corrientes):
+            copia.datos_corrientes.corrientes_precalentador_agua.all().delete()
+        
         copia.secciones_precalentador.all().delete()
         copia.especificaciones_precalentador.all().delete()
+        datos_corrientes = copia.datos_corrientes        
         copia.delete()
-        datos_corrientes.delete()
+        if(datos_corrientes):
+            datos_corrientes.delete()
 
 def delete_turbinas_vapor_copies():
     """
@@ -335,5 +338,5 @@ def start_deleting_job():
     """
     
     scheduler = Scheduler()
-    scheduler.every().day.at("06:00").do(delete_copies)
+    scheduler.every(10).seconds.do(delete_copies)
     scheduler.run_continuously()

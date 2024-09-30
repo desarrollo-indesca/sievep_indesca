@@ -82,7 +82,7 @@
     <h4 class="text-center" style="color: #e31e24;">Especificaciones Técnicas de la Bomba</h2>
 
     <div class="row">
-        <div class="col-3">
+        <div class="col-4">
             <label for="id_velocidad">{{form_especificaciones.velocidad.label_tag}}</label>
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.velocidad min="0.0001" class="form-control" placeholder="Velocidad de la bomba" %}
@@ -97,7 +97,7 @@
             <small>{{form_especificaciones.velocidad.errors}}</small>
         </div>
 
-        <div class="col-3">
+        <div class="col-4">
             <label for="id_potencia">{{form_especificaciones.potencia_maxima.label_tag}}</label>
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.potencia_maxima min="0.0001" class="form-control" placeholder="Potencia Máxima" %}
@@ -112,7 +112,7 @@
             <small>{{form_especificaciones.potencia_maxima.errors}}</small>
         </div>
 
-        <div class="col-3">
+        <div class="col-4">
             <label for="id_npshr">{{form_especificaciones.npshr.label_tag}}</label>
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.npshr min="0.0001" class="form-control" placeholder="Cap. de Succión Req." %}
@@ -127,7 +127,7 @@
             <small>{{form_especificaciones.npshr.errors}}</small>
         </div>
 
-        <div class="col-3">
+        <div class="col-4">
             <label for="id_cabezal_total">{{form_especificaciones.cabezal_total.label_tag}}</label>
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.cabezal_total min="0.0001" class="form-control" placeholder="Cabezal Total" %}
@@ -142,7 +142,7 @@
             <small>{{form_especificaciones.cabezal_total.errors}}</small>
         </div>
 
-        <div class="col-3">
+        <div class="col-4">
             <label for="id_succion_id">{{form_especificaciones.succion_id.label_tag}}</label>
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.succion_id min="0.0001" placeholder="Diám. Int. Succión" class="form-control" %}
@@ -158,7 +158,7 @@
             <small>{{form_especificaciones.succion_id.errors}}</small>
         </div>
 
-        <div class="col-3">
+        <div class="col-4">
             <label for="id_descarga_id">{{form_especificaciones.descarga_id.label_tag}}</label>
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.descarga_id min="0.0001" class="form-control" placeholder="Diám. Int. Desc." %}
@@ -174,16 +174,22 @@
 
         </div>
 
-        <div class="col-3">
+        <div class="col-4">
             <label for="id_numero_etapas">{{form_especificaciones.numero_etapas.label_tag}}</label>
             {% render_field form_especificaciones.numero_etapas min="1" class="form-control" placeholder="Etapas de la bomba" %}        
             <small>{{form_especificaciones.numero_etapas.errors}}</small>
         </div>
 
-        <div class="col-3">
+        <div class="col-4">
             <label for="id_eficiencia">{{form_especificaciones.eficiencia.label_tag}}</label>
             {% render_field form_especificaciones.eficiencia min="0" class="form-control" placeholder="Eficiencia por Diseño" %}
             <small>{{form_especificaciones.eficiencia.errors}}</small>
+        </div>
+
+        <div class="col-4">
+            <label for="id_numero_curva">{{form_especificaciones.numero_curva.label_tag}}</label>
+            {% render_field form_especificaciones.numero_curva min="0" class="form-control" placeholder="Número de Curva" %}
+            <small>{{form_especificaciones.numero_curva.errors}}</small>
         </div>
     </div>
     

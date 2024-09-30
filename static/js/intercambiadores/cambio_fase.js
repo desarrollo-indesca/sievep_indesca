@@ -1,12 +1,4 @@
-$('#tipo_cp_carcasa').change(() => {
-    cambiar_segun_tipo_y_cambio();
-});
-
-$('#tipo_cp_tubo').change(() => {
-    cambiar_segun_tipo_y_cambio("T");
-});
-
-function cambiar_accesibilidad_por_fase(lado = 'T'){ // Función para colocar la disponibilidad de los Cp de acuerdo al tipo de cambio de fase
+const cambiar_accesibilidad_por_fase = (lado = 'T') => { // Función para colocar la disponibilidad de los Cp de acuerdo al tipo de cambio de fase
     if(lado === 'C'){ // Lado Carcasa
         if(Number($('#flujo_liquido_in_carcasa').val()) !== 0 && Number($('#flujo_liquido_in_carcasa').val()) === Number($('#flujo_liquido_out_carcasa').val())){
             $('#cp_liquido_carcasa').removeAttr('disabled');
@@ -32,6 +24,14 @@ function cambiar_accesibilidad_por_fase(lado = 'T'){ // Función para colocar la
         }
     }
 }
+
+$('#tipo_cp_carcasa').change(() => {
+    cambiar_segun_tipo_y_cambio();
+});
+
+$('#tipo_cp_tubo').change(() => {
+    cambiar_segun_tipo_y_cambio("T");
+});
 
 function cambiar_segun_tipo_y_cambio(lado = 'C') { // Cambiar tipos de Cp de acuerdo al tipo de cambio de fase y calculo de cp
     if(lado === 'C'){
