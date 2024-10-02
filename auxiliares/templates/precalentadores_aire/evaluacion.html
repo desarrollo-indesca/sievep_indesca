@@ -48,7 +48,7 @@
                     <div class="col-6">
                         {{forms.form_entrada_aire.temp_entrada.label_tag}}
                         <div class="input-group">
-                            {% render_field forms.form_entrada_aire.temp_entrada class="form-control" placeholder="Temp. Salida" min="-273.15" %}
+                            {% render_field forms.form_entrada_aire.temp_entrada class="form-control" placeholder="Temp. Entrada" min="-273.15" %}
                             <select name="aire-temp_unidad" class="form-select" id="id_aire-temp_unidad">
                                 {% include 'unidades.html' with unidades=unidades tipo='T' %}
                             </select>
@@ -57,7 +57,7 @@
                     <div class="col-6">
                         {{forms.form_entrada_aire.temp_salida.label_tag}}
                         <div class="input-group">
-                            {% render_field forms.form_entrada_aire.temp_salida class="form-control" placeholder="Temp. Entrada" min="-273.15" %}
+                            {% render_field forms.form_entrada_aire.temp_salida class="form-control" placeholder="Temp. Salida" min="-273.15" %}
                             <select name="aire-temp_unidad" class="form-select" id="id_aire-temp_unidad" disabled>
                                 {% include 'unidades.html' with unidades=unidades tipo='T' %}
                             </select>
@@ -105,7 +105,7 @@
                     <div class="col-6">
                         {{forms.form_entrada_gases.temp_entrada.label_tag}}
                         <div class="input-group">
-                            {% render_field forms.form_entrada_gases.temp_entrada class="form-control" placeholder="Temp. Salida" min="-273.15"  %}
+                            {% render_field forms.form_entrada_gases.temp_entrada class="form-control" placeholder="Temp. Entrada" min="-273.15"  %}
                             <select name="gases-temp_unidad" class="form-select" id="id_gases-temp_unidad">
                                 {% include 'unidades.html' with unidades=unidades tipo='T' %}
                             </select>
@@ -114,7 +114,7 @@
                     <div class="col-6">
                         {{forms.form_entrada_gases.temp_salida.label_tag}}
                         <div class="input-group">
-                            {% render_field forms.form_entrada_gases.temp_salida class="form-control" placeholder="Temp. Entrada" min="-273.15" %}
+                            {% render_field forms.form_entrada_gases.temp_salida class="form-control" placeholder="Temp. Salida" min="-273.15" %}
                             <select name="gases-temp_unidad" class="form-select" id="id_gases-temp_unidad" disabled>
                                 {% include 'unidades.html' with unidades=unidades tipo='T' %}
                             </select>

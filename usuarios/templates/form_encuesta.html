@@ -36,11 +36,11 @@
                     {% else %}
                     <select class="form-select" name="pregunta-{{ pregunta.pregunta.id }}-respuesta" id="id_pregunta-{{pregunta.pregunta.id}}-respuesta" required>
                         <option value="">--------------</option>
-                        <option value="1" {% if pregunta.form.respuesta.value == '1' %}selected{% endif %}>1</option>
-                        <option value="2" {% if pregunta.form.respuesta.value == '2' %}selected{% endif %}>2</option>
-                        <option value="3" {% if pregunta.form.respuesta.value == '3' %}selected{% endif %}>3</option>
-                        <option value="4" {% if pregunta.form.respuesta.value == '4' %}selected{% endif %}>4</option>
-                        <option value="5" {% if pregunta.form.respuesta.value == '5' %}selected{% endif %}>5</option>
+                        <option value="1" {% if pregunta.form.respuesta.value == '1' %}selected{% endif %}>1 - Muy negativo</option>
+                        <option value="2" {% if pregunta.form.respuesta.value == '2' %}selected{% endif %}>2 - Negativo</option>
+                        <option value="3" {% if pregunta.form.respuesta.value == '3' %}selected{% endif %}>3 - Neutral</option>
+                        <option value="4" {% if pregunta.form.respuesta.value == '4' %}selected{% endif %}>4 - Positivo</option>
+                        <option value="5" {% if pregunta.form.respuesta.value == '5' %}selected{% endif %}>5 - Muy Positivo</option>
                     </select>
                     {% endif %}
 
