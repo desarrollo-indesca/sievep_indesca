@@ -2918,7 +2918,7 @@ class ConsultaEvaluacionPrecalentadorAire(ConsultaEvaluacion, ReportesFichasPrec
 
         return context
 
-class EvaluarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAireMixin, View):
+class EvaluarPrecalentadorAire(LoginRequiredMixin, ObtenerPrecalentadorAireMixin, View):
     """
     Resumen:
         Vista para la evaluación de un precalentador de aire. 
@@ -3136,7 +3136,7 @@ class EvaluarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAireM
         elif(request.POST.get('submit') == 'almacenar'):
             return self.almacenar()
 
-class GenerarGraficaPrecalentadorAire(SuperUserRequiredMixin, FiltrarEvaluacionesMixin, ObtenerPrecalentadorAireMixin, View):
+class GenerarGraficaPrecalentadorAire(LoginRequiredMixin, FiltrarEvaluacionesMixin, ObtenerPrecalentadorAireMixin, View):
     """
     Resumen:
         Vista para generar la grafica de la eficiencia de un precalentador de aire. 

@@ -19,6 +19,8 @@
                 {% for pregunta in seccion.preguntas.all %}
                 {% if pregunta.tipo != "3" %}
                 <div class="col-md-6 col-sm-12">
+                    <h5 class="text-center">{{pregunta.nombre}}</h5>
+                    <br>
                     <canvas width="100%" id="grafica_{{pregunta.pk}}"></canvas>
                 </div>
                 {% endif %}
@@ -41,7 +43,6 @@
         },
         success: (res) => {
             Object.entries(res).forEach(([key, value]) => {
-                console.log(key);
                 let canvas = document.getElementById(`grafica_${key}`).getContext('2d');
                 $(`#grafica_${key}`).removeAttr('hidden');               
 
@@ -50,7 +51,7 @@
                     data: {
                         datasets: [
                             {
-                                label: `${value.pregunta}`,
+                                label: "Respuestas",
                                 data: Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'pregunta')),
                                 backgroundColor: ['#00F'],
                                 borderColor: ['#00F']
@@ -62,7 +63,6 @@
                         plugins: {
                             title: {
                                 display: true,
-                                text: `${value.pregunta}`,
                                 position: 'top'
                             },
                             legend: {
