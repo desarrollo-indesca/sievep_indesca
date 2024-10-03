@@ -1972,8 +1972,8 @@ def ficha_tecnica_precalentador_aire(precalentador, request):
     worksheet.write(f'L{num}', f'{especificaciones.superficie_calentamiento if especificaciones.superficie_calentamiento else "—"}', center_bordered)
     worksheet.write(f'M{num}', f'{especificaciones.area_transferencia if especificaciones.area_transferencia else "—"}', center_bordered)
     worksheet.write(f'N{num}', f'{especificaciones.temp_operacion if especificaciones.temp_operacion else "—"}', center_bordered)
-    worksheet.write(f'M{num}', f'{especificaciones.presion_operacion if especificaciones.presion_operacion else "—"}', center_bordered)
-    worksheet.write(f'N{num}', f'{especificaciones.u if especificaciones.u else "—"}', center_bordered)
+    worksheet.write(f'O{num}', f'{especificaciones.presion_operacion if especificaciones.presion_operacion else "—"}', center_bordered)
+    worksheet.write(f'P{num}', f'{especificaciones.u if especificaciones.u else "—"}', center_bordered)
 
     num += 2
 
