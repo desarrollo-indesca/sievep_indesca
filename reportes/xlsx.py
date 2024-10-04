@@ -808,7 +808,7 @@ def ficha_tecnica_bomba_centrifuga(bomba, request):
     worksheet.write(f'L{num}', f'{condiciones_diseno.npsha if condiciones_diseno.npsha else ""}', bordered)
     worksheet.write(f'M{num}', f'{condiciones_fluido.fluido if condiciones_fluido.fluido else condiciones_fluido.nombre_fluido}', bordered)
     worksheet.write(f'N{num}', f'{condiciones_fluido.temperatura_operacion if condiciones_fluido.temperatura_operacion else ""}', bordered)
-    worksheet.write(f'O{num}', f'{condiciones_fluido.presion_vapor if condiciones_fluido.presion_vapor else ""}', bordered)
+    worksheet.write(f'O{num}', f'{condiciones_fluido.presion_vapor}', bordered)
     worksheet.write(f'P{num}', f'{condiciones_fluido.temperatura_presion_vapor if condiciones_fluido.temperatura_presion_vapor else ""}', bordered)
     worksheet.write(f'Q{num}', f'{condiciones_fluido.densidad if condiciones_fluido.densidad else ""}', bordered)
     worksheet.write(f'R{num}', f'{condiciones_fluido.viscosidad if condiciones_fluido.viscosidad else ""}', bordered)
@@ -1993,7 +1993,7 @@ def ficha_tecnica_precalentador_aire(precalentador, request):
 
     for lado in precalentador.condicion_fluido.all():
         num += 1
-        worksheet.write(f'A{num}', f'{lado.fluido_largo if lado.fluido_largo else "—"}', center_bordered)
+        worksheet.write(f'A{num}', f'{lado.fluido_largo() if lado.fluido_largo else "—"}', center_bordered)
         worksheet.write(f'B{num}', f'{lado.flujo if lado.flujo else "—"}', center_bordered)
         worksheet.write(f'C{num}', f'{lado.flujo_unidad if lado.flujo_unidad else "—"}', center_bordered)
         worksheet.write(f'D{num}', f'{lado.temp_entrada if lado.temp_entrada else "—"}', center_bordered)

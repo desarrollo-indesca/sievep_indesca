@@ -4308,7 +4308,7 @@ def detalle_evaluacion_precalentador_aire(evaluacion):
 
         ('BACKGROUND', (0, 0), (-1, 1), sombreado),
         ('BACKGROUND', (0, 0), (0, -1), sombreado),
-        ('BACKGROUND', (0, 7), (-1, 7), sombreado),
+        ('BACKGROUND', (0, 7), (-1, 8), sombreado),
 
         ('SPAN', (0,0), (-1,0)),
         ('SPAN', (0,7), (-1,7)),
@@ -4407,7 +4407,7 @@ def detalle_evaluacion_precalentador_aire(evaluacion):
         ],
         [
             Paragraph("CP Aire Salida (J/KgK)", centrar_parrafo),
-            Paragraph(f"{round(salida.cp_aire_entrada, 2)}", centrar_parrafo),
+            Paragraph(f"{round(salida.cp_aire_salida, 2)}", centrar_parrafo),
         ],
         [
             Paragraph("CP Gas Entrada (J/KgK)", centrar_parrafo),
