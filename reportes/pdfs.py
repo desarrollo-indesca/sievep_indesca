@@ -677,6 +677,7 @@ def ficha_tecnica_tubo_carcasa(object_list):
     estilo = TableStyle(
         [
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('BACKGROUND', (0, 0), (0, 3), sombreado),
             ('BACKGROUND', (2, 0), (2, 2), sombreado),
             ('SPAN', (1, 3), (3, 3)),
@@ -796,6 +797,7 @@ def ficha_tecnica_tubo_carcasa(object_list):
     estilo = TableStyle(
         [
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
 
             ('SPAN', (0, 0), (1, 1)),
             ('SPAN', (2, 0), (3, 0)),
@@ -911,6 +913,7 @@ def ficha_tecnica_tubo_carcasa(object_list):
     estilo = TableStyle(
         [
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('SPAN', (1,0), (2,0)), ('SPAN', (4,0), (5,0)),
             ('SPAN', (1,1), (2,1)), ('SPAN', (4,1), (5,1)),
             ('SPAN', (1,2), (2,2)), ('SPAN', (4,2), (5,2)),
