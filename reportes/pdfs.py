@@ -564,7 +564,7 @@ def reporte_evaluacion(request, object_list):
         caida_tubo, caida_carcasa = round(caida_tubo,4), round(caida_carcasa, 4)
         ensuciamiento = round(transformar_unidades_ensuciamiento([float(x.ensuciamiento)], x.ensuc_diseno_unidad.pk, propiedades.ensuciamiento_unidad.pk)[0],6)
 
-        fecha = x.fecha.strftime('%d/%m/%Y %H:%M')            
+        fecha = x.fecha.strftime('%d/%m/%Y %H:%M:%S')            
 
         eficiencias.append(eficiencia)
         efectividades.append(efectividad)
@@ -1426,7 +1426,7 @@ def reporte_evaluaciones_bombas(request, object_list):
         eficiencia = round(salida.eficiencia, 4)
         npsha = round(transformar_unidades_longitud([salida.npsha], entrada.npshr_unidad.pk, condiciones_diseno.npsha_unidad.pk)[0], 4)
         cabezal = round(transformar_unidades_longitud([salida.cabezal_total], salida.cabezal_total_unidad.pk, especificaciones.cabezal_unidad.pk)[0], 4)
-        fecha = x.fecha.strftime('%d/%m/%Y %H:%M')            
+        fecha = x.fecha.strftime('%d/%m/%Y %H:%M:%S')            
 
         eficiencias.append(eficiencia)
         cabezales.append(cabezal)
@@ -2242,7 +2242,7 @@ def reporte_evaluaciones_ventilador(request, object_list):
         eficiencia = round(salida.eficiencia, 2)
         potencia = round(transformar_unidades_potencia([entrada.potencia_ventilador], entrada.potencia_ventilador_unidad.pk, potencia_unidad.pk)[0], 4)
         potencia_calculada = round(transformar_unidades_potencia([salida.potencia_calculada], salida.potencia_calculada_unidad.pk, potencia_unidad.pk)[0], 4)
-        fecha = x.fecha.strftime('%d/%m/%Y %H:%M')            
+        fecha = x.fecha.strftime('%d/%m/%Y %H:%M:%S')            
 
         eficiencias.append(eficiencia)
         potencias_calculadas.append(potencia_calculada)
@@ -2683,7 +2683,7 @@ def reporte_evaluaciones_turbinas_vapor(object_list, request):
         eficiencia = salida.eficiencia
         potencia, potencia_calculada = transformar_unidades_potencia([entrada.potencia_real, salida.potencia_calculada], entrada.potencia_real_unidad.pk, potencia_unidad.pk)
         
-        fecha = x.fecha.strftime('%d/%m/%Y %H:%M')            
+        fecha = x.fecha.strftime('%d/%m/%Y %H:%M:%S')            
 
         eficiencias.append(eficiencia)
         potencias_calculadas.append(potencia_calculada)
@@ -3815,7 +3815,7 @@ def evaluaciones_precalentadores_agua(object_list, request):
     ensuciamientos = []
     fechas = []
 
-    for evaluacion in object_list:
+    for evaluacion in object_list.order_by('fecha'):
         fecha = evaluacion.fecha.strftime('%d/%m/%Y %H:%M')
         try:
             salida = evaluacion.salida_general

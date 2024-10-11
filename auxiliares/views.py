@@ -382,6 +382,7 @@ class CreacionBomba(SuperUserRequiredMixin, View):
                 'form_detalles_motor': form_detalles_motor,
                 'form_condiciones_diseno': form_condiciones_diseno,
                 'form_condiciones_fluido': form_condiciones_fluido,
+                'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
                 'edicion': True,
                 'titulo': self.titulo,
                 'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo."

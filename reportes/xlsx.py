@@ -911,7 +911,7 @@ def historico_evaluaciones_bombas(object_list, request):
     worksheet.write(f'A{num}', '#', bold_bordered)
     worksheet.write(f'B{num}', 'Fecha', bold_bordered)
     worksheet.write(f'C{num}', "Eficiencia (%)", bold_bordered)
-    worksheet.write(f'D{num}', "Potencia Calculada (%)", bold_bordered)
+    worksheet.write(f'D{num}', f"Potencia Calculada", bold_bordered)
     worksheet.write(f"E{num}", f"Unidad Potencia", bold_bordered)
     worksheet.write(f'F{num}', "Cabezal Total", bold_bordered)
     worksheet.write(f'G{num}', "Unidad Cabezal", bold_bordered)
