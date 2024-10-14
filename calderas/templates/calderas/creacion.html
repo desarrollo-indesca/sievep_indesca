@@ -340,7 +340,7 @@
                         {{form_tambor_inferior.diametro.label_tag}}
                         <div class="input-group mb-1">
                             {% render_field form_tambor_inferior.diametro min="0.0001" class="form-control" placeholder="Diámetro de la Sección" %}
-                            <select name="tambor-inferior-dimensiones_unidad" id="id_tambor-inferior-dimensiones_unidad" class="form-select" disabled>
+                            <select name="tambor-inferior-dimensiones_unidad" id="id_tambor-inferior-dimensiones_unidad" class="form-select">
                                 {% include 'unidades.html' with tipo='L' pk_selected=inferior.instance.dimensiones_unidad.pk %}
                             </select>
                         </div>
@@ -350,7 +350,7 @@
                         {{form_tambor_inferior.longitud.label_tag}}
                         <div class="input-group mb-1">
                             {% render_field form_tambor_inferior.longitud min="0.0001" class="form-control" placeholder="Longitud de la Sección" %}
-                            <select name="tambor-inferior-dimensiones_unidad" id="id_tambor-inferior-dimensiones_unidad" class="form-select">
+                            <select name="tambor-inferior-dimensiones_unidad" id="id_tambor-inferior-dimensiones_unidad" class="form-select" disabled>
                                 {% include 'unidades.html' with tipo='L' pk_selected=inferior.instance.dimensiones_unidad.pk %}
                             </select>
                         </div>
