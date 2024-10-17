@@ -509,6 +509,8 @@ class PlantasPorComplejo(LoginRequiredMixin, View):
     def get(self, request):
         complejo_id = request.GET['complejo']
         selected_planta_id = request.GET.get('planta')
+        print("**********************")
+        print(request.GET)
         plantas = Planta.objects.filter(complejo_id=complejo_id)
         selected_planta = int(selected_planta_id) if selected_planta_id else None
         context = {
@@ -595,9 +597,14 @@ class FiltradoSimpleMixin():
                     descripcion__icontains = descripcion,
                 )
             elif(self.request.GET.get('servicio')):
-                new_context = new_context.filter(
-                    servicio__icontains = descripcion,
-                )
+                try:
+                    new_context = new_context.filter(
+                        servicio__icontains = descripcion,
+                    )
+                except:
+                    new_context = new_context.filter(
+                        descripcion__icontains = descripcion,
+                    )
         
         return new_context
 

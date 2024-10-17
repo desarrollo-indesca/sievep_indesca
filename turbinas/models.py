@@ -11,9 +11,7 @@ import uuid
 FASES_CORRIENTES = (
     ('S','Saturado'),
     ('L','Líquido'),
-    ('V','Vapor'),
-    ('O', 'Sólido'),
-    ('F', 'Fluido Supercrítico')
+    ('V','Vapor')
 )
 
 class DatosCorrientes(models.Model):

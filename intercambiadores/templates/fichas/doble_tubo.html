@@ -27,7 +27,7 @@
                   <tbody id="tabla_ficha_body">
                     <tr>
                       <th class="table-dark">Tag</th>
-                      <td colspan="2"><span id="tag_ficha">{{generales.tag}}</span></td>
+                      <td colspan="2"><span id="tag_ficha">{{generales.tag.upper}}</span></td>
                       <td colspan="3" rowspan="5" style="vertical-align: middle;">
                         <div class="d-flex justify-content-center align-items-center">
                             <img style="max-width: 33.33%;" src="/static/img/temas/intercambiadores/doble_tubo.png" alt="Intercambiador de Doble Tubo">
@@ -84,14 +84,14 @@
                         {% if intercambiador.fluido_ex %}
                           {{intercambiador.fluido_ex}}
                         {% else %}
-                          {{condiciones_carcasa.fluido_etiqueta}}
+                          {{condiciones_carcasa.fluido_etiqueta.upper}}
                         {% endif %}
                       </td>
                       <td colspan="2">
                         {% if intercambiador.fluido_in %}
                           {{intercambiador.fluido_in}}
                         {% else %}
-                          {{condiciones_tubo.fluido_etiqueta}}
+                          {{condiciones_tubo.fluido_etiqueta.upper}}
                         {% endif %}                        
                       </td>
                     </tr>

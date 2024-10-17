@@ -564,7 +564,7 @@ def reporte_evaluacion(request, object_list):
         caida_tubo, caida_carcasa = round(caida_tubo,4), round(caida_carcasa, 4)
         ensuciamiento = round(transformar_unidades_ensuciamiento([float(x.ensuciamiento)], x.ensuc_diseno_unidad.pk, propiedades.ensuciamiento_unidad.pk)[0],6)
 
-        fecha = x.fecha.strftime('%d/%m/%Y %H:%M')            
+        fecha = x.fecha.strftime('%d/%m/%Y %H:%M:%S')            
 
         eficiencias.append(eficiencia)
         efectividades.append(efectividad)
@@ -677,6 +677,7 @@ def ficha_tecnica_tubo_carcasa(object_list):
     estilo = TableStyle(
         [
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('BACKGROUND', (0, 0), (0, 3), sombreado),
             ('BACKGROUND', (2, 0), (2, 2), sombreado),
             ('SPAN', (1, 3), (3, 3)),
@@ -796,6 +797,7 @@ def ficha_tecnica_tubo_carcasa(object_list):
     estilo = TableStyle(
         [
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
 
             ('SPAN', (0, 0), (1, 1)),
             ('SPAN', (2, 0), (3, 0)),
@@ -911,6 +913,7 @@ def ficha_tecnica_tubo_carcasa(object_list):
     estilo = TableStyle(
         [
             ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('SPAN', (1,0), (2,0)), ('SPAN', (4,0), (5,0)),
             ('SPAN', (1,1), (2,1)), ('SPAN', (4,1), (5,1)),
             ('SPAN', (1,2), (2,2)), ('SPAN', (4,2), (5,2)),
@@ -1423,7 +1426,7 @@ def reporte_evaluaciones_bombas(request, object_list):
         eficiencia = round(salida.eficiencia, 4)
         npsha = round(transformar_unidades_longitud([salida.npsha], entrada.npshr_unidad.pk, condiciones_diseno.npsha_unidad.pk)[0], 4)
         cabezal = round(transformar_unidades_longitud([salida.cabezal_total], salida.cabezal_total_unidad.pk, especificaciones.cabezal_unidad.pk)[0], 4)
-        fecha = x.fecha.strftime('%d/%m/%Y %H:%M')            
+        fecha = x.fecha.strftime('%d/%m/%Y %H:%M:%S')            
 
         eficiencias.append(eficiencia)
         cabezales.append(cabezal)
@@ -2239,7 +2242,7 @@ def reporte_evaluaciones_ventilador(request, object_list):
         eficiencia = round(salida.eficiencia, 2)
         potencia = round(transformar_unidades_potencia([entrada.potencia_ventilador], entrada.potencia_ventilador_unidad.pk, potencia_unidad.pk)[0], 4)
         potencia_calculada = round(transformar_unidades_potencia([salida.potencia_calculada], salida.potencia_calculada_unidad.pk, potencia_unidad.pk)[0], 4)
-        fecha = x.fecha.strftime('%d/%m/%Y %H:%M')            
+        fecha = x.fecha.strftime('%d/%m/%Y %H:%M:%S')            
 
         eficiencias.append(eficiencia)
         potencias_calculadas.append(potencia_calculada)
@@ -2680,7 +2683,7 @@ def reporte_evaluaciones_turbinas_vapor(object_list, request):
         eficiencia = salida.eficiencia
         potencia, potencia_calculada = transformar_unidades_potencia([entrada.potencia_real, salida.potencia_calculada], entrada.potencia_real_unidad.pk, potencia_unidad.pk)
         
-        fecha = x.fecha.strftime('%d/%m/%Y %H:%M')            
+        fecha = x.fecha.strftime('%d/%m/%Y %H:%M:%S')            
 
         eficiencias.append(eficiencia)
         potencias_calculadas.append(potencia_calculada)
@@ -3812,7 +3815,7 @@ def evaluaciones_precalentadores_agua(object_list, request):
     ensuciamientos = []
     fechas = []
 
-    for evaluacion in object_list:
+    for evaluacion in object_list.order_by('fecha'):
         fecha = evaluacion.fecha.strftime('%d/%m/%Y %H:%M')
         try:
             salida = evaluacion.salida_general
@@ -4305,7 +4308,7 @@ def detalle_evaluacion_precalentador_aire(evaluacion):
 
         ('BACKGROUND', (0, 0), (-1, 1), sombreado),
         ('BACKGROUND', (0, 0), (0, -1), sombreado),
-        ('BACKGROUND', (0, 7), (-1, 7), sombreado),
+        ('BACKGROUND', (0, 7), (-1, 8), sombreado),
 
         ('SPAN', (0,0), (-1,0)),
         ('SPAN', (0,7), (-1,7)),
@@ -4404,7 +4407,7 @@ def detalle_evaluacion_precalentador_aire(evaluacion):
         ],
         [
             Paragraph("CP Aire Salida (J/KgK)", centrar_parrafo),
-            Paragraph(f"{round(salida.cp_aire_entrada, 2)}", centrar_parrafo),
+            Paragraph(f"{round(salida.cp_aire_salida, 2)}", centrar_parrafo),
         ],
         [
             Paragraph("CP Gas Entrada (J/KgK)", centrar_parrafo),
