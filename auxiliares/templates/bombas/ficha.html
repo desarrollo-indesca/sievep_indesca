@@ -679,7 +679,7 @@
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" data-bs-target="#ficha_{{bomba.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Datos de Ficha</button>
-          {% if request.user.is_superuser %}
+          {% if request.user.is_superuser or editor  %}
           <a href="{% url 'creacion_instalacion_bomba' pk=bomba.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
           <form action="{% url 'duplicar_bomba' pk=bomba.pk %}" method="post">
             {% csrf_token %}

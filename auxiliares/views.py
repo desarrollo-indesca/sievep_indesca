@@ -22,7 +22,7 @@ from simulaciones_pequiven.views import FiltradoSimpleMixin, DuplicateView, Cons
 from simulaciones_pequiven.unidades import PK_UNIDADES_FLUJO_MASICO
 from simulaciones_pequiven.utils import generate_nonexistent_tag
 
-from usuarios.views import SuperUserRequiredMixin
+from usuarios.views import SuperUserRequiredMixin, EditorRequiredMixin
 from auxiliares.models import *
 from auxiliares.forms import *
 from calculos.termodinamicos import calcular_densidad, calcular_densidad_aire, calcular_presion_vapor, calcular_viscosidad, calcular_densidad_relativa
@@ -227,6 +227,12 @@ class ConsultaBombas(FiltradoSimpleMixin, CargarBombaMixin, LoginRequiredMixin, 
         new_context = self.get_bomba(True, self.filtrar_equipos())
 
         return new_context
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        print(self.request.user.groups.all())
+        context["editor"] = self.request.user.groups.filter(name='editor').exists()
+        return context
 
 class CreacionBomba(SuperUserRequiredMixin, View):
     """
@@ -546,7 +552,7 @@ class EdicionBomba(CargarBombaMixin, CreacionBomba):
                 'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo."
             })
         
-class CreacionInstalacionBomba(SuperUserRequiredMixin, View, CargarBombaMixin):
+class CreacionInstalacionBomba(EditorRequiredMixin, View, CargarBombaMixin):
     """
     Resumen:
         Vista para la creación de nuevas especificaciones de instalación para una bomba.
