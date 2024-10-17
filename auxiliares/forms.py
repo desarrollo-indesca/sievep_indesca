@@ -410,7 +410,7 @@ class PrecalentadorAireForm(forms.ModelForm):
     Resumen:
         Form para el registro de los datos generales del precalentador de aire.
     """
-    complejo = forms.ModelChoiceField(queryset=Complejo.objects.all())
+    complejo = forms.ModelChoiceField(queryset=Complejo.objects.all(), initial=1)
     
     class Meta:
         model = PrecalentadorAire

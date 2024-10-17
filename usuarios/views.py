@@ -25,6 +25,19 @@ class SuperUserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         return self.request.user.is_superuser
 
+class EditorRequiredMixin(UserPassesTestMixin):
+    """
+    Resumen:
+        Mixin para verificar que un usuario pertenezca a un grupo, para permitir o denegar su acceso.
+    
+    Métodos:
+        test_func(self, request)
+            Función heredada de UserPassesTestMixin, verifica si el usuario pertenece al grupo o no.
+    """
+    def test_func(self):
+        return self.request.user.is_superuser or self.request.user.groups.filter(name='editor').exists()
+
+
 class ConsultaUsuarios(SuperUserRequiredMixin, ListView):
     """
     Resumen:

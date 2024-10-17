@@ -41,7 +41,7 @@
                 <div class="col-12">
                     {{ form_entrada_evaluacion.altura_succion.label_tag }}
                     <div class="input-group mb-1">
-                        {% render_field form_entrada_evaluacion.altura_succion min="0.0001" max="9999999.99999" placeholder="Altura al evaluar" class="form-control" %}
+                        {% render_field form_entrada_evaluacion.altura_succion max="9999999.99999" placeholder="Altura al evaluar" class="form-control" %}
                         <select name="altura_unidad" id="id_altura_unidad" class="form-select" hx-swap="none" hx-get="/auxiliares/bombas/datos_fluido/" hx-trigger="change" hx-indicator="#spinner" hx-include="#id_presion_succion, #id_presion_unidad, #id_fluido, #id_temperatura_operacion, #id_temperatura_unidad, #id_viscosidad_unidad, #id_densidad_unidad, #id_presion_vapor_unidad, #id_calculo_propiedades, #bomba">
                             {% include 'unidades.html' with tipo="L" pk_selected=bomba.instalacion_succion.elevacion_unidad.pk %}
                         </select>
@@ -100,7 +100,7 @@
                 <div class="col-12">
                     {{ form_entrada_evaluacion.altura_descarga.label_tag }}
                     <div class="input-group mb-1">
-                        {% render_field form_entrada_evaluacion.altura_descarga min="0.0001" max="9999999.99999" class="form-control" placeholder="Altura al momento de evaluar" %}
+                        {% render_field form_entrada_evaluacion.altura_descarga max="9999999.99999" class="form-control" placeholder="Altura al momento de evaluar" %}
                         <select name="altura_unidad" id="id_altura_unidad" class="form-select" disabled>
                             {% include 'unidades.html' with tipo="L" %}
                         </select>

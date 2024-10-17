@@ -318,7 +318,7 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
         form_combustible = CombustibleForm(request.POST, prefix="combustible")
         forms_composicion = []
 
-        for i in range(0,14):
+        for i in range(0,15):
             forms_composicion.append(ComposicionCombustibleForm(request.POST, prefix=f"combustible-{i}"))
         
         try:
@@ -331,7 +331,7 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
             combustible_forms = []
             for i,form in enumerate(forms_composicion):
                 combustible_forms.append({
-                    'combustible': form.instance.fluido,
+                    'combustible': Fluido.objects.get(pk=request.POST[form.prefix + "-fluido"]),
                     'form': form
                 })
 
@@ -1008,7 +1008,6 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
             cas=F('fluido__cas'), 
             nombre=F('fluido__nombre')
         ).values('cas', 'nombre')
-
         for i in range(15):
             fluido = fluidos[i]
             parc_vol = request.POST.get(f'composicion-{i}-parc_vol')

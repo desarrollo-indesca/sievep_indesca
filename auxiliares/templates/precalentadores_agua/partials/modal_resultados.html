@@ -25,7 +25,7 @@
                             <th class="text-center table-dark">NOMBRE</th>
                             <th class="text-center table-dark">ENTRA/SALE</th>
                             <th class="text-center table-dark">TEMPERATURA ({{evaluacion.datos_corrientes.temperatura_unidad}})</th>
-                            <th class="text-center table-dark">PRESION ({{evaluacion.datos_corrientes.presion_unidad}})</th>
+                            <th class="text-center table-dark">PRESION ({{evaluacion.datos_corrientes.presion_unidad}}g)</th>
                             <th class="text-center table-dark">FLUJO ({{evaluacion.datos_corrientes.flujo_unidad}})</th>
                             <th class="text-center table-dark">ENTALPIA ({{evaluacion.datos_corrientes.entalpia_unidad}})</th>
                             <th class="text-center table-dark">DENSIDAD ({{evaluacion.datos_corrientes.densidad_unidad}})</th>
@@ -67,7 +67,7 @@
                             <th class="text-center table-dark">NOMBRE</th>
                             <th class="text-center table-dark">ENTRA/SALE</th>
                             <th class="text-center table-dark">TEMPERATURA ({{evaluacion.datos_corrientes.temperatura_unidad}})</th>
-                            <th class="text-center table-dark">PRESION ({{evaluacion.datos_corrientes.presion_unidad}})</th>
+                            <th class="text-center table-dark">PRESION ({{evaluacion.datos_corrientes.presion_unidad}}g)</th>
                             <th class="text-center table-dark">FLUJO ({{evaluacion.datos_corrientes.flujo_unidad}})</th>
                             <th class="text-center table-dark">ENTALPIA ({{evaluacion.datos_corrientes.entalpia_unidad}})</th>
                             <th class="text-center table-dark">DENSIDAD ({{evaluacion.datos_corrientes.densidad_unidad}})</th>
@@ -154,7 +154,7 @@
                 </table>
 
                 {% if evaluacion.salida_general.perdida_ambiente %}
-                <h5 class="text-center text-danger">PÉRDIDA DE ENERGA EN EL AMBIENTE</h5>
+                <h5 class="text-center text-danger">PÉRDIDA DE ENERGÍA EN EL AMBIENTE</h5>
                 {% endif %}
 
                 {% if evaluacion.salida_general.invalido %}

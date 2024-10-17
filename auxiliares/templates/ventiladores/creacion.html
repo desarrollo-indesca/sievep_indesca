@@ -315,7 +315,7 @@
                     {{form_condiciones_trabajo.presion_salida.label_tag}}
                     <div class="input-group mb-1">
                         {% render_field form_condiciones_trabajo.presion_salida class="form-control" placeholder="Presión Manométrica" %}
-                        <select name="presion_unidad" id="id_presion_unidad" class="form-select">
+                        <select name="presion_unidad" id="id_presion_unidad" class="form-select" disabled>
                             {% for unidad in unidades %}
                             {% if unidad.tipo == 'P' %}
                             <option value="{{unidad.pk}}" {% if unidad.pk == form_condiciones_trabajo.instance.presion_unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>
