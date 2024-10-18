@@ -693,6 +693,7 @@ class CreacionPlanta(SuperUserRequiredMixin, FormView):
 
     def form_valid(self, form):
         form.save()
+        messages.success(self.request, 'Planta creada con éxito.')
         return super().form_valid(form)
     
     def get_context_data(self, **kwargs):
