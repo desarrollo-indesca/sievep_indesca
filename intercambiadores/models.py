@@ -85,6 +85,7 @@ class Planta(models.Model):
 
     class Meta:
         db_table = "planta"
+        ordering = ("nombre",)
 
 # Modelo de Unidades
 class Unidades(models.Model):

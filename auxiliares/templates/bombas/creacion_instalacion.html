@@ -39,7 +39,7 @@
                 <div class="col-12">
                     <label for="id_elevacion">{{form_instalacion.elevacion.label_tag}}</label>
                     <div class="input-group mb-1">
-                        {% render_field form_instalacion.elevacion min="0.0001" class="form-control" %}
+                        {% render_field form_instalacion.elevacion class="form-control" %}
                         <select class="form-select" name="formset-instalaciones-{{forloop.counter0}}-elevacion_unidad" id="id_formset-instalaciones-{{forloop.counter0}}-elevacion_unidad">
                             {% include 'unidades.html' with tipo='L' pk_selected=form_instalacion.instance.elevacion_unidad.pk %}
                         </select>
