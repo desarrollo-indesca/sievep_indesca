@@ -1,5 +1,4 @@
 from typing import Any
-import logging
 import datetime
 from django.db import transaction
 from django.db.models import Prefetch
@@ -14,6 +13,7 @@ from simulaciones_pequiven.utils import generate_nonexistent_tag
 
 from usuarios.views import SuperUserRequiredMixin
 from calculos.unidades import *
+from calculos.termodinamicos import calcular_presion_vapor
 from .evaluacion import evaluar_turbina
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos, historico_evaluaciones_turbinas_vapor, ficha_tecnica_turbina_vapor
@@ -525,7 +525,9 @@ class CalcularResultadosTurbinaVapor(LoginRequiredMixin, View, ObtenerTurbinaVap
             corrientes.append({
                 'presion': presiones[x] if x < len(temperaturas) - 1 else None,
                 'temperatura': temperaturas[x],
-                'entrada': corrientes_diseno[x].entrada
+                'entrada': corrientes_diseno[x].entrada,
+                'corriente': corrientes_diseno[x].numero_corriente,
+                'pvapor': calcular_presion_vapor('water', temperaturas[x]),
             })
 
         res = evaluar_turbina(flujo_entrada, potencia_real, corrientes, corrientes_diseno.values())

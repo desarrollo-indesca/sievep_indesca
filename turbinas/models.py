@@ -13,6 +13,12 @@ FASES_CORRIENTES = (
     ('V','Vapor')
 )
 
+FASES_POSIBLES = (
+    ('S', 'Vapor Saturado'),
+    ('V', 'Vapor'),
+    ('L', 'Líquido'),
+)
+
 class DatosCorrientes(models.Model):
     """
     Resumen:
@@ -274,10 +280,10 @@ class SalidaCorriente(models.Model):
     id = models.UUIDField(primary_key=True, default = uuid.uuid4)
     flujo = models.FloatField()
     entalpia = models.FloatField()
-    fase = models.CharField(max_length=1, choices=FASES_CORRIENTES)
+    fase = models.CharField(max_length=1, choices=FASES_POSIBLES)
 
     def fase_largo(self):
-        return conseguir_largo(FASES_CORRIENTES, self.fase)
+        return conseguir_largo(FASES_POSIBLES, self.fase)
     
     class Meta:
         db_table = "turbinas_vapor_evaluacion_salidacorriente"
