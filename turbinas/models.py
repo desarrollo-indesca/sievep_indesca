@@ -9,8 +9,7 @@ import uuid
 # Modelos de Turbinas
 
 FASES_CORRIENTES = (
-    ('S','Saturado'),
-    ('L','Líquido'),
+    ('S','Vapor Saturado'),
     ('V','Vapor')
 )
 

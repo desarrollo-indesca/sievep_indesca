@@ -35,6 +35,17 @@
             </tr>
         </tbody>
     </table>
+
+    {% for corriente in res.corrientes %}
+        {% if corriente.fase.1 != 'V' or corriente.fase.1 != 'S' %}
+            <div class="alert alert-danger" role="alert">
+                Se detectaron corrientes conteniendo líquido. Solo se recomienda almacenar esta evaluación en caso de que se desee demostrar esto. <br> 
+                Las turbinas de vapor no deben contener líquido en sus corrientes.
+            </div>
+            {{ "<!--" }}
+        {% endif %}
+    {% endfor %}
+    {{ "-->" }}
 </div>
 
 <button id="submit" type="submit" name="submit" value="almacenar" class="btn btn-danger" hx-swap-oob="true">

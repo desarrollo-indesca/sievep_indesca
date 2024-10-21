@@ -101,4 +101,23 @@ $("button[type=submit]").click((e) => {
     e.preventDefault();
 });
 
+$(".guardar-accesorios").click((e) => {
+  let verificarNegativo = $(".verificar-negativo");
+  verificarNegativo.each(function() {
+    let valor = Number($(this).val());
+    if (isNaN(valor) || valor < 0) {
+      alert("No se permiten valores negativos en los campos.");
+      e.preventDefault();
+    }
+  });
+});
+
+$(".verificar-negativo").on("change keyup", function(e) {
+  let valor = $(this).val();
+  if (valor.indexOf("-") !== -1) {
+    valor = Math.abs(Number(valor));
+    $(this).val(valor);
+  }
+});
+
 cargarEventListeners();
