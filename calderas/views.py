@@ -983,17 +983,20 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
 
         for valor,u in variables.items():
             unidad = int(request.POST.get(u)) if u else None
-            valor_num = float(request.POST.get(valor))
-            funcion = transformar_unidades_presion if u and ('presion' in u) else \
-                transformar_unidades_temperatura if u and ('temperatura' in u) else \
-                transformar_unidades_flujo_volumetrico if u and ('gas' in u or 'aire' in u) else \
-                transformar_unidades_area if u and ('area' in u) else \
-                transformar_unidades_velocidad_lineal if u and ('area' in u) else \
-                transformar_unidades_flujo
 
-            if unidad:
-                valor_num = funcion([valor_num], unidad)[0]
+            if(request.POST.get(valor) != ''):
+                valor_num = float(request.POST.get(valor))
+                funcion = transformar_unidades_presion if u and ('presion' in u) else \
+                    transformar_unidades_temperatura if u and ('temperatura' in u) else \
+                    transformar_unidades_flujo_volumetrico if u and ('gas' in u or 'aire' in u) else \
+                    transformar_unidades_area if u and ('area' in u) else \
+                    transformar_unidades_velocidad_lineal if u and ('area' in u) else \
+                    transformar_unidades_flujo
 
+                if unidad:
+                    valor_num = funcion([valor_num], unidad)[0]
+            else:
+                valor_num = None
             llave = "_".join(valor.split('-')[::-1])
             variables_eval[llave] = valor_num
 
