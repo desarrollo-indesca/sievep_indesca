@@ -190,4 +190,6 @@ document.body.addEventListener("htmx:afterRequest", function (evt) {
   document.body.style.opacity = 1.0;
 });
 
+$('select[name="presion_unidad"]').html($('select[name="presion_unidad"]').html().replaceAll('</option>', 'g</option>'));
+
 listeners_cambio();

@@ -37,7 +37,9 @@ const inicializarEventListeners = () => {
             return;
         }
 
-        if (!Array.from(document.querySelectorAll(`${$('#id_evaluacion-metodo').val() === 'D' ? '.directo-field' : '.indirecto-field'}`)).every(el => el.value != '')){
+        if (!Array.from(document.querySelectorAll(`${$('#id_evaluacion-metodo').val() === 'D' ? '.directo-field' : '.indirecto-field'}`)).every(el => 
+                 (el.name === 'superficie-area' || el.name === 'superficie-temperatura' || el.name === 'aire-velocidad') || el.value != ''
+            )){
             e.preventDefault();
             alert("Todos los campos en verde deben ser llenados para poder realizar los cálculos correspondientes.");
             return;
@@ -78,6 +80,10 @@ $("#id_evaluacion-metodo").change(e => {
         $(`.directo-field`).css('border-color', '');  
         $(`.indirecto-field`).css('border-color', 'green');
     }
+
+    $('#id_superficie-area').removeAttr('required');
+    $('#id_superficie-temperatura').removeAttr('required');
+    $('#id_aire-velocidad').removeAttr('required');
 });
 
 document.addEventListener("htmx:beforeRequest", function (evt) {

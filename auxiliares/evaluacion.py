@@ -182,6 +182,7 @@ def calcular_cabezal(densidad, presion_descarga, presion_succion, altura_descarg
     Devuelve:
         float (m) -> Cabezal calculado 
     '''
+    print(altura_descarga, altura_succion)
     return (1/(densidad*GRAVEDAD)*(presion_descarga - presion_succion) + (altura_descarga - altura_succion) + flujo**2/(2*GRAVEDAD)*(1/area_descarga**2 - 1/area_succion**2) + htotal)
 
 def calculo_perdida_tramos(tramos, velocidades, areas, area_comp, flujos):
@@ -485,7 +486,7 @@ def evaluacion_bomba(bomba, velocidad, temp_operacion, presion_succion, presion_
     h_total_descarga = h_descarga_tuberia + h_descarga_acc
     htotal = h_total_succion + h_total_descarga
 
-    cabezal = calcular_cabezal(densidad, presion_descarga, presion_succion, altura_succion, altura_descarga, flujo, sum(areas_descarga), sum(areas_succion), htotal)   
+    cabezal = calcular_cabezal(densidad, presion_descarga, presion_succion, altura_descarga, altura_succion, flujo, sum(areas_descarga), sum(areas_succion), htotal)   
     potencia_calculada = cabezal*densidad*GRAVEDAD*flujo
     eficiencia = calcular_eficiencia(potencia, potencia_calculada)
     ns = calcular_ns(velocidad, flujo, cabezal)
