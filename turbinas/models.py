@@ -58,7 +58,7 @@ class Corriente(models.Model):
     descripcion_corriente = models.CharField('Descripción de la Corriente', max_length=50)
 
     flujo = models.FloatField(validators=[MinValueValidator(0.00001)])
-    entalpia = models.FloatField(validators=[MinValueValidator(0.00001)])
+    entalpia = models.FloatField(validators=[MinValueValidator(0.00001)], null=True, blank=True)
     presion = models.FloatField(validators=[MinValueValidator(0.00001)], null= True, blank=True)
     temperatura = models.FloatField(validators=[MinValueValidator(-273.15)])
 
@@ -279,7 +279,7 @@ class SalidaCorriente(models.Model):
     """
     id = models.UUIDField(primary_key=True, default = uuid.uuid4)
     flujo = models.FloatField()
-    entalpia = models.FloatField()
+    entalpia = models.FloatField(null=True, blank=True)
     fase = models.CharField(max_length=1, choices=FASES_POSIBLES)
 
     def fase_largo(self):

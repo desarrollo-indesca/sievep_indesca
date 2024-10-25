@@ -225,4 +225,41 @@ const anadir_presion_manometrica = () => {
   });
 }
 
+$(".fase").change((e) => {
+  const number = e.target.name
+    .replaceAll("form", "")
+    .replaceAll("-", "")
+    .replaceAll(/[a-zA-Z]+/g, "");
+
+  console.log(number);  
+
+  if ($(e.target).val() === "S") {    
+    const presionInput = $(`input[name='form-${number}-presion']`);
+    const temperaturaInput = $(`input[name='form-${number}-temperatura']`);
+
+    presionInput.on('input', function() {
+      if ($(this).val() !== "") {
+        temperaturaInput.attr("disabled", "disabled");
+      } else {
+        temperaturaInput.removeAttr("disabled");
+      }
+    });
+
+    temperaturaInput.on('input', function() {
+      if ($(this).val() !== "") {
+        presionInput.attr("disabled", "disabled");
+      } else {
+        presionInput.removeAttr("disabled");
+      }
+    });
+  } else {
+    $(`input[name='form-${number}-presion'], input[name='form-${number}-temperatura']`).removeAttr("disabled").off('input');
+  }
+
+  $(`input[name='form-${number}-presion'], input[name='form-${number}-temperatura']`).change();
+});
+
 anadir_presion_manometrica();
+$('.fase').change();
+$('.temp').change();
+$('.presion').change();
