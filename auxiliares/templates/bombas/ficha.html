@@ -366,13 +366,13 @@
                             <small>{{forloop.counter}}</small>
                         </td>
                         <td class="text-center">
-                            <small>{{tuberia.longitud_tuberia}} {{tuberia.longitud_tuberia_unidad}}</small>
+                            <small>{{tuberia.longitud_tuberia|default_if_none:'-'}} {{tuberia.longitud_tuberia_unidad}}</small>
                         </td>
                         <td class="text-center">
-                            <small>{{tuberia.diametro_tuberia}} {{tuberia.diametro_tuberia_unidad}}</small>
+                            <small>{{tuberia.diametro_tuberia|default_if_none:'-'}} {{tuberia.diametro_tuberia_unidad}}</small>
                         </td>
                         <td class="text-center">
-                            <small>{{tuberia.material_tuberia}}</small>
+                            <small>{{tuberia.material_tuberia|default_if_none:'-'}}</small>
                         </td>
                         <td>
                             <a id="t{{tuberia.id}}" href="#" data-tooltip="t{{tuberia.id}}">Accesorios</a>
@@ -524,13 +524,13 @@
                             <small>{{forloop.counter}}</small>
                         </td>
                         <td class="text-center">
-                            <small>{{tuberia.longitud_tuberia}} {{tuberia.longitud_tuberia_unidad}}</small>
+                            <small>{{tuberia.longitud_tuberia|default_if_none:'-'}} {{tuberia.longitud_tuberia_unidad}}</small>
                         </td>
                         <td class="text-center">
-                            <small>{{tuberia.diametro_tuberia}} {{tuberia.diametro_tuberia_unidad}}</small>
+                            <small>{{tuberia.diametro_tuberia|default_if_none:'-'}} {{tuberia.diametro_tuberia_unidad}}</small>
                         </td>
                         <td class="text-center">
-                            <small>{{tuberia.material_tuberia}}</small>
+                            <small>{{tuberia.material_tuberia|default_if_none:'-'}}</small>
                         </td>
                         <td>
                             <a id="t{{tuberia.id}}" href="#" data-tooltip="t{{tuberia.id}}">Accesorios</a>
