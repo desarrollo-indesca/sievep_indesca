@@ -13,7 +13,7 @@ from simulaciones_pequiven.utils import generate_nonexistent_tag
 
 from usuarios.views import SuperUserRequiredMixin
 from calculos.unidades import *
-from calculos.termodinamicos import calcular_presion_vapor
+from calculos.termodinamicos import calcular_presion_vapor, calcular_tsat_hvap
 from .evaluacion import evaluar_turbina
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos, historico_evaluaciones_turbinas_vapor, ficha_tecnica_turbina_vapor
@@ -325,21 +325,9 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
         form_datos_corrientes = DatosCorrientesForm(request.POST)
         forms_corrientes = corrientes_formset(request.POST)
 
-        try:
-            return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
+        return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
                                         form_datos_corrientes, forms_corrientes)
-        except Exception as e:
-            print(str(e))
-            return render(request, self.template_name, context={
-                'form_turbina': form_turbina, 
-                'form_especificaciones': form_especificaciones,
-                'form_generador': form_generador, 
-                'form_datos_corrientes': form_datos_corrientes,
-                'forms_corrientes': forms_corrientes,
-                'titulo': self.titulo,
-                'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
-                'error': "Ocurrió un error desconocido al momento de almacenar la turbina de vapor. Revise los datos e intente de nuevo."
-            })
+        
         
 class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinaVaporMixin, ReportesFichasTurbinasVaporMixin):
     """
@@ -507,11 +495,12 @@ class CalcularResultadosTurbinaVapor(LoginRequiredMixin, View, ObtenerTurbinaVap
         corrientes_diseno =  datos_corrientes.corrientes.all()
 
         # Obtener data del request
+        print(request.POST)
         flujo_entrada, flujo_entrada_unidad = float(request.POST.get('flujo_entrada')), int(request.POST.get('flujo_entrada_unidad'))
         potencia_real, potencia_real_unidad = float(request.POST.get('potencia_real')), int(request.POST.get('potencia_real_unidad'))
         temperatura_unidad, presion_unidad = int(request.POST.get('temperatura_unidad')),int(request.POST.get('presion_unidad'))
-        temperaturas = [float(request.POST.get(f'form-{i}-temperatura')) for i in range(datos_corrientes.corrientes.count())]
-        presiones = [float(request.POST.get(f'form-{i}-presion')) for i in range(datos_corrientes.corrientes.count() - 1)]
+        temperaturas = [float(request.POST.get(f'form-{i}-temperatura')) if  request.POST.get(f'form-{i}-temperatura') else request.POST.get(f'form-{i}-temperatura') for i in range(datos_corrientes.corrientes.count())]
+        presiones = [float(request.POST.get(f'form-{i}-presion')) if  request.POST.get(f'form-{i}-presion') else request.POST.get(f'form-{i}-presion') for i in range(datos_corrientes.corrientes.count())]
 
         # Transformar unidades a internacional
         presiones = transformar_unidades_presion(presiones, presion_unidad)
@@ -520,14 +509,15 @@ class CalcularResultadosTurbinaVapor(LoginRequiredMixin, View, ObtenerTurbinaVap
         flujo_entrada = transformar_unidades_flujo([flujo_entrada], flujo_entrada_unidad)[0]        
 
         # Calcular Resultados
+        print(temperaturas, presiones)
         corrientes = []
         for x in range(len(temperaturas)):
             corrientes.append({
-                'presion': presiones[x] if x < len(temperaturas) - 1 else None,
+                'presion': presiones[x],
                 'temperatura': temperaturas[x],
                 'entrada': corrientes_diseno[x].entrada,
                 'corriente': corrientes_diseno[x].numero_corriente,
-                'pvapor': calcular_presion_vapor('water', temperaturas[x]),
+                'pvapor': calcular_presion_vapor('water', temperaturas[x]) if temperaturas[x] else None,
             })
 
         res = evaluar_turbina(flujo_entrada, potencia_real, corrientes, corrientes_diseno.values())

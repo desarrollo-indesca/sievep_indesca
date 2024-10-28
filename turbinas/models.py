@@ -60,7 +60,7 @@ class Corriente(models.Model):
     flujo = models.FloatField(validators=[MinValueValidator(0.00001)])
     entalpia = models.FloatField(validators=[MinValueValidator(0.00001)], null=True, blank=True)
     presion = models.FloatField(validators=[MinValueValidator(0.00001)], null= True, blank=True)
-    temperatura = models.FloatField(validators=[MinValueValidator(-273.15)])
+    temperatura = models.FloatField(validators=[MinValueValidator(-273.15)], null=True, blank=True)
 
     fase = models.CharField(max_length=1, choices=FASES_CORRIENTES)
     entrada = models.BooleanField(default=False)
@@ -261,7 +261,7 @@ class EntradaCorriente(models.Model):
     """
     id = models.UUIDField(primary_key=True, default = uuid.uuid4)
     presion = models.FloatField(validators=[MinValueValidator(0.0001)], null=True, blank=True)
-    temperatura = models.FloatField(validators=[MinValueValidator(-273.15)])
+    temperatura = models.FloatField(validators=[MinValueValidator(-273.15)], null=True, blank=True)
 
     class Meta:
         db_table = "turbinas_vapor_evaluacion_entradacorriente"

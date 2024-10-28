@@ -147,7 +147,7 @@
                             <td class="text-center">{{corriente.flujo}}</td>
                             <td class="text-center">{{corriente.entalpia}}</td>
                             <td class="text-center">{{corriente.presion|default_if_none:'-'}}</td>
-                            <td class="text-center">{{corriente.temperatura}}</td>
+                            <td class="text-center">{{corriente.temperatura|default_if_none:'-'}}</td>
                             <td class="text-center">{{corriente.fase_largo}}</td>
                         </tr>
                         {% endfor %}
