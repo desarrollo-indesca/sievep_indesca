@@ -85,9 +85,9 @@
                     </tr>
                     <tr>
                         <th class="table-dark">Polos</th>
-                        <td>{{generador_electrico.polos}}</td>
+                        <td>{{generador_electrico.polos|default_if_none:'-'}}</td>
                         <th class="table-dark">Ciclos ({{generador_electrico.ciclos_unidad}})</th>
-                        <td>{{generador_electrico.ciclos}}</td>
+                        <td>{{generador_electrico.ciclos|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark">Potencia Real ({{generador_electrico.potencia_real_unidad}})</th>
@@ -97,15 +97,15 @@
                     </tr>
                     <tr>
                       <th class="table-dark">Velocidad ({{generador_electrico.velocidad_unidad}})</th>
-                      <td>{{generador_electrico.velocidad}}</td>
+                      <td>{{generador_electrico.velocidad|default_if_none:'-'}}</td>
                       <th class="table-dark">Corriente Eléctrica ({{generador_electrico.corriente_electrica_unidad}})</th>
-                      <td>{{generador_electrico.corriente_electrica}}</td>
+                      <td>{{generador_electrico.corriente_electrica|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark">Fases</th>
-                      <td>{{generador_electrico.fases}}</td>                      
+                      <td>{{generador_electrico.fases|default_if_none:'-'}}</td>                      
                       <th class="table-dark">Voltaje ({{generador_electrico.voltaje_unidad}})</th>
-                      <td>{{generador_electrico.voltaje}}</td>
+                      <td>{{generador_electrico.voltaje|default_if_none:'-'}}</td>
                     </tr>
                     {% endwith %}
                     
@@ -141,13 +141,13 @@
                             <th class="table-dark text-center">Fase</th>
                         </tr>
                         {% for corriente in datos_corrientes.corrientes.all %}
-                        <tr class="{% if corriente.entrada %}table-success{% elif not corriente.presion %}table-warning{% endif %}">
+                        <tr class="{% if corriente.entrada %}table-success{% elif corriente.fase == 'S' %}table-warning{% endif %}">
                             <th class="text-center">{{corriente.numero_corriente}}{% if corriente.entrada %}*{% endif %}</td>
                             <td class="text-center">{{corriente.descripcion_corriente}}</td>
                             <td class="text-center">{{corriente.flujo}}</td>
-                            <td class="text-center">{{corriente.entalpia}}</td>
+                            <td class="text-center">{{corriente.entalpia|default_if_none:'-'}}</td>
                             <td class="text-center">{{corriente.presion|default_if_none:'-'}}</td>
-                            <td class="text-center">{{corriente.temperatura}}</td>
+                            <td class="text-center">{{corriente.temperatura|default_if_none:'-'}}</td>
                             <td class="text-center">{{corriente.fase_largo}}</td>
                         </tr>
                         {% endfor %}
@@ -172,8 +172,7 @@
             <input type="hidden" name="ficha" value="{{turbina.pk}}">
             <button name="tipo" value="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</button>
             <button name="tipo" value="xlsx" target="_blank" href="#" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Guardar XLSX</button>
-          </form>
-          
+          </form>          
         </div>
       </div>
     </div>

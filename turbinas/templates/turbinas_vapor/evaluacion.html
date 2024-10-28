@@ -107,7 +107,11 @@
                             <small>{{form.form.presion.errors}}</small>
                         </td>
                         <td>
-                            {% render_field form.form.temperatura class="form-control temperatura" placeholder="Temperatura" min="-273.15" %}
+                            {% if not form.corriente.temperatura %}
+                            {% render_field form.form.temperatura class="form-control" placeholder="Temperatura no req. (saturado)" disabled="disabled" min="-273.15" %}
+                            {% else %}
+                            {% render_field form.form.temperatura class="form-control" placeholder="Temperatura" required="required" min="-273.15" %}
+                            {% endif %} 
                             <small>{{form.form.temperatura.errors}}</small>
                         </td>
                         <td class="resultado" id="form-{{forloop.counter}}-flujo">
