@@ -30,7 +30,42 @@ const cargarEventListeners = (anadirListeners = true) => {
     $(".anadir").click((e) => {
       anadir(e);
     });
+
+    $(".fase").change((e) => {
+      const number = e.target.name
+        .replaceAll("form", "")
+        .replaceAll("-", "")
+        .replaceAll(/[a-zA-Z]+/g, "");
+    
+      console.log(number);  
+    
+      if ($(e.target).val() === "S") {    
+        const presionInput = $(`input[name='form-${number}-presion']`);
+        const temperaturaInput = $(`input[name='form-${number}-temperatura']`);
+    
+        presionInput.on('change', function() {
+          if ($(this).val() !== "") {
+            temperaturaInput.attr("disabled", "disabled");
+          } else {
+            temperaturaInput.removeAttr("disabled");
+          }
+        });
+    
+        temperaturaInput.on('change', function() {
+          if ($(this).val() !== "") {
+            presionInput.attr("disabled", "disabled");
+          } else {
+            presionInput.removeAttr("disabled");
+          }
+        });
+      } else {
+        $(`input[name='form-${number}-presion'], input[name='form-${number}-temperatura']`).removeAttr("disabled").off('input');
+      }
+    
+      $(`input[name='form-${number}-presion'], input[name='form-${number}-temperatura']`).change();
+    });
 };
+
 
 const reindex = (anadir = false) => {
   let forms = document.querySelectorAll(`.form`);
@@ -122,27 +157,18 @@ const anadir = (e) => {
 cargarEventListeners();
 
 $("button[type=submit]").click((e) => {
-  const presiones = $(".presion")
-    .toArray()
-    .filter((x) => x.value === "").length;
-  const entradas = $(".entrada")
-    .toArray()
-    .filter((x) => $(`#${x.id}`).is(":checked")).length;
+  let vaporSaturado = 0;
+  $(".fase").each(function(){
+    if($(this).val() === "S"){
+      vaporSaturado++;
+    }
+  });
 
-  if (!confirm("¿Está seguro que desea realizar esta acción?"))
+  if(vaporSaturado === 0){
     e.preventDefault();
-
-  if (presiones > 1) {
-    e.preventDefault();
-    alert("Debe existir solo una presión en las corrientes que esté vacía.");
+    alert("Debe haber al menos una corriente en vapor saturado.");
     return;
-  } else if (presiones < 1) {
-    e.preventDefault();
-    alert(
-      "Debe haber una presión vacía a efectos de determinar la corriente de salida."
-    );
-    return;
-  }
+  } 
 
   if (entradas > 1) {
     e.preventDefault();
@@ -226,3 +252,4 @@ const anadir_presion_manometrica = () => {
 }
 
 anadir_presion_manometrica();
+$('.fase').change();
