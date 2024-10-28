@@ -81,7 +81,7 @@
                         {% for corriente in evaluacion.corrientes_evaluacion.all %}
                         {% with entrada_corriente=corriente.entrada %}
                         {% with salida_corriente=corriente.salida %}
-                        <tr class="{% if corriente.corriente.entrada %}table-success{% elif not corriente.corriente.presion %}table-warning{%endif%}">
+                        <tr class="{% if corriente.corriente.entrada %}table-success{% elif corriente.corriente.fase == "S" %}table-warning{%endif%}">
                             <th class="table-dark text-center">{{corriente.corriente.numero_corriente}}{% if corriente.corriente.entrada %}*{%endif%}</th>
                             <td class="text-center">{{corriente.corriente.descripcion_corriente}}</td>
                             <td class="text-center">

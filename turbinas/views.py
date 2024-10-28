@@ -231,7 +231,7 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
 
                 flujo_unidad = form_datos_corrientes.instance.flujo_unidad.pk
                 flujo_entrada = transformar_unidades_flujo([form_datos_corrientes.instance.corrientes.first().flujo], flujo_unidad)[0]
-                potencia_real = transformar_unidades_potencia([form_generador.instance.potencia_real], form_generador.instance.potencia_real_unidad.pk)[0]
+                potencia = transformar_unidades_potencia([form_especificaciones.instance.potencia], form_especificaciones.instance.potencia_unidad.pk)[0]
                 corrientes = form_datos_corrientes.instance.corrientes.all().values('presion','temperatura','flujo','entrada')
 
                 presiones_corrientes = transformar_unidades_presion([x['presion'] for x in corrientes], form_datos_corrientes.instance.presion_unidad.pk)
@@ -244,7 +244,7 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
                     corrientes[i]['temperatura'] = temperaturas_corrientes[i]
                     corrientes[i]['flujo'] = flujos_corrientes[i]                    
 
-                res = evaluar_turbina(flujo_entrada, potencia_real, corrientes, corrientes)
+                res = evaluar_turbina(flujo_entrada, potencia, corrientes, corrientes)
 
                 form_especificaciones.instance.eficiencia = res['eficiencia']
                 form_especificaciones.save()
@@ -325,8 +325,21 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
         form_datos_corrientes = DatosCorrientesForm(request.POST)
         forms_corrientes = corrientes_formset(request.POST)
 
+        # try:
         return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
                                         form_datos_corrientes, forms_corrientes)
+        # except Exception as e:
+        #     print(str(e))
+        #     return render(request, self.template_name, context={
+        #         'form_turbina': form_turbina, 
+        #         'form_especificaciones': form_especificaciones,
+        #         'form_generador': form_generador, 
+        #         'form_datos_corrientes': form_datos_corrientes,
+        #         'forms_corrientes': forms_corrientes,
+        #         'unidades': Unidades.objects.all().values('simbolo', 'tipo', 'pk'),
+        #         'titulo': self.titulo,
+        #         'error': "Ocurrido un error desconocido al momento de almacenar la turbina de vapor. Revise los datos e intente de nuevo."
+        #     })
         
         
 class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinaVaporMixin, ReportesFichasTurbinasVaporMixin):
