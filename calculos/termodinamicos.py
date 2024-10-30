@@ -393,6 +393,6 @@ def definicion_fases_coolprop(fase: str) -> str:
     elif("gas" in fase): # Vapor
         return ("V", "Vapor")
     elif(fase == "twophase"): # Saturación
-        return ("S", "Saturado")
+        return ("S", "Vapor Saturado")
     elif(fase == "supercritical"): # Fluido Supercrítico
         return ("F", "Fluido Supercrítico")

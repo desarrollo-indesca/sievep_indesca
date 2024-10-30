@@ -2471,7 +2471,7 @@ def detalle_evaluacion_turbina_vapor(evaluacion):
             Paragraph(corriente.corriente.numero_corriente, centrar_parrafo),
             Paragraph(corriente.corriente.descripcion_corriente, centrar_parrafo),
             Paragraph(f"{round(corriente.entrada.presion, 4) if corriente.entrada.presion else '-'}", centrar_parrafo),
-            Paragraph(f"{round(corriente.entrada.temperatura, 4)}", centrar_parrafo),
+            Paragraph(f"{round(corriente.entrada.temperatura, 4) if corriente.entrada.temperatura else '-'}", centrar_parrafo),
             Paragraph(f"{round(corriente.salida.flujo, 4)}", centrar_parrafo),
             Paragraph(f"{round(corriente.salida.entalpia, 4)}", centrar_parrafo),
             Paragraph(f"{corriente.salida.fase_largo()}", centrar_parrafo),
@@ -2604,7 +2604,7 @@ def ficha_tecnica_turbina_vapor(turbina):
             Paragraph(str(corriente.flujo), centrar_parrafo),
             Paragraph(str(corriente.entalpia), centrar_parrafo),
             Paragraph(str(corriente.presion) if corriente.presion else '-', centrar_parrafo),
-            Paragraph(str(corriente.temperatura), centrar_parrafo),
+            Paragraph(str(corriente.temperatura) if corriente.temperatura else '-', centrar_parrafo),
             Paragraph(corriente.fase_largo(), centrar_parrafo),
         ])
 
