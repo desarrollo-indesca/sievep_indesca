@@ -509,9 +509,11 @@ class PlantasPorComplejo(LoginRequiredMixin, View):
     def get(self, request):
         complejo_id = request.GET['complejo']
         selected_planta_id = request.GET.get('planta')
-        print("**********************")
-        print(request.GET)
         plantas = Planta.objects.filter(complejo_id=complejo_id)
+
+        if(not self.request.user.is_superuser):
+            plantas = plantas.filter(pk__in=request.user.usuario_planta.values_list("planta", flat=True))
+
         selected_planta = int(selected_planta_id) if selected_planta_id else None
         context = {
             'plantas': plantas,
@@ -614,7 +616,7 @@ class FiltradoSimpleMixin():
         context['complejos'] = Complejo.objects.all()
 
         if(self.request.GET.get('complejo')):
-            context['plantas'] = Planta.objects.filter(complejo= self.request.GET.get('complejo'))
+            context['plantas'] = Planta.objects.filter(complejo= self.request.GET.get('complejo'), pk__in=self.request.user.usuario_planta.values_list("planta", flat=True))
 
         context['tag'] = self.request.GET.get('tag', '')
         context['descripcion'] = self.request.GET.get('descripcion', '')
