@@ -11,7 +11,7 @@ from django.http import JsonResponse
 
 from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion, DuplicateView
 from simulaciones_pequiven.utils import generate_nonexistent_tag
-from usuarios.views import SuperUserRequiredMixin 
+from usuarios.views import SuperUserRequiredMixin, EditorRequiredMixin
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos, historico_evaluaciones_caldera, ficha_tecnica_caldera
 from .forms import *
@@ -146,6 +146,7 @@ class ConsultaCalderas(FiltradoSimpleMixin, ReportesFichasCalderasMixin, CargarC
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["link_creacion"] = "creacion_caldera"
+        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
 
         return context
 
@@ -473,7 +474,7 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
                 'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
             })
         
-class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View):
+class RegistroDatosAdicionales(EditorRequiredMixin, CargarCalderasMixin, View):
     """
     Resumen:
         Vista para el registro de datos adicionales de una caldera.
@@ -682,6 +683,7 @@ class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, Reporte
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['equipo'] = self.get_caldera(True, False)
+        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
 
         return context
 
@@ -790,6 +792,7 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
         context['forms'] = self.make_forms(context['equipo'], composiciones, corrientes)
         context['unidades'] = unidades
         context['fluidos_composiciones'] = COMPUESTOS_AIRE
+        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
 
         return context
 
@@ -1084,7 +1087,7 @@ def grafica_historica_calderas(request, pk):
 
     return JsonResponse(res[:15], safe=False)
 
-class DuplicarCaldera(SuperUserRequiredMixin, CargarCalderasMixin, DuplicateView):
+class DuplicarCaldera(EditorRequiredMixin, CargarCalderasMixin, DuplicateView):
     """
     Resumen:
         Vista para crear una copia temporal duplicada de una caldera para hacer pruebas en los equipos.

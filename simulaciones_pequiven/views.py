@@ -628,6 +628,7 @@ class FiltradoSimpleMixin():
             context['plantax'] = int(context['plantax'])
 
         context['link_creacion'] = 'creacion_turbina_vapor'
+        context['editor'] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
 
         return context
 
