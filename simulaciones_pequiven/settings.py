@@ -19,7 +19,6 @@ import os
 from .jobs import start_deleting_job
 
 # CONFIGURACIÓN DE LDAP
-
 # AUTH_LDAP_GLOBAL_OPTIONS = {
 #     ldap.OPT_X_TLS_REQUIRE_CERT: True,
 #     ldap.OPT_X_TLS_DEMAND: True,
