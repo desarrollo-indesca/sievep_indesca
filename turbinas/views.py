@@ -11,9 +11,9 @@ from django.contrib import messages
 from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion, ReportesFichasMixin, FiltrarEvaluacionesMixin, DuplicateView
 from simulaciones_pequiven.utils import generate_nonexistent_tag
 
-from usuarios.views import SuperUserRequiredMixin
+from usuarios.views import SuperUserRequiredMixin, EditorRequiredMixin
 from calculos.unidades import *
-from calculos.termodinamicos import calcular_presion_vapor, calcular_tsat_hvap
+from calculos.termodinamicos import calcular_presion_vapor
 from .evaluacion import evaluar_turbina
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos, historico_evaluaciones_turbinas_vapor, ficha_tecnica_turbina_vapor
@@ -325,23 +325,22 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
         form_datos_corrientes = DatosCorrientesForm(request.POST)
         forms_corrientes = corrientes_formset(request.POST)
 
-        # try:
-        return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
+        try:
+            return self.almacenar_datos(form_turbina, form_especificaciones, form_generador,
                                         form_datos_corrientes, forms_corrientes)
-        # except Exception as e:
-        #     print(str(e))
-        #     return render(request, self.template_name, context={
-        #         'form_turbina': form_turbina, 
-        #         'form_especificaciones': form_especificaciones,
-        #         'form_generador': form_generador, 
-        #         'form_datos_corrientes': form_datos_corrientes,
-        #         'forms_corrientes': forms_corrientes,
-        #         'unidades': Unidades.objects.all().values('simbolo', 'tipo', 'pk'),
-        #         'titulo': self.titulo,
-        #         'error': "Ocurrido un error desconocido al momento de almacenar la turbina de vapor. Revise los datos e intente de nuevo."
-        #     })
-        
-        
+        except Exception as e:
+            print(str(e))
+            return render(request, self.template_name, context={
+                'form_turbina': form_turbina, 
+                'form_especificaciones': form_especificaciones,
+                'form_generador': form_generador, 
+                'form_datos_corrientes': form_datos_corrientes,
+                'forms_corrientes': forms_corrientes,
+                'unidades': Unidades.objects.all().values('simbolo', 'tipo', 'pk'),
+                'titulo': self.titulo,
+                'error': "Ocurrido un error desconocido al momento de almacenar la turbina de vapor. Revise los datos e intente de nuevo."
+            })
+     
 class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinaVaporMixin, ReportesFichasTurbinasVaporMixin):
     """
     Resumen:
@@ -417,6 +416,7 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinaVaporMixi
         context = super().get_context_data(**kwargs)
         context['equipo'] = self.get_turbina()
         context['tipo'] = self.tipo
+        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
 
         return context
 
@@ -455,7 +455,8 @@ class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTur
             }),
             'formset_entrada_corriente': self.generar_formset_entrada_corrientes(turbina),
             'titulo': "Evaluación de Turbina de Vapor",
-            'unidades': Unidades.objects.all().values('pk','simbolo','tipo')
+            'unidades': Unidades.objects.all().values('pk','simbolo','tipo'),
+            "editor": self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
         }
 
         return context
@@ -665,7 +666,7 @@ class GenerarGraficaTurbina(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
 
         return JsonResponse(res[:15], safe=False)
     
-class DuplicarTurbinaVapor(SuperUserRequiredMixin, ObtenerTurbinaVaporMixin, DuplicateView):
+class DuplicarTurbinaVapor(EditorRequiredMixin, ObtenerTurbinaVaporMixin, DuplicateView):
     def post(self, request, pk):
         with transaction.atomic():
             turbina = self.get_turbina()

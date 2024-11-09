@@ -275,7 +275,7 @@ class CreacionBomba(SuperUserRequiredMixin, View):
             'form_condiciones_diseno': CondicionesDisenoBombaForm(),
             'form_condiciones_fluido': CondicionFluidoBombaForm(),
             'titulo': self.titulo,
-            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo')
         }
 
     def get(self, request, **kwargs):
@@ -751,6 +751,7 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion, CargarBombaMixin, ReportesFich
     def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
         context = super().get_context_data(**kwargs)
         context['equipo'] = self.get_bomba()
+        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
 
         return context
 
@@ -1014,6 +1015,7 @@ class CreacionEvaluacionBomba(LoginRequiredMixin, View, CargarBombaMixin, Report
             'form_entrada_evaluacion': EntradaEvaluacionBombaForm(precargo),
             'titulo': "Evaluación de Bomba",
             "unidades": Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
+            "editor": self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
         }
 
         return context
@@ -1581,6 +1583,7 @@ class ConsultaEvaluacionVentilador(ConsultaEvaluacion, ObtenerVentiladorMixin, R
         context = super().get_context_data(**kwargs)
         context['equipo'] = self.get_ventilador()
         context['tipo'] = self.tipo
+        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
 
         return context
 
@@ -1620,6 +1623,7 @@ class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
             }),
             'titulo': "Evaluación de Ventilador",
             'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
+            "editor":self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
         }
 
         return context
@@ -2172,6 +2176,7 @@ class ConsultaEvaluacionPrecalentadorAgua(ConsultaEvaluacion, ObtenerPrecalentad
         context = super().get_context_data(**kwargs)
         context['equipo'] = self.get_precalentador()
         context['tipo'] = self.tipo
+        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
 
         return context
 
@@ -2324,7 +2329,8 @@ class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorA
             }),
             'evaluacion': EvaluacionPrecalentadorAguaForm(),
             'unidades': Unidades.objects.all(),
-            "titulo": f"Evaluación al precalentador {precalentador.tag}"
+            "titulo": f"Evaluación al precalentador {precalentador.tag}",
+            'editor': self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
         }
 
     def get(self, request, *args, **kwargs):
@@ -2922,6 +2928,7 @@ class ConsultaEvaluacionPrecalentadorAire(ConsultaEvaluacion, ReportesFichasPrec
         context = super().get_context_data(**kwargs)
         context['equipo'] = self.get_precalentador()
         context['tipo'] = self.tipo
+        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
 
         return context
 
@@ -3038,6 +3045,8 @@ class EvaluarPrecalentadorAire(LoginRequiredMixin, ObtenerPrecalentadorAireMixin
         context['forms'] = self.get_forms(context['precalentador'])
         context['unidades'] = Unidades.objects.all().values('pk', 'simbolo', 'tipo')
         context['titulo'] = f"Evaluación de Precalentador de Aire {context['precalentador'].tag}"
+        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+
         return context
 
     def get(self, request, *args, **kwargs):
@@ -3171,7 +3180,7 @@ class GenerarGraficaPrecalentadorAire(LoginRequiredMixin, FiltrarEvaluacionesMix
         return JsonResponse(res[:15], safe=False)
 
 # VISTAS DE DUPLICACIÓN
-class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, DuplicateView):
+class DuplicarVentilador(EditorRequiredMixin, ObtenerVentiladorMixin, DuplicateView):
     """
     Resumen:
         Vista para duplicar un ventilador. 
@@ -3199,7 +3208,7 @@ class DuplicarVentilador(SuperUserRequiredMixin, ObtenerVentiladorMixin, Duplica
         messages.success(request, f"Se ha creado la copia del ventilador {old_tag} como {ventilador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
         return redirect('/auxiliares/ventiladores/')
 
-class DuplicarBomba(SuperUserRequiredMixin, CargarBombaMixin, DuplicateView):
+class DuplicarBomba(EditorRequiredMixin, CargarBombaMixin, DuplicateView):
     """
     Resumen:
         Vista para duplicar una bomba centrífuga.
@@ -3241,7 +3250,7 @@ class DuplicarBomba(SuperUserRequiredMixin, CargarBombaMixin, DuplicateView):
         messages.success(request, f"Se ha creado la copia de la bomba {old_tag} como {bomba.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
         return redirect('/auxiliares/bombas/')
 
-class DuplicarPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAguaMixin, DuplicateView):
+class DuplicarPrecalentadorAgua(EditorRequiredMixin, ObtenerPrecalentadorAguaMixin, DuplicateView):
     """
     Resumen:
         Vista para duplicar un precalentador de agua.
@@ -3282,7 +3291,7 @@ class DuplicarPrecalentadorAgua(SuperUserRequiredMixin, ObtenerPrecalentadorAgua
         messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
         return redirect('/auxiliares/precalentadores/')
 
-class DuplicarPrecalentadorAire(SuperUserRequiredMixin, ObtenerPrecalentadorAireMixin, DuplicateView):
+class DuplicarPrecalentadorAire(EditorRequiredMixin, ObtenerPrecalentadorAireMixin, DuplicateView):
     """
     Resumen:
         Vista para duplicar un precalentador de aire.

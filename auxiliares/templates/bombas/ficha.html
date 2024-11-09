@@ -300,11 +300,14 @@
             <button class="btn btn-secondary" data-bs-target="#modal_instalacion{{bomba.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Especificaciones de Instalación</button>
           {% if request.user.is_superuser %}
           <a href="{% url 'edicion_bomba' pk=bomba.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
-          <form action="{% url 'duplicar_bomba' pk=bomba.pk %}" method="post">
+          {% endif %}
+
+          {% if editor %}
+          <form action="{% url 'duplicar_bomba' pk=bomba.pk %}" method="post" name="duplicacion">
             {% csrf_token %}
             <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>
           </form>
-          {% endif %}
+          {%endif%}
 
           <form method="post" name="ficha_form">
             {% csrf_token %}
@@ -681,11 +684,11 @@
           <button class="btn btn-secondary" data-bs-target="#ficha_{{bomba.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Datos de Ficha</button>
           {% if request.user.is_superuser or editor  %}
           <a href="{% url 'creacion_instalacion_bomba' pk=bomba.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
-          <form action="{% url 'duplicar_bomba' pk=bomba.pk %}" method="post">
+          <form action="{% url 'duplicar_bomba' pk=bomba.pk %}" method="post" name="duplicacion">
             {% csrf_token %}
             <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>
           </form>
-          {% endif %}
+          {%endif%}
 
           <form method="post" name="ficha_form">
             {% csrf_token %}
