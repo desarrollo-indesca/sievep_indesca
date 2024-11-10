@@ -11,7 +11,7 @@ from django.http import JsonResponse
 
 from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion, DuplicateView
 from simulaciones_pequiven.utils import generate_nonexistent_tag
-from usuarios.views import SuperUserRequiredMixin 
+from usuarios.views import SuperUserRequiredMixin, EditorRequiredMixin
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos, historico_evaluaciones_caldera, ficha_tecnica_caldera
 from .forms import *
@@ -146,6 +146,7 @@ class ConsultaCalderas(FiltradoSimpleMixin, ReportesFichasCalderasMixin, CargarC
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["link_creacion"] = "creacion_caldera"
+        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
 
         return context
 
@@ -185,13 +186,14 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
     template_name = 'calderas/creacion.html'
 
     def get_context(self):
-        combustibles = ComposicionCombustible.objects.select_related('fluido').values('fluido', 'fluido__nombre').distinct()
+        combustibles = ComposicionCombustible.objects.values('fluido').distinct()
+        combustibles = Fluido.objects.filter(pk__in = [x['fluido'] for x in combustibles])
         combustible_forms = []
 
         for i,x in enumerate(combustibles):
-            form = ComposicionCombustibleForm(prefix=f'combustible-{i}', initial={'fluido': x['fluido']})
+            form = ComposicionCombustibleForm(prefix=f'combustible-{i}', initial={'fluido': x.pk})
             combustible_forms.append({
-                'combustible': x['fluido__nombre'],
+                'combustible': x,
                 'form': form
             })
             
@@ -317,7 +319,7 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
         form_combustible = CombustibleForm(request.POST, prefix="combustible")
         forms_composicion = []
 
-        for i in range(0,14):
+        for i in range(0,15):
             forms_composicion.append(ComposicionCombustibleForm(request.POST, prefix=f"combustible-{i}"))
         
         try:
@@ -330,7 +332,7 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
             combustible_forms = []
             for i,form in enumerate(forms_composicion):
                 combustible_forms.append({
-                    'combustible': form.instance.fluido,
+                    'combustible': Fluido.objects.get(pk=request.POST[form.prefix + "-fluido"]),
                     'form': form
                 })
 
@@ -472,7 +474,7 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
                 'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
             })
         
-class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View):
+class RegistroDatosAdicionales(EditorRequiredMixin, CargarCalderasMixin, View):
     """
     Resumen:
         Vista para el registro de datos adicionales de una caldera.
@@ -554,6 +556,7 @@ class RegistroDatosAdicionales(SuperUserRequiredMixin, CargarCalderasMixin, View
                     else:
                         all_valid = False
             else:
+                print(form_caracteristicas.errors)
                 raise Exception("Ocurrió un Error de Validación General.")
 
             if all_valid:
@@ -680,6 +683,7 @@ class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, Reporte
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['equipo'] = self.get_caldera(True, False)
+        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
 
         return context
 
@@ -788,6 +792,7 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
         context['forms'] = self.make_forms(context['equipo'], composiciones, corrientes)
         context['unidades'] = unidades
         context['fluidos_composiciones'] = COMPUESTOS_AIRE
+        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
 
         return context
 
@@ -829,6 +834,7 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
             metodo = request.POST['evaluacion-metodo'],
 
             perdidas_indirecto = perdidas,
+            o2_gas_combustion = request.POST['evaluacion-o2_gas_combustion'] if request.POST.get('evaluacion-o2_gas_combustion') != "" else None,
         )
 
         return evaluacion
@@ -876,7 +882,8 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
             salida_flujos = salida_flujos,
             salida_fracciones = salida_fracciones,
             salida_lado_agua = salida_lado_agua,
-            salida_balance_energia = salida_balance_energia
+            salida_balance_energia = salida_balance_energia,
+            o2_gas_combustion = request.POST['evaluacion-o2_gas_combustion'] if request.POST.get('evaluacion-o2_gas_combustion') != "" else None,
         )
 
         return evaluacion
@@ -900,11 +907,12 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
         form_aire = EntradasFluidosForm(request.POST, prefix='aire')
         form_horno = EntradasFluidosForm(request.POST, prefix='horno')
         form_agua = EntradasFluidosForm(request.POST, prefix='agua')
+        form_superficie = EntradasFluidosForm(request.POST, prefix='superficie')
 
         resultado = self.calcular_resultados()
 
         with transaction.atomic():
-            if all([form_vapor.is_valid(), form_gas.is_valid(), form_aire.is_valid(), form_horno.is_valid(), form_agua.is_valid()]):
+            if all([form_vapor.is_valid(), form_superficie.is_valid(), form_gas.is_valid(), form_aire.is_valid(), form_horno.is_valid(), form_agua.is_valid()]):
                 if(request.POST['evaluacion-metodo'] == 'D'):
                     evaluacion = self.almacenar_directo(request, resultado)
                 else:
@@ -925,6 +933,9 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
                 form_agua.instance.evaluacion = evaluacion
                 form_agua.save()
 
+                form_superficie.instance.evaluacion = evaluacion
+                form_superficie.save()
+
                 for form_composicion in forms_composicion:
                     if form_composicion.is_valid():
                         form_composicion.instance.evaluacion = evaluacion
@@ -935,7 +946,7 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
 
                 return self.almacenamiento_exitoso()
             else:
-                print([form.errors for form in [form_vapor, form_gas, form_aire, form_horno, form_agua]])
+                print([form.errors for form in [form_vapor, form_superficie, form_gas, form_aire, form_horno, form_agua]])
                 return self.almacenamiento_fallido()
 
     def calcular_resultados(self):
@@ -967,7 +978,6 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
             'superficie-area': 'superficie-area_unidad',
             'superficie-temperatura': 'superficie-temperatura_unidad',
             'aire-velocidad': 'aire-velocidad_unidad',
-            # 'aire-flujo': 'aire-flujo_unidad',
             'aire-humedad_relativa': None,
             'evaluacion-o2_gas_combustion': None
         }
@@ -976,17 +986,20 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
 
         for valor,u in variables.items():
             unidad = int(request.POST.get(u)) if u else None
-            valor_num = float(request.POST.get(valor))
-            funcion = transformar_unidades_presion if u and ('presion' in u) else \
-                transformar_unidades_temperatura if u and ('temperatura' in u) else \
-                transformar_unidades_flujo_volumetrico if u and ('gas' in u or 'aire' in u) else \
-                transformar_unidades_area if u and ('area' in u) else \
-                transformar_unidades_velocidad_lineal if u and ('area' in u) else \
-                transformar_unidades_flujo
 
-            if unidad:
-                valor_num = funcion([valor_num], unidad)[0]
+            if(request.POST.get(valor) != ''):
+                valor_num = float(request.POST.get(valor))
+                funcion = transformar_unidades_presion if u and ('presion' in u) else \
+                    transformar_unidades_temperatura if u and ('temperatura' in u) else \
+                    transformar_unidades_flujo_volumetrico if u and ('gas' in u or 'aire' in u) else \
+                    transformar_unidades_area if u and ('area' in u) else \
+                    transformar_unidades_velocidad_lineal if u and ('area' in u) else \
+                    transformar_unidades_flujo
 
+                if unidad:
+                    valor_num = funcion([valor_num], unidad)[0]
+            else:
+                valor_num = None
             llave = "_".join(valor.split('-')[::-1])
             variables_eval[llave] = valor_num
 
@@ -1001,7 +1014,6 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
             cas=F('fluido__cas'), 
             nombre=F('fluido__nombre')
         ).values('cas', 'nombre')
-
         for i in range(15):
             fluido = fluidos[i]
             parc_vol = request.POST.get(f'composicion-{i}-parc_vol')
@@ -1075,7 +1087,7 @@ def grafica_historica_calderas(request, pk):
 
     return JsonResponse(res[:15], safe=False)
 
-class DuplicarCaldera(SuperUserRequiredMixin, CargarCalderasMixin, DuplicateView):
+class DuplicarCaldera(EditorRequiredMixin, CargarCalderasMixin, DuplicateView):
     """
     Resumen:
         Vista para crear una copia temporal duplicada de una caldera para hacer pruebas en los equipos.

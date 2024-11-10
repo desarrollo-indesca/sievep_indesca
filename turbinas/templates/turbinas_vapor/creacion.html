@@ -134,7 +134,7 @@
             <div class="input-group mb-1">
                 {% render_field form_especificaciones.contra_presion min="0.0001" class="form-control" placeholder="Contra Presión (abs.)" %}
                 <select name="contra_presion_unidad" id="id_contra_presion_unidad" class="form-select">
-                    {% include 'unidades.html' with tipo="B" pk_selected=form_especificaciones.instance.contra_presion_unidad.pk %}
+                    {% include 'unidades.html' with tipo="P" pk_selected=form_especificaciones.instance.contra_presion_unidad.pk %}
                 </select>
             </div>
             <small>{{form_especificaciones.contra_presion.errors}}</small>
@@ -308,7 +308,7 @@
                             <small>{{form.flujo.errors}}</small>
                         </td>
                         <td>
-                            {% render_field form.entalpia class="form-control" placeholder="Entalpía" required="required" min="0.00001" %}
+                            {% render_field form.entalpia class="form-control" placeholder="Entalpía" min="0.00001" %}
                             <small>{{form.entalpia.errors}}</small>
                         </td>
                         <td>
@@ -316,11 +316,11 @@
                             <small>{{form.presion.errors}}</small>
                         </td>
                         <td>
-                            {% render_field form.temperatura class="form-control" placeholder="Temperatura" required="required" min="-273.15" %}
+                            {% render_field form.temperatura class="form-control temp" placeholder="Temperatura" required="required" min="-273.15" %}
                             <small>{{form.temperatura.errors}}</small>
                         </td>
                         <td>
-                            {% render_field form.fase class="form-select" placeholder="Fase" required="required" %}
+                            {% render_field form.fase class="form-select fase" placeholder="Fase" required="required" %}
                             <small>{{form.fase.errors}}</small>
                         </td>
                         <td>

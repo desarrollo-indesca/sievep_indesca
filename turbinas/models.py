@@ -9,10 +9,14 @@ import uuid
 # Modelos de Turbinas
 
 FASES_CORRIENTES = (
-    ('S','Saturado'),
-    ('L','Líquido'),
-    ('V','Vapor'),
-    ('O', 'Sólido'),
+    ('S','Vapor Saturado'),
+    ('V','Vapor')
+)
+
+FASES_POSIBLES = (
+    ('S', 'Vapor Saturado'),
+    ('V', 'Vapor'),
+    ('L', 'Líquido'),
     ('F', 'Fluido Supercrítico')
 )
 
@@ -55,9 +59,9 @@ class Corriente(models.Model):
     descripcion_corriente = models.CharField('Descripción de la Corriente', max_length=50)
 
     flujo = models.FloatField(validators=[MinValueValidator(0.00001)])
-    entalpia = models.FloatField(validators=[MinValueValidator(0.00001)])
+    entalpia = models.FloatField(validators=[MinValueValidator(0.00001)], null=True, blank=True)
     presion = models.FloatField(validators=[MinValueValidator(0.00001)], null= True, blank=True)
-    temperatura = models.FloatField(validators=[MinValueValidator(-273.15)])
+    temperatura = models.FloatField(validators=[MinValueValidator(-273.15)], null=True, blank=True)
 
     fase = models.CharField(max_length=1, choices=FASES_CORRIENTES)
     entrada = models.BooleanField(default=False)
@@ -90,25 +94,25 @@ class GeneradorElectrico(models.Model):
         voltaje: FloatField -> Voltaje del generador
         voltaje_unidad: Unidad (X) -> Unidad de voltaje del generador
     """
-    polos = models.PositiveSmallIntegerField()
-    fases = models.PositiveSmallIntegerField()
+    polos = models.PositiveSmallIntegerField(null = True, blank = True)
+    fases = models.PositiveSmallIntegerField(null = True, blank = True)
     
-    ciclos = models.FloatField(validators=[MinValueValidator(0.0)])
+    ciclos = models.FloatField(validators=[MinValueValidator(0.0)], null = True, blank = True)
     ciclos_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="ciclos_unidad_generador")
 
-    potencia_real = models.FloatField('Potencia Real', validators=[MinValueValidator(0.000001)])
+    potencia_real = models.FloatField('Potencia Real', validators=[MinValueValidator(0.000001)], null = True, blank = True)
     potencia_real_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="potencia_real_unidad_generador")
 
-    potencia_aparente = models.FloatField('Potencia Aparente', validators=[MinValueValidator(0.000001)])
+    potencia_aparente = models.FloatField('Potencia Aparente', validators=[MinValueValidator(0.000001)], null = True, blank = True)
     potencia_aparente_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="potencia_aparente_unidad_generador")
 
-    velocidad = models.FloatField(validators=[MinValueValidator(0.000001)])
+    velocidad = models.FloatField(validators=[MinValueValidator(0.000001)], null = True, blank = True)
     velocidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="velocidad_unidad_generador")
     
-    corriente_electrica = models.FloatField('Corriente Eléctrica', validators=[MinValueValidator(0.000001)])
+    corriente_electrica = models.FloatField('Corriente Eléctrica', validators=[MinValueValidator(0.000001)], null = True, blank = True)
     corriente_electrica_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="corriente_electrica_generador")
 
-    voltaje = models.FloatField(validators=[MinValueValidator(0.000001)])
+    voltaje = models.FloatField(validators=[MinValueValidator(0.000001)], null = True, blank = True)
     voltaje_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="voltaje_unidad_generador")   
 
     class Meta:
@@ -134,22 +138,22 @@ class EspecificacionesTurbinaVapor(models.Model):
         eficiencia: FloatField -> Eficiencia calculada de la turbina al ser registrada en el sistema. A veces no se puede calcular.
     """
     potencia = models.FloatField(validators=[MinValueValidator(0.000001)])
-    potencia_max = models.FloatField('Potencia Máxima', validators=[MinValueValidator(0.000001)])
+    potencia_max = models.FloatField('Potencia Máxima', validators=[MinValueValidator(0.000001)], null = True, blank = True)
     potencia_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="potencia_unidad_turbinavapor")
 
-    velocidad = models.FloatField(validators=[MinValueValidator(0.000001)])
+    velocidad = models.FloatField(validators=[MinValueValidator(0.000001)], null = True, blank = True)
     velocidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="velocidad_unidad_turbinavapor")
 
-    presion_entrada = models.FloatField('Presión de Entrada', validators=[MinValueValidator(0.000001)]) # MANOMÉTRICA
+    presion_entrada = models.FloatField('Presión de Entrada', validators=[MinValueValidator(0.000001)], null = True, blank = True) # MANOMÉTRICA
     presion_entrada_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="presion_entrada_turbinavapor")
 
-    temperatura_entrada = models.FloatField('Temperatura de Entrada', validators=[MinValueValidator(0.000001)])
+    temperatura_entrada = models.FloatField('Temperatura de Entrada', validators=[MinValueValidator(0.000001)], null = True, blank = True)
     temperatura_entrada_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="temperatura_entrada_turbinavapor")
 
-    contra_presion = models.FloatField('Contra Presión', validators=[MinValueValidator(0.000001)]) # ABSOLUTA
+    contra_presion = models.FloatField('Contra Presión', validators=[MinValueValidator(0.000001)], null = True, blank = True) # ABSOLUTA
     contra_presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="contra_presion_unidad_turbinavapor")
 
-    eficiencia = models.FloatField(null = True)
+    eficiencia = models.FloatField(null = True, blank = True)
 
     class Meta:
         db_table = "turbinas_vapor_especificaciones"
@@ -258,7 +262,7 @@ class EntradaCorriente(models.Model):
     """
     id = models.UUIDField(primary_key=True, default = uuid.uuid4)
     presion = models.FloatField(validators=[MinValueValidator(0.0001)], null=True, blank=True)
-    temperatura = models.FloatField(validators=[MinValueValidator(-273.15)])
+    temperatura = models.FloatField(validators=[MinValueValidator(-273.15)], null=True, blank=True)
 
     class Meta:
         db_table = "turbinas_vapor_evaluacion_entradacorriente"
@@ -276,11 +280,11 @@ class SalidaCorriente(models.Model):
     """
     id = models.UUIDField(primary_key=True, default = uuid.uuid4)
     flujo = models.FloatField()
-    entalpia = models.FloatField()
-    fase = models.CharField(max_length=1, choices=FASES_CORRIENTES)
+    entalpia = models.FloatField(null=True, blank=True)
+    fase = models.CharField(max_length=1, choices=FASES_POSIBLES)
 
     def fase_largo(self):
-        return conseguir_largo(FASES_CORRIENTES, self.fase)
+        return conseguir_largo(FASES_POSIBLES, self.fase)
     
     class Meta:
         db_table = "turbinas_vapor_evaluacion_salidacorriente"

@@ -564,7 +564,7 @@ def calcular_mtd(condicion_interno, condicion_externo, propiedades, flujo_tubo, 
             quimico = Chemical(propiedades.fluido_tubo.cas) if propiedades.fluido_tubo else None
 
             if(t1i != t2i):
-                tsi = transformar_unidades_temperatura(condicion_interno.tsat, condicion_interno.temperaturas_unidad.pk) - 273.15 if condicion_interno.tsat else quimico.Tsat(presion) - 273.15
+                tsi = transformar_unidades_temperatura([float(condicion_interno.tsat)], condicion_interno.temperaturas_unidad.pk)[0] - 273.15 if condicion_interno.tsat else quimico.Tsat(presion) - 273.15
                 tsi = t2i*1.005 if tsi < t2i else tsi
             else:
                 tsi = t1i
@@ -582,7 +582,7 @@ def calcular_mtd(condicion_interno, condicion_externo, propiedades, flujo_tubo, 
             presion = transformar_unidades_presion([float(condicion_externo.presion_entrada)], condicion_externo.unidad_presion.pk)[0]
             quimico = Chemical(propiedades.fluido_carcasa.cas) if propiedades.fluido_carcasa else None
             if(t1i != t2i):
-                tsi = transformar_unidades_temperatura(condicion_interno.tsat, condicion_interno.temperaturas_unidad.pk) - 273.15 if condicion_interno.tsat else quimico.Tsat(presion) - 273.15
+                tsi = transformar_unidades_temperatura([float(condicion_interno.tsat)], condicion_interno.temperaturas_unidad.pk)[0] - 273.15 if condicion_interno.tsat else quimico.Tsat(presion) - 273.15
                 tsi = t2i*1.005 if tsi < t2i else tsi
             else:
                 tsi = t1i

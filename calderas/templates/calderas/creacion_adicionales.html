@@ -49,7 +49,7 @@
             {% for form in forms_corrientes %}
             <tr>
                 <td>
-                    {% render_field form.numero class="form-control" placeholder="Número de la Corriente" %}
+                    {% render_field form.numero class="form-control numero" placeholder="Número de la Corriente" %}
                     <small>{{form.numero.errors}}</small>
                 </td>                
                 <td>
@@ -146,7 +146,7 @@
             <tr class="form">
                 <td>
                     {{form.id}}
-                    {% render_field form.nombre class="form-control" placeholder="Nombre" %}
+                    {% render_field form.nombre class="form-control nombre-caracteristica" placeholder="Nombre" %}
                     <small>{{form.nombre.errors}}</small>
                 </td>
                 <td>
@@ -168,7 +168,6 @@
                     <div class="input-group mb-1">
                         {% render_field form.carga_25 class="form-control" placeholder="Valor al 25%" %}
                         <select name="form-{{forloop.counter0}}-unidad" id="id_form-{{forloop.counter0}}-unidad" class="form-select">
-                            <option value="">----------------</option>
                             {% for unidad in unidades %}
                             {% if unidad.tipo == form.instance.tipo_unidad.pk %}
                             <option value="{{unidad.pk}}" {% if unidad.pk == form.instance.unidad.pk %}selected{% endif %}>{{unidad.simbolo}}</option>

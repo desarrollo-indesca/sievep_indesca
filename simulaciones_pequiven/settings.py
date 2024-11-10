@@ -16,6 +16,8 @@ A nivel de código el proyecto se llama 'simulaciones_pequiven' hasta que se dec
 
 from pathlib import Path
 import os
+# import os, ldap
+# from django_auth_ldap.config import LDAPSearch, ActiveDirectoryGroupType
 from .jobs import start_deleting_job
 
 # CONFIGURACIÓN DE LDAP
@@ -55,6 +57,7 @@ from .jobs import start_deleting_job
 
 # AUTH_LDAP_MIRROR_GROUPS = True
 # AUTHENTICATION_BACKENDS = [
+#     "django_auth.backend.LDAPBackend",
 #     "django_auth_ldap.backend.LDAPBackend",
 # ]
 
@@ -76,7 +79,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['127.0.0.1']
 LOGIN_URL = '/'
 
-SESSION_COOKIE_AGE = 25 * 60
+SESSION_COOKIE_AGE = 120 * 60 # 2 horas sin uso
 SESSION_EXPIRE_AT_BROWSER_CLOSE= True
 SESSION_SAVE_EVERY_REQUEST = True
 

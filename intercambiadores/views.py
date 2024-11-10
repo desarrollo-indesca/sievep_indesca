@@ -8,6 +8,7 @@ import uuid
 from .models import *
 from django.views.generic.list import ListView
 from django.db import transaction
+from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
 from thermo.chemical import search_chemical, Chemical
 from calculos.termodinamicos import calcular_cp
@@ -16,7 +17,7 @@ from reportes.pdfs import generar_pdf
 from reportes.xlsx import historico_evaluaciones, reporte_intercambiadores, ficha_tecnica_tubo_carcasa_xlsx, ficha_tecnica_doble_tubo_xlsx
 from simulaciones_pequiven.views import DuplicateView
 from simulaciones_pequiven.utils import generate_nonexistent_tag
-from usuarios.views import SuperUserRequiredMixin
+from usuarios.views import SuperUserRequiredMixin, EditorRequiredMixin
 from calculos.unidades import *
 import datetime
 
@@ -445,7 +446,7 @@ class ConsultaIntercambiador(ListView):
         return super().get(request, *args, **kwargs)
 
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
-class CrearIntercambiadorTuboCarcasa(LoginRequiredMixin, CreacionIntercambiadorMixin, View):
+class CrearIntercambiadorTuboCarcasa(SuperUserRequiredMixin, CreacionIntercambiadorMixin, View):
     """
     Resumen:
         Vista de Creación (Formulario) de un nuevo intercambiador de tubo/carcasa. 
@@ -1021,6 +1022,7 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ConsultaIntercambiador):
         context['tipo'] = 1
         context['tipo_texto'] = 'Tubo/Carcasa'
         context['link_creacion'] = 'crear_tubo_carcasa'
+        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
 
         return context
     
@@ -1123,6 +1125,7 @@ class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
         context['tipo'] = 2
         context['tipo_texto'] = 'Doble Tubo'
         context['link_creacion'] = 'crear_doble_tubo'
+        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
 
         return context
     
@@ -1890,6 +1893,7 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
             context['fluido_tubo'] =  context['intercambiador'].fluido_in if context['intercambiador'].fluido_in else context['condicion_tubo'].fluido_etiqueta
         
         context['titulo'] += intercambiador.tipo.nombre.title()
+        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
 
         return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
 
@@ -1970,6 +1974,7 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
         context['desde'] = self.request.GET.get('desde', '')
         context['hasta'] = self.request.GET.get('hasta')
         context['usuario'] = self.request.GET.get('usuario','')
+        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
 
         return context
     
@@ -2010,7 +2015,8 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
 
         if(usuario != ''):
             new_context = new_context.filter(
-                creado_por__first_name__icontains = usuario
+                Q(creado_por__first_name__icontains = usuario)
+                | Q(creado_por__last_name__icontains = usuario)
             )
 
         if(nombre != ''):
@@ -2390,7 +2396,7 @@ class FichaTecnicaDobleTubo(LoginRequiredMixin, View):
             print(str(e))
             return HttpResponseNotFound(MENSAJE_ERROR)
 
-class DuplicarIntercambiador(SuperUserRequiredMixin, DuplicateView):
+class DuplicarIntercambiador(EditorRequiredMixin, DuplicateView):
     '''
     Resumen:
         Vista utilizada para duplicar un Intercambiador existente creando un nuevo registro

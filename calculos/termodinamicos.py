@@ -323,8 +323,10 @@ def calcular_entalpia_coolprop(t: float, p: float, fluido: str) -> float:
         (float) -> Entalpía del fluido en las condiciones presentadas (kJ/Kg). Devolverá None si ocurre un error.
     """
     try:
-        if(p):
+        if(p and t):
             return CP.PropsSI('H', 'T', t, 'P', p, fluido)
+        elif(p):
+            return CP.PropsSI('H', 'Q', 0, 'P', p, fluido)
         else:
             return CP.PropsSI('H','Q',0,'T',t,fluido)
     except:
@@ -365,10 +367,12 @@ def calcular_fase_coolprop(t: float, p: float, fluido: str) -> str:
         (str) -> Fase del fluido en las condiciones presentadas. Devolverá None si ocurre un error.
     """
     try:
-        if(p):
-            return CP.PhaseSI('T', t, 'P', p, fluido)
+        if(p and t):
+            return CP.PhaseSI('P', p, 'T', t, fluido)
+        elif(p):
+            return CP.PhaseSI('P', p, 'Q', 0, fluido)
         else:
-            return CP.PhaseSI('Q',0,'T',t,fluido)
+            return CP.PhaseSI('Q',0,'T',t, fluido)
     except:
         return None
     
@@ -389,6 +393,6 @@ def definicion_fases_coolprop(fase: str) -> str:
     elif("gas" in fase): # Vapor
         return ("V", "Vapor")
     elif(fase == "twophase"): # Saturación
-        return ("S", "Saturado")
+        return ("S", "Vapor Saturado")
     elif(fase == "supercritical"): # Fluido Supercrítico
         return ("F", "Fluido Supercrítico")

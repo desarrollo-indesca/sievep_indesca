@@ -19,7 +19,7 @@ def transformar_unidades_temperatura(args: list, unidad: int, unidad_salida: int
     actualizadas = []
     unidad_salida = ur.kelvin if unidad_salida == 2 else ur.degC if unidad_salida == 1 else ur.degR if unidad_salida == 8 else ur.degF
     unidad = ur.degC if unidad == 1 else ur.degR if unidad == 8 else ur.degF if unidad != 2 else ur.kelvin
-
+    
     actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
     return actualizadas
@@ -342,7 +342,7 @@ def transformar_unidades_entalpia_masica(args: list, unidad: int, unidad_salida:
         list -> Lista de valores transformados a la unidad de salida
     '''
     def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
-        return ur.Btu_it/ur.pound if unidad == 55 else ur.kilocalorie/ur.kilogram if unidad == 56 else ur.joule/ur.kilogram
+        return ur.Btu_it/ur.pound if unidad == 55 else ur.kilocalorie/ur.kilogram if unidad == 56 else ur.kilojoule/ur.kilogram if unidad == 88 else ur.joule/ur.kilogram
 
     actualizadas = []
     unidad_salida = obtener_unidad(unidad_salida)

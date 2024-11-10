@@ -36,7 +36,7 @@
     <th scope="col">Detalle</th>
   </tr>
 </thead>
-<tbody class="text-center" id="tabla-body">
+<tbody class="text-center" id="tabla-body" style="vertical-align: middle;">
   {% if object_list.count %}
   {% include 'tablas/encuesta.html' %}
   {% else %}
@@ -89,7 +89,7 @@
   });
 
   $('form[method="POST"]').submit(e => {
-    if(e.target.name !== "ficha_form" && e.target.name !== 'reporte' && e.target.name !== 'detalle' && !confirm("¿Está seguro que desea eliminar esta evaluación? La única forma de reincorporar la misma es contactando al administrador de la base de datos."))
+    if(e.target.name !== "ficha_form" && e.target.name !== 'duplicacion' && e.target.name !== 'reporte' && e.target.name !== 'detalle' && !confirm("¿Está seguro que desea eliminar esta evaluación? La única forma de reincorporar la misma es contactando al administrador de la base de datos."))
       return false;
   })
 </script>

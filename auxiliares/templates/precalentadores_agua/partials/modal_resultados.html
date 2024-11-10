@@ -25,7 +25,7 @@
                             <th class="text-center table-dark">NOMBRE</th>
                             <th class="text-center table-dark">ENTRA/SALE</th>
                             <th class="text-center table-dark">TEMPERATURA ({{evaluacion.datos_corrientes.temperatura_unidad}})</th>
-                            <th class="text-center table-dark">PRESION ({{evaluacion.datos_corrientes.presion_unidad}})</th>
+                            <th class="text-center table-dark">PRESION ({{evaluacion.datos_corrientes.presion_unidad}}g)</th>
                             <th class="text-center table-dark">FLUJO ({{evaluacion.datos_corrientes.flujo_unidad}})</th>
                             <th class="text-center table-dark">ENTALPIA ({{evaluacion.datos_corrientes.entalpia_unidad}})</th>
                             <th class="text-center table-dark">DENSIDAD ({{evaluacion.datos_corrientes.densidad_unidad}})</th>
@@ -67,7 +67,7 @@
                             <th class="text-center table-dark">NOMBRE</th>
                             <th class="text-center table-dark">ENTRA/SALE</th>
                             <th class="text-center table-dark">TEMPERATURA ({{evaluacion.datos_corrientes.temperatura_unidad}})</th>
-                            <th class="text-center table-dark">PRESION ({{evaluacion.datos_corrientes.presion_unidad}})</th>
+                            <th class="text-center table-dark">PRESION ({{evaluacion.datos_corrientes.presion_unidad}}g)</th>
                             <th class="text-center table-dark">FLUJO ({{evaluacion.datos_corrientes.flujo_unidad}})</th>
                             <th class="text-center table-dark">ENTALPIA ({{evaluacion.datos_corrientes.entalpia_unidad}})</th>
                             <th class="text-center table-dark">DENSIDAD ({{evaluacion.datos_corrientes.densidad_unidad}})</th>
@@ -154,15 +154,11 @@
                 </table>
 
                 {% if evaluacion.salida_general.perdida_ambiente %}
-                <div class="alert alert-danger" role="alert">
-                    <h5 class="text-center">PERDIDA DE ENERGIA EN EL AMBIENTE</h5>
-                </div>
+                <h5 class="text-center text-danger">PÉRDIDA DE ENERGÍA EN EL AMBIENTE</h5>
                 {% endif %}
 
                 {% if evaluacion.salida_general.invalido %}
-                <div class="alert alert-danger" role="alert">
-                    <h5 class="text-center">Las resultados podrían ser inconsistentes debido a datos de entrada que no se ajustaban al modelo.</h5>
-                </div>
+                    <h5 class="text-center text-danger">Los resultados podrían ser inconsistentes debido a datos de entrada que no se ajustaban al modelo.</h5>
                 {% endif %}
             </div>
           </div>

@@ -37,7 +37,9 @@ const inicializarEventListeners = () => {
             return;
         }
 
-        if (!Array.from(document.querySelectorAll(`${$('#id_evaluacion-metodo').val() === 'D' ? '.directo-field' : '.indirecto-field'}`)).every(el => el.checkValidity())) {
+        if (!Array.from(document.querySelectorAll(`${$('#id_evaluacion-metodo').val() === 'D' ? '.directo-field' : '.indirecto-field'}`)).every(el => 
+                 (el.name === 'superficie-area' || el.name === 'superficie-temperatura' || el.name === 'aire-velocidad') || el.value != ''
+            )){
             e.preventDefault();
             alert("Todos los campos en verde deben ser llenados para poder realizar los cálculos correspondientes.");
             return;
@@ -46,6 +48,40 @@ const inicializarEventListeners = () => {
         if(!confirm("¿Está seguro que desea realizar esta acción?"))
             e.preventDefault();
     });
+
+    $(".fase").change((e) => {
+        const number = e.target.name
+          .replaceAll("form", "")
+          .replaceAll("-", "")
+          .replaceAll(/[a-zA-Z]+/g, "");
+      
+        console.log(number);  
+      
+        if ($(e.target).val() === "S") {    
+          const presionInput = $(`input[name='form-${number}-presion']`);
+          const temperaturaInput = $(`input[name='form-${number}-temperatura']`);
+      
+          presionInput.on('change', function() {
+            if ($(this).val() !== "") {
+              temperaturaInput.attr("disabled", "disabled");
+            } else {
+              temperaturaInput.removeAttr("disabled");
+            }
+          });
+      
+          temperaturaInput.on('change', function() {
+            if ($(this).val() !== "") {
+              presionInput.attr("disabled", "disabled");
+            } else {
+              presionInput.removeAttr("disabled");
+            }
+          });
+        } else {
+          $(`input[name='form-${number}-presion'], input[name='form-${number}-temperatura']`).removeAttr("disabled").off('input');
+        }
+      
+        $(`input[name='form-${number}-presion'], input[name='form-${number}-temperatura']`).change();
+      });
 }
 
 const inicializarResultados = () => {
@@ -78,6 +114,10 @@ $("#id_evaluacion-metodo").change(e => {
         $(`.directo-field`).css('border-color', '');  
         $(`.indirecto-field`).css('border-color', 'green');
     }
+
+    $('#id_superficie-area').removeAttr('required');
+    $('#id_superficie-temperatura').removeAttr('required');
+    $('#id_aire-velocidad').removeAttr('required');
 });
 
 document.addEventListener("htmx:beforeRequest", function (evt) {
@@ -87,6 +127,9 @@ document.addEventListener("htmx:beforeRequest", function (evt) {
 document.addEventListener("htmx:afterRequest", function (evt) {
   document.body.style.opacity = 1.0;
   inicializarEventListeners();
+
+  if(evt.detail.failed)
+    alert("Ha ocurrido un error al momento de realizar los cálculos. Por favor revise e intente de nuevo.");
 });
 
 $("#id_evaluacion-metodo").change();

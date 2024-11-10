@@ -68,7 +68,7 @@
                       <td colspan="2">{{seccion_gases.presion_entrada|default:'-'}} {{seccion_gases.presion_unidad|default:'-'}}</td>
                     </tr>
                     <tr>
-                        <th class="table-dark">Presión de Entrada</th>
+                        <th class="table-dark">Presión de Salida</th>
                         <td colspan="2">{{seccion_aire.presion_salida|default:'-'}} {{seccion_aire.presion_unidad|default:'-'}}</td>
                         <td colspan="2">{{seccion_gases.presion_salida|default:'-'}} {{seccion_gases.presion_unidad|default:'-'}}</td>
                       </tr>
@@ -110,6 +110,14 @@
                       <th colspan="2" class="table-dark">Coeficiente Global de Transferencia por Balance General ({{precalentador.especificaciones.u_unidad}})</td>
                       <th colspan="3">{{precalentador.especificaciones.u|default_if_none:'-'}}</td>
                     </tr>
+                    <tr>
+                      <th colspan="2" class="table-dark">Temp. Operación ({{precalentador.especificaciones.temp_unidad}})</td>
+                      <th colspan="3">{{precalentador.especificaciones.temp_operacion|default_if_none:'-'}}</td>
+                  </tr>
+                  <tr>
+                    <th colspan="2" class="table-dark">Presión Operación ({{precalentador.especificaciones.presion_unidad}})</td>
+                    <th colspan="3">{{precalentador.especificaciones.u|default_if_none:'-'}}</td>
+                  </tr>
                     <tr>
                       <td colspan="5">Precalentador de Aire registrado por {{precalentador.creado_por.get_full_name}} al {{precalentador.creado_al}}.</td>
                     </tr>
@@ -179,7 +187,10 @@
         <div class="modal-footer">
           {% if request.user.is_superuser %}
           <a href="{% url 'edicion_precalentador_aire' pk=precalentador.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
-          <form action="{% url 'duplicar_precalentador_aire' pk=precalentador.pk %}" method="post">
+          {% endif %}
+
+          {% if editor %}
+          <form action="{% url 'duplicar_precalentador_aire' pk=precalentador.pk %}" method="post" name="duplicacion">
             {% csrf_token %}
             <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>
           </form>

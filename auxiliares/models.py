@@ -19,10 +19,6 @@ LADOS_BOMBA = (
     ('D', 'Descarga')
 )
 
-AISLAMIENTO = (
-    ('F','CLASE F'),
-)
-
 CORROSIVIDAD = (
     ('C', 'Corrosivo'),
     ('E', 'Erosivo'),
@@ -239,30 +235,24 @@ class DetallesMotorBomba(models.Model):
     Métodos:
         posicion_largo() -> str:
             Nombre largo de la posición de acuerdo a su clave.
-
-        aislamiento_largo() -> sr:
-            Nombre largo del aislamiento de acuerdo a su clave.
     '''
     potencia_motor = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True, verbose_name = "Potencia del Motor")
     potencia_motor_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="potencia_unidad_detallesmotor")
-    velocidad_motor = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name="Velocidad del Motor*")
+    velocidad_motor = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True, verbose_name="Velocidad del Motor")
     velocidad_motor_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="velocidad_unidad_detallesmotor")
     factor_de_servicio = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True, verbose_name = "Factor de Servicio")
     posicion = models.CharField(null = True, blank = True, max_length = 1, choices = MOTOR_POSICIONES, verbose_name="Posición del Motor")
-    voltaje = models.FloatField(validators=[MinValueValidator(0.0001)], null=True, verbose_name = "Voltaje del Motor")
+    voltaje = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True, verbose_name = "Voltaje del Motor")
     voltaje_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="voltaje_unidad_detallesmotor")
-    fases = models.PositiveSmallIntegerField(null = True)
-    frecuencia = models.FloatField(validators=[MinValueValidator(0.0001)], null = True)
+    fases = models.PositiveSmallIntegerField(null = True, blank = True)
+    frecuencia = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True)
     frecuencia_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="frecuencia_unidad_detallesmotor")
-    aislamiento = models.CharField(null = True, blank = True, max_length = 1, choices = AISLAMIENTO)
+    aislamiento = models.CharField(null = True, blank = True, max_length = 1)
     arranque = models.CharField(null = True, blank = True, max_length = 45)
 
     def posicion_largo(self):
         return conseguir_largo(MOTOR_POSICIONES, self.posicion)
-    
-    def aislamiento_largo(self):
-        return conseguir_largo(AISLAMIENTO, self.aislamiento)
-    
+        
     class Meta:
         db_table = "bombas_detallesmotor"
 
@@ -294,14 +284,14 @@ class EspecificacionesBomba(models.Model):
     velocidad_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="velocidad_unidad_especificacionesbomba")
     potencia_maxima = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name = "Potencia Máxima*", null=True)
     potencia_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="potencia_unidad_especificacionesbomba")
-    eficiencia = models.FloatField()
+    eficiencia = models.FloatField(null = True, blank = True)
     npshr = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True, verbose_name = "NPSHr")
     npshr_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="npshr_unidad_especificacionesbomba")
 
     cabezal_total = models.FloatField(validators=[MinValueValidator(0.0001)], null=True)
     cabezal_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="cabezal_unidad_especificacionesbomba")
     numero_etapas = models.SmallIntegerField(verbose_name = "Número de Etapas", null=True, blank=True)
-    
+
     succion_id = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name = "Diámetro Interno Succión", null=True)
     descarga_id = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name = "Diámetro Interno Descarga", null=True)
     id_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="id_unidad_especificacionesbomba")
@@ -354,9 +344,9 @@ class CondicionFluidoBomba(models.Model):
     temperatura_unidad = models.ForeignKey(Unidades, on_delete = models.CASCADE, related_name="temperatura_unidad_condicionesdisenobomba")
     viscosidad = models.FloatField(validators=[MinValueValidator(0.000001)], null = True, blank = True)
     viscosidad_unidad = models.ForeignKey(Unidades, on_delete = models.CASCADE, related_name="viscosidad_unidad_condicionesdisenobomba")
-    corrosividad = models.CharField(max_length = 1, choices = CORROSIVIDAD, verbose_name = "Corrosivo/Erosivo*")
-    peligroso = models.CharField(max_length = 1, choices = SI_NO_DESC, verbose_name = "Peligroso*")
-    inflamable = models.CharField(max_length = 1, choices = SI_NO_DESC, verbose_name = "Inflamable*")
+    corrosividad = models.CharField(max_length = 1, choices = CORROSIVIDAD, verbose_name = "Corrosivo/Erosivo", null = True, blank = True)
+    peligroso = models.CharField(max_length = 1, choices = SI_NO_DESC, verbose_name = "Peligroso", null = True, blank = True)
+    inflamable = models.CharField(max_length = 1, choices = SI_NO_DESC, verbose_name = "Inflamable", null = True, blank = True)
     concentracion_h2s = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True, verbose_name = "Concentración de H₂S")
     concentracion_cloro = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True, verbose_name = "Concentración de Cloro")
     concentracion_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name = "concentracion_unidad_condicionesfluido")
@@ -602,8 +592,8 @@ class EntradaEvaluacionBomba(models.Model):
     presion_descarga = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Presión")
     presion_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="presion_unidad_evaluacionbomba")
     
-    altura_succion = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Altura")
-    altura_descarga = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Altura")
+    altura_succion = models.FloatField(validators=[MaxValueValidator(9999999.99999)], verbose_name = "Altura")
+    altura_descarga = models.FloatField(validators=[MaxValueValidator(9999999.99999)], verbose_name = "Altura")
     altura_unidad = models.ForeignKey(Unidades, on_delete = models.PROTECT, related_name="altura_unidad_evaluacionbomba")
 
     velocidad = models.FloatField(validators=[MinValueValidator(0.0001), MaxValueValidator(9999999.99999)], verbose_name = "Velocidad")

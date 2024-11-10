@@ -494,7 +494,7 @@ class FiltrarEvaluacionesMixin():
             evaluaciones = evaluaciones.filter(fecha__lte = request.GET.get('hasta'))
 
         if(request.GET.get('usuario')):
-            evaluaciones = evaluaciones.filter(creado_por__first_name__icontains = request.GET.get('hasta'))
+            evaluaciones = evaluaciones.filter(Q(creado_por__first_name__icontains = request.GET.get('usuario')) | Q(creado_por__last_name__icontains = request.GET.get('usuario')))
 
         if(request.GET.get('nombre')):
             evaluaciones = evaluaciones.filter(nombre__icontains = request.GET.get('nombre'))
@@ -510,6 +510,10 @@ class PlantasPorComplejo(LoginRequiredMixin, View):
         complejo_id = request.GET['complejo']
         selected_planta_id = request.GET.get('planta')
         plantas = Planta.objects.filter(complejo_id=complejo_id)
+
+        if(not self.request.user.is_superuser):
+            plantas = plantas.filter(pk__in=request.user.usuario_planta.values_list("planta", flat=True))
+
         selected_planta = int(selected_planta_id) if selected_planta_id else None
         context = {
             'plantas': plantas,
@@ -595,9 +599,14 @@ class FiltradoSimpleMixin():
                     descripcion__icontains = descripcion,
                 )
             elif(self.request.GET.get('servicio')):
-                new_context = new_context.filter(
-                    servicio__icontains = descripcion,
-                )
+                try:
+                    new_context = new_context.filter(
+                        servicio__icontains = descripcion,
+                    )
+                except:
+                    new_context = new_context.filter(
+                        descripcion__icontains = descripcion,
+                    )
         
         return new_context
 
@@ -607,7 +616,7 @@ class FiltradoSimpleMixin():
         context['complejos'] = Complejo.objects.all()
 
         if(self.request.GET.get('complejo')):
-            context['plantas'] = Planta.objects.filter(complejo= self.request.GET.get('complejo'))
+            context['plantas'] = Planta.objects.filter(complejo= self.request.GET.get('complejo'), pk__in=self.request.user.usuario_planta.values_list("planta", flat=True))
 
         context['tag'] = self.request.GET.get('tag', '')
         context['descripcion'] = self.request.GET.get('descripcion', '')
@@ -621,6 +630,7 @@ class FiltradoSimpleMixin():
             context['plantax'] = int(context['plantax'])
 
         context['link_creacion'] = 'creacion_turbina_vapor'
+        context['editor'] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
 
         return context
 
@@ -686,6 +696,7 @@ class CreacionPlanta(SuperUserRequiredMixin, FormView):
 
     def form_valid(self, form):
         form.save()
+        messages.success(self.request, 'Planta creada con éxito.')
         return super().form_valid(form)
     
     def get_context_data(self, **kwargs):

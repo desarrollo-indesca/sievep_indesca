@@ -275,8 +275,8 @@
                     <tr>
                         <th class="table-dark">Frecuencia ({{bomba.detalles_motor.frecuencia_unidad|default_if_none:'-'}})</th>
                         <td>{{bomba.detalles_motor.frecuencia|default_if_none:'-'}}</td>
-                        <th class="table-dark">Aislamiento</th>
-                        <td>{{bomba.detalles_motor.aislamiento_largo|default_if_none:'-'}}</td>
+                        <th class="table-dark">Aislamiento (Clase)</th>
+                        <td>{{bomba.detalles_motor.aislamiento|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                         <th class="table-dark" colspan="1">Método de Arranque</th>
@@ -300,11 +300,14 @@
             <button class="btn btn-secondary" data-bs-target="#modal_instalacion{{bomba.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Especificaciones de Instalación</button>
           {% if request.user.is_superuser %}
           <a href="{% url 'edicion_bomba' pk=bomba.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
-          <form action="{% url 'duplicar_bomba' pk=bomba.pk %}" method="post">
+          {% endif %}
+
+          {% if editor %}
+          <form action="{% url 'duplicar_bomba' pk=bomba.pk %}" method="post" name="duplicacion">
             {% csrf_token %}
             <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>
           </form>
-          {% endif %}
+          {%endif%}
 
           <form method="post" name="ficha_form">
             {% csrf_token %}
@@ -366,13 +369,13 @@
                             <small>{{forloop.counter}}</small>
                         </td>
                         <td class="text-center">
-                            <small>{{tuberia.longitud_tuberia}} {{tuberia.longitud_tuberia_unidad}}</small>
+                            <small>{{tuberia.longitud_tuberia|default_if_none:'-'}} {{tuberia.longitud_tuberia_unidad}}</small>
                         </td>
                         <td class="text-center">
-                            <small>{{tuberia.diametro_tuberia}} {{tuberia.diametro_tuberia_unidad}}</small>
+                            <small>{{tuberia.diametro_tuberia|default_if_none:'-'}} {{tuberia.diametro_tuberia_unidad}}</small>
                         </td>
                         <td class="text-center">
-                            <small>{{tuberia.material_tuberia}}</small>
+                            <small>{{tuberia.material_tuberia|default_if_none:'-'}}</small>
                         </td>
                         <td>
                             <a id="t{{tuberia.id}}" href="#" data-tooltip="t{{tuberia.id}}">Accesorios</a>
@@ -524,13 +527,13 @@
                             <small>{{forloop.counter}}</small>
                         </td>
                         <td class="text-center">
-                            <small>{{tuberia.longitud_tuberia}} {{tuberia.longitud_tuberia_unidad}}</small>
+                            <small>{{tuberia.longitud_tuberia|default_if_none:'-'}} {{tuberia.longitud_tuberia_unidad}}</small>
                         </td>
                         <td class="text-center">
-                            <small>{{tuberia.diametro_tuberia}} {{tuberia.diametro_tuberia_unidad}}</small>
+                            <small>{{tuberia.diametro_tuberia|default_if_none:'-'}} {{tuberia.diametro_tuberia_unidad}}</small>
                         </td>
                         <td class="text-center">
-                            <small>{{tuberia.material_tuberia}}</small>
+                            <small>{{tuberia.material_tuberia|default_if_none:'-'}}</small>
                         </td>
                         <td>
                             <a id="t{{tuberia.id}}" href="#" data-tooltip="t{{tuberia.id}}">Accesorios</a>
@@ -679,13 +682,13 @@
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" data-bs-target="#ficha_{{bomba.pk}}" data-bs-toggle="modal" data-bs-dismiss="modal">Datos de Ficha</button>
-          {% if request.user.is_superuser %}
+          {% if request.user.is_superuser or editor  %}
           <a href="{% url 'creacion_instalacion_bomba' pk=bomba.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
-          <form action="{% url 'duplicar_bomba' pk=bomba.pk %}" method="post">
+          <form action="{% url 'duplicar_bomba' pk=bomba.pk %}" method="post" name="duplicacion">
             {% csrf_token %}
             <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>
           </form>
-          {% endif %}
+          {%endif%}
 
           <form method="post" name="ficha_form">
             {% csrf_token %}
