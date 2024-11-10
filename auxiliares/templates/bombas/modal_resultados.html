@@ -92,12 +92,12 @@
                         <tr>
                             <th class="table-dark text-center">Eficiencia</th>
                             <td class="text-center">{{salida.eficiencia|floatformat:4}}%</td>
-                            <td class="text-center">{{equipo.especificaciones_bomba.eficiencia}}%</td>
+                            <td class="text-center">{{equipo.especificaciones_bomba.eficiencia|default_if_none:'-'}}%</td>
                         </tr>
                         <tr>
                             <th class="table-dark text-center">Potencia Calculada</th>
                             <td class="text-center">{{salida.potencia|floatformat:4}} {{salida.potencia_unidad}}</td>
-                            <td class="text-center">{{equipo.especificaciones_bomba.potencia_maxima}} {{equipo.especificaciones_bomba.potencia_unidad}}</td>
+                            <td class="text-center">{{equipo.especificaciones_bomba.potencia_maxima|default_if_none:'-'}} {{equipo.especificaciones_bomba.potencia_unidad}}</td>
                         </tr>
                         <tr>
                             <th class="table-dark text-center">Velocidad Espec.</th>

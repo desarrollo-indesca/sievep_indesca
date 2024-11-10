@@ -24,18 +24,18 @@
         <tbody>
             <tr>
                 <th class="table-dark text-center">Cabezal Total</th>
-                <td class="text-center">{{res.cabezal_total.0|floatformat:4}} {{bomba.especificaciones_bomba.cabezal_unidad}}</td>
+                <td class="text-center">{{res.cabezal_total.0|floatformat:4}} {{bomba.especificaciones_bomba.cabezal_unidad|default_if_none:'-'}}</td>
                 <td class="text-center">{{bomba.especificaciones_bomba.cabezal_total}} {{bomba.especificaciones_bomba.cabezal_unidad}}</td>
             </tr>
             <tr>
                 <th class="table-dark text-center">Eficiencia</th>
                 <td class="text-center">{{res.eficiencia|floatformat:4}}%</td>
-                <td class="text-center">{{bomba.especificaciones_bomba.eficiencia}}%</td>
+                <td class="text-center">{{bomba.especificaciones_bomba.eficiencia|default_if_none:'-'}}%</td>
             </tr>
             <tr>
                 <th class="table-dark text-center">Potencia Calculada</th>
                 <td class="text-center">{{res.potencia_calculada.0|floatformat:4}} {{bomba.especificaciones_bomba.potencia_unidad}}</td>
-                <td class="text-center">{{bomba.especificaciones_bomba.potencia_maxima}} {{bomba.especificaciones_bomba.potencia_unidad}}</td>
+                <td class="text-center">{{bomba.especificaciones_bomba.potencia_maxima|default_if_none:'-'}} {{bomba.especificaciones_bomba.potencia_unidad}}</td>
             </tr>
             <tr>
                 <th class="table-dark text-center">Velocidad Específica</th>

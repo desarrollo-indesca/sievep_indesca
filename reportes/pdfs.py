@@ -1540,17 +1540,17 @@ def detalle_evaluacion_bomba(evaluacion):
         [
             f'Cabezal Total',
             Paragraph(f"{round(salida.cabezal_total, 4)} {salida.cabezal_total_unidad}", centrar_parrafo),
-            Paragraph(f"{especificaciones.cabezal_total} {especificaciones.cabezal_unidad}", centrar_parrafo)
+            Paragraph(f"{especificaciones.cabezal_total if especificaciones.cabezal_total else '-'} {especificaciones.cabezal_unidad}", centrar_parrafo)
         ],
         [
             f'Eficiencia (%)', 
             Paragraph(f"{round(salida.eficiencia, 4)}", centrar_parrafo),
-            Paragraph(f"{especificaciones.eficiencia}", centrar_parrafo)
+            Paragraph(f"{especificaciones.eficiencia if especificaciones.eficiencia else '-'}", centrar_parrafo)
         ],
         [
             f'Potencia Calculada',
             Paragraph(f"{round(salida.potencia, 4)} {salida.potencia_unidad}", centrar_parrafo),
-            Paragraph(f"{especificaciones.potencia_maxima} {especificaciones.potencia_unidad}", centrar_parrafo),
+            Paragraph(f"{especificaciones.potencia_maxima if especificaciones.potencia_maxima else '-'} {especificaciones.potencia_unidad}", centrar_parrafo),
         ],        
         [
             f'Velocidad Específica',

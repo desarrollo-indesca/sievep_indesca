@@ -245,7 +245,7 @@ class DetallesMotorBomba(models.Model):
     '''
     potencia_motor = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True, verbose_name = "Potencia del Motor")
     potencia_motor_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="potencia_unidad_detallesmotor")
-    velocidad_motor = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name="Velocidad del Motor") # RPM
+    velocidad_motor = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name="Velocidad del Motor*")
     velocidad_motor_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="velocidad_unidad_detallesmotor")
     factor_de_servicio = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True, verbose_name = "Factor de Servicio")
     posicion = models.CharField(null = True, blank = True, max_length = 1, choices = MOTOR_POSICIONES, verbose_name="Posición del Motor")
@@ -290,9 +290,9 @@ class EspecificacionesBomba(models.Model):
         id_unidad: Unidad ('L')
     '''
     numero_curva = models.CharField(max_length = 10, null = True, blank = True, verbose_name = "Número de Curva")
-    velocidad = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True, verbose_name = "Velocidad")
+    velocidad = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, verbose_name = "Velocidad*")
     velocidad_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="velocidad_unidad_especificacionesbomba")
-    potencia_maxima = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name = "Potencia Máxima", null=True)
+    potencia_maxima = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name = "Potencia Máxima*", null=True)
     potencia_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="potencia_unidad_especificacionesbomba")
     eficiencia = models.FloatField()
     npshr = models.FloatField(validators=[MinValueValidator(0.0001)], null = True, blank = True, verbose_name = "NPSHr")
@@ -300,7 +300,7 @@ class EspecificacionesBomba(models.Model):
 
     cabezal_total = models.FloatField(validators=[MinValueValidator(0.0001)], null=True)
     cabezal_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="cabezal_unidad_especificacionesbomba")
-    numero_etapas = models.SmallIntegerField(verbose_name = "Número de Etapas")
+    numero_etapas = models.SmallIntegerField(verbose_name = "Número de Etapas", null=True, blank=True)
     
     succion_id = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name = "Diámetro Interno Succión", null=True)
     descarga_id = models.FloatField(validators=[MinValueValidator(0.0001)], verbose_name = "Diámetro Interno Descarga", null=True)
