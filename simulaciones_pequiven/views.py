@@ -566,7 +566,7 @@ class FiltradoSimpleMixin():
                 planta__complejo__pk=complejo
             )
 
-        if(planta and planta != ''): # Filtrar por planta
+        if(planta and planta != '' and complejo != ''): # Filtrar por planta
             new_context = self.model.objects.filter(
                 planta__pk=planta
             )

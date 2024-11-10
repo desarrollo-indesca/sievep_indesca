@@ -1721,7 +1721,7 @@ def ficha_tecnica_bomba_centrifuga(bomba):
         ],
         [
             Paragraph("Fabricante", centrar_parrafo), 
-            Paragraph(f"{bomba.fabricante}", centrar_parrafo),
+            Paragraph(f"{bomba.fabricante if bomba.fabricante else '-'}", centrar_parrafo),
             Paragraph("Modelo", centrar_parrafo), 
             Paragraph(f"{bomba.modelo if bomba.modelo else '-'}", centrar_parrafo)
         ],
