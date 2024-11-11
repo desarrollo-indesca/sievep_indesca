@@ -134,19 +134,7 @@ class CargarBombaMixin():
         else:
             bomba = bomba_q
 
-        if(prefetch):
-            bomba = bomba.select_related(
-            'creado_por','editado_por','tipo_bomba','detalles_motor','especificaciones_bomba',
-            'detalles_construccion','condiciones_diseno', 'planta__complejo'
-            ).select_related(             
-                'condiciones_diseno__condiciones_fluido',  
-                'condiciones_diseno__presion_unidad', 'condiciones_diseno__npsha_unidad', 'condiciones_diseno__capacidad_unidad',
-                'condiciones_diseno__condiciones_fluido__temperatura_unidad',  'condiciones_diseno__condiciones_fluido__fluido',
-            ). select_related(
-                'detalles_motor__potencia_motor_unidad','detalles_motor__velocidad_motor_unidad',
-                'detalles_motor__voltaje_unidad', 'detalles_motor__frecuencia_unidad',
-            )
-            
+        if(prefetch):            
             bomba = bomba.prefetch_related(
                 Prefetch('instalacion_succion__tuberias', 
                             queryset=TuberiaInstalacionBomba.objects.select_related(
