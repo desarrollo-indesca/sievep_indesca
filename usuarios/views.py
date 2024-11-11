@@ -246,6 +246,27 @@ class EditarUsuario(SuperUserRequiredMixin, View):
                 usuario.first_name =  request.POST['nombre'].title()
                 usuario.is_active = 'activo' in request.POST.keys()
                 usuario.is_superuser = 'superusuario' in request.POST.keys()
+
+                usuario.usuario_planta.all().delete()
+
+                # Assign plants according to the marked checkboxes
+                ids = []
+                for key in request.POST.keys():
+                    if key.startswith('planta-'):
+                        print(key)
+                        planta_id = key.split('-')[1]
+                        ids.append(planta_id)
+
+                plantas = Planta.objects.filter(pk__in = ids)
+                print(plantas)
+
+                for planta in plantas:
+                    print(planta)
+                    PlantaAccesible.objects.create(planta=planta, usuario=usuario)
+
+                if('editor' in request.POST.keys()):
+                    usuario.groups.add(Group.objects.get(name='editor'))
+
                 usuario.save()
 
                 messages.success(request, "Se han registrado los cambios.")
@@ -260,10 +281,12 @@ class EditarUsuario(SuperUserRequiredMixin, View):
             'nombre': usuario.first_name,
             'correo': usuario.email,
             'superusuario': usuario.is_superuser,
-            'activo': usuario.is_active
+            'activo': usuario.is_active,
+            'editor': usuario.groups.filter(name='editor').exists(),
+            'plantas': [planta.planta.pk for planta in usuario.usuario_planta.all()],
         }
 
-        return render(request, 'usuarios/creacion.html', context={'previo': previo, 'edicion': True, **self.context})
+        return render(request, 'usuarios/creacion.html', context={'previo': previo, 'edicion': True, 'complejos': Complejo.objects.prefetch_related('plantas').all(), **self.context})
 
 class CambiarContrasena(SuperUserRequiredMixin, View):
     """

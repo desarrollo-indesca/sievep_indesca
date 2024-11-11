@@ -68,11 +68,11 @@
     
         <hr>
         <h4 class="text-center">Permisos de acceso por Planta</h4>
-
         {% for complejo in complejos %}
+        <br>
         <h5>{{complejo}}</h5>
         {% for planta in complejo.plantas.all %}
-        <input type="checkbox" name="planta-{{planta.pk}}" value="{{planta.pk}}" id="check-{{planta.pk}}" class="form-check-input"> {{planta}} <br>
+        <input type="checkbox" name="planta-{{planta.pk}}" value="{{planta.pk}}" id="check-{{planta.pk}}" class="form-check-input" {% if planta.pk in previo.plantas or previo.superusuario %}checked{% endif %}> {{planta}} <br>
         {% endfor %}
         {% endfor %}
 
