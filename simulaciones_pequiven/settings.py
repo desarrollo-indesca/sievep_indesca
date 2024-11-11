@@ -60,7 +60,6 @@ AUTHENTICATION_BACKENDS = [
     "django_auth_ldap.backend.LDAPBackend",
 ]
 
-AUTH_LDAP_REQUIRE_GROUP = "CN=django-admins,CN=Users,DC=INDESCA,DC=LOCAL" # Grupos requeridos para acceder al sistema.
 AUTH_LDAP_MIRROR_GROUPS_EXCEPT = None # Grupos que no se deben copiar a base de datos (usar or/and).
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

@@ -242,7 +242,7 @@ class EditarUsuario(SuperUserRequiredMixin, View):
             with transaction.atomic():
                 usuario = self.modelo.objects.get(pk=pk)
                 usuario.email = request.POST['correo'].lower()
-                usuario.username = request.POST['correo'].lower()
+                usuario.username = request.POST['correo'].lower() if '@' in usuario.username else usuario.username
                 usuario.first_name =  request.POST['nombre'].title()
                 usuario.is_active = 'activo' in request.POST.keys()
                 usuario.is_superuser = 'superusuario' in request.POST.keys()

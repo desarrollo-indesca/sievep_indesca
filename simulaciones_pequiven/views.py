@@ -565,12 +565,11 @@ class FiltradoSimpleMixin():
         complejo = self.request.GET.get('complejo', '')
         planta = self.request.GET.get('planta', '')
 
-        new_context = self.model.objects.filter(planta__pk__in = self.request.user.usuario_planta.values_list("planta", flat=True)) if not self.request.user.is_superuser else None
-
+        new_context = self.model.objects.filter(planta__pk__in = self.request.user.usuario_planta.values_list("planta", flat=True)) 
         if(complejo and complejo != ''): # Filtrar por complejo
             new_context = new_context.filter(
                 planta__complejo__pk=complejo
-            ) if new_context else self.model.objects.filter(
+            ) if new_context != None else self.model.objects.filter(
                 planta__complejo__pk=complejo
             )
 
@@ -579,7 +578,7 @@ class FiltradoSimpleMixin():
                 planta__pk=planta
             )
 
-        if(new_context is not None): # Si filtros fueron aplicados previamente...
+        if(new_context != None): # Si filtros fueron aplicados previamente...
             if(tag and tag != ''):
                 new_context = new_context.filter(
                     tag__icontains = tag
@@ -621,9 +620,11 @@ class FiltradoSimpleMixin():
 
         if(self.request.GET.get('complejo')):
             if(not self.request.user.is_superuser):
-                context['plantas'] = Planta.objects.filter(complejo= self.request.GET.get('complejo'), pk__in=self.request.user.usuario_planta.values_list("planta", flat=True))
+                context['plantas'] = Planta.objects.filter(complejo__pk = self.request.GET.get('complejo'), pk__in=self.request.user.usuario_planta.values_list("planta", flat=True))
             else:
                 context['plantas'] = Planta.objects.all()
+
+            print(context['plantas'])
 
         context['tag'] = self.request.GET.get('tag', '')
         context['descripcion'] = self.request.GET.get('descripcion', '')
