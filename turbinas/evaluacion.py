@@ -2,7 +2,7 @@
 Funciones contenedoras de la lógica de evaluación de turbinas.
 '''
 
-from calculos.termodinamicos import calcular_entalpia_coolprop, calcular_fase_coolprop, definicion_fases_coolprop, calcular_densidad_coolprop
+from calculos.termodinamicos import calcular_entalpia_coolprop, calcular_fase_coolprop, definicion_fases_coolprop
 from auxiliares.evaluacion import calcular_eficiencia
 
 def determinar_flujos_corrientes(corrientes: list, corrientes_diseno: list, flujo_entrada: float) -> list:
@@ -88,7 +88,6 @@ def evaluar_turbina(flujo_entrada: float, potencia: float, corrientes: list, cor
         potencia: float -> Potencia real del generador (W)
         corrientes: list -> Lista de las corrientes con diccionarios 'presion' (Pa) y 'temperatura' (K)
         corrientes_diseno: list -> Lista de las corrientes de diseño con diccionarios con sus flujos en una misma unidad.
-        volumetrico: bool -> Indica si el flujo es volumétrico en las corrientes de entrada
 
     Salida:
         dict -> Resultados de la evaluación generales y por corriente. Todo en unidades del SI.
