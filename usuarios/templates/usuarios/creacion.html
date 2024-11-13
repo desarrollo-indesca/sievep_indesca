@@ -59,11 +59,23 @@
                     <input type="checkbox" name="superusuario" class="form-check-input" id="superusuario" height="200px" width="200px"
                     {% if previo.superusuario %}checked{%endif%}>
                     &nbsp;
-                    <div><label class="form-label" for="superusuario">Superusuario</label></div>
+                    <div><label class="form-label" for="superusuario">Superusuario</label></div>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <input type="checkbox" name="editor" id="check-selector" class="form-check-input"> Editor <br>
                 </div>
             </div>
         </div>
     
+        <hr>
+        <h4 class="text-center">Permisos de acceso por Planta</h4>
+        {% for complejo in complejos %}
+        <br>
+        <h5>{{complejo}}</h5>
+        {% for planta in complejo.plantas.all %}
+        <input type="checkbox" name="planta-{{planta.pk}}" value="{{planta.pk}}" id="check-{{planta.pk}}" class="form-check-input" {% if planta.pk in previo.plantas or previo.superusuario %}checked{% endif %}> {{planta}} <br>
+        {% endfor %}
+        {% endfor %}
+
         <hr>
         
         <div class="d-flex justify-content-center mb-3">

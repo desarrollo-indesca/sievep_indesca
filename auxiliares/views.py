@@ -134,31 +134,7 @@ class CargarBombaMixin():
         else:
             bomba = bomba_q
 
-        if(prefetch):
-            bomba = bomba.select_related(
-            'instalacion_succion', 'instalacion_descarga', 'creado_por','editado_por','planta','tipo_bomba','detalles_motor','especificaciones_bomba',
-            'detalles_construccion','condiciones_diseno', 'condiciones_diseno__condiciones_fluido',
-
-            'condiciones_diseno__presion_unidad', 'condiciones_diseno__npsha_unidad', 'condiciones_diseno__capacidad_unidad',
-
-            'condiciones_diseno__condiciones_fluido__temperatura_unidad', 'condiciones_diseno__condiciones_fluido__densidad_unidad',
-            'condiciones_diseno__condiciones_fluido__presion_vapor_unidad', 'condiciones_diseno__condiciones_fluido__viscosidad_unidad',
-            'condiciones_diseno__condiciones_fluido__concentracion_unidad', 'condiciones_diseno__condiciones_fluido__fluido',
-            'instalacion_succion__elevacion_unidad', 'instalacion_succion__usuario',
-            'instalacion_descarga__elevacion_unidad', 'instalacion_descarga__usuario',
-
-            'especificaciones_bomba__velocidad_unidad', 'especificaciones_bomba__potencia_unidad',
-            'especificaciones_bomba__npshr_unidad', 'especificaciones_bomba__cabezal_unidad',
-            'especificaciones_bomba__id_unidad',
-
-            'detalles_construccion__tipo_carcasa1', 'detalles_construccion__tipo_carcasa2',
-            'detalles_construccion__tipo',
-
-            'detalles_motor__potencia_motor_unidad','detalles_motor__velocidad_motor_unidad',
-            'detalles_motor__voltaje_unidad', 'detalles_motor__frecuencia_unidad',
-
-            'planta__complejo',
-            )
+        if(prefetch):            
             bomba = bomba.prefetch_related(
                 Prefetch('instalacion_succion__tuberias', 
                             queryset=TuberiaInstalacionBomba.objects.select_related(

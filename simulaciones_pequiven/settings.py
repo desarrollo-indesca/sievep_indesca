@@ -20,14 +20,13 @@ from django_auth_ldap.config import LDAPSearch, ActiveDirectoryGroupType
 from .jobs import start_deleting_job
 
 # CONFIGURACIÓN DE LDAP
-
 AUTH_LDAP_GLOBAL_OPTIONS = {
     ldap.OPT_X_TLS_REQUIRE_CERT: True,
     ldap.OPT_X_TLS_DEMAND: True,
     ldap.OPT_REFERRALS: 0,
     ldap.OPT_X_TLS_CACERTFILE: '/etc/ssl/certs/mycertfile.pem'
 }
-AUTH_LDAP_SERVER_URI = 'ldap://172.20.30.109'
+AUTH_LDAP_SERVER_URI = 'ldap://172.20.30.135'
 AUTH_LDAP_BIND_DN = "CN=bind,CN=Users,DC=indesca,DC=local"
 AUTH_LDAP_BIND_PASSWORD = "indesca2024+"
 
@@ -57,6 +56,7 @@ AUTH_LDAP_GROUP_CACHE_TIMEOUT = 1  # 1 hour cache
 
 AUTH_LDAP_MIRROR_GROUPS = True
 AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
     "django_auth_ldap.backend.LDAPBackend",
 ]
 
