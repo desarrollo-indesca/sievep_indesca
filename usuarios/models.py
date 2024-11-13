@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from intercambiadores.models import Planta
 import uuid
 
 # Create your models here.
@@ -10,6 +11,10 @@ TIPOS_PREGUNTAS = [
     ('3', 'TEXTO'),
     ('4', '1 AL 5'),
 ]
+
+class PlantaAccesible(models.Model):
+    usuario = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="usuario_planta")
+    planta = models.ForeignKey(Planta, on_delete=models.CASCADE, related_name="planta_usuario")
 
 class Encuesta(models.Model):
     """

@@ -20,7 +20,7 @@ def conseguir_largo(tupla : tuple, valor : str) -> str:
         if(x[0] == valor):
             return x[1]
     
-    return None
+    return '-'
 
 def fluido_existe(cas: str):
     '''
