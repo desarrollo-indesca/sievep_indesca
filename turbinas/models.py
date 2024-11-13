@@ -17,6 +17,7 @@ FASES_POSIBLES = (
     ('S', 'Vapor Saturado'),
     ('V', 'Vapor'),
     ('L', 'Líquido'),
+    ('F', 'Fluido Supercrítico')
 )
 
 class DatosCorrientes(models.Model):

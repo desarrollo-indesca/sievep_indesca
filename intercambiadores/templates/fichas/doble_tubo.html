@@ -283,6 +283,9 @@
         <div class="modal-footer">
           {% if request.user.is_superuser %}
           <a href="{% url 'editar_doble_tubo' pk=intercambiador.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+          {% endif %}
+
+          {% if editor %}
           <form action="{% url 'duplicar_intercambiador' pk=intercambiador.intercambiador.pk %}" method="post">
             {% csrf_token %}
             <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>

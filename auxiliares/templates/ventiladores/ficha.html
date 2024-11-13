@@ -228,7 +228,10 @@
         <div class="modal-footer">
           {% if request.user.is_superuser %}
           <a href="{% url 'edicion_ventilador' pk=ventilador.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
-          <form action="{% url 'duplicar_ventilador' pk=ventilador.pk %}" method="post">
+          {% endif %}
+
+          {% if editor %}
+          <form action="{% url 'duplicar_ventilador' pk=ventilador.pk %}" method="post" name="duplicacion">
             {% csrf_token %}
             <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>
           </form>
