@@ -119,6 +119,9 @@
             lecturaCheckbox.addEventListener('change', function() {
                 otherCheckboxes.forEach(checkbox => {
                     checkbox.disabled = !lecturaCheckbox.checked;
+                    if (!lecturaCheckbox.checked) {
+                        checkbox.checked = false;
+                    }
                 });
             });
 
