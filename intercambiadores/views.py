@@ -277,7 +277,7 @@ class EdicionIntercambiadorMixin(ObtencionParametrosMixin):
 
         if(fluido != ''):
             condicion.fluido_etiqueta = fluido[0] if type(fluido) != Fluido else None
-        print(cp_gas, cp_liquido)
+
         condicion.save()          
 
 class CreacionIntercambiadorMixin(ObtencionParametrosMixin):
@@ -825,7 +825,7 @@ class CrearIntercambiadorTuboCarcasa(PuedeCrear, CreacionIntercambiadorMixin, Vi
 
         return render(request, self.template_name, context=self.context)
 
-class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionIntercambiadorMixin):
+class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, LoginRequiredMixin, EdicionIntercambiadorMixin):
     """
     Resumen:
         Vista de Edición (Formulario) de un intercambiador tubo/carcasa. 
@@ -1508,7 +1508,7 @@ class CrearIntercambiadorDobleTubo(CrearIntercambiadorTuboCarcasa):
             errores.append('Ha ocurrido un error desconocido al registrar el intercambiador. Verifique los datos ingresados.')
             return self.redirigir_por_errores(request, errores)
 
-class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, EdicionIntercambiadorMixin):
+class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, LoginRequiredMixin, EdicionIntercambiadorMixin):
     """
     Resumen:
         Vista de Edición (Formulario) de un intercambiador tubo/carcasa. 

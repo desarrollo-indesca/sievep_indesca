@@ -6,12 +6,13 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.views.generic import ListView
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from django.contrib import messages
 from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion, ReportesFichasMixin, FiltrarEvaluacionesMixin, DuplicateView
 from simulaciones_pequiven.utils import generate_nonexistent_tag
 
-from usuarios.views import SuperUserRequiredMixin, EditorRequiredMixin
+from usuarios.views import PuedeCrear
+from usuarios.models import PlantaAccesible
 from calculos.unidades import *
 from calculos.termodinamicos import calcular_presion_vapor
 from .evaluacion import evaluar_turbina
@@ -36,29 +37,9 @@ class ObtenerTurbinaVaporMixin():
             turbina = turbina_q
 
         turbina = turbina.select_related(
-            'generador_electrico', 
-            'generador_electrico__ciclos_unidad',
-            'generador_electrico__potencia_real_unidad',
-            'generador_electrico__potencia_aparente_unidad',
-            'generador_electrico__velocidad_unidad',
-            'generador_electrico__corriente_electrica_unidad',
-            'generador_electrico__voltaje_unidad',
-            
-            'planta', 'planta__complejo',
-            'creado_por', 'editado_por',
-            
-            'especificaciones', 
-            'especificaciones__potencia_unidad',
-            'especificaciones__velocidad_unidad',
-            'especificaciones__presion_entrada_unidad',
-            'especificaciones__temperatura_entrada_unidad',
-            'especificaciones__contra_presion_unidad',
-            
-            'datos_corrientes',
-            'datos_corrientes__flujo_unidad',            
-            'datos_corrientes__entalpia_unidad',            
-            'datos_corrientes__presion_unidad',
-            'datos_corrientes__temperatura_unidad' 
+            'generador_electrico', 'planta', 'planta__complejo',
+            'creado_por', 'editado_por', 'especificaciones', 
+            'datos_corrientes'
         )
 
         turbina = turbina.prefetch_related(
@@ -124,12 +105,24 @@ class ConsultaTurbinasVapor(FiltradoSimpleMixin, ObtenerTurbinaVaporMixin, Login
         if(request.POST.get('tipo') == 'xlsx'): # reporte de turbinas de vapor en XLSX
             return reporte_equipos(request, self.get_queryset(), 'Listado de Turbinas de Vapor', 'listado_turbinas_vapor')
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['permisos'] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+        }
+
+        return context
+
     def get_queryset(self):
         new_context = self.get_turbina(self.filtrar_equipos())
 
         return new_context
     
-class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
+class CreacionTurbinaVapor(PuedeCrear, View):
     """
     Resumen:
         Vista para la creación o registro de nuevas turbinas de vapor.
@@ -282,7 +275,7 @@ class CreacionTurbinaVapor(SuperUserRequiredMixin, View):
                 'error': "Ocurrió un error desconocido al momento de almacenar la turbina de vapor. Revise los datos e intente de nuevo."
             })
 
-class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
+class EdicionTurbinaVapor(CreacionTurbinaVapor, LoginRequiredMixin, ObtenerTurbinaVaporMixin):
     """
     Resumen:
         Vista para la edición de turbinas de vapor.
@@ -314,6 +307,15 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, ObtenerTurbinaVaporMixin):
             'titulo': self.titulo,
             'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
         }
+
+    def get(self, request, **kwargs):
+        res = super().get(request, **kwargs)
+        planta = self.get_turbina(False).planta.pk
+
+        if(self.request.user.usuario_planta.filter(usuario = request.user, planta = planta, edicion = True).exists()):
+            return res
+        else:
+            return HttpResponseForbidden()
 
     def post(self, request, pk):
         turbina = self.get_turbina()
@@ -666,22 +668,26 @@ class GenerarGraficaTurbina(LoginRequiredMixin, View, FiltrarEvaluacionesMixin):
 
         return JsonResponse(res[:15], safe=False)
     
-class DuplicarTurbinaVapor(EditorRequiredMixin, ObtenerTurbinaVaporMixin, DuplicateView):
+class DuplicarTurbinaVapor(LoginRequiredMixin, ObtenerTurbinaVaporMixin, DuplicateView):
     def post(self, request, pk):
-        with transaction.atomic():
-            turbina = self.get_turbina()
-            turbina_tag = turbina.tag
-            turbina.generador_electrico = self.copy(turbina.generador_electrico)
-            turbina.especificaciones = self.copy(turbina.especificaciones)
-            datos_corrientes = self.copy(turbina.datos_corrientes)
+        turbina = self.get_turbina()
 
-            for corriente in turbina.datos_corrientes.corrientes.all():
-                corriente.datos_corriente = datos_corrientes
-                self.copy(corriente) 
+        if PlantaAccesible.objects.filter(usuario = request.user, planta = turbina.planta, duplicacion = True).exists():
+            with transaction.atomic():                
+                turbina_tag = turbina.tag
+                turbina.generador_electrico = self.copy(turbina.generador_electrico)
+                turbina.especificaciones = self.copy(turbina.especificaciones)
+                datos_corrientes = self.copy(turbina.datos_corrientes)
 
-            turbina.datos_corrientes = datos_corrientes       
-            turbina.copia = True
-            turbina.tag = generate_nonexistent_tag(TurbinaVapor, turbina_tag)
-            self.copy(turbina)
-            messages.add_message(request, messages.SUCCESS, f'Turbina {turbina_tag} duplicada exitosamente en la turbina {turbina.tag}. Recuerde que todas las copias son eliminadas diariamente a las 6:00am.')
-            return redirect('/turbinas/vapor/')
+                for corriente in turbina.datos_corrientes.corrientes.all():
+                    corriente.datos_corriente = datos_corrientes
+                    self.copy(corriente) 
+
+                turbina.datos_corrientes = datos_corrientes       
+                turbina.copia = True
+                turbina.tag = generate_nonexistent_tag(TurbinaVapor, turbina_tag)
+                self.copy(turbina)
+                messages.add_message(request, messages.SUCCESS, f'Turbina {turbina_tag} duplicada exitosamente en la turbina {turbina.tag}. Recuerde que todas las copias son eliminadas diariamente a las 6:00am.')
+                return redirect('/turbinas/vapor/')
+        else:
+            return HttpResponseForbidden()

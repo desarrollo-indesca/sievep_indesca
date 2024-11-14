@@ -39,7 +39,6 @@ class EditorRequiredMixin(UserPassesTestMixin):
     def test_func(self):
         return self.request.user.is_superuser or self.request.user.groups.filter(name='editor').exists()
 
-
 class ConsultaUsuarios(SuperUserRequiredMixin, ListView):
     """
     Resumen:
