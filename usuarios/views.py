@@ -253,19 +253,18 @@ class EditarUsuario(SuperUserRequiredMixin, View):
                 ids = []
                 for key in request.POST.keys():
                     if key.startswith('planta-'):
-                        print(key)
                         planta_id = key.split('-')[1]
                         ids.append(planta_id)
 
                 plantas = Planta.objects.filter(pk__in = ids)
-                print(plantas)
 
                 for planta in plantas:
-                    print(planta)
-                    PlantaAccesible.objects.create(planta=planta, usuario=usuario)
-
-                if('editor' in request.POST.keys()):
-                    usuario.groups.add(Group.objects.get(name='editor'))
+                    planta_accesible = PlantaAccesible.objects.create(planta=planta, usuario=usuario)
+                    planta_accesible.crear = f"crear-{planta.pk}" in request.POST.keys()
+                    planta_accesible.edicion = f"editar-{planta.pk}" in request.POST.keys()
+                    planta_accesible.edicion_instalacion = f"instalacion-{planta.pk}" in request.POST.keys()
+                    planta_accesible.duplicacion = f"duplicacion-{planta.pk}" in request.POST.keys()
+                    planta_accesible.save()
 
                 usuario.save()
 
@@ -277,13 +276,17 @@ class EditarUsuario(SuperUserRequiredMixin, View):
     
     def get(self, request, pk):
         usuario = self.modelo.objects.get(pk=pk)
+        plantas = usuario.usuario_planta.all()
         previo = {
             'nombre': usuario.first_name,
             'correo': usuario.email,
             'superusuario': usuario.is_superuser,
             'activo': usuario.is_active,
-            'editor': usuario.groups.filter(name='editor').exists(),
-            'plantas': [planta.planta.pk for planta in usuario.usuario_planta.all()],
+            'plantas': [planta.planta.pk for planta in plantas],
+            'creaciones': [planta.planta.pk for planta in plantas.filter(crear = True)],
+            'ediciones': [planta.planta.pk for planta in plantas.filter(edicion = True)],
+            'ediciones_instalacion': [planta.planta.pk for planta in plantas.filter(edicion_instalacion = True)],
+            'duplicaciones': [planta.planta.pk for planta in plantas.filter(duplicacion = True)],
         }
 
         return render(request, 'usuarios/creacion.html', context={'previo': previo, 'edicion': True, 'complejos': Complejo.objects.prefetch_related('plantas').all(), **self.context})
@@ -489,3 +492,7 @@ def graficas_encuestas(request):
                     questions[question][str(j)] = 0
 
     return JsonResponse(questions)
+
+class PuedeCrear(LoginRequiredMixin):
+    def test_func(self):
+        return self.request.user.usuario_planta.filter(crear = True).exists()
