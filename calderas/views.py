@@ -135,8 +135,6 @@ class ConsultaCalderas(FiltradoSimpleMixin, ReportesFichasCalderasMixin, CargarC
             'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
         }
 
-        print(context)
-
         return context
 
     def get_queryset(self):        
@@ -407,7 +405,9 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera, LoginRequiredMixin):
 
     def get(self, request, **kwargs):
         res = super().get(request, **kwargs)
-        planta = self.get_caldera(False, False).planta.pk
+        planta = self.get_caldera(False, False).planta
+
+        print()
 
         if(self.request.user.usuario_planta.filter(usuario = request.user, planta = planta, edicion = True).exists()):
             return res
