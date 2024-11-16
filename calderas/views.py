@@ -409,7 +409,7 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera, LoginRequiredMixin):
 
         print()
 
-        if(self.request.user.usuario_planta.filter(usuario = request.user, planta = planta, edicion = True).exists()):
+        if(self.request.user.is_superuser or self.request.user.usuario_planta.filter(usuario = request.user, planta = planta, edicion = True).exists()):
             return res
         else:
             return HttpResponseForbidden()
@@ -688,7 +688,12 @@ class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, Reporte
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['equipo'] = self.get_caldera(True, False)
-        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+        context["permisos"] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+        }
 
         return context
 
@@ -797,7 +802,12 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
         context['forms'] = self.make_forms(context['equipo'], composiciones, corrientes)
         context['unidades'] = unidades
         context['fluidos_composiciones'] = COMPUESTOS_AIRE
-        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+        context["permisos"] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+        }
 
         return context
 
@@ -1108,7 +1118,7 @@ class DuplicarCaldera(CargarCalderasMixin, DuplicateView):
             "caracteristicas_caldera", "corrientes_caldera"
         ).get(pk=pk)
 
-        if(PlantaAccesible.objects.filter(usuario = request.user, planta = caldera_original.planta, duplicacion = True).exists()):
+        if(self.request.user.is_superuser or PlantaAccesible.objects.filter(usuario = request.user, planta = caldera_original.planta, duplicacion = True).exists()):
             caldera = caldera_original
             caldera.copia = True
             caldera.tag = generate_nonexistent_tag(Caldera, caldera.tag)

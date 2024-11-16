@@ -312,7 +312,7 @@ class EdicionTurbinaVapor(CreacionTurbinaVapor, LoginRequiredMixin, ObtenerTurbi
         res = super().get(request, **kwargs)
         planta = self.get_turbina(False).planta.pk
 
-        if(self.request.user.usuario_planta.filter(usuario = request.user, planta = planta, edicion = True).exists()):
+        if(self.request.user.is_superuser or self.request.user.usuario_planta.filter(usuario = request.user, planta = planta, edicion = True).exists()):
             return res
         else:
             return HttpResponseForbidden()
@@ -418,7 +418,12 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinaVaporMixi
         context = super().get_context_data(**kwargs)
         context['equipo'] = self.get_turbina()
         context['tipo'] = self.tipo
-        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+        context["permisos"] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+        }
 
         return context
 
@@ -458,7 +463,12 @@ class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTur
             'formset_entrada_corriente': self.generar_formset_entrada_corrientes(turbina),
             'titulo': "Evaluación de Turbina de Vapor",
             'unidades': Unidades.objects.all().values('pk','simbolo','tipo'),
-            "editor": self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+            "permisos": {
+                'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+                'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+                'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+                'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+            }
         }
 
         return context
@@ -672,7 +682,7 @@ class DuplicarTurbinaVapor(LoginRequiredMixin, ObtenerTurbinaVaporMixin, Duplica
     def post(self, request, pk):
         turbina = self.get_turbina()
 
-        if PlantaAccesible.objects.filter(usuario = request.user, planta = turbina.planta, duplicacion = True).exists():
+        if(PlantaAccesible.objects.filter(usuario = request.user, planta = turbina.planta, duplicacion = True).exists() or request.user.is_superuser):
             with transaction.atomic():                
                 turbina_tag = turbina.tag
                 turbina.generador_electrico = self.copy(turbina.generador_electrico)

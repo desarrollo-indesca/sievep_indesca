@@ -943,7 +943,7 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, LoginRequi
         self.context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
         intercambiador = self.context['intercambiador'].intercambiador
         
-        if(PlantaAccesible.objects.filter(usuario = request.user, planta = intercambiador.planta, edicion = True).exists()):
+        if(request.user.is_superuser or PlantaAccesible.objects.filter(usuario = request.user, planta = intercambiador.planta, edicion = True).exists()):
             self.context['complejos'] = Complejo.objects.all()
             self.context['tipos'] = TiposDeTubo.objects.all()
             self.context['plantas'] = Planta.objects.all()
@@ -1629,7 +1629,7 @@ class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, LoginRequiredM
         self.context['intercambiador'] = PropiedadesDobleTubo.objects.get(pk=pk)
         intercambiador = self.context['intercambiador'].intercambiador
         
-        if(PlantaAccesible.objects.filter(usuario = request.user, planta = intercambiador.planta, edicion = True).exists()):
+        if(request.user.is_superuser or PlantaAccesible.objects.filter(usuario = request.user, planta = intercambiador.planta, edicion = True).exists()):
             self.context['complejos'] = Complejo.objects.all()
             self.context['tipos'] = TiposDeTubo.objects.all()
             self.context['plantas'] = Planta.objects.filter(complejo__pk=1)
@@ -1915,7 +1915,12 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
             context['fluido_tubo'] =  context['intercambiador'].fluido_in if context['intercambiador'].fluido_in else context['condicion_tubo'].fluido_etiqueta
         
         context['titulo'] += intercambiador.tipo.nombre.title()
-        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+        context["permisos"] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+        }
 
         return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
 
@@ -1996,7 +2001,12 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
         context['desde'] = self.request.GET.get('desde', '')
         context['hasta'] = self.request.GET.get('hasta')
         context['usuario'] = self.request.GET.get('usuario','')
-        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+        context["permisos"] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+        }
 
         return context
     
@@ -2435,7 +2445,7 @@ class DuplicarIntercambiador(DuplicateView):
             'datos_tubo_carcasa', 'datos_dobletubo', 'condiciones'
         ).get(pk=pk)
         
-        if(PlantaAccesible.objects.filter(usuario = request.user, planta = intercambiador_previo.planta, duplicacion = True).exists()):
+        if(request.user.is_superuser or PlantaAccesible.objects.filter(usuario = request.user, planta = intercambiador_previo.planta, duplicacion = True).exists()):
             with transaction.atomic():
                 intercambiador_previo.creado_por = request.user
                 intercambiador_previo.copia = True

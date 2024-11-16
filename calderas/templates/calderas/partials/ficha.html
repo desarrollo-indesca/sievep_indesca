@@ -363,7 +363,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        {% if request.user.is_superuser or caldera.planta.pk in permisos.edicion_instalacion %}
+        {% if request.user.is_superuser or caldera.planta.pk in permisos.instalaciones %}
         <a href="{% url 'registro_adicionales_caldera' pk=caldera.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
         
         <form action="{% url 'duplicar_caldera' pk=caldera.pk %}" method="post">

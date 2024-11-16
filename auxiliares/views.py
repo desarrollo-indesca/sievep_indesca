@@ -497,7 +497,7 @@ class EdicionBomba(CargarBombaMixin, CreacionBomba, LoginRequiredMixin):
         res = super().get(request, **kwargs)
         planta = self.get_bomba(False, False).planta
 
-        if(self.request.user.usuario_planta.filter(usuario = request.user, planta = planta, edicion = True).exists()):
+        if(self.request.user.is_superuser or self.request.user.usuario_planta.filter(usuario = request.user, planta = planta, edicion = True).exists()):
             return res
         else:
             return HttpResponseForbidden()
@@ -654,7 +654,7 @@ class CreacionInstalacionBomba(LoginRequiredMixin, View, CargarBombaMixin):
     def get(self, request, **kwargs):
         context = self.get_context()
 
-        if(request.user.usuario_planta.filter(planta = context['bomba'].planta, edicion_instalacion = True).exists()):
+        if(request.user.is_superuser or request.user.usuario_planta.filter(planta = context['bomba'].planta, edicion_instalacion = True).exists()):
             return render(request, self.template_name, context=context)
         else:
             return HttpResponseForbidden()
@@ -746,7 +746,12 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion, CargarBombaMixin, ReportesFich
     def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
         context = super().get_context_data(**kwargs)
         context['equipo'] = self.get_bomba()
-        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+        context["permisos"] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+        }
 
         return context
 
@@ -1011,6 +1016,13 @@ class CreacionEvaluacionBomba(LoginRequiredMixin, View, CargarBombaMixin, Report
             'titulo': "Evaluación de Bomba",
             "unidades": Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
             "editor": self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+        }
+
+        context["permisos"] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
         }
 
         return context
@@ -1483,7 +1495,7 @@ class EdicionVentilador(CreacionVentilador, ObtenerVentiladorMixin):
     def get(self, request, **kwargs):
         res = super().get(request, **kwargs)
 
-        if(request.user.usuario_planta.filter(planta = self.get_ventilador().planta, edicion = True).exists()):
+        if(self.request.user.is_superuser or request.user.usuario_planta.filter(planta = self.get_ventilador().planta, edicion = True).exists()):
             return res
         else:
             return HttpResponseForbidden()
@@ -1597,6 +1609,12 @@ class ConsultaEvaluacionVentilador(ConsultaEvaluacion, ObtenerVentiladorMixin, R
         context = super().get_context_data(**kwargs)
         context['equipo'] = self.get_ventilador()
         context['tipo'] = self.tipo
+        context["permisos"] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+        }
 
         return context
 
@@ -1636,7 +1654,12 @@ class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
             }),
             'titulo': "Evaluación de Ventilador",
             'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
-            "editor":self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+            "permisos": {
+                'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+                'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+                'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+                'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+            }
         }
 
         return context
@@ -1894,9 +1917,20 @@ class ConsultaPrecalentadoresAgua(ObtenerPrecalentadorAguaMixin, FiltradoSimpleM
             return reporte_equipos(request, self.get_queryset(), 'Listado de Precalentadores de Agua', 'listado_precalentadores')
 
     #TODO COLOCAR PERMISOS
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["permisos"] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+        }
+
+        return context
 
     def get_queryset(self):
         new_context = self.get_precalentador(self.filtrar_equipos())
+        
         return new_context   
 
 class CreacionPrecalentadorAgua(PuedeCrear, View):
@@ -2062,7 +2096,7 @@ class CreacionPrecalentadorAgua(PuedeCrear, View):
                     'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
                 })
 
-class EdicionPrecalentadorAgua(CreacionPrecalentadorAgua, ObtenerPrecalentadorAguaMixin):
+class EdicionPrecalentadorAgua(CreacionPrecalentadorAgua, LoginRequiredMixin, ObtenerPrecalentadorAguaMixin):
     '''
     Resumen:
         Vista para la edición de un precalentador de agua. Sigue la misma lógica que la creación pero envía un contexto con las instancias previas. 
@@ -2085,13 +2119,19 @@ class EdicionPrecalentadorAgua(CreacionPrecalentadorAgua, ObtenerPrecalentadorAg
             'form_especs_drenaje': EspecificacionesPrecalentadorAguaForm(instance=especificaciones.get(tipo="D"), prefix=self.prefix_especs_drenaje, initial={'tipo':'D'}),
             'titulo': self.titulo,
             'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
-            'edicion': True
+            'edicion': True,
+            "permisos": {
+                'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+                'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+                'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+                'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+            }
         }
     
     def get(self, request, **kwargs):
         res = super().get(request, **kwargs)
 
-        if(request.user.usuario_planta.filter(planta = self.get_ventilador().planta, edicion = True).exists()):
+        if(self.request.user.is_superuser or request.user.usuario_planta.filter(planta = self.get_precalentador().planta, edicion = True).exists()):
             return res
         else:
             return HttpResponseForbidden()
@@ -2205,7 +2245,12 @@ class ConsultaEvaluacionPrecalentadorAgua(ConsultaEvaluacion, ObtenerPrecalentad
         context = super().get_context_data(**kwargs)
         context['equipo'] = self.get_precalentador()
         context['tipo'] = self.tipo
-        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+        context["permisos"] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+        }
 
         return context
 
@@ -2247,11 +2292,10 @@ class CreacionCorrientesPrecalentadorAgua(ObtenerPrecalentadorAguaMixin, LoginRe
     def get(self, request, **kwargs):
         context = self.get_context_data()
 
-        if(request.user.usuario_planta.filter(planta = context['precalentador'].planta, edicion_instalacion = True).exists()):
+        if(self.request.user.is_superuser or request.user.usuario_planta.filter(planta = context['precalentador'].planta, edicion_instalacion = True).exists()):
             return render(request, self.template_name, context=context)
         else:
             return HttpResponseForbidden()
-
     
     def almacenar_datos(self, request):
         precalentador = self.get_precalentador()
@@ -2364,7 +2408,12 @@ class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorA
             'evaluacion': EvaluacionPrecalentadorAguaForm(),
             'unidades': Unidades.objects.all(),
             "titulo": f"Evaluación al precalentador {precalentador.tag}",
-            'editor': self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+           "permisos": {
+                'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+                'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+                'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+                'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+            }
         }
 
     def get(self, request, *args, **kwargs):
@@ -2629,7 +2678,17 @@ class ConsultaPrecalentadorAire(LoginRequiredMixin, ReportesFichasPrecalentadore
     paginate_by = 10
 
     def get_queryset(self):
-        return self.get_precalentador(self.filtrar_equipos())  
+        return self.get_precalentador(self.filtrar_equipos())
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["permisos"] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+        }
+        return context
 
     def post(self, request, *args, **kwargs):
         reporte_ficha = self.reporte_ficha(request)
@@ -2816,7 +2875,7 @@ class CreacionPrecalentadorAire(PuedeCrear, View):
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name, context=self.get_context_data())
 
-class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalentadorAire):
+class EdicionPrecalentadorAire(ObtenerPrecalentadorAireMixin, CreacionPrecalentadorAire, LoginRequiredMixin):
     '''
     Resumen:
         Vista para la edición de un precalentador de agua. Sigue la misma lógica que la creación pero envía un contexto con las instancias previas.
@@ -2962,7 +3021,12 @@ class ConsultaEvaluacionPrecalentadorAire(ConsultaEvaluacion, ReportesFichasPrec
         context = super().get_context_data(**kwargs)
         context['equipo'] = self.get_precalentador()
         context['tipo'] = self.tipo
-        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+        context["permisos"] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+        }
 
         return context
 
@@ -3079,7 +3143,12 @@ class EvaluarPrecalentadorAire(LoginRequiredMixin, ObtenerPrecalentadorAireMixin
         context['forms'] = self.get_forms(context['precalentador'])
         context['unidades'] = Unidades.objects.all().values('pk', 'simbolo', 'tipo')
         context['titulo'] = f"Evaluación de Precalentador de Aire {context['precalentador'].tag}"
-        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+        context["permisos"] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+        }
 
         return context
 
@@ -3285,7 +3354,7 @@ class DuplicarBomba(CargarBombaMixin, LoginRequiredMixin, DuplicateView):
             messages.success(request, f"Se ha creado la copia de la bomba {old_tag} como {bomba.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
             return redirect('/auxiliares/bombas/')
         else:
-            return
+            return HttpResponseForbidden()
 
 class DuplicarPrecalentadorAgua(ObtenerPrecalentadorAguaMixin, LoginRequiredMixin, DuplicateView):
     """
