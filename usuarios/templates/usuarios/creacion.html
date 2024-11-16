@@ -77,8 +77,10 @@
                     <th scope="col">Crear</th>
                     <th scope="col">Editar Ficha</th>
                     <th scope="col">Editar Instalación/Adicionales</th>
-                    <th scope="col">Eliminar Evaluaciones</th>
                     <th scope="col">Duplicación</th>
+                    <th scope="col">Ver Evaluaciones</th>
+                    <th scope="col">Crear Evaluaciones</th>
+                    <th scope="col">Eliminar Evaluaciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -89,8 +91,10 @@
                     <td><input type="checkbox" name="crear-{{planta.pk}}" value="1" class="form-check-input" id="check-crear-{{planta.pk}}" {% if planta.pk in previo.creaciones or previo.superusuario %}checked{% endif %}></td>
                     <td><input type="checkbox" name="editar-{{planta.pk}}" value="1" class="form-check-input" id="check-editar-{{planta.pk}}" {% if planta.pk in previo.ediciones or previo.superusuario %}checked{% endif %}></td>
                     <td><input type="checkbox" name="instalacion-{{planta.pk}}" value="1" class="form-check-input" id="check-instalacion-{{planta.pk}}" {% if planta.pk in previo.ediciones_instalacion or previo.superusuario %}checked{% endif %}></td>
-                    <td><input type="checkbox" name="evaluaciones-{{planta.pk}}" value="1" class="form-check-input" id="check-eliminacion-{{planta.pk}}" {% if planta.pk in previo.eliminaciones_instalacion or previo.superusuario %}checked{% endif %}></td>
                     <td><input type="checkbox" name="duplicacion-{{planta.pk}}" value="1" class="form-check-input" id="check-duplicacion-{{planta.pk}}" {% if planta.pk in previo.duplicaciones or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="evaluaciones-{{planta.pk}}" value="1" class="form-check-input" id="check-eliminacion-{{planta.pk}}" {% if planta.pk in previo.evaluaciones or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="crearevals-{{planta.pk}}" value="1" class="form-check-input" id="check-eliminacion-{{planta.pk}}" {% if planta.pk in previo.crear_evaluaciones or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="delevals-{{planta.pk}}" value="1" class="form-check-input" id="check-eliminacion-{{planta.pk}}" {% if planta.pk in previo.eliminar_evaluaciones or previo.superusuario %}checked{% endif %}></td>                    
                 </tr>
                 {% endfor %}
             </tbody>
