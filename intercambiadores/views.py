@@ -1032,7 +1032,10 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ConsultaIntercambiador):
             'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
             'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
             'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
-            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
+            'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
+            'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
+            'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
         }
 
         return context
@@ -1141,7 +1144,10 @@ class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
             'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
             'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
             'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
-            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
+            'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
+            'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
+            'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
         }
 
         return context
@@ -1919,7 +1925,10 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
             'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
             'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
             'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
-            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
+            'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
+            'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
+            'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
         }
 
         return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
@@ -1969,8 +1978,8 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
                 response['Content-Disposition'] = f'attachment; filename="reporte_evaluaciones_{intercambiador.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
                 return response
             
-        if(request.user.is_superuser): # Lógica de "Eliminación"
-            evaluacion = EvaluacionesIntercambiador.objects.get(pk=request.POST['evaluacion'])
+        evaluacion = EvaluacionesIntercambiador.objects.get(pk=request.POST['evaluacion'])
+        if(request.user.is_superuser or request.user.usuario_planta.filter(planta=evaluacion.intercambiador.planta, eliminar_evaluaciones=True).exists()): # Lógica de "Eliminación"
             evaluacion.visible = False
             evaluacion.save()
             messages.success(request, "Evaluación eliminada exitosamente.")
@@ -2005,7 +2014,10 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
             'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
             'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
             'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
-            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
+            'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
+            'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
+            'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
         }
 
         return context

@@ -15,7 +15,9 @@
     <td>{{generales.planta.complejo}}</td>
     <td>{{generales.servicio}}</td>
     <td>
+      {% if request.user.is_superuser or generales.planta.pk in permisos.evaluaciones %}
       <a class="btn btn-danger" href="{% url 'consulta_evaluaciones' pk=intercambiador.intercambiador.pk %}"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
+      {%endif%}
     </td>
     <td>
       {% include 'fichas/tubo_carcasa.html' %}

@@ -118,12 +118,27 @@
         const rows = document.querySelectorAll('table tbody tr');
         rows.forEach(row => {
             const lecturaCheckbox = row.querySelector('input[name^="planta-"]');
-            const otherCheckboxes = row.querySelectorAll('input[type="checkbox"]:not([name^="planta-"])');
+            const lecturaEvaluacionCheckbox = row.querySelector('input[name^="evaluaciones-"]');
+            const otherCheckboxes = row.querySelectorAll('input[type="checkbox"]:not([name^="planta-"]):not(input[type="checkbox"][name^="crearevals-"]):not(input[type="checkbox"][name^="delevals-"])');
+            const evaluacionCheckboxes = row.querySelectorAll('input[type="checkbox"][name^="crearevals-"], input[type="checkbox"][name^="delevals-"]');
 
             lecturaCheckbox.addEventListener('change', function() {
                 otherCheckboxes.forEach(checkbox => {
                     checkbox.disabled = !lecturaCheckbox.checked;
                     if (!lecturaCheckbox.checked) {
+                        checkbox.checked = false;
+                        evaluacionCheckboxes.forEach(checkbox => {
+                            checkbox.disabled = true;
+                            checkbox.checked = false;
+                        })
+                    }
+                });
+            });
+
+            lecturaEvaluacionCheckbox.addEventListener('change', function() {
+                evaluacionCheckboxes.forEach(checkbox => {
+                    checkbox.disabled = !lecturaEvaluacionCheckbox.checked;
+                    if (!lecturaEvaluacionCheckbox.checked) {
                         checkbox.checked = false;
                     }
                 });
@@ -132,7 +147,33 @@
             otherCheckboxes.forEach(checkbox => {
                 checkbox.disabled = !lecturaCheckbox.checked;
             });
+
+            evaluacionCheckboxes.forEach(checkbox => {
+                checkbox.disabled = !lecturaEvaluacionCheckbox.checked;
+            });
+        });
+
+        document.querySelector('input[name="superusuario"]').addEventListener('change', function() {
+            const allCheckboxes = document.querySelectorAll('input[type="checkbox"]:not([name^="planta-"]):not([name="activo"]):not([name="superusuario"])');
+            const lecturaCheckboxes = document.querySelectorAll('input[name^="planta-"]');
+            if (this.checked) {
+                allCheckboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                    checkbox.disabled = false;
+                });
+            } else {
+                allCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                    checkbox.disabled = true;
+                });
+                lecturaCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                    checkbox.disabled = false;
+                });
+            }
         });
     });
+
+        
 </script>
 {% endblock %}
