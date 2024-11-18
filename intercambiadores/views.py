@@ -1902,36 +1902,39 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
         context = self.context
         intercambiador = Intercambiador.objects.get(pk=pk)
 
-        context['intercambiador'] = intercambiador.intercambiador()
+        if(request.user.is_superuser or intercambiador.planta.pk in self.request.user.usuario_planta.filter(planta=intercambiador.planta, crear_evaluaciones = True).values_list('planta__pk', flat=True)):
+            context['intercambiador'] = intercambiador.intercambiador()
 
-        context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
-        context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
-        context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
-        context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
+            context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
+            context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
+            context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
+            context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
 
-        if(intercambiador.tipo.pk == 1):
-            context['condicion_carcasa'] = context['intercambiador'].condicion_carcasa()
-            context['condicion_tubo'] = context['intercambiador'].condicion_tubo()
-            context['fluido_carcasa'] =  context['intercambiador'].fluido_carcasa if context['intercambiador'].fluido_carcasa else context['condicion_carcasa'].fluido_etiqueta
-            context['fluido_tubo'] =  context['intercambiador'].fluido_tubo if context['intercambiador'].fluido_tubo else context['condicion_tubo'].fluido_etiqueta
-        elif(intercambiador.tipo.pk == 2):
-            context['condicion_carcasa'] = context['intercambiador'].condicion_externo()
-            context['condicion_tubo'] = context['intercambiador'].condicion_interno()
-            context['fluido_carcasa'] =  context['intercambiador'].fluido_ex if context['intercambiador'].fluido_ex else context['condicion_carcasa'].fluido_etiqueta
-            context['fluido_tubo'] =  context['intercambiador'].fluido_in if context['intercambiador'].fluido_in else context['condicion_tubo'].fluido_etiqueta
-        
-        context['titulo'] += intercambiador.tipo.nombre.title()
-        context["permisos"] = {
-            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
-            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
-            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
-            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
-            'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
-            'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
-            'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
-        }
+            if(intercambiador.tipo.pk == 1):
+                context['condicion_carcasa'] = context['intercambiador'].condicion_carcasa()
+                context['condicion_tubo'] = context['intercambiador'].condicion_tubo()
+                context['fluido_carcasa'] =  context['intercambiador'].fluido_carcasa if context['intercambiador'].fluido_carcasa else context['condicion_carcasa'].fluido_etiqueta
+                context['fluido_tubo'] =  context['intercambiador'].fluido_tubo if context['intercambiador'].fluido_tubo else context['condicion_tubo'].fluido_etiqueta
+            elif(intercambiador.tipo.pk == 2):
+                context['condicion_carcasa'] = context['intercambiador'].condicion_externo()
+                context['condicion_tubo'] = context['intercambiador'].condicion_interno()
+                context['fluido_carcasa'] =  context['intercambiador'].fluido_ex if context['intercambiador'].fluido_ex else context['condicion_carcasa'].fluido_etiqueta
+                context['fluido_tubo'] =  context['intercambiador'].fluido_in if context['intercambiador'].fluido_in else context['condicion_tubo'].fluido_etiqueta
+            
+            context['titulo'] += intercambiador.tipo.nombre.title()
+            context["permisos"] = {
+                'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+                'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+                'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+                'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
+                'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
+                'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
+                'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
+            }
 
-        return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
+            return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
+        else:
+            return HttpResponseForbidden()
 
 class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
     """
@@ -2023,11 +2026,14 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
         return context
     
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        try:    
-            return super().get(request, *args, **kwargs)
+        intercambiador = Intercambiador.objects.get(pk=self.kwargs['pk'])
+        try:
+            if(request.user.is_superuser or request.user.usuario_planta.filter(planta=intercambiador.planta, ver_evaluaciones=True).exists()):
+                return super().get(request, *args, **kwargs)
+            else:
+                raise Exception("No tiene permiso para acceder a este recurso.")
         except Exception as e:
             print(str(e))
-            intercambiador = Intercambiador.objects.get(pk=self.kwargs['pk'])
             messages.warning(request, f"No se pudo cargar la consulta de evaluaciones del intercambiador {intercambiador.tag}. Verificar correctitud de los datos de diseño.")
             if(request.user.is_superuser):
                 if(intercambiador.tipo.pk == 1):

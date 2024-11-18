@@ -9,9 +9,11 @@
   ">↶ Regresar</a></div>
   <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Evaluaciones de{{clase_equipo}} {{equipo.tag}}</h3></div>
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
+    {% if request.user.is_superuser or equipo.planta.pk in permisos.creacion_evaluaciones %}
     <a class="btn d-block btn-success" 
     href="{% url 'evaluacion_turbina_vapor' pk=equipo.pk %}"
     >+ Nueva</a> &nbsp;
+    {% endif %}
   </div>
 
   <script>

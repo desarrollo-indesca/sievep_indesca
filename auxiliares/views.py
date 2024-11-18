@@ -16,7 +16,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.views.generic import ListView
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseForbidden
 from django.contrib import messages
 from simulaciones_pequiven.views import FiltradoSimpleMixin, DuplicateView, ConsultaEvaluacion, ReportesFichasMixin, FiltrarEvaluacionesMixin
 from simulaciones_pequiven.unidades import PK_UNIDADES_FLUJO_MASICO
@@ -213,8 +213,6 @@ class ConsultaBombas(FiltradoSimpleMixin, CargarBombaMixin, LoginRequiredMixin, 
             'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
             'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
             'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
-            'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
-            'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
         }
         return context
 
@@ -690,7 +688,7 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion, CargarBombaMixin, ReportesFich
     template_name = "bombas/consulta_evaluaciones.html"
 
     def post(self, request, **kwargs):
-        if(request.user.is_superuser and request.POST.get('evaluacion')): # Lógica de "Eliminación"
+        if((request.user.is_superuser or request.user.usuario_planta.filter(planta = self.get_bomba().planta, eliminar_evaluaciones = True).exists()) and request.POST.get('evaluacion')): # Lógica de "Eliminación"
             evaluacion = EvaluacionBomba.objects.get(pk=request.POST['evaluacion'])
             evaluacion.activo = False
             evaluacion.save()
@@ -754,7 +752,6 @@ class ConsultaEvaluacionBomba(ConsultaEvaluacion, CargarBombaMixin, ReportesFich
             'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
             'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
             'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
-            'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
             'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
             'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
         }
@@ -1089,14 +1086,6 @@ class ObtenerVentiladorMixin():
 
         ventilador = ventilador.select_related('tipo_ventilador','condiciones_trabajo','condiciones_adicionales','condiciones_generales','especificaciones', 'planta', 
             'planta__complejo', 'creado_por', 'editado_por', 'especificaciones__espesor_unidad', 
-            'especificaciones__potencia_motor_unidad', 'especificaciones__velocidad_motor_unidad', 
-            'condiciones_generales__temp_ambiente_unidad', 'condiciones_generales__velocidad_diseno_unidad', 
-            'condiciones_trabajo__flujo_unidad', 'condiciones_trabajo__presion_unidad', 'condiciones_generales__presion_barometrica_unidad',
-            'condiciones_trabajo__velocidad_funcionamiento_unidad', 'condiciones_trabajo__temperatura_unidad',
-            'condiciones_trabajo__densidad_unidad', 'condiciones_trabajo__potencia_freno_unidad', 
-            'condiciones_adicionales__flujo_unidad', 'condiciones_adicionales__presion_unidad', 
-            'condiciones_adicionales__velocidad_funcionamiento_unidad', 'condiciones_adicionales__temperatura_unidad',
-            'condiciones_adicionales__densidad_unidad', 'condiciones_adicionales__potencia_freno_unidad'
         )
 
         if(not ventilador_q and ventilador):
@@ -1172,8 +1161,6 @@ class ConsultaVentiladores(LoginRequiredMixin, ObtenerVentiladorMixin, FiltradoS
             'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
             'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
             'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
-            'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
-            'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
         }
 
         return context
@@ -1587,7 +1574,7 @@ class ConsultaEvaluacionVentilador(ConsultaEvaluacion, ObtenerVentiladorMixin, R
         if(reporte_ficha):
             return reporte_ficha
             
-        if(request.user.is_superuser and request.POST.get('evaluacion')): # Lógica de "Eliminación"
+        if((request.user.is_superuser or request.user.usuario_planta.filter(planta = self.get_ventilador().planta, eliminar_evaluaciones = True).exists()) and request.POST.get('evaluacion')): # Lógica de "Eliminación"
             evaluacion = EvaluacionVentilador.objects.get(pk=request.POST['evaluacion'])
             evaluacion.activo = False
             evaluacion.save()
@@ -1626,7 +1613,6 @@ class ConsultaEvaluacionVentilador(ConsultaEvaluacion, ObtenerVentiladorMixin, R
             'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
             'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
             'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
-            'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
             'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
             'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
         }
@@ -1931,7 +1917,6 @@ class ConsultaPrecalentadoresAgua(ObtenerPrecalentadorAguaMixin, FiltradoSimpleM
         if(request.POST.get('tipo') == 'xlsx'): # reporte de precalentadores en XLSX
             return reporte_equipos(request, self.get_queryset(), 'Listado de Precalentadores de Agua', 'listado_precalentadores')
 
-    #TODO COLOCAR PERMISOS
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["permisos"] = {
@@ -1940,8 +1925,6 @@ class ConsultaPrecalentadoresAgua(ObtenerPrecalentadorAguaMixin, FiltradoSimpleM
             'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
             'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
             'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
-            'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
-            'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
         }
 
         return context
@@ -2218,12 +2201,18 @@ class ConsultaEvaluacionPrecalentadorAgua(ConsultaEvaluacion, ObtenerPrecalentad
     tipo = 'precalentadores_agua'
     template_name = 'precalentadores_agua/consulta_evaluaciones.html'
 
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any):
+        if(request.user.is_superuser or request.user.usuario_planta.filter(planta = self.get_precalentador().planta, ver_evaluaciones = True).exists()):
+            return super().get(request, *args, **kwargs)
+        else:
+            return HttpResponseForbidden()
+
     def post(self, request, **kwargs):
         reporte_ficha = self.reporte_ficha(request)
         if(reporte_ficha):
             return reporte_ficha
             
-        if(request.user.is_superuser and request.POST.get('evaluacion')): # Lógica de "Eliminación"
+        if((request.user.is_superuser or request.user.usuario_planta.filter(planta = self.get_precalentador().planta, eliminar_evaluaciones = True).exists()) and request.POST.get('evaluacion')): # Lógica de "Eliminación"
             evaluacion = self.model.objects.get(pk=request.POST['evaluacion'])
             evaluacion.activo = False
             evaluacion.save()
@@ -2268,7 +2257,6 @@ class ConsultaEvaluacionPrecalentadorAgua(ConsultaEvaluacion, ObtenerPrecalentad
             'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
             'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
             'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
-            'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
             'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
             'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
         }
@@ -2438,7 +2426,10 @@ class CrearEvaluacionPrecalentadorAgua(LoginRequiredMixin, ObtenerPrecalentadorA
         }
 
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name, self.get_context_data())
+        if(request.user.is_superuser or request.user.usuario_planta.filter(planta = self.get_precalentador().planta, crear_evaluaciones = True).exists()):
+            return render(request, self.template_name, self.get_context_data())
+        else:
+            return HttpResponseForbidden()
     
     def crear_dict_corrientes(self, corriente):
         return {
@@ -2709,8 +2700,6 @@ class ConsultaPrecalentadorAire(LoginRequiredMixin, ReportesFichasPrecalentadore
             'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
             'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
             'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
-            'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
-            'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
         }
         return context
 
@@ -3006,7 +2995,7 @@ class ConsultaEvaluacionPrecalentadorAire(ConsultaEvaluacion, ReportesFichasPrec
         if(reporte_ficha):
             return reporte_ficha
             
-        if(request.user.is_superuser and request.POST.get('evaluacion')): # Lógica de "Eliminación"
+        if((request.user.is_superuser or request.user.usuario_planta.filter(planta = self.get_precalentador().planta, eliminar_evaluaciones = True).exists()) and request.POST.get('evaluacion')): # Lógica de "Eliminación"
             evaluacion = self.model.objects.get(pk=request.POST['evaluacion'])
             evaluacion.activo = False
             evaluacion.save()
@@ -3041,6 +3030,12 @@ class ConsultaEvaluacionPrecalentadorAire(ConsultaEvaluacion, ReportesFichasPrec
 
         return new_context
 
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        if(request.user.is_superuser or request.user.usuario_planta.filter(planta = self.get_precalentador().planta, ver_evaluaciones = True).exists()):
+            return super().get(request, *args, **kwargs)
+        else:
+            return HttpResponseForbidden()
+
     def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
         context = super().get_context_data(**kwargs)
         context['equipo'] = self.get_precalentador()
@@ -3050,7 +3045,6 @@ class ConsultaEvaluacionPrecalentadorAire(ConsultaEvaluacion, ReportesFichasPrec
             'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
             'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
             'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
-            'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
             'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
             'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
         }
@@ -3175,15 +3169,18 @@ class EvaluarPrecalentadorAire(LoginRequiredMixin, ObtenerPrecalentadorAireMixin
             'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
             'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
             'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
-            'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
             'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
-            'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
         }
 
         return context
 
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name, context=self.get_context_data())
+        context = self.get_context_data()
+
+        if(request.user.is_superuser or context['precalentador'].planta.pk in context['permisos']['creacion_evaluaciones']):
+            return render(request, self.template_name, context)
+        else:
+            return HttpResponseForbidden()
 
     def calcular(self):
         precalentador = self.get_precalentador()

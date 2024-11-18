@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.views.generic import ListView
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseForbidden
 from django.contrib import messages
 from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion, ReportesFichasMixin, FiltrarEvaluacionesMixin, DuplicateView
 from simulaciones_pequiven.utils import generate_nonexistent_tag
@@ -112,7 +112,10 @@ class ConsultaTurbinasVapor(FiltradoSimpleMixin, ObtenerTurbinaVaporMixin, Login
             'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
             'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
             'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
-            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
+            'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
+            'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
+            'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
         }
 
         return context
@@ -378,7 +381,7 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinaVaporMixi
         if(reporte_ficha):
             return reporte_ficha
             
-        if(request.user.is_superuser and request.POST.get('evaluacion')): # Lógica de "Eliminación"
+        if((request.user.is_superuser or request.user.usuario_planta.filter(planta = self.get_turbina().planta, edicion = True).exists()) and request.POST.get('evaluacion')): # Lógica de "Eliminación"
             evaluacion = self.model.objects.get(pk=request.POST['evaluacion'])
             evaluacion.activo = False
             evaluacion.save()
@@ -414,6 +417,13 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinaVaporMixi
 
         return new_context
 
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        turbina = self.get_turbina()
+        if(request.user.is_superuser or self.request.user.usuario_planta.filter(planta = turbina.planta.pk, ver_evaluaciones = True).exists()):
+            return super().get(request, *args, **kwargs)
+        else:
+            return HttpResponseForbidden()
+
     def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
         context = super().get_context_data(**kwargs)
         context['equipo'] = self.get_turbina()
@@ -423,7 +433,6 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinaVaporMixi
             'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
             'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
             'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
-            'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
             'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
             'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
         }
@@ -470,7 +479,7 @@ class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTur
                 'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
                 'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
                 'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
-                'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+                'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
             }
         }
 
@@ -493,8 +502,10 @@ class CreacionEvaluacionTurbinaVapor(LoginRequiredMixin, View, ReportesFichasTur
         } 
     
     def get(self, request, pk):
-        return render(request, 'turbinas_vapor/evaluacion.html', self.get_context_data())
-    
+        context = self.get_context_data()
+        if(request.user.is_superuser or self.request.user.usuario_planta.filter(planta = context['turbina'].planta, ver_evaluaciones = True).exists()):
+            return render(request, 'turbinas_vapor/evaluacion.html', context)
+        
 class CalcularResultadosTurbinaVapor(LoginRequiredMixin, View, ObtenerTurbinaVaporMixin):
     """
     Resumen:
