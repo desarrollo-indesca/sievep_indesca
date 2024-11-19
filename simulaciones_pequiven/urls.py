@@ -37,7 +37,7 @@ urlpatterns = [
     path('usuarios/', include('usuarios.urls')),
     path('', include('pwa.urls')),
     path('manual/', ManualDeUsuario.as_view(), name="manual"),
-    path("__debug__/", include("debug_toolbar.urls")),
+    # path("__debug__/", include("debug_toolbar.urls")),
 
     path('plantas/consulta/', ConsultaPlantas.as_view(), name="consulta_plantas"),
     path('plantas/creacion/', CreacionPlanta.as_view(), name="creacion_planta"),

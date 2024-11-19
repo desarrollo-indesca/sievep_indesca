@@ -1666,7 +1666,12 @@ class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
         return context
     
     def get(self, request, pk):
-        return render(request, 'ventiladores/evaluacion.html', self.get_context_data())
+        context = self.get_context_data()
+        
+        if(request.user.is_superuser or context['ventilador'].planta.pk in context['permisos']['creacion_evaluaciones']):
+            return render(request, 'ventiladores/evaluacion.html', context)
+        else:
+            return HttpResponseForbidden()
     
 class CalcularResultadosVentilador(LoginRequiredMixin, View, ObtenerVentiladorMixin):
     """
