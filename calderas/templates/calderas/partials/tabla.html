@@ -14,7 +14,9 @@
     <td>{{caldera.planta.complejo}}</td>
     <td>{{caldera.descripcion}}</td>
     <td>
+      {% if request.user.is_superuser or caldera.planta.pk in permisos.evaluaciones %}
       <a class="btn btn-danger" href="{% url 'evaluaciones_caldera' pk=caldera.pk %}"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
+      {% endif %}
     </td>
     <td>
         {% include 'calderas/partials/ficha.html' %}

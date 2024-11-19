@@ -108,7 +108,7 @@
           </div>
         </div>
         <div class="modal-footer">
-            {% if request.user.is_superuser %}
+            {% if request.user.is_superuser or equipo.planta.pk in permisos.eliminar_evaluaciones %}
             <form method="post" hx-confirm="¿Está seguro que desea eliminar esta evaluación?">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-danger">ELIMINAR EVALUACIÓN</button>

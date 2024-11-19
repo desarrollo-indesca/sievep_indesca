@@ -198,7 +198,7 @@
 
         <div class="modal-footer">
           <a href="reporte/detalle/{{evaluacion.pk}}/?tipo=pdf" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>&nbsp;
-          {% if request.user.is_superuser %}
+          {% if request.user.is_superuser or intercambiador.intercambiador.planta.pk in permisos.eliminar_evaluaciones %}
           <form method="post">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger" name="evaluacion" value="{{evaluacion.pk}}" onclick="return confirm('¿De verdad desea eliminar esta evaluación?');">Eliminar Evaluación</button>

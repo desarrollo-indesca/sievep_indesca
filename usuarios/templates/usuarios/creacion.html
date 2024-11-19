@@ -60,20 +60,46 @@
                     {% if previo.superusuario %}checked{%endif%}>
                     &nbsp;
                     <div><label class="form-label" for="superusuario">Superusuario</label></div>&nbsp;&nbsp;&nbsp;&nbsp;
-
-                    <input type="checkbox" name="editor" id="check-selector" class="form-check-input"> Editor <br>
                 </div>
             </div>
         </div>
     
         <hr>
-        <h4 class="text-center">Permisos de acceso por Planta</h4>
+        <h4 class="text-center">Permisos de acceso por Complejo y Planta</h4>
         {% for complejo in complejos %}
         <br>
         <h5>{{complejo}}</h5>
-        {% for planta in complejo.plantas.all %}
-        <input type="checkbox" name="planta-{{planta.pk}}" value="{{planta.pk}}" id="check-{{planta.pk}}" class="form-check-input" {% if planta.pk in previo.plantas or previo.superusuario %}checked{% endif %}> {{planta}} <br>
-        {% endfor %}
+        <table class="table text-center table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Planta</th>
+                    <th scope="col">Lectura</th>
+                    <th scope="col">Crear</th>
+                    <th scope="col">Editar Ficha</th>
+                    <th scope="col">Editar Instalación/Adicionales</th>
+                    <th scope="col">Duplicación</th>
+                    <th scope="col">Ver Evaluaciones</th>
+                    <th scope="col">Crear Evaluaciones</th>
+                    <th scope="col">Eliminar Evaluaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for planta in complejo.plantas.all %}
+                <tr>
+                    <td>{{planta}}</td>
+                    <td><input type="checkbox" name="planta-{{planta.pk}}" value="{{planta.pk}}" id="check-{{planta.pk}}" class="form-check-input" {% if planta.pk in previo.plantas or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="crear-{{planta.pk}}" value="1" class="form-check-input" id="check-crear-{{planta.pk}}" {% if planta.pk in previo.creaciones or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="editar-{{planta.pk}}" value="1" class="form-check-input" id="check-editar-{{planta.pk}}" {% if planta.pk in previo.ediciones or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="instalacion-{{planta.pk}}" value="1" class="form-check-input" id="check-instalacion-{{planta.pk}}" {% if planta.pk in previo.ediciones_instalacion or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="duplicacion-{{planta.pk}}" value="1" class="form-check-input" id="check-duplicacion-{{planta.pk}}" {% if planta.pk in previo.duplicaciones or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="evaluaciones-{{planta.pk}}" value="1" class="form-check-input" id="check-eliminacion-{{planta.pk}}" {% if planta.pk in previo.evaluaciones or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="crearevals-{{planta.pk}}" value="1" class="form-check-input" id="check-eliminacion-{{planta.pk}}" {% if planta.pk in previo.crear_evaluaciones or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="delevals-{{planta.pk}}" value="1" class="form-check-input" id="check-eliminacion-{{planta.pk}}" {% if planta.pk in previo.eliminar_evaluaciones or previo.superusuario %}checked{% endif %}></td>                    
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
         {% endfor %}
 
         <hr>
@@ -86,4 +112,68 @@
             {% endif %}
         </div>
     </form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const rows = document.querySelectorAll('table tbody tr');
+        rows.forEach(row => {
+            const lecturaCheckbox = row.querySelector('input[name^="planta-"]');
+            const lecturaEvaluacionCheckbox = row.querySelector('input[name^="evaluaciones-"]');
+            const otherCheckboxes = row.querySelectorAll('input[type="checkbox"]:not([name^="planta-"]):not(input[type="checkbox"][name^="crearevals-"]):not(input[type="checkbox"][name^="delevals-"])');
+            const evaluacionCheckboxes = row.querySelectorAll('input[type="checkbox"][name^="crearevals-"], input[type="checkbox"][name^="delevals-"]');
+
+            lecturaCheckbox.addEventListener('change', function() {
+                otherCheckboxes.forEach(checkbox => {
+                    checkbox.disabled = !lecturaCheckbox.checked;
+                    if (!lecturaCheckbox.checked) {
+                        checkbox.checked = false;
+                        evaluacionCheckboxes.forEach(checkbox => {
+                            checkbox.disabled = true;
+                            checkbox.checked = false;
+                        })
+                    }
+                });
+            });
+
+            lecturaEvaluacionCheckbox.addEventListener('change', function() {
+                evaluacionCheckboxes.forEach(checkbox => {
+                    checkbox.disabled = !lecturaEvaluacionCheckbox.checked;
+                    if (!lecturaEvaluacionCheckbox.checked) {
+                        checkbox.checked = false;
+                    }
+                });
+            });
+
+            otherCheckboxes.forEach(checkbox => {
+                checkbox.disabled = !lecturaCheckbox.checked;
+            });
+
+            evaluacionCheckboxes.forEach(checkbox => {
+                checkbox.disabled = !lecturaEvaluacionCheckbox.checked;
+            });
+        });
+
+        document.querySelector('input[name="superusuario"]').addEventListener('change', function() {
+            const allCheckboxes = document.querySelectorAll('input[type="checkbox"]:not([name^="planta-"]):not([name="activo"]):not([name="superusuario"])');
+            const lecturaCheckboxes = document.querySelectorAll('input[name^="planta-"]');
+            if (this.checked) {
+                allCheckboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                    checkbox.disabled = false;
+                });
+            } else {
+                allCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                    checkbox.disabled = true;
+                });
+                lecturaCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                    checkbox.disabled = false;
+                });
+            }
+        });
+    });
+
+        
+</script>
 {% endblock %}

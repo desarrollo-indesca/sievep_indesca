@@ -1,5 +1,5 @@
 from typing import Any
-from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseNotFound
+from django.http import HttpRequest, HttpResponseForbidden, HttpResponse, JsonResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib import messages
@@ -17,7 +17,8 @@ from reportes.pdfs import generar_pdf
 from reportes.xlsx import historico_evaluaciones, reporte_intercambiadores, ficha_tecnica_tubo_carcasa_xlsx, ficha_tecnica_doble_tubo_xlsx
 from simulaciones_pequiven.views import DuplicateView
 from simulaciones_pequiven.utils import generate_nonexistent_tag
-from usuarios.views import SuperUserRequiredMixin, EditorRequiredMixin
+from usuarios.views import PuedeCrear
+from usuarios.models import PlantaAccesible
 from calculos.unidades import *
 import datetime
 
@@ -276,7 +277,7 @@ class EdicionIntercambiadorMixin(ObtencionParametrosMixin):
 
         if(fluido != ''):
             condicion.fluido_etiqueta = fluido[0] if type(fluido) != Fluido else None
-        print(cp_gas, cp_liquido)
+
         condicion.save()          
 
 class CreacionIntercambiadorMixin(ObtencionParametrosMixin):
@@ -446,7 +447,7 @@ class ConsultaIntercambiador(ListView):
         return super().get(request, *args, **kwargs)
 
 # VISTAS PARA LOS INTERCAMBIADORES TUBO/CARCASA
-class CrearIntercambiadorTuboCarcasa(SuperUserRequiredMixin, CreacionIntercambiadorMixin, View):
+class CrearIntercambiadorTuboCarcasa(PuedeCrear, CreacionIntercambiadorMixin, View):
     """
     Resumen:
         Vista de Creación (Formulario) de un nuevo intercambiador de tubo/carcasa. 
@@ -824,7 +825,7 @@ class CrearIntercambiadorTuboCarcasa(SuperUserRequiredMixin, CreacionIntercambia
 
         return render(request, self.template_name, context=self.context)
 
-class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionIntercambiadorMixin):
+class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, LoginRequiredMixin, EdicionIntercambiadorMixin):
     """
     Resumen:
         Vista de Edición (Formulario) de un intercambiador tubo/carcasa. 
@@ -940,23 +941,28 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, EdicionInt
     
     def get(self, request, pk):
         self.context['intercambiador'] = PropiedadesTuboCarcasa.objects.get(pk=pk)
-        self.context['complejos'] = Complejo.objects.all()
-        self.context['tipos'] = TiposDeTubo.objects.all()
-        self.context['plantas'] = Planta.objects.all()
-        self.context['tipos'] = TiposDeTubo.objects.all()
-        self.context['temas'] = Tema.objects.filter(tipo_intercambiador__pk=1).order_by('codigo')
-        self.context['fluidos'] = Fluido.objects.all()
-        self.context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
-        self.context['unidades_longitud'] = Unidades.objects.filter(tipo = 'L')
-        self.context['unidades_area'] = Unidades.objects.filter(tipo = 'A')
-        self.context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
-        self.context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
-        self.context['unidades_ensuciamiento'] = Unidades.objects.filter(tipo = 'E')
-        self.context['unidades_q'] = Unidades.objects.filter(tipo = 'Q')
-        self.context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
-        self.context['unidades_u'] = Unidades.objects.filter(tipo = 'u')
+        intercambiador = self.context['intercambiador'].intercambiador
+        
+        if(request.user.is_superuser or PlantaAccesible.objects.filter(usuario = request.user, planta = intercambiador.planta, edicion = True).exists()):
+            self.context['complejos'] = Complejo.objects.all()
+            self.context['tipos'] = TiposDeTubo.objects.all()
+            self.context['plantas'] = Planta.objects.all()
+            self.context['tipos'] = TiposDeTubo.objects.all()
+            self.context['temas'] = Tema.objects.filter(tipo_intercambiador__pk=1).order_by('codigo')
+            self.context['fluidos'] = Fluido.objects.all()
+            self.context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
+            self.context['unidades_longitud'] = Unidades.objects.filter(tipo = 'L')
+            self.context['unidades_area'] = Unidades.objects.filter(tipo = 'A')
+            self.context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
+            self.context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
+            self.context['unidades_ensuciamiento'] = Unidades.objects.filter(tipo = 'E')
+            self.context['unidades_q'] = Unidades.objects.filter(tipo = 'Q')
+            self.context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
+            self.context['unidades_u'] = Unidades.objects.filter(tipo = 'u')
 
-        return render(request, self.template_name, context=self.context)
+            return render(request, self.template_name, context=self.context)
+        else:
+            return HttpResponseForbidden()
 
 class ConsultaTuboCarcasa(LoginRequiredMixin, ConsultaIntercambiador):
     """
@@ -1022,7 +1028,15 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ConsultaIntercambiador):
         context['tipo'] = 1
         context['tipo_texto'] = 'Tubo/Carcasa'
         context['link_creacion'] = 'crear_tubo_carcasa'
-        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+        context["permisos"] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
+            'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
+            'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
+            'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
+        }
 
         return context
     
@@ -1126,6 +1140,15 @@ class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
         context['tipo_texto'] = 'Doble Tubo'
         context['link_creacion'] = 'crear_doble_tubo'
         context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+        context["permisos"] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
+            'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
+            'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
+            'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
+        }
 
         return context
     
@@ -1491,7 +1514,7 @@ class CrearIntercambiadorDobleTubo(CrearIntercambiadorTuboCarcasa):
             errores.append('Ha ocurrido un error desconocido al registrar el intercambiador. Verifique los datos ingresados.')
             return self.redirigir_por_errores(request, errores)
 
-class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, EdicionIntercambiadorMixin):
+class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, LoginRequiredMixin, EdicionIntercambiadorMixin):
     """
     Resumen:
         Vista de Edición (Formulario) de un intercambiador tubo/carcasa. 
@@ -1610,23 +1633,28 @@ class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, EdicionInterca
     
     def get(self, request, pk):
         self.context['intercambiador'] = PropiedadesDobleTubo.objects.get(pk=pk)
-        self.context['complejos'] = Complejo.objects.all()
-        self.context['tipos'] = TiposDeTubo.objects.all()
-        self.context['plantas'] = Planta.objects.filter(complejo__pk=1)
-        self.context['tipos'] = TiposDeTubo.objects.all()
-        self.context['temas'] = Tema.objects.filter(tipo_intercambiador__pk=2).order_by('codigo')
-        self.context['fluidos'] = Fluido.objects.all()
-        self.context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
-        self.context['unidades_longitud'] = Unidades.objects.filter(tipo = 'L')
-        self.context['unidades_area'] = Unidades.objects.filter(tipo = 'A')
-        self.context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
-        self.context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
-        self.context['unidades_ensuciamiento'] = Unidades.objects.filter(tipo = 'E')
-        self.context['unidades_q'] = Unidades.objects.filter(tipo = 'Q')
-        self.context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
-        self.context['unidades_u'] = Unidades.objects.filter(tipo = 'u')
+        intercambiador = self.context['intercambiador'].intercambiador
+        
+        if(request.user.is_superuser or PlantaAccesible.objects.filter(usuario = request.user, planta = intercambiador.planta, edicion = True).exists()):
+            self.context['complejos'] = Complejo.objects.all()
+            self.context['tipos'] = TiposDeTubo.objects.all()
+            self.context['plantas'] = Planta.objects.filter(complejo__pk=1)
+            self.context['tipos'] = TiposDeTubo.objects.all()
+            self.context['temas'] = Tema.objects.filter(tipo_intercambiador__pk=2).order_by('codigo')
+            self.context['fluidos'] = Fluido.objects.all()
+            self.context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
+            self.context['unidades_longitud'] = Unidades.objects.filter(tipo = 'L')
+            self.context['unidades_area'] = Unidades.objects.filter(tipo = 'A')
+            self.context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
+            self.context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
+            self.context['unidades_ensuciamiento'] = Unidades.objects.filter(tipo = 'E')
+            self.context['unidades_q'] = Unidades.objects.filter(tipo = 'Q')
+            self.context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
+            self.context['unidades_u'] = Unidades.objects.filter(tipo = 'u')
 
-        return render(request, self.template_name, context=self.context)
+            return render(request, self.template_name, context=self.context)
+        else:
+            return HttpResponseForbidden()
 
 # VISTAS GENERALES PARA LOS INTERCAMBIADORES DE CALOR
 class ConsultaVacia(LoginRequiredMixin, View):
@@ -1874,28 +1902,39 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
         context = self.context
         intercambiador = Intercambiador.objects.get(pk=pk)
 
-        context['intercambiador'] = intercambiador.intercambiador()
+        if(request.user.is_superuser or intercambiador.planta.pk in self.request.user.usuario_planta.filter(planta=intercambiador.planta, crear_evaluaciones = True).values_list('planta__pk', flat=True)):
+            context['intercambiador'] = intercambiador.intercambiador()
 
-        context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
-        context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
-        context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
-        context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
+            context['unidades_temperaturas'] = Unidades.objects.filter(tipo = 'T')
+            context['unidades_flujo'] = Unidades.objects.filter(tipo = 'f')
+            context['unidades_presion'] = Unidades.objects.filter(tipo = 'P')
+            context['unidades_cp'] = Unidades.objects.filter(tipo = 'C')
 
-        if(intercambiador.tipo.pk == 1):
-            context['condicion_carcasa'] = context['intercambiador'].condicion_carcasa()
-            context['condicion_tubo'] = context['intercambiador'].condicion_tubo()
-            context['fluido_carcasa'] =  context['intercambiador'].fluido_carcasa if context['intercambiador'].fluido_carcasa else context['condicion_carcasa'].fluido_etiqueta
-            context['fluido_tubo'] =  context['intercambiador'].fluido_tubo if context['intercambiador'].fluido_tubo else context['condicion_tubo'].fluido_etiqueta
-        elif(intercambiador.tipo.pk == 2):
-            context['condicion_carcasa'] = context['intercambiador'].condicion_externo()
-            context['condicion_tubo'] = context['intercambiador'].condicion_interno()
-            context['fluido_carcasa'] =  context['intercambiador'].fluido_ex if context['intercambiador'].fluido_ex else context['condicion_carcasa'].fluido_etiqueta
-            context['fluido_tubo'] =  context['intercambiador'].fluido_in if context['intercambiador'].fluido_in else context['condicion_tubo'].fluido_etiqueta
-        
-        context['titulo'] += intercambiador.tipo.nombre.title()
-        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+            if(intercambiador.tipo.pk == 1):
+                context['condicion_carcasa'] = context['intercambiador'].condicion_carcasa()
+                context['condicion_tubo'] = context['intercambiador'].condicion_tubo()
+                context['fluido_carcasa'] =  context['intercambiador'].fluido_carcasa if context['intercambiador'].fluido_carcasa else context['condicion_carcasa'].fluido_etiqueta
+                context['fluido_tubo'] =  context['intercambiador'].fluido_tubo if context['intercambiador'].fluido_tubo else context['condicion_tubo'].fluido_etiqueta
+            elif(intercambiador.tipo.pk == 2):
+                context['condicion_carcasa'] = context['intercambiador'].condicion_externo()
+                context['condicion_tubo'] = context['intercambiador'].condicion_interno()
+                context['fluido_carcasa'] =  context['intercambiador'].fluido_ex if context['intercambiador'].fluido_ex else context['condicion_carcasa'].fluido_etiqueta
+                context['fluido_tubo'] =  context['intercambiador'].fluido_in if context['intercambiador'].fluido_in else context['condicion_tubo'].fluido_etiqueta
+            
+            context['titulo'] += intercambiador.tipo.nombre.title()
+            context["permisos"] = {
+                'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+                'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+                'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+                'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
+                'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
+                'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
+                'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
+            }
 
-        return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
+            return render(request, 'tubo_carcasa/evaluaciones/creacion.html', context=context)
+        else:
+            return HttpResponseForbidden()
 
 class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
     """
@@ -1942,8 +1981,8 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
                 response['Content-Disposition'] = f'attachment; filename="reporte_evaluaciones_{intercambiador.tag}_{fecha.year}_{fecha.month}_{fecha.day}_{fecha.hour}_{fecha.minute}.xlsx"'
                 return response
             
-        if(request.user.is_superuser): # Lógica de "Eliminación"
-            evaluacion = EvaluacionesIntercambiador.objects.get(pk=request.POST['evaluacion'])
+        evaluacion = EvaluacionesIntercambiador.objects.get(pk=request.POST['evaluacion'])
+        if(request.user.is_superuser or request.user.usuario_planta.filter(planta=evaluacion.intercambiador.planta, eliminar_evaluaciones=True).exists()): # Lógica de "Eliminación"
             evaluacion.visible = False
             evaluacion.save()
             messages.success(request, "Evaluación eliminada exitosamente.")
@@ -1974,16 +2013,27 @@ class ConsultaEvaluaciones(LoginRequiredMixin, ListView):
         context['desde'] = self.request.GET.get('desde', '')
         context['hasta'] = self.request.GET.get('hasta')
         context['usuario'] = self.request.GET.get('usuario','')
-        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+        context["permisos"] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
+            'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
+            'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
+            'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
+        }
 
         return context
     
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        try:    
-            return super().get(request, *args, **kwargs)
+        intercambiador = Intercambiador.objects.get(pk=self.kwargs['pk'])
+        try:
+            if(request.user.is_superuser or request.user.usuario_planta.filter(planta=intercambiador.planta, ver_evaluaciones=True).exists()):
+                return super().get(request, *args, **kwargs)
+            else:
+                raise Exception("No tiene permiso para acceder a este recurso.")
         except Exception as e:
             print(str(e))
-            intercambiador = Intercambiador.objects.get(pk=self.kwargs['pk'])
             messages.warning(request, f"No se pudo cargar la consulta de evaluaciones del intercambiador {intercambiador.tag}. Verificar correctitud de los datos de diseño.")
             if(request.user.is_superuser):
                 if(intercambiador.tipo.pk == 1):
@@ -2396,7 +2446,7 @@ class FichaTecnicaDobleTubo(LoginRequiredMixin, View):
             print(str(e))
             return HttpResponseNotFound(MENSAJE_ERROR)
 
-class DuplicarIntercambiador(EditorRequiredMixin, DuplicateView):
+class DuplicarIntercambiador(DuplicateView):
     '''
     Resumen:
         Vista utilizada para duplicar un Intercambiador existente creando un nuevo registro
@@ -2409,32 +2459,34 @@ class DuplicarIntercambiador(EditorRequiredMixin, DuplicateView):
             como creador del nuevo intercambiador.
     '''
     def post(self, request, pk):
-        with transaction.atomic():
-            intercambiador_previo = Intercambiador.objects.prefetch_related(
-                'datos_tubo_carcasa', 'datos_dobletubo', 'condiciones'
-            ).get(pk=pk)
+        intercambiador_previo = Intercambiador.objects.prefetch_related(
+            'datos_tubo_carcasa', 'datos_dobletubo', 'condiciones'
+        ).get(pk=pk)
+        
+        if(request.user.is_superuser or PlantaAccesible.objects.filter(usuario = request.user, planta = intercambiador_previo.planta, duplicacion = True).exists()):
+            with transaction.atomic():
+                intercambiador_previo.creado_por = request.user
+                intercambiador_previo.copia = True
+                intercambiador_previo.servicio = f"COPIA DEL INTERCAMBIADOR {intercambiador_previo.tag}"
+                intercambiador_previo.tag = generate_nonexistent_tag(Intercambiador, intercambiador_previo.tag)
+            
+                intercambiador = self.copy(intercambiador_previo)
 
-            intercambiador_previo.creado_por = request.user
-            intercambiador_previo.copia = True
-            intercambiador_previo.servicio = f"COPIA DEL INTERCAMBIADOR {intercambiador_previo.tag}"
-            intercambiador_previo.tag = generate_nonexistent_tag(Intercambiador, intercambiador_previo.tag)
-           
-            intercambiador = self.copy(intercambiador_previo)
+                for condicion in intercambiador.condiciones.all():
+                    condicion.intercambiador = intercambiador
+                    condicion = self.copy(condicion)
 
-            for condicion in intercambiador.condiciones.all():
-                condicion.intercambiador = intercambiador
-                condicion = self.copy(condicion)
-
-            if(intercambiador.tipo.nombre == "TUBO/CARCASA"):
-                propiedades = intercambiador.datos_tubo_carcasa
-                propiedades.intercambiador = intercambiador
-                propiedades = self.copy(propiedades)
-                messages.add_message(request, messages.SUCCESS, f"Copia {intercambiador.tag} creada con exito.")
-                return redirect("/intercambiadores/tubo_carcasa/") 
-            elif(intercambiador.tipo.nombre == "DOBLE TUBO"):
-                propiedades = intercambiador.datos_dobletubo
-                propiedades.intercambiador = intercambiador
-                propiedades = self.copy(propiedades)
-                messages.add_message(request, messages.SUCCESS, f"Copia {intercambiador.tag} creada con exito.")
-                return redirect("/intercambiadores/doble_tubo/")
-                
+                if(intercambiador.tipo.nombre == "TUBO/CARCASA"):
+                    propiedades = intercambiador.datos_tubo_carcasa
+                    propiedades.intercambiador = intercambiador
+                    propiedades = self.copy(propiedades)
+                    messages.add_message(request, messages.SUCCESS, f"Copia {intercambiador.tag} creada con exito.")
+                    return redirect("/intercambiadores/tubo_carcasa/") 
+                elif(intercambiador.tipo.nombre == "DOBLE TUBO"):
+                    propiedades = intercambiador.datos_dobletubo
+                    propiedades.intercambiador = intercambiador
+                    propiedades = self.copy(propiedades)
+                    messages.add_message(request, messages.SUCCESS, f"Copia {intercambiador.tag} creada con exito.")
+                    return redirect("/intercambiadores/doble_tubo/")
+        else:
+            return HttpResponseForbidden()  

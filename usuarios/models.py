@@ -15,6 +15,13 @@ TIPOS_PREGUNTAS = [
 class PlantaAccesible(models.Model):
     usuario = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="usuario_planta")
     planta = models.ForeignKey(Planta, on_delete=models.CASCADE, related_name="planta_usuario")
+    crear = models.BooleanField(default=False)
+    edicion = models.BooleanField(default=False)
+    edicion_instalacion = models.BooleanField(default=False)
+    ver_evaluaciones = models.BooleanField(default=False)
+    crear_evaluaciones = models.BooleanField(default=False)
+    eliminar_evaluaciones = models.BooleanField(default=False)
+    duplicacion = models.BooleanField(default=False)
 
 class Encuesta(models.Model):
     """

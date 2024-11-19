@@ -7,11 +7,12 @@ from django.views.generic import ListView, View
 from django.db import transaction
 from django.contrib import messages
 from django.forms.models import model_to_dict
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 
 from simulaciones_pequiven.views import FiltradoSimpleMixin, ConsultaEvaluacion, DuplicateView
 from simulaciones_pequiven.utils import generate_nonexistent_tag
-from usuarios.views import SuperUserRequiredMixin, EditorRequiredMixin
+from usuarios.views import PuedeCrear
+from usuarios.models import PlantaAccesible
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos, historico_evaluaciones_caldera, ficha_tecnica_caldera
 from .forms import *
@@ -38,25 +39,6 @@ class CargarCalderasMixin():
             caldera = caldera_q
 
         if(prefetch):
-            caldera = caldera.select_related(
-                "creado_por", "planta__complejo",
-                "sobrecalentador", "sobrecalentador__temperatura_unidad",
-                "sobrecalentador__presion_unidad", "sobrecalentador__flujo_unidad",
-                
-                "sobrecalentador__dims", "sobrecalentador__dims__area_unidad", 
-                "sobrecalentador__dims__diametro_unidad",
-               
-                "dimensiones", "dimensiones__dimensiones_unidad",
-                
-                "especificaciones", "especificaciones__area_unidad",
-                "especificaciones__calor_unidad", "especificaciones__capacidad_unidad",
-                "especificaciones__temperatura_unidad", "especificaciones__presion_unidad",
-                "especificaciones__carga_unidad",
-                
-                "chimenea", "chimenea__dimensiones_unidad", 
-                
-                "economizador", "economizador__area_unidad", "economizador__diametro_unidad",
-            )
             caldera = caldera.prefetch_related(
                 Prefetch("corrientes_caldera", Corriente.objects.select_related("flujo_masico_unidad",
                     "densidad_unidad", "temp_operacion_unidad", "presion_unidad")),
@@ -146,7 +128,13 @@ class ConsultaCalderas(FiltradoSimpleMixin, ReportesFichasCalderasMixin, CargarC
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["link_creacion"] = "creacion_caldera"
-        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+        context["permisos"] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
+            'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
+        }
 
         return context
 
@@ -155,7 +143,7 @@ class ConsultaCalderas(FiltradoSimpleMixin, ReportesFichasCalderasMixin, CargarC
 
         return new_context
 
-class CreacionCaldera(SuperUserRequiredMixin, View):
+class CreacionCaldera(PuedeCrear, View):
     """
     Resumen:
         Vista para el registro de nuevas calderas en el sistema.
@@ -358,7 +346,7 @@ class CreacionCaldera(SuperUserRequiredMixin, View):
                 'unidades': Unidades.objects.all().values('pk','simbolo','tipo')
             })
 
-class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
+class EdicionCaldera(CargarCalderasMixin, CreacionCaldera, LoginRequiredMixin):
     """
     Resumen:
         Vista para la creación o registro de nuevas calderas.
@@ -415,6 +403,17 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
             'titulo': self.titulo + f" {caldera.tag}",
             'unidades': Unidades.objects.all().values('pk','simbolo','tipo')
         }
+
+    def get(self, request, **kwargs):
+        res = super().get(request, **kwargs)
+        planta = self.get_caldera(False, False).planta
+
+        print()
+
+        if(self.request.user.is_superuser or self.request.user.usuario_planta.filter(usuario = request.user, planta = planta, edicion = True).exists()):
+            return res
+        else:
+            return HttpResponseForbidden()
 
     def post(self, request, pk):
         # FORMS
@@ -474,7 +473,7 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera):
                 'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
             })
         
-class RegistroDatosAdicionales(EditorRequiredMixin, CargarCalderasMixin, View):
+class RegistroDatosAdicionales(CargarCalderasMixin, View):
     """
     Resumen:
         Vista para el registro de datos adicionales de una caldera.
@@ -531,7 +530,14 @@ class RegistroDatosAdicionales(EditorRequiredMixin, CargarCalderasMixin, View):
         }
     
     def get(self, request, **kwargs):
-        return render(request, self.template_name, self.get_context())
+        context = self.get_context()
+
+        print(PlantaAccesible.objects.filter(usuario = request.user, planta = context['caldera'].planta, edicion_instalacion = True).exists())
+
+        if(request.user.is_superuser or PlantaAccesible.objects.filter(usuario = request.user, planta = context['caldera'].planta, edicion_instalacion = True).exists()):
+            return render(request, self.template_name, context)
+        else:
+            return HttpResponseForbidden()
          
     def almacenar_datos(self, form_corrientes, form_caracteristicas):
         caldera = self.get_caldera(False, False)
@@ -683,7 +689,14 @@ class ConsultaEvaluacionCaldera(ConsultaEvaluacion, CargarCalderasMixin, Reporte
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['equipo'] = self.get_caldera(True, False)
-        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+        context["permisos"] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
+            'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
+            'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
+        }
 
         return context
 
@@ -792,12 +805,24 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
         context['forms'] = self.make_forms(context['equipo'], composiciones, corrientes)
         context['unidades'] = unidades
         context['fluidos_composiciones'] = COMPUESTOS_AIRE
-        context["editor"] = self.request.user.groups.filter(name="editor").exists() or self.request.user.is_superuser
+        context["permisos"] = {
+            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
+            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
+            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
+            'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True)),
+            'eliminar_evaluaciones': list(self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True)),
+        }
 
         return context
 
     def get(self, *args, **kwargs):
-        return render(self.request, 'calderas/evaluacion.html', context=self.get_context_data())
+        context = self.get_context_data(**kwargs)
+
+        if(self.request.user.is_superuser or context['equipo'].planta.pk in context['permisos']['creacion_evaluaciones']):
+            return render(self.request, 'calderas/evaluacion.html', context)
+        else:
+            return HttpResponseForbidden()
     
     def evaluar(self):
         resultados = self.calcular_resultados()
@@ -1087,7 +1112,7 @@ def grafica_historica_calderas(request, pk):
 
     return JsonResponse(res[:15], safe=False)
 
-class DuplicarCaldera(EditorRequiredMixin, CargarCalderasMixin, DuplicateView):
+class DuplicarCaldera(CargarCalderasMixin, DuplicateView):
     """
     Resumen:
         Vista para crear una copia temporal duplicada de una caldera para hacer pruebas en los equipos.
@@ -1102,39 +1127,42 @@ class DuplicarCaldera(EditorRequiredMixin, CargarCalderasMixin, DuplicateView):
             "tambor__secciones_tambor", "combustible__composicion_combustible_caldera",
             "caracteristicas_caldera", "corrientes_caldera"
         ).get(pk=pk)
-        
-        caldera = caldera_original
-        caldera.copia = True
-        caldera.tag = generate_nonexistent_tag(Caldera, caldera.tag)
-        dims = self.copy(caldera_original.sobrecalentador.dims)
-        sobrecalentador = caldera_original.sobrecalentador
-        sobrecalentador.dims = dims
-        caldera.sobrecalentador = self.copy(caldera_original.sobrecalentador)
-        caldera.tambor = self.copy(caldera_original.tambor)
-        caldera.dimensiones = self.copy(caldera_original.dimensiones)
-        caldera.especificaciones = self.copy(caldera_original.especificaciones)
-        caldera.chimenea = self.copy(caldera_original.chimenea)
-        caldera.economizador = self.copy(caldera_original.economizador)
-        caldera.combustible = self.copy(caldera_original.combustible)
-        caldera.descripcion = f"COPIA DE LA CALDERA {caldera_original.tag}"
-        caldera = self.copy(caldera)
 
-        for caracteristica in caldera_original.caracteristicas_caldera.all():
-            caracteristica.caldera = caldera
-            self.copy(caracteristica)
+        if(self.request.user.is_superuser or PlantaAccesible.objects.filter(usuario = request.user, planta = caldera_original.planta, duplicacion = True).exists()):
+            caldera = caldera_original
+            caldera.copia = True
+            caldera.tag = generate_nonexistent_tag(Caldera, caldera.tag)
+            dims = self.copy(caldera_original.sobrecalentador.dims)
+            sobrecalentador = caldera_original.sobrecalentador
+            sobrecalentador.dims = dims
+            caldera.sobrecalentador = self.copy(caldera_original.sobrecalentador)
+            caldera.tambor = self.copy(caldera_original.tambor)
+            caldera.dimensiones = self.copy(caldera_original.dimensiones)
+            caldera.especificaciones = self.copy(caldera_original.especificaciones)
+            caldera.chimenea = self.copy(caldera_original.chimenea)
+            caldera.economizador = self.copy(caldera_original.economizador)
+            caldera.combustible = self.copy(caldera_original.combustible)
+            caldera.descripcion = f"COPIA DE LA CALDERA {caldera_original.tag}"
+            caldera = self.copy(caldera)
 
-        for seccion in caldera_original.tambor.secciones_tambor.all():
-            seccion.tambor = caldera.tambor
-            self.copy(seccion)
+            for caracteristica in caldera_original.caracteristicas_caldera.all():
+                caracteristica.caldera = caldera
+                self.copy(caracteristica)
 
-        for corriente in caldera_original.corrientes_caldera.all():
-            corriente.caldera = caldera
-            self.copy(corriente)
+            for seccion in caldera_original.tambor.secciones_tambor.all():
+                seccion.tambor = caldera.tambor
+                self.copy(seccion)
 
-        for compuesto in caldera_original.combustible.composicion_combustible_caldera.all():
-            compuesto.combustible = caldera.combustible
-            self.copy(compuesto)
+            for corriente in caldera_original.corrientes_caldera.all():
+                corriente.caldera = caldera
+                self.copy(corriente)
 
-        caldera_original = Caldera.objects.get(pk=pk)
-        messages.success(request, f"Se ha creado la copia de la caldera {caldera_original.tag} como {caldera.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
-        return redirect("/calderas")
+            for compuesto in caldera_original.combustible.composicion_combustible_caldera.all():
+                compuesto.combustible = caldera.combustible
+                self.copy(compuesto)
+
+            caldera_original = Caldera.objects.get(pk=pk)
+            messages.success(request, f"Se ha creado la copia de la caldera {caldera_original.tag} como {caldera.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
+            return redirect("/calderas")
+        else:
+            return HttpResponseForbidden()
