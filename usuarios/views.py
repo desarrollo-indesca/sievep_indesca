@@ -105,7 +105,9 @@ class ConsultaUsuarios(SuperUserRequiredMixin, ListView):
                 is_active = activo
             )
 
-        return new_context.order_by('first_name','last_name')
+        return new_context.prefetch_related(
+            Prefetch('usuario_planta', PlantaAccesible.objects.select_related('planta'))
+        ).order_by('first_name','last_name')
 
 class CrearNuevoUsuario(SuperUserRequiredMixin, View):
     """

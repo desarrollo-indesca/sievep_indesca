@@ -14,6 +14,71 @@
     <td>{{usuario.is_superuser|yesno:"Sí,No"}}</td>
     <td>{{usuario.is_active|yesno:"Sí,No"}}</td>
     <td>
+      <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#usuario{{usuario.pk}}">
+        Ver Permisos
+      </button>
+      <div class="modal fade text-dark" id="usuario{{usuario.pk}}" tabindex="-1" aria-labelledby="usuario{{usuario.pk}}Label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="usuario{{usuario.pk}}Label">Informaci n del usuario</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark text-start">
+              <ul>
+                <li><b>Nombre:</b> {{usuario.first_name}} {{usuario.last_name}}</li>
+                <li><b>Correo electrónico:</b> {{usuario.email}}</li>
+                <li><b>Superusuario:</b> {{usuario.is_superuser|yesno:"Sí,No"}}</li>
+                <li><b>Activo:</b> {{usuario.is_active|yesno:"Sí,No"}}</li>
+              </ul>
+
+              
+              <table class="text-center table table-responsive">
+                <thead>
+                  <tr class="table-dark">
+                    <th>Planta</th>
+                    <th>Lectura</th>
+                    <th>Creación</th>
+                    <th>Edición</th>
+                    <th>Edición Adicionales</th>
+                    <th>Duplicación</th>
+                    <th>Evaluación</th>
+                    <th>Crear Evaluación</th>
+                    <th>Eliminar Evaluación</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if not usuario.is_superuser %}
+                  {% for permiso in usuario.usuario_planta.all %}
+                  <tr>
+                    <td>{{permiso.planta}}</td>
+                    <td>Sí</td>
+                    <td>{{permiso.crear|yesno:"Sí,No"}}</td>
+                    <td>{{permiso.edicion|yesno:"Sí,No"}}</td>
+                    <td>{{permiso.edicion_instalacion|yesno:"Sí,No"}}</td>
+                    <td>{{permiso.duplicacion|yesno:"Sí,No"}}</td>
+                    <td>{{permiso.ver_evaluaciones|yesno:"Sí,No"}}</td>
+                    <td>{{permiso.crear_evaluaciones|yesno:"Sí,No"}}</td>
+                    <td>{{permiso.eliminar_evaluaciones|yesno:"Sí,No"}}</td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="9">El usuario no tiene permisos.</td>
+                  </tr>
+                  {% endfor %}
+                  {% else %}
+                  <tr>
+                    <td colspan="9">El superusuario tiene todos los permisos.</td>
+                  </tr>
+                  {% endif %}
+              </table>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
         <a href="{% url 'editar_usuario' pk=usuario.pk %}" class="btn btn-primary">
             Editar
         </a>
