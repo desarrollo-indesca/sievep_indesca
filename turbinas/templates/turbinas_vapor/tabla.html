@@ -14,7 +14,9 @@
     <td>{{turbina.planta.complejo}}</td>
     <td>{{turbina.descripcion}}</td>
     <td>
+      {% if request.user.is_superuser or turbina.planta.pk in permisos.evaluaciones %}
       <a class="btn btn-danger" href="{% url 'evaluaciones_turbina_vapor' pk=turbina.pk %}"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
+      {% endif %}
     </td>
     <td>
         {% include 'turbinas_vapor/ficha.html' %}

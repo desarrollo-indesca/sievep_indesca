@@ -15,7 +15,9 @@
     <td>{{precalentador.descripcion}}</td>
     <td>
       {% if precalentador.datos_corrientes and precalentador.u %}
+      {% if request.user.is_superuser or precalentador.planta.pk in permisos.evaluaciones %}
       <a class="btn btn-danger" href="{% url 'evaluaciones_precalentador_agua' pk=precalentador.pk %}"><img width="25px" src="{% static 'img/iconos/simulacion.png' %}" alt="Ir a la pantalla de Evaluaciones"></a>
+      {% endif %}
       {% endif %}
     </td>
     <td>
