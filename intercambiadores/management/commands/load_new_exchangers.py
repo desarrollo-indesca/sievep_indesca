@@ -99,8 +99,8 @@ class Command(BaseCommand):
                         flujo_liquido_entrada = intercambiador["flujo_entrada_liquidot"] if intercambiador["flujo_entrada_liquidot"] else 0,
                         flujo_liquido_salida = intercambiador["flujo_salida_liquidot"] if intercambiador["flujo_salida_liquidot"] else 0,
                         flujos_unidad = Unidades.objects.get(pk=6),
-                        fluido_cp_liquido = 5000,
-                        fluido_cp_gas = 6000,
+                        fluido_cp_liquido = (float(intercambiador["cp_entrada_liquido_t"])+float(intercambiador["cp_salida_liquido_t"]))/2 if intercambiador["cp_entrada_liquido_t"] != "" and intercambiador["cp_salida_liquido_t"] != "" else intercambiador["cp_entrada_liquido_t"] if intercambiador["cp_entrada_liquido_t"] != "" else intercambiador["cp_salida_liquido_t"],
+                        fluido_cp_gas = (float(intercambiador["cp_entrada_gas_t"])+float(intercambiador["cp_salida_gas_t"]))/2 if intercambiador["cp_entrada_gas_t"] != "" and intercambiador["cp_salida_gas_t"] != "" else intercambiador["cp_entrada_liquido_t"] if intercambiador["cp_entrada_liquido_t"] != "" else intercambiador["cp_salida_liquido_t"],
                         fluido_etiqueta = intercambiador["fluido_t"].upper(),
 
                         cambio_de_fase = intercambiador["cambio_faset"],
