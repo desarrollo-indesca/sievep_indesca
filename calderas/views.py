@@ -129,7 +129,7 @@ class ConsultaCalderas(FiltradoSimpleMixin, ReportesFichasCalderasMixin, CargarC
         context = super().get_context_data(**kwargs)
         context["link_creacion"] = "creacion_caldera"
         context["permisos"] = {
-            'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
+            'creacion': self.request.user.is_superuser or self.request.user.usuario_planta.filter(crear = True).exists(),
             'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
             'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
             'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
