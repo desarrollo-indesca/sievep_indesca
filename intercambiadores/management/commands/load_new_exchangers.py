@@ -8,32 +8,11 @@ class Command(BaseCommand):
     help = 'Carga las clases de unidades en la base de datos'
 
     def handle(self, *args, **options):
-        with transaction.atomic():
             with open('intercambiadores/data/exchangers2.csv', 'r', encoding='utf-8') as file:
                 csv_reader = csv.DictReader(file, delimiter=',')
                 data = [row for row in csv_reader]
 
-                for intercambiador in data:
-                    if(Intercambiador.objects.filter(tag = intercambiador['tag']).exists()):
-                        continue
-
-                    metros = Unidades.objects.get(pk=4)
-
-                    intercambiadorm = Intercambiador.objects.create(
-                        tag = intercambiador['tag'],
-                        fabricante = intercambiador['fabricante'],
-                        planta = Planta.objects.get(nombre=intercambiador['planta'].upper()),
-                        tema = Tema.objects.get(codigo=intercambiador['tema']),
-                        servicio = intercambiador['servicio'],
-                        arreglo_flujo = 'C',
-                        criticidad = intercambiador['criticidad'],
-                        tipo = TipoIntercambiador.objects.first(),
-
-                        creado_por = get_user_model().objects.first(),
-                        creado_al = datetime.datetime.now(), 
-                    )
-
-                    def obtener_fluido(fluido):
+                def obtener_fluido(fluido):
                         fluido = fluido.lower()
                         
                         if("agua" in fluido or "vapor" == fluido or "vapor de alta" in fluido or "vapor de baja" in fluido):
@@ -51,95 +30,207 @@ class Command(BaseCommand):
                         elif(Fluido.objects.filter(nombre__icontains = fluido).exists()):
                             return Fluido.objects.get(nombre__icontains = fluido)
 
-                    fluido_carcasa = obtener_fluido(intercambiador["fluido_c"].lower())
-                    fluido_tubo = obtener_fluido(intercambiador["fluido_t"].lower())
+                def obtener_cp(intercambiador, lado = 't'):
+                    cp_liquido = None
+                    cp_vapor = None
+                    
+                    cp_liquido_entrada = None
+                    cp_liquido_salida = None
 
-                    print(intercambiador["tag"])
+                    if(intercambiador[f'cp_entrada_liquido_{lado}'] != ""):
+                        cp_liquido_entrada = float(intercambiador[f'cp_entrada_liquido_{lado}'])
 
-                    propiedades = PropiedadesTuboCarcasa.objects.create(
-                        intercambiador = intercambiadorm,
-                        area = intercambiador['area_total'],
-                        area_unidad = Unidades.objects.get(pk=3),
-                        longitud_tubos = intercambiador['long_tubos'],
-                        longitud_tubos_unidad = metros,
-                        diametro_externo_tubos = intercambiador['od_tubos'],
-                        diametro_interno_carcasa = intercambiador['id_carcasa'],
-                        diametro_tubos_unidad = metros,
-                        fluido_carcasa = fluido_carcasa,
-                        material_carcasa = intercambiador["mat_carcasa"],
-                        conexiones_entrada_carcasa = intercambiador["conexiones_entrada_c"],
-                        conexiones_salida_carcasa = intercambiador["conexiones_salida_c"],
-                        numero_tubos = intercambiador["n_tubos"],
+                    if(intercambiador[f'cp_salida_liquido_{lado}'] != ""):
+                        cp_liquido_salida = float(intercambiador[f'cp_salida_liquido_{lado}']) 
 
-                        material_tubo = intercambiador["mat_tubo"],
-                        fluido_tubo = fluido_tubo,
-                        tipo_tubo = TiposDeTubo.objects.get(nombre__icontains=intercambiador["tipo_tubo"]),
-                        conexiones_entrada_tubos = intercambiador["conexiones_entrada_t"],
-                        conexiones_salida_tubos = intercambiador["conexiones_salida_t"],
-                        pitch_tubos = intercambiador["pitch"],
-                        unidades_pitch = metros,
+                    if(cp_liquido_entrada and cp_liquido_salida):
+                        cp_liquido = (cp_liquido_entrada + cp_liquido_salida)/2
+                    elif(cp_liquido_entrada):
+                        cp_liquido = cp_liquido_entrada
+                    elif(cp_liquido_salida):
+                        cp_liquido = cp_liquido_salida
+                    else:
+                        cp_liquido = None
 
-                        arreglo_serie = intercambiador["arreglo_serie"],
-                        arreglo_paralelo = intercambiador["arreglo_paralelo"],
-                        q = intercambiador["q"]
-                    )
+                    cp_vapor_entrada = None
+                    cp_vapor_salida = None
 
-                    print("PROPIEDADES LISTA")
+                    if(intercambiador[f'cp_entrada_vapor_{lado}'] != ""):
+                        cp_vapor_entrada = float(intercambiador[f'cp_entrada_vapor_{lado}'])
 
-                    condiciones_tubo = CondicionesIntercambiador.objects.create(
-                        intercambiador = intercambiadorm,
-                        lado = 'T',
-                        temp_entrada = intercambiador["temp_entrada_t"],
-                        temp_salida = intercambiador["temp_salida_t"],
-                        temperaturas_unidad = Unidades.objects.get(pk=1),
+                    if(intercambiador[f'cp_salida_vapor_{lado}'] != ""):
+                        cp_vapor_salida = float(intercambiador[f'cp_salida_vapor_{lado}'])
 
-                        flujo_masico = intercambiador["flujo_total_t"],
-                        flujo_vapor_entrada = intercambiador["flujo_entrada_vaporc"] if intercambiador["flujo_entrada_vaporc"] else 0,
-                        flujo_vapor_salida = intercambiador["flujo_salida_vaporc"] if intercambiador["flujo_salida_vaporc"] else 0,
-                        flujo_liquido_entrada = intercambiador["flujo_entrada_liquidot"] if intercambiador["flujo_entrada_liquidot"] else 0,
-                        flujo_liquido_salida = intercambiador["flujo_salida_liquidot"] if intercambiador["flujo_salida_liquidot"] else 0,
-                        flujos_unidad = Unidades.objects.get(pk=6),
-                        fluido_cp_liquido = (float(intercambiador["cp_entrada_liquido_t"])+float(intercambiador["cp_salida_liquido_t"]))/2 if intercambiador["cp_entrada_liquido_t"] != "" and intercambiador["cp_salida_liquido_t"] != "" else intercambiador["cp_entrada_liquido_t"] if intercambiador["cp_entrada_liquido_t"] != "" else intercambiador["cp_salida_liquido_t"],
-                        fluido_cp_gas = (float(intercambiador["cp_entrada_gas_t"])+float(intercambiador["cp_salida_gas_t"]))/2 if intercambiador["cp_entrada_gas_t"] != "" and intercambiador["cp_salida_gas_t"] != "" else intercambiador["cp_entrada_liquido_t"] if intercambiador["cp_entrada_liquido_t"] != "" else intercambiador["cp_salida_liquido_t"],
-                        fluido_etiqueta = intercambiador["fluido_t"].upper(),
+                    if(cp_vapor_entrada and cp_vapor_salida):
+                        cp_vapor = (cp_vapor_entrada + cp_vapor_salida)/2
+                    elif(cp_vapor_entrada):
+                        cp_vapor = cp_vapor_entrada
+                    elif(cp_vapor_salida):
+                        cp_vapor = cp_vapor_salida
+                    else:
+                        cp_vapor = None
 
-                        cambio_de_fase = intercambiador["cambio_faset"],
+                    return cp_liquido, cp_vapor                    
 
-                        presion_entrada = intercambiador["presion_entrada_t"],
-                        caida_presion_max = intercambiador["caida_presion_max_t"],
-                        caida_presion_min = intercambiador["caida_presion_min_t"],
-                        unidad_presion = Unidades.objects.get(pk=7), 
+                cargados = 0
 
-                        fouling = intercambiador["fouling_t"],
-                    )
+                for intercambiador in data:
+                    if(Intercambiador.objects.filter(tag = intercambiador['tag']).exists()):
+                        cargados += 1
+                        continue
 
-                    print("TUBO LISTO")
+                    try:
+                        with transaction.atomic():
+                            metros = Unidades.objects.get(pk=4)
 
-                    condiciones_carcasa = CondicionesIntercambiador.objects.create(
-                        intercambiador = intercambiadorm,
-                        lado = 'C',
-                        temp_entrada = intercambiador["temp_entrada_c"],
-                        temp_salida = intercambiador["temp_salida_c"],
-                        temperaturas_unidad = Unidades.objects.get(pk=1),
+                            intercambiadorm = Intercambiador.objects.create(
+                                tag = intercambiador['tag'],
+                                fabricante = intercambiador['fabricante'],
+                                planta = Planta.objects.get(nombre=intercambiador['planta'].upper()),
+                                tema = Tema.objects.get_or_create(codigo=intercambiador['tema'].upper())[0],
+                                servicio = intercambiador['servicio'],
+                                arreglo_flujo = 'C',
+                                criticidad = intercambiador['criticidad'],
+                                tipo = TipoIntercambiador.objects.first(),
 
-                        flujo_masico = intercambiador["flujo_total_c"],
-                        flujo_vapor_entrada = intercambiador["flujo_entrada_vaporc"] if intercambiador["flujo_entrada_vaporc"] else 0,
-                        flujo_vapor_salida = intercambiador["flujo_salida_vaporc"] if intercambiador["flujo_salida_vaporc"] else 0,
-                        flujo_liquido_entrada = intercambiador["flujo_entrada_liquidoc"] if intercambiador["flujo_entrada_liquidoc"] else 0,
-                        flujo_liquido_salida = intercambiador["flujo_salida_liquidoc"] if intercambiador["flujo_salida_liquidoc"] else 0,
-                        flujos_unidad = Unidades.objects.get(pk=6),
-                        fluido_cp_liquido = (float(intercambiador["cp_entrada_liquido_c"])+float(intercambiador["cp_salida_liquido_c"]))/2 if intercambiador["cp_entrada_liquido_c"] != "" and intercambiador["cp_salida_liquido_c"] != "" else intercambiador["cp_entrada_liquido_c"] if intercambiador["cp_entrada_liquido_c"] != "" else intercambiador["cp_salida_liquido_c"],
-                        fluido_cp_gas = (float(intercambiador["cp_entrada_gas_c"])+float(intercambiador["cp_salida_gas_c"]))/2 if intercambiador["cp_entrada_gas_c"] != "" and intercambiador["cp_salida_gas_c"] != "" else intercambiador["cp_entrada_liquido_c"] if intercambiador["cp_entrada_liquido_c"] != "" else intercambiador["cp_salida_liquido_c"],
-                        fluido_etiqueta = intercambiador["fluido_c"].upper(),
+                                creado_por = get_user_model().objects.first(),
+                                creado_al = datetime.datetime.now(), 
+                            )
 
-                        cambio_de_fase = intercambiador["cambio_fase"],
+                            fluido_carcasa = obtener_fluido(intercambiador["fluido_c"].lower())
+                            fluido_tubo = obtener_fluido(intercambiador["fluido_t"].lower())
 
-                        presion_entrada = intercambiador["presion_entrada_c"],
-                        caida_presion_max = intercambiador["caida_carcasa_max_c"] if intercambiador["caida_carcasa_max_c"] else None,
-                        caida_presion_min = intercambiador["caida_carcasa_min_c"] if intercambiador["caida_carcasa_min_c"] else None,
-                        unidad_presion = Unidades.objects.get(pk=7), 
+                            print(intercambiador["tag"])
 
-                        fouling = intercambiador["fouling_carcasa"],
-                    )
+                            print(intercambiador['tipo_tubo'])
 
-                    print("CARCASA LISTA")
+                            propiedades = PropiedadesTuboCarcasa.objects.create(
+                                intercambiador = intercambiadorm,
+                                area = intercambiador['area_total'],
+                                area_unidad = Unidades.objects.get(pk=3),
+                                longitud_tubos = intercambiador['long_tubos'],
+                                longitud_tubos_unidad = metros,
+                                diametro_externo_tubos = intercambiador['od_tubos'],
+                                diametro_interno_carcasa = intercambiador['id_carcasa'],
+                                diametro_tubos_unidad = metros,
+                                fluido_carcasa = fluido_carcasa,
+                                material_carcasa = intercambiador["mat_carcasa"],
+                                conexiones_entrada_carcasa = intercambiador["conexiones_entrada_c"],
+                                conexiones_salida_carcasa = intercambiador["conexiones_salida_c"],
+                                numero_tubos = intercambiador["n_tubos"],
+
+                                material_tubo = intercambiador["mat_tubo"],
+                                fluido_tubo = fluido_tubo,
+                                tipo_tubo = TiposDeTubo.objects.filter(nombre__icontains=intercambiador["tipo_tubo"])[0] if intercambiador["tipo_tubo"] != "" else None,
+                                conexiones_entrada_tubos = intercambiador["conexiones_entrada_t"],
+                                conexiones_salida_tubos = intercambiador["conexiones_salida_t"],
+                                pitch_tubos = intercambiador["pitch"],
+                                unidades_pitch = metros,
+
+                                arreglo_serie = intercambiador["arreglo_serie"],
+                                arreglo_paralelo = intercambiador["arreglo_paralelo"],
+                                q = intercambiador["q"]
+                            )
+
+                            print("PROPIEDADES LISTA")
+
+                            cp_liquido, cp_vapor = obtener_cp(intercambiador, 't')
+
+                            print(intercambiador["temp_entrada_t"], intercambiador["temp_salida_t"],
+                                    intercambiador["flujo_total_t"],
+                                    intercambiador["flujo_entrada_vaport"] if intercambiador["flujo_entrada_vaport"] else 0,
+                                    intercambiador["flujo_salida_vaport"] if intercambiador["flujo_salida_vaport"] else 0,
+                                    intercambiador["flujo_entrada_liquidot"] if intercambiador["flujo_entrada_liquidot"] else 0,
+                                    intercambiador["flujo_salida_liquidot"] if intercambiador["flujo_salida_liquidot"] else 0,
+                                    intercambiador["cambio_fase"],
+                                    intercambiador["presion_entrada_t"],
+                                    intercambiador["caida_presion_max_t"] if intercambiador["caida_presion_max_t"] else None,
+                                    intercambiador["caida_presion_min_t"] if intercambiador["caida_presion_min_t"] else None,
+                                    intercambiador["fouling_t"]
+                                    )
+                            
+                            if(intercambiador["flujo_total_t"] == ""):
+                                intercambiador["flujo_total_t"] = (  intercambiador["flujo_entrada_vaporc"] if intercambiador["flujo_entrada_vaporc"] else 0) + (intercambiador["flujo_entrada_liquidoc"] if intercambiador["flujo_entrada_liquidoc"] else 0)
+                            
+                            condiciones_tubo = CondicionesIntercambiador.objects.create(
+                                intercambiador = intercambiadorm,
+                                lado = 'T',
+                                temp_entrada = intercambiador["temp_entrada_t"],
+                                temp_salida = intercambiador["temp_salida_t"],
+                                temperaturas_unidad = Unidades.objects.get(pk=1),
+
+                                flujo_masico = intercambiador["flujo_total_t"],
+                                flujo_vapor_entrada = intercambiador["flujo_entrada_vaport"] if intercambiador["flujo_entrada_vaport"] else 0,
+                                flujo_vapor_salida = intercambiador["flujo_salida_vaport"] if intercambiador["flujo_salida_vaport"] else 0,
+                                flujo_liquido_entrada = intercambiador["flujo_entrada_liquidot"] if intercambiador["flujo_entrada_liquidot"] else 0,
+                                flujo_liquido_salida = intercambiador["flujo_salida_liquidot"] if intercambiador["flujo_salida_liquidot"] else 0,
+                                flujos_unidad = Unidades.objects.get(pk=6),
+                                tipo_cp = "M",
+                                fluido_cp_liquido = cp_liquido,
+                                fluido_cp_gas = cp_vapor,
+                                fluido_etiqueta = intercambiador["fluido_t"].upper(),
+
+                                cambio_de_fase = intercambiador["cambio_faset"],
+
+                                presion_entrada = intercambiador["presion_entrada_t"],
+                                caida_presion_max = intercambiador["caida_presion_max_t"],
+                                caida_presion_min = intercambiador["caida_presion_min_t"],
+                                unidad_presion = Unidades.objects.get(pk=7), 
+
+                                fouling = intercambiador["fouling_t"],
+                            )
+
+                            print("TUBO LISTO")
+
+                            cp_liquido, cp_vapor = obtener_cp(intercambiador, 'c')
+
+                            if(intercambiador["flujo_total_c"] == ""):
+                                intercambiador["flujo_total_c"] = (  intercambiador["flujo_entrada_vaport"] if intercambiador["flujo_entrada_vaport"] else 0) + (intercambiador["flujo_entrada_liquidot"] if intercambiador["flujo_entrada_liquidot"] else 0)
+
+                            print(intercambiador["temp_entrada_c"], intercambiador["temp_salida_c"],
+                                    intercambiador["flujo_total_c"],
+                                    intercambiador["flujo_entrada_vaporc"] if intercambiador["flujo_entrada_vaporc"] else 0,
+                                    intercambiador["flujo_salida_vaporc"] if intercambiador["flujo_salida_vaporc"] else 0,
+                                    intercambiador["flujo_entrada_liquidoc"] if intercambiador["flujo_entrada_liquidoc"] else 0,
+                                    intercambiador["flujo_salida_liquidoc"] if intercambiador["flujo_salida_liquidoc"] else 0,
+                                    intercambiador["cambio_fase"],
+                                    intercambiador["presion_entrada_c"],
+                                    intercambiador["caida_carcasa_max_c"] if intercambiador["caida_carcasa_max_c"] else None,
+                                    intercambiador["caida_carcasa_min_c"] if intercambiador["caida_carcasa_min_c"] else None,
+                                    intercambiador["fouling_carcasa"]
+                                    )
+
+                            condiciones_carcasa = CondicionesIntercambiador.objects.create(
+                                intercambiador = intercambiadorm,
+                                lado = 'C',
+                                temp_entrada = intercambiador["temp_entrada_c"],
+                                temp_salida = intercambiador["temp_salida_c"],
+                                temperaturas_unidad = Unidades.objects.get(pk=1),
+
+                                flujo_masico = intercambiador["flujo_total_c"],
+                                flujo_vapor_entrada = intercambiador["flujo_entrada_vaporc"] if intercambiador["flujo_entrada_vaporc"] else 0,
+                                flujo_vapor_salida = intercambiador["flujo_salida_vaporc"] if intercambiador["flujo_salida_vaporc"] else 0,
+                                flujo_liquido_entrada = intercambiador["flujo_entrada_liquidoc"] if intercambiador["flujo_entrada_liquidoc"] else 0,
+                                flujo_liquido_salida = intercambiador["flujo_salida_liquidoc"] if intercambiador["flujo_salida_liquidoc"] else 0,
+                                flujos_unidad = Unidades.objects.get(pk=6),
+                                tipo_cp = "M",
+                                fluido_cp_liquido = cp_liquido,
+                                fluido_cp_gas = cp_vapor,
+                                fluido_etiqueta = intercambiador["fluido_c"].upper(),
+
+                                cambio_de_fase = intercambiador["cambio_fase"],
+
+                                presion_entrada = intercambiador["presion_entrada_c"],
+                                caida_presion_max = intercambiador["caida_carcasa_max_c"] if intercambiador["caida_carcasa_max_c"] else None,
+                                caida_presion_min = intercambiador["caida_carcasa_min_c"] if intercambiador["caida_carcasa_min_c"] else None,
+                                unidad_presion = Unidades.objects.get(pk=7), 
+
+                                fouling = intercambiador["fouling_carcasa"],
+                            )
+
+                            print("CARCASA LISTA")
+                            cargados += 1
+                    except Exception as e:
+                        print(str(e))
+
+                print(cargados, len(data))

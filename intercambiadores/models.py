@@ -372,7 +372,7 @@ class PropiedadesTuboCarcasa(models.Model):
     # Datos Tubos
     material_tubo = models.CharField(null=True, max_length=50)
     fluido_tubo = models.ForeignKey(Fluido, related_name="fluido_tubo", on_delete=models.DO_NOTHING, null=True)
-    tipo_tubo = models.ForeignKey(TiposDeTubo, on_delete=models.DO_NOTHING)
+    tipo_tubo = models.ForeignKey(TiposDeTubo, on_delete=models.DO_NOTHING, null=True)
     conexiones_entrada_tubos = models.CharField(null=True, max_length=50)
     conexiones_salida_tubos = models.CharField(null=True, max_length=50)
 
