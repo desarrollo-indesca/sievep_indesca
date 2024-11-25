@@ -32,7 +32,9 @@
                         <div class="d-flex justify-content-center align-items-center">
                           {% if generales.obtener_imagen %}
                           <img style="max-width: 100%;" src="/static/img/temas/intercambiadores/tubo_carcasa/{{generales.tema.codigo}}.jpg" alt="Imagen del Tema no Disponible">
-                          {%else%}
+                          {% elif generales.tema.codigo == "U-TUBE" %}
+                          <img style="max-width: 33.33%;" src="/static/img/temas/intercambiadores/doble_tubo.png" alt="Intercambiador de Doble Tubo">
+                          {% else %}
                           <img style="max-width: 33.33%;" src="/static/img/temas/intercambiadores/partes/{{generales.tema.codigo.0}}.jpg" alt="Imagen del Tema no Disponible">
                           <img style="max-width: 33.33%;" src="/static/img/temas/intercambiadores/partes/{{generales.tema.codigo.1}}.jpg" alt="Imagen del Tema no Disponible">
                           <img style="max-width: 33.33%;" src="/static/img/temas/intercambiadores/partes/{{generales.tema_final}}.jpg" alt="Imagen del Tema no Disponible">

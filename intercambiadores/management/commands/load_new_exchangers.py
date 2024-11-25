@@ -106,7 +106,7 @@ class Command(BaseCommand):
                             fluido_carcasa = obtener_fluido(intercambiador["fluido_c"].lower())
                             fluido_tubo = obtener_fluido(intercambiador["fluido_t"].lower())
 
-                            print(intercambiador["tag"], intercambiador['tipo_tubo'], fluido_carcasa, fluido_tubo)
+                            print(intercambiador["tag"], intercambiador['tipo_tubo'], intercambiador["n_tubos"], fluido_carcasa, fluido_tubo)
 
                             propiedades = PropiedadesTuboCarcasa.objects.create(
                                 intercambiador = intercambiadorm,
@@ -121,7 +121,7 @@ class Command(BaseCommand):
                                 material_carcasa = intercambiador.get("mat_carcasa"),
                                 conexiones_entrada_carcasa = intercambiador.get("conexiones_entrada_c") if intercambiador.get("conexiones_entrada_c") else None,
                                 conexiones_salida_carcasa = intercambiador.get("conexiones_salida_c") if intercambiador.get("conexiones_salida_c") else None,
-                                numero_tubos = intercambiador.get("n_tubos"),
+                                numero_tubos = intercambiador.get("n_tubos") if intercambiador.get("n_tubos") != "" else None,
 
                                 material_tubo = intercambiador.get("mat_tubo"),
                                 fluido_tubo = fluido_tubo,
@@ -144,18 +144,18 @@ class Command(BaseCommand):
                                 intercambiador["flujo_total_t"] = (float(intercambiador["flujo_entrada_vaport"]) if intercambiador["flujo_entrada_vaport"] else 0) + (float(intercambiador["flujo_entrada_liquidot"]) if intercambiador["flujo_entrada_liquidot"] else 0)
                             
                             print(intercambiador["temp_entrada_t"], intercambiador["temp_salida_t"],
-                                    intercambiador["flujo_total_t"],
-                                    intercambiador["flujo_entrada_vaport"] if intercambiador["flujo_entrada_vaport"] else 0,
-                                    intercambiador["flujo_salida_vaport"] if intercambiador["flujo_salida_vaport"] else 0,
-                                    intercambiador["flujo_entrada_liquidot"] if intercambiador["flujo_entrada_liquidot"] else 0,
-                                    intercambiador["flujo_salida_liquidot"] if intercambiador["flujo_salida_liquidot"] else 0,
-                                    intercambiador["cambio_fase"],
-                                    intercambiador["presion_entrada_t"],
-                                    intercambiador["caida_presion_max_t"] if intercambiador["caida_presion_max_t"] else None,
-                                    intercambiador["caida_presion_min_t"] if intercambiador["caida_presion_min_t"] else None,
-                                    intercambiador["fouling_t"],
-                                    cp_liquido, cp_vapor
-                                    )
+                                intercambiador["flujo_total_t"],
+                                intercambiador["flujo_entrada_vaport"] if intercambiador["flujo_entrada_vaport"] else 0,
+                                intercambiador["flujo_salida_vaport"] if intercambiador["flujo_salida_vaport"] else 0,
+                                intercambiador["flujo_entrada_liquidot"] if intercambiador["flujo_entrada_liquidot"] else 0,
+                                intercambiador["flujo_salida_liquidot"] if intercambiador["flujo_salida_liquidot"] else 0,
+                                intercambiador["cambio_fase"],
+                                intercambiador["presion_entrada_t"],
+                                intercambiador["caida_presion_max_t"] if intercambiador["caida_presion_max_t"] else None,
+                                intercambiador["caida_presion_min_t"] if intercambiador["caida_presion_min_t"] else None,
+                                intercambiador["fouling_t"],
+                                cp_liquido, cp_vapor
+                            )
 
                             condiciones_tubo = CondicionesIntercambiador.objects.create(
                                 intercambiador = intercambiadorm,
