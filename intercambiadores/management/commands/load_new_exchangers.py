@@ -106,7 +106,7 @@ class Command(BaseCommand):
                             fluido_carcasa = obtener_fluido(intercambiador["fluido_c"].lower())
                             fluido_tubo = obtener_fluido(intercambiador["fluido_t"].lower())
 
-                            print(intercambiador["tag"], intercambiador['tipo_tubo'], intercambiador["n_tubos"], fluido_carcasa, fluido_tubo)
+                            print(intercambiador["tag"], intercambiador['tipo_tubo'], fluido_carcasa, fluido_tubo)
 
                             propiedades = PropiedadesTuboCarcasa.objects.create(
                                 intercambiador = intercambiadorm,
