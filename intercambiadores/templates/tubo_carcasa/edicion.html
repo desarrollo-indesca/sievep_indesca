@@ -405,7 +405,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_tubo">Flujo Másico:</label>
                         <div class="input-group mb-3">
-                            <input disabled value="{{condicion_tubo.flujo_masico|unlocalize}}" placeholder="Flujo Total" style="width: 60% !important;" class="form-control" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" max="99999999.99" required>
+                            <input disabled value="{{condicion_tubo.flujo_masico|unlocalize}}" placeholder="Flujo Total" style="width: 60% !important;" class="form-control" type="number" name="flujo_tubo" id="flujo_tubo" step="0.01" max="9999999999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
                                 <option value="{{unidad.pk}}" {% if condicion_tubo.flujos_unidad == unidad %}selected{%endif%}>{{condicion_tubo.flujos_unidad}}</option>
                             </select>
@@ -415,7 +415,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_vapor_in_tubo">Flujo de Vapor Entrada:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_tubo.flujo_vapor_entrada|unlocalize}}" placeholder="Flujo IN Vapor" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_in_tubo" id="flujo_vapor_in_tubo" step="0.01" max="99999999.99" required>
+                            <input value="{{condicion_tubo.flujo_vapor_entrada|unlocalize}}" placeholder="Flujo IN Vapor" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_in_tubo" id="flujo_vapor_in_tubo" step="0.01" max="9999999999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
                                 <option value="{{unidad.pk}}" {% if condicion_tubo.flujos_unidad == unidad %}selected{%endif%}>{{condicion_tubo.flujos_unidad}}</option>
                             </select>
@@ -425,7 +425,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_vapor_out_tubo">Flujo de Vapor Salida:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_tubo.flujo_vapor_salida|unlocalize}}" placeholder="Flujo OUT Vapor" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_out_tubo" id="flujo_vapor_out_tubo" step="0.01" max="99999999.99" required>
+                            <input value="{{condicion_tubo.flujo_vapor_salida|unlocalize}}" placeholder="Flujo OUT Vapor" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_out_tubo" id="flujo_vapor_out_tubo" step="0.01" max="9999999999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
                                 <option value="{{unidad.pk}}" {% if condicion_tubo.flujos_unidad == unidad %}selected{%endif%}>{{condicion_tubo.flujos_unidad}}</option>
                             </select>
@@ -435,7 +435,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_liquido_in_tubo">Flujo Líquido Entrada:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_tubo.flujo_liquido_entrada|unlocalize}}" placeholder="Flujo IN Líq." style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_in_tubo" id="flujo_liquido_in_tubo" step="0.01" max="99999999.99" required>
+                            <input value="{{condicion_tubo.flujo_liquido_entrada|unlocalize}}" placeholder="Flujo IN Líq." style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_in_tubo" id="flujo_liquido_in_tubo" step="0.01" max="9999999999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
                                 <option value="{{unidad.pk}}" {% if condicion_tubo.flujos_unidad == unidad %}selected{%endif%}>{{condicion_tubo.flujos_unidad}}</option>
                             </select>
@@ -445,7 +445,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_liquido_out_tubo">Flujo Líquido Salida:</label>
                         <div class="input-group mb-3">
-                            <input value="{{condicion_tubo.flujo_liquido_salida|unlocalize}}" placeholder="Flujo OUT Líq." style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_out_tubo" id="flujo_liquido_out_tubo" step="0.01" max="99999999.99" required>
+                            <input value="{{condicion_tubo.flujo_liquido_salida|unlocalize}}" placeholder="Flujo OUT Líq." style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_out_tubo" id="flujo_liquido_out_tubo" step="0.01" max="9999999999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
                                 <option value="{{unidad.pk}}" {% if condicion_tubo.flujos_unidad == unidad %}selected{%endif%}>{{condicion_tubo.flujos_unidad}}</option>
                             </select>

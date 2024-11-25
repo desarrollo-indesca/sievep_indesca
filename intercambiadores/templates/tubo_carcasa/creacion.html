@@ -119,7 +119,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_carcasa">Flujo Másico:</label>
                         <div class="input-group mb-3">
-                            <input disabled min="0.01" placeholder="Flujo Total" value="{{previo.flujo_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" max="99999999.99" required>
+                            <input disabled min="0.01" placeholder="Flujo Total" value="{{previo.flujo_carcasa}}" style="width: 60% !important;" class="form-control" type="number" name="flujo_carcasa" id="flujo_carcasa" step="0.01" max="9999999999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos">
                                 {% for unidad in unidades_flujo %}
                                 <option value="{{unidad.pk|slugify}}" {% if previo.unidad_flujos == unidad.pk|slugify %}selected{%endif%}>{{unidad.simbolo}}</option>
@@ -131,7 +131,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_vapor_in_carcasa">Flujo de Vapor Entrada:</label>
                         <div class="input-group mb-3">
-                            <input value="{{previo.flujo_vapor_in_carcasa}}" placeholder="Flujo IN Vapor" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_in_carcasa" id="flujo_vapor_in_carcasa" step="0.01" max="99999999.99" required>
+                            <input value="{{previo.flujo_vapor_in_carcasa}}" placeholder="Flujo IN Vapor" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_in_carcasa" id="flujo_vapor_in_carcasa" step="0.01" max="9999999999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
                                 {% if previo.unidad_flujos %}
                                 {% for unidad in unidades_flujo %}
@@ -149,7 +149,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_vapor_out_carcasa">Flujo de Vapor Salida:</label>
                         <div class="input-group mb-3">
-                            <input value="{{previo.flujo_vapor_out_carcasa}}" placeholder="Flujo OUT Vapor" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_out_carcasa" id="flujo_vapor_out_carcasa" step="0.01" max="99999999.99" required>
+                            <input value="{{previo.flujo_vapor_out_carcasa}}" placeholder="Flujo OUT Vapor" style="width: 60% !important;" class="form-control" type="number" name="flujo_vapor_out_carcasa" id="flujo_vapor_out_carcasa" step="0.01" max="9999999999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
                                 {% if previo.unidad_flujos %}
                                 {% for unidad in unidades_flujo %}
@@ -167,7 +167,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_liquido_in_carcasa">Flujo Líquido Entrada:</label>
                         <div class="input-group mb-3">
-                            <input value="{{previo.flujo_liquido_in_carcasa}}" placeholder="Flujo IN Líq." style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_in_carcasa" id="flujo_liquido_in_carcasa" step="0.01" max="99999999.99" required>
+                            <input value="{{previo.flujo_liquido_in_carcasa}}" placeholder="Flujo IN Líq." style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_in_carcasa" id="flujo_liquido_in_carcasa" step="0.01" max="9999999999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
                                 {% if previo.unidad_flujos %}
                                 {% for unidad in unidades_flujo %}
@@ -185,7 +185,7 @@
                     <div class="col-6">
                         <label class="form-label" for="flujo_liquido_out_carcasa">Flujo Líquido Salida:</label>
                         <div class="input-group mb-3">
-                            <input value="{{previo.flujo_liquido_out_carcasa}}" placeholder="Flujo OUT Líq." style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_out_carcasa" id="flujo_liquido_out_carcasa" step="0.01" max="99999999.99" required>
+                            <input value="{{previo.flujo_liquido_out_carcasa}}" placeholder="Flujo OUT Líq." style="width: 60% !important;" class="form-control" type="number" name="flujo_liquido_out_carcasa" id="flujo_liquido_out_carcasa" step="0.01" max="9999999999999.99" required>
                             <select style="width: 40% !important;" class="form-select" name="unidad_flujos" id="unidad_flujos" disabled>
                                 {% if previo.unidad_flujos %}
                                 {% for unidad in unidades_flujo %}

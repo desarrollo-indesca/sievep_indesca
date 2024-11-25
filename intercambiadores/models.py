@@ -351,7 +351,7 @@ class PropiedadesTuboCarcasa(models.Model):
     intercambiador = models.OneToOneField(Intercambiador, related_name="datos_tubo_carcasa", on_delete=models.DO_NOTHING)
 
     # Datos del área
-    area = models.DecimalField(max_digits=12, decimal_places=2)
+    area = models.DecimalField(max_digits=12, decimal_places=2, null=True)
     area_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="area_unidad_tubocarcasa")
 
     numero_tubos = models.IntegerField(null=True)
@@ -628,11 +628,11 @@ class CondicionesIntercambiador(models.Model):
     temp_salida = models.DecimalField(max_digits=7, decimal_places=2)
     temperaturas_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="temperaturas_condiciones_unidades_tubocarcasa", null=True)
 
-    flujo_masico = models.DecimalField(max_digits=10, decimal_places=2)
-    flujo_vapor_entrada = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    flujo_vapor_salida = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    flujo_liquido_entrada = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    flujo_liquido_salida = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    flujo_masico = models.DecimalField(max_digits=15, decimal_places=2)
+    flujo_vapor_entrada = models.DecimalField(max_digits=15, decimal_places=2, null=True)
+    flujo_vapor_salida = models.DecimalField(max_digits=15, decimal_places=2, null=True)
+    flujo_liquido_entrada = models.DecimalField(max_digits=15, decimal_places=2, null=True)
+    flujo_liquido_salida = models.DecimalField(max_digits=15, decimal_places=2, null=True)
     flujos_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="flujos_unidad_tubocarcasa", null=True)
     fluido_etiqueta = models.CharField(null=True, max_length=50)
     tipo_cp = models.CharField(null=False, choices=[['M','Manual'],['A','Automático']], max_length=1)
