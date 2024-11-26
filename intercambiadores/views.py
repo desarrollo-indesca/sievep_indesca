@@ -517,9 +517,6 @@ class CrearIntercambiadorTuboCarcasa(PuedeCrear, CreacionIntercambiadorMixin, Vi
         if(not request.POST.get('od_tubos')):
             errores.append('El campo Diámetro Externo de Tubos es obligatorio.')
 
-        if(not request.POST.get('id_carcasa')):
-            errores.append('El campo Diámetro Interno de Carcasa es obligatorio.')
-
         if(not request.POST.get('unidad_diametros')):
             errores.append('El campo Unidad de Diámetros es obligatorio.')
 
@@ -633,7 +630,7 @@ class CrearIntercambiadorTuboCarcasa(PuedeCrear, CreacionIntercambiadorMixin, Vi
         if(round(float(request.POST.get('flujo_vapor_in_carcasa')) + float(request.POST.get('flujo_liquido_in_carcasa')), 2) != round(float(request.POST.get('flujo_vapor_out_carcasa')) + float(request.POST.get('flujo_liquido_out_carcasa')), 2)):
             errores.append('Los flujos de entrada y salida de la carcasa no coinciden.')
 
-        if(request.POST.get('tipo_cp_tubo') == 'M' and request.POST.get('cp_liquido_tubo') == request.POST.get('cp_gas_tubo')):
+        if(request.POST.get('tipo_cp_tubo') == 'M' and request.POST.get('cp_liquido_tubo') == request.POST.get('cp_gas_tubo') and request.POST.get('cp_liquido_tubo') != '' and request.POST.get('cp_gas_tubo') != ''):
             errores.append('Cuando el Cp es Manual, el Cp de Líquido y el Cp de Gas del Tubo no pueden ser iguales.')
 
         if(request.POST.get('tipo_cp_carcasa') == 'M' and request.POST.get('cp_liquido_carcasa') == request.POST.get('cp_gas_carcasa')):
