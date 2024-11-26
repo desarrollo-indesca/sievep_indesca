@@ -255,16 +255,16 @@ class EdicionIntercambiadorMixin(ObtencionParametrosMixin):
         
         condicion.temp_entrada = request.POST['temp_in_' + lado]
         condicion.temp_salida = request.POST['temp_out_' + lado]
-        condicion.flujo_vapor_entrada = request.POST['flujo_vapor_in_' + lado]
-        condicion.flujo_vapor_salida = request.POST['flujo_vapor_out_' + lado]
-        condicion.flujo_liquido_salida = request.POST['flujo_liquido_out_' + lado]
-        condicion.flujo_liquido_entrada = request.POST['flujo_liquido_in_' + lado]
+        condicion.flujo_vapor_entrada = request.POST['flujo_vapor_in_' + lado] if request.POST['flujo_vapor_in_' + lado]  else None 
+        condicion.flujo_vapor_salida = request.POST['flujo_vapor_out_' + lado] if request.POST['flujo_vapor_out_' + lado]  else None 
+        condicion.flujo_liquido_salida = request.POST['flujo_liquido_out_' + lado] if request.POST['flujo_liquido_out_' + lado]  else None 
+        condicion.flujo_liquido_entrada = request.POST['flujo_liquido_in_' + lado] if request.POST['flujo_liquido_in_' + lado]  else None 
         condicion.flujo_masico = float(request.POST['flujo_liquido_in_' + lado]) + float(request.POST['flujo_vapor_in_' + lado])
         condicion.cambio_de_fase = cambio_fase
-        condicion.presion_entrada = request.POST['presion_entrada_' + lado]
-        condicion.caida_presion_max = request.POST['caida_presion_max_' + lado]
-        condicion.caida_presion_min = request.POST['caida_presion_min_' + lado]
-        condicion.fouling = request.POST['fouling_' + lado]
+        condicion.presion_entrada = request.POST['presion_entrada_' + lado] if request.POST['presion_entrada_' + lado] else None
+        condicion.caida_presion_max = request.POST['caida_presion_max_' + lado] if request.POST['caida_presion_max_' + lado] else None
+        condicion.caida_presion_min = request.POST['caida_presion_min_' + lado] if request.POST['caida_presion_min_' + lado] else None
+        condicion.fouling = request.POST['fouling_' + lado] if request.POST['fouling_' + lado] else None
         condicion.fluido_cp_gas = cp_gas
         condicion.fluido_cp_liquido = cp_liquido
         condicion.tipo_cp = tipo_cp
@@ -327,12 +327,12 @@ class CreacionIntercambiadorMixin(ObtencionParametrosMixin):
             flujo_liquido_entrada = request.POST['flujo_liquido_in_' + lado],
             flujo_liquido_salida = request.POST['flujo_liquido_out_' + lado],
             flujos_unidad = Unidades.objects.get(pk=request.POST['unidad_flujos']),
-            caida_presion_max = request.POST['caida_presion_max_' + lado],
-            caida_presion_min = request.POST['caida_presion_min_' + lado],
-            presion_entrada = request.POST['presion_entrada_' + lado],
+            caida_presion_max = request.POST['caida_presion_max_' + lado] if request.POST['caida_presion_max_' + lado] else None,
+            caida_presion_min = request.POST['caida_presion_min_' + lado] if request.POST['caida_presion_min_' + lado] else None,
+            presion_entrada = request.POST['presion_entrada_' + lado] if request.POST['presion_entrada_' + lado] else None,
             unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presiones']),
 
-            fouling = request.POST['fouling_' + lado],
+            fouling = request.POST['fouling_' + lado] if request.POST['fouling_' + lado] else None,
             fluido_etiqueta = fluido[0] if type(fluido) != Fluido else None,
             fluido_cp_gas = cp_gas,
             fluido_cp_liquido = cp_liquido,
@@ -487,9 +487,6 @@ class CrearIntercambiadorTuboCarcasa(PuedeCrear, CreacionIntercambiadorMixin, Vi
         if(Intercambiador.objects.filter(tag = request.POST.get('tag')).exists()):
             errores.append(f'El tag ya está registrado en el sistema.')
 
-        if(not request.POST.get('fabricante') and request.POST.get('tag')):
-            errores.append('El campo Fabricante es obligatorio.')
-
         if(not request.POST.get('planta') and request.POST.get('tag')):
             errores.append('El campo Planta es obligatorio.')
 
@@ -520,29 +517,14 @@ class CrearIntercambiadorTuboCarcasa(PuedeCrear, CreacionIntercambiadorMixin, Vi
         if(not request.POST.get('od_tubos')):
             errores.append('El campo Diámetro Externo de Tubos es obligatorio.')
 
-        if(not request.POST.get('id_carcasa')):
-            errores.append('El campo Diámetro Interno de Carcasa es obligatorio.')
-
         if(not request.POST.get('unidad_diametros')):
             errores.append('El campo Unidad de Diámetros es obligatorio.')
 
         if(not request.POST.get('material_carcasa')):
             errores.append('El campo Material de Carcasa es obligatorio.')
 
-        if(not request.POST.get('conexiones_entrada_carcasa')):
-            errores.append('El campo Conexiones de Entrada de Carcasa es obligatorio.')
-
-        if(not request.POST.get('conexiones_salida_carcasa')):
-            errores.append('El campo Conexiones de Salida de Carcasa es obligatorio.')
-
         if(not request.POST.get('material_tubo')):
             errores.append('El campo Material de Tubo es obligatorio.')
-
-        if(not request.POST.get('conexiones_entrada_tubo')):
-            errores.append('El campo Conexiones de Entrada de Tubo es obligatorio.')
-
-        if(not request.POST.get('conexiones_salida_tubo')):
-            errores.append('El campo Conexiones de Salida de Tubo es obligatorio.')
 
         if(not request.POST.get('tipo_tubo')):
             errores.append('El campo Tipo de Tubo es obligatorio.')
@@ -574,14 +556,8 @@ class CrearIntercambiadorTuboCarcasa(PuedeCrear, CreacionIntercambiadorMixin, Vi
         if(not request.POST.get('unidad_calor') and not request.POST.get('unidad_q')):
             errores.append('El campo Unidad de Calor es obligatorio.')
 
-        if(not request.POST.get('u')):
-            errores.append('El campo Coeficiente U es obligatorio.')
-
         if(not request.POST.get('unidad_u')):
             errores.append('El campo Unidad de Coeficiente U es obligatorio.')
-
-        if(not request.POST.get('ensuciamiento')):
-            errores.append('El campo Ensuciamiento es obligatorio.')
 
         if(not request.POST.get('unidad_fouling')):
             errores.append('El campo Unidad de Ensuciamiento es obligatorio.')
@@ -629,12 +605,6 @@ class CrearIntercambiadorTuboCarcasa(PuedeCrear, CreacionIntercambiadorMixin, Vi
         if(not request.POST.get('unidad_flujos')):
             errores.append('El campo Unidad de Flujos es obligatorio.')
 
-        if(not request.POST.get('caida_presion_max_tubo')):
-            errores.append('El campo Caida de Presión Máxima de Tubo es obligatorio.')
-
-        if(not request.POST.get('caida_presion_min_tubo')):
-            errores.append('El campo Caida de Presión Mínima de Tubo es obligatorio.')
-
         if(not request.POST.get('presion_entrada_carcasa')):
             errores.append('El campo Presión de Entrada de Carcasa es obligatorio.')
 
@@ -660,13 +630,7 @@ class CrearIntercambiadorTuboCarcasa(PuedeCrear, CreacionIntercambiadorMixin, Vi
         if(round(float(request.POST.get('flujo_vapor_in_carcasa')) + float(request.POST.get('flujo_liquido_in_carcasa')), 2) != round(float(request.POST.get('flujo_vapor_out_carcasa')) + float(request.POST.get('flujo_liquido_out_carcasa')), 2)):
             errores.append('Los flujos de entrada y salida de la carcasa no coinciden.')
 
-        if(not request.POST.get('caida_presion_max_carcasa')):
-            errores.append('El campo Caida de Presión Máxima de Carcasa es obligatorio.')
-
-        if(not request.POST.get('caida_presion_min_carcasa')):
-            errores.append('El campo Caida de Presión Mínima de Carcasa es obligatorio.')
-
-        if(request.POST.get('tipo_cp_tubo') == 'M' and request.POST.get('cp_liquido_tubo') == request.POST.get('cp_gas_tubo')):
+        if(request.POST.get('tipo_cp_tubo') == 'M' and request.POST.get('cp_liquido_tubo') == request.POST.get('cp_gas_tubo') and request.POST.get('cp_liquido_tubo') != '' and request.POST.get('cp_gas_tubo') != ''):
             errores.append('Cuando el Cp es Manual, el Cp de Líquido y el Cp de Gas del Tubo no pueden ser iguales.')
 
         if(request.POST.get('tipo_cp_carcasa') == 'M' and request.POST.get('cp_liquido_carcasa') == request.POST.get('cp_gas_carcasa')):
@@ -730,7 +694,7 @@ class CrearIntercambiadorTuboCarcasa(PuedeCrear, CreacionIntercambiadorMixin, Vi
                 fluido_tubo = self.obtencion_fluido(request, 'tubo')
                 fluido_carcasa = self.obtencion_fluido(request, 'carcasa')
 
-                u = request.POST['u']
+                u = request.POST['u'] if request.POST['u'] else None
                 calor = float(request.POST.get('calor'))
 
                 # Creación de Intercambiador Tubo/Carcasa
@@ -759,15 +723,15 @@ class CrearIntercambiadorTuboCarcasa(PuedeCrear, CreacionIntercambiadorMixin, Vi
                     pitch_tubos = float(request.POST['pitch']),
                     unidades_pitch = Unidades.objects.get(pk=request.POST['unidades_pitch']),
 
-                    arreglo_serie = request.POST['arreglo_serie'],
-                    arreglo_paralelo = request.POST['arreglo_paralelo'],
-                    numero_pasos_tubo = request.POST['numero_pasos_tubo'],
-                    numero_pasos_carcasa = request.POST['numero_pasos_carcasa'],
+                    arreglo_serie = request.POST['arreglo_serie'] if request.POST['arreglo_serie'] else None,
+                    arreglo_paralelo = request.POST['arreglo_paralelo'] if request.POST['arreglo_paralelo'] else None,
+                    numero_pasos_tubo = request.POST['numero_pasos_tubo'] if request.POST['numero_pasos_tubo'] else None,
+                    numero_pasos_carcasa = request.POST['numero_pasos_carcasa'] if request.POST['numero_pasos_carcasa'] else None,
                     q =  float(request.POST['calor']),
                     q_unidad = Unidades.objects.get(pk=request.POST['unidad_calor']),
                     u = u,
                     u_unidad = Unidades.objects.get(pk=request.POST['unidad_u']),
-                    ensuciamiento = float(request.POST['ensuciamiento']),
+                    ensuciamiento = float(request.POST['ensuciamiento']) if request.POST['ensuciamiento'] else None,
                     ensuciamiento_unidad = Unidades.objects.get(pk=request.POST['unidad_fouling'])
                 )
 

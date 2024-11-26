@@ -12,6 +12,12 @@
   <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Evaluaciones del Intercambiador {{generales.tag}}</h3></div>
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
     {% if request.user.is_superuser or generales.planta.pk in permisos.creacion_evaluaciones %}
+    {% if intercambiador.intercambiador.tipo.nombre == "TUBO/CARCASA" %}
+    {% if intercambiador.problemas_carga.1|length == 0 %}
+    <a class="btn d-block btn-success" href="{% url 'crear_evaluacion_tubo_carcasa' pk=generales.pk %}">+ Nueva</a> &nbsp;
+    {% endif %}
+    {% endif %}
+    {%else%}
     <a class="btn d-block btn-success" href="{% url 'crear_evaluacion_tubo_carcasa' pk=generales.pk %}">+ Nueva</a> &nbsp;
     {%endif%}
   </div>
@@ -42,6 +48,24 @@
     <input value="{{nombre}}" name="nombre" type="text" class="form-control" placeholder="Filtrar por Nombre de Evaluación">
   </div>
   <input type="submit" hidden>
+
+  {% if intercambiador.intercambiador.tipo.nombre == "TUBO/CARCASA" %}
+  {% if intercambiador.problemas_carga.1|length or intercambiador.problemas_carga.0|length %}
+  <hr class="mt-3">
+  <h3 class="text-danger text-center">ADVERTENCIA</h3>
+  <p class="text-center text-danger">Se recomienda completar la ficha ya que no se encuentran los siguientes problemas en ficha respecto a datos críticos:</p>
+  <ul class="text-danger">
+    {% for adv in intercambiador.problemas_carga.1 %}
+    <li>{{adv}}</li>
+    {% endfor %}
+
+    {% for adv in intercambiador.problemas_carga.0 %}
+    <li>{{adv}}</li>
+    {% endfor %}
+  </ul>
+  <hr class="mt-3 mb-3">
+  {%endif%}
+  {%endif%}
 {% endblock %}
   
 {% block tabla %}
