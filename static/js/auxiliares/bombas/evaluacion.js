@@ -73,6 +73,7 @@ $("#id_fluido, #id_calculo_propiedades").change((e) => {
     $("#id_viscosidad_unidad").removeAttr("disabled");
     $("#id_presion_vapor_unidad").removeAttr("disabled");
     $("#id_densidad_unidad").removeAttr("disabled");
+    listeners_cambio();
   }
 });
 
@@ -174,7 +175,6 @@ document.body.addEventListener("htmx:afterRequest", function (evt) {
   } else $("button[type=submit]").removeAttr("disabled");
 
   if (!evt.detail.failed && evt.target.name == "submit") {
-    console.log($("#submit").val());
     if ($("#submit").val() === "calcular" || $("#submit").val() === "") {
       $("#submit").val("almacenar");
     } else {

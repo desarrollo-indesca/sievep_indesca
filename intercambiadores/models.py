@@ -11,7 +11,8 @@ import uuid
 criticidades = [
     ('C', 'Crítico'),
     ('S', 'Semi Crítico'),
-    ('N', 'No Crítico')
+    ('N', 'No Crítico'),
+    ('', 'Desconocido')
 ]
 
 tipos_condiciones = [
@@ -351,7 +352,7 @@ class PropiedadesTuboCarcasa(models.Model):
     intercambiador = models.OneToOneField(Intercambiador, related_name="datos_tubo_carcasa", on_delete=models.DO_NOTHING)
 
     # Datos del área
-    area = models.DecimalField(max_digits=12, decimal_places=2)
+    area = models.DecimalField(max_digits=12, decimal_places=2, null=True)
     area_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="area_unidad_tubocarcasa")
 
     numero_tubos = models.IntegerField(null=True)
@@ -372,7 +373,7 @@ class PropiedadesTuboCarcasa(models.Model):
     # Datos Tubos
     material_tubo = models.CharField(null=True, max_length=50)
     fluido_tubo = models.ForeignKey(Fluido, related_name="fluido_tubo", on_delete=models.DO_NOTHING, null=True)
-    tipo_tubo = models.ForeignKey(TiposDeTubo, on_delete=models.DO_NOTHING)
+    tipo_tubo = models.ForeignKey(TiposDeTubo, on_delete=models.DO_NOTHING, null=True)
     conexiones_entrada_tubos = models.CharField(null=True, max_length=50)
     conexiones_salida_tubos = models.CharField(null=True, max_length=50)
 
@@ -432,6 +433,74 @@ class PropiedadesTuboCarcasa(models.Model):
         for x in criticidades:
             if(x[0] == self.intercambiador.criticidad):
                 return x[1]
+            
+    def problemas_carga(self):
+        errores = []
+        errores_graves = []
+
+        cond_carcasa = self.condicion_carcasa()
+        cond_tubo = self.condicion_tubo()
+
+        if(cond_carcasa.cambio_de_fase in "T" and not cond_carcasa.hvap and not self.fluido_carcasa):
+            errores_graves.append("Debe definir manualmente el calor de vaporización o temperatura de saturación de la mezcla en la carcasa.")
+
+        if(cond_tubo.cambio_de_fase in "T" and not cond_tubo.hvap and not self.fluido_tubo):
+            errores_graves.append("Debe definir manualmente el calor de vaporización o temperatura de saturación de la mezcla en el tubo.")
+
+        if(cond_carcasa.cambio_de_fase in "P" and not cond_carcasa.hvap and not self.fluido_carcasa):
+            errores_graves.append("Debe actualizar datos para estimar el calor latente de vaporización del lado de la carcasa.")
+
+        if(cond_tubo.cambio_de_fase in "P" and not cond_tubo.hvap and not self.fluido_tubo):
+            errores_graves.append("Debe actualizar datos para estimar el calor latente de vaporización del lado del tubo.")
+
+        if(not self.fluido_tubo and (cond_tubo.cambio_de_fase == "T" and not cond_tubo.fluido_cp_liquido and not cond_carcasa.fluido_cp_gas or cond_tubo.cambio_de_fase == "P" and not cond_tubo.fluido_cp_liquido and not cond_carcasa.fluido_cp_gas)):
+            errores_graves.append("Debe colocar en ficha las capacidades caloríficas de la mezcla en cambio de fase del lado del tubo.")
+
+        if(not self.fluido_carcasa and (cond_carcasa.cambio_de_fase == "T" and not cond_carcasa.fluido_cp_liquido and not cond_carcasa.fluido_cp_gas or cond_carcasa.cambio_de_fase == "P" and not cond_carcasa.fluido_cp_liquido and not cond_carcasa.fluido_cp_gas)):
+            errores_graves.append("Debe colocar en ficha las capacidades caloríficas de la mezcla en cambio de fase del lado de la carcasa.")
+
+        if(cond_tubo.cambio_de_fase == "S" and (not cond_tubo.fluido_cp_liquido and not cond_tubo.fluido_cp_gas)):
+            errores.append("Se recomienda colocar las capacidades caloríficas del fluido del lado del tubo en la ficha")
+
+        if(cond_carcasa.cambio_de_fase == "S" and (not cond_carcasa.fluido_cp_liquido and not cond_carcasa.fluido_cp_gas)):
+            errores.append("Se recomienda colocar las capacidades caloríficas del fluido del lado de la carcasa en la ficha")
+
+        if(not self.u):
+            errores.append("Coeficiente U de diseño. Mientras no se defina no podrá calcularse el ensuciamiento.")
+        
+        if(not self.longitud_tubos):
+            errores_graves.append("Debe definirse la longitud de los tubos para definir dinámicamente el área.")
+
+        if(not self.diametro_externo_tubos):
+            errores_graves.append("Debe definirse el diámetro externo de los tubos para definir dinámicamente el área.")
+
+        if(not self.numero_tubos):
+            errores_graves.append("Debe definirse el número de tubos para definir dinámicamente el área.")
+
+        if(not cond_carcasa.cambio_de_fase):
+            errores_graves.append("Debe definirse el tipo de cambio de fase del lado de la carcasa para poder realizar los cálculos. Edite la ficha.")
+
+        if(not cond_tubo.cambio_de_fase):
+            errores_graves.append("Debe definirse el tipo de cambio de fase del lado del tubo para poder realizar los cálculos. Edite la ficha.")
+
+        flujo_entrada_c = cond_carcasa.flujo_vapor_entrada + cond_carcasa.flujo_liquido_entrada
+        flujo_entrada_t = cond_tubo.flujo_vapor_entrada + cond_tubo.flujo_liquido_entrada
+        flujo_salida_c = cond_carcasa.flujo_vapor_salida + cond_carcasa.flujo_liquido_salida
+        flujo_salida_t = cond_tubo.flujo_vapor_salida + cond_tubo.flujo_liquido_salida
+
+        if(flujo_entrada_c != flujo_salida_c):
+            errores_graves.append("La suma de los flujos de entrada y salida en la carcasa no coincide. Verificar.")
+
+        if(flujo_entrada_t != flujo_salida_t):
+            errores_graves.append("La suma de los flujos de entrada y salida en el tubo no coincide. Verificar.")                 
+
+        if(flujo_entrada_c == 0 or flujo_salida_c == 0):
+            errores_graves.append("Se detectan flujos nulos en la entrada o salida de la carcasa. Debe ser revisado.")
+        
+        if(flujo_entrada_t == 0 or flujo_salida_t == 0):
+            errores_graves.append("Se detectan flujos nulos en la entrada o salida del tubo. Debe ser revisado.")
+
+        return (errores, errores_graves)
 
     class Meta:
         db_table = "intercambiadores_intercambiadortubocarcasa"
@@ -628,11 +697,11 @@ class CondicionesIntercambiador(models.Model):
     temp_salida = models.DecimalField(max_digits=7, decimal_places=2)
     temperaturas_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="temperaturas_condiciones_unidades_tubocarcasa", null=True)
 
-    flujo_masico = models.DecimalField(max_digits=10, decimal_places=2)
-    flujo_vapor_entrada = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    flujo_vapor_salida = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    flujo_liquido_entrada = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    flujo_liquido_salida = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    flujo_masico = models.DecimalField(max_digits=15, decimal_places=2)
+    flujo_vapor_entrada = models.DecimalField(max_digits=15, decimal_places=2, null=True)
+    flujo_vapor_salida = models.DecimalField(max_digits=15, decimal_places=2, null=True)
+    flujo_liquido_entrada = models.DecimalField(max_digits=15, decimal_places=2, null=True)
+    flujo_liquido_salida = models.DecimalField(max_digits=15, decimal_places=2, null=True)
     flujos_unidad = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="flujos_unidad_tubocarcasa", null=True)
     fluido_etiqueta = models.CharField(null=True, max_length=50)
     tipo_cp = models.CharField(null=False, choices=[['M','Manual'],['A','Automático']], max_length=1)
