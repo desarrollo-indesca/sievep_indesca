@@ -45,7 +45,7 @@
                 <input type="password" name="password" class="form-control" id="password" maxlength="100" minlength="8" required>
             </div>
             {% else %}
-            <div class="col-6 d-flex justify-content-center align-items-end">
+            <div class="col-4 d-flex justify-content-center align-items-end">
                 <div class="d-flex">
                     <input type="checkbox" name="activo" class="form-check-input" id="activo" height="200px" width="200px"
                     {% if previo.activo %}checked{%endif%}>
@@ -54,7 +54,7 @@
                 </div>
             </div>
             {%endif%}
-            <div class="col-6 d-flex justify-content-center align-items-end">
+            <div class="col-4 d-flex justify-content-center align-items-end">
                 <div class="d-flex">
                     <input type="checkbox" name="superusuario" class="form-check-input" id="superusuario" height="200px" width="200px"
                     {% if previo.superusuario %}checked{%endif%}>
@@ -62,10 +62,23 @@
                     <div><label class="form-label" for="superusuario">Superusuario</label></div>&nbsp;&nbsp;&nbsp;&nbsp;
                 </div>
             </div>
+
+            <div id="superusuario_de" class="col-4 d-flex justify-content-center align-items-end {% if not request.user.is_superuser %}d-none{% endif %}">
+                <div class="">
+                    <label for="form-label">Superusuario de:</label>
+                    <select name="superusuario_de" class="form-select" id="form-select">
+                        <option value="todos" {% if request.user.permisos_complejo.all|length > 1 %}selected{% endif %}>Todos los Complejos</option>
+                        <option value="amc" {% if request.user.permisos_complejo.0.complejo.pk == 1 %}selected{% endif %}>Ana María Campos</option>
+                        <option value="jaa" {% if request.user.permisos_complejo.0.complejo.pk == 3 %}selected{% endif %}>José Antonio Anzoátegui</option>                        
+                        <option value="hc" {% if request.user.permisos_complejo.0.complejo.pk == 4 %}selected{% endif %}>Hugo Chávez</option>
+                    </select>
+                </div>
+            </div>
         </div>
     
         <hr>
         <h4 class="text-center">Permisos de acceso por Complejo y Planta</h4>
+        {% if request.user.is_superuser %}
         {% for complejo in complejos %}
         <br>
         <h5>{{complejo}}</h5>
@@ -98,9 +111,9 @@
                 </tr>
                 {% endfor %}
             </tbody>
-        </table>
-        
+        </table>        
         {% endfor %}
+        {% endif %}
 
         <hr>
         
@@ -154,7 +167,7 @@
         });
 
         document.querySelector('input[name="superusuario"]').addEventListener('change', function() {
-            const allCheckboxes = document.querySelectorAll('input[type="checkbox"]:not([name^="planta-"]):not([name="activo"]):not([name="superusuario"])');
+            const allCheckboxes = document.querySelectorAll('input[type="checkbox"]:not([name="activo"]):not([name="superusuario"])');
             const lecturaCheckboxes = document.querySelectorAll('input[name^="planta-"]');
             if (this.checked) {
                 allCheckboxes.forEach(checkbox => {
@@ -173,7 +186,14 @@
             }
         });
     });
-
-        
+    
+    document.querySelector('input[name="superusuario"]').addEventListener('change', function() {
+        const superusuarioDeDiv = document.getElementById('superusuario_de');
+        if (this.checked) {
+            superusuarioDeDiv.classList.remove('d-none');
+        } else {
+            superusuarioDeDiv.classList.add('d-none');
+        }
+    });
 </script>
 {% endblock %}

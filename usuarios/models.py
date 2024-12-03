@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from intercambiadores.models import Planta
+from intercambiadores.models import Planta, Complejo
 import uuid
 
 # Create your models here.
@@ -72,3 +72,12 @@ class Respuesta(models.Model):
     
     class Meta:
         unique_together = ('envio', 'pregunta')
+
+class PermisoPorComplejo(models.Model):
+    """
+    Resumen:
+        Modelo de registro de los permisos de superusuario para un complejo.
+    """
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    usuario = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="permisos_complejo")
+    complejo = models.ForeignKey(Complejo, on_delete=models.CASCADE)

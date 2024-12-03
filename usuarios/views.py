@@ -177,7 +177,37 @@ class CrearNuevoUsuario(SuperUserRequiredMixin, View):
                         planta_id = key.split('-')[1]
                         ids.append(planta_id)
                 
-                plantas = Planta.objects.filter(pk__in = ids)
+                if("superusuario_de" in request.POST.keys()):
+                    if(request.POST.get('superusuario_de') == 'todos'):
+                        plantas = Planta.objects.all()
+                        PermisoPorComplejo.objects.bulk_create(
+                            [
+                                PermisoPorComplejo(complejo = complejo, usuario = usuario) for complejo in Complejo.objects.all()
+                            ]
+                        )
+                    elif(request.POST.get('superusuario_de') == 'amc'):
+                        complejo = Complejo.objects.get(pk = 1)
+                        plantas = Planta.objects.filter(complejo = complejo)
+                        PermisoPorComplejo.objects.create(
+                            complejo = complejo, 
+                            usuario = usuario
+                        )
+                    elif(request.POST.get('superusuario_de') == 'jaa'):
+                        complejo = Complejo.objects.get(pk = 3)
+                        plantas = Planta.objects.filter(complejo = complejo)
+                        PermisoPorComplejo.objects.create(
+                            complejo = complejo, 
+                            usuario = usuario
+                        )
+                    else:
+                        complejo = Complejo.objects.get(pk = 4)
+                        plantas = Planta.objects.filter(complejo = complejo)
+                        PermisoPorComplejo.objects.create(
+                            complejo = complejo, 
+                            usuario = usuario
+                        )
+                else:
+                    plantas = Planta.objects.filter(pk__in = ids)
 
                 for planta in plantas:
                     planta_accesible = PlantaAccesible.objects.create(planta=planta, usuario=usuario)
@@ -249,7 +279,6 @@ class EditarUsuario(SuperUserRequiredMixin, View):
                 usuario.username = request.POST['correo'].lower() if '@' in usuario.username else usuario.username
                 usuario.first_name =  request.POST['nombre'].title()
                 usuario.is_active = 'activo' in request.POST.keys()
-                usuario.is_superuser = 'superusuario' in request.POST.keys()
 
                 usuario.usuario_planta.all().delete()
 
@@ -262,19 +291,53 @@ class EditarUsuario(SuperUserRequiredMixin, View):
 
                 plantas = Planta.objects.filter(pk__in = ids)
 
+                usuario.permisos_complejo.all().delete()
+                if("superusuario_de" in request.POST.keys()):
+                    if(request.POST.get('superusuario_de') == 'todos'):
+                        plantas = Planta.objects.all()
+                        PermisoPorComplejo.objects.bulk_create(
+                            [
+                                PermisoPorComplejo(complejo = complejo, usuario = usuario) for complejo in Complejo.objects.all()
+                            ]
+                        )
+                    elif(request.POST.get('superusuario_de') == 'amc'):
+                        complejo = Complejo.objects.get(pk = 1)
+                        plantas = Planta.objects.filter(complejo = complejo)
+                        PermisoPorComplejo.objects.create(
+                            complejo = complejo, 
+                            usuario = usuario
+                        )
+                    elif(request.POST.get('superusuario_de') == 'jaa'):
+                        complejo = Complejo.objects.get(pk = 3)
+                        plantas = Planta.objects.filter(complejo = complejo)
+                        PermisoPorComplejo.objects.create(
+                            complejo = complejo, 
+                            usuario = usuario
+                        )
+                    else:
+                        complejo = Complejo.objects.get(pk = 4)
+                        plantas = Planta.objects.filter(complejo = complejo)
+                        PermisoPorComplejo.objects.create(
+                            complejo = complejo, 
+                            usuario = usuario
+                        )
+                else:
+                    plantas = Planta.objects.filter(pk__in = ids)
+
+                usuario.is_superuser = request.user.permisos_complejo.count() > 1
+
                 for planta in plantas:
                     planta_accesible = PlantaAccesible.objects.create(planta=planta, usuario=usuario)
-                    planta_accesible.crear = f"crear-{planta.pk}" in request.POST.keys()
-                    planta_accesible.edicion = f"editar-{planta.pk}" in request.POST.keys()
-                    planta_accesible.edicion_instalacion = f"instalacion-{planta.pk}" in request.POST.keys()
-                    planta_accesible.duplicacion = f"duplicacion-{planta.pk}" in request.POST.keys()
-                    planta_accesible.ver_evaluaciones = f"evaluaciones-{planta.pk}" in request.POST.keys()
-                    planta_accesible.crear_evaluaciones = f"crearevals-{planta.pk}" in request.POST.keys()
-                    planta_accesible.eliminar_evaluaciones = f"delevals-{planta.pk}" in request.POST.keys()
+                    planta_accesible.crear = f"crear-{planta.pk}" in request.POST.keys() or request.POST.get('superusuario')
+                    planta_accesible.edicion = f"editar-{planta.pk}" in request.POST.keys() or request.POST.get('superusuario')
+                    planta_accesible.edicion_instalacion = f"instalacion-{planta.pk}" in request.POST.keys() or request.POST.get('superusuario')
+                    planta_accesible.duplicacion = f"duplicacion-{planta.pk}" in request.POST.keys() or request.POST.get('superusuario')
+                    planta_accesible.ver_evaluaciones = f"evaluaciones-{planta.pk}" in request.POST.keys() or request.POST.get('superusuario')
+                    planta_accesible.crear_evaluaciones = f"crearevals-{planta.pk}" in request.POST.keys() or request.POST.get('superusuario')
+                    planta_accesible.eliminar_evaluaciones = f"delevals-{planta.pk}" in request.POST.keys() or request.POST.get('superusuario')
                     planta_accesible.save()
 
                 usuario.save()
-
                 messages.success(request, "Se han registrado los cambios.")
 
                 return redirect("/usuarios/")
