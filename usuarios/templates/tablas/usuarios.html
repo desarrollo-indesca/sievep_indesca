@@ -79,12 +79,16 @@
           </div>
         </div>
       </div>
+        {% if not usuario.is_superuser or usuario.is_superuser and request.user.is_superuser and not usuario.permisos_complejo.count > 1 %}
+        {% if request.user != usuario %}
         <a href="{% url 'editar_usuario' pk=usuario.pk %}" class="btn btn-primary">
             Editar
         </a>
+        {% endif %}
         <a href="{% url 'cambiar_contrasena' pk=usuario.pk %}" class="btn btn-danger">
             Cambiar contraseña
         </a>
+        {% endif %}
     </td>
   </tr>
 {% endfor %}

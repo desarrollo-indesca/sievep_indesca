@@ -54,6 +54,7 @@
                 </div>
             </div>
             {%endif%}
+            {% if request.user.is_superuser %}
             <div class="col-4 d-flex justify-content-center align-items-end">
                 <div class="d-flex">
                     <input type="checkbox" name="superusuario" class="form-check-input" id="superusuario" height="200px" width="200px"
@@ -63,26 +64,26 @@
                 </div>
             </div>
 
-            <div id="superusuario_de" class="col-4 d-flex justify-content-center align-items-end {% if not request.user.is_superuser %}d-none{% endif %}">
+            <div id="superusuario_de" class="col-4 d-flex justify-content-center align-items-end {% if not previo.superusuario %}d-none{% endif %}">
                 <div class="">
                     <label for="form-label">Superusuario de:</label>
                     <select name="superusuario_de" class="form-select" id="form-select">
                         <option value="todos" {% if request.user.permisos_complejo.all|length > 1 %}selected{% endif %}>Todos los Complejos</option>
-                        <option value="amc" {% if request.user.permisos_complejo.0.complejo.pk == 1 %}selected{% endif %}>Ana María Campos</option>
-                        <option value="jaa" {% if request.user.permisos_complejo.0.complejo.pk == 3 %}selected{% endif %}>José Antonio Anzoátegui</option>                        
-                        <option value="hc" {% if request.user.permisos_complejo.0.complejo.pk == 4 %}selected{% endif %}>Hugo Chávez</option>
+                        {% for complejo in complejos %}
+                        <option value="{{complejo.pk}}" {% if request.user.permisos_complejo.0.complejo.pk == complejo.pk %}selected{% endif %}>{{complejo}}</option>
+                        {% endfor %}
                     </select>
                 </div>
             </div>
+            {% endif %}
         </div>
     
         <hr>
         <h4 class="text-center">Permisos de acceso por Complejo y Planta</h4>
-        {% if request.user.is_superuser %}
         {% for complejo in complejos %}
         <br>
         <h5>{{complejo}}</h5>
-        <table class="table text-center table-hover">
+        <table class="table text-center table-hover" id="complejo-{{complejo.pk}}">
             <thead>
                 <tr>
                     <th scope="col">Planta</th>
@@ -91,6 +92,7 @@
                     <th scope="col">Editar Ficha</th>
                     <th scope="col">Editar Instalación/Adicionales</th>
                     <th scope="col">Duplicación</th>
+                    <th scope="col">Administrar Usuarios</th>
                     <th scope="col">Ver Evaluaciones</th>
                     <th scope="col">Crear Evaluaciones</th>
                     <th scope="col">Eliminar Evaluaciones</th>
@@ -100,20 +102,38 @@
                 {% for planta in complejo.plantas.all %}
                 <tr>
                     <td>{{planta}}</td>
-                    <td><input type="checkbox" name="planta-{{planta.pk}}" value="{{planta.pk}}" id="check-{{planta.pk}}" class="form-check-input" {% if planta.pk in previo.plantas or previo.superusuario %}checked{% endif %}></td>
-                    <td><input type="checkbox" name="crear-{{planta.pk}}" value="1" class="form-check-input" id="check-crear-{{planta.pk}}" {% if planta.pk in previo.creaciones or previo.superusuario %}checked{% endif %}></td>
-                    <td><input type="checkbox" name="editar-{{planta.pk}}" value="1" class="form-check-input" id="check-editar-{{planta.pk}}" {% if planta.pk in previo.ediciones or previo.superusuario %}checked{% endif %}></td>
-                    <td><input type="checkbox" name="instalacion-{{planta.pk}}" value="1" class="form-check-input" id="check-instalacion-{{planta.pk}}" {% if planta.pk in previo.ediciones_instalacion or previo.superusuario %}checked{% endif %}></td>
-                    <td><input type="checkbox" name="duplicacion-{{planta.pk}}" value="1" class="form-check-input" id="check-duplicacion-{{planta.pk}}" {% if planta.pk in previo.duplicaciones or previo.superusuario %}checked{% endif %}></td>
-                    <td><input type="checkbox" name="evaluaciones-{{planta.pk}}" value="1" class="form-check-input" id="check-eliminacion-{{planta.pk}}" {% if planta.pk in previo.evaluaciones or previo.superusuario %}checked{% endif %}></td>
-                    <td><input type="checkbox" name="crearevals-{{planta.pk}}" value="1" class="form-check-input" id="check-eliminacion-{{planta.pk}}" {% if planta.pk in previo.crear_evaluaciones or previo.superusuario %}checked{% endif %}></td>
-                    <td><input type="checkbox" name="delevals-{{planta.pk}}" value="1" class="form-check-input" id="check-eliminacion-{{planta.pk}}" {% if planta.pk in previo.eliminar_evaluaciones or previo.superusuario %}checked{% endif %}></td>                    
+                    <td><input type="checkbox" name="planta-{{planta.pk}}" value="{{planta.pk}}" id="check-{{planta.pk}} complejo-{{complejo.pk}}" class="form-check-input complejo-{{complejo.pk}}" 
+                        {%%}{% endif %} 
+                        {% if planta.pk in previo.plantas or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="crear-{{planta.pk}}" value="1" class="form-check-input complejo-{{complejo.pk}}" id="check-crear-{{planta.pk}}" 
+                        {%%}{% endif %} 
+                        {% if planta.pk in previo.creaciones or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="editar-{{planta.pk}}" value="1" class="form-check-input complejo-{{complejo.pk}}" id="check-editar-{{planta.pk}}" 
+                        {%%}{% endif %} 
+                        {% if planta.pk in previo.ediciones or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="instalacion-{{planta.pk}}" value="1" class="form-check-input complejo-{{complejo.pk}}" id="check-instalacion-{{planta.pk}}" 
+                        {%%}{% endif %} 
+                        {% if planta.pk in previo.ediciones_instalacion or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="duplicacion-{{planta.pk}}" value="1" class="form-check-input complejo-{{complejo.pk}}" id="check-duplicacion-{{planta.pk}}" 
+                        {%%}{% endif %} 
+                        {% if planta.pk in previo.duplicaciones or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="usuarios-{{planta.pk}}" value="1" class="form-check-input complejo-{{complejo.pk}}" id="check-usuarios-{{planta.pk}}" 
+                        {%%}{% endif %} 
+                        {% if planta.pk in previo.usuarios or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="evaluaciones-{{planta.pk}}" value="1" class="form-check-input complejo-{{complejo.pk}}" id="check-eliminacion-{{planta.pk}}" 
+                        {%%}{% endif %} 
+                        {% if planta.pk in previo.evaluaciones or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="crearevals-{{planta.pk}}" value="1" class="form-check-input complejo-{{complejo.pk}}" id="check-eliminacion-{{planta.pk}}" 
+                        {%%}{% endif %} 
+                        {% if planta.pk in previo.crear_evaluaciones or previo.superusuario %}checked{% endif %}></td>
+                    <td><input type="checkbox" name="delevals-{{planta.pk}}" value="1" class="form-check-input complejo-{{complejo.pk}}" id="check-eliminacion-{{planta.pk}}" 
+                        {%%}{% endif %} 
+                        {% if planta.pk in previo.eliminar_evaluaciones or previo.superusuario %}checked{% endif %}></td>                    
                 </tr>
                 {% endfor %}
             </tbody>
         </table>        
         {% endfor %}
-        {% endif %}
 
         <hr>
         
@@ -195,5 +215,38 @@
             superusuarioDeDiv.classList.add('d-none');
         }
     });
+
+    document.querySelector('select[name="superusuario_de"]').addEventListener('change', function() {
+        const complejoId = this.value;
+
+        if (complejoId === "todos") {
+            const allOtherCheckboxes = document.querySelectorAll(`input[type="checkbox"]:not(input[name="superusuario"]):not(input[name="activo"])`);
+            allOtherCheckboxes.forEach(checkbox => {
+                checkbox.checked = true;
+                checkbox.disabled = true;
+                checkbox.dispatchEvent(new Event('change'));
+            });
+        } else {
+            const allOtherCheckboxes = document.querySelectorAll(`input[type="checkbox"]:not(.complejo-${complejoId}):not(input[name="superusuario"]):not(input[name="activo"])`);
+            console.log(allOtherCheckboxes);
+            
+            allOtherCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                checkbox.dispatchEvent(new Event('change'));
+
+                if (checkbox.name.startsWith('planta-')) {
+                    checkbox.disabled = false;
+                }
+            });
+            
+            const checkboxes = document.querySelectorAll(`.complejo-${complejoId}`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+                checkbox.disabled = true;
+            });  
+        } 
+        
+    });
+
 </script>
 {% endblock %}

@@ -39,7 +39,7 @@ class EditorRequiredMixin(UserPassesTestMixin):
     def test_func(self):
         return self.request.user.is_superuser or self.request.user.groups.filter(name='editor').exists()
 
-class ConsultaUsuarios(SuperUserRequiredMixin, ListView):
+class ConsultaUsuarios(LoginRequiredMixin, ListView):
     """
     Resumen:
         Vista de consulta de usuarios. Contiene la lógica de filtrado y paginación
@@ -105,11 +105,16 @@ class ConsultaUsuarios(SuperUserRequiredMixin, ListView):
                 is_active = activo
             )
 
+        if(not self.request.user.is_superuser):
+            new_context = new_context.filter(
+                usuario_planta__planta__pk__in = self.request.user.usuario_planta.filter(administrar_usuarios = True).values_list('planta'),
+            ).distinct()
+
         return new_context.prefetch_related(
             Prefetch('usuario_planta', PlantaAccesible.objects.select_related('planta'))
         ).order_by('first_name','last_name')
 
-class CrearNuevoUsuario(SuperUserRequiredMixin, View):
+class CrearNuevoUsuario(LoginRequiredMixin, View):
     """
     Resumen:
         Vista de creación de un nuevo usuario. 
@@ -133,12 +138,6 @@ class CrearNuevoUsuario(SuperUserRequiredMixin, View):
         def get(self, request)
             Contiene la lógica de renderizado del formulario.
     """
-
-    context = {
-        'titulo': "Registro de Nuevo Usuario",
-        'complejos': Complejo.objects.prefetch_related('plantas').all()
-    }
-
     modelo = get_user_model()
 
     def validar(self, data):
@@ -226,9 +225,12 @@ class CrearNuevoUsuario(SuperUserRequiredMixin, View):
             return render(request, 'usuarios/creacion.html', {'errores': errores, 'previo': request.POST, **self.context})
     
     def get(self, request):
-        return render(request, 'usuarios/creacion.html', self.context)
+        return render(request, 'usuarios/creacion.html', {
+        'titulo': "Registro de Nuevo Usuario",
+        'complejos': Complejo.objects.prefetch_related('plantas').all() if self.request.user.is_superuser else self.request.user.permisos_complejo.values('complejo'),
+    })
 
-class EditarUsuario(SuperUserRequiredMixin, View):
+class EditarUsuario(LoginRequiredMixin, View):
     """
     Resumen:
         Vista de edición un usuario existente.
@@ -300,41 +302,26 @@ class EditarUsuario(SuperUserRequiredMixin, View):
                                 PermisoPorComplejo(complejo = complejo, usuario = usuario) for complejo in Complejo.objects.all()
                             ]
                         )
-                    elif(request.POST.get('superusuario_de') == 'amc'):
-                        complejo = Complejo.objects.get(pk = 1)
-                        plantas = Planta.objects.filter(complejo = complejo)
-                        PermisoPorComplejo.objects.create(
-                            complejo = complejo, 
-                            usuario = usuario
-                        )
-                    elif(request.POST.get('superusuario_de') == 'jaa'):
-                        complejo = Complejo.objects.get(pk = 3)
-                        plantas = Planta.objects.filter(complejo = complejo)
-                        PermisoPorComplejo.objects.create(
-                            complejo = complejo, 
-                            usuario = usuario
-                        )
                     else:
-                        complejo = Complejo.objects.get(pk = 4)
-                        plantas = Planta.objects.filter(complejo = complejo)
+                        complejo_id = int(request.POST.get('superusuario_de'))
+                        plantas = Planta.objects.filter(complejo__pk = complejo_id)
                         PermisoPorComplejo.objects.create(
-                            complejo = complejo, 
+                            complejo_id = complejo_id, 
                             usuario = usuario
                         )
-                else:
-                    plantas = Planta.objects.filter(pk__in = ids)
 
                 usuario.is_superuser = request.user.permisos_complejo.count() > 1
 
                 for planta in plantas:
                     planta_accesible = PlantaAccesible.objects.create(planta=planta, usuario=usuario)
-                    planta_accesible.crear = f"crear-{planta.pk}" in request.POST.keys() or request.POST.get('superusuario')
-                    planta_accesible.edicion = f"editar-{planta.pk}" in request.POST.keys() or request.POST.get('superusuario')
-                    planta_accesible.edicion_instalacion = f"instalacion-{planta.pk}" in request.POST.keys() or request.POST.get('superusuario')
-                    planta_accesible.duplicacion = f"duplicacion-{planta.pk}" in request.POST.keys() or request.POST.get('superusuario')
-                    planta_accesible.ver_evaluaciones = f"evaluaciones-{planta.pk}" in request.POST.keys() or request.POST.get('superusuario')
-                    planta_accesible.crear_evaluaciones = f"crearevals-{planta.pk}" in request.POST.keys() or request.POST.get('superusuario')
-                    planta_accesible.eliminar_evaluaciones = f"delevals-{planta.pk}" in request.POST.keys() or request.POST.get('superusuario')
+                    planta_accesible.crear = f"crear-{planta.pk}" in request.POST.keys() or PermisoPorComplejo.objects.filter(complejo = planta.complejo, usuario = request.user).exists()
+                    planta_accesible.edicion = f"editar-{planta.pk}" in request.POST.keys() or PermisoPorComplejo.objects.filter(complejo = planta.complejo, usuario = request.user).exists()
+                    planta_accesible.edicion_instalacion = f"instalacion-{planta.pk}" in request.POST.keys() or PermisoPorComplejo.objects.filter(complejo = planta.complejo, usuario = request.user).exists()
+                    planta_accesible.duplicacion = f"duplicacion-{planta.pk}" in request.POST.keys() or PermisoPorComplejo.objects.filter(complejo = planta.complejo, usuario = request.user).exists()
+                    planta_accesible.ver_evaluaciones = f"evaluaciones-{planta.pk}" in request.POST.keys() or PermisoPorComplejo.objects.filter(complejo = planta.complejo, usuario = request.user).exists()
+                    planta_accesible.crear_evaluaciones = f"crearevals-{planta.pk}" in request.POST.keys() or PermisoPorComplejo.objects.filter(complejo = planta.complejo, usuario = request.user).exists()
+                    planta_accesible.eliminar_evaluaciones = f"delevals-{planta.pk}" in request.POST.keys() or PermisoPorComplejo.objects.filter(complejo = planta.complejo, usuario = request.user).exists()
+                    planta_accesible.administrar_usuarios = f"usuarios-{planta.pk}" in request.POST.keys() or PermisoPorComplejo.objects.filter(complejo = planta.complejo, usuario = request.user).exists()
                     planta_accesible.save()
 
                 usuario.save()
@@ -360,11 +347,12 @@ class EditarUsuario(SuperUserRequiredMixin, View):
             'evaluaciones': [planta.planta.pk for planta in plantas.filter(ver_evaluaciones = True)],
             'crear_evaluaciones': [planta.planta.pk for planta in plantas.filter(crear_evaluaciones = True)],
             'eliminar_evaluaciones': [planta.planta.pk for planta in plantas.filter(eliminar_evaluaciones = True)],
+            'usuarios': [planta.planta.pk for planta in plantas.filter(administrar_usuarios = True)],
         }
 
-        return render(request, 'usuarios/creacion.html', context={'previo': previo, 'edicion': True, 'complejos': Complejo.objects.prefetch_related('plantas').all(), **self.context})
+        return render(request, 'usuarios/creacion.html', context={'previo': previo, 'edicion': True, 'complejos': Complejo.objects.prefetch_related('plantas').all() if request.user.is_superuser else Complejo.objects.filter(pk__in = [complejo.complejo.pk for complejo in request.user.permisos_complejo.all()]), 'plantas': Planta.objects.all() if request.user.is_superuser else [planta.planta for planta in request.user.usuario_planta.all() if planta.administrar_usuarios], **self.context})
 
-class CambiarContrasena(SuperUserRequiredMixin, View):
+class CambiarContrasena(LoginRequiredMixin, View):
     """
     Resumen:
         Vista del formulario de cambio de contraseña de un usuario existente. 

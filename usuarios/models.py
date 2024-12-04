@@ -22,6 +22,7 @@ class PlantaAccesible(models.Model):
     crear_evaluaciones = models.BooleanField(default=False)
     eliminar_evaluaciones = models.BooleanField(default=False)
     duplicacion = models.BooleanField(default=False)
+    administrar_usuarios = models.BooleanField(default=False)
 
 class Encuesta(models.Model):
     """
