@@ -28,11 +28,19 @@
               <ul>
                 <li><b>Nombre:</b> {{usuario.first_name}} {{usuario.last_name}}</li>
                 <li><b>Correo electrónico:</b> {{usuario.email}}</li>
-                <li><b>Superusuario:</b> {{usuario.is_superuser|yesno:"Sí,No"}}</li>
                 <li><b>Activo:</b> {{usuario.is_active|yesno:"Sí,No"}}</li>
               </ul>
 
-              
+              {% if usuario.permisos_complejo.count > 0 %}
+              <p>El usuario tiene privilegios de superusuario en la siguiente jurisdicción:</p>
+              <ul>
+                {% for permiso in usuario.permisos_complejo.all %}
+                <li>{{permiso.complejo}}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+
+              <p>Este usuario tiene los siguientes permisos:</p>              
               <table class="text-center table table-responsive">
                 <thead>
                   <tr class="table-dark">

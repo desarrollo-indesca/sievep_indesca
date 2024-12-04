@@ -162,7 +162,7 @@ class CrearNuevoUsuario(LoginRequiredMixin, View):
                     username = request.POST['correo'].lower(),
                     first_name = request.POST['nombre'].title(),
                     password = make_password(request.POST['password']),
-                    is_superuser = 'superusuario' in request.POST.keys()
+                    is_superuser = False
                 )
 
                 # Delete all current plants for this user
@@ -184,29 +184,16 @@ class CrearNuevoUsuario(LoginRequiredMixin, View):
                                 PermisoPorComplejo(complejo = complejo, usuario = usuario) for complejo in Complejo.objects.all()
                             ]
                         )
-                    elif(request.POST.get('superusuario_de') == 'amc'):
-                        complejo = Complejo.objects.get(pk = 1)
-                        plantas = Planta.objects.filter(complejo = complejo)
-                        PermisoPorComplejo.objects.create(
-                            complejo = complejo, 
-                            usuario = usuario
-                        )
-                    elif(request.POST.get('superusuario_de') == 'jaa'):
-                        complejo = Complejo.objects.get(pk = 3)
-                        plantas = Planta.objects.filter(complejo = complejo)
-                        PermisoPorComplejo.objects.create(
-                            complejo = complejo, 
-                            usuario = usuario
-                        )
                     else:
-                        complejo = Complejo.objects.get(pk = 4)
-                        plantas = Planta.objects.filter(complejo = complejo)
+                        complejo_id = int(request.POST.get('superusuario_de'))
+                        plantas = Planta.objects.filter(complejo__pk = complejo_id)
                         PermisoPorComplejo.objects.create(
-                            complejo = complejo, 
+                            complejo_id = complejo_id, 
                             usuario = usuario
                         )
-                else:
-                    plantas = Planta.objects.filter(pk__in = ids)
+
+                usuario.is_superuser = usuario.permisos_complejo.count() > 1
+                usuario.save()
 
                 for planta in plantas:
                     planta_accesible = PlantaAccesible.objects.create(planta=planta, usuario=usuario)
@@ -225,10 +212,12 @@ class CrearNuevoUsuario(LoginRequiredMixin, View):
             return render(request, 'usuarios/creacion.html', {'errores': errores, 'previo': request.POST, **self.context})
     
     def get(self, request):
-        return render(request, 'usuarios/creacion.html', {
-        'titulo': "Registro de Nuevo Usuario",
-        'complejos': Complejo.objects.prefetch_related('plantas').all() if self.request.user.is_superuser else self.request.user.permisos_complejo.values('complejo'),
-    })
+        context = {
+            'titulo': "Registro de Nuevo Usuario",
+            'complejos': Complejo.objects.prefetch_related('plantas').all() if self.request.user.is_superuser else self.request.user.planta_usuario.filter(administrar_usuarios = True).values('complejo'),
+        }
+               
+        return render(request, 'usuarios/creacion.html', context)
 
 class EditarUsuario(LoginRequiredMixin, View):
     """
@@ -310,7 +299,7 @@ class EditarUsuario(LoginRequiredMixin, View):
                             usuario = usuario
                         )
 
-                usuario.is_superuser = request.user.permisos_complejo.count() > 1
+                usuario.is_superuser = usuario.permisos_complejo.count() > 1
 
                 for planta in plantas:
                     planta_accesible = PlantaAccesible.objects.create(planta=planta, usuario=usuario)
@@ -348,9 +337,13 @@ class EditarUsuario(LoginRequiredMixin, View):
             'crear_evaluaciones': [planta.planta.pk for planta in plantas.filter(crear_evaluaciones = True)],
             'eliminar_evaluaciones': [planta.planta.pk for planta in plantas.filter(eliminar_evaluaciones = True)],
             'usuarios': [planta.planta.pk for planta in plantas.filter(administrar_usuarios = True)],
+            'permisos_complejo': usuario.permisos_complejo.all()
         }
 
-        return render(request, 'usuarios/creacion.html', context={'previo': previo, 'edicion': True, 'complejos': Complejo.objects.prefetch_related('plantas').all() if request.user.is_superuser else Complejo.objects.filter(pk__in = [complejo.complejo.pk for complejo in request.user.permisos_complejo.all()]), 'plantas': Planta.objects.all() if request.user.is_superuser else [planta.planta for planta in request.user.usuario_planta.all() if planta.administrar_usuarios], **self.context})
+        context = {'previo': previo, 'edicion': True, 'complejos': Complejo.objects.prefetch_related('plantas').all() if request.user.is_superuser else Complejo.objects.filter(pk__in = [complejo.complejo.pk for complejo in request.user.permisos_complejo.all()]), 'plantas': Planta.objects.all() if request.user.is_superuser else [planta.planta for planta in request.user.usuario_planta.all() if planta.administrar_usuarios], **self.context}
+        context['complejos_permisos_pk'] = [complejo.complejo.pk for complejo in usuario.permisos_complejo.all()]
+        
+        return render(request, 'usuarios/creacion.html', context=context)
 
 class CambiarContrasena(LoginRequiredMixin, View):
     """
