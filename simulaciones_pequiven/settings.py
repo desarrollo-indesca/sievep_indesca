@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     'usuarios',
     'static',
 
+    'django_db_logger',
     'pwa',
     'templatetags',
     'mathfilters',
@@ -141,9 +142,13 @@ DATABASES = {
         'OPTIONS': {
         'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
+    },
+    'django_db_logger': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
+DATABASE_ROUTERS = ('simulaciones_pequiven.dbrouters.MyDBRouter',)
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -246,31 +251,30 @@ start_deleting_job()
 
 # CONFIGURACIÓN DE LOS LOGS
 
-# LOGGING = {
-#     "version": 1,
-#     "formatters": {
-#         "request_formatter": {
-#             "format": "%(asctime)s  - %(name)s - %(levelname)s - %(module)s - %(process)s - %(thread)s -  %(message)s",
-#             "datefmt": "%Y-%m-%d %H:%M:%S"
-#         },
-#     },
-#     "handlers": {
-#         "request": {
-#             "level": os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-#             "class": "logging.handlers.RotatingFileHandler",
-#             "formatter": "request_formatter",
-#             "filename": "app.log",
-#             "maxBytes": 1024000*20, # 20 MB
-#             "backupCount": 20
-#         }
-#     },
-#     "loggers": {
-#         'django.request': {
-#             "handlers": ["request"]
-#         },
-#         'django': {
-#             "handlers": ["request"]
-#         },
-#     },
-#     "disable_existing_loggers": False
-# }
+LOGGING = {
+    "version": 1,
+    "formatters": {
+        "request_formatter": {
+            "format": "%(asctime)s  - %(name)s - %(levelname)s - %(module)s - %(process)s - %(thread)s -  %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S"
+        },
+    },
+    "handlers": {
+        "request": {
+            "level": os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'class': 'django_db_logger.db_log_handler.DatabaseLogHandler'
+        }
+    },
+    "loggers": {
+        'django.request': {
+            "handlers": ["request"]
+        },
+        'django': {
+            "handlers": ["request"]
+        },
+        'django.server': {
+            "handlers": ["request"]
+        },
+    },
+    "disable_existing_loggers": False
+}
