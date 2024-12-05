@@ -8,7 +8,7 @@ from django.views import View
 from django.db.models import Q
 from django.views.generic import ListView, FormView
 from django.shortcuts import render, redirect
-from django.contrib.auth import logout
+from django.contrib.auth import logout, get_user_model
 from django.contrib.auth.views import LoginView
 from django.http import HttpResponse
 from intercambiadores.models import Fluido, Unidades, TiposDeTubo, Tema, Intercambiador, PropiedadesTuboCarcasa, CondicionesIntercambiador, Complejo
@@ -45,15 +45,19 @@ class Login(LoginView):
         return context
         
     def post(self, request):
-        try:
-            res = super().post(self, request)
-            if(res.status_code in [403, 200]):
-                messages.warning(request, "Las credenciales ingresadas son inválidas.")
+        if(get_user_model().objects.filter(username = request.POST['username']).exists()):
+            try:
+                res = super().post(self, request)
+                if(res.status_code in [403, 200]):
+                    messages.warning(request, "Las credenciales ingresadas son inválidas.")
 
-            return res
+                return res
 
-        except Exception as e:
-            print(str(e))
+            except Exception as e:
+                print(str(e))
+                return redirect('/')
+        else:
+            messages.warning(request, "Las credenciales ingresadas son inválidas.")
             return redirect('/')
         
 class Bienvenida(View):

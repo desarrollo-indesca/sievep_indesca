@@ -16,7 +16,7 @@ A nivel de código el proyecto se llama 'simulaciones_pequiven' hasta que se dec
 
 from pathlib import Path
 import os, ldap
-from django_auth_ldap.config import LDAPSearch, ActiveDirectoryGroupType
+from django_auth_ldap.config import LDAPSearch
 from .jobs import start_deleting_job
 
 # # CONFIGURACIÓN DE LDAP
@@ -40,8 +40,6 @@ AUTH_LDAP_USER_ATTR_MAP = {
     "last_name": "sn",
     "email": "mail",
 }
-AUTH_LDAP_ALWAYS_UPDATE_USER = False
-
 AUTH_LDAP_GROUP_CACHE_TIMEOUT = 1  # 1 hour cache
 
 AUTHENTICATION_BACKENDS = [
