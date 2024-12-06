@@ -318,6 +318,7 @@ class CrearNuevoUsuarioRed(LoginRequiredMixin, View):
                     planta_accesible.crear = f"crear-{planta.pk}" in request.POST.keys()
                     planta_accesible.edicion = f"editar-{planta.pk}" in request.POST.keys()
                     planta_accesible.edicion_instalacion = f"instalacion-{planta.pk}" in request.POST.keys()
+                    planta_accesible.administrar_usuarios = f"usuarios-{planta.pk}" in request.POST.keys()
                     planta_accesible.duplicacion = f"duplicacion-{planta.pk}" in request.POST.keys()
                     planta_accesible.ver_evaluaciones = f"evaluaciones-{planta.pk}" in request.POST.keys()
                     planta_accesible.crear_evaluaciones = f"crearevals-{planta.pk}" in request.POST.keys()
@@ -373,19 +374,8 @@ class EditarUsuario(LoginRequiredMixin, View):
 
     modelo = get_user_model()
 
-    def validar(self, data):
-        errores = []
-        if(self.modelo.objects.filter(email = data['correo'].lower()).exclude(pk=self.kwargs['pk']).exists()):
-            errores.append("Ya existe un usuario con ese correo registrado.")
-
-        if(self.modelo.objects.filter(first_name = data['nombre'].title()).exclude(pk=self.kwargs['pk']).exists()):
-            errores.append("Ya existe un usuario con ese nombre registrado. Añada una característica diferenciadora.")
-
-        return errores
-
     def post(self, request, pk): # Envío de Formulario de Creación
-        errores = self.validar(request.POST)
-        if(len(errores) == 0):
+        try:
             with transaction.atomic():
                 usuario = self.modelo.objects.get(pk=pk)
                 usuario.email = request.POST['correo'].lower()
@@ -442,8 +432,8 @@ class EditarUsuario(LoginRequiredMixin, View):
                 messages.success(request, "Se han registrado los cambios.")
 
                 return redirect("/usuarios/")
-        else:
-            return render(request, 'usuarios/creacion.html', {'errores': errores, 'previo': request.POST, 'edicion': True, **self.context})
+        except Exception as e:
+            return render(request, 'usuarios/creacion.html', {'errores': str(e), 'previo': request.POST, 'edicion': True, **self.context})
     
     def get(self, request, pk):
         usuario = self.modelo.objects.get(pk=pk)
