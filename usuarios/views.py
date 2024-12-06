@@ -45,7 +45,7 @@ class ConsultaUsuarios(LoginRequiredMixin, ListView):
     """
     Resumen:
         Vista de consulta de usuarios. Contiene la lógica de filtrado y paginación
-        para los usuarios del sistema. Únicamente pueden acceder superusuarios.
+        para los usuarios del sistema. Únicamente pueden acceder usuarios con la permisología requerida.
 
     Atributos:
         model: Model
@@ -121,7 +121,7 @@ class CrearNuevoUsuario(LoginRequiredMixin, View):
     """
     Resumen:
         Vista de creación de un nuevo usuario. 
-        Únicamente pueden acceder superusuarios.
+        Únicamente pueden acceder usuarios con la permisología requerida.
 
     Atributos:
         modelo: Model
@@ -227,7 +227,7 @@ class CrearNuevoUsuarioRed(LoginRequiredMixin, View):
     """
     Resumen:
         Vista de creación de un nuevo usuario. 
-        Únicamente pueden acceder superusuarios.
+        Únicamente pueden acceder usuarios con la permisología requerida.
 
     Atributos:
         modelo: Model
@@ -347,7 +347,7 @@ class EditarUsuario(LoginRequiredMixin, View):
     Resumen:
         Vista de edición un usuario existente.
         Los usuarios pueden activarse y desactivarse por esta vía.
-        Únicamente pueden acceder superusuarios.
+        Únicamente pueden acceder usuarios con la permisología requerida.
 
     Atributos:
         modelo: Model
@@ -469,7 +469,7 @@ class CambiarContrasena(LoginRequiredMixin, View):
     """
     Resumen:
         Vista del formulario de cambio de contraseña de un usuario existente. 
-        Únicamente pueden acceder superusuarios.
+        Únicamente pueden acceder usuarios con la permisología requerida.
 
     Atributos:
         modelo: Model
@@ -585,7 +585,7 @@ class ConsultaEncuestas(LoginRequiredMixin, ListView):
     """
     Resumen:
         Vista de la lista de encuestas existentes. 
-        Únicamente pueden acceder superusuarios.
+        Únicamente pueden acceder usuarios con la permisología requerida.
 
     Atributos:
         modelo: Model
