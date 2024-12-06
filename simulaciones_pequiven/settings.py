@@ -99,7 +99,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # "simulaciones_pequiven.middleware.RequestLogMiddleware",
+    "simulaciones_pequiven.middleware.RequestLogMiddleware",
     # "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
@@ -266,14 +266,9 @@ LOGGING = {
         }
     },
     "loggers": {
-        'django.request': {
-            "handlers": ["request"]
-        },
         'django': {
-            "handlers": ["request"]
-        },
-        'django.server': {
-            "handlers": ["request"]
+            "handlers": ["request"],
+            "level": os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
         },
     },
     "disable_existing_loggers": False

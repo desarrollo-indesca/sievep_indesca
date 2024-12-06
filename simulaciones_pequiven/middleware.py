@@ -1,6 +1,6 @@
 import socket
 import time
-import json
+import os
 import logging
 
 request_logger = logging.getLogger('django.request')
@@ -16,10 +16,8 @@ class RequestLogMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        start_time = time.monotonic()
         log_data = {
-            "IP": request.META["REMOTE_ADDR"],
-            "SERVIDOR": socket.gethostname(),
+            "PROCESO": os.getpid(),
             "METODO_HTTP": request.method,
             "RUTA_SOLICITADA": request.get_full_path(),
             "NOMBRE_USUARIO": request.user.get_full_name() if request.user.pk else "Anonimo",
@@ -28,10 +26,7 @@ class RequestLogMiddleware:
             "USERNAME": request.user.username if request.user.pk else "Anonimo"
         }
 
-        # request passes on to controller
         response = self.get_response(request)
-        log_data["run_time"] = time.time() - start_time
-
         request_logger.info(msg=log_data)
 
         return response
