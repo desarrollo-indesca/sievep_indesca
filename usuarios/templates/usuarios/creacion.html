@@ -44,7 +44,7 @@
                 <label class="form-label" for="password">Contraseña:</label>
                 <input type="password" name="password" class="form-control" id="password" maxlength="100" minlength="8" required>
             </div>
-            {% else %}
+            {% elif not previo.red %}
             <div class="col-4 d-flex justify-content-center align-items-end">
                 <div class="d-flex">
                     <input type="checkbox" name="activo" class="form-check-input" id="activo" height="200px" width="200px"

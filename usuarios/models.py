@@ -82,3 +82,10 @@ class PermisoPorComplejo(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     usuario = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="permisos_complejo")
     complejo = models.ForeignKey(Complejo, on_delete=models.CASCADE)
+
+class UsuarioRed(models.Model):
+    """
+    Resumen:
+        Modelo de registro para saber si el usuario estuvo previamente registrado en la red con la que se hace LDAP.
+    """
+    usuario = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="red")

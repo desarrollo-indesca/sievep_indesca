@@ -17,7 +17,6 @@ class RequestLogMiddleware:
 
     def __call__(self, request):
         log_data = {
-            "PROCESO": os.getpid(),
             "METODO_HTTP": request.method,
             "RUTA_SOLICITADA": request.get_full_path(),
             "NOMBRE_USUARIO": request.user.get_full_name() if request.user.pk else "Anonimo",

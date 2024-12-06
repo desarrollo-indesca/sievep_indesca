@@ -76,7 +76,7 @@ class ConsultaUsuarios(LoginRequiredMixin, ListView):
         context['nombre'] = self.request.GET.get('nombre', '')
         context['correo'] = self.request.GET.get('correo', '')
         context['superusuario'] = self.request.GET.get('superusuario')
-        context['activo'] = self.request.GET.get('activo','')
+        context['usuario'] = self.request.GET.get('usuario','')
         context['puede_crear'] = self.request.user.is_superuser or self.request.user.usuario_planta.filter(administrar_usuarios = True).exists()
 
         return context
@@ -86,7 +86,7 @@ class ConsultaUsuarios(LoginRequiredMixin, ListView):
         nombre = self.request.GET.get('nombre', '')
         correo = self.request.GET.get('correo', '')
         superusuario = self.request.GET.get('superusuario', '')
-        activo = self.request.GET.get('activo', '')
+        usuario = self.request.GET.get('usuario', '')
 
         if(nombre != ''):
             new_context = new_context.filter(
@@ -103,9 +103,9 @@ class ConsultaUsuarios(LoginRequiredMixin, ListView):
                 is_superuser = int(superusuario)
             )
 
-        if(activo != ''):
+        if(usuario != ''):
             new_context = new_context.filter(
-                is_active = activo
+                username__icontains=usuario
             )
 
         if(not self.request.user.is_superuser):
@@ -175,7 +175,6 @@ class CrearNuevoUsuario(LoginRequiredMixin, View):
                 ids = []
                 for key in request.POST.keys():
                     if key.startswith('planta-'):
-                        print(key)
                         planta_id = key.split('-')[1]
                         ids.append(planta_id)
                 
@@ -325,12 +324,14 @@ class CrearNuevoUsuarioRed(LoginRequiredMixin, View):
                     planta_accesible.eliminar_evaluaciones = f"delevals-{planta.pk}" in request.POST.keys()
                     planta_accesible.save()
                 
+                UsuarioRed.objects.create(usuario = usuario)
+
                 messages.success(request, "Se ha registrado al nuevo usuario correctamente.")
                 return redirect("/usuarios/")
         else:
             return render(request, 'usuarios/creacion.html', {'errores': [
                 "Ocurrió un error generando el usuario. Verifique si ya no se encuentra registrado en el sistema y existe en la red."
-            ], 'previo': request.POST, **self.context})
+            ], 'previo': request.POST})
     
     def get(self, request):
         context = {
@@ -404,8 +405,7 @@ class EditarUsuario(LoginRequiredMixin, View):
                 plantas = Planta.objects.filter(pk__in = ids)
 
                 usuario.permisos_complejo.all().delete()
-                if("superusuario_de" in request.POST.keys()):
-                    print("A")
+                if("superusuario_de" in request.POST.keys() and "superusuario" in request.POST.keys()):
                     if(request.POST.get('superusuario_de') == 'todos'):
                         plantas = Planta.objects.all()
                         PermisoPorComplejo.objects.bulk_create(
@@ -424,6 +424,7 @@ class EditarUsuario(LoginRequiredMixin, View):
                     plantas = Planta.objects.filter(pk__in = ids)
 
                 usuario.is_superuser = usuario.permisos_complejo.count() > 1
+                usuario.is_active = usuario.red.exists() or 'activo' in request.POST
 
                 for planta in plantas:
                     planta_accesible = PlantaAccesible.objects.create(planta=planta, usuario=usuario)
@@ -447,22 +448,27 @@ class EditarUsuario(LoginRequiredMixin, View):
     def get(self, request, pk):
         usuario = self.modelo.objects.get(pk=pk)
         plantas = usuario.usuario_planta.all()
-        previo = {
-            'nombre': usuario.first_name,
-            'correo': usuario.email,
-            'superusuario': usuario.is_superuser,
-            'activo': usuario.is_active,
-            'plantas': [planta.planta.pk for planta in plantas],
-            'creaciones': [planta.planta.pk for planta in plantas.filter(crear = True)],
-            'ediciones': [planta.planta.pk for planta in plantas.filter(edicion = True)],
-            'ediciones_instalacion': [planta.planta.pk for planta in plantas.filter(edicion_instalacion = True)],
-            'duplicaciones': [planta.planta.pk for planta in plantas.filter(duplicacion = True)],
-            'evaluaciones': [planta.planta.pk for planta in plantas.filter(ver_evaluaciones = True)],
-            'crear_evaluaciones': [planta.planta.pk for planta in plantas.filter(crear_evaluaciones = True)],
-            'eliminar_evaluaciones': [planta.planta.pk for planta in plantas.filter(eliminar_evaluaciones = True)],
-            'usuarios': [planta.planta.pk for planta in plantas.filter(administrar_usuarios = True)],
-            'permisos_complejo': usuario.permisos_complejo.all()
-        }
+
+        try:
+            previo = {
+                'nombre': usuario.first_name,
+                'correo': usuario.email,
+                'superusuario': usuario.is_superuser,
+                'activo': usuario.is_active,
+                'red': usuario.red.exists(),
+                'plantas': [planta.planta.pk for planta in plantas],
+                'creaciones': [planta.planta.pk for planta in plantas.filter(crear = True)],
+                'ediciones': [planta.planta.pk for planta in plantas.filter(edicion = True)],
+                'ediciones_instalacion': [planta.planta.pk for planta in plantas.filter(edicion_instalacion = True)],
+                'duplicaciones': [planta.planta.pk for planta in plantas.filter(duplicacion = True)],
+                'evaluaciones': [planta.planta.pk for planta in plantas.filter(ver_evaluaciones = True)],
+                'crear_evaluaciones': [planta.planta.pk for planta in plantas.filter(crear_evaluaciones = True)],
+                'eliminar_evaluaciones': [planta.planta.pk for planta in plantas.filter(eliminar_evaluaciones = True)],
+                'usuarios': [planta.planta.pk for planta in plantas.filter(administrar_usuarios = True)],
+                'permisos_complejo': usuario.permisos_complejo.all()
+            }
+        except Exception as e:
+            print(e)
 
         context = {'previo': previo, 'edicion': True, 'complejos': Complejo.objects.prefetch_related('plantas').all() if request.user.is_superuser else Complejo.objects.filter(pk__in = [complejo.complejo.pk for complejo in request.user.permisos_complejo.all()]), 'plantas': Planta.objects.all() if request.user.is_superuser else [planta.planta for planta in request.user.usuario_planta.all() if planta.administrar_usuarios], **self.context}
         context['complejos_permisos_pk'] = [complejo.complejo.pk for complejo in usuario.permisos_complejo.all()]
