@@ -1,5 +1,5 @@
 from django.db.models.query import QuerySet, Q, Prefetch
-import ldap
+# import ldap
 from simulaciones_pequiven.settings import AUTH_LDAP_BIND_DN, AUTH_LDAP_BIND_PASSWORD, AUTH_LDAP_SERVER_URI
 
 from django.views.generic.list import ListView
@@ -205,6 +205,7 @@ class CrearNuevoUsuario(LoginRequiredMixin, View):
                     planta_accesible.edicion = f"editar-{planta.pk}" in request.POST.keys()
                     planta_accesible.edicion_instalacion = f"instalacion-{planta.pk}" in request.POST.keys()
                     planta_accesible.duplicacion = f"duplicacion-{planta.pk}" in request.POST.keys()
+                    planta_accesible.administrar_usuarios = f"usuarios-{planta.pk}" in request.POST.keys()
                     planta_accesible.ver_evaluaciones = f"evaluaciones-{planta.pk}" in request.POST.keys()
                     planta_accesible.crear_evaluaciones = f"crearevals-{planta.pk}" in request.POST.keys()
                     planta_accesible.eliminar_evaluaciones = f"delevals-{planta.pk}" in request.POST.keys()
@@ -460,9 +461,10 @@ class EditarUsuario(LoginRequiredMixin, View):
         except Exception as e:
             print(e)
 
-        context = {'previo': previo, 'edicion': True, 'complejos': Complejo.objects.prefetch_related('plantas').all() if request.user.is_superuser else Complejo.objects.filter(pk__in = [complejo.complejo.pk for complejo in request.user.permisos_complejo.all()]), 'plantas': Planta.objects.all() if request.user.is_superuser else [planta.planta for planta in request.user.usuario_planta.all() if planta.administrar_usuarios], **self.context}
+        context = {'previo': previo, 'edicion': True, 'complejos': Complejo.objects.prefetch_related('plantas').all() if request.user.is_superuser else Complejo.objects.filter(pk__in = [planta.planta.complejo.pk for planta in request.user.usuario_planta.all()]), 'plantas': Planta.objects.all() if request.user.is_superuser else [planta.planta for planta in request.user.usuario_planta.all() if planta.administrar_usuarios], **self.context}
         context['complejos_permisos_pk'] = [complejo.complejo.pk for complejo in usuario.permisos_complejo.all()]
-        
+        context['plantas_pk'] = [planta.planta.pk for planta in request.user.usuario_planta.filter(administrar_usuarios = True)]
+
         return render(request, 'usuarios/creacion.html', context=context)
 
 class CambiarContrasena(LoginRequiredMixin, View):

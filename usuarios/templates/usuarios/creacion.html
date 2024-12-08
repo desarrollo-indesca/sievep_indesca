@@ -100,6 +100,7 @@
             </thead>
             <tbody>
                 {% for planta in complejo.plantas.all %}
+                {% if request.user.is_superuser or planta.pk in plantas_pk %}
                 <tr>
                     <td>{{planta}}</td>
                     <td><input type="checkbox" name="planta-{{planta.pk}}" value="{{planta.pk}}" id="check-{{planta.pk}} complejo-{{complejo.pk}}" class="form-check-input complejo-{{complejo.pk}}" 
@@ -130,6 +131,7 @@
                         {% if planta.complejo.pk in complejos_permisos_pk %}disabled{% endif %} 
                         {% if planta.pk in previo.eliminar_evaluaciones or previo.superusuario %}checked{% endif %}></td>                    
                 </tr>
+                {% endif %}
                 {% endfor %}
             </tbody>
         </table>        
