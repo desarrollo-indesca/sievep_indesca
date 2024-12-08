@@ -976,7 +976,10 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ConsultaIntercambiador):
         context['complejos'] = Complejo.objects.all()
 
         if(self.request.GET.get('complejo')):
-            context['plantas'] = Planta.objects.filter(complejo= self.request.GET.get('complejo'))
+            if(not self.request.user.is_superuser):
+                context['plantas'] = Planta.objects.filter(complejo__pk = self.request.GET.get('complejo'), pk__in=self.request.user.usuario_planta.values_list("planta", flat=True))
+            else:
+                context['plantas'] = Planta.objects.filter(complejo__pk = self.request.GET.get('complejo'))
 
         context['tag'] = self.request.GET.get('tag', '')
         context['servicio'] = self.request.GET.get('servicio', '')
@@ -1087,7 +1090,10 @@ class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
         context['complejos'] = Complejo.objects.all()
 
         if(self.request.GET.get('complejo')):
-            context['plantas'] = Planta.objects.filter(complejo= self.request.GET.get('complejo'))
+            if(not self.request.user.is_superuser):
+                context['plantas'] = Planta.objects.filter(complejo__pk = self.request.GET.get('complejo'), pk__in=self.request.user.usuario_planta.values_list("planta", flat=True))
+            else:
+                context['plantas'] = Planta.objects.filter(complejo__pk = self.request.GET.get('complejo'))
 
         context['tag'] = self.request.GET.get('tag', '')
         context['servicio'] = self.request.GET.get('servicio', '')

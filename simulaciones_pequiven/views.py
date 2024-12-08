@@ -578,7 +578,7 @@ class FiltradoSimpleMixin():
             )
 
         if(planta and planta != '' and complejo != ''): # Filtrar por planta
-            new_context = self.model.objects.filter(
+            new_context = new_context.filter(
                 planta__pk=planta
             )
 
@@ -597,7 +597,7 @@ class FiltradoSimpleMixin():
                     servicio__icontains = descripcion
                 )
         else: # Si ningún filtro fue aplicado previamente
-            new_context = self.model.objects.filter(
+            new_context = new_context.filter(
                 tag__icontains = tag
             )
 
