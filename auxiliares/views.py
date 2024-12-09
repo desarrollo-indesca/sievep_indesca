@@ -1656,10 +1656,10 @@ class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
             'titulo': "Evaluación de Ventilador",
             'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
             "permisos": {
-                'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
                 'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
                 'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
-                'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+                'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
+                'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True))
             }
         }
 
