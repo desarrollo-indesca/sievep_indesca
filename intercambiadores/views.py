@@ -1013,16 +1013,15 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ConsultaIntercambiador):
         complejo = self.request.GET.get('complejo', '')
         planta = self.request.GET.get('planta', '')
 
-        new_context = None
-
+        new_context = self.model.objects.filter(intercambiador__planta__pk__in = self.request.user.usuario_planta.values_list("planta", flat=True))  if not self.request.user.is_superuser else self.model.objects.all()
         if(planta != '' and complejo != ''):
-            new_context = self.model.objects.filter(
+            new_context = new_context.objects.filter(
                 intercambiador__planta__pk=planta
             )
         elif(complejo != ''):
             new_context = new_context.filter(
                 intercambiador__planta__complejo__pk=complejo
-            ) if new_context else self.model.objects.filter(
+            ) if new_context else new_context.objects.filter(
                 intercambiador__planta__complejo__pk=complejo
             )
 
@@ -1032,7 +1031,7 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ConsultaIntercambiador):
                 intercambiador__tag__icontains = tag
             )
         else:
-            new_context = self.model.objects.filter(
+            new_context = new_context.objects.filter(
                 intercambiador__servicio__icontains = servicio,
                 intercambiador__tag__icontains = tag
             )
@@ -1128,8 +1127,7 @@ class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
         complejo = self.request.GET.get('complejo', '')
         planta = self.request.GET.get('planta', '')
 
-        new_context = None
-
+        new_context = self.model.objects.filter(intercambiador__planta__pk__in = self.request.user.usuario_planta.values_list("planta", flat=True))  if not self.request.user.is_superuser else self.model.objects.all()
         if(planta != '' and complejo != ''):
             new_context = self.model.objects.filter(
                 intercambiador__planta__pk=planta

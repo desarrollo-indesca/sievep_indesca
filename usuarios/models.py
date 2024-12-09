@@ -24,6 +24,9 @@ class PlantaAccesible(models.Model):
     duplicacion = models.BooleanField(default=False)
     administrar_usuarios = models.BooleanField(default=False)
 
+    class Meta:
+        ordering = ('-planta__complejo__pk',)
+
 class Encuesta(models.Model):
     """
     Resumen:

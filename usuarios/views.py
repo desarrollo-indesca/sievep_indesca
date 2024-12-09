@@ -1,5 +1,5 @@
 from django.db.models.query import QuerySet, Q, Prefetch
-# import ldap
+import ldap
 from simulaciones_pequiven.settings import AUTH_LDAP_BIND_DN, AUTH_LDAP_BIND_PASSWORD, AUTH_LDAP_SERVER_URI
 
 from django.views.generic.list import ListView
@@ -229,6 +229,7 @@ class CrearNuevoUsuario(LoginRequiredMixin, View):
             'titulo': "Registro de Nuevo Usuario",
             'complejos': Complejo.objects.prefetch_related('plantas').all() if self.request.user.is_superuser else Complejo.objects.filter(pk__in = self.request.user.usuario_planta.filter(administrar_usuarios = True).values_list('planta__complejo').distinct()),
         }
+        context['plantas_pk'] = [planta.planta.pk for planta in request.user.usuario_planta.filter(administrar_usuarios = True)]
                
         return render(request, 'usuarios/creacion.html', context)
 
@@ -317,7 +318,8 @@ class CrearNuevoUsuarioRed(LoginRequiredMixin, View):
                             usuario = usuario
                         )
                 else:
-                    plantas = Planta.objects.filter(Q(complejo__pk = complejo_id) | Q(pk__in = ids))
+                    plantas = Planta.objects.filter(pk__in = ids)
+                    complejo_id = None
 
                 usuario.is_superuser = usuario.permisos_complejo.count() > 1
                 usuario.save()
@@ -353,6 +355,8 @@ class CrearNuevoUsuarioRed(LoginRequiredMixin, View):
             'titulo': "Registro de Nuevo Usuario En Red",
             'complejos': Complejo.objects.prefetch_related('plantas').all() if self.request.user.is_superuser else Complejo.objects.filter(pk__in = self.request.user.usuario_planta.filter(administrar_usuarios = True).values_list('planta__complejo').distinct()),
         }
+
+        context['plantas_pk'] = [planta.planta.pk for planta in request.user.usuario_planta.filter(administrar_usuarios = True)]
                
         return render(request, 'usuarios/creacion-red.html', context)
 

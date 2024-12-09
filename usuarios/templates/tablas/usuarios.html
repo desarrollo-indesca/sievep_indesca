@@ -29,6 +29,7 @@
                 <li><b>Nombre:</b> {{usuario.first_name}} {{usuario.last_name}}</li>
                 <li><b>Correo electrónico:</b> {{usuario.email}}</li>
                 <li><b>Activo:</b> {{usuario.is_active|yesno:"Sí,No"}}</li>
+                <li><b>Tipo de Usuario:</b> {{usuario.red.exists|yesno:"Red,Externo/Local"}}</li>
               </ul>
 
               {% if usuario.permisos_complejo.count > 0 %}
