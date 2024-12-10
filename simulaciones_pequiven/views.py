@@ -515,8 +515,13 @@ class PlantasPorComplejo(LoginRequiredMixin, View):
         selected_planta_id = request.GET.get('planta')
         plantas = Planta.objects.filter(complejo_id=complejo_id)
 
+        previo = request.META.get('HTTP_REFERER')
+
         if(not self.request.user.is_superuser):
-            plantas = plantas.filter(pk__in=request.user.usuario_planta.values_list("planta", flat=True))
+            if('edicion' in previo or 'editar' in previo):
+                plantas = plantas.filter(pk__in=request.user.usuario_planta.filter(edicion = True).values_list("planta", flat=True))
+            else:
+                plantas = plantas.filter(pk__in=request.user.usuario_planta.filter(crear = True).values_list("planta", flat=True))
         else:
             plantas = Planta.objects.filter(complejo__pk=complejo_id)
 
