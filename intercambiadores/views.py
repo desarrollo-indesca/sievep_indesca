@@ -1260,14 +1260,8 @@ class CrearIntercambiadorDobleTubo(CrearIntercambiadorTuboCarcasa):
         if(not request.POST.get('unidad_calor') and not request.POST.get('unidad_q')):
             errores.append('El campo Unidad de Calor es obligatorio.')
 
-        if(not request.POST.get('u')):
-            errores.append('El campo Coeficiente U es obligatorio.')
-
         if(not request.POST.get('unidad_u')):
             errores.append('El campo Unidad de Coeficiente U es obligatorio.')
-
-        if(not request.POST.get('ensuciamiento')):
-            errores.append('El campo Ensuciamiento es obligatorio.')
 
         if(not request.POST.get('unidad_fouling')):
             errores.append('El campo Unidad de Ensuciamiento es obligatorio.')

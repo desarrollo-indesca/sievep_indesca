@@ -403,7 +403,7 @@ def detalle_evaluacion(evaluacion):
             ],
             [
                 Paragraph(f"U ({evaluacion.u_diseno_unidad})", centrar_parrafo), 
-                Paragraph(f"{evaluacion.u}", centrar_parrafo), 
+                Paragraph(f"{evaluacion.u if evaluacion.u else '-'}", centrar_parrafo), 
                 Paragraph(f"Q ({evaluacion.q_diseno_unidad})", centrar_parrafo), 
                 Paragraph(f"{evaluacion.q}", centrar_parrafo), 
             ],
