@@ -13,11 +13,11 @@ const cargarEventListeners = (anadirListeners = true) => {
 
 const reindex = (anadir = false, formClass="form") => {
   let forms = document.querySelectorAll(`.${formClass}`);
-  let formRegex = RegExp(`form-(\\d)+-`, "g");
+  let formRegex = RegExp(`${formClass}-(\\d)+-`, "g");
   let valores = {};
 
   for (let i = 0; i < forms.length; i++) {
-    let current_prefix = `form-${i}-`;
+    let current_prefix = `${formClass}-${i}-`;
 
     forms[i].querySelectorAll("input,select").forEach((e) => {
       if (!(anadir && i === forms.length - 1 && e.id.indexOf("-id") !== -1))
@@ -41,12 +41,15 @@ const reindex = (anadir = false, formClass="form") => {
 };
 
 const eliminar = (e, formClass) => {
+  let idField = e.target.parentElement.parentElement.querySelector('input[id$="-id"]');
+  if(idField) idField.remove();
+  
   let forms = document.querySelectorAll(`.${formClass}`);
-  let formNum = forms.length - 1;
+  let formNum = forms.length;
   let totalForms = document.querySelector(`#id_${formClass}-TOTAL_FORMS`);
   totalForms.setAttribute("value", `${formNum}`);
   e.target.parentElement.parentElement.remove();
-  reindex();
+  reindex(false, formClass);
   cargarEventListeners(false);
 };
 
@@ -78,7 +81,7 @@ const anadir = (e, formClass) => {
     .addClass("eliminar");
   $(newElement).find("a.eliminar").html("-");
 
-  reindex(true);
+  reindex(true, formClass);
 
   cargarEventListeners(false);
 
@@ -94,7 +97,11 @@ const anadir = (e, formClass) => {
   $(`#id_${formPrefix}fase`).val("");
   $(`#id_${formPrefix}rol`).val("");
   $(`#id_${formPrefix}densidad`).val("");
-};
+
+  if (newElement.querySelector(`#id_${formPrefix}id`)) {
+    newElement.querySelector(`#id_${formPrefix}id`).remove();
+  }
+}
 
 cargarEventListeners();
 
