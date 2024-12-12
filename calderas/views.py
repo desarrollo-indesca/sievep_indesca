@@ -995,7 +995,6 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
             'vapor-presion': 'vapor-presion_unidad',
         } if request.POST.get('evaluacion-metodo') == "D" else {
             'aire-temperatura': 'aire-temperatura_unidad',
-            'aire-presion': 'aire-presion_unidad',
             'horno-temperatura': 'horno-temperatura_unidad',
             'gas-temperatura': 'gas-temperatura_unidad',
             'gas-presion': 'gas-presion_unidad',
@@ -1003,7 +1002,6 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
             'superficie-area': 'superficie-area_unidad',
             'superficie-temperatura': 'superficie-temperatura_unidad',
             'aire-velocidad': 'aire-velocidad_unidad',
-            'aire-humedad_relativa': None,
             'evaluacion-o2_gas_combustion': None
         }
 

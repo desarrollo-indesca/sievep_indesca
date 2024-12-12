@@ -277,6 +277,8 @@ def calcular_composicion_aire(humedad_relativa, temperatura_aire, presion_aire):
     p_h2o = (math.e**(C1 + C2/(temperatura_aire) + C3*math.log(temperatura_aire)+C4*math.pow(temperatura_aire,C5)))/100000
     x_h2o = humedad_relativa/100*(p_h2o/(presion_aire))
 
+    print(x_h2o)
+
     return [
         0.21*(1-x_h2o),
         0.79*(1-x_h2o),
@@ -605,9 +607,9 @@ def calcular_flujos_composiciones_masicas(composiciones_combustible: dict, flujo
     return composiciones_combustible
 
 def evaluar_metodo_indirecto(composiciones_combustible: dict, temperatura_aire: float, velocidad_aire: float,
-                                presion_aire: float, temperatura_gas: float, presion_gas: float, flujo_gas: float,  
+                                temperatura_gas: float, presion_gas: float, flujo_gas: float,  
                                 area_superficie: float, temperatura_superficie: float, temperatura_horno: float,
-                                humedad_relativa_aire: float, o2_gas_combustion_evaluacion: float) -> dict:
+                                o2_gas_combustion_evaluacion: float) -> dict:
     """
     Resumen:
         Evalúa una caldera utilizado el método indirecto para calcular su eficiencia térmica.
@@ -655,7 +657,7 @@ def evaluar_metodo_indirecto(composiciones_combustible: dict, temperatura_aire: 
         composicion_normalizada, flujo_masico_gas
     )
 
-    _,_,factor_humedad = calcular_composicion_aire(humedad_relativa_aire, temperatura_aire, presion_aire)
+    factor_humedad = 0.024
 
     poder_calorifico = sum([
         comp['y']*ENTALPIA_COMBUSTION_INDIRECTO[cas] for cas,comp in composicion_normalizada.items() \

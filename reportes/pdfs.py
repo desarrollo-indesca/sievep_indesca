@@ -3219,7 +3219,7 @@ def reporte_detalle_evaluacion_caldera(evaluacion):
         ],
         [
             Paragraph("% Humedad Relativa", centrar_parrafo),
-            Paragraph(f"{entrada_aire.humedad_relativa} %", centrar_parrafo),
+            Paragraph(f"{entrada_aire.humedad_relativa if entrada_aire.humedad_relativa else 2.4} %", centrar_parrafo),
         ],
         [
             Paragraph("Velocidad", centrar_parrafo),
