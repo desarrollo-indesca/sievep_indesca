@@ -2337,7 +2337,6 @@ class CreacionCorrientesPrecalentadorAgua(ObtenerPrecalentadorAguaMixin, LoginRe
             else:
                 print([formset_corrientes_carcasa.errors])
 
-
             valid = valid and formset_corrientes_tubos.is_valid()
                 
             if(valid):
@@ -3442,6 +3441,8 @@ class DuplicarPrecalentadorAire(ObtenerPrecalentadorAireMixin, LoginRequiredMixi
         precalentador_original = self.get_precalentador()
         precalentador = precalentador_original
         old_tag = precalentador.tag
+        condicion_aire = precalentador_original.condicion_fluido.first()
+        condicion_gases = precalentador_original.condicion_fluido.last()
         
         with transaction.atomic():
             especificaciones = self.copy(precalentador_original.especificaciones)
@@ -3451,20 +3452,20 @@ class DuplicarPrecalentadorAire(ObtenerPrecalentadorAireMixin, LoginRequiredMixi
             precalentador.tag = generate_nonexistent_tag(PrecalentadorAire, precalentador.tag)
             precalentador = self.copy(precalentador)
 
-            condicion_aire_original = precalentador_original.condicion_fluido.first()
+            condicion_aire_original = condicion_aire
             condicion_aire_original.precalentador = precalentador
             condicion_aire = self.copy(condicion_aire_original)
 
-            condicion_gases_original = precalentador_original.condicion_fluido.last()
-            condicion_aire_original.precalentador = precalentador
-            condicion_gases = self.copy(condicion_gases_original)
+            for composicion in condicion_aire_original.composiciones.all():
+                composicion.condicion = condicion_aire
+                self.copy(composicion)
+
+            condicion_gases_original = condicion_gases
+            condicion_gases_original.precalentador = precalentador
+            condicion_gases = self.copy(condicion_gases_original)            
 
             for composicion in condicion_gases_original.composiciones.all():
                 composicion.condicion = condicion_gases
-                self.copy(composicion)
-
-            for composicion in condicion_aire_original.composiciones.all():
-                composicion.condicion = condicion_aire
                 self.copy(composicion)
 
         messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
