@@ -49,6 +49,10 @@ const eliminar = (e) => {
     reindex();
     cargarEventListeners(false);
     cambioUnidades(`form-${formNum-1}-`);
+    document.querySelectorAll(".form").forEach((el, i) => {
+        if(i >= formNum - 1) htmx.process(el);
+    });
+    
 };
   
 const anadir = (e) => {
