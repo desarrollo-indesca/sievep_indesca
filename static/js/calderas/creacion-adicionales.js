@@ -108,6 +108,8 @@ const anadir = (e) => {
     $(`.${formPrefix}unidad`).html("");
 
     htmx.process(`#id_form-${formNum}-tipo_unidad`);
+    let idField = newElement.querySelector('input[id$="-id"]');
+    if (idField) idField.remove();
 
     cambioUnidades(formPrefix);
 };

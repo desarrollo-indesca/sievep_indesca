@@ -3006,10 +3006,10 @@ def reporte_ficha_tecnica_caldera(caldera):
         for caracteristica in caracteristicas:
             table.append([
                 Paragraph(f"{caracteristica.nombre}", centrar_parrafo),
-                Paragraph(f"{caracteristica.carga_25} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
-                Paragraph(f"{caracteristica.carga_50} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
-                Paragraph(f"{caracteristica.carga_75} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
-                Paragraph(f"{caracteristica.carga_100} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
+                Paragraph(f"{caracteristica.carga_25 if caracteristica.carga_25 else '-'} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
+                Paragraph(f"{caracteristica.carga_50 if caracteristica.carga_50 else '-'} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
+                Paragraph(f"{caracteristica.carga_75 if caracteristica.carga_75 else '-'} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
+                Paragraph(f"{caracteristica.carga_100 if caracteristica.carga_100 else '-'} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
             ])
 
         estilo = TableStyle([
