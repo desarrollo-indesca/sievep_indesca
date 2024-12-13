@@ -91,7 +91,13 @@
                                 —
                                 {% endif %}
                             </td>
-                            <td class="text-center">{{entrada_corriente.temperatura|floatformat:4}}</td>
+                            <td class="text-center">
+                                {% if entrada_corriente.temperatura %}
+                                {{entrada_corriente.temperatura|floatformat:4}}
+                                {% else %}
+                                —
+                                {% endif %}
+                            </td>
                             <td class="text-center">{{salida_corriente.flujo|floatformat:4}}</td>
                             <td class="text-center">{{salida_corriente.entalpia|floatformat:4}}</td>
                             <td class="text-center">{{salida_corriente.fase_largo}}</td>

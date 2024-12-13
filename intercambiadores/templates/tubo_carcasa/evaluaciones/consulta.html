@@ -16,9 +16,9 @@
     {% if intercambiador.problemas_carga.1|length == 0 %}
     <a class="btn d-block btn-success" href="{% url 'crear_evaluacion_tubo_carcasa' pk=generales.pk %}">+ Nueva</a> &nbsp;
     {% endif %}
-    {% endif %}
     {%else%}
     <a class="btn d-block btn-success" href="{% url 'crear_evaluacion_tubo_carcasa' pk=generales.pk %}">+ Nueva</a> &nbsp;
+    {%endif%}
     {%endif%}
   </div>
 

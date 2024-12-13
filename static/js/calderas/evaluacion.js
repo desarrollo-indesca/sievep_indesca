@@ -108,11 +108,14 @@ $("#id_evaluacion-metodo").change(e => {
         $(`.directo-field`).attr('required', 'required');
         $(`.indirecto-field`).css('border-color', '');
         $(`.directo-field`).css('border-color', 'green');
+        $('#id_aire-humedad_relativa').val('').removeAttr('disabled');
     } else if(e.target.value == 'I'){
         $(`.directo-field`).removeAttr('required');
         $(`.indirecto-field`).attr('required', 'required'); 
         $(`.directo-field`).css('border-color', '');  
         $(`.indirecto-field`).css('border-color', 'green');
+
+        $('#id_aire-humedad_relativa').val(2.4).attr('disabled', 'disabled');
     }
 
     $('#id_superficie-area').removeAttr('required');

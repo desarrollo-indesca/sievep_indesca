@@ -995,7 +995,6 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
             'vapor-presion': 'vapor-presion_unidad',
         } if request.POST.get('evaluacion-metodo') == "D" else {
             'aire-temperatura': 'aire-temperatura_unidad',
-            'aire-presion': 'aire-presion_unidad',
             'horno-temperatura': 'horno-temperatura_unidad',
             'gas-temperatura': 'gas-temperatura_unidad',
             'gas-presion': 'gas-presion_unidad',
@@ -1003,7 +1002,6 @@ class CreacionEvaluacionCaldera(LoginRequiredMixin, CargarCalderasMixin, View):
             'superficie-area': 'superficie-area_unidad',
             'superficie-temperatura': 'superficie-temperatura_unidad',
             'aire-velocidad': 'aire-velocidad_unidad',
-            'aire-humedad_relativa': None,
             'evaluacion-o2_gas_combustion': None
         }
 
@@ -1162,7 +1160,7 @@ class DuplicarCaldera(CargarCalderasMixin, DuplicateView):
                 self.copy(compuesto)
 
             caldera_original = Caldera.objects.get(pk=pk)
-            messages.success(request, f"Se ha creado la copia de la caldera {caldera_original.tag} como {caldera.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
+            messages.success(request, f"Se ha creado la copia de la caldera {caldera_original.tag} como {caldera.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 7:00am.")
             return redirect("/calderas")
         else:
             return HttpResponseForbidden()

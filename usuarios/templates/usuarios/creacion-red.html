@@ -1,17 +1,18 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block head %}
+<script src="/static/js/htmx.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
+{% endblock %}
+
 {% block contenido %}
     <form method="post">
         {% csrf_token %}
         <div class="row">
             <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consultar_usuarios' %}">↶ Regresar</a></div>
             <div class="col-md-6 col-lg-8">
-                {% if edicion %}
-                <h3 class="text-center" style="color: #e31e24;">Edición del Usuario {{previo.nombre}}</h3>
-                {% else %}
-                <h3 class="text-center" style="color: #e31e24;">Registro de Nuevo Usuario</h3>                
-                {% endif %}
+               <h3 class="text-center" style="color: #e31e24;">Registro de Nuevo Usuario</h3>                
             </div>
             <div class="col-3"></div>
         </div>
@@ -32,28 +33,20 @@
     
         <div class="row">
             <div class="col-6">
-                <label class="form-label" for="nombre">Nombre del Usuario:</label>
-                <input value="{{previo.nombre}}" type="text" name="nombre" class="form-control" id="nombre" maxlength="150" required>
+                <label class="form-label" for="nombre">ID del Usuario en Red:</label>
+                <input value="{{previo.nombre}}" type="text" name="id" class="form-control" id="id" maxlength="150" hx-get="{% url 'consultar_usuarios_ldap' %}" hx-trigger="keyup delay:1s" required>
             </div>
             <div class="col-6">
                 <label class="form-label" for="correo">Correo Electrónico:</label>
-                <input value="{{previo.correo}}" type="email" name="correo" class="form-control" id="correo" maxlength="254" required>
+                <input type="email" name="correo" class="form-control" id="correo" disabled>
             </div>
-            {% if not edicion %}
             <div class="col-6">
-                <label class="form-label" for="password">Contraseña:</label>
-                <input type="password" name="password" class="form-control" id="password" maxlength="100" minlength="8" required>
+                <label class="form-label" for="password">Nombre:</label>
+                <input type="text" name="nombre" class="form-control" id="nombre" disabled>
             </div>
-            {% elif not previo.red %}
-            <div class="col-4 d-flex justify-content-center align-items-end">
-                <div class="d-flex">
-                    <input type="checkbox" name="activo" class="form-check-input" id="activo" height="200px" width="200px"
-                    {% if previo.activo %}checked{%endif%}>
-                    &nbsp;
-                    <div><label class="form-label" for="activo">Activo</label></div>
-                </div>
+            <div id="aviso" class="text-center text-danger">
+
             </div>
-            {%endif%}
             {% if request.user.is_superuser %}
             <div class="col-4 d-flex justify-content-center align-items-end">
                 <div class="d-flex">
@@ -100,7 +93,6 @@
             </thead>
             <tbody>
                 {% for planta in complejo.plantas.all %}
-                {% if request.user.is_superuser or planta.pk in plantas_pk %}
                 <tr>
                     <td>{{planta}}</td>
                     <td><input type="checkbox" name="planta-{{planta.pk}}" value="{{planta.pk}}" id="check-{{planta.pk}} complejo-{{complejo.pk}}" class="form-check-input complejo-{{complejo.pk}}" 
@@ -131,7 +123,6 @@
                         {% if planta.complejo.pk in complejos_permisos_pk %}disabled{% endif %} 
                         {% if planta.pk in previo.eliminar_evaluaciones or previo.superusuario %}checked{% endif %}></td>                    
                 </tr>
-                {% endif %}
                 {% endfor %}
             </tbody>
         </table>        
@@ -140,123 +131,120 @@
         <hr>
         
         <div class="d-flex justify-content-center mb-3">
-            {% if edicion %}
-            <button class="btn btn-danger">Editar Usuario</button>
-            {% else %}
-            <button class="btn btn-danger">Registrar Usuario</button>
-            {% endif %}
+            <button class="btn btn-danger" id="submit" disabled>Registrar Usuario</button>
         </div>
     </form>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const rows = document.querySelectorAll('table tbody tr');
-        rows.forEach(row => {
-            const lecturaCheckbox = row.querySelector('input[name^="planta-"]');
-            const lecturaEvaluacionCheckbox = row.querySelector('input[name^="evaluaciones-"]');
-            const otherCheckboxes = row.querySelectorAll('input[type="checkbox"]:not([name^="planta-"]):not(input[type="checkbox"][name^="crearevals-"]):not(input[type="checkbox"][name^="delevals-"])');
-            const evaluacionCheckboxes = row.querySelectorAll('input[type="checkbox"][name^="crearevals-"], input[type="checkbox"][name^="delevals-"]');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const rows = document.querySelectorAll('table tbody tr');
+            rows.forEach(row => {
+                const lecturaCheckbox = row.querySelector('input[name^="planta-"]');
+                const lecturaEvaluacionCheckbox = row.querySelector('input[name^="evaluaciones-"]');
+                const otherCheckboxes = row.querySelectorAll('input[type="checkbox"]:not([name^="planta-"]):not(input[type="checkbox"][name^="crearevals-"]):not(input[type="checkbox"][name^="delevals-"])');
+                const evaluacionCheckboxes = row.querySelectorAll('input[type="checkbox"][name^="crearevals-"], input[type="checkbox"][name^="delevals-"]');
 
-            lecturaCheckbox.addEventListener('change', function() {
-                otherCheckboxes.forEach(checkbox => {
-                    checkbox.disabled = !lecturaCheckbox.checked;
-                    if (!lecturaCheckbox.checked) {
-                        checkbox.checked = false;
-                        evaluacionCheckboxes.forEach(checkbox => {
-                            checkbox.disabled = true;
+                lecturaCheckbox.addEventListener('change', function() {
+                    otherCheckboxes.forEach(checkbox => {
+                        checkbox.disabled = !lecturaCheckbox.checked;
+                        if (!lecturaCheckbox.checked) {
                             checkbox.checked = false;
-                        })
-                    }
+                            evaluacionCheckboxes.forEach(checkbox => {
+                                checkbox.disabled = true;
+                                checkbox.checked = false;
+                            })
+                        }
+                    });
                 });
-            });
 
-            lecturaEvaluacionCheckbox.addEventListener('change', function() {
+                lecturaEvaluacionCheckbox.addEventListener('change', function() {
+                    evaluacionCheckboxes.forEach(checkbox => {
+                        checkbox.disabled = !lecturaEvaluacionCheckbox.checked;
+                        if (!lecturaEvaluacionCheckbox.checked) {
+                            checkbox.checked = false;
+                        }
+                    });
+                });
+
+                otherCheckboxes.forEach(checkbox => {
+                    checkbox.disabled = !lecturaCheckbox.checked || lecturaCheckbox.disabled;
+                });
+
                 evaluacionCheckboxes.forEach(checkbox => {
-                    checkbox.disabled = !lecturaEvaluacionCheckbox.checked;
-                    if (!lecturaEvaluacionCheckbox.checked) {
+                    checkbox.disabled = !lecturaEvaluacionCheckbox.checked || lecturaEvaluacionCheckbox.disabled;
+                });
+            });
+
+            document.querySelector('input[name="superusuario"]').addEventListener('change', function() {
+                const allCheckboxes = document.querySelectorAll('input[type="checkbox"]:not([name="activo"]):not([name="superusuario"])');
+                const lecturaCheckboxes = document.querySelectorAll('input[name^="planta-"]');
+                if (this.checked) {
+                    allCheckboxes.forEach(checkbox => {
+                        checkbox.checked = true;
+                        checkbox.disabled = false;
+                    });
+                } else {
+                    allCheckboxes.forEach(checkbox => {
                         checkbox.checked = false;
-                    }
-                });
-            });
-
-            otherCheckboxes.forEach(checkbox => {
-                checkbox.disabled = !lecturaCheckbox.checked || lecturaCheckbox.disabled;
-            });
-
-            evaluacionCheckboxes.forEach(checkbox => {
-                checkbox.disabled = !lecturaEvaluacionCheckbox.checked || lecturaEvaluacionCheckbox.disabled;
-            });
-        });
-
-        document.querySelector('input[name="superusuario"]').addEventListener('change', function() {
-            const allCheckboxes = document.querySelectorAll('input[type="checkbox"]:not([name="activo"]):not([name="superusuario"])');
-            const lecturaCheckboxes = document.querySelectorAll('input[name^="planta-"]');
-            if (this.checked) {
-                allCheckboxes.forEach(checkbox => {
-                    checkbox.checked = true;
-                    checkbox.disabled = false;
-                });
-            } else {
-                allCheckboxes.forEach(checkbox => {
-                    checkbox.checked = false;
-                    checkbox.disabled = true;
-                });
-                lecturaCheckboxes.forEach(checkbox => {
-                    checkbox.checked = false;
-                    checkbox.disabled = false;
-                });
-            }
-        });
-    });
-    
-    document.querySelector('input[name="superusuario"]').addEventListener('change', function() {
-        const superusuarioDeDiv = document.getElementById('superusuario_de');
-        if (this.checked) {
-            superusuarioDeDiv.classList.remove('d-none');
-        } else {
-            superusuarioDeDiv.classList.add('d-none');
-        }
-    });
-
-    document.querySelector('select[name="superusuario_de"]').addEventListener('change', function() {
-        const complejoId = this.value;
-
-        if (complejoId === "todos") {
-            const allOtherCheckboxes = document.querySelectorAll(`input[type="checkbox"]:not(input[name="superusuario"]):not(input[name="activo"])`);
-            allOtherCheckboxes.forEach(checkbox => {
-                checkbox.checked = true;
-                checkbox.disabled = true;
-                checkbox.dispatchEvent(new Event('change'));
-            });
-        } else {
-            const allOtherCheckboxes = document.querySelectorAll(`input[type="checkbox"]:not(.complejo-${complejoId}):not(input[name="superusuario"]):not(input[name="activo"])`);
-            console.log(allOtherCheckboxes);
-            
-            allOtherCheckboxes.forEach(checkbox => {
-                checkbox.checked = false;
-                checkbox.dispatchEvent(new Event('change'));
-
-                if (checkbox.name.startsWith('planta-')) {
-                    checkbox.disabled = false;
+                        checkbox.disabled = true;
+                    });
+                    lecturaCheckboxes.forEach(checkbox => {
+                        checkbox.checked = false;
+                        checkbox.disabled = false;
+                    });
                 }
             });
-            
-            const checkboxes = document.querySelectorAll(`.complejo-${complejoId}`);
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = true;
-                checkbox.disabled = true;
-            });  
-        } 
+        });
         
-    });
+        document.querySelector('input[name="superusuario"]').addEventListener('change', function() {
+            const superusuarioDeDiv = document.getElementById('superusuario_de');
+            if (this.checked) {
+                superusuarioDeDiv.classList.remove('d-none');
+            } else {
+                superusuarioDeDiv.classList.add('d-none');
+            }
+        });
 
-    document.querySelector('form').addEventListener('submit', function(event) {
-        const checkboxes = document.querySelectorAll('input[type="checkbox"]:not([name="activo"]):not([name="superusuario"])');
-        const atLeastOne = Array.from(checkboxes).some(checkbox => checkbox.checked);
-        if (!atLeastOne) {
-            event.preventDefault();
-            alert('El usuario debe tener al menos un permiso.');
-        }
-    });
-</script>
+        document.querySelector('select[name="superusuario_de"]').addEventListener('change', function() {
+            const complejoId = this.value;
+
+            if (complejoId === "todos") {
+                const allOtherCheckboxes = document.querySelectorAll(`input[type="checkbox"]:not(input[name="superusuario"]):not(input[name="activo"])`);
+                allOtherCheckboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                    checkbox.disabled = true;
+                    checkbox.dispatchEvent(new Event('change'));
+                });
+            } else {
+                const allOtherCheckboxes = document.querySelectorAll(`input[type="checkbox"]:not(.complejo-${complejoId}):not(input[name="superusuario"]):not(input[name="activo"])`);
+                console.log(allOtherCheckboxes);
+                
+                allOtherCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                    checkbox.dispatchEvent(new Event('change'));
+
+                    if (checkbox.name.startsWith('planta-')) {
+                        checkbox.disabled = false;
+                    }
+                });
+                
+                const checkboxes = document.querySelectorAll(`.complejo-${complejoId}`);
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                    checkbox.disabled = true;
+                });  
+            } 
+            
+        });
+
+        document.querySelector('form').addEventListener('submit', function(event) {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:not([name="activo"]):not([name="superusuario"])');
+            const atLeastOne = Array.from(checkboxes).some(checkbox => checkbox.checked);
+            if (!atLeastOne) {
+                event.preventDefault();
+                alert('El usuario debe tener al menos un permiso.');
+            }
+        });
+
+    </script>
 {% endblock %}

@@ -49,6 +49,17 @@ const eliminar = (e) => {
     reindex();
     cargarEventListeners(false);
     cambioUnidades(`form-${formNum-1}-`);
+    document.querySelectorAll(".form").forEach((el, i) => {
+        if(i >= formNum - 1) {
+            htmx.process(el);
+            const tipo_unidad = el.querySelector("select[name$='-unidad']");
+            if(tipo_unidad) {
+                const event = new Event('change', { bubbles: true });
+                tipo_unidad.dispatchEvent(event);
+            }
+        }
+    });
+    
 };
   
 const anadir = (e) => {
@@ -97,6 +108,8 @@ const anadir = (e) => {
     $(`.${formPrefix}unidad`).html("");
 
     htmx.process(`#id_form-${formNum}-tipo_unidad`);
+    let idField = newElement.querySelector('input[id$="-id"]');
+    if (idField) idField.remove();
 
     cambioUnidades(formPrefix);
 };

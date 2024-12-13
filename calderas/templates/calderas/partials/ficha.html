@@ -306,10 +306,10 @@
                   {% for caracteristica in caracteristicas %}
                   <tr>
                     <th class="table-dark">{{caracteristica.nombre.upper}} {% if caracteristica.unidad %}({{caracteristica.unidad}}){% endif %}</th>
-                    <td>{{caracteristica.carga_25}}</td>
-                    <td>{{caracteristica.carga_50}}</td>
-                    <td>{{caracteristica.carga_75}}</td>
-                    <td>{{caracteristica.carga_100}}</td>
+                    <td>{{caracteristica.carga_25|default_if_none:'-'}}</td>
+                    <td>{{caracteristica.carga_50|default_if_none:'-'}}</td>
+                    <td>{{caracteristica.carga_75|default_if_none:'-'}}</td>
+                    <td>{{caracteristica.carga_100|default_if_none:'-'}}</td>
                   </tr>
                   {% endfor %}
                   {%else%}

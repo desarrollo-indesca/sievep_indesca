@@ -520,17 +520,8 @@ class CrearIntercambiadorTuboCarcasa(PuedeCrear, CreacionIntercambiadorMixin, Vi
         if(not request.POST.get('unidad_diametros')):
             errores.append('El campo Unidad de Diámetros es obligatorio.')
 
-        if(not request.POST.get('material_carcasa')):
-            errores.append('El campo Material de Carcasa es obligatorio.')
-
-        if(not request.POST.get('material_tubo')):
-            errores.append('El campo Material de Tubo es obligatorio.')
-
         if(not request.POST.get('tipo_tubo')):
             errores.append('El campo Tipo de Tubo es obligatorio.')
-
-        if(not request.POST.get('pitch')):
-            errores.append('El campo Pitch es obligatorio.')
 
         if(not request.POST.get('unidades_pitch')):
             errores.append('El campo Unidad de Pitch es obligatorio.')
@@ -694,7 +685,7 @@ class CrearIntercambiadorTuboCarcasa(PuedeCrear, CreacionIntercambiadorMixin, Vi
                 fluido_tubo = self.obtencion_fluido(request, 'tubo')
                 fluido_carcasa = self.obtencion_fluido(request, 'carcasa')
 
-                u = request.POST['u'] if request.POST['u'] else None
+                u = request.POST['u'] if request.POST.get('u') else None
                 calor = float(request.POST.get('calor'))
 
                 # Creación de Intercambiador Tubo/Carcasa
@@ -706,7 +697,7 @@ class CrearIntercambiadorTuboCarcasa(PuedeCrear, CreacionIntercambiadorMixin, Vi
                     longitud_tubos = float(request.POST['longitud_tubos']),
                     longitud_tubos_unidad = Unidades.objects.get(pk=request.POST['longitud_tubos_unidad']),
                     diametro_externo_tubos = float(request.POST['od_tubos']),
-                    diametro_interno_carcasa = float(request.POST['id_carcasa']),
+                    diametro_interno_carcasa = float(request.POST['id_carcasa']) if request.POST.get('id_carcasa') else None,
                     diametro_tubos_unidad = Unidades.objects.get(pk=request.POST['unidad_diametros']),
 
                     fluido_carcasa = Fluido.objects.get(pk=request.POST['fluido_carcasa']) if type(fluido_carcasa) == str else fluido_carcasa if type(fluido_carcasa) == Fluido else None,
@@ -720,18 +711,18 @@ class CrearIntercambiadorTuboCarcasa(PuedeCrear, CreacionIntercambiadorMixin, Vi
                     conexiones_salida_tubos = request.POST['conexiones_salida_tubo'],
                     tipo_tubo = TiposDeTubo.objects.get(pk=request.POST['tipo_tubo']),
 
-                    pitch_tubos = float(request.POST['pitch']),
+                    pitch_tubos = float(request.POST['pitch']) if request.POST.get('pitch') else None,
                     unidades_pitch = Unidades.objects.get(pk=request.POST['unidades_pitch']),
 
-                    arreglo_serie = request.POST['arreglo_serie'] if request.POST['arreglo_serie'] else None,
-                    arreglo_paralelo = request.POST['arreglo_paralelo'] if request.POST['arreglo_paralelo'] else None,
-                    numero_pasos_tubo = request.POST['numero_pasos_tubo'] if request.POST['numero_pasos_tubo'] else None,
-                    numero_pasos_carcasa = request.POST['numero_pasos_carcasa'] if request.POST['numero_pasos_carcasa'] else None,
+                    arreglo_serie = request.POST['arreglo_serie'] if request.POST.get('arreglo_serie') else None,
+                    arreglo_paralelo = request.POST['arreglo_paralelo'] if request.POST.get('arreglo_paralelo') else None,
+                    numero_pasos_tubo = request.POST['numero_pasos_tubo'] if request.POST.get('numero_pasos_tubo') else None,
+                    numero_pasos_carcasa = request.POST['numero_pasos_carcasa'] if request.POST.get('numero_pasos_carcasa') else None,
                     q =  float(request.POST['calor']),
                     q_unidad = Unidades.objects.get(pk=request.POST['unidad_calor']),
                     u = u,
                     u_unidad = Unidades.objects.get(pk=request.POST['unidad_u']),
-                    ensuciamiento = float(request.POST['ensuciamiento']) if request.POST['ensuciamiento'] else None,
+                    ensuciamiento = float(request.POST['ensuciamiento']) if request.POST.get('ensuciamiento') else None,
                     ensuciamiento_unidad = Unidades.objects.get(pk=request.POST['unidad_fouling'])
                 )
 
@@ -741,26 +732,28 @@ class CrearIntercambiadorTuboCarcasa(PuedeCrear, CreacionIntercambiadorMixin, Vi
                 # Condiciones de Diseño de la Tubo Externo
                 condiciones_diseno_ex =  self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad.pk, fluido_carcasa, 'carcasa', 'C')
                 
-                try:
-                    diseno = propiedades.calcular_diseno
-                    intercambiador.ntu = diseno['ntu']
-                    intercambiador.efectividad = diseno['efectividad']
-                    intercambiador.eficiencia = diseno['eficiencia']
-                    intercambiador.lmtd = diseno['lmtd']
-                    intercambiador.save()
-                except Exception as e:
-                    print(str(e))
-                    print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
-                    intercambiador.ntu = None
-                    intercambiador.efectividad = None
-                    intercambiador.eficiencia = None
-                    intercambiador.lmtd = None
-                    intercambiador.save()
-
                 intercambiador.save()
                 messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
-                return redirect(f"/intercambiadores/evaluaciones/{intercambiador.pk}/")
+            
+            try:
+                diseno = propiedades.calcular_diseno
+                intercambiador.ntu = diseno['ntu']
+                intercambiador.efectividad = diseno['efectividad']
+                intercambiador.eficiencia = diseno['eficiencia']
+                intercambiador.lmtd = diseno['lmtd']
+                intercambiador.save()
+            except Exception as e:
+                print(str(e))
+                print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
+                intercambiador.ntu = None
+                intercambiador.efectividad = None
+                intercambiador.eficiencia = None
+                intercambiador.lmtd = None
+                intercambiador.save()
+
+            return redirect(f"/intercambiadores/evaluaciones/{intercambiador.pk}/")
         except Exception as e:
+            print("AAAAAAAAAAAAAA")
             print(str(e))
             errores.append('Ha ocurrido un error desconocido al registrar el intercambiador. Verifique los datos ingresados.')
             return self.redirigir_por_errores(request, errores)
@@ -837,15 +830,15 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, LoginRequi
                 propiedades.numero_tubos = request.POST['no_tubos']
                 propiedades.longitud_tubos = float(request.POST['longitud_tubos'])
                 propiedades.diametro_externo_tubos = request.POST['od_tubos']
-                propiedades.diametro_interno_carcasa = request.POST['id_carcasa']
+                propiedades.diametro_interno_carcasa = request.POST['id_carcasa'] if request.POST.get('id_carcasa') != '' else None
                 propiedades.tipo_tubo = TiposDeTubo.objects.get(pk=request.POST['tipo_tubo'])
-                propiedades.pitch_tubos = request.POST['pitch']
+                propiedades.pitch_tubos = request.POST.get('pitch') if request.POST.get('pitch') != "" else None
                 propiedades.unidades_pitch = Unidades.objects.get(pk=request.POST['unidades_pitch'])
                 propiedades.material_carcasa = request.POST['material_carcasa']
                 propiedades.material_tubo = request.POST['material_tubo']
                 propiedades.q = request.POST['calor']
-                propiedades.ensuciamiento = request.POST['ensuciamiento'] if request.POST['ensuciamiento'] != '' else None
-                propiedades.u = request.POST['u'] if request.POST['u'] != '' else None
+                propiedades.ensuciamiento = request.POST['ensuciamiento'] if request.POST.get('ensuciamiento') != '' else None
+                propiedades.u = request.POST['u'] if request.POST.get('u') != '' else None
                 propiedades.conexiones_entrada_carcasa = request.POST['conexiones_entrada_carcasa']
                 propiedades.conexiones_salida_carcasa = request.POST['conexiones_salida_carcasa']
                 propiedades.conexiones_entrada_tubos = request.POST['conexiones_entrada_tubo']
@@ -976,7 +969,10 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ConsultaIntercambiador):
         context['complejos'] = Complejo.objects.all()
 
         if(self.request.GET.get('complejo')):
-            context['plantas'] = Planta.objects.filter(complejo= self.request.GET.get('complejo'))
+            if(not self.request.user.is_superuser):
+                context['plantas'] = Planta.objects.filter(complejo__pk = self.request.GET.get('complejo'), pk__in=self.request.user.usuario_planta.values_list("planta", flat=True))
+            else:
+                context['plantas'] = Planta.objects.filter(complejo__pk = self.request.GET.get('complejo'))
 
         context['tag'] = self.request.GET.get('tag', '')
         context['servicio'] = self.request.GET.get('servicio', '')
@@ -1010,16 +1006,15 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ConsultaIntercambiador):
         complejo = self.request.GET.get('complejo', '')
         planta = self.request.GET.get('planta', '')
 
-        new_context = None
-
+        new_context = self.model.objects.filter(intercambiador__planta__pk__in = self.request.user.usuario_planta.values_list("planta", flat=True))  if not self.request.user.is_superuser else self.model.objects.all()
         if(planta != '' and complejo != ''):
-            new_context = self.model.objects.filter(
+            new_context = new_context.objects.filter(
                 intercambiador__planta__pk=planta
             )
         elif(complejo != ''):
             new_context = new_context.filter(
                 intercambiador__planta__complejo__pk=complejo
-            ) if new_context else self.model.objects.filter(
+            ) if new_context else new_context.objects.filter(
                 intercambiador__planta__complejo__pk=complejo
             )
 
@@ -1029,7 +1024,7 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ConsultaIntercambiador):
                 intercambiador__tag__icontains = tag
             )
         else:
-            new_context = self.model.objects.filter(
+            new_context = new_context.objects.filter(
                 intercambiador__servicio__icontains = servicio,
                 intercambiador__tag__icontains = tag
             )
@@ -1087,7 +1082,10 @@ class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
         context['complejos'] = Complejo.objects.all()
 
         if(self.request.GET.get('complejo')):
-            context['plantas'] = Planta.objects.filter(complejo= self.request.GET.get('complejo'))
+            if(not self.request.user.is_superuser):
+                context['plantas'] = Planta.objects.filter(complejo__pk = self.request.GET.get('complejo'), pk__in=self.request.user.usuario_planta.values_list("planta", flat=True))
+            else:
+                context['plantas'] = Planta.objects.filter(complejo__pk = self.request.GET.get('complejo'))
 
         context['tag'] = self.request.GET.get('tag', '')
         context['servicio'] = self.request.GET.get('servicio', '')
@@ -1122,8 +1120,7 @@ class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
         complejo = self.request.GET.get('complejo', '')
         planta = self.request.GET.get('planta', '')
 
-        new_context = None
-
+        new_context = self.model.objects.filter(intercambiador__planta__pk__in = self.request.user.usuario_planta.values_list("planta", flat=True))  if not self.request.user.is_superuser else self.model.objects.all()
         if(planta != '' and complejo != ''):
             new_context = self.model.objects.filter(
                 intercambiador__planta__pk=planta
@@ -1239,24 +1236,6 @@ class CrearIntercambiadorDobleTubo(CrearIntercambiadorTuboCarcasa):
         if(not request.POST.get('unidad_diametros')):
             errores.append('El campo Unidad de Diámetros es obligatorio.')
 
-        if(not request.POST.get('material_carcasa')):
-            errores.append('El campo Material de Carcasa es obligatorio.')
-
-        if(not request.POST.get('conexiones_entrada_carcasa')):
-            errores.append('El campo Conexiones de Entrada de Carcasa es obligatorio.')
-
-        if(not request.POST.get('conexiones_salida_carcasa')):
-            errores.append('El campo Conexiones de Salida de Carcasa es obligatorio.')
-
-        if(not request.POST.get('material_tubo')):
-            errores.append('El campo Material de Tubo es obligatorio.')
-
-        if(not request.POST.get('conexiones_entrada_tubo')):
-            errores.append('El campo Conexiones de Entrada de Tubo es obligatorio.')
-
-        if(not request.POST.get('conexiones_salida_tubo')):
-            errores.append('El campo Conexiones de Salida de Tubo es obligatorio.')
-
         if(not request.POST.get('tipo_tubo')):
             errores.append('El campo Tipo de Tubo es obligatorio.')
 
@@ -1281,14 +1260,8 @@ class CrearIntercambiadorDobleTubo(CrearIntercambiadorTuboCarcasa):
         if(not request.POST.get('unidad_calor') and not request.POST.get('unidad_q')):
             errores.append('El campo Unidad de Calor es obligatorio.')
 
-        if(not request.POST.get('u')):
-            errores.append('El campo Coeficiente U es obligatorio.')
-
         if(not request.POST.get('unidad_u')):
             errores.append('El campo Unidad de Coeficiente U es obligatorio.')
-
-        if(not request.POST.get('ensuciamiento')):
-            errores.append('El campo Ensuciamiento es obligatorio.')
 
         if(not request.POST.get('unidad_fouling')):
             errores.append('El campo Unidad de Ensuciamiento es obligatorio.')

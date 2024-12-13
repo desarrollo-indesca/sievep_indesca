@@ -15,52 +15,37 @@ A nivel de código el proyecto se llama 'simulaciones_pequiven' hasta que se dec
 """
 
 from pathlib import Path
-import os
-# from django_auth_ldap.config import LDAPSearch, ActiveDirectoryGroupType
+import os, ldap
+from django_auth_ldap.config import LDAPSearch
 from .jobs import start_deleting_job
 
-# # CONFIGURACIÓN DE LDAP
-# AUTH_LDAP_GLOBAL_OPTIONS = {
-#     ldap.OPT_X_TLS_REQUIRE_CERT: True,
-#     ldap.OPT_X_TLS_DEMAND: True,
-#     ldap.OPT_REFERRALS: 0,
-#     ldap.OPT_X_TLS_CACERTFILE: '/etc/ssl/certs/mycertfile.pem'
-# }
-# AUTH_LDAP_SERVER_URI = 'ldap://172.20.30.135'
-# AUTH_LDAP_BIND_DN = "CN=bind,CN=Users,DC=indesca,DC=local"
-# AUTH_LDAP_BIND_PASSWORD = "indesca2024+"
+# CONFIGURACIÓN DE LDAP
+AUTH_LDAP_GLOBAL_OPTIONS = {
+    ldap.OPT_X_TLS_REQUIRE_CERT: True,
+    ldap.OPT_X_TLS_DEMAND: True,
+    ldap.OPT_REFERRALS: 0,
+    ldap.OPT_X_TLS_CACERTFILE: '/etc/ssl/certs/mycertfile.pem'
+}
+AUTH_LDAP_SERVER_URI = 'ldap://172.20.30.109'
+AUTH_LDAP_BIND_DN = "CN=bind,CN=Users,DC=indesca,DC=local"
+AUTH_LDAP_BIND_PASSWORD = "indesca2024+"
 
-# AUTH_LDAP_USER_SEARCH = LDAPSearch(
-#     "dc=indesca,dc=local", ldap.SCOPE_SUBTREE, "sAMAccountName=%(user)s"
-# )
+AUTH_LDAP_USER_SEARCH = LDAPSearch(
+    "dc=indesca,dc=local", ldap.SCOPE_SUBTREE, "sAMAccountName=%(user)s"
+)
 
-# AUTH_LDAP_USER_ATTR_MAP = {
-#     "username": "sAMAccountName",
-#     "first_name": "givenName",
-#     "last_name": "sn",
-#     "email": "mail",
-# }
+AUTH_LDAP_USER_ATTR_MAP = {
+    "username": "sAMAccountName",
+    "first_name": "givenName",
+    "last_name": "sn",
+    "email": "mail",
+}
+AUTH_LDAP_GROUP_CACHE_TIMEOUT = 1  # 1 hour cache
 
-# AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
-#     "dc=indesca,dc=local", ldap.SCOPE_SUBTREE, "(objectCategory=Group)" # Dominio
-# )
-
-# AUTH_LDAP_GROUP_TYPE = ActiveDirectoryGroupType(name_attr="cn")
-# AUTH_LDAP_USER_FLAGS_BY_GROUP = {
-#     "is_superuser": "CN=django-admins,CN=Users,DC=INDESCA,DC=LOCAL", # Usuarios con este grupo serán superusuarios
-#     "is_staff": "CN=django-admins,CN=Users,DC=INDESCA,DC=LOCAL", # Usuarios con este grupo serán staff
-# }
-# AUTH_LDAP_FIND_GROUP_PERMS = True
-# AUTH_LDAP_CACHE_GROUPS = True
-# AUTH_LDAP_GROUP_CACHE_TIMEOUT = 1  # 1 hour cache
-
-# AUTH_LDAP_MIRROR_GROUPS = True
-# AUTHENTICATION_BACKENDS = [
-#     "django.contrib.auth.backends.ModelBackend",
-#     "django_auth_ldap.backend.LDAPBackend",
-# ]
-
-# AUTH_LDAP_MIRROR_GROUPS_EXCEPT = None # Grupos que no se deben copiar a base de datos (usar or/and).
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "django_auth_ldap.backend.LDAPBackend",
+]
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -80,6 +65,7 @@ LOGIN_URL = '/'
 SESSION_COOKIE_AGE = 120 * 60 # 2 horas sin uso
 SESSION_EXPIRE_AT_BROWSER_CLOSE= True
 SESSION_SAVE_EVERY_REQUEST = True
+AUTH_LDAP_ALWAYS_UPDATE_USER = False
 
 # Application definition
 
@@ -98,6 +84,7 @@ INSTALLED_APPS = [
     'usuarios',
     'static',
 
+    'django_db_logger',
     'pwa',
     'templatetags',
     'mathfilters',
@@ -113,7 +100,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # "simulaciones_pequiven.middleware.RequestLogMiddleware",
+    "simulaciones_pequiven.middleware.RequestLogMiddleware",
     # "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
@@ -156,9 +143,13 @@ DATABASES = {
         'OPTIONS': {
         'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
+    },
+    'django_db_logger': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
+DATABASE_ROUTERS = ('simulaciones_pequiven.dbrouters.MyDBRouter',)
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -261,31 +252,25 @@ start_deleting_job()
 
 # CONFIGURACIÓN DE LOS LOGS
 
-# LOGGING = {
-#     "version": 1,
-#     "formatters": {
-#         "request_formatter": {
-#             "format": "%(asctime)s  - %(name)s - %(levelname)s - %(module)s - %(process)s - %(thread)s -  %(message)s",
-#             "datefmt": "%Y-%m-%d %H:%M:%S"
-#         },
-#     },
-#     "handlers": {
-#         "request": {
-#             "level": os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-#             "class": "logging.handlers.RotatingFileHandler",
-#             "formatter": "request_formatter",
-#             "filename": "app.log",
-#             "maxBytes": 1024000*20, # 20 MB
-#             "backupCount": 20
-#         }
-#     },
-#     "loggers": {
-#         'django.request': {
-#             "handlers": ["request"]
-#         },
-#         'django': {
-#             "handlers": ["request"]
-#         },
-#     },
-#     "disable_existing_loggers": False
-# }
+LOGGING = {
+    "version": 1,
+    "formatters": {
+        "request_formatter": {
+            "format": "%(asctime)s  - %(name)s - %(levelname)s - %(module)s - %(process)s - %(thread)s -  %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S"
+        },
+    },
+    "handlers": {
+        "request": {
+            "level": os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'class': 'django_db_logger.db_log_handler.DatabaseLogHandler'
+        }
+    },
+    "loggers": {
+        'django.request': {
+            "handlers": ["request"],
+            "level": os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        }
+    },
+    "disable_existing_loggers": False
+}

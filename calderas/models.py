@@ -367,10 +367,10 @@ class Caracteristica(models.Model):
     unidad = models.ForeignKey(Unidades, models.PROTECT, null=True, blank=True)
     caldera = models.ForeignKey(Caldera, on_delete=models.PROTECT, related_name="caracteristicas_caldera")
 
-    carga_25 = models.FloatField()
-    carga_50 = models.FloatField()
-    carga_75 = models.FloatField()
-    carga_100 = models.FloatField()
+    carga_25 = models.FloatField(blank=True, null=True)
+    carga_50 = models.FloatField(blank=True, null=True)
+    carga_75 = models.FloatField(blank=True, null=True)
+    carga_100 = models.FloatField(blank=True, null=True)
 
 class Corriente(models.Model):
     """

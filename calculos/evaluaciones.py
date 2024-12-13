@@ -156,7 +156,7 @@ def evaluacion_doble_tubo(intercambiador, ti, ts, Ti, Ts, ft, Fc, nt, cp_gas_in 
    
     q_prom = np.mean([q_in,q_ex]) # Promedio del calor (W)
     ucalc = q_prom/(area_calculada*dtml) # U calculada (Wm2/K)
-    udiseno = transformar_unidades_u([float(intercambiador.u)], intercambiador.u_unidad.pk)[0] # transformación de la U de diseño
+    udiseno = transformar_unidades_u([float(intercambiador.u)], intercambiador.u_unidad.pk)[0] if intercambiador.u else ucalc # transformación de la U de diseño
     RF = 1/ucalc - 1/udiseno # Factor de Ensuciamiento respecto a la U de diseño (K/Wm2)
 
     condicion_interno = intercambiador.condicion_interno()

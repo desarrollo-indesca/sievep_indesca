@@ -1479,9 +1479,9 @@ class CondicionFluido(models.Model):
     temp_salida = models.FloatField("Temp. de Salida", null=True, blank=True)
     temp_unidad = models.ForeignKey(Unidades, default=1, on_delete=models.CASCADE, related_name="condicion_fluido_temp_unidad")
     
-    presion_entrada = models.FloatField(null=True, blank=True)
-    presion_salida = models.FloatField(null=True, blank=True)
-    caida_presion = models.FloatField(null=True, blank=True)
+    presion_entrada = models.FloatField("Presión de Entrada", null=True, blank=True)
+    presion_salida = models.FloatField("Presión de Salida", null=True, blank=True)
+    caida_presion = models.FloatField("Caída de Presión", null=True, blank=True)
     presion_unidad = models.ForeignKey(Unidades, default=33, on_delete=models.CASCADE, related_name="condicion_fluido_presion_unidad")
 
     def fluido_largo(self):

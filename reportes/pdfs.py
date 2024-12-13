@@ -403,7 +403,7 @@ def detalle_evaluacion(evaluacion):
             ],
             [
                 Paragraph(f"U ({evaluacion.u_diseno_unidad})", centrar_parrafo), 
-                Paragraph(f"{evaluacion.u}", centrar_parrafo), 
+                Paragraph(f"{evaluacion.u if evaluacion.u else '-'}", centrar_parrafo), 
                 Paragraph(f"Q ({evaluacion.q_diseno_unidad})", centrar_parrafo), 
                 Paragraph(f"{evaluacion.q}", centrar_parrafo), 
             ],
@@ -3006,10 +3006,10 @@ def reporte_ficha_tecnica_caldera(caldera):
         for caracteristica in caracteristicas:
             table.append([
                 Paragraph(f"{caracteristica.nombre}", centrar_parrafo),
-                Paragraph(f"{caracteristica.carga_25} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
-                Paragraph(f"{caracteristica.carga_50} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
-                Paragraph(f"{caracteristica.carga_75} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
-                Paragraph(f"{caracteristica.carga_100} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
+                Paragraph(f"{caracteristica.carga_25 if caracteristica.carga_25 else '-'} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
+                Paragraph(f"{caracteristica.carga_50 if caracteristica.carga_50 else '-'} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
+                Paragraph(f"{caracteristica.carga_75 if caracteristica.carga_75 else '-'} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
+                Paragraph(f"{caracteristica.carga_100 if caracteristica.carga_100 else '-'} {caracteristica.unidad if caracteristica.unidad else '%'}", centrar_parrafo),
             ])
 
         estilo = TableStyle([
@@ -3219,7 +3219,7 @@ def reporte_detalle_evaluacion_caldera(evaluacion):
         ],
         [
             Paragraph("% Humedad Relativa", centrar_parrafo),
-            Paragraph(f"{entrada_aire.humedad_relativa} %", centrar_parrafo),
+            Paragraph(f"{entrada_aire.humedad_relativa if entrada_aire.humedad_relativa else 2.4} %", centrar_parrafo),
         ],
         [
             Paragraph("Velocidad", centrar_parrafo),

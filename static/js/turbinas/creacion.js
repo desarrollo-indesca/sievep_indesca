@@ -36,12 +36,15 @@ const cargarEventListeners = (anadirListeners = true) => {
         .replaceAll("form", "")
         .replaceAll("-", "")
         .replaceAll(/[a-zA-Z]+/g, "");
-    
-      console.log(number);  
-    
+
+      const presionInput = $(`input[name='form-${number}-presion']`);
+      const temperaturaInput = $(`input[name='form-${number}-temperatura']`);
+       
       if ($(e.target).val() === "S") {    
-        const presionInput = $(`input[name='form-${number}-presion']`);
-        const temperaturaInput = $(`input[name='form-${number}-temperatura']`);
+        if (presionInput.val() !== "" && temperaturaInput.val() !== "") {
+          presionInput.val("").removeAttr("disabled");
+          temperaturaInput.val("").removeAttr("disabled");
+        }
     
         presionInput.on('change', function() {
           if ($(this).val() !== "") {
@@ -59,13 +62,13 @@ const cargarEventListeners = (anadirListeners = true) => {
           }
         });
       } else {
-        $(`input[name='form-${number}-presion'], input[name='form-${number}-temperatura']`).removeAttr("disabled").off('input');
+        presionInput.removeAttr("disabled");
+        temperaturaInput.removeAttr("disabled");
       }
     
       $(`input[name='form-${number}-presion'], input[name='form-${number}-temperatura']`).change();
     });
 };
-
 
 const reindex = (anadir = false) => {
   let forms = document.querySelectorAll(`.form`);

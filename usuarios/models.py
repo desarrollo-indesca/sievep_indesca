@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from intercambiadores.models import Planta
+from intercambiadores.models import Planta, Complejo
 import uuid
 
 # Create your models here.
@@ -13,6 +13,10 @@ TIPOS_PREGUNTAS = [
 ]
 
 class PlantaAccesible(models.Model):
+    """
+    Resumen:
+        Modelo que registra a las plantas a las que tiene acceso cada usuario.
+    """
     usuario = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="usuario_planta")
     planta = models.ForeignKey(Planta, on_delete=models.CASCADE, related_name="planta_usuario")
     crear = models.BooleanField(default=False)
@@ -22,6 +26,10 @@ class PlantaAccesible(models.Model):
     crear_evaluaciones = models.BooleanField(default=False)
     eliminar_evaluaciones = models.BooleanField(default=False)
     duplicacion = models.BooleanField(default=False)
+    administrar_usuarios = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ('-planta__complejo__pk',)
 
 class Encuesta(models.Model):
     """
@@ -72,3 +80,19 @@ class Respuesta(models.Model):
     
     class Meta:
         unique_together = ('envio', 'pregunta')
+
+class PermisoPorComplejo(models.Model):
+    """
+    Resumen:
+        Modelo de registro de los permisos de superusuario para un complejo.
+    """
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    usuario = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="permisos_complejo")
+    complejo = models.ForeignKey(Complejo, on_delete=models.CASCADE)
+
+class UsuarioRed(models.Model):
+    """
+    Resumen:
+        Modelo de registro para saber si el usuario estuvo previamente registrado en la red con la que se hace LDAP.
+    """
+    usuario = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="red")
