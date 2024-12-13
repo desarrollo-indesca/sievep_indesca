@@ -11,7 +11,7 @@ from django.db import transaction
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from usuarios.forms import RespuestaForm
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from usuarios.models import *
 from intercambiadores.models import Complejo
 
@@ -225,13 +225,16 @@ class CrearNuevoUsuario(LoginRequiredMixin, View):
             print(str(e))
     
     def get(self, request):
-        context = {
-            'titulo': "Registro de Nuevo Usuario",
-            'complejos': Complejo.objects.prefetch_related('plantas').all() if self.request.user.is_superuser else Complejo.objects.filter(pk__in = self.request.user.usuario_planta.filter(administrar_usuarios = True).values_list('planta__complejo').distinct()),
-        }
-        context['plantas_pk'] = [planta.planta.pk for planta in request.user.usuario_planta.filter(administrar_usuarios = True)]
-               
-        return render(request, 'usuarios/creacion.html', context)
+        if request.user.usuario_planta.filter(administrar_usuarios=True).exists():
+            context = {
+                'titulo': "Registro de Nuevo Usuario",
+                'complejos': Complejo.objects.prefetch_related('plantas').all() if self.request.user.is_superuser else Complejo.objects.filter(pk__in = self.request.user.usuario_planta.filter(administrar_usuarios = True).values_list('planta__complejo').distinct()),
+            }
+            context['plantas_pk'] = [planta.planta.pk for planta in request.user.usuario_planta.filter(administrar_usuarios = True)]
+                
+            return render(request, 'usuarios/creacion.html', context)
+        else:
+            return HttpResponseForbidden("No tiene permiso para crear usuarios.")
 
 class CrearNuevoUsuarioRed(LoginRequiredMixin, View):
     """
@@ -351,14 +354,17 @@ class CrearNuevoUsuarioRed(LoginRequiredMixin, View):
             ], 'previo': request.POST})
     
     def get(self, request):
-        context = {
-            'titulo': "Registro de Nuevo Usuario En Red",
-            'complejos': Complejo.objects.prefetch_related('plantas').all() if self.request.user.is_superuser else Complejo.objects.filter(pk__in = self.request.user.usuario_planta.filter(administrar_usuarios = True).values_list('planta__complejo').distinct()),
-        }
+        if request.user.usuario_planta.filter(administrar_usuarios=True).exists():
+            context = {
+                'titulo': "Registro de Nuevo Usuario En Red",
+                'complejos': Complejo.objects.prefetch_related('plantas').all() if self.request.user.is_superuser else Complejo.objects.filter(pk__in = self.request.user.usuario_planta.filter(administrar_usuarios = True).values_list('planta__complejo').distinct()),
+            }
 
-        context['plantas_pk'] = [planta.planta.pk for planta in request.user.usuario_planta.filter(administrar_usuarios = True)]
-               
-        return render(request, 'usuarios/creacion-red.html', context)
+            context['plantas_pk'] = [planta.planta.pk for planta in request.user.usuario_planta.filter(administrar_usuarios = True)]
+                
+            return render(request, 'usuarios/creacion-red.html', context)
+        else:
+            return HttpResponseForbidden("No tiene permiso para crear usuarios.")
 
 class EditarUsuario(LoginRequiredMixin, View):
     """
@@ -401,7 +407,13 @@ class EditarUsuario(LoginRequiredMixin, View):
                 usuario.first_name =  request.POST['nombre'].title()
                 usuario.is_active = 'activo' in request.POST.keys()
 
-                usuario.usuario_planta.all().delete()
+                if(not usuario.permisos_complejo.exists()):
+                    if(request.user.is_superuser):
+                        usuario.usuario_planta.all().delete()
+                    else:
+                        usuario.usuario_planta.filter(planta__pk__in=request.user.usuario_planta.filter(administrar_usuarios = True).values_list('planta__pk', flat=True)).delete()
+                else:
+                    usuario.usuario_planta.exclude(planta__complejo__in=usuario.permisos_complejo.values_list('complejo', flat=True)).delete()
 
                 # Assign plants according to the marked checkboxes
                 ids = []
@@ -410,7 +422,9 @@ class EditarUsuario(LoginRequiredMixin, View):
                         planta_id = key.split('-')[1]
                         ids.append(planta_id)
 
-                usuario.permisos_complejo.all().delete()
+                if(request.user.is_superuser):
+                    usuario.permisos_complejo.all().delete()
+                
                 if("superusuario_de" in request.POST.keys() and "superusuario" in request.POST.keys()):
                     if(request.POST.get('superusuario_de') == 'todos'):
                         plantas = Planta.objects.all()
@@ -427,8 +441,8 @@ class EditarUsuario(LoginRequiredMixin, View):
                             usuario = usuario
                         )
                 else:
-                    plantas = Planta.objects.filter(pk__in = ids)
-                    complejo_id = None
+                        plantas = Planta.objects.filter(pk__in = ids)
+                        complejo_id = None
 
                 usuario.is_superuser = usuario.permisos_complejo.count() > 1
                 usuario.is_active = usuario.red.exists() or 'activo' in request.POST
@@ -462,33 +476,35 @@ class EditarUsuario(LoginRequiredMixin, View):
     def get(self, request, pk):
         usuario = self.modelo.objects.get(pk=pk)
         plantas = usuario.usuario_planta.all()
+        if(request.user.is_superuser or request.user.usuario_planta.filter(administrar_usuarios = True, planta__in = plantas.values_list("planta", flat=True)).exists()):
+            try:
+                previo = {
+                    'nombre': usuario.first_name,
+                    'correo': usuario.email,
+                    'superusuario': usuario.is_superuser,
+                    'activo': usuario.is_active,
+                    'red': usuario.red.exists(),
+                    'plantas': [planta.planta.pk for planta in plantas],
+                    'creaciones': [planta.planta.pk for planta in plantas.filter(crear = True)],
+                    'ediciones': [planta.planta.pk for planta in plantas.filter(edicion = True)],
+                    'ediciones_instalacion': [planta.planta.pk for planta in plantas.filter(edicion_instalacion = True)],
+                    'duplicaciones': [planta.planta.pk for planta in plantas.filter(duplicacion = True)],
+                    'evaluaciones': [planta.planta.pk for planta in plantas.filter(ver_evaluaciones = True)],
+                    'crear_evaluaciones': [planta.planta.pk for planta in plantas.filter(crear_evaluaciones = True)],
+                    'eliminar_evaluaciones': [planta.planta.pk for planta in plantas.filter(eliminar_evaluaciones = True)],
+                    'usuarios': [planta.planta.pk for planta in plantas.filter(administrar_usuarios = True)],
+                    'permisos_complejo': usuario.permisos_complejo.all()
+                }
+            except Exception as e:
+                print(e)
 
-        try:
-            previo = {
-                'nombre': usuario.first_name,
-                'correo': usuario.email,
-                'superusuario': usuario.is_superuser,
-                'activo': usuario.is_active,
-                'red': usuario.red.exists(),
-                'plantas': [planta.planta.pk for planta in plantas],
-                'creaciones': [planta.planta.pk for planta in plantas.filter(crear = True)],
-                'ediciones': [planta.planta.pk for planta in plantas.filter(edicion = True)],
-                'ediciones_instalacion': [planta.planta.pk for planta in plantas.filter(edicion_instalacion = True)],
-                'duplicaciones': [planta.planta.pk for planta in plantas.filter(duplicacion = True)],
-                'evaluaciones': [planta.planta.pk for planta in plantas.filter(ver_evaluaciones = True)],
-                'crear_evaluaciones': [planta.planta.pk for planta in plantas.filter(crear_evaluaciones = True)],
-                'eliminar_evaluaciones': [planta.planta.pk for planta in plantas.filter(eliminar_evaluaciones = True)],
-                'usuarios': [planta.planta.pk for planta in plantas.filter(administrar_usuarios = True)],
-                'permisos_complejo': usuario.permisos_complejo.all()
-            }
-        except Exception as e:
-            print(e)
+            context = {'previo': previo, 'edicion': True, 'complejos': Complejo.objects.prefetch_related('plantas').all() if self.request.user.is_superuser else Complejo.objects.filter(pk__in = self.request.user.usuario_planta.filter(administrar_usuarios = True).values_list('planta__complejo').distinct()), 'plantas': Planta.objects.all() if request.user.is_superuser else [planta.planta for planta in request.user.usuario_planta.all() if planta.administrar_usuarios], **self.context}
+            context['complejos_permisos_pk'] = [complejo.complejo.pk for complejo in usuario.permisos_complejo.all()]
+            context['plantas_pk'] = [planta.planta.pk for planta in request.user.usuario_planta.filter(administrar_usuarios = True)]
 
-        context = {'previo': previo, 'edicion': True, 'complejos': Complejo.objects.prefetch_related('plantas').all() if self.request.user.is_superuser else Complejo.objects.filter(pk__in = self.request.user.usuario_planta.filter(administrar_usuarios = True).values_list('planta__complejo').distinct()), 'plantas': Planta.objects.all() if request.user.is_superuser else [planta.planta for planta in request.user.usuario_planta.all() if planta.administrar_usuarios], **self.context}
-        context['complejos_permisos_pk'] = [complejo.complejo.pk for complejo in usuario.permisos_complejo.all()]
-        context['plantas_pk'] = [planta.planta.pk for planta in request.user.usuario_planta.filter(administrar_usuarios = True)]
-
-        return render(request, 'usuarios/creacion.html', context=context)
+            return render(request, 'usuarios/creacion.html', context=context)
+        else:
+            return HttpResponseForbidden()
 
 class CambiarContrasena(LoginRequiredMixin, View):
     """
@@ -656,6 +672,10 @@ class ConsultaEncuestas(LoginRequiredMixin, ListView):
         ctx = super().get_context_data(**kwargs)
         ctx['titulo'] = 'Encuestas de Satisfacción'
 
+        ctx['desde'] = self.request.GET.get('desde', '')
+        ctx['hasta'] = self.request.GET.get('hasta', '')
+        ctx['usuario'] = self.request.GET.get('usuario', '')
+        
         return ctx
 
     def get_queryset(self) -> QuerySet:
@@ -669,7 +689,32 @@ class ConsultaEncuestas(LoginRequiredMixin, ListView):
         ))
     
 def graficas_encuestas(request):
-    respuestas = Respuesta.objects.all().select_related('pregunta')
+    respuestas = Respuesta.objects.all()
+
+    desde = request.GET.get('desde', '')
+    hasta = request.GET.get('hasta', '')
+    usuario = request.GET.get('usuario', '')
+
+    # Lógica de filtrado según valor del parámetro
+    if(desde != ''):
+        respuestas = respuestas.filter(
+            envio__fecha__gte = desde
+        )
+
+    if(hasta != ''):
+        respuestas = respuestas.filter(
+            envio__fecha__lte=hasta
+        )
+
+    if(usuario != ''):
+        respuestas = respuestas.filter(
+            Q(envio__usuario__first_name__icontains = usuario) |
+            Q(envio__usuario__last_name__icontains = usuario)
+        )
+
+    respuestas = respuestas.select_related('pregunta')
+
+    # Formato de las preguntas de acuerdo a su tipo
     questions = {}
     for respuesta in respuestas:
         if respuesta.pregunta.tipo != "3":
@@ -693,11 +738,18 @@ def graficas_encuestas(request):
     return JsonResponse(questions)
 
 class PuedeCrear(LoginRequiredMixin):
+    """
+    Resumen:
+        Vista que comprueba si el usuario autenticado tiene permiso para crear encuestas.
+    """
     def test_func(self):
         return self.request.user.usuario_planta.filter(crear = True).exists()
     
 class ConsultaUsuariosLDAP(LoginRequiredMixin, View):
-    
+    """
+    Resumen:
+        Vista para verificar si un usuario existe en el LDAP.
+    """
     def get(self, request): 
         id_usuario = request.GET.get('id').strip()
         l = ldap.initialize(AUTH_LDAP_SERVER_URI)

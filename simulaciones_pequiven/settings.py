@@ -270,7 +270,7 @@ LOGGING = {
         'django.request': {
             "handlers": ["request"],
             "level": os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-        },
+        }
     },
     "disable_existing_loggers": False
 }

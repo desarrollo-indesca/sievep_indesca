@@ -713,18 +713,20 @@ class CreacionPlanta(SuperUserRequiredMixin, FormView):
         form.save()
         messages.success(self.request, 'Planta creada con éxito.')
 
-        for user in get_user_model().objects.filter(permisos_complejo__complejo = form.instance.complejo):
-            user.usuario_planta.create(
-                planta = form.instance,
-                crear = True,
-                edicion = True,
-                edicion_instalacion = True,
-                ver_evaluaciones = True,
-                crear_evaluaciones = True,
-                eliminar_evaluaciones = True,
-                duplicacion = True,
-                administrar_usuarios = True
-            )
+        # Se dan los permisos a los superusuarios del complejo correspondiente
+        with transaction.atomic():
+            for user in get_user_model().objects.filter(permisos_complejo__complejo = form.instance.complejo):
+                user.usuario_planta.create(
+                    planta = form.instance,
+                    crear = True,
+                    edicion = True,
+                    edicion_instalacion = True,
+                    ver_evaluaciones = True,
+                    crear_evaluaciones = True,
+                    eliminar_evaluaciones = True,
+                    duplicacion = True,
+                    administrar_usuarios = True
+                )
 
         return super().form_valid(form)
     
@@ -748,8 +750,31 @@ class EdicionPlanta(SuperUserRequiredMixin, FormView):
         return Planta.objects.get(pk=self.kwargs.get('pk'))
     
     def form_valid(self, form):
+
+        # Se eliminan los permisos de los superusers del complejo previo
+        with transaction.atomic():
+            for superuser in get_user_model().objects.filter(permisos_complejo__complejo=self.get_instance().complejo):
+                    superuser.usuario_planta.filter(planta=self.get_instance()).delete()
+
         form.save()
         messages.success(self.request, 'Planta editada con éxito.')
+
+        # Se crean los permisos de los superusers del complejo nuevo
+        with transaction.atomic():
+            for user in get_user_model().objects.filter(permisos_complejo__complejo = form.instance.complejo):
+                if(user.usuario_planta.filter(planta = form.instance).exists()):
+                    user.usuario_planta.filter(planta = form.instance).delete()
+                
+                user.usuario_planta.create(
+                    planta = form.instance,
+                    crear = True, edicion = True,
+                    edicion_instalacion = True,
+                    ver_evaluaciones = True,
+                    crear_evaluaciones = True,
+                    eliminar_evaluaciones = True,
+                    duplicacion = True, administrar_usuarios = True
+                )            
+
         return super().form_valid(form)
     
     def get_form_kwargs(self):
@@ -761,4 +786,5 @@ class EdicionPlanta(SuperUserRequiredMixin, FormView):
         context = super().get_context_data()
         context['planta'] = self.get_instance()
         context['edicion'] = True
+        context['titulo'] = 'SIEVEP - Edición de Planta'
         return context

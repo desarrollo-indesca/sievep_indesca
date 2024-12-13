@@ -13,6 +13,10 @@ TIPOS_PREGUNTAS = [
 ]
 
 class PlantaAccesible(models.Model):
+    """
+    Resumen:
+        Modelo que registra a las plantas a las que tiene acceso cada usuario.
+    """
     usuario = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="usuario_planta")
     planta = models.ForeignKey(Planta, on_delete=models.CASCADE, related_name="planta_usuario")
     crear = models.BooleanField(default=False)
