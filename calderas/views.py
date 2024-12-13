@@ -1160,7 +1160,7 @@ class DuplicarCaldera(CargarCalderasMixin, DuplicateView):
                 self.copy(compuesto)
 
             caldera_original = Caldera.objects.get(pk=pk)
-            messages.success(request, f"Se ha creado la copia de la caldera {caldera_original.tag} como {caldera.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
+            messages.success(request, f"Se ha creado la copia de la caldera {caldera_original.tag} como {caldera.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 7:00am.")
             return redirect("/calderas")
         else:
             return HttpResponseForbidden()

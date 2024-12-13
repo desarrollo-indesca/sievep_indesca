@@ -3339,7 +3339,7 @@ class DuplicarVentilador(ObtenerVentiladorMixin, LoginRequiredMixin, DuplicateVi
             
             self.copy(ventilador)
 
-        messages.success(request, f"Se ha creado la copia del ventilador {old_tag} como {ventilador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
+        messages.success(request, f"Se ha creado la copia del ventilador {old_tag} como {ventilador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 7:00am.")
         return redirect('/auxiliares/ventiladores/')
 
 class DuplicarBomba(CargarBombaMixin, LoginRequiredMixin, DuplicateView):
@@ -3382,7 +3382,7 @@ class DuplicarBomba(CargarBombaMixin, LoginRequiredMixin, DuplicateView):
                 
                 bomba = self.copy(bomba)
 
-            messages.success(request, f"Se ha creado la copia de la bomba {old_tag} como {bomba.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
+            messages.success(request, f"Se ha creado la copia de la bomba {old_tag} como {bomba.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 7:00am.")
             return redirect('/auxiliares/bombas/')
         else:
             return HttpResponseForbidden()
@@ -3425,7 +3425,7 @@ class DuplicarPrecalentadorAgua(ObtenerPrecalentadorAguaMixin, LoginRequiredMixi
                 especificacion.precalentador = precalentador
                 self.copy(especificacion)
 
-        messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
+        messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 7:00am.")
         return redirect('/auxiliares/precalentadores/')
 
 class DuplicarPrecalentadorAire(ObtenerPrecalentadorAireMixin, LoginRequiredMixin, DuplicateView):
@@ -3468,5 +3468,5 @@ class DuplicarPrecalentadorAire(ObtenerPrecalentadorAireMixin, LoginRequiredMixi
                 composicion.condicion = condicion_gases
                 self.copy(composicion)
 
-        messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
+        messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 7:00am.")
         return redirect('/auxiliares/precalentadores-aire/')
