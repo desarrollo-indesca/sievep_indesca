@@ -1,5 +1,5 @@
 from django.db.models.query import QuerySet, Q, Prefetch
-# import ldap
+import ldap
 from simulaciones_pequiven.settings import AUTH_LDAP_BIND_DN, AUTH_LDAP_BIND_PASSWORD, AUTH_LDAP_SERVER_URI
 
 from django.views.generic.list import ListView

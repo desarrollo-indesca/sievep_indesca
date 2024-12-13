@@ -4,6 +4,7 @@ from reportes.pdfs import generar_pdf
 
 from simulaciones_pequiven.settings import BASE_DIR
 from usuarios.views import SuperUserRequiredMixin 
+from usuarios.models import PermisoPorComplejo
 from django.views import View
 from django.db.models import Q
 from django.views.generic import ListView, FormView
@@ -711,6 +712,20 @@ class CreacionPlanta(SuperUserRequiredMixin, FormView):
     def form_valid(self, form):
         form.save()
         messages.success(self.request, 'Planta creada con éxito.')
+
+        for user in get_user_model().objects.filter(permisos_complejo__complejo = form.instance.complejo):
+            user.usuario_planta.create(
+                planta = form.instance,
+                crear = True,
+                edicion = True,
+                edicion_instalacion = True,
+                ver_evaluaciones = True,
+                crear_evaluaciones = True,
+                eliminar_evaluaciones = True,
+                duplicacion = True,
+                administrar_usuarios = True
+            )
+
         return super().form_valid(form)
     
     def get_context_data(self, **kwargs):
