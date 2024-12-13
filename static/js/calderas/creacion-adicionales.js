@@ -50,7 +50,14 @@ const eliminar = (e) => {
     cargarEventListeners(false);
     cambioUnidades(`form-${formNum-1}-`);
     document.querySelectorAll(".form").forEach((el, i) => {
-        if(i >= formNum - 1) htmx.process(el);
+        if(i >= formNum - 1) {
+            htmx.process(el);
+            const tipo_unidad = el.querySelector("select[name$='-unidad']");
+            if(tipo_unidad) {
+                const event = new Event('change', { bubbles: true });
+                tipo_unidad.dispatchEvent(event);
+            }
+        }
     });
     
 };
