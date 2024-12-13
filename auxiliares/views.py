@@ -1656,10 +1656,10 @@ class CreacionEvaluacionVentilador(LoginRequiredMixin, View, ObtenerVentiladorMi
             'titulo': "Evaluación de Ventilador",
             'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
             "permisos": {
-                'creacion': self.request.user.usuario_planta.filter(crear = True).exists() or self.request.user.is_superuser,
                 'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
                 'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
-                'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True))
+                'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
+                'creacion_evaluaciones': list(self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True))
             }
         }
 
@@ -2336,7 +2336,6 @@ class CreacionCorrientesPrecalentadorAgua(ObtenerPrecalentadorAguaMixin, LoginRe
                     corriente.save()
             else:
                 print([formset_corrientes_carcasa.errors])
-
 
             valid = valid and formset_corrientes_tubos.is_valid()
                 
@@ -3340,7 +3339,7 @@ class DuplicarVentilador(ObtenerVentiladorMixin, LoginRequiredMixin, DuplicateVi
             
             self.copy(ventilador)
 
-        messages.success(request, f"Se ha creado la copia del ventilador {old_tag} como {ventilador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
+        messages.success(request, f"Se ha creado la copia del ventilador {old_tag} como {ventilador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 7:00am.")
         return redirect('/auxiliares/ventiladores/')
 
 class DuplicarBomba(CargarBombaMixin, LoginRequiredMixin, DuplicateView):
@@ -3383,7 +3382,7 @@ class DuplicarBomba(CargarBombaMixin, LoginRequiredMixin, DuplicateView):
                 
                 bomba = self.copy(bomba)
 
-            messages.success(request, f"Se ha creado la copia de la bomba {old_tag} como {bomba.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
+            messages.success(request, f"Se ha creado la copia de la bomba {old_tag} como {bomba.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 7:00am.")
             return redirect('/auxiliares/bombas/')
         else:
             return HttpResponseForbidden()
@@ -3426,7 +3425,7 @@ class DuplicarPrecalentadorAgua(ObtenerPrecalentadorAguaMixin, LoginRequiredMixi
                 especificacion.precalentador = precalentador
                 self.copy(especificacion)
 
-        messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
+        messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 7:00am.")
         return redirect('/auxiliares/precalentadores/')
 
 class DuplicarPrecalentadorAire(ObtenerPrecalentadorAireMixin, LoginRequiredMixin, DuplicateView):
@@ -3442,6 +3441,8 @@ class DuplicarPrecalentadorAire(ObtenerPrecalentadorAireMixin, LoginRequiredMixi
         precalentador_original = self.get_precalentador()
         precalentador = precalentador_original
         old_tag = precalentador.tag
+        condicion_aire = precalentador_original.condicion_fluido.first()
+        condicion_gases = precalentador_original.condicion_fluido.last()
         
         with transaction.atomic():
             especificaciones = self.copy(precalentador_original.especificaciones)
@@ -3451,21 +3452,21 @@ class DuplicarPrecalentadorAire(ObtenerPrecalentadorAireMixin, LoginRequiredMixi
             precalentador.tag = generate_nonexistent_tag(PrecalentadorAire, precalentador.tag)
             precalentador = self.copy(precalentador)
 
-            condicion_aire_original = precalentador_original.condicion_fluido.first()
+            condicion_aire_original = condicion_aire
             condicion_aire_original.precalentador = precalentador
             condicion_aire = self.copy(condicion_aire_original)
-
-            condicion_gases_original = precalentador_original.condicion_fluido.last()
-            condicion_aire_original.precalentador = precalentador
-            condicion_gases = self.copy(condicion_gases_original)
-
-            for composicion in condicion_gases_original.composiciones.all():
-                composicion.condicion = condicion_gases
-                self.copy(composicion)
 
             for composicion in condicion_aire_original.composiciones.all():
                 composicion.condicion = condicion_aire
                 self.copy(composicion)
 
-        messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 6:00am.")
+            condicion_gases_original = condicion_gases
+            condicion_gases_original.precalentador = precalentador
+            condicion_gases = self.copy(condicion_gases_original)            
+
+            for composicion in condicion_gases_original.composiciones.all():
+                composicion.condicion = condicion_gases
+                self.copy(composicion)
+
+        messages.success(request, f"Se ha creado la copia del precalentador {old_tag} como {precalentador.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 7:00am.")
         return redirect('/auxiliares/precalentadores-aire/')

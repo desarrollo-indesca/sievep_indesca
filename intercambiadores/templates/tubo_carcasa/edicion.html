@@ -753,7 +753,7 @@
                     <div class="col-3">
                         <label class="form-label" for="pitch">Pitch:</label>
                         <div class="input-group mb-3">
-                            <input value="{{intercambiador.pitch_tubos|unlocalize}}" placeholder="Espaciado entre los Tubos" style="width: 60% !important;" class="form-control" type="number" name="pitch" id="pitch" min="0.0001" max="9999.9999" step="0.0001" required>
+                            <input value="{{intercambiador.pitch_tubos|unlocalize}}" placeholder="Espaciado entre los Tubos" style="width: 60% !important;" class="form-control" type="number" name="pitch" id="pitch" min="0.0001" max="9999.9999" step="0.0001">
                             <select style="width: 40% !important;" class="form-select" name="unidades_pitch" id="unidades_pitch">
                                 {% for unidad in unidades_longitud %}
                                 <option value="{{unidad.pk}}" {% if intercambiador.unidades_pitch == unidad %}selected{%endif%}>{{unidad}}</option>

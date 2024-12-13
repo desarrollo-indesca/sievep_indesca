@@ -4,11 +4,12 @@ from reportes.pdfs import generar_pdf
 
 from simulaciones_pequiven.settings import BASE_DIR
 from usuarios.views import SuperUserRequiredMixin 
+from usuarios.models import PermisoPorComplejo
 from django.views import View
 from django.db.models import Q
 from django.views.generic import ListView, FormView
 from django.shortcuts import render, redirect
-from django.contrib.auth import logout
+from django.contrib.auth import logout, get_user_model
 from django.contrib.auth.views import LoginView
 from django.http import HttpResponse
 from intercambiadores.models import Fluido, Unidades, TiposDeTubo, Tema, Intercambiador, PropiedadesTuboCarcasa, CondicionesIntercambiador, Complejo
@@ -45,15 +46,19 @@ class Login(LoginView):
         return context
         
     def post(self, request):
-        try:
-            res = super().post(self, request)
-            if(res.status_code in [403, 200]):
-                messages.warning(request, "Las credenciales ingresadas son inválidas.")
+        if(get_user_model().objects.filter(username = request.POST['username']).exists()):
+            try:
+                res = super().post(self, request)
+                if(res.status_code in [403, 200]):
+                    messages.warning(request, "Las credenciales ingresadas son inválidas.")
 
-            return res
+                return res
 
-        except Exception as e:
-            print(str(e))
+            except Exception as e:
+                print(str(e))
+                return redirect('/')
+        else:
+            messages.warning(request, "Las credenciales ingresadas son inválidas.")
             return redirect('/')
         
 class Bienvenida(View):
@@ -511,8 +516,13 @@ class PlantasPorComplejo(LoginRequiredMixin, View):
         selected_planta_id = request.GET.get('planta')
         plantas = Planta.objects.filter(complejo_id=complejo_id)
 
+        previo = request.META.get('HTTP_REFERER')
+
         if(not self.request.user.is_superuser):
-            plantas = plantas.filter(pk__in=request.user.usuario_planta.values_list("planta", flat=True))
+            if('edicion' in previo or 'editar' in previo):
+                plantas = plantas.filter(pk__in=request.user.usuario_planta.filter(edicion = True).values_list("planta", flat=True))
+            else:
+                plantas = plantas.filter(pk__in=request.user.usuario_planta.filter(crear = True).values_list("planta", flat=True))
         else:
             plantas = Planta.objects.filter(complejo__pk=complejo_id)
 
@@ -574,7 +584,7 @@ class FiltradoSimpleMixin():
             )
 
         if(planta and planta != '' and complejo != ''): # Filtrar por planta
-            new_context = self.model.objects.filter(
+            new_context = new_context.filter(
                 planta__pk=planta
             )
 
@@ -593,7 +603,7 @@ class FiltradoSimpleMixin():
                     servicio__icontains = descripcion
                 )
         else: # Si ningún filtro fue aplicado previamente
-            new_context = self.model.objects.filter(
+            new_context = new_context.filter(
                 tag__icontains = tag
             )
 
@@ -702,6 +712,22 @@ class CreacionPlanta(SuperUserRequiredMixin, FormView):
     def form_valid(self, form):
         form.save()
         messages.success(self.request, 'Planta creada con éxito.')
+
+        # Se dan los permisos a los superusuarios del complejo correspondiente
+        with transaction.atomic():
+            for user in get_user_model().objects.filter(permisos_complejo__complejo = form.instance.complejo):
+                user.usuario_planta.create(
+                    planta = form.instance,
+                    crear = True,
+                    edicion = True,
+                    edicion_instalacion = True,
+                    ver_evaluaciones = True,
+                    crear_evaluaciones = True,
+                    eliminar_evaluaciones = True,
+                    duplicacion = True,
+                    administrar_usuarios = True
+                )
+
         return super().form_valid(form)
     
     def get_context_data(self, **kwargs):
@@ -724,8 +750,31 @@ class EdicionPlanta(SuperUserRequiredMixin, FormView):
         return Planta.objects.get(pk=self.kwargs.get('pk'))
     
     def form_valid(self, form):
+
+        # Se eliminan los permisos de los superusers del complejo previo
+        with transaction.atomic():
+            for superuser in get_user_model().objects.filter(permisos_complejo__complejo=self.get_instance().complejo):
+                    superuser.usuario_planta.filter(planta=self.get_instance()).delete()
+
         form.save()
         messages.success(self.request, 'Planta editada con éxito.')
+
+        # Se crean los permisos de los superusers del complejo nuevo
+        with transaction.atomic():
+            for user in get_user_model().objects.filter(permisos_complejo__complejo = form.instance.complejo):
+                if(user.usuario_planta.filter(planta = form.instance).exists()):
+                    user.usuario_planta.filter(planta = form.instance).delete()
+                
+                user.usuario_planta.create(
+                    planta = form.instance,
+                    crear = True, edicion = True,
+                    edicion_instalacion = True,
+                    ver_evaluaciones = True,
+                    crear_evaluaciones = True,
+                    eliminar_evaluaciones = True,
+                    duplicacion = True, administrar_usuarios = True
+                )            
+
         return super().form_valid(form)
     
     def get_form_kwargs(self):
@@ -737,4 +786,5 @@ class EdicionPlanta(SuperUserRequiredMixin, FormView):
         context = super().get_context_data()
         context['planta'] = self.get_instance()
         context['edicion'] = True
+        context['titulo'] = 'SIEVEP - Edición de Planta'
         return context

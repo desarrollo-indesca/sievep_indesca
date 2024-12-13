@@ -277,6 +277,8 @@ def calcular_composicion_aire(humedad_relativa, temperatura_aire, presion_aire):
     p_h2o = (math.e**(C1 + C2/(temperatura_aire) + C3*math.log(temperatura_aire)+C4*math.pow(temperatura_aire,C5)))/100000
     x_h2o = humedad_relativa/100*(p_h2o/(presion_aire))
 
+    print(x_h2o)
+
     return [
         0.21*(1-x_h2o),
         0.79*(1-x_h2o),
@@ -605,9 +607,9 @@ def calcular_flujos_composiciones_masicas(composiciones_combustible: dict, flujo
     return composiciones_combustible
 
 def evaluar_metodo_indirecto(composiciones_combustible: dict, temperatura_aire: float, velocidad_aire: float,
-                                presion_aire: float, temperatura_gas: float, presion_gas: float, flujo_gas: float,  
+                                temperatura_gas: float, presion_gas: float, flujo_gas: float,  
                                 area_superficie: float, temperatura_superficie: float, temperatura_horno: float,
-                                humedad_relativa_aire: float, o2_gas_combustion_evaluacion: float) -> dict:
+                                o2_gas_combustion_evaluacion: float) -> dict:
     """
     Resumen:
         Evalúa una caldera utilizado el método indirecto para calcular su eficiencia térmica.
@@ -655,7 +657,7 @@ def evaluar_metodo_indirecto(composiciones_combustible: dict, temperatura_aire: 
         composicion_normalizada, flujo_masico_gas
     )
 
-    _,_,factor_humedad = calcular_composicion_aire(humedad_relativa_aire, temperatura_aire, presion_aire)
+    factor_humedad = 0.024
 
     poder_calorifico = sum([
         comp['y']*ENTALPIA_COMBUSTION_INDIRECTO[cas] for cas,comp in composicion_normalizada.items() \
@@ -674,7 +676,7 @@ def evaluar_metodo_indirecto(composiciones_combustible: dict, temperatura_aire: 
     l4 = ((masa_aire_suministrado * factor_humedad * 0.45 * (temperatura_horno - temperatura_aire)) / poder_calorifico) * 100
 
     if (temperatura_superficie is not None and velocidad_aire is not None and area_superficie is not None):
-        perdidas_radiacion_y_conveccion_area = (0.548 * ((pow(temperatura_superficie/55.55, 4)) - pow(temperatura_aire/55.55, 4)) + 1.957 * (temperatura_superficie - temperatura_aire) * ((196.85 * velocidad_aire + 68.9) / 68.9)**0.5) * 0.86
+        perdidas_radiacion_y_conveccion_area = (0.548 * ((pow(temperatura_superficie/55.55, 4)) - pow(temperatura_aire/55.55, 4)) + 1.957 * pow(temperatura_superficie - temperatura_aire, 1.25) * ((196.85 * velocidad_aire + 68.9) / 68.9)**0.5)*0.86
         perdida_hora = perdidas_radiacion_y_conveccion_area * area_superficie
         l6 = ((perdida_hora) / (flujo_masico_gas * poder_calorifico)) * 100
     else:

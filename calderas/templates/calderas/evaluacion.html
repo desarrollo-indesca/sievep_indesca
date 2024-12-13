@@ -109,7 +109,7 @@
         
                             {{forms.form_aire.presion.label_tag}}
                             <div class="input-group">
-                                {% render_field forms.form_aire.presion class="form-control directo-field indirecto-field" placeholder="Presión Operación" min="0.0001" %}
+                                {% render_field forms.form_aire.presion class="form-control directo-field" placeholder="Presión Operación" min="0.0001" %}
                                 <select name="aire-presion_unidad" class="form-select" id="id_aire-presion_unidad">
                                     {% include 'unidades.html' with unidades=unidades tipo='P' pk_selected=forms.form_aire.presion_unidad.initial.pk %}
                                 </select>
@@ -119,7 +119,7 @@
         
                             {{forms.form_aire.humedad_relativa.label_tag}}
                             <div class="input-group">
-                                {% render_field forms.form_aire.humedad_relativa class="form-control directo-field indirecto-field" min="0" max="100" placeholder="% Humedad Relativa" %}
+                                {% render_field forms.form_aire.humedad_relativa class="form-control directo-field" min="0" max="100" placeholder="% Humedad Relativa" %}
                                 <select name="aire-humedad_relativa_unidad" class="form-select" id="id_aire-humedad_relativa_unidad">
                                     <option value="">%</option>
                                 </select>

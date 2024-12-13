@@ -439,7 +439,7 @@
                         <label class="form-label" for="fouling_carcasa">Fouling:</label>
 
                         <div class="input-group">
-                            <input min="0.00000001" max="999.99999999" value="{{previo.fouling_carcasa}}" placeholder="Fouling de Diseño (Carc.)" style="width: 60% !important;" class="form-control" type="number" name="fouling_carcasa" id="fouling_carcasa" step="0.00000001" required>
+                            <input min="0.00000001" max="999.99999999" value="{{previo.fouling_carcasa}}" placeholder="Fouling de Diseño (Carc.)" style="width: 60% !important;" class="form-control" type="number" name="fouling_carcasa" id="fouling_carcasa" step="0.00000001">
                             <select style="width: 40% !important;" class="form-select" name="unidad_fouling" id="unidad_fouling">
                                 {% for unidad in unidades_ensuciamiento %}
                                 <option value="{{unidad.pk|slugify}}" {% if previo.unidad_ensuciamiento == unidad.pk|slugify %}selected{%endif%}>{{unidad.simbolo}}</option>                                
@@ -830,7 +830,7 @@
                     <div class="col-12 mb-2">
                         <label class="form-label" for="fouling_tubo">Fouling:</label>
                         <div class="input-group">
-                            <input min="0.00000001" max="999.99999999" value="{{previo.fouling_tubo}}" placeholder="Fouling de Diseño (Carcasa)" style="width: 60% !important;" class="form-control" type="number" name="fouling_tubo" id="fouling_tubo" step="0.00000001" required>
+                            <input min="0.00000001" max="999.99999999" value="{{previo.fouling_tubo}}" placeholder="Fouling de Diseño (Carcasa)" style="width: 60% !important;" class="form-control" type="number" name="fouling_tubo" id="fouling_tubo" step="0.00000001">
                             <select style="width: 40% !important;" class="form-select" name="unidad_fouling" id="unidad_fouling" disabled>
                                 {% if previo.unidad_fouling %}
                                 {% for unidad in unidades_ensuciamiento %}
@@ -949,7 +949,7 @@
                     <div class="col-3">
                         <label class="form-label" for="u">U:</label>
                         <div class="input-group">
-                            <input style="width: 60% !important;" value="{{previo.u}}" placeholder="Coeficiente de Transferencia" max="99999999.999" step="0.001" min="0.001" class="form-control" type="number" name="u" id="u" required>
+                            <input style="width: 60% !important;" value="{{previo.u}}" placeholder="Coeficiente de Transferencia" max="99999999.999" step="0.001" min="0.001" class="form-control" type="number" name="u" id="u">
                             <select style="width: 40% !important;" class="form-select" name="unidad_u" id="unidad_u">
                                 {% for unidad in unidades_u %}
                                 <option value="{{unidad.pk|slugify}}" {% if previo.unidad_u == unidad.pk|slugify %}selected{%endif%}>{{unidad}}</option>
@@ -961,7 +961,7 @@
                     <div class="col-3">
                         <label class="form-label" for="ensuciamiento">Ensuciamiento:</label>
                         <div class="input-group">
-                            <input style="width: 60% !important;" value="{{previo.ensuciamiento}}" placeholder="Ensuciamiento de Diseño" max="999.999999999" step="0.000000001" min="0" class="form-control" type="number" name="ensuciamiento" id="ensuciamiento" required>
+                            <input style="width: 60% !important;" value="{{previo.ensuciamiento}}" placeholder="Ensuciamiento de Diseño" max="999.999999999" step="0.000000001" min="0" class="form-control" type="number" name="ensuciamiento" id="ensuciamiento">
                             <select style="width: 40% !important;" class="form-select" name="unidad_fouling" id="unidad_fouling" disabled>
                                 {% if previo.unidad_fouling %}
                                 {% for unidad in unidades_ensuciamiento %}
@@ -988,12 +988,12 @@
 
                     <div class="col-4">
                         <label class="form-label" for="material_carcasa">Material Tubo Externo:</label>
-                        <input maxlength="50" value="{{previo.material_carcasa}}" placeholder="Material Tubo Externo" class="form-control" type="text" name="material_carcasa" id="material_carcasa" required>
+                        <input maxlength="50" value="{{previo.material_carcasa}}" placeholder="Material Tubo Externo" class="form-control" type="text" name="material_carcasa" id="material_carcasa">
                     </div>
 
                     <div class="col-4">
                         <label class="form-label" for="material_tubo">Material Tubo Interno:</label>
-                        <input maxlength="50" value="{{previo.material_tubo}}" placeholder="Material Tubo Interno" class="form-control" type="text" name="material_tubo" id="material_tubo" required>
+                        <input maxlength="50" value="{{previo.material_tubo}}" placeholder="Material Tubo Interno" class="form-control" type="text" name="material_tubo" id="material_tubo">
                     </div>
 
                     <div class="col-6">

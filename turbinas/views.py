@@ -711,7 +711,7 @@ class DuplicarTurbinaVapor(LoginRequiredMixin, ObtenerTurbinaVaporMixin, Duplica
                 turbina.copia = True
                 turbina.tag = generate_nonexistent_tag(TurbinaVapor, turbina_tag)
                 self.copy(turbina)
-                messages.add_message(request, messages.SUCCESS, f'Turbina {turbina_tag} duplicada exitosamente en la turbina {turbina.tag}. Recuerde que todas las copias son eliminadas diariamente a las 6:00am.')
+                messages.add_message(request, messages.SUCCESS, f'Turbina {turbina_tag} duplicada exitosamente en la turbina {turbina.tag}. Recuerde que todas las copias son eliminadas diariamente a las 7:00am.')
                 return redirect('/turbinas/vapor/')
         else:
             return HttpResponseForbidden()
