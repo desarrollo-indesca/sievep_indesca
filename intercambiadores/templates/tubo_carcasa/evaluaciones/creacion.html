@@ -132,7 +132,7 @@
                     <div class="col-6">
                         <label class="form-label" for="caida_carcasa">Caída de Presión:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control campo" type="number" name="caida_carcasa" id="caida_carcasa" step="0.01" min="-99999.99" max="99999.99" required placeholder="Caída Presión">
+                            <input style="width: 60% !important;" class="form-control campo" type="number" name="caida_carcasa" id="caida_carcasa" step="0.01" min="-99999.99" max="99999.99" placeholder="Caída Presión">
                             <select style="width: 40% !important;" class="form-select campo" name="unidad_presion" id="unidad_presion">
                                 {% for unidad in unidades_presion %}
                                 <option value="{{unidad.pk}}">{{unidad}}</option>
@@ -210,7 +210,7 @@
                     <div class="col-6">
                         <label class="form-label" for="caida_tubo">Caída de Presión:</label>
                         <div class="input-group mb-3">
-                            <input style="width: 60% !important;" class="form-control campo" type="number" name="caida_tubo" id="caida_tubo" step="0.01" min="-99999.99" max="99999.99" required placeholder="Caída Presión">
+                            <input style="width: 60% !important;" class="form-control campo" type="number" name="caida_tubo" id="caida_tubo" step="0.01" min="-99999.99" max="99999.99" placeholder="Caída Presión">
                             <select style="width: 40% !important;" class="form-select" name="unidad_presion" disabled>
                                 <option value="1">bar</option>
                             </select>
@@ -769,7 +769,7 @@
             await delay(500)
 
         if($('#temp_in_carcasa').val() !== '' && $('#temp_out_carcasa').val() !== '' && $('#temp_in_tubo').val() !== '' && $('#temp_out_tubo').val() !== ''
-            && $('#flujo_carcasa').val() !== '' && $('#flujo_tubo').val() !== '' && $('#no_tubos').val() !== '' && $('#caida_tubo').val() !== '' && $('#caida_carcasa').val() !== '' &&
+            && $('#flujo_carcasa').val() !== '' && $('#flujo_tubo').val() !== '' && $('#no_tubos').val() !== '' &&
             (($('#cp_gas_tubo').val() !== '' || $('#cp_liquido_tubo').val() !== '') && $('#cambio_fase_ficha_tubo').html() === 'S' || ($('#cp_gas_tubo').val() !== '' && $('#cp_liquido_tubo').val() !== ''))
             && (($('#cp_gas_carcasa').val() !== '' || $('#cp_liquido_carcasa').val() !== '') && $('#cambio_fase_ficha_carcasa').html() === 'S' || ($('#cp_gas_carcasa').val() !== ''&& $('#cp_liquido_carcasa').val() !== ''))){
             
