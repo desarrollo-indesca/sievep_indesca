@@ -101,7 +101,7 @@ const reindex = (anadir = false) => {
 
 const eliminar = (e) => {
   let forms = document.querySelectorAll(`.form`);
-  let formNum = forms.length - 1;
+  let formNum = forms.length;
   let totalForms = document.querySelector(`#id_form-TOTAL_FORMS`);
   totalForms.setAttribute("value", `${formNum}`);
   e.target.parentElement.parentElement.remove();
@@ -172,6 +172,13 @@ $("button[type=submit]").click((e) => {
     alert("Debe haber al menos una corriente en vapor saturado.");
     return;
   } 
+
+  let entradas = 0;
+  $(".entrada").each(function(){
+    if($(this).is(":checked")){
+      entradas++;
+    }
+  });
 
   if (entradas > 1) {
     e.preventDefault();

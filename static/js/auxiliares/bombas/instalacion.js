@@ -1,7 +1,8 @@
 const cargarEventListeners = (anadirListeners = true) => {
-  $(".eliminar").click((e) => {
+  $(".eliminar").off("click").click((e) => {
     eliminar(e);
   });
+
 
   if (anadirListeners)
     $(".anadir").click((e) => {
@@ -44,12 +45,16 @@ const eliminar = (e) => {
       ? "succion"
       : "descarga";
   let forms = document.querySelectorAll(`.${lado}-form`);
-  let formNum = forms.length - 1;
   let totalForms = document.querySelector(`#id_formset-${lado}-TOTAL_FORMS`);
-  totalForms.setAttribute("value", `${formNum}`);
   e.target.parentElement.parentElement.remove();
+  console.log(totalForms.value);
+  
+  totalForms.setAttribute("value", totalForms.value - 1);
   reindex(lado);
   cargarEventListeners(false);
+
+  let idField = e.target.parentElement.parentElement.querySelector('input[id$="-id"]');
+  if(idField) idField.remove();
 };
 
 const anadir = (e) => {
@@ -91,9 +96,15 @@ const anadir = (e) => {
   totalForms.setAttribute("value", `${formNum + 1}`);
 
   formPrefix = `formset-${lado}-${formNum}-`;
-  $(`#id_${formPrefix}material_tuberia`).val("");
-  $(`#id_${formPrefix}diametro_tuberia`).val("");
-  $(`#id_${formPrefix}longitud_tuberia`).val("");
+  newElement
+    .querySelectorAll("input,select")
+    .forEach((e) =>
+      e.name.indexOf("unidad") === -1 ? (e.value = "") : e
+    );
+
+  if (newElement.querySelector(`#id_${formPrefix}id`)) {
+    newElement.querySelector(`#id_${formPrefix}id`).remove();
+  }
 };
 
 $("button[type=submit]").click((e) => {
@@ -121,3 +132,5 @@ $(".verificar-negativo").on("change keyup", function(e) {
 });
 
 cargarEventListeners();
+$("#id_formset-succion-INITIAL_FORMS").val("0");
+$("#id_formset-descarga-INITIAL_FORMS").val("0");

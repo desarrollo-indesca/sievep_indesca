@@ -107,9 +107,8 @@ function anadir_listeners_dropboxes() {
           document.getElementById(
             "id_fluido"
           ).innerHTML += `<option value="${valor}" selected>${compuesto_cas.toUpperCase()}</option>`;
-          document.getElementById(
-            "id_calculo_propiedades"
-          ).innerHTML = `<option value='A'>Automático</option><option value='M'>Manual</option>"`;
+          $('#id_calculo_propiedades').val("M").trigger("change");
+          $('#id_temperatura_operacion').change();
           $("#anadir_fluido_no_registradoClose").click();
         },
         error: (res) => {
