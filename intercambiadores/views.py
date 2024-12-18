@@ -1695,12 +1695,6 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
         if(not request.POST.get('unidad_cp')):
             errores.append('El campo Unidad de Cp es obligatorio.')
 
-        if(not request.POST.get('caida_tubo')):
-            errores.append('El campo Caída de Presión de Tubo es obligatorio.')
-
-        if(not request.POST.get('caida_carcasa')):
-            errores.append('El campo Caída de Presión de Carcasa es obligatorio.')
-
         return errores
 
     def post(self, request, pk):
@@ -1799,8 +1793,8 @@ class CrearEvaluacion(LoginRequiredMixin, View, ObtencionParametrosMixin):
                     unidad_flujo = Unidades.objects.get(pk=request.POST['unidad_flujo']),
 
                     # DATOS PRESIONES
-                    caida_presion_in = request.POST['caida_tubo'],
-                    caida_presion_ex = request.POST['caida_carcasa'],
+                    caida_presion_in = request.POST.get('caida_tubo') if request.POST.get('caida_tubo') != "" else None,
+                    caida_presion_ex = request.POST.get('caida_carcasa') if request.POST.get('caida_carcasa') != "" else None,
                     unidad_presion = Unidades.objects.get(pk=request.POST['unidad_presion']),
 
                     # DATOS DE SALIDA

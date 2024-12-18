@@ -174,7 +174,7 @@ class CrearNuevoUsuario(LoginRequiredMixin, View):
                             planta_id = key.split('-')[1]
                             ids.append(planta_id)
                     
-                    if("superusuario_de" in request.POST.keys()):
+                    if("superusuario" in request.POST and "superusuario_de" in request.POST):
                         if(request.POST.get('superusuario_de') == 'todos'):
                             plantas = Planta.objects.all()
                             PermisoPorComplejo.objects.bulk_create(
@@ -225,7 +225,7 @@ class CrearNuevoUsuario(LoginRequiredMixin, View):
             print(str(e))
     
     def get(self, request):
-        if request.user.usuario_planta.filter(administrar_usuarios=True).exists():
+        if request.user.usuario_planta.filter(administrar_usuarios=True).exists() or request.user.is_superuser:
             context = {
                 'titulo': "Registro de Nuevo Usuario",
                 'complejos': Complejo.objects.prefetch_related('plantas').all() if self.request.user.is_superuser else Complejo.objects.filter(pk__in = self.request.user.usuario_planta.filter(administrar_usuarios = True).values_list('planta__complejo').distinct()),
@@ -305,7 +305,7 @@ class CrearNuevoUsuarioRed(LoginRequiredMixin, View):
                         planta_id = key.split('-')[1]
                         ids.append(planta_id)
                 
-                if("superusuario_de" in request.POST.keys()):
+                if("superusuario" in request.POST and "superusuario_de" in request.POST):
                     if(request.POST.get('superusuario_de') == 'todos'):
                         plantas = Planta.objects.all()
                         PermisoPorComplejo.objects.bulk_create(
@@ -354,7 +354,7 @@ class CrearNuevoUsuarioRed(LoginRequiredMixin, View):
             ], 'previo': request.POST})
     
     def get(self, request):
-        if request.user.usuario_planta.filter(administrar_usuarios=True).exists():
+        if request.user.usuario_planta.filter(administrar_usuarios=True).exists() or self.request.user.is_superuser:
             context = {
                 'titulo': "Registro de Nuevo Usuario En Red",
                 'complejos': Complejo.objects.prefetch_related('plantas').all() if self.request.user.is_superuser else Complejo.objects.filter(pk__in = self.request.user.usuario_planta.filter(administrar_usuarios = True).values_list('planta__complejo').distinct()),
@@ -398,7 +398,7 @@ class EditarUsuario(LoginRequiredMixin, View):
 
     modelo = get_user_model()
 
-    def post(self, request, pk): # Envío de Formulario de Creación
+    def post(self, request, pk): # Envío de Formulario de Edición
         try:
             with transaction.atomic():
                 usuario = self.modelo.objects.get(pk=pk)
@@ -425,7 +425,7 @@ class EditarUsuario(LoginRequiredMixin, View):
                 if(request.user.is_superuser):
                     usuario.permisos_complejo.all().delete()
                 
-                if("superusuario_de" in request.POST.keys() and "superusuario" in request.POST.keys()):
+                if("superusuario_de" in request.POST and "superusuario" in request.POST):
                     if(request.POST.get('superusuario_de') == 'todos'):
                         plantas = Planta.objects.all()
                         PermisoPorComplejo.objects.bulk_create(
