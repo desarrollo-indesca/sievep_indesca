@@ -554,6 +554,7 @@ class RegistroDatosAdicionales(CargarCalderasMixin, View):
                     all_valid = False
 
             if form_caracteristicas.is_valid():
+                caldera.caracteristicas_caldera.all().delete()
                 for form in form_caracteristicas:
                     if form.is_valid() and form.cleaned_data:
                         instance = form.save(commit=False)

@@ -167,3 +167,4 @@ $("#submit").click(async (e) => {
 });
 
 cargarEventListeners();
+$("#id_form-INITIAL_FORMS").val(0);

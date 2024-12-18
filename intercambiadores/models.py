@@ -801,8 +801,8 @@ class EvaluacionesIntercambiador(models.Model):
     flujo_masico_in = models.DecimalField(max_digits=12, decimal_places=2)
     unidad_flujo = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="flujo_unidad_evaluacionintercambiador")
 
-    caida_presion_in = models.DecimalField(max_digits=10, decimal_places=2)
-    caida_presion_ex = models.DecimalField(max_digits=10, decimal_places=2)
+    caida_presion_in = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    caida_presion_ex = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     unidad_presion = models.ForeignKey(Unidades, on_delete=models.DO_NOTHING, related_name="presion_unidad_evaluacionintercambiador")
 
     cp_tubo_gas = models.DecimalField(max_digits=12, decimal_places=4, null=True)

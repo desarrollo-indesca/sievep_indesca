@@ -645,6 +645,7 @@ class CreacionInstalacionBomba(LoginRequiredMixin, View, CargarBombaMixin):
         except Exception as e:
             print(str(e))        
             return render(request, self.template_name, context={'bomba': bomba, 
+                                                                'titulo': "Especificaciones de Instalación",
                                                                 'forms_instalacion': formset_instalacion,
                                                                 'forms_tuberia_succion': formset_tuberias_succion,
                                                                 'forms_tuberia_descarga': formset_tuberias_descarga,
