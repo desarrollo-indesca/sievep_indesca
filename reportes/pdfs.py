@@ -575,7 +575,7 @@ def reporte_evaluacion(request, object_list):
         fechas.append(fecha)
             
         table.append([Paragraph(fecha, centrar_parrafo), Paragraph(str(area), centrar_parrafo), Paragraph(str(eficiencia), centrar_parrafo), Paragraph(str(efectividad), centrar_parrafo), Paragraph(str(u), centrar_parrafo), 
-                      Paragraph(str(ntu), centrar_parrafo), Paragraph(str(ensuciamiento), centrar_parrafo), Paragraph(str(caida_tubo), centrar_parrafo), Paragraph(str(caida_carcasa), centrar_parrafo)])
+                      Paragraph(str(ntu), centrar_parrafo), Paragraph(str(ensuciamiento), centrar_parrafo), Paragraph(str(caida_tubo if caida_tubo else ''), centrar_parrafo), Paragraph(str(caida_carcasa if caida_carcasa else ''), centrar_parrafo)])
         
     table = Table(table, colWidths=[1.3*inch,0.7*inch,0.65*inch,0.65*inch,0.7*inch,0.7*inch,0.85*inch,0.7*inch,0.7*inch])
     table.setStyle(basicTableStyle)
@@ -1019,23 +1019,23 @@ def ficha_tecnica_doble_tubo(object_list):
         ],
         [
             f'Temperatura ({condicion_carcasa.temperaturas_unidad})', '',
-            Paragraph(f"{condicion_carcasa.temp_entrada}", centrar_parrafo),Paragraph(f"{condicion_carcasa.temp_salida}", centrar_parrafo),
-            Paragraph(f"{condicion_tubo.temp_entrada}", centrar_parrafo),Paragraph(f"{condicion_tubo.temp_salida}", centrar_parrafo),
+            Paragraph(f"{condicion_carcasa.temp_entrada if condicion_carcasa.temp_entrada else ''}", centrar_parrafo),Paragraph(f"{condicion_carcasa.temp_salida if condicion_carcasa.temp_salida else ''}", centrar_parrafo),
+            Paragraph(f"{condicion_tubo.temp_entrada if condicion_tubo.temp_entrada else ''}", centrar_parrafo),Paragraph(f"{condicion_tubo.temp_salida if condicion_tubo.temp_salida else ''}", centrar_parrafo),
         ],
         [
             f'Flujo Vapor ({condicion_carcasa.flujos_unidad})', '',
-            Paragraph(f"{condicion_carcasa.flujo_vapor_entrada}", centrar_parrafo),Paragraph(f"{condicion_carcasa.flujo_vapor_salida}", centrar_parrafo),
-            Paragraph(f"{condicion_tubo.flujo_vapor_entrada}", centrar_parrafo),Paragraph(f"{condicion_tubo.flujo_vapor_salida}", centrar_parrafo),
+            Paragraph(f"{condicion_carcasa.flujo_vapor_entrada if condicion_carcasa.flujo_vapor_entrada else ''}", centrar_parrafo),Paragraph(f"{condicion_carcasa.flujo_vapor_salida if condicion_carcasa.flujo_vapor_salida else ''}", centrar_parrafo),
+            Paragraph(f"{condicion_tubo.flujo_vapor_entrada if condicion_tubo.flujo_vapor_entrada else ''}", centrar_parrafo),Paragraph(f"{condicion_tubo.flujo_vapor_salida if condicion_tubo.flujo_vapor_salida else ''}", centrar_parrafo),
         ],
         [
             f'Flujo Líquido ({condicion_carcasa.flujos_unidad})', '',
-            Paragraph(f"{condicion_carcasa.flujo_liquido_entrada}", centrar_parrafo),Paragraph(f"{condicion_carcasa.flujo_liquido_salida}", centrar_parrafo),
-            Paragraph(f"{condicion_tubo.flujo_liquido_entrada}", centrar_parrafo),Paragraph(f"{condicion_tubo.flujo_liquido_salida}", centrar_parrafo),
+            Paragraph(f"{condicion_carcasa.flujo_liquido_entrada if condicion_carcasa.flujo_liquido_entrada else ''}", centrar_parrafo),Paragraph(f"{condicion_carcasa.flujo_liquido_salida if condicion_carcasa.flujo_liquido_salida else ''}", centrar_parrafo),
+            Paragraph(f"{condicion_tubo.flujo_liquido_entrada if condicion_tubo.flujo_liquido_entrada else ''}", centrar_parrafo),Paragraph(f"{condicion_tubo.flujo_liquido_salida if condicion_tubo.flujo_liquido_salida else ''}", centrar_parrafo),
         ],
         [
             f'Flujo Másico Total ({condicion_carcasa.flujos_unidad})', '',
-            Paragraph(f"{condicion_carcasa.flujo_masico}", centrar_parrafo), '',
-            Paragraph(f"{condicion_tubo.flujo_masico}", centrar_parrafo), ''
+            Paragraph(f"{condicion_carcasa.flujo_masico if condicion_carcasa.flujo_masico else ''}", centrar_parrafo), '',
+            Paragraph(f"{condicion_tubo.flujo_masico if condicion_tubo.flujo_masico else ''}", centrar_parrafo), ''
         ],
         [
             f'Cap. Calorífica Vap. ({condicion_carcasa.unidad_cp})', '',
@@ -1059,48 +1059,48 @@ def ficha_tecnica_doble_tubo(object_list):
         ],
         [
             f'Cambio de Fase', '',
-            Paragraph(f"{condicion_carcasa.cambio_fase_largo()}", centrar_parrafo), '',
-            Paragraph(f"{condicion_tubo.cambio_fase_largo()}", centrar_parrafo), '',
+            Paragraph(f"{condicion_carcasa.cambio_fase_largo() if condicion_carcasa.cambio_de_fase else ''}", centrar_parrafo), '',
+            Paragraph(f"{condicion_tubo.cambio_fase_largo() if condicion_tubo.cambio_de_fase else ''}", centrar_parrafo), '',
         ],
         [
             f'Presión Entrada ({condicion_carcasa.unidad_presion})', '',
-            Paragraph(f"{condicion_carcasa.presion_entrada}", centrar_parrafo), '',
-            Paragraph(f"{condicion_tubo.presion_entrada}", centrar_parrafo), '',
+            Paragraph(f"{condicion_carcasa.presion_entrada if condicion_carcasa.presion_entrada else ''}", centrar_parrafo), '',
+            Paragraph(f"{condicion_tubo.presion_entrada if condicion_tubo.presion_entrada else ''}", centrar_parrafo), '',
         ],
         [
             f'Caída Presión Permitida ({condicion_carcasa.unidad_presion})', '',
-            Paragraph(f"{condicion_carcasa.caida_presion_max}", centrar_parrafo), '',
-            Paragraph(f"{condicion_tubo.caida_presion_max}", centrar_parrafo), '',
+            Paragraph(f"{condicion_carcasa.caida_presion_max if condicion_carcasa.caida_presion_max else ''}", centrar_parrafo), '',
+            Paragraph(f"{condicion_tubo.caida_presion_max if condicion_tubo.caida_presion_max else ''}", centrar_parrafo), '',
         ],
         [
             f'Caída Presión Mínima ({condicion_carcasa.unidad_presion})', '',
-            Paragraph(f"{condicion_carcasa.caida_presion_min}", centrar_parrafo), '',
-            Paragraph(f"{condicion_tubo.caida_presion_min}", centrar_parrafo), '',
+            Paragraph(f"{condicion_carcasa.caida_presion_min if condicion_carcasa.caida_presion_min else ''}", centrar_parrafo), '',
+            Paragraph(f"{condicion_tubo.caida_presion_min if condicion_tubo.caida_presion_min else ''}", centrar_parrafo), '',
         ],
         [
             f'Fouling ({propiedades.ensuciamiento_unidad})', '',
-            Paragraph(f"{condicion_carcasa.fouling}", centrar_parrafo), '',
-            Paragraph(f"{condicion_tubo.fouling}", centrar_parrafo), '',
+            Paragraph(f"{condicion_carcasa.fouling if condicion_carcasa.fouling else ''}", centrar_parrafo), '',
+            Paragraph(f"{condicion_tubo.fouling if condicion_tubo.fouling else ''}", centrar_parrafo), '',
         ],
         [
             f'Conexiones de Entrada', '',
-            Paragraph(f"{propiedades.conexiones_entrada_ex}", centrar_parrafo), '',
-            Paragraph(f"{propiedades.conexiones_entrada_in}", centrar_parrafo), '',
+            Paragraph(f"{propiedades.conexiones_entrada_ex if propiedades.conexiones_entrada_ex else ''}", centrar_parrafo), '',
+            Paragraph(f"{propiedades.conexiones_entrada_in if propiedades.conexiones_entrada_in else ''}", centrar_parrafo), '',
         ],
         [
             f'Conexiones de Salida', '',
-            Paragraph(f"{propiedades.conexiones_salida_ex}", centrar_parrafo), '',
-            Paragraph(f"{propiedades.conexiones_salida_in}", centrar_parrafo), '',
+            Paragraph(f"{propiedades.conexiones_salida_ex if propiedades.conexiones_salida_ex else ''}", centrar_parrafo), '',
+            Paragraph(f"{propiedades.conexiones_salida_in if propiedades.conexiones_salida_in else ''}", centrar_parrafo), '',
         ],
         [
             f'Arreglos Paralelos', '',
-            Paragraph(f"{propiedades.arreglo_paralelo_ex}", centrar_parrafo), '',
-            Paragraph(f"{propiedades.arreglo_paralelo_in}", centrar_parrafo), '',
+            Paragraph(f"{propiedades.arreglo_paralelo_ex if propiedades.arreglo_paralelo_ex else ''}", centrar_parrafo), '',
+            Paragraph(f"{propiedades.arreglo_paralelo_in if propiedades.arreglo_paralelo_in else ''}", centrar_parrafo), '',
         ],
         [
             f'Arreglos en Serie', '',
-            Paragraph(f"{propiedades.arreglo_serie_ex}", centrar_parrafo), '',
-            Paragraph(f"{propiedades.arreglo_serie_in}", centrar_parrafo), '',
+            Paragraph(f"{propiedades.arreglo_serie_ex if propiedades.arreglo_serie_ex else ''}", centrar_parrafo), '',
+            Paragraph(f"{propiedades.arreglo_serie_in if propiedades.arreglo_serie_in else ''}", centrar_parrafo), '',
         ],
         [
             Paragraph("<b>PARÁMETROS DE DISEÑO</b>", centrar_parrafo), '','','','',''
@@ -1194,32 +1194,32 @@ def ficha_tecnica_doble_tubo(object_list):
 
     table = [
         [
-            f'Calor ({propiedades.q_unidad})', Paragraph(f"{propiedades.q}", centrar_parrafo), '',
-            f'U ({propiedades.u_unidad})', Paragraph(f"{propiedades.u}", centrar_parrafo), '',
+            f'Calor ({propiedades.q_unidad})', Paragraph(f"{propiedades.q if propiedades.q else ''}", centrar_parrafo), '',
+            f'U ({propiedades.u_unidad})', Paragraph(f"{propiedades.u if propiedades.u else ''}", centrar_parrafo), '',
         ],
         [
-            f'Ensuc. ({propiedades.ensuciamiento_unidad})', Paragraph(f"{propiedades.ensuciamiento}", centrar_parrafo), '',
-            f'Área ({propiedades.area_unidad})', Paragraph(f"{propiedades.area}", centrar_parrafo), '',
+            f'Ensuc. ({propiedades.ensuciamiento_unidad})', Paragraph(f"{propiedades.ensuciamiento if propiedades.ensuciamiento else ''}", centrar_parrafo), '',
+            f'Área ({propiedades.area_unidad})', Paragraph(f"{propiedades.area if propiedades.area else ''}", centrar_parrafo), '',
         ],
         [
-            f'No. Tubos', Paragraph(f"{propiedades.numero_tubos}", centrar_parrafo), '',
-            f'Longitud ({propiedades.longitud_tubos_unidad})', Paragraph(f"{propiedades.longitud_tubos}", centrar_parrafo), '',
+            f'No. Tubos', Paragraph(f"{propiedades.numero_tubos if propiedades.numero_tubos else ''}", centrar_parrafo), '',
+            f'Longitud ({propiedades.longitud_tubos_unidad})', Paragraph(f"{propiedades.longitud_tubos if propiedades.longitud_tubos else ''}", centrar_parrafo), '',
         ],
         [
-            f'OD Tubo Ext. ({propiedades.diametro_tubos_unidad})', Paragraph(f"{propiedades.diametro_externo_ex}", centrar_parrafo), '',
-            f'OD Tubo Int. ({propiedades.diametro_tubos_unidad})', Paragraph(f"{propiedades.diametro_externo_in}", centrar_parrafo), '',
+            f'OD Tubo Ext. ({propiedades.diametro_tubos_unidad})', Paragraph(f"{propiedades.diametro_externo_ex if propiedades.diametro_externo_ex else ''}", centrar_parrafo), '',
+            f'OD Tubo Int. ({propiedades.diametro_tubos_unidad})', Paragraph(f"{propiedades.diametro_externo_in if propiedades.diametro_externo_in else ''}", centrar_parrafo), '',
         ],
         [
-            f'Material Tubo Ext.', Paragraph(f"{propiedades.material_ex}", centrar_parrafo), '',
-            f'Material Tubo Int.', Paragraph(f"{propiedades.material_in}", centrar_parrafo), '',
+            f'Material Tubo Ext.', Paragraph(f"{propiedades.material_ex if propiedades.material_ex else ''}", centrar_parrafo), '',
+            f'Material Tubo Int.', Paragraph(f"{propiedades.material_in if propiedades.material_in else ''}", centrar_parrafo), '',
         ],
         [
-            f'Tipo del Tubo', Paragraph(f"{propiedades.tipo_tubo}", centrar_parrafo), '',
-            f'Criticidad', Paragraph(f"{propiedades.criticidad_larga()}", centrar_parrafo), '',
+            f'Tipo del Tubo', Paragraph(f"{propiedades.tipo_tubo if propiedades.tipo_tubo else ''}", centrar_parrafo), '',
+            f'Criticidad', Paragraph(f"{propiedades.criticidad_larga if propiedades.criticidad_larga else ''}", centrar_parrafo), '',
         ],
         [
-            f'Número de Aletas', Paragraph(f"{propiedades.numero_aletas}", centrar_parrafo), '',
-            f'Altura Aletas ({propiedades.diametro_tubos_unidad})', Paragraph(f"{propiedades.altura_aletas}", centrar_parrafo), '',
+            f'Número de Aletas', Paragraph(f"{propiedades.numero_aletas if propiedades.numero_aletas else ''}", centrar_parrafo), '',
+            f'Altura Aletas ({propiedades.diametro_tubos_unidad})', Paragraph(f"{propiedades.altura_aletas if propiedades.altura_aletas else ''}", centrar_parrafo), '',
         ],
     ]
 
