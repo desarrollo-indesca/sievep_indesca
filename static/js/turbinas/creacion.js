@@ -232,6 +232,9 @@ $("button[type=submit]").click((e) => {
       else flujo_sumas += Number(x.value);
     });
 
+    flujo_entrada = Number(flujo_entrada.toFixed(5));
+    flujo_sumas = Number(flujo_sumas.toFixed(5));
+
     if (flujo_entrada !== flujo_sumas) {
       e.preventDefault();
       alert(

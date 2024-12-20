@@ -143,8 +143,6 @@ $("#submit").click(async (e) => {
     const array_nombres = Array.from(document.querySelectorAll(`.nombre-caracteristica`))
     .filter(x => x.value !== '')  
     .map(x => x.value);
-
-    console.log((new Set(array_nombres)).size, array_nombres.length);
     
     if ((new Set(array_nombres)).size !== array_nombres.length){
       e.preventDefault();

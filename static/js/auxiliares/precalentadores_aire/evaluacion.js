@@ -25,10 +25,7 @@ const listeners_submit = () => {
     
         const suma_aire = $('.porc-aire').toArray().reduce((acc, el) => { 
             return acc + Number(el.value);
-        }, 0).toFixed(2);
-    
-        console.log(suma_aire, suma_volumen);
-        
+        }, 0).toFixed(2);       
     
         if(suma_volumen != 100.00){
             e.preventDefault();

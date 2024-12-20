@@ -546,7 +546,6 @@
                 error: (res) => {
                     document.body.style.opacity = 1.0;
                     $('#spinner').attr('hidden', true);
-                    console.log(res);
                     if(lado === 'T'){
                         $('#cp_gas_tubo').removeAttr('disabled');
                         $('#cp_liquido_tubo').removeAttr('disabled');
@@ -646,7 +645,6 @@
 
     $('#cp_ficha').click((e) => {
         if($('#cp_ficha').is(':checked')){
-            console.log("Colocando CP de Ficha");
             $('#cp_gas_tubo').val($('#cp_vapor_ficha_tubo').html().replace(',','.').replace(/[\n|\s]+/g,''));
             $('#cp_gas_tubo').attr('disabled',true);
             $('#cp_liquido_tubo').val($('#cp_liquido_ficha_tubo').html().replace(',','.').replace(/[\n|\s]+/g,''));
@@ -662,7 +660,6 @@
             $('#tipo_cp_tubo').attr("disabled", true);
         } 
         else{
-            console.log("Descheckeaste, poniendo Cp automatico.");
             $('#unidad_cp').removeAttr('disabled');
             if($('#temp_out_carcasa').val() !== '' && $('#temp_in_carcasa').val() !== '' && $('#fluido_carcasa').val() !== '' && $('#tipo_cp_carcasa').val() === 'A')
                 ajaxCP($('#temp_in_carcasa').val(), $('#temp_out_carcasa').val(), $('#fluido_carcasa').val(), 'C');
@@ -748,7 +745,6 @@
     });
 
     const transformarNumero = (str) => {
-        console.log(str);
         return Number(str.replace(',','.').replace(/[\n|\s]+/g,''))
     }
     
@@ -811,7 +807,6 @@
                     }
                 }, 
                 error: async (res) => {
-                    console.log(res);
                     document.body.style.opacity = 1.0;
                     $('#spinner').attr('hidden', true);
 
@@ -901,7 +896,6 @@
                 }
             },
             error: (res) => {
-                console.log(res);
                 funciono = false;
                 mensaje += `Ocurrió un error al validar los datos ingresados del lado de${lado === 'T' ? 'l tubo' : ' la carcasa'}.\n`;
             }

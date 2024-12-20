@@ -110,7 +110,6 @@ const validar_flujos = (lado) => {
   let flujo_salida = 0;
 
   const totalFlujos = $(`#id_form-${lado}-TOTAL_FORMS`).val();
-  console.log(totalFlujos);
   
   for (let index = 0; index < totalFlujos; index++) {
     const flujo = $("#id_form-" + lado + "-" + index + "-flujo").val();
@@ -121,8 +120,6 @@ const validar_flujos = (lado) => {
     else
       flujo_salida += Number(flujo);
   }
-
-  console.log(flujo_entrada, flujo_salida);  
 
   if(flujo_entrada != flujo_salida) {
     alert(`El flujo de entrada debe ser igual al flujo de salida (${lado.toUpperCase()}).`);

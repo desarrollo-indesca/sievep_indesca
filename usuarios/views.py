@@ -415,7 +415,12 @@ class EditarUsuario(LoginRequiredMixin, View):
                     else:
                         usuario.usuario_planta.filter(planta__pk__in=request.user.usuario_planta.filter(administrar_usuarios = True).values_list('planta__pk', flat=True)).delete()
                 else:
-                    usuario.usuario_planta.exclude(planta__complejo__in=usuario.permisos_complejo.values_list('complejo', flat=True)).delete()
+                    if(not request.user.is_superuser):
+                        plantas_pendientes = usuario.usuario_planta.filter(Q(planta__pk__in=request.user.usuario_planta.filter(administrar_usuarios = True).values_list('planta__pk', flat=True)))
+                        plantas_pendientes = plantas_pendientes.filter(~Q(planta__complejo__in=usuario.permisos_complejo.values_list('complejo', flat=True))).values_list('pk', flat=True)
+                        usuario.usuario_planta.filter(pk__in=plantas_pendientes).delete()
+                    else:
+                        usuario.usuario_planta.all().delete()
 
                 # Assign plants according to the marked checkboxes
                 ids = []
@@ -426,8 +431,7 @@ class EditarUsuario(LoginRequiredMixin, View):
 
                 if(request.user.is_superuser):
                     usuario.permisos_complejo.all().delete()
-
-                usuario.usuario_planta.all().delete()                
+              
                 if("superusuario_de" in request.POST and "superusuario" in request.POST):
                     if(request.POST.get('superusuario_de') == 'todos'):
                         plantas = Planta.objects.all()
