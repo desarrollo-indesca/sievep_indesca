@@ -561,7 +561,7 @@ def reporte_evaluacion(request, object_list):
         ntu = float(x.ntu)
         u = round(transformar_unidades_u([float(x.u)], x.u_diseno_unidad.pk, propiedades.u_unidad.pk)[0], 2)
         caida_tubo, caida_carcasa = transformar_unidades_presion([x.caida_presion_in, x.caida_presion_ex], x.unidad_presion.pk, condicion_carcasa.unidad_presion.pk)
-        caida_tubo, caida_carcasa = round(caida_tubo,4), round(caida_carcasa, 4)
+        caida_tubo, caida_carcasa = round(caida_tubo,4) if caida_tubo else '-', round(caida_carcasa, 4) if caida_carcasa else '-'
         ensuciamiento = round(transformar_unidades_ensuciamiento([float(x.ensuciamiento)], x.ensuc_diseno_unidad.pk, propiedades.ensuciamiento_unidad.pk)[0],6)
 
         fecha = x.fecha.strftime('%d/%m/%Y %H:%M:%S')            
@@ -587,14 +587,18 @@ def reporte_evaluacion(request, object_list):
         sub = "Evaluaciones"
 
     # Generación de Gráficas históricas. Todas las magnitudes deben encontrarse en la misma unidad.
-    story, grafica1 = anadir_grafica(story, eficiencias, fechas, sub, "Eficiencia", "Eficiencia (%)")
-    story, grafica2 = anadir_grafica(story, efectividades, fechas, sub, "Efectividad", "Efectividad (%)")
-    story, grafica3 = anadir_grafica(story, us, fechas, sub, "U", f"U ({propiedades.u_unidad})")
-    story, grafica4 = anadir_grafica(story, ensuciamientos, fechas, sub, "Ensuciamiento", f"Ensuciamiento ({propiedades.ensuciamiento_unidad})")
-    story, grafica5 = anadir_grafica(story, caidas_carcasa, fechas, sub, "Caída Pres. Carcasa", f"Caída Pres. Carcasa ({condicion_carcasa.unidad_presion})")
-    story, grafica6 = anadir_grafica(story, caidas_tubo, fechas, sub, "Caída Pres. Tubo", f"Caída Pres. Tubo ({condicion_carcasa.unidad_presion})")
 
-    return [story, [grafica1, grafica2, grafica3, grafica4, grafica5, grafica6]]
+    if(object_list.count() > 1):
+        story, grafica1 = anadir_grafica(story, eficiencias, fechas, sub, "Eficiencia", "Eficiencia (%)")
+        story, grafica2 = anadir_grafica(story, efectividades, fechas, sub, "Efectividad", "Efectividad (%)")
+        story, grafica3 = anadir_grafica(story, us, fechas, sub, "U", f"U ({propiedades.u_unidad})")
+        story, grafica4 = anadir_grafica(story, ensuciamientos, fechas, sub, "Ensuciamiento", f"Ensuciamiento ({propiedades.ensuciamiento_unidad})")
+        story, grafica5 = anadir_grafica(story, caidas_carcasa, fechas, sub, "Caída Pres. Carcasa", f"Caída Pres. Carcasa ({condicion_carcasa.unidad_presion})")
+        story, grafica6 = anadir_grafica(story, caidas_tubo, fechas, sub, "Caída Pres. Tubo", f"Caída Pres. Tubo ({condicion_carcasa.unidad_presion})")
+
+        return [story, [grafica1, grafica2, grafica3, grafica4, grafica5, grafica6]]
+    else:
+        return [story, []]
 
 def intercambiadores(request, object_list):
     '''
