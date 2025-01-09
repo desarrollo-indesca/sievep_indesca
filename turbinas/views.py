@@ -208,7 +208,7 @@ class CreacionTurbinaVapor(PuedeCrear, View):
                     else:
                         print(form.errors)
             else:
-                print(form_datos_corrientes.errors)
+                print(forms_corrientes.errors)
 
             valid = valid and form_turbina.is_valid() # Form de turbinas
 

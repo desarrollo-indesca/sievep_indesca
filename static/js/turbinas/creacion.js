@@ -1,4 +1,5 @@
 const cargarEventListeners = (anadirListeners = true) => {
+  $(".eliminar").off("click");
   $(".eliminar").click((e) => {
     eliminar(e);
   });
@@ -103,7 +104,7 @@ const eliminar = (e) => {
   let forms = document.querySelectorAll(`.form`);
   let formNum = forms.length;
   let totalForms = document.querySelector(`#id_form-TOTAL_FORMS`);
-  totalForms.setAttribute("value", `${formNum}`);
+  totalForms.setAttribute("value", `${formNum - 1}`);
   e.target.parentElement.parentElement.remove();
   reindex();
   cargarEventListeners(false);

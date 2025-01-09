@@ -2996,7 +2996,7 @@ def reporte_ficha_tecnica_caldera(caldera):
 
         table = [
             [
-                Paragraph("<b>CARACTERÍSTICAS DE LAS CALDERAS</b>", centrar_parrafo),
+                Paragraph("<b>CARACTERÍSTICAS DE LA CALDERA</b>", centrar_parrafo),
             ],
             [
                 Paragraph("Nombre", centrar_parrafo),
