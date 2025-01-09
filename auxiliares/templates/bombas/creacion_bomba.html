@@ -384,7 +384,7 @@
                     <small>{{form_condiciones_fluido.concentracion_cloro.errors}}</small>
                 </div>
 
-                <input type="hidden" name="nombre_fluido" id="id_nombre_fluido" value="{{request.POST.nombre_fluido}}">
+                <input type="hidden" name="nombre_fluido" id="id_nombre_fluido" value="{{request.POST.nombre_fluido|default:form_condiciones_fluido.instance.nombre_fluido}}">
             </div>
             
             <hr>
