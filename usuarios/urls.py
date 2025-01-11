@@ -12,5 +12,5 @@ urlpatterns = [
     path('encuesta/resultados/', ConsultaEncuestas.as_view(), name="consulta_encuesta"),
     path('encuesta/grafica/', graficas_encuestas, name="grafica_encuesta"),
     path('crear-red/', CrearNuevoUsuarioRed.as_view(), name="crear_usuario_red"),
-    path('consulta-usuario-ldap', ConsultaUsuariosLDAP.as_view(), name="consultar_usuarios_ldap"),
+    # path('consulta-usuario-ldap', ConsultaUsuariosLDAP.as_view(), name="consultar_usuarios_ldap"),
 ]

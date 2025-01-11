@@ -15,36 +15,37 @@ A nivel de código el proyecto se llama 'simulaciones_pequiven' hasta que se dec
 """
 
 from pathlib import Path
-import os, ldap
-from django_auth_ldap.config import LDAPSearch
+import os
+# from django_auth_ldap.config import LDAPSearch
 from .jobs import start_deleting_job
 
-# CONFIGURACIÓN DE LDAP
-AUTH_LDAP_GLOBAL_OPTIONS = {
-    ldap.OPT_X_TLS_REQUIRE_CERT: True,
-    ldap.OPT_X_TLS_DEMAND: True,
-    ldap.OPT_REFERRALS: 0,
-    ldap.OPT_X_TLS_CACERTFILE: '/etc/ssl/certs/mycertfile.pem'
-}
-AUTH_LDAP_SERVER_URI = 'ldap://172.20.30.109'
-AUTH_LDAP_BIND_DN = "CN=bind,CN=Users,DC=indesca,DC=local"
-AUTH_LDAP_BIND_PASSWORD = "indesca2024+"
+ ### CONFIGURACIÓN DE LDAP
 
-AUTH_LDAP_USER_SEARCH = LDAPSearch(
-    "dc=indesca,dc=local", ldap.SCOPE_SUBTREE, "sAMAccountName=%(user)s"
-)
+# AUTH_LDAP_GLOBAL_OPTIONS = {
+#     ldap.OPT_X_TLS_REQUIRE_CERT: True,
+#     ldap.OPT_X_TLS_DEMAND: True,
+#     ldap.OPT_REFERRALS: 0,
+#     ldap.OPT_X_TLS_CACERTFILE: '/etc/ssl/certs/mycertfile.pem'
+# }
+# AUTH_LDAP_SERVER_URI = 'ldap://172.20.30.109'
+# AUTH_LDAP_BIND_DN = "CN=bind,CN=Users,DC=indesca,DC=local"
+# AUTH_LDAP_BIND_PASSWORD = "indesca2024+"
 
-AUTH_LDAP_USER_ATTR_MAP = {
-    "username": "sAMAccountName",
-    "first_name": "givenName",
-    "last_name": "sn",
-    "email": "mail",
-}
-AUTH_LDAP_GROUP_CACHE_TIMEOUT = 1  # 1 hour cache
+# AUTH_LDAP_USER_SEARCH = LDAPSearch(
+#     "dc=indesca,dc=local", ldap.SCOPE_SUBTREE, "sAMAccountName=%(user)s"
+# )
+
+# AUTH_LDAP_USER_ATTR_MAP = {
+#     "username": "sAMAccountName",
+#     "first_name": "givenName",
+#     "last_name": "sn",
+#     "email": "mail",
+# }
+# AUTH_LDAP_GROUP_CACHE_TIMEOUT = 1  # 1 hour cache
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    "django_auth_ldap.backend.LDAPBackend",
+    # "django_auth_ldap.backend.LDAPBackend",
 ]
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
