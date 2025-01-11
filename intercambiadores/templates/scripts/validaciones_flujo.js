@@ -120,15 +120,15 @@ const flujos_validos = (fve, fvs, fle, fls) => { // Verificación de flujos vál
     return (fve + fle).toFixed(2) === (fvs + fls).toFixed(2);
 }
 
-$('#flujo_vapor_out_tubo').keyup(determinar_cambio_de_fase_tubo);
-$('#flujo_vapor_in_tubo').keyup(determinar_cambio_de_fase_tubo);
-$('#flujo_liquido_in_tubo').keyup(determinar_cambio_de_fase_tubo);
-$('#flujo_liquido_out_tubo').keyup(determinar_cambio_de_fase_tubo);
+$('#flujo_vapor_out_tubo').on('keyup change', determinar_cambio_de_fase_tubo);
+$('#flujo_vapor_in_tubo').on('keyup change', determinar_cambio_de_fase_tubo);
+$('#flujo_liquido_in_tubo').on('keyup change', determinar_cambio_de_fase_tubo);
+$('#flujo_liquido_out_tubo').on('keyup change', determinar_cambio_de_fase_tubo);
 
-$('#flujo_vapor_out_carcasa').keyup(determinar_cambio_de_fase_carcasa);
-$('#flujo_vapor_in_carcasa').keyup(determinar_cambio_de_fase_carcasa);
-$('#flujo_liquido_in_carcasa').keyup(determinar_cambio_de_fase_carcasa);
-$('#flujo_liquido_out_carcasa').keyup(determinar_cambio_de_fase_carcasa);
+$('#flujo_vapor_out_carcasa').on('keyup change', determinar_cambio_de_fase_carcasa);
+$('#flujo_vapor_in_carcasa').on('keyup change', determinar_cambio_de_fase_carcasa);
+$('#flujo_liquido_in_carcasa').on('keyup change', determinar_cambio_de_fase_carcasa);
+$('#flujo_liquido_out_carcasa').on('keyup change', determinar_cambio_de_fase_carcasa);
 
 // {% if not intercambiador %}
 
@@ -139,5 +139,17 @@ if($('#flujo_vapor_out_tubo').val() && $('#flujo_vapor_in_tubo').val() && $('#fl
 if($('#flujo_vapor_out_carcasa').val() && $('#flujo_vapor_in_carcasa').val() && $('#flujo_liquido_in_carcasa').val() && $('#flujo_liquido_out_carcasa').val()){
     determinar_cambio_de_fase_carcasa();
 }
+
+// {% else %}
+
+$('#flujo_vapor_out_tubo').trigger('change');
+$('#flujo_vapor_in_tubo').trigger('change');
+$('#flujo_liquido_in_tubo').trigger('change');
+$('#flujo_liquido_out_tubo').trigger('change');
+
+$('#flujo_vapor_out_carcasa').trigger('change');
+$('#flujo_vapor_in_carcasa').trigger('change');
+$('#flujo_liquido_in_carcasa').trigger('change');
+$('#flujo_liquido_out_carcasa').trigger('change');
 
 // {% endif %}

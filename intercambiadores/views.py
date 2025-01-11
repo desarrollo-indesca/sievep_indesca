@@ -870,24 +870,24 @@ class EditarIntercambiadorTuboCarcasa(CrearIntercambiadorTuboCarcasa, LoginRequi
                 intercambiador.editado_por = request.user
                 intercambiador.editado_al = datetime.datetime.now()
 
-                try:
-                    diseno = propiedades.calcular_diseno
-                    intercambiador.ntu = diseno['ntu']
-                    intercambiador.efectividad = diseno['efectividad']
-                    intercambiador.eficiencia = diseno['eficiencia']
-                    intercambiador.lmtd = diseno['lmtd']
-                    intercambiador.save()
-                except Exception as e:
-                    print(str(e))
-                    print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
-                    intercambiador.ntu = None
-                    intercambiador.efectividad = None
-                    intercambiador.eficiencia = None
-                    intercambiador.lmtd = None
-                    intercambiador.save()
-
                 # Actualización de Evaluaciones
                 self.editar_evaluaciones(intercambiador)
+
+            try:
+                diseno = propiedades.calcular_diseno
+                intercambiador.ntu = diseno['ntu']
+                intercambiador.efectividad = diseno['efectividad']
+                intercambiador.eficiencia = diseno['eficiencia']
+                intercambiador.lmtd = diseno['lmtd']
+                intercambiador.save()
+            except Exception as e:
+                print(str(e))
+                print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
+                intercambiador.ntu = None
+                intercambiador.efectividad = None
+                intercambiador.eficiencia = None
+                intercambiador.lmtd = None
+                intercambiador.save()
         except Exception as e:
             print(str(e))
             errores.append('Ha ocurrido un error desconocido al editar el intercambiador. Verifique los datos ingresados.')
@@ -1428,24 +1428,24 @@ class CrearIntercambiadorDobleTubo(CrearIntercambiadorTuboCarcasa):
                 # Condiciones de Diseño de la Tubo Externo
                 condiciones_diseno_ex =  self.almacenar_condicion(calor, intercambiador, request, propiedades.q_unidad.pk, fluido_ex, 'carcasa', 'E')
 
-                try:
-                    diseno = propiedades.calcular_diseno
-                    intercambiador.ntu = diseno['ntu']
-                    intercambiador.efectividad = diseno['efectividad']
-                    intercambiador.eficiencia = diseno['eficiencia']
-                    intercambiador.lmtd = diseno['lmtd']
-                    intercambiador.save()
-                except Exception as e:
-                    print(str(e))
-                    print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
-                    intercambiador.ntu = None
-                    intercambiador.efectividad = None
-                    intercambiador.eficiencia = None
-                    intercambiador.lmtd = None
-                    intercambiador.save()
+            try:
+                diseno = propiedades.calcular_diseno
+                intercambiador.ntu = diseno['ntu']
+                intercambiador.efectividad = diseno['efectividad']
+                intercambiador.eficiencia = diseno['eficiencia']
+                intercambiador.lmtd = diseno['lmtd']
+                intercambiador.save()
+            except Exception as e:
+                print(str(e))
+                print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
+                intercambiador.ntu = None
+                intercambiador.efectividad = None
+                intercambiador.eficiencia = None
+                intercambiador.lmtd = None
+                intercambiador.save()
 
-                messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
-                return redirect(f"/intercambiadores/evaluaciones/{intercambiador.pk}/")
+            messages.success(request, "El nuevo intercambiador ha sido registrado exitosamente.")
+            return redirect(f"/intercambiadores/evaluaciones/{intercambiador.pk}/")
         except Exception as e:
             print(str(e))
             errores.append('Ha ocurrido un error desconocido al registrar el intercambiador. Verifique los datos ingresados.')
@@ -1541,29 +1541,28 @@ class EditarIntercambiadorDobleTubo(CrearIntercambiadorDobleTubo, LoginRequiredM
                     intercambiador.editado_al = datetime.datetime.now()
 
                     intercambiador.save()
+
+                    # Actualización de Evaluaciones
+                    self.editar_evaluaciones(intercambiador)            
+                try:
+                    diseno = propiedades.calcular_diseno
+                    intercambiador.ntu = diseno['ntu']
+                    intercambiador.efectividad = diseno['efectividad']
+                    intercambiador.eficiencia = diseno['eficiencia']
+                    intercambiador.lmtd = diseno['lmtd']
+                    intercambiador.save()
+                except Exception as e:
+                    print(str(e))
+                    print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
+                    intercambiador.ntu = None
+                    intercambiador.efectividad = None
+                    intercambiador.eficiencia = None
+                    intercambiador.lmtd = None
+                    intercambiador.save()
             except Exception as e:
                 print(str(e))
                 errores.append('Ha ocurrido un error desconocido al editar el intercambiador. Verifique los datos ingresados.')
                 return self.redirigir_por_errores(request, errores)
-
-            try:
-                diseno = propiedades.calcular_diseno
-                intercambiador.ntu = diseno['ntu']
-                intercambiador.efectividad = diseno['efectividad']
-                intercambiador.eficiencia = diseno['eficiencia']
-                intercambiador.lmtd = diseno['lmtd']
-                intercambiador.save()
-            except Exception as e:
-                print(str(e))
-                print(f"{intercambiador.tag}: No se pudo realizar la evaluación.")
-                intercambiador.ntu = None
-                intercambiador.efectividad = None
-                intercambiador.eficiencia = None
-                intercambiador.lmtd = None
-                intercambiador.save()
-           
-            # Actualización de Evaluaciones
-            self.editar_evaluaciones(intercambiador)
             
             messages.success(request, "Se han editado las características del intercambiador exitosamente.")
             return redirect(f"/intercambiadores/doble_tubo/")

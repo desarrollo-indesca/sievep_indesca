@@ -623,7 +623,6 @@ function ajaxValidacion(lado = 'C'){
         },
         error: (res) => {
             document.body.style.opacity = 1;
-            console.log(res);
             funciono = false;
             mensaje += `Ocurrió un error al validar los datos ingresados del lado de${lado === 'T' ? 'l tubo' : ' la carcasa'}.\n`;
         }

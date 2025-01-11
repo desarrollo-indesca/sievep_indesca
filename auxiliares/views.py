@@ -22,8 +22,7 @@ from simulaciones_pequiven.views import FiltradoSimpleMixin, DuplicateView, Cons
 from simulaciones_pequiven.unidades import PK_UNIDADES_FLUJO_MASICO
 from simulaciones_pequiven.utils import generate_nonexistent_tag
 
-from usuarios.views import PuedeCrear, EditorRequiredMixin
-from usuarios.models import PlantaAccesible
+from usuarios.views import PuedeCrear
 from auxiliares.models import *
 from auxiliares.forms import *
 from calculos.termodinamicos import calcular_densidad, calcular_densidad_aire, calcular_presion_vapor, calcular_viscosidad, calcular_densidad_relativa

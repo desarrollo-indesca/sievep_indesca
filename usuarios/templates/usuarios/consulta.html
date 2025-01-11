@@ -7,8 +7,8 @@
   <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Usuarios del Sistema</h3></div>
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
     {% if puede_crear %}
-    <a class="btn d-block btn-success" href="{% url 'crear_usuario_red' %}">+ Nuevo Usuario (Red)</a>&nbsp;
-    <a class="btn d-block btn-primary" href="{% url 'crear_nuevo_usuario' %}">+ Nuevo Usuario (Externo)</a>
+    <!-- <a class="btn d-block btn-success" href="{% url 'crear_usuario_red' %}">+ Nuevo Usuario (Red)</a>&nbsp; -->
+    <a class="btn d-block btn-primary" href="{% url 'crear_nuevo_usuario' %}">+ Nuevo Usuario (Sistema)</a>
     {% endif %}
   </div>
 {% endblock %}

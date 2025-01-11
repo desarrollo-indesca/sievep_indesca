@@ -47,7 +47,6 @@ const eliminar = (e) => {
   let forms = document.querySelectorAll(`.${lado}-form`);
   let totalForms = document.querySelector(`#id_formset-${lado}-TOTAL_FORMS`);
   e.target.parentElement.parentElement.remove();
-  console.log(totalForms.value);
   
   totalForms.setAttribute("value", totalForms.value - 1);
   reindex(lado);
