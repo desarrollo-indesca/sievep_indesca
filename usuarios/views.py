@@ -1,6 +1,6 @@
 from django.db.models.query import QuerySet, Q, Prefetch
-import ldap
-from simulaciones_pequiven.settings import AUTH_LDAP_BIND_DN, AUTH_LDAP_BIND_PASSWORD, AUTH_LDAP_SERVER_URI
+# import ldap
+# from simulaciones_pequiven.settings import AUTH_LDAP_BIND_DN, AUTH_LDAP_BIND_PASSWORD, AUTH_LDAP_SERVER_URI
 
 from django.views.generic.list import ListView
 from django.views import View
@@ -752,33 +752,33 @@ class PuedeCrear(LoginRequiredMixin):
     def test_func(self):
         return self.request.user.usuario_planta.filter(crear = True).exists()
     
-class ConsultaUsuariosLDAP(LoginRequiredMixin, View):
-    """
-    Resumen:
-        Vista para verificar si un usuario existe en el LDAP.
-    """
-    def get(self, request): 
-        id_usuario = request.GET.get('id').strip()
-        l = ldap.initialize(AUTH_LDAP_SERVER_URI)
-        l.protocol_version = ldap.VERSION3
-        l.set_option(ldap.OPT_REFERRALS, 0)
-        l.simple_bind_s(AUTH_LDAP_BIND_DN, AUTH_LDAP_BIND_PASSWORD)
+# class ConsultaUsuariosLDAP(LoginRequiredMixin, View):
+#     """
+#     Resumen:
+#         Vista para verificar si un usuario existe en el LDAP.
+#     """
+#     def get(self, request): 
+#         id_usuario = request.GET.get('id').strip()
+#         l = ldap.initialize(AUTH_LDAP_SERVER_URI)
+#         l.protocol_version = ldap.VERSION3
+#         l.set_option(ldap.OPT_REFERRALS, 0)
+#         l.simple_bind_s(AUTH_LDAP_BIND_DN, AUTH_LDAP_BIND_PASSWORD)
 
-        if get_user_model().objects.all().filter(username=id_usuario).exists():
-            return render(request, "partials/busqueda-usuario.html", context={'advertencia': "El usuario ya está registrado en el sistema."})
+#         if get_user_model().objects.all().filter(username=id_usuario).exists():
+#             return render(request, "partials/busqueda-usuario.html", context={'advertencia': "El usuario ya está registrado en el sistema."})
 
-        resultados = l.search_s("dc=indesca,dc=local", ldap.SCOPE_SUBTREE, f"(sAMAccountName={id_usuario})")
+#         resultados = l.search_s("dc=indesca,dc=local", ldap.SCOPE_SUBTREE, f"(sAMAccountName={id_usuario})")
         
-        if(resultados[0][0]):
-            datos = resultados[0][1]
-            nombre = datos['cn'][0].decode('utf-8')
-            correo = datos['mail'][0].decode('utf-8')
+#         if(resultados[0][0]):
+#             datos = resultados[0][1]
+#             nombre = datos['cn'][0].decode('utf-8')
+#             correo = datos['mail'][0].decode('utf-8')
 
-            return render(request, "partials/busqueda-usuario.html", context={
-                'resultados': resultados,
-                'nombre': nombre,
-                'correo': correo
-            })
+#             return render(request, "partials/busqueda-usuario.html", context={
+#                 'resultados': resultados,
+#                 'nombre': nombre,
+#                 'correo': correo
+#             })
         
-        if(id_usuario != ""):
-            return render(request, "partials/busqueda-usuario.html", context={'advertencia': "No existe ningún usuario con ese identificador."})
+#         if(id_usuario != ""):
+#             return render(request, "partials/busqueda-usuario.html", context={'advertencia': "No existe ningún usuario con ese identificador."})

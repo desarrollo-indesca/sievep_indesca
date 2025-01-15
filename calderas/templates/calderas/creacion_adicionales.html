@@ -143,9 +143,9 @@
 
         <tbody id="id-forms-container">
             {% for form in forms_caracteristicas %}
+            {{form.id}}
             <tr class="form">
                 <td>
-                    {{form.id}}
                     {% render_field form.nombre class="form-control nombre-caracteristica" placeholder="Nombre" %}
                     <small>{{form.nombre.errors}}</small>
                 </td>
