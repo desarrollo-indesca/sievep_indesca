@@ -110,8 +110,9 @@ class CondicionFluidoBombaForm(FormConUnidades):
     
     def clean_fluido(self):
         fluido = self.data.get('fluido')
-        print(fluido, self.data.get('nombre_fluido'))
-        if((fluido == None or fluido == '') and (self.data.get('nombre_fluido') == '---------' or self.data.get('nombre_fluido') == '')):
+        print(fluido, ',', self.data.get('nombre_fluido'))
+        print(fluido==None, ',', self.data.get('nombre_fluido'))
+        if((fluido == None or fluido == '') and (self.data.get('nombre_fluido') == '---------' or self.data.get('nombre_fluido') == '' or self.data.get('nombre_fluido') == None)):
             raise forms.ValidationError('Se debe establecer un fluido para la bomba.')
         elif(fluido.isnumeric()):
             return Fluido.objects.get(pk = int(fluido))

@@ -372,7 +372,7 @@ class CreacionBomba(PuedeCrear, View):
                 'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
                 'edicion': True,
                 'titulo': self.titulo,
-                'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo."
+                'error': "Ocurrió un error al momento de almacenar la bomba. Revise los datos e intente de nuevo."
             })
         
 class ObtencionDatosFluidosBomba(LoginRequiredMixin, View):
@@ -539,7 +539,7 @@ class EdicionBomba(CargarBombaMixin, CreacionBomba, LoginRequiredMixin):
                 'edicion': True,
                 'titulo': self.titulo,
                 'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
-                'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo."
+                'error': "Ocurrió un error al momento de almacenar la bomba. Revise los datos e intente de nuevo."
             })
         
 class CreacionInstalacionBomba(LoginRequiredMixin, View, CargarBombaMixin):
@@ -650,7 +650,7 @@ class CreacionInstalacionBomba(LoginRequiredMixin, View, CargarBombaMixin):
                                                                 'forms_tuberia_descarga': formset_tuberias_descarga,
                                                                 'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
                                                                 'materiales': MaterialTuberia.objects.all().values('pk', 'nombre'),
-                                                                'error': 'Ocurrió un error desconocido al momento de registrar los datos de instalación. Revise e intente de nuevo.'}) 
+                                                                'error': 'Ocurrió un error al momento de registrar los datos de instalación. Revise e intente de nuevo.'}) 
 
     def get(self, request, **kwargs):
         context = self.get_context()
@@ -1465,7 +1465,7 @@ class CreacionVentilador(PuedeCrear, CalculoPropiedadesVentilador):
                 'form_condiciones_generales': form_condiciones_generales,
                 'recarga': True,
                 'titulo': self.titulo,
-                'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo.",
+                'error': "Ocurrió un error al momento de almacenar la bomba. Revise los datos e intente de nuevo.",
                 'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
             })
 
@@ -1535,7 +1535,7 @@ class EdicionVentilador(CreacionVentilador, ObtenerVentiladorMixin):
                 'form_condiciones_generales': form_condiciones_generales,
                 'edicion': True,
                 'titulo': self.titulo,
-                'error': "Ocurrió un error desconocido al momento de almacenar el ventilador. Revise los datos e intente de nuevo.",
+                'error': "Ocurrió un error al momento de almacenar el ventilador. Revise los datos e intente de nuevo.",
                 'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
             })
         
