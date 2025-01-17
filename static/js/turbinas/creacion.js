@@ -47,15 +47,15 @@ const cargarEventListeners = (anadirListeners = true) => {
           temperaturaInput.val("").removeAttr("disabled");
         }
     
-        presionInput.on('change', function() {
+        presionInput.on('change keyup', function() {
           if ($(this).val() !== "") {
             temperaturaInput.attr("disabled", "disabled");
           } else {
             temperaturaInput.removeAttr("disabled");
           }
         });
-    
-        temperaturaInput.on('change', function() {
+
+        temperaturaInput.on('change keyup', function() {
           if ($(this).val() !== "") {
             presionInput.attr("disabled", "disabled");
           } else {
@@ -63,8 +63,8 @@ const cargarEventListeners = (anadirListeners = true) => {
           }
         });
       } else {
-        presionInput.removeAttr("disabled");
-        temperaturaInput.removeAttr("disabled");
+        presionInput.removeAttr("disabled").off("change keyup");
+        temperaturaInput.removeAttr("disabled").off("change keyup");
       }
     
       $(`input[name='form-${number}-presion'], input[name='form-${number}-temperatura']`).change();
@@ -208,11 +208,6 @@ $("button[type=submit]").click((e) => {
       .replaceAll("form", "")
       .replaceAll("-", "")
       .replaceAll(/[a-zA-Z]+/g, "");
-    if ($(`input[name="form-${number}-presion"]`).val() === "") {
-      e.preventDefault();
-      alert("La corriente de entrada no puede ser la misma que la de salida.");
-      return;
-    }
 
     if ($(`select[name="form-${number}-fase"]`).val() != "V") {
       e.preventDefault();

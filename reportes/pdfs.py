@@ -458,7 +458,7 @@ def detalle_evaluacion(evaluacion):
             ],
             [
                 Paragraph(f"U ({propiedades.u_unidad})", centrar_parrafo), 
-                Paragraph(f"{propiedades.u}", centrar_parrafo), 
+                Paragraph(f"{propiedades.u if propiedades.u else '—'}", centrar_parrafo), 
                 Paragraph(f"Q ({propiedades.q_unidad})", centrar_parrafo), 
                 Paragraph(f"{propiedades.q}", centrar_parrafo), 
             ],
@@ -4387,7 +4387,7 @@ def detalle_evaluacion_precalentador_aire(evaluacion):
         ],
         [
             Paragraph("Coeficiente Global de Transferencia U Calculado (W/m²K)", centrar_parrafo),
-            Paragraph(f"{round(salida.u, 2)}", centrar_parrafo),
+            Paragraph(f"{round(salida.u, 2) if salida.u else '—'}", centrar_parrafo),
         ],
         [
             Paragraph("Coeficiente Global de Transferencia U Diseño (W/m²K)", centrar_parrafo),

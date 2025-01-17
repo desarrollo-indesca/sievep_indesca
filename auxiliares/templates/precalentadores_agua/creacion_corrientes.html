@@ -205,6 +205,7 @@
                     {% endfor %}
                     <tr class="form-tubos">
                         <td>
+                            {{form.id}}
                             {% render_field form.numero_corriente class="form-control numero-corriente-tubos" placeholder="Número de la Corriente" %}
                             <small>{{form.numero_corriente.errors}}</small>
                         </td>

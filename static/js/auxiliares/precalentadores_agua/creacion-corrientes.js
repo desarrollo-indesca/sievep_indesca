@@ -217,5 +217,5 @@ $("form").submit((e) => {
   $("#submit").attr("disabled", "disabled");
 });
 
-$("#id_form-tubos-INITIAL_FORMS").val(1);
-$("#id_form-carcasa-INITIAL_FORMS").val(1);
+$("#id_form-tubos-INITIAL_FORMS").val(0);
+$("#id_form-carcasa-INITIAL_FORMS").val(0);
