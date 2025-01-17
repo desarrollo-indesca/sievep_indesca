@@ -2359,6 +2359,7 @@ class CreacionCorrientesPrecalentadorAgua(ObtenerPrecalentadorAguaMixin, LoginRe
                     'form_datos_corrientes': form_datos_corrientes,
                     'precalentador': precalentador,
                     'unidades': Unidades.objects.all(),
+                    'titulo': f"Corrientes del precalentador {precalentador.tag}",
                     'error': "No se ha podido almacenar la información."
                 })
 
