@@ -769,9 +769,9 @@ def ficha_tecnica_tubo_carcasa(object_list):
             Paragraph(f"{condicion_tubo.presion_entrada}", centrar_parrafo), '',
         ],
         [
-            f'Caída Presión Permitida ({condicion_carcasa.unidad_presion})', '',
-            Paragraph(f"{condicion_carcasa.caida_presion_max}", centrar_parrafo), '',
-            Paragraph(f"{condicion_tubo.caida_presion_max}", centrar_parrafo), '',
+            f'Caída Presión Máxima ({condicion_carcasa.unidad_presion})', '',
+            Paragraph(f"{condicion_carcasa.caida_presion_max if condicion_carcasa.caida_presion_max else '—'}", centrar_parrafo), '',
+            Paragraph(f"{condicion_tubo.caida_presion_max if condicion_tubo.caida_presion_max else '—'}", centrar_parrafo), '',
         ],
         [
             f'Caída Presión Mínima ({condicion_carcasa.unidad_presion})', '',
@@ -1072,7 +1072,7 @@ def ficha_tecnica_doble_tubo(object_list):
             Paragraph(f"{condicion_tubo.presion_entrada if condicion_tubo.presion_entrada else ''}", centrar_parrafo), '',
         ],
         [
-            f'Caída Presión Permitida ({condicion_carcasa.unidad_presion})', '',
+            f'Caída Presión Máxima ({condicion_carcasa.unidad_presion})', '',
             Paragraph(f"{condicion_carcasa.caida_presion_max if condicion_carcasa.caida_presion_max else ''}", centrar_parrafo), '',
             Paragraph(f"{condicion_tubo.caida_presion_max if condicion_tubo.caida_presion_max else ''}", centrar_parrafo), '',
         ],

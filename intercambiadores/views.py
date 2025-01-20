@@ -1309,12 +1309,6 @@ class CrearIntercambiadorDobleTubo(CrearIntercambiadorTuboCarcasa):
         if(not request.POST.get('unidad_flujos')):
             errores.append('El campo Unidad de Flujos es obligatorio.')
 
-        if(not request.POST.get('caida_presion_max_tubo')):
-            errores.append('El campo Caida de Presión Máxima de Tubo Interno es obligatorio.')
-
-        if(not request.POST.get('caida_presion_min_tubo')):
-            errores.append('El campo Caida de Presión Mínima de Tubo Interno es obligatorio.')
-
         if(not request.POST.get('presion_entrada_carcasa')):
             errores.append('El campo Presión de Entrada de Tubo Externo es obligatorio.')
 
@@ -1340,12 +1334,6 @@ class CrearIntercambiadorDobleTubo(CrearIntercambiadorTuboCarcasa):
         if(round(float(request.POST.get('flujo_vapor_in_carcasa')) + float(request.POST.get('flujo_liquido_in_carcasa')), 2) != round(float(request.POST.get('flujo_vapor_out_carcasa')) + float(request.POST.get('flujo_liquido_out_carcasa')), 2)):
             errores.append('Los flujos de entrada y salida de la carcasa no coinciden.')
 
-        if(not request.POST.get('caida_presion_max_carcasa')):
-            errores.append('El campo Caida de Presión Máxima de Tubo Externo es obligatorio.')
-
-        if(not request.POST.get('caida_presion_min_carcasa')):
-            errores.append('El campo Caida de Presión Mínima de Tubo Externo es obligatorio.')
-        
         if(not request.POST.get('numero_aletas')):
             errores.append('El campo Número de Aletas es obligatorio.')
 

@@ -608,7 +608,7 @@ class PropiedadesDobleTubo(models.Model):
     # Datos calculados
     q = models.DecimalField(max_digits=15, decimal_places=3)
     u = models.DecimalField(max_digits=10, decimal_places=3, null=True)
-    ensuciamiento = models.DecimalField(max_digits=12, decimal_places=9, null=True)
+    ensuciamiento = models.DecimalField(max_digits=15, decimal_places=9, null=True)
 
     q_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_q_dobletubo", default=28)
     u_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_u_dobletubo", default=27)
@@ -826,7 +826,7 @@ class EvaluacionesIntercambiador(models.Model):
     ntu = models.DecimalField(max_digits=12, decimal_places=4)
     efectividad = models.DecimalField(max_digits=12, decimal_places=2)
     eficiencia = models.DecimalField(max_digits=12, decimal_places=2)
-    ensuciamiento = models.DecimalField(max_digits=10, decimal_places=8)
+    ensuciamiento = models.DecimalField(max_digits=15, decimal_places=8)
     q = models.DecimalField(max_digits=12, decimal_places=3)
     numero_tubos = models.IntegerField()
     
