@@ -1007,15 +1007,14 @@ class ConsultaTuboCarcasa(LoginRequiredMixin, ConsultaIntercambiador):
         planta = self.request.GET.get('planta', '')
 
         new_context = self.model.objects.filter(intercambiador__planta__pk__in = self.request.user.usuario_planta.values_list("planta", flat=True))  if not self.request.user.is_superuser else self.model.objects.all()
+        if(complejo != ''):
+            new_context = new_context.filter(
+                intercambiador__planta__complejo__pk=complejo
+            )
+
         if(planta != '' and complejo != ''):
             new_context = new_context.filter(
                 intercambiador__planta__pk=planta
-            )
-        elif(complejo != ''):
-            new_context = new_context.filter(
-                intercambiador__planta__complejo__pk=complejo
-            ) if new_context else new_context.filter(
-                intercambiador__planta__complejo__pk=complejo
             )
 
         if(not(new_context is None)):
@@ -1121,17 +1120,16 @@ class ConsultaDobleTubo(LoginRequiredMixin, ConsultaIntercambiador):
         planta = self.request.GET.get('planta', '')
 
         new_context = self.model.objects.filter(intercambiador__planta__pk__in = self.request.user.usuario_planta.values_list("planta", flat=True))  if not self.request.user.is_superuser else self.model.objects.all()
-        if(planta != '' and complejo != ''):
-            new_context = self.model.objects.filter(
-                intercambiador__planta__pk=planta
-            )
-        elif(complejo != ''):
+        if(complejo != ''):
             new_context = new_context.filter(
-                intercambiador__planta__complejo__pk=complejo
-            ) if new_context else self.model.objects.filter(
                 intercambiador__planta__complejo__pk=complejo
             )
 
+        if(planta != '' and complejo != ''):
+            new_context = new_context.filter(
+                intercambiador__planta__pk=planta
+            )
+        
         if(not(new_context is None)):
             new_context = new_context.filter(
                 intercambiador__servicio__icontains = servicio,
