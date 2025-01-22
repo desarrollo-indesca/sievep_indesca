@@ -599,10 +599,6 @@ class FiltradoSimpleMixin():
                 new_context = new_context.filter(
                     descripcion__icontains = descripcion
                 )
-            elif(self.request.GET.get('servicio') and self.request.GET.get('servicio') != ''):
-                new_context = new_context.filter(
-                    servicio__icontains = descripcion
-                )
         else: # Si ningún filtro fue aplicado previamente
             new_context = new_context.filter(
                 tag__icontains = tag

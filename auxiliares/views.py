@@ -199,7 +199,7 @@ class ConsultaBombas(FiltradoSimpleMixin, CargarBombaMixin, LoginRequiredMixin, 
         if(request.POST.get('tipo') == 'xlsx'):
             return reporte_equipos(request, self.get_queryset(), 'Listado de Bombas Centrífugas', 'listado_bombas')
 
-    def get_queryset(self):        
+    def get_queryset(self):
         new_context = self.get_bomba(True, self.filtrar_equipos())
 
         return new_context
