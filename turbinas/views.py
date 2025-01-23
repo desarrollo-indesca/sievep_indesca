@@ -275,7 +275,7 @@ class CreacionTurbinaVapor(PuedeCrear, View):
                 'form_datos_corrientes': form_datos_corrientes,
                 'forms_corrientes': forms_corrientes,
                 'unidades': Unidades.objects.all().values('simbolo', 'tipo', 'pk'),
-                'error': "Ocurrió un error desconocido al momento de almacenar la turbina de vapor. Revise los datos e intente de nuevo."
+                'error': "Ocurrió un error al momento de almacenar la turbina de vapor. Revise los datos e intente de nuevo."
             })
 
 class EdicionTurbinaVapor(CreacionTurbinaVapor, LoginRequiredMixin, ObtenerTurbinaVaporMixin):

@@ -809,6 +809,7 @@
                 error: async (res) => {
                     document.body.style.opacity = 1.0;
                     $('#spinner').attr('hidden', true);
+                    console.log(res);
 
                     if(mostrarAdvertencia){
                         mostrarAdvertencia = false;

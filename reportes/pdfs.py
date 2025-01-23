@@ -458,7 +458,7 @@ def detalle_evaluacion(evaluacion):
             ],
             [
                 Paragraph(f"U ({propiedades.u_unidad})", centrar_parrafo), 
-                Paragraph(f"{propiedades.u}", centrar_parrafo), 
+                Paragraph(f"{propiedades.u if propiedades.u else '—'}", centrar_parrafo), 
                 Paragraph(f"Q ({propiedades.q_unidad})", centrar_parrafo), 
                 Paragraph(f"{propiedades.q}", centrar_parrafo), 
             ],
@@ -769,9 +769,9 @@ def ficha_tecnica_tubo_carcasa(object_list):
             Paragraph(f"{condicion_tubo.presion_entrada}", centrar_parrafo), '',
         ],
         [
-            f'Caída Presión Permitida ({condicion_carcasa.unidad_presion})', '',
-            Paragraph(f"{condicion_carcasa.caida_presion_max}", centrar_parrafo), '',
-            Paragraph(f"{condicion_tubo.caida_presion_max}", centrar_parrafo), '',
+            f'Caída Presión Máxima ({condicion_carcasa.unidad_presion})', '',
+            Paragraph(f"{condicion_carcasa.caida_presion_max if condicion_carcasa.caida_presion_max else '—'}", centrar_parrafo), '',
+            Paragraph(f"{condicion_tubo.caida_presion_max if condicion_tubo.caida_presion_max else '—'}", centrar_parrafo), '',
         ],
         [
             f'Caída Presión Mínima ({condicion_carcasa.unidad_presion})', '',
@@ -1072,7 +1072,7 @@ def ficha_tecnica_doble_tubo(object_list):
             Paragraph(f"{condicion_tubo.presion_entrada if condicion_tubo.presion_entrada else ''}", centrar_parrafo), '',
         ],
         [
-            f'Caída Presión Permitida ({condicion_carcasa.unidad_presion})', '',
+            f'Caída Presión Máxima ({condicion_carcasa.unidad_presion})', '',
             Paragraph(f"{condicion_carcasa.caida_presion_max if condicion_carcasa.caida_presion_max else ''}", centrar_parrafo), '',
             Paragraph(f"{condicion_tubo.caida_presion_max if condicion_tubo.caida_presion_max else ''}", centrar_parrafo), '',
         ],
@@ -4387,7 +4387,7 @@ def detalle_evaluacion_precalentador_aire(evaluacion):
         ],
         [
             Paragraph("Coeficiente Global de Transferencia U Calculado (W/m²K)", centrar_parrafo),
-            Paragraph(f"{round(salida.u, 2)}", centrar_parrafo),
+            Paragraph(f"{round(salida.u, 2) if salida.u else '—'}", centrar_parrafo),
         ],
         [
             Paragraph("Coeficiente Global de Transferencia U Diseño (W/m²K)", centrar_parrafo),

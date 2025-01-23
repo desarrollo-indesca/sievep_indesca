@@ -58,8 +58,7 @@ const eliminar = (e) => {
                 tipo_unidad.dispatchEvent(event);
             }
         }
-    });
-    
+    });    
 };
   
 const anadir = (e) => {
@@ -115,10 +114,11 @@ const anadir = (e) => {
 };
 
 const cargarEventListeners = (anadirListeners = true) => {
+    $(".eliminar").off("click");
     $(".eliminar").click((e) => {
       eliminar(e);
     });
-  
+
     if (anadirListeners)
       $(".anadir").click((e) => {
         anadir(e);
