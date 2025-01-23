@@ -444,11 +444,17 @@ class PropiedadesTuboCarcasa(models.Model):
         if(cond_carcasa.cambio_de_fase in "T" and not cond_carcasa.hvap and not self.fluido_carcasa):
             errores_graves.append("Debe definir manualmente el calor de vaporización o temperatura de saturación de la mezcla en la carcasa.")
 
-        if(cond_tubo.cambio_de_fase in "T" and not cond_tubo.hvap and not self.fluido_tubo):
+        if(cond_tubo.cambio_de_fase == "T" and not cond_tubo.hvap and not self.fluido_tubo):
             errores_graves.append("Debe definir manualmente el calor de vaporización o temperatura de saturación de la mezcla en el tubo.")
 
-        if(cond_carcasa.cambio_de_fase in "P" and not cond_carcasa.hvap and not self.fluido_carcasa):
+        if(cond_carcasa.cambio_de_fase == "P" and not cond_carcasa.hvap and not self.fluido_carcasa):
             errores_graves.append("Debe actualizar datos para estimar el calor latente de vaporización del lado de la carcasa.")
+
+        if(self.fluido_carcasa and cond_carcasa.cambio_de_fase in "TP" and not (cond_carcasa.fluido_cp_gas or cond_carcasa.fluido_cp_liquido)):
+            errores.append("Se recomienda definir el Cp del lado de la carcasa.")
+
+        if(self.fluido_tubo and cond_tubo.cambio_de_fase in "TP" and not (cond_tubo.fluido_cp_gas or cond_tubo.fluido_cp_liquido)):
+            errores.append("Se recomienda definir el Cp del lado de la tubo.")
 
         if(cond_tubo.cambio_de_fase in "P" and not cond_tubo.hvap and not self.fluido_tubo):
             errores_graves.append("Debe actualizar datos para estimar el calor latente de vaporización del lado del tubo.")
@@ -460,10 +466,10 @@ class PropiedadesTuboCarcasa(models.Model):
             errores_graves.append("Debe colocar en ficha las capacidades caloríficas de la mezcla en cambio de fase del lado de la carcasa.")
 
         if(cond_tubo.cambio_de_fase == "S" and (not cond_tubo.fluido_cp_liquido and not cond_tubo.fluido_cp_gas)):
-            errores.append("Se recomienda colocar las capacidades caloríficas del fluido del lado del tubo en la ficha")
+            errores.append("Se recomienda colocar las capacidades caloríficas del fluido del lado del tubo en la ficha.")
 
         if(cond_carcasa.cambio_de_fase == "S" and (not cond_carcasa.fluido_cp_liquido and not cond_carcasa.fluido_cp_gas)):
-            errores.append("Se recomienda colocar las capacidades caloríficas del fluido del lado de la carcasa en la ficha")
+            errores.append("Se recomienda colocar las capacidades caloríficas del fluido del lado de la carcasa en la ficha.")
 
         if(not self.u):
             errores.append("Coeficiente U de diseño. Mientras no se defina no podrá calcularse el ensuciamiento.")
@@ -602,7 +608,7 @@ class PropiedadesDobleTubo(models.Model):
     # Datos calculados
     q = models.DecimalField(max_digits=15, decimal_places=3)
     u = models.DecimalField(max_digits=10, decimal_places=3, null=True)
-    ensuciamiento = models.DecimalField(max_digits=12, decimal_places=9, null=True)
+    ensuciamiento = models.DecimalField(max_digits=15, decimal_places=9, null=True)
 
     q_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_q_dobletubo", default=28)
     u_unidad = models.ForeignKey(Unidades, on_delete=models.CASCADE, related_name="unidad_u_dobletubo", default=27)
@@ -820,7 +826,7 @@ class EvaluacionesIntercambiador(models.Model):
     ntu = models.DecimalField(max_digits=12, decimal_places=4)
     efectividad = models.DecimalField(max_digits=12, decimal_places=2)
     eficiencia = models.DecimalField(max_digits=12, decimal_places=2)
-    ensuciamiento = models.DecimalField(max_digits=10, decimal_places=8)
+    ensuciamiento = models.DecimalField(max_digits=15, decimal_places=8)
     q = models.DecimalField(max_digits=12, decimal_places=3)
     numero_tubos = models.IntegerField()
     

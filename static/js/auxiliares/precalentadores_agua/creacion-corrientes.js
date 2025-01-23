@@ -1,4 +1,5 @@
 const cargarEventListeners = (anadirListeners = true) => {
+  $(".eliminar").off("click");
   $(".eliminar").click((e) => {
     const formClass = $(e.target).closest("tr").attr("class");
     eliminar(e, formClass);
@@ -40,17 +41,17 @@ const reindex = (anadir = false, formClass="form") => {
   }
 };
 
-const eliminar = (e, formClass) => {
-  let idField = e.target.parentElement.parentElement.querySelector('input[id$="-id"]');
-  if(idField) idField.remove();
-  
+const eliminar = (e, formClass) => {  
   let forms = document.querySelectorAll(`.${formClass}`);
-  let formNum = forms.length;
+  let formNum = forms.length - 1;
   let totalForms = document.querySelector(`#id_${formClass}-TOTAL_FORMS`);
   totalForms.setAttribute("value", `${formNum}`);
   e.target.parentElement.parentElement.remove();
   reindex(false, formClass);
   cargarEventListeners(false);
+  
+  let lastId = document.querySelector(`#id_${formClass}-${formNum}-id`);
+  lastId.remove();
 };
 
 const anadir = (e, formClass) => {
@@ -110,11 +111,13 @@ const validar_flujos = (lado) => {
   let flujo_salida = 0;
 
   const totalFlujos = $(`#id_form-${lado}-TOTAL_FORMS`).val();
-  console.log(totalFlujos);
   
   for (let index = 0; index < totalFlujos; index++) {
     const flujo = $("#id_form-" + lado + "-" + index + "-flujo").val();
     const rol = $("#id_form-" + lado + "-" + index + "-rol").val();
+
+    console.log(flujo, index);
+    
 
     if(rol == "E")
       flujo_entrada += Number(flujo);
@@ -122,7 +125,8 @@ const validar_flujos = (lado) => {
       flujo_salida += Number(flujo);
   }
 
-  console.log(flujo_entrada, flujo_salida);  
+  console.log(flujo_entrada, flujo_salida);
+  
 
   if(flujo_entrada != flujo_salida) {
     alert(`El flujo de entrada debe ser igual al flujo de salida (${lado.toUpperCase()}).`);
@@ -212,3 +216,6 @@ $("#id_flujo_unidad").change((e) => {
 $("form").submit((e) => {
   $("#submit").attr("disabled", "disabled");
 });
+
+$("#id_form-tubos-INITIAL_FORMS").val(0);
+$("#id_form-carcasa-INITIAL_FORMS").val(0);

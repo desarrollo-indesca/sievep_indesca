@@ -54,9 +54,7 @@ const inicializarEventListeners = () => {
           .replaceAll("form", "")
           .replaceAll("-", "")
           .replaceAll(/[a-zA-Z]+/g, "");
-      
-        console.log(number);  
-      
+            
         if ($(e.target).val() === "S") {    
           const presionInput = $(`input[name='form-${number}-presion']`);
           const temperaturaInput = $(`input[name='form-${number}-temperatura']`);

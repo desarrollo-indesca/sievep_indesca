@@ -22,8 +22,7 @@ from simulaciones_pequiven.views import FiltradoSimpleMixin, DuplicateView, Cons
 from simulaciones_pequiven.unidades import PK_UNIDADES_FLUJO_MASICO
 from simulaciones_pequiven.utils import generate_nonexistent_tag
 
-from usuarios.views import PuedeCrear, EditorRequiredMixin
-from usuarios.models import PlantaAccesible
+from usuarios.views import PuedeCrear
 from auxiliares.models import *
 from auxiliares.forms import *
 from calculos.termodinamicos import calcular_densidad, calcular_densidad_aire, calcular_presion_vapor, calcular_viscosidad, calcular_densidad_relativa
@@ -200,7 +199,7 @@ class ConsultaBombas(FiltradoSimpleMixin, CargarBombaMixin, LoginRequiredMixin, 
         if(request.POST.get('tipo') == 'xlsx'):
             return reporte_equipos(request, self.get_queryset(), 'Listado de Bombas Centrífugas', 'listado_bombas')
 
-    def get_queryset(self):        
+    def get_queryset(self):
         new_context = self.get_bomba(True, self.filtrar_equipos())
 
         return new_context
@@ -373,7 +372,7 @@ class CreacionBomba(PuedeCrear, View):
                 'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
                 'edicion': True,
                 'titulo': self.titulo,
-                'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo."
+                'error': "Ocurrió un error al momento de almacenar la bomba. Revise los datos e intente de nuevo."
             })
         
 class ObtencionDatosFluidosBomba(LoginRequiredMixin, View):
@@ -540,7 +539,7 @@ class EdicionBomba(CargarBombaMixin, CreacionBomba, LoginRequiredMixin):
                 'edicion': True,
                 'titulo': self.titulo,
                 'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
-                'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo."
+                'error': "Ocurrió un error al momento de almacenar la bomba. Revise los datos e intente de nuevo."
             })
         
 class CreacionInstalacionBomba(LoginRequiredMixin, View, CargarBombaMixin):
@@ -651,7 +650,7 @@ class CreacionInstalacionBomba(LoginRequiredMixin, View, CargarBombaMixin):
                                                                 'forms_tuberia_descarga': formset_tuberias_descarga,
                                                                 'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
                                                                 'materiales': MaterialTuberia.objects.all().values('pk', 'nombre'),
-                                                                'error': 'Ocurrió un error desconocido al momento de registrar los datos de instalación. Revise e intente de nuevo.'}) 
+                                                                'error': 'Ocurrió un error al momento de registrar los datos de instalación. Revise e intente de nuevo.'}) 
 
     def get(self, request, **kwargs):
         context = self.get_context()
@@ -1466,7 +1465,7 @@ class CreacionVentilador(PuedeCrear, CalculoPropiedadesVentilador):
                 'form_condiciones_generales': form_condiciones_generales,
                 'recarga': True,
                 'titulo': self.titulo,
-                'error': "Ocurrió un error desconocido al momento de almacenar la bomba. Revise los datos e intente de nuevo.",
+                'error': "Ocurrió un error al momento de almacenar la bomba. Revise los datos e intente de nuevo.",
                 'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
             })
 
@@ -1536,7 +1535,7 @@ class EdicionVentilador(CreacionVentilador, ObtenerVentiladorMixin):
                 'form_condiciones_generales': form_condiciones_generales,
                 'edicion': True,
                 'titulo': self.titulo,
-                'error': "Ocurrió un error desconocido al momento de almacenar el ventilador. Revise los datos e intente de nuevo.",
+                'error': "Ocurrió un error al momento de almacenar el ventilador. Revise los datos e intente de nuevo.",
                 'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
             })
         
@@ -2360,6 +2359,7 @@ class CreacionCorrientesPrecalentadorAgua(ObtenerPrecalentadorAguaMixin, LoginRe
                     'form_datos_corrientes': form_datos_corrientes,
                     'precalentador': precalentador,
                     'unidades': Unidades.objects.all(),
+                    'titulo': f"Corrientes del precalentador {precalentador.tag}",
                     'error': "No se ha podido almacenar la información."
                 })
 

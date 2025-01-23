@@ -342,7 +342,7 @@ class CreacionCaldera(PuedeCrear, View):
                 'compuestos_aire': COMPUESTOS_AIRE,
                 'recargo': True,
                 'titulo': self.titulo,
-                'error': str(e),
+                'error': "Ocurrió un error. Verifique los datos e intente de nuevo.",
                 'unidades': Unidades.objects.all().values('pk','simbolo','tipo')
             })
 
@@ -469,7 +469,7 @@ class EdicionCaldera(CargarCalderasMixin, CreacionCaldera, LoginRequiredMixin):
                 'compuestos_aire': COMPUESTOS_AIRE,
                 'edicion': True,
                 'titulo': self.titulo + f" {caldera.tag}",
-                'error': str(e),
+                'error': "Ocurrió un error al editar la caldera.",
                 'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
             })
         
@@ -599,7 +599,7 @@ class RegistroDatosAdicionales(CargarCalderasMixin, View):
             print([form.errors for form in form_corrientes])
             print(len(form_caracteristicas.errors))
             return render(request, self.template_name, context={
-                'error': str(e),
+                'error': "Ocurrió un error al editar los datos adicionales de la caldera.",
                 'forms_corrientes': form_corrientes,
                 'forms_caracteristicas': form_caracteristicas,
                 'caldera': caldera,

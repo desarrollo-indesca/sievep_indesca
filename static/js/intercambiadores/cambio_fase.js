@@ -38,7 +38,6 @@ function cambiar_segun_tipo_y_cambio(lado = 'C') { // Cambiar tipos de Cp de acu
         const cambio_fase = $('#cambio_fase_carcasa').val();
         if(cambio_fase !== '-'){ // Verificación de si hay un tipo de cambio de fase puesto
             if($('#tipo_cp_carcasa').val() === 'A'){
-                console.log("G");
                 ajaxCPCarcasa();
                 $('#cp_liquido_carcasa').attr('disabled',true);
                 $('#cp_gas_carcasa').attr('disabled',true);

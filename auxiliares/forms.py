@@ -25,6 +25,7 @@ class BombaForm(forms.ModelForm):
     complejo = forms.ModelChoiceField(queryset=Complejo.objects.all(), initial=1)
 
     def clean_tag(self):
+        
         return self.data['tag'].upper().strip()
     
     class Meta:
@@ -109,7 +110,9 @@ class CondicionFluidoBombaForm(FormConUnidades):
     
     def clean_fluido(self):
         fluido = self.data.get('fluido')
-        if((fluido == None or fluido == '') and self.data.get('nombre_fluido') == '---------'):
+        print(fluido, ',', self.data.get('nombre_fluido'))
+        print(fluido==None, ',', self.data.get('nombre_fluido'))
+        if((fluido == None or fluido == '') and (self.data.get('nombre_fluido') == '---------' or self.data.get('nombre_fluido') == '' or self.data.get('nombre_fluido') == None)):
             raise forms.ValidationError('Se debe establecer un fluido para la bomba.')
         elif(fluido.isnumeric()):
             return Fluido.objects.get(pk = int(fluido))
@@ -306,7 +309,7 @@ class SeccionesPrecalentadorAguaForm(forms.ModelForm):
 
     def clean_flujo_masico_salida(self):
         flujo_masico_salida = None
-        if('drenaje' in self.prefix and self.data.get(f'seccion-agua-flujo_masico_entrada') and self.data.get(f'seccion-drenaje-flujo_masico_entrada') and self.data.get(f'seccion-drenaje-flujo_masico_salida')):
+        if('drenaje' in self.prefix and self.data.get(f'seccion-vapor-flujo_masico_entrada') != "" and self.data.get(f'seccion-drenaje-flujo_masico_entrada') != "" and self.data.get(f'seccion-drenaje-flujo_masico_salida') != ""):
             seccion_vapor_flujo_masico_entrada = float(self.data[f'seccion-vapor-flujo_masico_entrada'])
             seccion_drenaje_flujo_unidad = int(self.data[f'seccion-drenaje-flujo_unidad'])
             seccion_vapor_flujo_unidad = int(self.data[f'seccion-vapor-flujo_unidad'])

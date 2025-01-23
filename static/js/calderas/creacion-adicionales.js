@@ -58,8 +58,7 @@ const eliminar = (e) => {
                 tipo_unidad.dispatchEvent(event);
             }
         }
-    });
-    
+    });    
 };
   
 const anadir = (e) => {
@@ -115,10 +114,11 @@ const anadir = (e) => {
 };
 
 const cargarEventListeners = (anadirListeners = true) => {
+    $(".eliminar").off("click");
     $(".eliminar").click((e) => {
       eliminar(e);
     });
-  
+
     if (anadirListeners)
       $(".anadir").click((e) => {
         anadir(e);
@@ -143,8 +143,6 @@ $("#submit").click(async (e) => {
     const array_nombres = Array.from(document.querySelectorAll(`.nombre-caracteristica`))
     .filter(x => x.value !== '')  
     .map(x => x.value);
-
-    console.log((new Set(array_nombres)).size, array_nombres.length);
     
     if ((new Set(array_nombres)).size !== array_nombres.length){
       e.preventDefault();

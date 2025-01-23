@@ -1,4 +1,5 @@
 const cargarEventListeners = (anadirListeners = true) => {
+  $(".eliminar").off("click");
   $(".eliminar").click((e) => {
     eliminar(e);
   });
@@ -46,15 +47,15 @@ const cargarEventListeners = (anadirListeners = true) => {
           temperaturaInput.val("").removeAttr("disabled");
         }
     
-        presionInput.on('change', function() {
+        presionInput.on('change keyup', function() {
           if ($(this).val() !== "") {
             temperaturaInput.attr("disabled", "disabled");
           } else {
             temperaturaInput.removeAttr("disabled");
           }
         });
-    
-        temperaturaInput.on('change', function() {
+
+        temperaturaInput.on('change keyup', function() {
           if ($(this).val() !== "") {
             presionInput.attr("disabled", "disabled");
           } else {
@@ -62,8 +63,8 @@ const cargarEventListeners = (anadirListeners = true) => {
           }
         });
       } else {
-        presionInput.removeAttr("disabled");
-        temperaturaInput.removeAttr("disabled");
+        presionInput.removeAttr("disabled").off("change keyup");
+        temperaturaInput.removeAttr("disabled").off("change keyup");
       }
     
       $(`input[name='form-${number}-presion'], input[name='form-${number}-temperatura']`).change();
@@ -103,7 +104,7 @@ const eliminar = (e) => {
   let forms = document.querySelectorAll(`.form`);
   let formNum = forms.length;
   let totalForms = document.querySelector(`#id_form-TOTAL_FORMS`);
-  totalForms.setAttribute("value", `${formNum}`);
+  totalForms.setAttribute("value", `${formNum - 1}`);
   e.target.parentElement.parentElement.remove();
   reindex();
   cargarEventListeners(false);
@@ -207,11 +208,6 @@ $("button[type=submit]").click((e) => {
       .replaceAll("form", "")
       .replaceAll("-", "")
       .replaceAll(/[a-zA-Z]+/g, "");
-    if ($(`input[name="form-${number}-presion"]`).val() === "") {
-      e.preventDefault();
-      alert("La corriente de entrada no puede ser la misma que la de salida.");
-      return;
-    }
 
     if ($(`select[name="form-${number}-fase"]`).val() != "V") {
       e.preventDefault();
@@ -231,6 +227,9 @@ $("button[type=submit]").click((e) => {
       if (number_form === number) flujo_entrada = Number(x.value);
       else flujo_sumas += Number(x.value);
     });
+
+    flujo_entrada = Number(flujo_entrada.toFixed(5));
+    flujo_sumas = Number(flujo_sumas.toFixed(5));
 
     if (flujo_entrada !== flujo_sumas) {
       e.preventDefault();

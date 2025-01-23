@@ -39,7 +39,6 @@ $("#id_tambor-inferior-dimensiones_unidad").change(() => {
 });
 
 $("#id_combustible-liquido").change(e => {
-    console.log(e.target.checked);
     if($(e.target).is(':checked'))
         $("#id_combustible-nombre_liquido").removeAttr("disabled");
     else{

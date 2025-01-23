@@ -217,7 +217,6 @@
                 });
             } else {
                 const allOtherCheckboxes = document.querySelectorAll(`input[type="checkbox"]:not(.complejo-${complejoId}):not(input[name="superusuario"]):not(input[name="activo"])`);
-                console.log(allOtherCheckboxes);
                 
                 allOtherCheckboxes.forEach(checkbox => {
                     checkbox.checked = false;
@@ -234,17 +233,6 @@
                     checkbox.disabled = true;
                 });  
             } 
-            
         });
-
-        document.querySelector('form').addEventListener('submit', function(event) {
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]:not([name="activo"]):not([name="superusuario"])');
-            const atLeastOne = Array.from(checkboxes).some(checkbox => checkbox.checked);
-            if (!atLeastOne) {
-                event.preventDefault();
-                alert('El usuario debe tener al menos un permiso.');
-            }
-        });
-
     </script>
 {% endblock %}
