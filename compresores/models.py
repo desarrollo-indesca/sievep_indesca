@@ -14,6 +14,23 @@ class TipoCompresor(models.Model):
     nombre = models.CharField(max_length=45, unique=True)
 
 class Compresor(models.Model):
+    """
+    Resumen:
+        Modelo que representa un compresor de gas. Contiene los datos generales del compresor,
+        como su tag, descripción, fabricante y modelo, además de la planta y el tipo de compresor.
+
+    Atributos:
+        tag: CharField -> Tag único del compresor.
+        descripcion: CharField -> Descripción del compresor.
+        fabricante: CharField -> Fabricante del compresor.
+        modelo: CharField -> Modelo del compresor.
+        planta: ForeignKey -> Planta donde se encuentra el compresor.
+        tipo: ForeignKey -> Tipo de compresor.
+        creado_al: DateTimeField -> Fecha de creación del compresor.
+        editado_al: DateTimeField -> Fecha de última edición del compresor.
+        creado_por: ForeignKey -> Usuario que creó el compresor.
+        editado_por: ForeignKey -> Usuario que editó por última vez el compresor.
+    """
     tag = models.CharField(max_length=20, unique=True)
     descripcion = models.CharField(max_length=100, verbose_name="Descripción")
     fabricante = models.CharField(max_length=45, null=True, blank=True)
