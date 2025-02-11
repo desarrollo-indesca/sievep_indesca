@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from intercambiadores.models import Planta, Complejo, Unidades
+from intercambiadores.models import Planta, Fluido, Unidades
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 LADOS_COMPRESOR= (
@@ -52,9 +52,9 @@ class PropiedadesCompresor(models.Model):
     tipo_sello = models.CharField(max_length=45, null=True, blank=True)
     velocidad_max_continua = models.FloatField(null=True, blank=True)
     velocidad_rotacion = models.FloatField(null=True, blank=True)
-    unidad_velocidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_velocidad_compresor")
+    unidad_velocidad = models.ForeignKey(Unidades, default=52, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_velocidad_compresor")
     potencia_requerida = models.FloatField(null=True, blank=True)
-    unidad_potencia = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_potencia_compresor")
+    unidad_potencia = models.ForeignKey(Unidades, default=53, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_potencia_compresor")
     compresor = models.ForeignKey(Compresor, on_delete=models.PROTECT) # IMPORTANTE: Varias Propiedades
     tipo_lubricacion = models.ForeignKey(TipoLubricacion, on_delete=models.PROTECT, null=True, blank=True)
 
@@ -63,37 +63,37 @@ class EtapaCompresor(models.Model):
     numero = models.IntegerField()
     nombre_fluido = models.CharField(max_length=45, null=True, blank=True)
     flujo_masico = models.FloatField(null=True, blank=True)
-    flujo_masico_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_flujo_masico_compresor")
+    flujo_masico_unidad = models.ForeignKey(Unidades, default=54, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_flujo_masico_compresor")
     flujo_molar = models.FloatField(null=True, blank=True)
-    flujo_molar_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_flujo_molar_compresor")
+    flujo_molar_unidad = models.ForeignKey(Unidades, default=94, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_flujo_molar_compresor")
     densidad = models.FloatField(null=True, blank=True)
     densidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_densidad_compresor")
     aumento_estimado = models.FloatField(null=True, blank=True)
     rel_compresion = models.FloatField(null=True, blank=True)
     potencial_nominal = models.FloatField(null=True, blank=True)
     potencia_req = models.FloatField("Potencia Requerida", null=True, blank=True)
-    potencia_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_potencia_etapa_compresor")
+    potencia_unidad = models.ForeignKey(Unidades, default=53, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_potencia_etapa_compresor")
     eficiencia_isentropica = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(100.0)])
     eficiencia_politropica = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(100.0)])
     cabezal_politropico = models.FloatField(null=True, blank=True)
-    cabezal_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_cabezal_compresor")
+    cabezal_unidad = models.ForeignKey(Unidades, default=4, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_cabezal_compresor")
     humedad_relativa = models.FloatField(null=True, blank=True)
     volumen_diseno = models.FloatField(null=True, blank=True)
     volumen_normal = models.FloatField(null=True, blank=True)
-    volumen_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_volumen_etapa_compresor")
+    volumen_unidad = models.ForeignKey(Unidades, default=34, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_volumen_etapa_compresor")
 
     curva_caracteristica = models.FileField(null=True, blank=True)
 
 class ComposicionGases(models.Model):
     porc_molar = models.FloatField(null=True, blank=True)
+    compuesto = models.ForeignKey(Fluido, on_delete=models.CASCADE) 
 
 class LadoEtapaCompresor(models.Model):
     etapa = models.ForeignKey(EtapaCompresor, on_delete=models.PROTECT)
     lado = models.CharField(max_length=1, choices=LADOS_COMPRESOR)
     temp = models.FloatField(null=True, blank=True)
-    temp_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_temp_etapa_compresor")
+    temp_unidad = models.ForeignKey(Unidades, default=1, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_temp_etapa_compresor")
     presion = models.FloatField(null=True, blank=True)
-    presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_presion_etapa_compresor")
+    presion_unidad = models.ForeignKey(Unidades, default=7, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_presion_etapa_compresor")
     compresibilidad = models.FloatField(null=True, blank=True)
     cp_cv = models.FloatField(null=True, blank=True)
-    n = models.FloatField(null=True, blank=True)
