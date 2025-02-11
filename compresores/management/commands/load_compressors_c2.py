@@ -9,41 +9,24 @@ class Command(BaseCommand):
     help = "Load compressors from data/compresores.csv into the database. ONLY THE FIRST CASE."
 
     def handle(self, *args, **options):
-        User = get_user_model()
+        caso = int(input("Ingrese el caso (2-5): "))
         with transaction.atomic():
             try:
-                with open('compresores/data/compresores_c1.csv', 'r') as file:
+                with open(f'compresores/data/compresores_c{caso}.csv', 'r') as file:
                     csv_reader = csv.DictReader(file)
                     for row in csv_reader:
-                        tipo_compresor, _ = TipoCompresor.objects.get_or_create(nombre=row['tipo_compresor'].strip())
-                        planta = Planta.objects.get(nombre=row['planta'].strip())
-                        
-                        creado_por = User.objects.get(pk=1)
+                        compresor = Compresor.objects.get(tag=row['tag'])
 
-                        compresor, created = Compresor.objects.update_or_create(
-                            tag=row['tag'].strip(),
-                            defaults={
-                                'descripcion': row['descripcion'].strip(),
-                                'fabricante': row['fabricante'].strip() if row['fabricante'] else None,
-                                'modelo': row['modelo'].strip() if row['modelo'] else None,
-                                'planta': planta,
-                                'tipo': tipo_compresor,
-                                'creado_por': creado_por
-                            }
-                        )
-
-                        propiedades = PropiedadesCompresor.objects.update_or_create(
+                        propiedades = PropiedadesCompresor.objects.create(
                             compresor=compresor,
-                            defaults={
-                                'numero_impulsores': row['n_impulsores'].strip() if row['n_impulsores'] else None,
-                                'material_carcasa': row['mat_carcasa'].strip() if row['mat_carcasa'] else None,
-                                'tipo_lubricante': row['tipo_lubricante_rot'].strip() if row['tipo_lubricante_rot'] else None,
-                                'tipo_sello': row['tipo_sello'].strip() if row['tipo_sello'] else None,
-                                'velocidad_max_continua': row['vel_maxc'].strip() if row['vel_maxc'] else None,
-                                'velocidad_rotacion': row['vel_rot'].strip() if row['vel_rot'] else None,
-                                'potencia_requerida': row['preq'].strip() if row['preq'] else None,
-                            }
-                        )[0]
+                            numero_impulsores=row['n_impulsores'].strip() if row['n_impulsores'] else None,
+                            material_carcasa=row['mat_carcasa'].strip() if row['mat_carcasa'] else None,
+                            tipo_lubricante=row['tipo_lubricante_rot'].strip() if row['tipo_lubricante_rot'] else None,
+                            tipo_sello=row['tipo_sello'].strip() if row['tipo_sello'] else None,
+                            velocidad_max_continua=row['vel_maxc'].strip() if row['vel_maxc'] else None,
+                            velocidad_rotacion=row['vel_rot'].strip() if row['vel_rot'] else None,
+                            potencia_requerida=row['preq'].strip() if row['preq'] else None,
+                        )
 
                         for i in range(1, 6):
                             etapa_numero = i
@@ -80,10 +63,8 @@ class Command(BaseCommand):
                                         cp_cv=row[f'cp_cv_{lado}_e{etapa_numero}'].strip() if row[f'cp_cv_{lado}_e{etapa_numero}'] else None,
                                     )
 
-                        if created:
-                            self.stdout.write(self.style.SUCCESS(f"Compresor '{compresor.tag}' created successfully"))
-                        else:
-                            self.stdout.write(self.style.SUCCESS(f"Compresor '{compresor.tag}' updated successfully"))
+                        self.stdout.write(self.style.SUCCESS(f"Compresor '{compresor.tag}' created successfully"))
+                       
             except Exception as e:
                 raise CommandError(f"Error loading compressors: {e}")
 

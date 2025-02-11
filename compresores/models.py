@@ -59,7 +59,7 @@ class PropiedadesCompresor(models.Model):
     tipo_lubricacion = models.ForeignKey(TipoLubricacion, on_delete=models.PROTECT, null=True, blank=True)
 
 class EtapaCompresor(models.Model):
-    compresor = models.ForeignKey(Compresor, on_delete=models.PROTECT)
+    compresor = models.ForeignKey(PropiedadesCompresor, on_delete=models.PROTECT)
     numero = models.IntegerField()
     nombre_fluido = models.CharField(max_length=45, null=True, blank=True)
     flujo_masico = models.FloatField(null=True, blank=True)
@@ -81,6 +81,7 @@ class EtapaCompresor(models.Model):
     volumen_diseno = models.FloatField(null=True, blank=True)
     volumen_normal = models.FloatField(null=True, blank=True)
     volumen_unidad = models.ForeignKey(Unidades, default=34, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_volumen_etapa_compresor")
+    
 
     curva_caracteristica = models.FileField(null=True, blank=True)
 
