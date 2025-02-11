@@ -33,9 +33,23 @@ class CargarCompresorMixin():
 
         return compresor
 
+class ReportesFichasCompresoresMixin():
+    '''
+    Resumen:
+        Mixin para evitar la repetición de código al generar fichas técnicas en las vistas que lo permiten.
+        También incluye lógica para la generación de la ficha de los parámetros de instalación.
+    '''
+    def reporte_ficha(self, request):
+        if(request.POST.get('ficha')): # FICHA TÉCNICA
+            caldera = Caldera.objects.get(pk = request.POST.get('ficha'))
+            if(request.POST.get('tipo') == 'pdf'):
+                return generar_pdf(request,caldera, f"Ficha Técnica de la Caldera {caldera.tag}", "ficha_tecnica_caldera")
+            if(request.POST.get('tipo') == 'xlsx'):
+                return ficha_tecnica_caldera(caldera, request)
+
 # Create your views here.
 
-class ConsultaCompresores(FiltradoSimpleMixin, CargarCompresorMixin, LoginRequiredMixin, ListView):
+class ConsultaCompresores(FiltradoSimpleMixin, ReportesFichasCompresoresMixin, CargarCompresorMixin, LoginRequiredMixin, ListView):
     '''
     Resumen:
         Vista para la consulta de los compresores.
@@ -70,6 +84,8 @@ class ConsultaCompresores(FiltradoSimpleMixin, CargarCompresorMixin, LoginRequir
         reporte_ficha = self.reporte_ficha(request)
         if(reporte_ficha): # Si se está deseando generar un reporte de ficha, se genera
             return reporte_ficha
+        
+        print(request.POST)
 
         if(request.POST.get('tipo') == 'pdf'): # Reporte de turbinas de vapor en PDF
             return generar_pdf(request, self.get_queryset(), 'Reporte de Listado de Compresores', 'compresores')
