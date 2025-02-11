@@ -577,7 +577,6 @@ class FiltradoSimpleMixin():
 
         new_context = self.model.objects.filter(planta__pk__in = self.request.user.usuario_planta.values_list("planta", flat=True))  if not self.request.user.is_superuser else self.model.objects.all()
         if(complejo and complejo != ''): # Filtrar por complejo
-            print("AQUI")
             new_context = new_context.filter(
                 planta__complejo__pk=complejo
             ) if new_context != None else self.model.objects.filter(

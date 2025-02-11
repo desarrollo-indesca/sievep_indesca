@@ -55,11 +55,11 @@ class PropiedadesCompresor(models.Model):
     unidad_velocidad = models.ForeignKey(Unidades, default=52, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_velocidad_compresor")
     potencia_requerida = models.FloatField(null=True, blank=True)
     unidad_potencia = models.ForeignKey(Unidades, default=53, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_potencia_compresor")
-    compresor = models.ForeignKey(Compresor, on_delete=models.PROTECT) # IMPORTANTE: Varias Propiedades
+    compresor = models.ForeignKey(Compresor, on_delete=models.PROTECT, related_name="casos") # IMPORTANTE: Varias Propiedades
     tipo_lubricacion = models.ForeignKey(TipoLubricacion, on_delete=models.PROTECT, null=True, blank=True)
 
 class EtapaCompresor(models.Model):
-    compresor = models.ForeignKey(PropiedadesCompresor, on_delete=models.PROTECT)
+    compresor = models.ForeignKey(PropiedadesCompresor, on_delete=models.PROTECT, related_name='etapas')
     numero = models.IntegerField()
     nombre_fluido = models.CharField(max_length=45, null=True, blank=True)
     flujo_masico = models.FloatField(null=True, blank=True)
@@ -82,7 +82,6 @@ class EtapaCompresor(models.Model):
     volumen_normal = models.FloatField(null=True, blank=True)
     volumen_unidad = models.ForeignKey(Unidades, default=34, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_volumen_etapa_compresor")
     
-
     curva_caracteristica = models.FileField(null=True, blank=True)
 
 class ComposicionGases(models.Model):
@@ -90,7 +89,7 @@ class ComposicionGases(models.Model):
     compuesto = models.ForeignKey(Fluido, on_delete=models.CASCADE) 
 
 class LadoEtapaCompresor(models.Model):
-    etapa = models.ForeignKey(EtapaCompresor, on_delete=models.PROTECT)
+    etapa = models.ForeignKey(EtapaCompresor, on_delete=models.PROTECT, related_name='lados')
     lado = models.CharField(max_length=1, choices=LADOS_COMPRESOR)
     temp = models.FloatField(null=True, blank=True)
     temp_unidad = models.ForeignKey(Unidades, default=1, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_temp_etapa_compresor")
