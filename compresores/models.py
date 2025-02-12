@@ -41,6 +41,10 @@ class Compresor(models.Model):
     editado_al = models.DateTimeField(null=True)
     creado_por = models.ForeignKey('auth.User', on_delete=models.PROTECT, related_name="compresor_creado_por")
     editado_por = models.ForeignKey('auth.User', on_delete=models.PROTECT, null=True, related_name="compresor_editado_por")
+    copia = models.BooleanField(default=False, blank=True)
+
+    class Meta:
+        ordering = ('tag',)
 
 class TipoLubricacion(models.Model):
     nombre = models.CharField(max_length=45, unique=True)
@@ -85,6 +89,7 @@ class EtapaCompresor(models.Model):
     curva_caracteristica = models.FileField(null=True, blank=True)
 
 class ComposicionGases(models.Model):
+    etapa = models.ForeignKey(EtapaCompresor, on_delete=models.PROTECT, related_name='composiciones')
     porc_molar = models.FloatField(null=True, blank=True)
     compuesto = models.ForeignKey(Fluido, on_delete=models.CASCADE) 
 

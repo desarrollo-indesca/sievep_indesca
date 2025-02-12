@@ -1,11 +1,15 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView
 from django.db.models import Prefetch
+from django.http import HttpResponseForbidden
 from simulaciones_pequiven.views import FiltradoSimpleMixin, DuplicateView
+from simulaciones_pequiven.utils import generate_nonexistent_tag
+from usuarios.models import PlantaAccesible
 from .models import *
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos
+from django.contrib import messages
 
 class CargarCompresorMixin():
     """
@@ -69,11 +73,11 @@ class ReportesFichasCompresoresMixin():
     '''
     def reporte_ficha(self, request):
         if(request.POST.get('ficha')): # FICHA TÉCNICA
-            caldera = Caldera.objects.get(pk = request.POST.get('ficha'))
+            compresor = Caldera.objects.get(pk = request.POST.get('ficha'))
             if(request.POST.get('tipo') == 'pdf'):
-                return generar_pdf(request,caldera, f"Ficha Técnica de la Caldera {caldera.tag}", "ficha_tecnica_caldera")
+                return generar_pdf(request,compresor, f"Ficha Técnica de la Caldera {compresor.tag}", "ficha_tecnica_compresor")
             if(request.POST.get('tipo') == 'xlsx'):
-                return ficha_tecnica_caldera(caldera, request)
+                return ficha_tecnica_compresor(compresor, request)
 
 # Create your views here.
 
@@ -138,58 +142,43 @@ class ConsultaCompresores(FiltradoSimpleMixin, ReportesFichasCompresoresMixin, C
 
         return new_context
 
-
-class DuplicarCaldera(CargarCompresorMixin, DuplicateView):
+class DuplicarCompresores(CargarCompresorMixin, DuplicateView):
     """
     Resumen:
-        Vista para crear una copia temporal duplicada de una caldera para hacer pruebas en los equipos.
+        Vista para crear una copia temporal duplicada de una compresor para hacer pruebas en los equipos.
     """
 
     def post(self, request, pk):
         compresor_original = Compresor.objects.select_related(
-            "sobrecalentador", "sobrecalentador__dims", "tambor",
-            "dimensiones", "especificaciones", "combustible", 
-            "chimenea", "economizador"
+            'creado_por', 'editado_por', 'planta'
         ).prefetch_related(
-            "tambor__secciones_tambor", "combustible__composicion_combustible_caldera",
-            "caracteristicas_caldera", "corrientes_caldera"
+            "casos", "casos__etapas", "casos__etapas__lados",
+            "casos__etapas__composiciones"
         ).get(pk=pk)
 
-        if(self.request.user.is_superuser or PlantaAccesible.objects.filter(usuario = request.user, planta = caldera_original.planta, duplicacion = True).exists()):
-            caldera = caldera_original
-            caldera.copia = True
-            caldera.tag = generate_nonexistent_tag(Caldera, caldera.tag)
-            dims = self.copy(caldera_original.sobrecalentador.dims)
-            sobrecalentador = caldera_original.sobrecalentador
-            sobrecalentador.dims = dims
-            caldera.sobrecalentador = self.copy(caldera_original.sobrecalentador)
-            caldera.tambor = self.copy(caldera_original.tambor)
-            caldera.dimensiones = self.copy(caldera_original.dimensiones)
-            caldera.especificaciones = self.copy(caldera_original.especificaciones)
-            caldera.chimenea = self.copy(caldera_original.chimenea)
-            caldera.economizador = self.copy(caldera_original.economizador)
-            caldera.combustible = self.copy(caldera_original.combustible)
-            caldera.descripcion = f"COPIA DE LA CALDERA {caldera_original.tag}"
-            caldera = self.copy(caldera)
+        if(self.request.user.is_superuser or PlantaAccesible.objects.filter(usuario = request.user, planta = compresor_original.planta, duplicacion = True).exists()):
+            compresor = compresor_original
+            compresor.tag = generate_nonexistent_tag(Compresor, compresor.tag)
+            compresor.descripcion = f"COPIA DEL COMPRESOR {compresor_original.tag}"
+            compresor = self.copy(compresor)
 
-            for caracteristica in caldera_original.caracteristicas_caldera.all():
-                caracteristica.caldera = caldera
-                self.copy(caracteristica)
+            for caso in compresor_original.casos.all():
+                caso.compresor = compresor
+                for etapa in caso.etapas.all():
+                    etapa.caso = caso
+                    for lado in etapa.lados.all():
+                        lado.etapa = etapa
+                        self.copy(lado)
+                    
+                    for compuesto in etapa.composiciones.all():
+                        compuesto.etapa = etapa
+                        self.copy(compuesto)
+                    
+                    self.copy(etapa)
+                self.copy(caso)
 
-            for seccion in caldera_original.tambor.secciones_tambor.all():
-                seccion.tambor = caldera.tambor
-                self.copy(seccion)
-
-            for corriente in caldera_original.corrientes_caldera.all():
-                corriente.caldera = caldera
-                self.copy(corriente)
-
-            for compuesto in caldera_original.combustible.composicion_combustible_caldera.all():
-                compuesto.combustible = caldera.combustible
-                self.copy(compuesto)
-
-            caldera_original = Caldera.objects.get(pk=pk)
-            messages.success(request, f"Se ha creado la copia de la caldera {caldera_original.tag} como {caldera.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 7:00am.")
-            return redirect("/calderas")
+            compresor_original = Compresor.objects.get(pk=pk)
+            messages.success(request, f"Se ha creado la copia de la compresor {compresor_original.tag} como {compresor.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 7:00am.")
+            return redirect("/compresores")
         else:
             return HttpResponseForbidden()
