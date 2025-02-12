@@ -19,7 +19,8 @@
       {% endif %}
     </td>
     <td>
-      <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#ficha_{{caldera.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica"></button>
+      <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#ficha_{{compresor.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica"></button>
+      {% include 'compresores/partials/ficha.html' %}
     </td>
   </tr>
 {% endfor %}

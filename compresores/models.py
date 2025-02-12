@@ -13,6 +13,9 @@ LADOS_COMPRESOR= (
 class TipoCompresor(models.Model):
     nombre = models.CharField(max_length=45, unique=True)
 
+    def __str__(self):
+        return self.nombre
+
 class Compresor(models.Model):
     """
     Resumen:
@@ -52,7 +55,6 @@ class TipoLubricacion(models.Model):
 class PropiedadesCompresor(models.Model):
     numero_impulsores = models.IntegerField(null=True, blank=True)
     material_carcasa = models.CharField(max_length=45, null=True, blank=True)
-    tipo_lubricante = models.CharField("Tipo de lubricante(ROT)", max_length=45, null=True, blank=True)
     tipo_sello = models.CharField(max_length=45, null=True, blank=True)
     velocidad_max_continua = models.FloatField(null=True, blank=True)
     velocidad_rotacion = models.FloatField(null=True, blank=True)
@@ -74,7 +76,7 @@ class EtapaCompresor(models.Model):
     densidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_densidad_compresor")
     aumento_estimado = models.FloatField(null=True, blank=True)
     rel_compresion = models.FloatField(null=True, blank=True)
-    potencial_nominal = models.FloatField(null=True, blank=True)
+    potencia_nominal = models.FloatField(null=True, blank=True)
     potencia_req = models.FloatField("Potencia Requerida", null=True, blank=True)
     potencia_unidad = models.ForeignKey(Unidades, default=53, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_potencia_etapa_compresor")
     eficiencia_isentropica = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(100.0)])
@@ -87,6 +89,9 @@ class EtapaCompresor(models.Model):
     volumen_unidad = models.ForeignKey(Unidades, default=34, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_volumen_etapa_compresor")
     
     curva_caracteristica = models.FileField(null=True, blank=True)
+
+    class Meta:
+        ordering = ('numero', )
 
 class ComposicionGases(models.Model):
     etapa = models.ForeignKey(EtapaCompresor, on_delete=models.PROTECT, related_name='composiciones')
