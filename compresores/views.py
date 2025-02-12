@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView
+from django.views.generic import ListView, View
 from django.db.models import Prefetch
 from django.http import HttpResponseForbidden
 from simulaciones_pequiven.views import FiltradoSimpleMixin, DuplicateView
@@ -182,3 +182,21 @@ class DuplicarCompresores(CargarCompresorMixin, DuplicateView):
             return redirect("/compresores")
         else:
             return HttpResponseForbidden()
+        
+class ProcesarFichaSegunCaso(CargarCompresorMixin, View):
+    template_name = 'compresores/partials/ficha_caso.html'
+
+    def get(self, request, pk, *args, **kwargs):
+        caso = request.GET.get('caso')
+
+        return render(
+            request,
+            self.template_name,
+            context={
+                'caso': self.get_compresor(
+                    True, 
+                    Compresor.objects.filter(pk=pk)
+                ).first().casos.get(pk=caso),
+                'compresor': Compresor.objects.get(pk=pk)
+            }
+        )

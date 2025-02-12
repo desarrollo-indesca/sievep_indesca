@@ -100,7 +100,7 @@
 
 {% block extra_javascript %}
 <script>
-  $('select').change(() => {
+  $('select').not('[name^="caso"]').change(() => {
     $('#filtrado').submit();
   });
   
@@ -109,4 +109,6 @@
       $('#filtrado').submit();
   });
 </script>
+
+<script src="{% static 'js/htmx.min.js' %}"></script>
 {% endblock %}

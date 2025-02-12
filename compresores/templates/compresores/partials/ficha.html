@@ -47,12 +47,12 @@
                   </tbody>
                 </table>
                 <table class="table table-light text-center table-bordered tabla_ficha mt-0">
-                  <tbody id="tabla_ficha_contenido_body" id="body-caso">
+                    <thead>
                         <tr>
                             <th colspan="4">
                                 <div class="d-flex justify-content-center">
                                     Caso &nbsp;
-                                    <select name="caso_{{compresor.pk}}" id="caso_{{compresor.pk}}">
+                                    <select hx-swap="outerHTML" hx-trigger="change" hx-target="#casos_{{compresor.pk}}" hx-get="{% url 'ficha_caso' pk=compresor.pk %}" name="caso" id="caso_{{compresor.pk}}">
                                         {% for caso in compresor.casos.all %}
                                         <option value="{{caso.pk}}">{{forloop.counter}}</option>
                                         {% endfor %}
@@ -60,7 +60,8 @@
                                 </div>
                             </th>
                         </tr>
-
+                    </thead>
+                    <tbody id="casos_{{compresor.pk}}">
                         {% with caso=compresor.casos.all.first %}
                         <tr>
                             <th class="table-dark">Número de Impulsores</th>
@@ -187,15 +188,7 @@
                         {% endfor %}
                         {% endwith %}
                     </tr>
-                  </tbody>
-                </table>
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th colspan="3">Composiciones del Gas</th>
-                        </tr>
-                    </thead>
+                    </tbody>
                 </table>
               </div>
             </div>
