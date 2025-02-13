@@ -73,7 +73,7 @@ class EtapaCompresor(models.Model):
     flujo_molar = models.FloatField(null=True, blank=True)
     flujo_molar_unidad = models.ForeignKey(Unidades, default=94, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_flujo_molar_compresor")
     densidad = models.FloatField(null=True, blank=True)
-    densidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_densidad_compresor")
+    densidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, default=43, null=True, blank=True, related_name="unidad_densidad_compresor")
     aumento_estimado = models.FloatField(null=True, blank=True)
     rel_compresion = models.FloatField(null=True, blank=True)
     potencia_nominal = models.FloatField(null=True, blank=True)

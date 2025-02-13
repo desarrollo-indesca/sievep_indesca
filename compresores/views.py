@@ -3,6 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, View
 from django.db.models import Prefetch
 from django.http import HttpResponseForbidden
+from django.db import transaction
 from simulaciones_pequiven.views import FiltradoSimpleMixin, DuplicateView
 from simulaciones_pequiven.utils import generate_nonexistent_tag
 from usuarios.models import PlantaAccesible
@@ -204,6 +205,48 @@ class ProcesarFichaSegunCaso(CargarCompresorMixin, View):
 
 class CreacionCompresor(View):
     template_name = 'compresores/creacion.html'
+
+    def almacenar_datos(self, form_compresor, form_caso):
+        try:
+            form_compresor.is_valid()
+            form_caso.is_valid()
+            with transaction.atomic():
+                if(form_compresor.is_valid()):
+                    form_compresor.instance.creado_por = self.request.user
+                    form_compresor.instance.creado_al = self.request.user      
+                    form_compresor.save()
+                else:
+                    print(form_compresor.errors)
+                    raise Exception("Información Inválida.")
+
+                if form_caso.is_valid():
+                    form_caso.instance.compresor = form_compresor.instance
+                    form_caso.save()
+
+                    numero_etapas = form_compresor.cleaned_data.get('numero_etapas', 0)
+                    for i in range(1, numero_etapas + 1):
+                        etapa = EtapaCompresor(compresor=form_caso.instance, numero=i)
+                        etapa.save()
+                else:
+                    print(form_caso.errors)
+                    raise Exception("Información Inválida.")
+                
+            messages.success(self.request, "Información almacenada correctamente.")
+            return redirect('/compresores/')
+        except Exception as e:
+            print(str(e))
+            return render(self.request, self.template_name, {
+                'unidades': Unidades.objects.all().values(),
+                'form_compresor': form_compresor,
+                'form_caso': form_caso,
+                'titulo': "SIEVEP - Creación de Compresores"
+            })
+
+    def post(self, request, *args, **kwargs):
+        form_compresor = CompresorForm(request.POST)
+        form_caso = PropiedadesCompresorForm(request.POST)
+
+        return self.almacenar_datos(form_compresor, form_caso)
 
     def get_context_data(self, **kwargs):
         context = {}
