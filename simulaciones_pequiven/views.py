@@ -512,6 +512,7 @@ class PlantasPorComplejo(LoginRequiredMixin, View):
         Vista HTMX que filtra las plantas por complejo.
     """
     def get(self, request):
+        print(request.GET)
         complejo_id = request.GET['complejo']
         selected_planta_id = request.GET.get('planta')
         plantas = Planta.objects.filter(complejo_id=complejo_id)
@@ -687,6 +688,8 @@ class ConsultaPlantas(SuperUserRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = Planta.objects.select_related('complejo').all()
+
+        print(f"get: {self.request.GET}")
 
         if(self.request.GET.get('complejo')):
             queryset = queryset.filter(complejo__pk = self.request.GET.get('complejo'))

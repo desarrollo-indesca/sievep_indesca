@@ -190,6 +190,17 @@
                     </tr>
                     </tbody>
                 </table>
+
+                <table class="text-center">
+                    <tr>
+                        <td colspan="6">Creado por el usuario <b>{{compresor.creado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{compresor.creado_al|default_if_none:'-'}}</b>.</td>
+                      </tr>
+                      {% if compresor.editado_al %}
+                      <tr>
+                        <td colspan="6">Editado por <b>{{compresor.editado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{compresor.editado_al|default_if_none:'-'}}</b>.</td>
+                      </tr>
+                      {% endif %}
+                </table>
               </div>
             </div>
           </div>
@@ -209,8 +220,7 @@
             <input type="hidden" name="ficha" value="{{compresor.pk}}">
             <button name="tipo" value="pdf" target="_blank" href="#" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Ficha PDF</button>
             <button name="tipo" value="xlsx" target="_blank" href="#" class="btn btn-success d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/xlsx.png' %}" width="20px" alt="Ícono Reporte XLSX">&nbsp;Ficha XLSX</button>
-          </form>
-          
+          </form>          
         </div>
       </div>
     </div>

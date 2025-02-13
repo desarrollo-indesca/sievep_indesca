@@ -4,5 +4,7 @@ from .views import *
 urlpatterns = [
     path('', ConsultaCompresores.as_view(), name="consulta_compresores"),
     path('duplicar/<int:pk>/', DuplicarCompresores.as_view(), name="duplicar_compresores"),
-    path('ficha/<int:pk>/', ProcesarFichaSegunCaso.as_view(), name="ficha_caso")
+    path('ficha/<int:pk>/', ProcesarFichaSegunCaso.as_view(), name="ficha_caso"),
+    
+    path('crear/', CreacionCompresor.as_view(), name="creacion_compresor"),
 ]

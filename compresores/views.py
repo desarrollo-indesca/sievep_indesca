@@ -7,6 +7,7 @@ from simulaciones_pequiven.views import FiltradoSimpleMixin, DuplicateView
 from simulaciones_pequiven.utils import generate_nonexistent_tag
 from usuarios.models import PlantaAccesible
 from .models import *
+from .forms import *
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos
 from django.contrib import messages
@@ -200,3 +201,18 @@ class ProcesarFichaSegunCaso(CargarCompresorMixin, View):
                 'compresor': Compresor.objects.get(pk=pk)
             }
         )
+
+class CreacionCompresor(View):
+    template_name = 'compresores/creacion.html'
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        context["form_compresor"]  = CompresorForm()
+        context["form_caso"]  = PropiedadesCompresorForm()
+        context['unidades'] = Unidades.objects.all().values()
+        context['titulo'] = "SIEVEP - Creación de Compresores"
+
+        return context
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name, self.get_context_data())
