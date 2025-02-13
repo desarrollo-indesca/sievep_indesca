@@ -7,4 +7,5 @@ urlpatterns = [
     path('ficha/<int:pk>/', ProcesarFichaSegunCaso.as_view(), name="ficha_caso"),
     
     path('crear/', CreacionCompresor.as_view(), name="creacion_compresor"),
+    path('crear-caso/<int:pk>/', CrearNuevoCaso.as_view(), name="creacion_nuevo_caso"),
 ]

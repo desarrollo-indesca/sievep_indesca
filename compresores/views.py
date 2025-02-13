@@ -259,3 +259,51 @@ class CreacionCompresor(View):
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name, self.get_context_data())
+    
+class CrearNuevoCaso(View):
+    template_name = 'compresores/creacion.html'
+
+    def almacenar_datos(self, form_caso):
+        try:
+            compresor = Compresor.objects.get(pk=self.kwargs.get('pk'))
+            form_caso.is_valid()
+            with transaction.atomic():
+                if form_caso.is_valid():
+                    form_caso.instance.compresor = compresor
+                    form_caso.save()
+
+                    numero_etapas = compresor.casos.first().etapas.count()
+                    for i in range(1, numero_etapas + 1):
+                        etapa = EtapaCompresor(compresor=form_caso.instance, numero=i)
+                        etapa.save()
+                else:
+                    print(form_caso.errors)
+                    raise Exception("Información Inválida.")
+                
+            messages.success(self.request, "Información almacenada correctamente.")
+            return redirect('/compresores/')
+        except Exception as e:
+            print(str(e))
+            return render(self.request, self.template_name, {
+                'unidades': Unidades.objects.all().values(),
+                'form_caso': form_caso,
+                'titulo': "SIEVEP - Creación de Caso de Compresor"
+            })
+
+    def post(self, request, *args, **kwargs):
+        form_caso = PropiedadesCompresorForm(request.POST)
+        return self.almacenar_datos(form_caso)
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        context["form_caso"]  = PropiedadesCompresorForm()
+        context['unidades'] = Unidades.objects.all().values()
+        context['titulo'] = "SIEVEP - Creación de Caso"
+
+        return context
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name, self.get_context_data())
+
+class EditarInformacionEtapa(View):
+    pass
