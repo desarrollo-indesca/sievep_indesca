@@ -78,6 +78,7 @@
     <hr>
     {% endif %}
 
+    {% if form_caso %}
     <h4 class="text-center" style="color: #e31e24;">Propiedades del Compresor</h4>
     <h6 class="text-center" style="color: #e31e24;">Caso Inicial</h6>
 
@@ -137,11 +138,14 @@
             <small>{{form_caso.tipo_lubricacion.errors}}</small>
         </div>
     </div>
+    {% endif %}
 
     <hr>
 
     <div class="d-flex justify-content-center">
-        <button type="submit" class="btn btn-danger">Crear Compresor</button>
+        <button type="submit" class="btn btn-danger">
+            Enviar Formulario
+        </button>
     </div>
   </form>
 {% endblock %}

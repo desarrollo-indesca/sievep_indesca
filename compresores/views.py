@@ -203,7 +203,7 @@ class ProcesarFichaSegunCaso(CargarCompresorMixin, View):
             }
         )
 
-class CreacionCompresor(View):
+class CreacionCompresor(LoginRequiredMixin, View):
     template_name = 'compresores/creacion.html'
 
     def almacenar_datos(self, form_compresor, form_caso):
@@ -260,7 +260,7 @@ class CreacionCompresor(View):
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name, self.get_context_data())
     
-class CreacionNuevoCaso(View):
+class CreacionNuevoCaso(LoginRequiredMixin, View):
     template_name = 'compresores/creacion.html'
 
     def almacenar_datos(self, form_caso):
@@ -305,7 +305,7 @@ class CreacionNuevoCaso(View):
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name, self.get_context_data())
 
-class EdicionEtapa(View):
+class EdicionEtapa(LoginRequiredMixin, View):
     template_name = 'compresores/edicion_etapa.html'
     
     def almacenar_datos(self, form_etapa, form_entrada, form_salida):
@@ -369,6 +369,54 @@ class EdicionEtapa(View):
         form_entrada = LadoEtapaCompresorForm(request.POST, instance=etapa_previa.lados.first(), prefix="entrada")
         form_salida = LadoEtapaCompresorForm(request.POST, instance=etapa_previa.lados.last(), prefix="salida")
         return self.almacenar_datos(form_caso, form_entrada, form_salida)
+
+    def get(self, request, pk, *args, **kwargs):
+        return render(request, self.template_name, self.get_context_data())
+
+class EdicionCompresor(LoginRequiredMixin, View):
+    template_name = "compresores/creacion.html"
+    permission_required = ('compresores.change_compresor',)
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        compresor = Compresor.objects.get(pk=self.kwargs.get('pk'))
+        context['compresor'] = compresor
+        context['form_compresor'] = CompresorForm(instance=compresor, initial={
+            'numero_etapas': compresor.casos.first().etapas.count()
+        })
+        context['titulo'] = "SIEVEP - Edición de Compresor"
+        context['edicion'] = True
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        compresor_previo = Compresor.objects.get(pk=self.kwargs.get('pk'))
+        form = CompresorForm(request.POST, instance=compresor_previo)
+        if form.is_valid():
+            form.save()
+            numero_etapas_previo = compresor_previo.casos.first().etapas.count()
+            numero_etapas_nuevo = form.cleaned_data['numero_etapas']
+            if numero_etapas_previo != numero_etapas_nuevo:
+                for caso in form.instance.casos.all():
+                    if numero_etapas_previo > numero_etapas_nuevo:
+                        etapas_a_eliminar = caso.etapas.all()[numero_etapas_nuevo:]
+                        for etapa in etapas_a_eliminar:
+                            for lado in etapa.lados.all():
+                                lado.delete()
+                            etapa.delete()
+                    elif numero_etapas_previo < numero_etapas_nuevo:
+                        for i in range(numero_etapas_previo, numero_etapas_nuevo):
+                            etapa = EtapaCompresor.objects.create(
+                                numero=i+1,
+                                compresor=caso,
+                            )
+                            for lado in ['entrada', 'salida']:
+                                LadoEtapaCompresor.objects.create(
+                                    etapa=etapa,
+                                    lado=lado[0].upper()
+                                )
+            return redirect('/compresores/')
+        else:
+            return render(self.request, self.template_name, self.get_context_data())
 
     def get(self, request, pk, *args, **kwargs):
         return render(request, self.template_name, self.get_context_data())

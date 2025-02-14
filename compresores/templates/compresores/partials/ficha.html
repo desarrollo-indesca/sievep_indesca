@@ -215,7 +215,7 @@
         </div>
         <div class="modal-footer">
           {% if request.user.is_superuser or compresor.planta.pk in permisos.ediciones %}
-          <a href="#" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
+          <a href="{% url 'edicion_compresor' pk=compresor.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
           {% endif %}
           {% if request.user.is_superuser or compresor.planta.pk in permisos.duplicaciones %}
           <form action="#" method="post" name="duplicacion">
