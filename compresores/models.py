@@ -46,6 +46,10 @@ class Compresor(models.Model):
     editado_por = models.ForeignKey('auth.User', on_delete=models.PROTECT, null=True, related_name="compresor_editado_por", verbose_name="Editado por")
     copia = models.BooleanField(default=False, blank=True, verbose_name="Es Copia")
 
+    curva_caracteristica = models.FileField(null=True, blank=True, upload_to="compresores/curvas-compresores/", verbose_name="Curva de Característica", validators=[FileExtensionValidator(
+        allowed_extensions=['png', 'jpg', 'pdf']
+    )])
+
     class Meta:
         ordering = ('tag',)
 
@@ -88,8 +92,8 @@ class EtapaCompresor(models.Model):
     volumen_normal = models.FloatField(null=True, blank=True, verbose_name="Volumen Normal")
     volumen_unidad = models.ForeignKey(Unidades, default=34, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_volumen_etapa_compresor", verbose_name="Unidad")
     
-    curva_caracteristica = models.FileField("Curva Característica", null=True, blank=True, upload_to='compresores/', validators=[
-        FileExtensionValidator(allowed_extensions=['png', 'jpg'])
+    curva_caracteristica = models.FileField("Curva Característica", null=True, blank=True, upload_to='compresores/curvas-etapas/', validators=[
+        FileExtensionValidator(allowed_extensions=['png', 'jpg', 'pdf'])
     ])
 
     class Meta:
@@ -122,3 +126,7 @@ class LadoEtapaCompresor(models.Model):
     presion_unidad = models.ForeignKey(Unidades, default=7, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_presion_etapa_compresor", verbose_name="Unidad de Presión")
     compresibilidad = models.FloatField(null=True, blank=True, verbose_name="Compresibilidad")
     cp_cv = models.FloatField(null=True, blank=True, verbose_name="Relación Cp/Cv")
+
+# MODELOS DE EVALUACIÓN
+
+# TODO
