@@ -15,11 +15,12 @@
             <a class="btn d-block btn-secondary" href="{% url 'consulta_compresores' %}">↶ Regresar</a>
         </div>
         <div class="col-md-6 col-lg-8">
-            {% if not edicion %}
-            <h3 class="text-center" style="color: #e31e24;">Registro de Nuevo Compresor</h3>
-            {% else %}
-            <h3 class="text-center" style="color: #e31e24;">Edición de Compresor</h3>
-            {% endif %}
+            <h3 class="text-center" style="color: #e31e24;">
+                {{ titulo }}
+                {% if numero_caso %}
+                    {{ numero_caso }} - Compresor {{ compresor.tag }}
+                {% endif %}
+            </h3>
         </div>
         <div class="col-md-3 col-lg-2">
         </div>
@@ -80,7 +81,9 @@
 
     {% if form_caso %}
     <h4 class="text-center" style="color: #e31e24;">Propiedades del Compresor</h4>
+    {% if not numero_caso %}
     <h6 class="text-center" style="color: #e31e24;">Caso Inicial</h6>
+    {% endif %}
 
     <div class="row">
         <div class="col-4">

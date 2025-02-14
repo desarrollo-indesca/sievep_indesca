@@ -375,7 +375,7 @@ class EdicionEtapa(LoginRequiredMixin, View):
 
 class EdicionCompresor(LoginRequiredMixin, View):
     template_name = "compresores/creacion.html"
-    permission_required = ('compresores.change_compresor',)
+    titulo = "Edición de Compresor"
 
     def get_context_data(self, **kwargs):
         context = {}
@@ -384,7 +384,7 @@ class EdicionCompresor(LoginRequiredMixin, View):
         context['form_compresor'] = CompresorForm(instance=compresor, initial={
             'numero_etapas': compresor.casos.first().etapas.count()
         })
-        context['titulo'] = "SIEVEP - Edición de Compresor"
+        context['titulo'] = self.titulo
         context['edicion'] = True
         return context
     
@@ -420,3 +420,30 @@ class EdicionCompresor(LoginRequiredMixin, View):
 
     def get(self, request, pk, *args, **kwargs):
         return render(request, self.template_name, self.get_context_data())
+
+class EdicionCaso(EdicionCompresor):
+    template_name = 'compresores/creacion.html'
+    titulo = "Edición de Caso"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        compresor = self.get_object().compresor
+        context['compresor'] = compresor
+        context['form_caso'] = PropiedadesCompresorForm(instance=self.get_object())
+        context['unidades'] = Unidades.objects.all().values('pk', 'simbolo', 'tipo')
+        context['numero_caso'] = list(compresor.casos.all().values_list('pk', flat=True)).index(self.get_object().pk) + 1
+
+        del(context['form_compresor'])
+        return context
+
+    def get_object(self):
+        return PropiedadesCompresor.objects.get(pk=self.kwargs.get('pk'))
+
+    def post(self, request, *args, **kwargs):
+        caso = self.get_object()
+        form = PropiedadesCompresorForm(request.POST, instance=caso)
+        if form.is_valid():
+            form.save()
+            return redirect('/compresores/')
+        else:
+            return render(self.request, self.template_name, self.get_context_data())

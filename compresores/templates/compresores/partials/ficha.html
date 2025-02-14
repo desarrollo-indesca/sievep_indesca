@@ -46,6 +46,7 @@
                     </tr>
                   </tbody>
                 </table>
+                {% with caso=compresor.casos.all.first %}
                 <table class="table table-light text-center table-bordered tabla_ficha mt-0">
                     <thead>
                         <tr>
@@ -64,13 +65,12 @@
                                 <a href="{% url 'creacion_nuevo_caso' pk=compresor.pk %}" class="btn btn-sm btn-danger">+ Añadir nuevo caso</a>
                             </th>
                             <th>
-                                <a href="#" class="btn btn-sm btn-secondary">+ Editar Caso</a>
+                                <a id="boton_edicion_caso" href="{% url 'edicion_caso' pk=caso.pk %}" class="btn btn-sm btn-secondary">+ Editar Caso</a>
                             </th>
                             {% endif %}
                         </tr>
                     </thead>
                     <tbody id="casos_{{compresor.pk}}">
-                        {% with caso=compresor.casos.all.first %}
                         <tr>
                             <th class="table-dark">Número de Impulsores</th>
                             <td>{{caso.numero_impulsores|default_if_none:'-'}}</td>
@@ -194,10 +194,10 @@
                         {% endwith %}
                         {% endwith %}
                         {% endfor %}
-                        {% endwith %}
                     </tr>
                     </tbody>
                 </table>
+                {% endwith %}
 
                 <table class="text-center">
                     <tr>

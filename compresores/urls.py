@@ -11,4 +11,5 @@ urlpatterns = [
     path('edicion-etapas/<int:pk>/', EdicionEtapa.as_view(), name="edicion_etapa"),
 
     path('editar/<int:pk>/', EdicionCompresor.as_view(), name="edicion_compresor"),
+    path('editar-caso/<int:pk>/', EdicionCaso.as_view(), name="edicion_caso"),
 ]
