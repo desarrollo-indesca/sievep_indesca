@@ -260,7 +260,7 @@ class CreacionCompresor(View):
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name, self.get_context_data())
     
-class CrearNuevoCaso(View):
+class CreacionNuevoCaso(View):
     template_name = 'compresores/creacion.html'
 
     def almacenar_datos(self, form_caso):
@@ -305,5 +305,70 @@ class CrearNuevoCaso(View):
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name, self.get_context_data())
 
-class EditarInformacionEtapa(View):
-    pass
+class EdicionEtapa(View):
+    template_name = 'compresores/edicion_etapa.html'
+    
+    def almacenar_datos(self, form_etapa, form_entrada, form_salida):
+        try:
+            form_etapa.is_valid()
+            form_entrada.is_valid()
+            form_salida.is_valid()
+            with transaction.atomic():
+                if form_etapa.is_valid():
+                    form_etapa.save()
+                else:
+                    print(form_etapa.errors)
+                    raise Exception("Información Inválida.")
+                
+                if form_entrada.is_valid():
+                    form_entrada.instance.etapa = form_etapa.instance
+                    form_entrada.save()
+                else:
+                    print(form_entrada.errors)
+                    raise Exception("Información Inválida Entrada.")
+                
+                if form_salida.is_valid():
+                    form_salida.instance.etapa = form_etapa.instance
+                    form_salida.save()
+                else:
+                    print(form_salida.errors)
+                    raise Exception("Información Inválida Salida.")
+                
+            messages.success(self.request, "Información almacenada correctamente.")
+            return redirect('/compresores/')
+        except Exception as e:
+            print(str(e))
+            return render(self.request, self.template_name, {
+                'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
+                'form_etapa': form_etapa,
+                'form_entrada': form_entrada,
+                'form_salida': form_salida,
+                'titulo': "SIEVEP - Edición de Etapa",
+                "etapa": form_etapa.instance
+            })
+
+    def get_context_data(self, **kwargs):
+        etapa = EtapaCompresor.objects.get(pk=self.kwargs.get('pk'))
+        lado_entrada = etapa.lados.first()
+        lado_salida = etapa.lados.last()
+
+        context = {}
+        context['etapa'] = etapa
+        context['compresor'] = etapa.compresor.compresor
+        context["form_etapa"] = EtapaCompresorForm(instance=etapa)
+        context["form_entrada"] = LadoEtapaCompresorForm(instance=lado_entrada, prefix="entrada")
+        context["form_salida"] = LadoEtapaCompresorForm(instance=lado_salida, prefix="salida")
+        context['unidades'] = Unidades.objects.all().values('pk', 'simbolo', 'tipo')
+        context['titulo'] = "SIEVEP - Edición de Etapa"
+
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        etapa_previa = EtapaCompresor.objects.get(pk=self.kwargs.get('pk'))
+        form_caso = EtapaCompresorForm(request.POST, instance=etapa_previa)
+        form_entrada = LadoEtapaCompresorForm(request.POST, instance=etapa_previa.lados.first(), prefix="entrada")
+        form_salida = LadoEtapaCompresorForm(request.POST, instance=etapa_previa.lados.last(), prefix="salida")
+        return self.almacenar_datos(form_caso, form_entrada, form_salida)
+
+    def get(self, request, pk, *args, **kwargs):
+        return render(request, self.template_name, self.get_context_data())
