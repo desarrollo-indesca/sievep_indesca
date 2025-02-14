@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from intercambiadores.models import Planta, Fluido, Unidades
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidator
 
 LADOS_COMPRESOR= (
     ('I', 'Entrada'), 
@@ -34,17 +34,17 @@ class Compresor(models.Model):
         creado_por: ForeignKey -> Usuario que creó el compresor.
         editado_por: ForeignKey -> Usuario que editó por última vez el compresor.
     """
-    tag = models.CharField(max_length=20, unique=True)
-    descripcion = models.CharField(max_length=100, verbose_name="Descripción")
-    fabricante = models.CharField(max_length=45, null=True, blank=True)
-    modelo = models.CharField(max_length=45, null=True, blank=True)
-    planta = models.ForeignKey(Planta, on_delete=models.PROTECT)
-    tipo = models.ForeignKey(TipoCompresor, on_delete=models.PROTECT)
-    creado_al = models.DateTimeField(auto_now_add=True)
-    editado_al = models.DateTimeField(null=True)
-    creado_por = models.ForeignKey('auth.User', on_delete=models.PROTECT, related_name="compresor_creado_por")
-    editado_por = models.ForeignKey('auth.User', on_delete=models.PROTECT, null=True, related_name="compresor_editado_por")
-    copia = models.BooleanField(default=False, blank=True)
+    tag = models.CharField(max_length=20, unique=True, verbose_name="Tag")
+    descripcion = models.CharField(max_length=100, verbose_name="Descripción del Compresor")
+    fabricante = models.CharField(max_length=45, null=True, blank=True, verbose_name="Fabricante")
+    modelo = models.CharField(max_length=45, null=True, blank=True, verbose_name="Modelo del Compresor")
+    planta = models.ForeignKey(Planta, on_delete=models.PROTECT, verbose_name="Planta")
+    tipo = models.ForeignKey(TipoCompresor, on_delete=models.PROTECT, verbose_name="Tipo de Compresor")
+    creado_al = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
+    editado_al = models.DateTimeField(null=True, verbose_name="Fecha de Última Edición")
+    creado_por = models.ForeignKey('auth.User', on_delete=models.PROTECT, related_name="compresor_creado_por", verbose_name="Creado por")
+    editado_por = models.ForeignKey('auth.User', on_delete=models.PROTECT, null=True, related_name="compresor_editado_por", verbose_name="Editado por")
+    copia = models.BooleanField(default=False, blank=True, verbose_name="Es Copia")
 
     class Meta:
         ordering = ('tag',)
@@ -53,57 +53,72 @@ class TipoLubricacion(models.Model):
     nombre = models.CharField(max_length=45, unique=True)
 
 class PropiedadesCompresor(models.Model):
-    numero_impulsores = models.IntegerField(null=True, blank=True)
-    material_carcasa = models.CharField(max_length=45, null=True, blank=True)
-    tipo_sello = models.CharField(max_length=45, null=True, blank=True)
-    velocidad_max_continua = models.FloatField(null=True, blank=True)
-    velocidad_rotacion = models.FloatField(null=True, blank=True)
-    unidad_velocidad = models.ForeignKey(Unidades, default=52, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_velocidad_compresor")
-    potencia_requerida = models.FloatField(null=True, blank=True)
-    unidad_potencia = models.ForeignKey(Unidades, default=53, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_potencia_compresor")
-    compresor = models.ForeignKey(Compresor, on_delete=models.PROTECT, related_name="casos") # IMPORTANTE: Varias Propiedades
-    tipo_lubricacion = models.ForeignKey(TipoLubricacion, on_delete=models.PROTECT, null=True, blank=True)
+    numero_impulsores = models.IntegerField(null=True, blank=True, verbose_name="Número de Impulsores")
+    material_carcasa = models.CharField(max_length=45, null=True, blank=True, verbose_name="Material de la Carcasa")
+    tipo_sello = models.CharField(max_length=45, null=True, blank=True, verbose_name="Tipo de Sello")
+    velocidad_max_continua = models.FloatField(null=True, blank=True, verbose_name="Velocidad Máxima Continua")
+    velocidad_rotacion = models.FloatField(null=True, blank=True, verbose_name="Velocidad de Rotación")
+    unidad_velocidad = models.ForeignKey(Unidades, default=52, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_velocidad_compresor", verbose_name="Unidad de la Velocidad")
+    potencia_requerida = models.FloatField(null=True, blank=True, verbose_name="Potencia Requerida")
+    unidad_potencia = models.ForeignKey(Unidades, default=53, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_potencia_compresor", verbose_name="Unidad de la Potencia")
+    compresor = models.ForeignKey(Compresor, on_delete=models.PROTECT, related_name="casos", verbose_name="Compresor") # IMPORTANTE: Varias Propiedades
+    tipo_lubricacion = models.ForeignKey(TipoLubricacion, on_delete=models.PROTECT, null=True, blank=True, verbose_name="Tipo de Lubricación")
 
 class EtapaCompresor(models.Model):
-    compresor = models.ForeignKey(PropiedadesCompresor, on_delete=models.PROTECT, related_name='etapas')
-    numero = models.IntegerField()
-    nombre_fluido = models.CharField(max_length=45, null=True, blank=True)
-    flujo_masico = models.FloatField(null=True, blank=True)
-    flujo_masico_unidad = models.ForeignKey(Unidades, default=54, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_flujo_masico_compresor")
-    flujo_molar = models.FloatField(null=True, blank=True)
-    flujo_molar_unidad = models.ForeignKey(Unidades, default=94, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_flujo_molar_compresor")
-    densidad = models.FloatField(null=True, blank=True)
-    densidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, default=43, null=True, blank=True, related_name="unidad_densidad_compresor")
-    aumento_estimado = models.FloatField(null=True, blank=True)
-    rel_compresion = models.FloatField(null=True, blank=True)
-    potencia_nominal = models.FloatField(null=True, blank=True)
-    potencia_req = models.FloatField("Potencia Requerida", null=True, blank=True)
-    potencia_unidad = models.ForeignKey(Unidades, default=53, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_potencia_etapa_compresor")
-    eficiencia_isentropica = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(100.0)])
-    eficiencia_politropica = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(100.0)])
-    cabezal_politropico = models.FloatField(null=True, blank=True)
-    cabezal_unidad = models.ForeignKey(Unidades, default=4, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_cabezal_compresor")
-    humedad_relativa = models.FloatField(null=True, blank=True)
-    volumen_diseno = models.FloatField(null=True, blank=True)
-    volumen_normal = models.FloatField(null=True, blank=True)
-    volumen_unidad = models.ForeignKey(Unidades, default=34, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_volumen_etapa_compresor")
+    compresor = models.ForeignKey(PropiedadesCompresor, on_delete=models.PROTECT, related_name='etapas', verbose_name="Compresor")
+    numero = models.IntegerField(verbose_name="Número")
+    nombre_fluido = models.CharField(max_length=45, null=True, blank=True, verbose_name="Nombre del Gas")
+    flujo_masico = models.FloatField(null=True, blank=True, verbose_name="Flujo Másico")
+    flujo_masico_unidad = models.ForeignKey(Unidades, default=54, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_flujo_masico_compresor", verbose_name="Unidad")
+    flujo_molar = models.FloatField(null=True, blank=True, verbose_name="Flujo Molar")
+    flujo_molar_unidad = models.ForeignKey(Unidades, default=94, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_flujo_molar_compresor", verbose_name="Unidad")
+    densidad = models.FloatField(null=True, blank=True, verbose_name="Densidad")
+    densidad_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, default=43, null=True, blank=True, related_name="unidad_densidad_compresor", verbose_name="Unidad")
+    aumento_estimado = models.FloatField(null=True, blank=True, verbose_name="Aumento Estimado")
+    rel_compresion = models.FloatField(null=True, blank=True, verbose_name="Relación de Compresión")
+    potencia_nominal = models.FloatField(null=True, blank=True, verbose_name="Potencia Nominal")
+    potencia_req = models.FloatField(null=True, blank=True, verbose_name="Potencia Requerida")
+    potencia_unidad = models.ForeignKey(Unidades, default=53, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_potencia_etapa_compresor", verbose_name="Unidad")
+    eficiencia_isentropica = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(100.0)], verbose_name="Eficiencia Isentrópica")
+    eficiencia_politropica = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(100.0)], verbose_name="Eficiencia Politrópica")
+    cabezal_politropico = models.FloatField(null=True, blank=True, verbose_name="Cabezal Politrópico")
+    cabezal_unidad = models.ForeignKey(Unidades, default=4, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_cabezal_compresor", verbose_name="Unidad")
+    humedad_relativa = models.FloatField(null=True, blank=True, verbose_name="Humedad Relativa (%)", validators=[MinValueValidator(0.0), MaxValueValidator(100.0)])
+    volumen_diseno = models.FloatField(null=True, blank=True, verbose_name="Volumen de Diseño")
+    volumen_normal = models.FloatField(null=True, blank=True, verbose_name="Volumen Normal")
+    volumen_unidad = models.ForeignKey(Unidades, default=34, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_volumen_etapa_compresor", verbose_name="Unidad")
     
-    curva_caracteristica = models.FileField(null=True, blank=True)
+    curva_caracteristica = models.FileField("Curva Característica", null=True, blank=True, upload_to='compresores/', validators=[
+        FileExtensionValidator(allowed_extensions=['png', 'jpg'])
+    ])
 
     class Meta:
         ordering = ('numero', )
 
 class ComposicionGases(models.Model):
-    etapa = models.ForeignKey(EtapaCompresor, on_delete=models.PROTECT, related_name='composiciones')
-    porc_molar = models.FloatField(null=True, blank=True)
-    compuesto = models.ForeignKey(Fluido, on_delete=models.CASCADE) 
+    etapa = models.ForeignKey(
+        EtapaCompresor, 
+        on_delete=models.PROTECT, 
+        related_name='composiciones', 
+        verbose_name="Etapa del Compresor"
+    )
+    porc_molar = models.FloatField(
+        null=True, 
+        blank=True, 
+        verbose_name="Porcentaje Molar"
+    )
+    compuesto = models.ForeignKey(
+        Fluido, 
+        on_delete=models.CASCADE, 
+        verbose_name="Compuesto"
+    )
 
 class LadoEtapaCompresor(models.Model):
-    etapa = models.ForeignKey(EtapaCompresor, on_delete=models.PROTECT, related_name='lados')
-    lado = models.CharField(max_length=1, choices=LADOS_COMPRESOR)
-    temp = models.FloatField(null=True, blank=True)
-    temp_unidad = models.ForeignKey(Unidades, default=1, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_temp_etapa_compresor")
-    presion = models.FloatField(null=True, blank=True)
-    presion_unidad = models.ForeignKey(Unidades, default=7, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_presion_etapa_compresor")
-    compresibilidad = models.FloatField(null=True, blank=True)
-    cp_cv = models.FloatField(null=True, blank=True)
+    etapa = models.ForeignKey(EtapaCompresor, on_delete=models.PROTECT, related_name='lados', verbose_name="Etapa del Compresor")
+    lado = models.CharField(max_length=1, choices=LADOS_COMPRESOR, verbose_name="Lado del Compresor")
+    temp = models.FloatField(null=True, blank=True, verbose_name="Temperatura")
+    temp_unidad = models.ForeignKey(Unidades, default=1, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_temp_etapa_compresor", verbose_name="Unidad de Temperatura")
+    presion = models.FloatField(null=True, blank=True, verbose_name="Presión")
+    presion_unidad = models.ForeignKey(Unidades, default=7, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_presion_etapa_compresor", verbose_name="Unidad de Presión")
+    compresibilidad = models.FloatField(null=True, blank=True, verbose_name="Compresibilidad")
+    cp_cv = models.FloatField(null=True, blank=True, verbose_name="Relación Cp/Cv")

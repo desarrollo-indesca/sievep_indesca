@@ -103,7 +103,7 @@
                         </tr>
                         <tr>
                             <th class="table-dark">Nombre del Gas</th>
-                            <td colspan="3">{{etapa.nombre_fluido.upper}}</td>
+                            <td colspan="3">{{etapa.nombre_fluido.upper|default:'-'}}</td>
                         </tr>
                         <tr>
                             <th class="table-dark">Flujo Másico ({{etapa.flujo_masico_unidad|default:'-'}})</th>
