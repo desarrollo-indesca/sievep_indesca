@@ -4428,3 +4428,128 @@ def detalle_evaluacion_precalentador_aire(evaluacion):
     story.append(table)
 
     return [story, None]
+
+def ficha_tecnica_compresor(compresor):
+    '''
+    Resumen:
+        Esta función genera la historia de elementos a utilizar en el reporte de ficha técnica de compresor.
+    '''
+    story = []
+    story.append(Spacer(0, 90))
+
+    especificaciones = compresor.especificaciones
+
+    # Primera Tabla: Datos Generales
+    table = [
+        [
+            Paragraph("Tag", centrar_parrafo),
+            Paragraph(f"{compresor.tag}", centrar_parrafo),
+            Paragraph("Planta", centrar_parrafo),
+            Paragraph(f"{compresor.planta.nombre}", centrar_parrafo)
+        ],
+        [
+            Paragraph("Fabricante", centrar_parrafo),
+            Paragraph(f"{compresor.fabricante if compresor.fabricante else '—'}", centrar_parrafo),
+            Paragraph("Modelo", centrar_parrafo),
+            Paragraph(f"{compresor.modelo if compresor.modelo else '—'}", centrar_parrafo)
+        ],
+        [
+            Paragraph("Tipo", centrar_parrafo),
+            Paragraph(f"{compresor.tipo if compresor.tipo else '—'}", centrar_parrafo),
+            '', ''
+        ],
+        [
+            Paragraph("Descripción", centrar_parrafo),
+            Paragraph(f"{compresor.descripcion if compresor.descripcion else '—'}", centrar_parrafo),
+            '', ''
+        ]
+    ]
+
+    estilo = TableStyle([
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+    ])
+
+    table = Table(table, style=estilo)
+    story.append(table)
+
+
+    # Tabla para cada caso
+    for i,caso in enumerate(compresor.casos.all()):
+            table = [
+                [
+                    Paragraph(f"Caso {i}", centrar_parrafo),
+                ],
+                [
+                    Paragraph("Número de Impulsores", centrar_parrafo),
+                    Paragraph(str(caso.numero_impulsores) if caso.numero_impulsores else '—', centrar_parrafo),
+                    Paragraph("Tipo de Sello", centrar_parrafo),
+                    Paragraph(caso.tipo_sello if caso.tipo_sello else '—', centrar_parrafo)
+                ],
+                [
+                    Paragraph("Material de Carcasa", centrar_parrafo),
+                    Paragraph(caso.material_carcasa if caso.material_carcasa else '—', centrar_parrafo),
+                    Paragraph(f"Velocidad Máxima Continua ({caso.unidad_velocidad})", centrar_parrafo),
+                    Paragraph(str(caso.velocidad_max_continua) if caso.velocidad_max_continua else '—', centrar_parrafo)
+                ],
+                [
+                    Paragraph(f"Velocidad de Rotación ({caso.unidad_velocidad})", centrar_parrafo),
+                    Paragraph(str(caso.velocidad_rotacion) if caso.velocidad_rotacion else '—', centrar_parrafo),
+                    Paragraph(f"Potencia Requerida ({caso.unidad_potencia})", centrar_parrafo),
+                    Paragraph(str(caso.potencia_requerida) if caso.potencia_requerida else '—', centrar_parrafo)
+                ],
+            ]
+
+            estilo = TableStyle([
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+                ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+            ])
+
+            table = Table(table, style=estilo)
+            story.append(table)
+
+            # Tabla para cada etapa
+            for j,etapa in enumerate(caso.etapas.all()):
+                table = [
+                    [
+                        Paragraph(f"Etapa {j+1}", centrar_parrafo),
+                    ],
+                    [
+                        Paragraph("Nombre del Gas", centrar_parrafo),
+                        Paragraph(etapa.nombre_fluido if etapa.nombre_fluido else '—', centrar_parrafo),
+                        Paragraph(f"Flujo Másico ({etapa.flujo_masico_unidad})", centrar_parrafo),
+                        Paragraph(str(etapa.flujo_masico) if etapa.flujo_masico else '—', centrar_parrafo)
+                    ],
+                    [
+                        Paragraph(f"Flujo Molar ({etapa.flujo_molar_unidad})", centrar_parrafo),
+                        Paragraph(str(etapa.flujo_molar) if etapa.flujo_molar else '—', centrar_parrafo),
+                        Paragraph(f"Densidad ({etapa.densidad_unidad})", centrar_parrafo),
+                        Paragraph(str(etapa.densidad) if etapa.densidad else '—', centrar_parrafo)
+                    ],
+                    [
+                        Paragraph(f"Aumento Estimado ({etapa.volumen_unidad})", centrar_parrafo),
+                        Paragraph(str(etapa.aumento_estimado) if etapa.aumento_estimado else '—', centrar_parrafo),
+                        Paragraph("Relación de Compresión", centrar_parrafo),
+                        Paragraph(str(etapa.relacion_compresion) if etapa.relacion_compresion else '—', centrar_parrafo)
+                    ],
+                    [
+                        Paragraph(f"Potencia Nominal ({etapa.potencia_unidad})", centrar_parrafo),
+                        Paragraph(str(etapa.potencia_nominal) if etapa.potencia_nominal else '—', centrar_parrafo),
+                        Paragraph("Potencia Requerida ({etapa.potencia_unidad})", centrar_parrafo),
+                        Paragraph(str(etapa.potencia_requerida) if etapa.potencia_requerida else '—', centrar_parrafo)
+                    ]
+                ]
+
+                estilo = TableStyle([
+                    ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+                    ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+                ])
+
+                table = Table(table, style=estilo)
+                story.append(table)
+    
+    return story
+

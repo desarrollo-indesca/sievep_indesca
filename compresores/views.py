@@ -81,8 +81,6 @@ class ReportesFichasCompresoresMixin():
             if(request.POST.get('tipo') == 'xlsx'):
                 return ficha_tecnica_compresor(compresor, request)
 
-# Create your views here.
-
 class ConsultaCompresores(FiltradoSimpleMixin, ReportesFichasCompresoresMixin, CargarCompresorMixin, LoginRequiredMixin, ListView):
     '''
     Resumen:
