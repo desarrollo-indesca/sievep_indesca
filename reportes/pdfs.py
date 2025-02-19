@@ -247,6 +247,9 @@ def generar_historia(request, reporte, object_list):
     if reporte == 'detalle_evaluacion_precalentador_aire':
         return detalle_evaluacion_precalentador_aire(object_list)
 
+    if reporte == 'ficha_tecnica_compresor':
+        return ficha_tecnica_compresor(object_list)
+
 # GENERALES
 def reporte_equipos(request, object_list):
     '''
@@ -4437,8 +4440,6 @@ def ficha_tecnica_compresor(compresor):
     story = []
     story.append(Spacer(0, 90))
 
-    especificaciones = compresor.especificaciones
-
     # Primera Tabla: Datos Generales
     table = [
         [
@@ -4467,17 +4468,21 @@ def ficha_tecnica_compresor(compresor):
 
     estilo = TableStyle([
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+        ('BACKGROUND', (0, 0), (0, -1), sombreado),
+        ('BACKGROUND', (2, 0), (2, 1), sombreado),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('SPAN', (1,2), (-1,2)),
+        ('SPAN', (1,3), (-1,3)),
     ])
 
     table = Table(table, style=estilo)
     story.append(table)
 
-
     # Tabla para cada caso
-    for i,caso in enumerate(compresor.casos.all()):
-            table = [
+    for i,caso in enumerate(compresor.casos.all(), start=1):
+        story.append(Spacer(0,10))
+
+        table = [
                 [
                     Paragraph(f"Caso {i}", centrar_parrafo),
                 ],
@@ -4499,20 +4504,23 @@ def ficha_tecnica_compresor(compresor):
                     Paragraph(f"Potencia Requerida ({caso.unidad_potencia})", centrar_parrafo),
                     Paragraph(str(caso.potencia_requerida) if caso.potencia_requerida else '—', centrar_parrafo)
                 ],
-            ]
+        ]
 
-            estilo = TableStyle([
+        estilo = TableStyle([
                 ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
                 ('BACKGROUND', (0, 0), (-1, 0), sombreado),
-                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
-            ])
+                ('BACKGROUND', (0, 1), (0, -1), sombreado),
+                ('BACKGROUND', (2, 1), (2, -1), sombreado),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('SPAN', (0, 0), (3, 0))
+        ])
 
-            table = Table(table, style=estilo)
-            story.append(table)
+        table = Table(table, style=estilo)
+        story.append(table)
 
-            # Tabla para cada etapa
-            for j,etapa in enumerate(caso.etapas.all()):
-                table = [
+        # Tabla para cada etapa
+        for j,etapa in enumerate(caso.etapas.all()):
+            table = [
                     [
                         Paragraph(f"Etapa {j+1}", centrar_parrafo),
                     ],
@@ -4532,24 +4540,88 @@ def ficha_tecnica_compresor(compresor):
                         Paragraph(f"Aumento Estimado ({etapa.volumen_unidad})", centrar_parrafo),
                         Paragraph(str(etapa.aumento_estimado) if etapa.aumento_estimado else '—', centrar_parrafo),
                         Paragraph("Relación de Compresión", centrar_parrafo),
-                        Paragraph(str(etapa.relacion_compresion) if etapa.relacion_compresion else '—', centrar_parrafo)
+                        Paragraph(str(etapa.rel_compresion) if etapa.rel_compresion else '—', centrar_parrafo)
                     ],
                     [
                         Paragraph(f"Potencia Nominal ({etapa.potencia_unidad})", centrar_parrafo),
                         Paragraph(str(etapa.potencia_nominal) if etapa.potencia_nominal else '—', centrar_parrafo),
-                        Paragraph("Potencia Requerida ({etapa.potencia_unidad})", centrar_parrafo),
-                        Paragraph(str(etapa.potencia_requerida) if etapa.potencia_requerida else '—', centrar_parrafo)
+                        Paragraph(f"Potencia Requerida ({etapa.potencia_unidad})", centrar_parrafo),
+                        Paragraph(str(etapa.potencia_req) if etapa.potencia_req else '—', centrar_parrafo)
+                    ],
+                    [
+                        Paragraph(f"Eficiencia Isentrópica (%)", centrar_parrafo),
+                        Paragraph(str(etapa.eficiencia_isentropica) if etapa.eficiencia_isentropica else '—', centrar_parrafo),
+                        Paragraph("Eficiencia Politrópica (%)", centrar_parrafo),
+                        Paragraph(str(etapa.eficiencia_politropica) if etapa.eficiencia_politropica else '—', centrar_parrafo)                    
+                    ],
+                    [
+                        Paragraph(f"Cabezal Politrópico ({etapa.cabezal_unidad})", centrar_parrafo),
+                        Paragraph(str(etapa.cabezal_politropico) if etapa.cabezal_politropico else '—', centrar_parrafo),
+                        Paragraph("Humedad Relativa (%)", centrar_parrafo),
+                        Paragraph(str(etapa.humedad_relativa) if etapa.humedad_relativa else '—', centrar_parrafo),
+                    ],
+                    [
+                        Paragraph(f"Volumen Diseño ({etapa.volumen_unidad})", centrar_parrafo),
+                        Paragraph(str(etapa.volumen_diseno) if etapa.volumen_diseno else '—', centrar_parrafo),
+                        Paragraph(f"Volumen Diseño ({etapa.volumen_unidad})", centrar_parrafo),
+                        Paragraph(str(etapa.volumen_normal) if etapa.volumen_normal else '—', centrar_parrafo),
                     ]
-                ]
+            ]
 
-                estilo = TableStyle([
+            estilo = TableStyle([
                     ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
                     ('BACKGROUND', (0, 0), (-1, 0), sombreado),
-                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
-                ])
+                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                    ('SPAN', (0, 0), (-1, 0)),
+                    ('BACKGROUND', (0, 0), (0, -1), sombreado),
+                    ('BACKGROUND', (2, 0), (2, -1), sombreado),
+            ])
 
-                table = Table(table, style=estilo)
-                story.append(table)
-    
-    return story
+            table = Table(table, style=estilo)
+            story.append(table)
+
+            # Tabla que relaciona los campos de ambos lados
+            print(etapa.lados.values('lado'))
+            lado_e = etapa.lados.get(lado='E')
+            lado_s = etapa.lados.get(lado='S')
+
+            table = [
+                    [
+                        Paragraph("", centrar_parrafo),
+                        Paragraph("Entrada", centrar_parrafo),
+                        Paragraph("Salida", centrar_parrafo)
+                    ],
+                    [
+                        Paragraph("Temperatura", centrar_parrafo),
+                        Paragraph(f"{str(lado_e.temp) if lado_e.temp else '—'} °C", centrar_parrafo),
+                        Paragraph(f"{str(lado_s.temp) if lado_s.temp else '—'} °C", centrar_parrafo)
+                    ],
+                    [
+                        Paragraph("Presión", centrar_parrafo),
+                        Paragraph(f"{str(lado_e.presion) if lado_e.presion else '—'} {lado_e.presion_unidad}", centrar_parrafo),
+                        Paragraph(f"{str(lado_s.presion) if lado_s.presion else '—'} {lado_s.presion_unidad}", centrar_parrafo)
+                    ],
+                    [
+                        Paragraph("Compresibilidad", centrar_parrafo),
+                        Paragraph(str(lado_e.compresibilidad) if lado_e.compresibilidad else '—', centrar_parrafo),
+                        Paragraph(str(lado_s.compresibilidad) if lado_s.compresibilidad else '—', centrar_parrafo)
+                    ],
+                    [
+                        Paragraph("Cp/Cv", centrar_parrafo),
+                        Paragraph(str(lado_e.cp_cv) if lado_e.cp_cv else '—', centrar_parrafo),
+                        Paragraph(str(lado_s.cp_cv) if lado_s.cp_cv else '—', centrar_parrafo)
+                    ]
+            ]
+
+            estilo = TableStyle([
+                    ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+                    ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+                    ('BACKGROUND', (0, 0), (0, -1), sombreado),
+                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+            ])
+
+            table = Table(table, style=estilo)
+            story.append(table)
+
+    return [story, []]
 

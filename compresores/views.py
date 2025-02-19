@@ -13,6 +13,20 @@ from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos
 from django.contrib import messages
 
+class ReportesFichasCompresoresMixin():
+    '''
+    Resumen:
+        Mixin para evitar la repetición de código al generar fichas técnicas en las vistas que lo permiten.
+        También incluye lógica para la generación de la ficha de los parámetros de instalación.
+    '''
+    def reporte_ficha(self, request):
+        if(request.POST.get('ficha')): # FICHA TÉCNICA
+            compresor = Compresor.objects.get(pk = request.POST.get('ficha'))
+            if(request.POST.get('tipo') == 'pdf'):
+                return generar_pdf(request,compresor, f"Ficha Técnica del Compresor {compresor.tag}", "ficha_tecnica_compresor")
+            if(request.POST.get('tipo') == 'xlsx'):
+                return ficha_tecnica_compresor(compresor, request)
+
 class CargarCompresorMixin():
     """
     Resumen:
@@ -66,20 +80,6 @@ class CargarCompresorMixin():
                 return compresor[0]
 
         return compresor
-
-class ReportesFichasCompresoresMixin():
-    '''
-    Resumen:
-        Mixin para evitar la repetición de código al generar fichas técnicas en las vistas que lo permiten.
-        También incluye lógica para la generación de la ficha de los parámetros de instalación.
-    '''
-    def reporte_ficha(self, request):
-        if(request.POST.get('ficha')): # FICHA TÉCNICA
-            compresor = Caldera.objects.get(pk = request.POST.get('ficha'))
-            if(request.POST.get('tipo') == 'pdf'):
-                return generar_pdf(request,compresor, f"Ficha Técnica de la Caldera {compresor.tag}", "ficha_tecnica_compresor")
-            if(request.POST.get('tipo') == 'xlsx'):
-                return ficha_tecnica_compresor(compresor, request)
 
 class ConsultaCompresores(FiltradoSimpleMixin, ReportesFichasCompresoresMixin, CargarCompresorMixin, LoginRequiredMixin, ListView):
     '''

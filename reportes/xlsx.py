@@ -2034,3 +2034,8 @@ def ficha_tecnica_precalentador_aire(precalentador, request):
     workbook.close()
 
     return enviar_response(f'ficha_tecnica_precalentador_aire_{precalentador.tag}', excel_io, fecha)
+
+# REPORTES DE COMPRESORES
+
+def ficha_tecnica_compresor(compresor, request):
+    pass
