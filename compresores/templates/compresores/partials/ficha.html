@@ -218,7 +218,7 @@
           <a href="{% url 'edicion_compresor' pk=compresor.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
           {% endif %}
           {% if request.user.is_superuser or compresor.planta.pk in permisos.duplicaciones %}
-          <form action="#" method="post" name="duplicacion">
+          <form action="{% url 'duplicar_compresores' pk=compresor.pk %}" method="post" name="duplicacion">
             {% csrf_token %}
             <button type="submit" class="btn btn-secondary d-inline-flex" style="color: black;">Duplicar</button>
           </form>

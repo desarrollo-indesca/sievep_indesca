@@ -149,39 +149,38 @@ class DuplicarCompresores(CargarCompresorMixin, DuplicateView):
     """
 
     def post(self, request, pk):
-        compresor_original = Compresor.objects.select_related(
-            'creado_por', 'editado_por', 'planta'
-        ).prefetch_related(
-            "casos", "casos__etapas", "casos__etapas__lados",
-            "casos__etapas__composiciones"
-        ).get(pk=pk)
+        with transaction.atomic():
+            compresor_original = Compresor.objects.select_related(
+                'creado_por', 'editado_por', 'planta'
+            ).prefetch_related(
+                "casos", "casos__etapas", "casos__etapas__lados",
+                "casos__etapas__composiciones"
+            ).get(pk=pk)
 
-        if(self.request.user.is_superuser or PlantaAccesible.objects.filter(usuario = request.user, planta = compresor_original.planta, duplicacion = True).exists()):
-            compresor = compresor_original
-            compresor.tag = generate_nonexistent_tag(Compresor, compresor.tag)
-            compresor.descripcion = f"COPIA DEL COMPRESOR {compresor_original.tag}"
-            compresor = self.copy(compresor)
+            if(self.request.user.is_superuser or PlantaAccesible.objects.filter(usuario = request.user, planta = compresor_original.planta, duplicacion = True).exists()):
+                compresor = compresor_original
+                compresor.tag = generate_nonexistent_tag(Compresor, compresor.tag)
+                compresor.descripcion = f"COPIA DEL COMPRESOR {compresor_original.tag}"
+                compresor = self.copy(compresor)
 
-            for caso in compresor_original.casos.all():
-                caso.compresor = compresor
-                for etapa in caso.etapas.all():
-                    etapa.caso = caso
-                    for lado in etapa.lados.all():
-                        lado.etapa = etapa
-                        self.copy(lado)
-                    
-                    for compuesto in etapa.composiciones.all():
-                        compuesto.etapa = etapa
-                        self.copy(compuesto)
-                    
-                    self.copy(etapa)
-                self.copy(caso)
+                for caso in compresor_original.casos.all():
+                    caso.compresor = compresor
+                    caso = self.copy(caso)
+                    for etapa in caso.etapas.all():
+                        etapa.compresor = caso
+                        etapa = self.copy(etapa)
+                        for lado in etapa.lados.all():
+                            lado.etapa = etapa
+                            self.copy(lado)
+                        
+                        for compuesto in etapa.composiciones.all():
+                            compuesto.etapa = etapa
+                            self.copy(compuesto)
 
-            compresor_original = Compresor.objects.get(pk=pk)
-            messages.success(request, f"Se ha creado la copia de la compresor {compresor_original.tag} como {compresor.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 7:00am.")
-            return redirect("/compresores")
-        else:
-            return HttpResponseForbidden()
+                messages.success(request, f"Se ha creado la copia de la compresor {compresor_original.tag} como {compresor.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 7:00am.")
+                return redirect("/compresores")
+            else:
+                return HttpResponseForbidden()
         
 class ProcesarFichaSegunCaso(CargarCompresorMixin, View):
     template_name = 'compresores/partials/ficha_caso.html'
