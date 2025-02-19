@@ -10,7 +10,7 @@ from usuarios.models import PlantaAccesible
 from .models import *
 from .forms import *
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import reporte_equipos
+from reportes.xlsx import reporte_equipos, ficha_tecnica_compresor
 from django.contrib import messages
 
 class ReportesFichasCompresoresMixin():
