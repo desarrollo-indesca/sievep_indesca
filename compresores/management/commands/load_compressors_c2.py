@@ -17,11 +17,14 @@ class Command(BaseCommand):
                     for row in csv_reader:
                         compresor = Compresor.objects.get(tag=row['tag'])
 
+                        if compresor.casos.count() >= caso:
+                            continue
+
                         propiedades = PropiedadesCompresor.objects.create(
                             compresor=compresor,
                             numero_impulsores=row['n_impulsores'].strip() if row['n_impulsores'] else None,
                             material_carcasa=row['mat_carcasa'].strip() if row['mat_carcasa'] else None,
-                            tipo_lubricante=row['tipo_lubricante_rot'].strip() if row['tipo_lubricante_rot'] else None,
+                            tipo_lubricacion=row['tipo_lubricante_rot'].strip() if row['tipo_lubricante_rot'] else None,
                             tipo_sello=row['tipo_sello'].strip() if row['tipo_sello'] else None,
                             velocidad_max_continua=row['vel_maxc'].strip() if row['vel_maxc'] else None,
                             velocidad_rotacion=row['vel_rot'].strip() if row['vel_rot'] else None,
@@ -44,7 +47,7 @@ class Command(BaseCommand):
                                         'densidad': row[f'densidad_e{etapa_numero}'].strip() if row[f'densidad_e{etapa_numero}'] else None,
                                         'aumento_estimado': row[f'aumento_est_e{etapa_numero}'].strip() if row[f'aumento_est_e{etapa_numero}'] else None,
                                         'rel_compresion': row[f'rel_comp_e{etapa_numero}'].strip() if etapa_numero == 1 and row[f'rel_comp_e{etapa_numero}'] else None,
-                                        'potencial_nominal': row[f'pot_nom_e{etapa_numero}'].strip() if etapa_numero == 1 and row[f'pot_nom_e{etapa_numero}'] else None,
+                                        'potencia_nominal': row[f'pot_nom_e{etapa_numero}'].strip() if etapa_numero == 1 and row[f'pot_nom_e{etapa_numero}'] else None,
                                         'potencia_req': row[f'pot_req_e{etapa_numero}'].strip() if etapa_numero == 1 and row[f'pot_req_e{etapa_numero}'] else None,
                                         'eficiencia_isentropica': row[f'ef_is_e{etapa_numero}'].strip() if row[f'ef_is_e{etapa_numero}'] else None,
                                         'eficiencia_politropica': row[f'ef_pol_e{etapa_numero}'].strip() if row[f'ef_pol_e{etapa_numero}'] else None,

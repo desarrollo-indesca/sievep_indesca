@@ -53,7 +53,7 @@
                             <th colspan="{% if request.user.is_superuser or compresor.planta.pk in permisos.ediciones %}2{% else %}4{% endif %}">
                                 <div class="d-flex justify-content-center">
                                     Caso &nbsp;
-                                    <select hx-swap="outerHTML" hx-trigger="change" hx-target="#casos_{{compresor.pk}}" hx-get="{% url 'ficha_caso' pk=compresor.pk %}" name="caso" id="caso_{{compresor.pk}}">
+                                    <select hx-swap="outerHTML" hx-select="#casos_{{compresor.pk}}" hx-trigger="change" hx-target="#casos_{{compresor.pk}}" hx-get="{% url 'ficha_caso' pk=compresor.pk %}" name="caso" id="caso_{{compresor.pk}}">
                                         {% for caso in compresor.casos.all %}
                                         <option value="{{caso.pk}}">{{forloop.counter}}</option>
                                         {% endfor %}
@@ -100,7 +100,9 @@
                         </tr>
                         <tr>
                             <td colspan="4">
-                                <img src="{{ caso.curva_caracteristica.url }}" loading="lazy" alt="Curva Característica" style="max-width: 100%;">
+                                <a href="{{ caso.curva_caracteristica.url }}" target="_blank">
+                                    <img src="{{ caso.curva_caracteristica.url }}" loading="lazy" alt="Curva Característica" style="max-width: 100%;">
+                                </a>
                             </td>
                         </tr>
                         {% endif %}
@@ -210,7 +212,9 @@
                         </tr>
                         <tr>
                             <td colspan="4">
-                                <img src="{{ etapa.curva_caracteristica.url }}" loading="lazy" alt="Curva Característica" style="max-width: 100%;">
+                                <a href="{{ etapa.curva_caracteristica.url }}" target="_blank" rel="noopener noreferrer">
+                                    <img src="{{ etapa.curva_caracteristica.url }}" loading="lazy" alt="Curva Característica" style="max-width: 100%;">
+                                </a>
                             </td>
                         </tr>
                         {% endif %}

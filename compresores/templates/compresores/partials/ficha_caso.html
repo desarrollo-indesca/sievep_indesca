@@ -1,150 +1,157 @@
-<tbody id="casos_{{compresor.pk}}">
-    <tr>
-        <th class="table-dark">Número de Impulsores</th>
-        <td>{{caso.numero_impulsores|default_if_none:'-'}}</td>
-        <th class="table-dark">Tipo de Lubricación (ROT)</th>
-        <td>{{caso.tipo_lubricacion|default_if_none:'-'}}</td>
+<table>
+    <tbody id="casos_{{compresor.pk}}">
+        <tr>
+            <th class="table-dark">Número de Impulsores</th>
+            <td>{{caso.numero_impulsores|default_if_none:'-'}}</td>
+            <th class="table-dark">Tipo de Lubricación (ROT)</th>
+            <td>{{caso.tipo_lubricacion|default_if_none:'-'}}</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Material de Carcasa</th>
+            <td>{{caso.material_carcasa|default_if_none:'-'}}</td>
+            <th class="table-dark">Tipo de Sello</th>
+            <td>{{caso.tipo_sello|default_if_none:'-'}}</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Velocidad Máxima Continua ({{caso.unidad_velocidad}})</th>
+            <td>{{caso.velocidad_max_continua|default_if_none:'-'}}</td>
+            <th class="table-dark">Velocidad de Rotación ({{caso.unidad_velocidad}})</th>
+            <td>{{caso.velocidad_rotacion|default_if_none:'-'}}</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Potencia Requerida ({{caso.unidad_potencia}})</th>
+            <td colspan="3">{{caso.potencia_requerida|default_if_none:'-'}}</td>
+        </tr>
+    
+        {% if caso.curva_caracteristica %}
+        <tr>
+            <th class="table-dark" colspan="4">Curva Característica {{caso.curva_caracteristica}}</th>
+        </tr>
+    
+        <tr>
+            <td colspan="4">
+                <a href="{{ caso.curva_caracteristica.url }}" target="_blank">
+                    <img src="{{ caso.curva_caracteristica.url }}" loading="lazy" alt="Curva Característica" style="max-width: 100%;">
+                </a>
+            </td>
+        </tr>
+        {% endif %}
+    
+        <tr>
+            <th class="table-dark" colspan="4">ETAPAS</th>
+        </tr>
+        {% for etapa in caso.etapas.all %}
+        <tr>
+            <th class="table-dark" colspan="4">Etapa {{etapa.numero}} <br> <a href="{% url 'edicion_etapa' pk=etapa.pk %}" class="btn btn-danger btn-sm">Editar Información</a></th>
+        </tr>
+        <tr>
+            <th class="table-dark">Nombre del Gas</th>
+            <td colspan="3">{{etapa.nombre_fluido.upper|default:'-'}}</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Flujo Másico ({{etapa.flujo_masico_unidad|default:'-'}})</th>
+            <td>{{etapa.flujo_masico|default:'-'}}</td>
+            <th class="table-dark">Flujo Molar ({{etapa.flujo_molar_unidad|default:'-'}})</th>
+            <td>{{etapa.flujo_molar|default:'-'}}</td>
+        </tr>
+        <tr>
+            <th class="table-dark">Volumen Normal ({{etapa.volumen_unidad|default:'-'}})</th>
+            <td>{{etapa.volumen_normal|default:'-'}}</td>                              
+            <th class="table-dark">Volumen de Diseño ({{etapa.volumen_unidad|default:'-'}})</th>
+            <td>{{etapa.volumen_diseno|default:'-'}}</td>                            
+        </tr>
+        <tr>
+            <th class="table-dark">Relación de Compresión</th>
+            <td>{{etapa.rel_compresion|default:'-'}}</td>    
+            <th class="table-dark">Potencia Nominal ({{etapa.potencia_unidad|default:'-'}})</th>
+            <td>{{etapa.potencia_nominal|default:'-'}}</td>                            
+        </tr>
+        <tr>
+            <th class="table-dark">Relación de Compresión</th>
+            <td>{{etapa.rel_compresion|default:'-'}}</td>    
+            <th class="table-dark">Potencia Nominal ({{etapa.potencia_unidad|default:'-'}})</th>
+            <td>{{etapa.potencia_nominlal|default:'-'}}</td>                            
+        </tr>
+        <tr>
+            <th class="table-dark">Potencia Requerida ({{etapa.potencia_unidad|default:'-'}})</th>
+            <td>{{etapa.potencia_req|default:'-'}}</td>    
+            <th class="table-dark">Eficiencia Isentrópica (%)</th>
+            <td>{{etapa.eficiencia_isentropica|default:'-'}}</td>                            
+        </tr>
+        <tr>
+            <th class="table-dark">Eficiencia Politrópica (%)</th>
+            <td>{{etapa.eficiencia_politropica|default:'-'}}</td>    
+            <th class="table-dark">Cabezal Politrópico ({{etapa.cabezal_unidad|default:'-'}})</th>
+            <td>{{etapa.cabezal_politropico|default:'-'}}</td>                            
+        </tr>
+        <tr>
+            <th class="table-dark">Densidad ({{etapa.densidad_unidad|default:'-'}})</th>
+            <td>{{etapa.densidad|default:'-'}}</td>  
+            <th class="table-dark">Humedad Relativa (%)</th>
+            <td>{{etapa.humedad_relativa|default:'-'}}</td>
+        </tr>
+    
+        <tr>
+            <th class="table-dark" colspan="2"></th>
+            <th class="table-dark">Entrada</th>
+            <th class="table-dark">Salida</th>
+        </tr>
+        {% with entrada=etapa.lados.first %}
+        {% with salida=etapa.lados.last %}
+        <tr>
+            <th class="table-dark" colspan="2">Presión</th>
+            <td>
+                {{entrada.presion|default:'-'}} {{entrada.presion_unidad|default:'-'}}
+            </td>
+            <td>
+                {{salida.presion|default:'-'}} {{salida.presion_unidad|default:'-'}}
+            </td>
+        </tr>
+        <tr>
+            <th class="table-dark" colspan="2">Temperatura</th>
+            <td>
+                {{entrada.temp|default:'-'}} {{entrada.temp_unidad|default:'-'}}
+            </td>
+            <td>
+                {{salida.temp|default:'-'}} {{salida.temp_unidad|default:'-'}}
+            </td>
+        </tr>
+        <tr>
+            <th class="table-dark" colspan="2">Cp/Cv</th>
+            <td>
+                {{entrada.cp_cv|default:'-'}}
+            </td>
+            <td>
+                {{salida.cp_cv|default:'-'}}
+            </td>
+        </tr>
+        <tr>
+            <th class="table-dark" colspan="2">Compresibilidad</th>
+            <td>
+                {{entrada.compresibilidad|default:'-'}}
+            </td>
+            <td>
+                {{salida.compresibilidad|default:'-'}}
+            </td>
+        </tr>
+        {% endwith %}
+        {% endwith %}
+    
+        {% if etapa.curva_caracteristica %}
+        <tr>
+            <th class="table-dark" colspan="4">Curva Característica</th>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <a href="{{ etapa.curva_caracteristica.url }}" target="_blank" rel="noopener">
+                    <img src="{{ etapa.curva_caracteristica.url }}" loading="lazy" alt="Curva Característica" style="max-width: 100%;">
+                </a>
+            </td>
+        </tr>
+        {% endif %}
+    
+        {% endfor %}
     </tr>
-    <tr>
-        <th class="table-dark">Material de Carcasa</th>
-        <td>{{caso.material_carcasa|default_if_none:'-'}}</td>
-        <th class="table-dark">Tipo de Sello</th>
-        <td>{{caso.tipo_sello|default_if_none:'-'}}</td>
-    </tr>
-    <tr>
-        <th class="table-dark">Velocidad Máxima Continua ({{caso.unidad_velocidad}})</th>
-        <td>{{caso.velocidad_max_continua|default_if_none:'-'}}</td>
-        <th class="table-dark">Velocidad de Rotación ({{caso.unidad_velocidad}})</th>
-        <td>{{caso.velocidad_rotacion|default_if_none:'-'}}</td>
-    </tr>
-    <tr>
-        <th class="table-dark">Potencia Requerida ({{caso.unidad_potencia}})</th>
-        <td colspan="3">{{caso.potencia_requerida|default_if_none:'-'}}</td>
-    </tr>
-
-    {% if caso.curva_caracteristica %}
-    <tr>
-        <th class="table-dark" colspan="4">Curva Característica {{caso.curva_caracteristica}}</th>
-    </tr>
-
-    <tr>
-        <td colspan="4">
-            <img src="{{ caso.curva_caracteristica.url }}" loading="lazy" alt="Curva Característica" style="max-width: 100%;">
-        </td>
-    </tr>
-    {% endif %}
-
-    <tr>
-        <th class="table-dark" colspan="4">ETAPAS</th>
-    </tr>
-    {% for etapa in caso.etapas.all %}
-    <tr>
-        <th class="table-dark" colspan="4">Etapa {{etapa.numero}} <br> <a href="{% url 'edicion_etapa' pk=etapa.pk %}" class="btn btn-danger btn-sm">Editar Información</a></th>
-    </tr>
-    <tr>
-        <th class="table-dark">Nombre del Gas</th>
-        <td colspan="3">{{etapa.nombre_fluido.upper|default:'-'}}</td>
-    </tr>
-    <tr>
-        <th class="table-dark">Flujo Másico ({{etapa.flujo_masico_unidad|default:'-'}})</th>
-        <td>{{etapa.flujo_masico|default:'-'}}</td>
-        <th class="table-dark">Flujo Molar ({{etapa.flujo_molar_unidad|default:'-'}})</th>
-        <td>{{etapa.flujo_molar|default:'-'}}</td>
-    </tr>
-    <tr>
-        <th class="table-dark">Volumen Normal ({{etapa.volumen_unidad|default:'-'}})</th>
-        <td>{{etapa.volumen_normal|default:'-'}}</td>                              
-        <th class="table-dark">Volumen de Diseño ({{etapa.volumen_unidad|default:'-'}})</th>
-        <td>{{etapa.volumen_diseno|default:'-'}}</td>                            
-    </tr>
-    <tr>
-        <th class="table-dark">Relación de Compresión</th>
-        <td>{{etapa.rel_compresion|default:'-'}}</td>    
-        <th class="table-dark">Potencia Nominal ({{etapa.potencia_unidad|default:'-'}})</th>
-        <td>{{etapa.potencia_nominal|default:'-'}}</td>                            
-    </tr>
-    <tr>
-        <th class="table-dark">Relación de Compresión</th>
-        <td>{{etapa.rel_compresion|default:'-'}}</td>    
-        <th class="table-dark">Potencia Nominal ({{etapa.potencia_unidad|default:'-'}})</th>
-        <td>{{etapa.potencia_nominlal|default:'-'}}</td>                            
-    </tr>
-    <tr>
-        <th class="table-dark">Potencia Requerida ({{etapa.potencia_unidad|default:'-'}})</th>
-        <td>{{etapa.potencia_req|default:'-'}}</td>    
-        <th class="table-dark">Eficiencia Isentrópica (%)</th>
-        <td>{{etapa.eficiencia_isentropica|default:'-'}}</td>                            
-    </tr>
-    <tr>
-        <th class="table-dark">Eficiencia Politrópica (%)</th>
-        <td>{{etapa.eficiencia_politropica|default:'-'}}</td>    
-        <th class="table-dark">Cabezal Politrópico ({{etapa.cabezal_unidad|default:'-'}})</th>
-        <td>{{etapa.cabezal_politropico|default:'-'}}</td>                            
-    </tr>
-    <tr>
-        <th class="table-dark">Densidad ({{etapa.densidad_unidad|default:'-'}})</th>
-        <td>{{etapa.densidad|default:'-'}}</td>  
-        <th class="table-dark">Humedad Relativa (%)</th>
-        <td>{{etapa.humedad_relativa|default:'-'}}</td>
-    </tr>
-
-    <tr>
-        <th class="table-dark" colspan="2"></th>
-        <th class="table-dark">Entrada</th>
-        <th class="table-dark">Salida</th>
-    </tr>
-    {% with entrada=etapa.lados.first %}
-    {% with salida=etapa.lados.last %}
-    <tr>
-        <th class="table-dark" colspan="2">Presión</th>
-        <td>
-            {{entrada.presion|default:'-'}} {{entrada.presion_unidad|default:'-'}}
-        </td>
-        <td>
-            {{salida.presion|default:'-'}} {{salida.presion_unidad|default:'-'}}
-        </td>
-    </tr>
-    <tr>
-        <th class="table-dark" colspan="2">Temperatura</th>
-        <td>
-            {{entrada.temp|default:'-'}} {{entrada.temp_unidad|default:'-'}}
-        </td>
-        <td>
-            {{salida.temp|default:'-'}} {{salida.temp_unidad|default:'-'}}
-        </td>
-    </tr>
-    <tr>
-        <th class="table-dark" colspan="2">Cp/Cv</th>
-        <td>
-            {{entrada.cp_cv|default:'-'}}
-        </td>
-        <td>
-            {{salida.cp_cv|default:'-'}}
-        </td>
-    </tr>
-    <tr>
-        <th class="table-dark" colspan="2">Compresibilidad</th>
-        <td>
-            {{entrada.compresibilidad|default:'-'}}
-        </td>
-        <td>
-            {{salida.compresibilidad|default:'-'}}
-        </td>
-    </tr>
-    {% endwith %}
-    {% endwith %}
-
-    {% if etapa.curva_caracteristica %}
-    <tr>
-        <th class="table-dark" colspan="4">Curva Característica</th>
-    </tr>
-    <tr>
-        <td colspan="4">
-            <img src="{{ etapa.curva_caracteristica.url }}" loading="lazy" alt="Curva Característica" style="max-width: 100%;">
-        </td>
-    </tr>
-    {% endif %}
-
-    {% endfor %}
-</tr>
-</tbody>
+    </tbody>
+</table>
+<a hx-swap-oob="true" id="boton_edicion_caso" href="{% url 'edicion_caso' pk=caso.pk %}" class="btn btn-sm btn-secondary">+ Editar Caso</a>

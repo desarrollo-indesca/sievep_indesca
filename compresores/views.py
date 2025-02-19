@@ -1,3 +1,4 @@
+import datetime
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, View
@@ -161,6 +162,7 @@ class DuplicarCompresores(CargarCompresorMixin, DuplicateView):
                 compresor = compresor_original
                 compresor.tag = generate_nonexistent_tag(Compresor, compresor.tag)
                 compresor.descripcion = f"COPIA DEL COMPRESOR {compresor_original.tag}"
+                compresor.copia = True
                 compresor = self.copy(compresor)
 
                 for caso in compresor_original.casos.all():
@@ -331,6 +333,11 @@ class EdicionEtapa(LoginRequiredMixin, View):
                     print(form_salida.errors)
                     raise Exception("Información Inválida Salida.")
                 
+            compresor = form_etapa.instance.compresor.compresor
+            compresor.editado_por = self.request.user
+            compresor.fecha_edicion = datetime.datetime.now()
+            compresor.save()
+                
             messages.success(self.request, "Información almacenada correctamente.")
             return redirect('/compresores/')
         except Exception as e:
@@ -365,6 +372,7 @@ class EdicionEtapa(LoginRequiredMixin, View):
         form_caso = EtapaCompresorForm(request.POST, instance=etapa_previa)
         form_entrada = LadoEtapaCompresorForm(request.POST, instance=etapa_previa.lados.first(), prefix="entrada")
         form_salida = LadoEtapaCompresorForm(request.POST, instance=etapa_previa.lados.last(), prefix="salida")
+        
         return self.almacenar_datos(form_caso, form_entrada, form_salida)
 
     def get(self, request, pk, *args, **kwargs):
@@ -411,6 +419,9 @@ class EdicionCompresor(LoginRequiredMixin, View):
                                     etapa=etapa,
                                     lado=lado[0].upper()
                                 )
+            
+            form.instance.editado_al = datetime.datetime.now()
+            form.instance.editado_por = request.user
             return redirect('/compresores/')
         else:
             return render(self.request, self.template_name, self.get_context_data())
@@ -423,14 +434,14 @@ class EdicionCaso(EdicionCompresor):
     titulo = "Edición de Caso"
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        context = {}
         compresor = self.get_object().compresor
         context['compresor'] = compresor
         context['form_caso'] = PropiedadesCompresorForm(instance=self.get_object())
         context['unidades'] = Unidades.objects.all().values('pk', 'simbolo', 'tipo')
         context['numero_caso'] = list(compresor.casos.all().values_list('pk', flat=True)).index(self.get_object().pk) + 1
+        context['titulo'] = "Edición de Caso"
 
-        del(context['form_compresor'])
         return context
 
     def get_object(self):
@@ -441,6 +452,11 @@ class EdicionCaso(EdicionCompresor):
         form = PropiedadesCompresorForm(request.POST, instance=caso)
         if form.is_valid():
             form.save()
+            compresor = form.instance.compresor
+            compresor.editado_por = request.user
+            compresor.editado_al = datetime.datetime.now()
+            compresor.save()
+
             return redirect('/compresores/')
         else:
             return render(self.request, self.template_name, self.get_context_data())
