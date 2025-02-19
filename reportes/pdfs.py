@@ -4518,6 +4518,13 @@ def ficha_tecnica_compresor(compresor):
         table = Table(table, style=estilo)
         story.append(table)
 
+        if caso.curva_caracteristica:
+            story.append(Spacer(0,10))
+            img = Image(caso.curva_caracteristica.path, width=300, height=450)
+            story.append(Paragraph(f"Curva Característica - Caso {i+1}", centrar_parrafo))            
+            story.append(Spacer(0,10))
+            story.append(img)
+
         # Tabla para cada etapa
         for j,etapa in enumerate(caso.etapas.all()):
             table = [
@@ -4581,7 +4588,6 @@ def ficha_tecnica_compresor(compresor):
             story.append(table)
 
             # Tabla que relaciona los campos de ambos lados
-            print(etapa.lados.values('lado'))
             lado_e = etapa.lados.get(lado='E')
             lado_s = etapa.lados.get(lado='S')
 
@@ -4622,6 +4628,12 @@ def ficha_tecnica_compresor(compresor):
 
             table = Table(table, style=estilo)
             story.append(table)
+
+            if etapa.curva_caracteristica:
+                story.append(Spacer(0,10))
+                story.append(Image(etapa.curva_caracteristica.path, width=400, height=400))
+                story.append(Paragraph(f"Curva Característica Etapa #{j+1}", centrar_parrafo))
+                story.append(Spacer(0,10))
 
     return [story, []]
 

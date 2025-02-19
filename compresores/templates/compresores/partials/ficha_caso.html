@@ -22,6 +22,18 @@
         <td colspan="3">{{caso.potencia_requerida|default_if_none:'-'}}</td>
     </tr>
 
+    {% if caso.curva_caracteristica %}
+    <tr>
+        <th class="table-dark" colspan="4">Curva Característica {{caso.curva_caracteristica}}</th>
+    </tr>
+
+    <tr>
+        <td colspan="4">
+            <img src="{{ caso.curva_caracteristica.url }}" loading="lazy" alt="Curva Característica" style="max-width: 100%;">
+        </td>
+    </tr>
+    {% endif %}
+
     <tr>
         <th class="table-dark" colspan="4">ETAPAS</th>
     </tr>
@@ -121,6 +133,18 @@
     </tr>
     {% endwith %}
     {% endwith %}
+
+    {% if etapa.curva_caracteristica %}
+    <tr>
+        <th class="table-dark" colspan="4">Curva Característica</th>
+    </tr>
+    <tr>
+        <td colspan="4">
+            <img src="{{ etapa.curva_caracteristica.url }}" loading="lazy" alt="Curva Característica" style="max-width: 100%;">
+        </td>
+    </tr>
+    {% endif %}
+
     {% endfor %}
 </tr>
 </tbody>

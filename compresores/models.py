@@ -46,10 +46,6 @@ class Compresor(models.Model):
     editado_por = models.ForeignKey('auth.User', on_delete=models.PROTECT, null=True, related_name="compresor_editado_por", verbose_name="Editado por")
     copia = models.BooleanField(default=False, blank=True, verbose_name="Es Copia")
 
-    curva_caracteristica = models.FileField(null=True, blank=True, upload_to="compresores/curvas-compresores/", verbose_name="Curva de Característica", validators=[FileExtensionValidator(
-        allowed_extensions=['png', 'jpg', 'pdf']
-    )])
-
     class Meta:
         ordering = ('tag',)
 
@@ -67,6 +63,10 @@ class PropiedadesCompresor(models.Model):
     unidad_potencia = models.ForeignKey(Unidades, default=53, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_potencia_compresor", verbose_name="Unidad de la Potencia")
     compresor = models.ForeignKey(Compresor, on_delete=models.PROTECT, related_name="casos", verbose_name="Compresor") # IMPORTANTE: Varias Propiedades
     tipo_lubricacion = models.ForeignKey(TipoLubricacion, on_delete=models.PROTECT, null=True, blank=True, verbose_name="Tipo de Lubricación")
+
+    curva_caracteristica = models.FileField(null=True, blank=True, upload_to="compresores/curvas-compresores/", verbose_name="Curva de Característica", validators=[FileExtensionValidator(
+        allowed_extensions=['png', 'jpg']
+    )])
 
 class EtapaCompresor(models.Model):
     compresor = models.ForeignKey(PropiedadesCompresor, on_delete=models.PROTECT, related_name='etapas', verbose_name="Compresor")
