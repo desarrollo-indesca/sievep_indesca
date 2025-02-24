@@ -295,9 +295,10 @@ class CreacionNuevoCaso(LoginRequiredMixin, View):
 
     def get_context_data(self, **kwargs):
         context = {}
+        context['compresor'] = Compresor.objects.get(pk=self.kwargs.get('pk'))
         context["form_caso"]  = PropiedadesCompresorForm()
         context['unidades'] = Unidades.objects.all().values()
-        context['titulo'] = "SIEVEP - Creación de Caso"
+        context['titulo'] = f"SIEVEP - Creación de Caso (Compresor {context['compresor'].tag})"
 
         return context
 
@@ -347,7 +348,7 @@ class EdicionEtapa(LoginRequiredMixin, View):
                 'form_etapa': form_etapa,
                 'form_entrada': form_entrada,
                 'form_salida': form_salida,
-                'titulo': "SIEVEP - Edición de Etapa",
+                'titulo': "SIEVEP - Edición de la Etapa",
                 "etapa": form_etapa.instance
             })
 
@@ -363,7 +364,7 @@ class EdicionEtapa(LoginRequiredMixin, View):
         context["form_entrada"] = LadoEtapaCompresorForm(instance=lado_entrada, prefix="entrada")
         context["form_salida"] = LadoEtapaCompresorForm(instance=lado_salida, prefix="salida")
         context['unidades'] = Unidades.objects.all().values('pk', 'simbolo', 'tipo')
-        context['titulo'] = "SIEVEP - Edición de Etapa"
+        context['titulo'] = "SIEVEP - Edición de la Etapa"
 
         return context
     
