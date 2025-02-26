@@ -5,7 +5,7 @@ from django.views.generic import ListView, View
 from django.db.models import Prefetch
 from django.http import HttpResponseForbidden
 from django.db import transaction
-from simulaciones_pequiven.views import FiltradoSimpleMixin, DuplicateView
+from simulaciones_pequiven.views import FiltradoSimpleMixin, DuplicateView, ConsultaEvaluacion
 from simulaciones_pequiven.utils import generate_nonexistent_tag
 from usuarios.models import PlantaAccesible
 from .models import *
@@ -15,11 +15,17 @@ from reportes.xlsx import reporte_equipos, ficha_tecnica_compresor
 from django.contrib import messages
 
 class ReportesFichasCompresoresMixin():
-    '''
+    """
     Resumen:
-        Mixin para evitar la repetición de código al generar fichas técnicas en las vistas que lo permiten.
-        También incluye lógica para la generación de la ficha de los parámetros de instalación.
-    '''
+        Mixin para la generación de reportes de Fichas Técnicas de Compresores.
+
+    Atributos:
+        Ninguno
+
+    Métodos:
+        reporte_ficha(request)
+            Genera un reporte de la ficha técnica de un compresor en formato PDF o XLSX.
+    """
     def reporte_ficha(self, request):
         if(request.POST.get('ficha')): # FICHA TÉCNICA
             compresor = Compresor.objects.get(pk = request.POST.get('ficha'))
@@ -31,7 +37,16 @@ class ReportesFichasCompresoresMixin():
 class CargarCompresorMixin():
     """
     Resumen:
-        Mixin para optimizar las consultas de compresores.
+        Mixin para la carga de compresores.
+
+    Atributos:
+        Ninguno
+
+    Métodos:
+        get_compresor(self, prefetch = True, queryset = True)
+            Devuelve un queryset de Compresor objeto que se corresponden con el pk proporcionado.
+            Si queryset es False, se devuelve un queryset vacío.
+            Si prefetch es True, se hace un prefetch de las relaciones de PropiedadesCompresor.
     """
 
     def get_compresor(self, prefetch = True, queryset = True):
@@ -144,10 +159,21 @@ class ConsultaCompresores(FiltradoSimpleMixin, ReportesFichasCompresoresMixin, C
         return new_context
 
 class DuplicarCompresores(CargarCompresorMixin, DuplicateView):
-    """
+    '''
     Resumen:
-        Vista para crear una copia temporal duplicada de una compresor para hacer pruebas en los equipos.
-    """
+        Vista para la duplicación de compresores.
+        Hereda de la vista genérica DuplicateView.
+        Pueden acceder usuarios que hayan iniciado sesión y tengan permiso de duplicación en alguna planta.
+
+    Atributos:
+        Ninguno
+
+    Métodos:
+        post(self, request, pk)
+            Función que contiene la lógica de duplicación.
+            Recibe el pk del compresor a duplicar y, si el usuario tiene permiso,
+            crea una copia del compresor y de sus casos y etapas asociadas.
+    '''
 
     def post(self, request, pk):
         with transaction.atomic():
@@ -160,6 +186,7 @@ class DuplicarCompresores(CargarCompresorMixin, DuplicateView):
 
             if(self.request.user.is_superuser or PlantaAccesible.objects.filter(usuario = request.user, planta = compresor_original.planta, duplicacion = True).exists()):
                 compresor = compresor_original
+                tag_previo = compresor.tag
                 compresor.tag = generate_nonexistent_tag(Compresor, compresor.tag)
                 compresor.descripcion = f"COPIA DEL COMPRESOR {compresor_original.tag}"
                 compresor.copia = True
@@ -179,12 +206,25 @@ class DuplicarCompresores(CargarCompresorMixin, DuplicateView):
                             compuesto.etapa = etapa
                             self.copy(compuesto)
 
-                messages.success(request, f"Se ha creado la copia de la compresor {compresor_original.tag} como {compresor.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 7:00am.")
+                messages.success(request, f"Se ha creado la copia del compresor {tag_previo} como {compresor.tag}. Recuerde que todas las copias serán eliminadas junto a sus datos asociados al día siguiente a las 7:00am.")
                 return redirect("/compresores")
             else:
                 return HttpResponseForbidden()
         
 class ProcesarFichaSegunCaso(CargarCompresorMixin, View):
+    '''
+    Resumen:
+        Vista que permite obtener una ficha de un compresor según el caso seleccionado.
+
+    Atributos:
+        template_name: str -> Plantilla a renderizar
+
+    Métodos:
+        get(self, request, pk, *args, **kwargs)
+            Función que se encarga de mostrar la ficha del compresor según el caso seleccionado.
+            Recibe el pk del compresor y, a través de un GET, el caso a mostrar.
+            Luego, se devuelve una plantilla con la ficha del compresor y el caso seleccionado.
+    '''
     template_name = 'compresores/partials/ficha_caso.html'
 
     def get(self, request, pk, *args, **kwargs):
@@ -203,6 +243,27 @@ class ProcesarFichaSegunCaso(CargarCompresorMixin, View):
         )
 
 class CreacionCompresor(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Vista que permite la creación de un compresor.
+
+        Muestra un formulario para la creación de un compresor y un caso asociado.
+        El formulario se divide en dos secciones: los datos del compresor y los datos del caso.
+        Los datos del compresor incluyen el tag, la descripción, el fabricante y el modelo.
+        Los datos del caso incluyen el número de impulsores, el tipo de lubricación, el material de carcasa, el tipo de sello y la potencia requerida.
+        Luego de completar el formulario, se guarda el compresor y el caso asociado en la base de datos.
+        Se utiliza el método almacenar_datos para procesar los datos del formulario y guardarlos en la base de datos.
+        El método get_context_data se utiliza para generar el contexto necesario para la renderización de la plantilla.
+
+    Atributos:
+        template_name: str -> Plantilla a renderizar
+
+    Métodos:
+        almacenar_datos(self, form_compresor, form_caso) -> None
+            Procesa los datos del formulario y los guarda en la base de datos.
+        get_context_data(self, **kwargs) -> dict
+            Genera el contexto necesario para la renderización de la plantilla.
+    """
     template_name = 'compresores/creacion.html'
 
     def almacenar_datos(self, form_compresor, form_caso):
@@ -260,6 +321,24 @@ class CreacionCompresor(LoginRequiredMixin, View):
         return render(request, self.template_name, self.get_context_data())
     
 class CreacionNuevoCaso(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Vista para la creación de un caso de un compresor. Hereda de View.
+        Pueden acceder usuarios que hayan iniciado sesión.
+        El compresor se selecciona por su pk.
+        La vista renderiza un formulario para la creación del caso.
+
+    Atributos:
+        template_name: str -> Plantilla a renderizar.
+
+    Métodos:
+        almacenar_datos(self, form_caso) -> None
+            Procesa los datos del formulario y los guarda en la base de datos.
+        post(self, request, *args, **kwargs) -> HttpResponse
+            Procesa el formulario y redirige a la vista principal.
+        get(self, request, *args, **kwargs) -> HttpResponse
+            Renderiza la plantilla con el formulario vacío.
+    """
     template_name = 'compresores/creacion.html'
 
     def almacenar_datos(self, form_caso):
@@ -306,6 +385,23 @@ class CreacionNuevoCaso(LoginRequiredMixin, View):
         return render(request, self.template_name, self.get_context_data())
 
 class EdicionEtapa(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Vista para la edición de una etapa de un compresor. Hereda de View.
+        Pueden acceder usuarios que hayan iniciado sesión.
+        La vista renderiza un formulario para la edición de la etapa.
+
+    Atributos:
+        template_name: str -> Plantilla a renderizar.
+
+    Métodos:
+        almacenar_datos(self, form_etapa, form_entrada, form_salida) -> None
+            Procesa los datos del formulario y los guarda en la base de datos.
+        post(self, request, *args, **kwargs) -> HttpResponse
+            Procesa el formulario y redirige a la vista principal.
+        get(self, request, *args, **kwargs) -> HttpResponse
+            Renderiza la plantilla con el formulario vacío.
+    """
     template_name = 'compresores/edicion_etapa.html'
     
     def almacenar_datos(self, form_etapa, form_entrada, form_salida):
@@ -380,6 +476,20 @@ class EdicionEtapa(LoginRequiredMixin, View):
         return render(request, self.template_name, self.get_context_data())
 
 class EdicionCompresor(LoginRequiredMixin, View):
+    """
+    Resumen:
+        Clase que hereda de View y se encarga de renderizar la plantilla de edición de compresores y
+        de recibir los datos de la solicitud, guardarlos en la base de datos y mostrarlos en la
+        plantilla de edición.
+
+    Atributos:
+        template_name (str): nombre de la plantilla a renderizar
+        titulo (str): título de la plantilla
+
+    Métodos:
+        get: renderiza la plantilla con los datos del compresor
+        post: almacena los datos del compresor en la base de datos
+    """
     template_name = "compresores/creacion.html"
     titulo = "Edición de Compresor"
 
@@ -431,6 +541,27 @@ class EdicionCompresor(LoginRequiredMixin, View):
         return render(request, self.template_name, self.get_context_data())
 
 class EdicionCaso(EdicionCompresor):
+    """
+    Resumen:
+        Clase que extiende EdicionCompresor para la edición de casos específicos de un compresor.
+        Renderiza la plantilla de edición de caso y procesa la solicitud para actualizar los datos
+        del caso en la base de datos.
+
+    Atributos:
+        template_name (str): Nombre de la plantilla a renderizar.
+        titulo (str): Título de la vista.
+
+    Métodos:
+        get_context_data(self, **kwargs) -> dict:
+            Genera el contexto necesario para renderizar la plantilla de edición de caso.
+
+        get_object(self) -> PropiedadesCompresor:
+            Obtiene el objeto de PropiedadesCompresor correspondiente al caso a editar.
+
+        post(self, request, *args, **kwargs) -> HttpResponse:
+            Procesa el formulario de edición de caso y actualiza los datos en la base de datos.
+    """
+
     template_name = 'compresores/creacion.html'
     titulo = "Edición de Caso"
 
@@ -461,3 +592,31 @@ class EdicionCaso(EdicionCompresor):
             return redirect('/compresores/')
         else:
             return render(self.request, self.template_name, self.get_context_data())
+
+class ConsultaEvaluacionCompresor(ConsultaEvaluacion, CargarCompresorMixin, ReportesFichasCompresoresMixin):
+    """
+    Resumen:
+        Vista para la consulta de evaluaciones de compresores. Hereda de ConsultaEvaluacion y varios mixins.
+        Permite cargar y generar reportes de las fichas de los compresores.
+
+    Atributos:
+        model: Model -> Modelo de evaluación a consultar.
+        model_equipment: Model -> Modelo del compresor asociado a la evaluación.
+        clase_equipo: str -> Nombre del equipo de compresor utilizado en los reportes.
+        template_name: str -> Plantilla a renderizar.
+
+    Métodos:
+        get_context_data(self, **kwargs) -> dict:
+            Genera el contexto necesario para renderizar la plantilla de consulta de evaluaciones.
+    """
+
+    model = Evaluacion
+    model_equipment = Compresor
+    clase_equipo = " el Compresor"
+    template_name = 'compresores/consulta_evaluaciones.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['compresor'] = self.model_equipment.objects.get(pk=self.kwargs.get('pk'))
+
+        return context

@@ -12,4 +12,7 @@ urlpatterns = [
 
     path('editar/<int:pk>/', EdicionCompresor.as_view(), name="edicion_compresor"),
     path('editar-caso/<int:pk>/', EdicionCaso.as_view(), name="edicion_caso"),
+
+    # Vistas de Evaluación
+    path('evaluacion/<int:pk>/', ConsultaEvaluacionCompresor.as_view(), name="evaluaciones_compresor"),
 ]

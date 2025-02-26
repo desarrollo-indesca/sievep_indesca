@@ -238,3 +238,14 @@
     </div>
 </form>
 {% endblock %}
+
+{% block extra_javascript %}
+<script>
+    $('select[id^="id_entrada-"]').change(function() {
+        $('select[id^="id_salida-"]').val($(this).val());
+    });
+    $('select[id^="id_salida-"]').change(function() {
+        $('select[id^="id_entrada-"]').val($(this).val());
+    });
+</script>
+{% endblock %}
