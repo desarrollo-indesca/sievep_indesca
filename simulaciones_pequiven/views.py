@@ -409,7 +409,7 @@ class ConsultaEvaluacion(ListView):
         if authenticated:
             try:
                 plant = self.model_equipment.objects.get(pk=self.kwargs.get('pk')).planta
-                return self.request.user.usuario_planta.filter(planta=plant, ver_evaluaciones=True).exists()
+                return self.request.user.usuario_planta.filter(planta=plant, ver_evaluaciones=True).exists() or self.request.user.is_superuser
             except:
                 return False
         else:

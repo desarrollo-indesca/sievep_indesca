@@ -17,7 +17,7 @@ from django.contrib import messages
 class EdicionCompresorPermisoMixin():
     def test_func(self):
         authenticated = self.request.user.is_authenticated 
-        return authenticated and self.request.user.usuario_planta.filter(planta=Compresor.objects.get(pk=self.kwargs['pk']).planta, edicion=True).exists()
+        return authenticated and self.request.user.usuario_planta.filter(planta=Compresor.objects.get(pk=self.kwargs['pk']).planta, edicion=True).exists() or self.request.user.is_superuser
     
     def dispatch(self, request, *args, **kwargs):
         if not self.test_func():
@@ -27,7 +27,7 @@ class EdicionCompresorPermisoMixin():
 class CreacionCompresorPermisoMixin():
     def test_func(self):
         authenticated = self.request.user.is_authenticated 
-        return authenticated and self.request.user.usuario_planta.filter(planta__pk = self.request.POST.get('planta'), creacion=True).exists()
+        return authenticated and self.request.user.usuario_planta.filter(planta__pk = self.request.POST.get('planta'), crear=True).exists() or self.request.user.is_superuser
     
     def dispatch(self, request, *args, **kwargs):
         if not self.test_func():
@@ -197,7 +197,7 @@ class DuplicarCompresores(CargarCompresorMixin, DuplicateView):
                 "casos__etapas__composiciones"
             ).get(pk=pk)
 
-            if not request.user.usuario_planta.filter(duplicacion = True, planta = compresor_original.planta).exists():
+            if not request.user.usuario_planta.filter(duplicacion = True, planta = compresor_original.planta).exists() and not request.user.is_superuser:
                 return HttpResponseForbidden()
 
             if(self.request.user.is_superuser or PlantaAccesible.objects.filter(usuario = request.user, planta = compresor_original.planta, duplicacion = True).exists()):
@@ -423,7 +423,7 @@ class EdicionEtapa(EdicionCompresorPermisoMixin, View):
 
     def test_func(self):
         authenticated = self.request.user.is_authenticated 
-        return authenticated and self.request.user.usuario_planta.filter(planta=EtapaCompresor.objects.get(pk=self.kwargs['pk']).compresor.compresor.planta, edicion=True).exists()
+        return authenticated and self.request.user.usuario_planta.filter(planta=EtapaCompresor.objects.get(pk=self.kwargs['pk']).compresor.compresor.planta, edicion=True).exists() or self.request.user.is_superuser
     
     def almacenar_datos(self, form_etapa, form_entrada, form_salida):
         try:
@@ -588,7 +588,7 @@ class EdicionCaso(EdicionCompresor):
 
     def test_func(self):
         authenticated = self.request.user.is_authenticated 
-        return authenticated and self.request.user.usuario_planta.filter(planta=PropiedadesCompresor.objects.get(pk=self.kwargs['pk']).compresor.planta, edicion=True).exists()
+        return authenticated and self.request.user.usuario_planta.filter(planta=PropiedadesCompresor.objects.get(pk=self.kwargs['pk']).compresor.planta, edicion=True).exists() or self.request.user.is_superuser
 
     def get_context_data(self, **kwargs):
         context = {}

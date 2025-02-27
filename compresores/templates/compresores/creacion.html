@@ -37,15 +37,13 @@
             <small>{{form_compresor.tag.errors}}</small>
         </div>
         <div class="col-4">
-            {{form_compresor.complejo.label_tag}}
-            {% render_field form_compresor.complejo class="form-select" hx-get="/plantas/" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none" %}
+            {{form_compresor.complejo.label_tag}}*
+            {% render_field form_compresor.complejo class="form-select" hx-get="/plantas/" id="id_complejo" hx-include="#id_complejo, #id_planta" hx-trigger="load" hx-target="#id_planta" hx-swap="none" %}
             <small>{{form_compresor.complejo.errors}}</small>
         </div>
         <div class="col-4">
-            {{form_compresor.planta.label_tag}}
-            <select class="form-select" name="planta" id="id_planta">
-                <option value="">-----------------------------</option>
-            </select>
+            {{form_compresor.planta.label_tag}}*
+            {% render_field form_compresor.planta class="form-select" %}
             <small>{{form_compresor.planta.errors}}</small>
         </div>
         <div class="col-4">
