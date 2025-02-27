@@ -3,7 +3,7 @@
 {% load widget_tweaks %}
 
 {%  block contenido %}
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     {{form_etapa.management_form}}
     {% csrf_token %}
     <div class="row">
@@ -145,8 +145,8 @@
             <small>{{form_etapa.humedad_relativa.errors}}</small>
         </div>
         <div class="col-4">
-            {{form_etapa.curva_caracteristica.label_tag}}
-            {% render_field form_etapa.curva_caracteristica class="form-control" placeholder="Curva Característica" %}
+            {{form_etapa.curva_caracteristica.label_tag}} <br>
+            {% render_field form_etapa.curva_caracteristica class="form-control" placeholder="Curva Característica" accept=".png, .jpg" %}
             <small>{{form_etapa.curva_caracteristica.errors}}</small>
         </div>
     </div>

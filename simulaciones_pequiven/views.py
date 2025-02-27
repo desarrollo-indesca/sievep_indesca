@@ -804,6 +804,18 @@ class EdicionPlanta(SuperUserRequiredMixin, FormView):
         return context
 
 class PermisosMixin():
+    """
+    Clase que contiene los métodos para obtener los permisos de un usuario
+    en una planta.
+
+    Atributos:
+        request: HttpRequest
+            Solicitud actual.
+
+    Métodos:
+        get_permisos(self) -> dict
+            Devuelve un diccionario con los permisos del usuario en la planta.
+    """
     def get_permisos(self):
         return {
             'creacion': self.request.user.is_superuser or self.request.user.usuario_planta.filter(crear = True).exists(),

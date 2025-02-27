@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block contenido %}
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="row">
         <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center">
@@ -123,7 +123,7 @@
             </div>
             <small>{{form_caso.velocidad_rotacion.errors}}</small>
         </div>
-        <div class="col-6">
+        <div class="col-4">
             {{form_caso.potencia_requerida.label_tag}}
             <div class="input-group">
                 {% render_field form_caso.potencia_requerida class="form-control" placeholder="Potencia Requerida" %}
@@ -133,12 +133,17 @@
             </div>
             <small>{{form_caso.potencia_requerida.errors}}</small>
         </div>
-        <div class="col-6">
+        <div class="col-4">
             {{form_caso.tipo_lubricacion.label_tag}}
             <div class="input-group">
                 {% render_field form_caso.tipo_lubricacion class="form-select" %}
             </div>
             <small>{{form_caso.tipo_lubricacion.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_caso.curva_caracteristica.label_tag}} <br>
+            {% render_field form_caso.curva_caracteristica class="form-control" placeholder="Curva Característica" accept=".png, .jpg" %}
+            <small>{{form_caso.curva_caracteristica.errors}}</small>
         </div>
     </div>
     {% endif %}

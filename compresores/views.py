@@ -386,7 +386,7 @@ class CreacionNuevoCaso(EdicionCompresorPermisoMixin, View):
             })
 
     def post(self, request, *args, **kwargs):
-        form_caso = PropiedadesCompresorForm(request.POST)
+        form_caso = PropiedadesCompresorForm(request.POST, request.FILES)
         return self.almacenar_datos(form_caso)
 
     def get_context_data(self, **kwargs):
@@ -487,7 +487,7 @@ class EdicionEtapa(EdicionCompresorPermisoMixin, View):
     
     def post(self, request, *args, **kwargs):
         etapa_previa = EtapaCompresor.objects.get(pk=self.kwargs.get('pk'))
-        form_caso = EtapaCompresorForm(request.POST, instance=etapa_previa)
+        form_caso = EtapaCompresorForm(request.POST, request.FILES, instance=etapa_previa)
         form_entrada = LadoEtapaCompresorForm(request.POST, instance=etapa_previa.lados.first(), prefix="entrada")
         form_salida = LadoEtapaCompresorForm(request.POST, instance=etapa_previa.lados.last(), prefix="salida")
         
@@ -606,7 +606,7 @@ class EdicionCaso(EdicionCompresor):
 
     def post(self, request, *args, **kwargs):
         caso = self.get_object()
-        form = PropiedadesCompresorForm(request.POST, instance=caso)
+        form = PropiedadesCompresorForm(request.POST, request.FILES, instance=caso)
         if form.is_valid():
             form.save()
             compresor = form.instance.compresor
