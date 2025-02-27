@@ -612,11 +612,11 @@ class ConsultaEvaluacionCompresor(ConsultaEvaluacion, CargarCompresorMixin, Repo
 
     model = Evaluacion
     model_equipment = Compresor
-    clase_equipo = " el Compresor"
+    clase_equipo = "l Compresor"
     template_name = 'compresores/consulta_evaluaciones.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['compresor'] = self.model_equipment.objects.get(pk=self.kwargs.get('pk'))
+        context['equipo'] = self.model_equipment.objects.get(pk=self.kwargs.get('pk'))
 
         return context

@@ -55,7 +55,7 @@
             <div class="input-group">
                 {% render_field form_etapa.densidad class="form-control" %}
                 <select name="densidad_unidad" id="id_densidad_unidad" class="form-select">
-                    {% include 'unidades.html' with unidades=unidades tipo='F' pk_selected=form_etapa.instance.densidad_unidad.pk %}
+                    {% include 'unidades.html' with unidades=unidades tipo='D' pk_selected=form_etapa.instance.densidad_unidad.pk %}
                 </select>
             </div>
             <small>{{form_etapa.densidad.errors}}</small>
@@ -74,7 +74,7 @@
             {{form_etapa.volumen_normal.label_tag}}
             <div class="input-group">
                 {% render_field form_etapa.volumen_normal class="form-control" %}
-                <select name="volumen_unidad" id="id_volumen_unidad" class="form-select">
+                <select name="volumen_unidad" id="id_volumen_unidad" class="form-select" disabled>
                     {% include 'unidades.html' with unidades=unidades tipo='K' pk_selected=form_etapa.instance.volumen_unidad.pk %}
                 </select>
             </div>
@@ -87,7 +87,7 @@
             {{form_etapa.aumento_estimado.label_tag}}
             <div class="input-group">
                 {% render_field form_etapa.aumento_estimado class="form-control" %}
-                <select name="volumen_unidad" id="id_volumen_unidad" class="form-select">
+                <select name="volumen_unidad" id="id_volumen_unidad" class="form-select" disabled>
                     {% include 'unidades.html' with unidades=unidades tipo='K' pk_selected=form_etapa.instance.volumen_unidad.pk %}
                 </select>
             </div>
@@ -241,11 +241,12 @@
 
 {% block extra_javascript %}
 <script>
-    $('select[id^="id_entrada-"]').change(function() {
-        $('select[id^="id_salida-"]').val($(this).val());
+    $('select[name="volumen_unidad"]').change(function(){
+        $('select[name="volumen_unidad"]').val($(this).val());
     });
-    $('select[id^="id_salida-"]').change(function() {
-        $('select[id^="id_entrada-"]').val($(this).val());
-    });
+    
+    $('select[name="potencia_unidad"]').change(function(){
+        $('select[name="potencia_unidad"]').val($(this).val());
+    });        
 </script>
 {% endblock %}

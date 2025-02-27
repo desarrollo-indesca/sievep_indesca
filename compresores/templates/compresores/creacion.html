@@ -117,7 +117,7 @@
             {{form_caso.velocidad_rotacion.label_tag}}
             <div class="input-group">
                 {% render_field form_caso.velocidad_rotacion class="form-control" placeholder="Velocidad de Rotación" %}
-                <select name="velocidad_unidad" id="id_velocidad_unidad" class="form-select">
+                <select name="velocidad_unidad" id="id_velocidad_unidad" class="form-select" disabled>
                     {% include 'unidades.html' with tipo='O' pk_selected=form_caso.instance.velocidad_unidad.pk %}
                 </select>
             </div>
@@ -154,5 +154,11 @@
 {% endblock %}
 
 {% block extra_javascript %}
-
+<script>
+    $(document).ready(function(){
+        $('#id_velocidad_unidad').change(function(){
+            $('#id_velocidad_unidad, #id_velocidad_max_continua_unidad, #id_velocidad_rotacion_unidad').val($(this).val());
+        });
+    });
+</script>
 {% endblock %}
