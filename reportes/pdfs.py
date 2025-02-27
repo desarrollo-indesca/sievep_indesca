@@ -190,7 +190,7 @@ def generar_historia(request, reporte, object_list):
     if reporte == 'evaluacion_detalle':
         return detalle_evaluacion(object_list)
     
-    if reporte in ['bombas', 'ventiladores', 'turbinas_vapor', 'calderas', 'precalentadores_agua', 'precalentadores_aire']:
+    if reporte in ['bombas', 'compresores', 'ventiladores', 'turbinas_vapor', 'calderas', 'precalentadores_agua', 'precalentadores_aire']:
         return reporte_equipos(request, object_list)
     
     if reporte == 'evaluaciones_bombas':
@@ -246,6 +246,9 @@ def generar_historia(request, reporte, object_list):
     
     if reporte == 'detalle_evaluacion_precalentador_aire':
         return detalle_evaluacion_precalentador_aire(object_list)
+
+    if reporte == 'ficha_tecnica_compresor':
+        return ficha_tecnica_compresor(object_list)
 
 # GENERALES
 def reporte_equipos(request, object_list):
@@ -4428,3 +4431,209 @@ def detalle_evaluacion_precalentador_aire(evaluacion):
     story.append(table)
 
     return [story, None]
+
+def ficha_tecnica_compresor(compresor):
+    '''
+    Resumen:
+        Esta función genera la historia de elementos a utilizar en el reporte de ficha técnica de compresor.
+    '''
+    story = []
+    story.append(Spacer(0, 90))
+
+    # Primera Tabla: Datos Generales
+    table = [
+        [
+            Paragraph("Tag", centrar_parrafo),
+            Paragraph(f"{compresor.tag}", centrar_parrafo),
+            Paragraph("Planta", centrar_parrafo),
+            Paragraph(f"{compresor.planta.nombre}", centrar_parrafo)
+        ],
+        [
+            Paragraph("Fabricante", centrar_parrafo),
+            Paragraph(f"{compresor.fabricante if compresor.fabricante else '—'}", centrar_parrafo),
+            Paragraph("Modelo", centrar_parrafo),
+            Paragraph(f"{compresor.modelo if compresor.modelo else '—'}", centrar_parrafo)
+        ],
+        [
+            Paragraph("Tipo", centrar_parrafo),
+            Paragraph(f"{compresor.tipo if compresor.tipo else '—'}", centrar_parrafo),
+            '', ''
+        ],
+        [
+            Paragraph("Descripción", centrar_parrafo),
+            Paragraph(f"{compresor.descripcion if compresor.descripcion else '—'}", centrar_parrafo),
+            '', ''
+        ]
+    ]
+
+    estilo = TableStyle([
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('BACKGROUND', (0, 0), (0, -1), sombreado),
+        ('BACKGROUND', (2, 0), (2, 1), sombreado),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('SPAN', (1,2), (-1,2)),
+        ('SPAN', (1,3), (-1,3)),
+    ])
+
+    table = Table(table, style=estilo)
+    story.append(table)
+
+    # Tabla para cada caso
+    for i,caso in enumerate(compresor.casos.all(), start=1):
+        story.append(Spacer(0,10))
+
+        table = [
+                [
+                    Paragraph(f"Caso {i}", centrar_parrafo),
+                ],
+                [
+                    Paragraph("Número de Impulsores", centrar_parrafo),
+                    Paragraph(str(caso.numero_impulsores) if caso.numero_impulsores else '—', centrar_parrafo),
+                    Paragraph("Tipo de Sello", centrar_parrafo),
+                    Paragraph(caso.tipo_sello if caso.tipo_sello else '—', centrar_parrafo)
+                ],
+                [
+                    Paragraph("Material de Carcasa", centrar_parrafo),
+                    Paragraph(caso.material_carcasa if caso.material_carcasa else '—', centrar_parrafo),
+                    Paragraph(f"Velocidad Máxima Continua ({caso.unidad_velocidad})", centrar_parrafo),
+                    Paragraph(str(caso.velocidad_max_continua) if caso.velocidad_max_continua else '—', centrar_parrafo)
+                ],
+                [
+                    Paragraph(f"Velocidad de Rotación ({caso.unidad_velocidad})", centrar_parrafo),
+                    Paragraph(str(caso.velocidad_rotacion) if caso.velocidad_rotacion else '—', centrar_parrafo),
+                    Paragraph(f"Potencia Requerida ({caso.unidad_potencia})", centrar_parrafo),
+                    Paragraph(str(caso.potencia_requerida) if caso.potencia_requerida else '—', centrar_parrafo)
+                ],
+        ]
+
+        estilo = TableStyle([
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+                ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+                ('BACKGROUND', (0, 1), (0, -1), sombreado),
+                ('BACKGROUND', (2, 1), (2, -1), sombreado),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('SPAN', (0, 0), (3, 0))
+        ])
+
+        table = Table(table, style=estilo)
+        story.append(table)
+
+        if caso.curva_caracteristica:
+            story.append(Spacer(0,10))
+            img = Image(caso.curva_caracteristica.path, width=300, height=450)
+            story.append(Paragraph(f"Curva Característica - Caso {i+1}", centrar_parrafo))            
+            story.append(Spacer(0,10))
+            story.append(img)
+
+        # Tabla para cada etapa
+        for j,etapa in enumerate(caso.etapas.all()):
+            table = [
+                    [
+                        Paragraph(f"Etapa {j+1}", centrar_parrafo),
+                    ],
+                    [
+                        Paragraph("Nombre del Gas", centrar_parrafo),
+                        Paragraph(etapa.nombre_fluido if etapa.nombre_fluido else '—', centrar_parrafo),
+                        Paragraph(f"Flujo Másico ({etapa.flujo_masico_unidad})", centrar_parrafo),
+                        Paragraph(str(etapa.flujo_masico) if etapa.flujo_masico else '—', centrar_parrafo)
+                    ],
+                    [
+                        Paragraph(f"Flujo Molar ({etapa.flujo_molar_unidad})", centrar_parrafo),
+                        Paragraph(str(etapa.flujo_molar) if etapa.flujo_molar else '—', centrar_parrafo),
+                        Paragraph(f"Densidad ({etapa.densidad_unidad})", centrar_parrafo),
+                        Paragraph(str(etapa.densidad) if etapa.densidad else '—', centrar_parrafo)
+                    ],
+                    [
+                        Paragraph(f"Aumento Estimado ({etapa.volumen_unidad})", centrar_parrafo),
+                        Paragraph(str(etapa.aumento_estimado) if etapa.aumento_estimado else '—', centrar_parrafo),
+                        Paragraph("Relación de Compresión", centrar_parrafo),
+                        Paragraph(str(etapa.rel_compresion) if etapa.rel_compresion else '—', centrar_parrafo)
+                    ],
+                    [
+                        Paragraph(f"Potencia Nominal ({etapa.potencia_unidad})", centrar_parrafo),
+                        Paragraph(str(etapa.potencia_nominal) if etapa.potencia_nominal else '—', centrar_parrafo),
+                        Paragraph(f"Potencia Requerida ({etapa.potencia_unidad})", centrar_parrafo),
+                        Paragraph(str(etapa.potencia_req) if etapa.potencia_req else '—', centrar_parrafo)
+                    ],
+                    [
+                        Paragraph(f"Eficiencia Isentrópica (%)", centrar_parrafo),
+                        Paragraph(str(etapa.eficiencia_isentropica) if etapa.eficiencia_isentropica else '—', centrar_parrafo),
+                        Paragraph("Eficiencia Politrópica (%)", centrar_parrafo),
+                        Paragraph(str(etapa.eficiencia_politropica) if etapa.eficiencia_politropica else '—', centrar_parrafo)                    
+                    ],
+                    [
+                        Paragraph(f"Cabezal Politrópico ({etapa.cabezal_unidad})", centrar_parrafo),
+                        Paragraph(str(etapa.cabezal_politropico) if etapa.cabezal_politropico else '—', centrar_parrafo),
+                        Paragraph("Humedad Relativa (%)", centrar_parrafo),
+                        Paragraph(str(etapa.humedad_relativa) if etapa.humedad_relativa else '—', centrar_parrafo),
+                    ],
+                    [
+                        Paragraph(f"Volumen Diseño ({etapa.volumen_unidad})", centrar_parrafo),
+                        Paragraph(str(etapa.volumen_diseno) if etapa.volumen_diseno else '—', centrar_parrafo),
+                        Paragraph(f"Volumen Diseño ({etapa.volumen_unidad})", centrar_parrafo),
+                        Paragraph(str(etapa.volumen_normal) if etapa.volumen_normal else '—', centrar_parrafo),
+                    ]
+            ]
+
+            estilo = TableStyle([
+                    ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+                    ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                    ('SPAN', (0, 0), (-1, 0)),
+                    ('BACKGROUND', (0, 0), (0, -1), sombreado),
+                    ('BACKGROUND', (2, 0), (2, -1), sombreado),
+            ])
+
+            table = Table(table, style=estilo)
+            story.append(table)
+
+            # Tabla que relaciona los campos de ambos lados
+            lado_e = etapa.lados.get(lado='E')
+            lado_s = etapa.lados.get(lado='S')
+
+            table = [
+                    [
+                        Paragraph("", centrar_parrafo),
+                        Paragraph("Entrada", centrar_parrafo),
+                        Paragraph("Salida", centrar_parrafo)
+                    ],
+                    [
+                        Paragraph("Temperatura", centrar_parrafo),
+                        Paragraph(f"{str(lado_e.temp) if lado_e.temp else '—'} °C", centrar_parrafo),
+                        Paragraph(f"{str(lado_s.temp) if lado_s.temp else '—'} °C", centrar_parrafo)
+                    ],
+                    [
+                        Paragraph("Presión", centrar_parrafo),
+                        Paragraph(f"{str(lado_e.presion) if lado_e.presion else '—'} {lado_e.presion_unidad}", centrar_parrafo),
+                        Paragraph(f"{str(lado_s.presion) if lado_s.presion else '—'} {lado_s.presion_unidad}", centrar_parrafo)
+                    ],
+                    [
+                        Paragraph("Compresibilidad", centrar_parrafo),
+                        Paragraph(str(lado_e.compresibilidad) if lado_e.compresibilidad else '—', centrar_parrafo),
+                        Paragraph(str(lado_s.compresibilidad) if lado_s.compresibilidad else '—', centrar_parrafo)
+                    ],
+                    [
+                        Paragraph("Cp/Cv", centrar_parrafo),
+                        Paragraph(str(lado_e.cp_cv) if lado_e.cp_cv else '—', centrar_parrafo),
+                        Paragraph(str(lado_s.cp_cv) if lado_s.cp_cv else '—', centrar_parrafo)
+                    ]
+            ]
+
+            estilo = TableStyle([
+                    ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+                    ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+                    ('BACKGROUND', (0, 0), (0, -1), sombreado),
+                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+            ])
+
+            table = Table(table, style=estilo)
+            story.append(table)
+
+            if etapa.curva_caracteristica:
+                story.append(Spacer(0,10))
+                story.append(Image(etapa.curva_caracteristica.path, width=400, height=400))
+                story.append(Paragraph(f"Curva Característica Etapa #{j+1}", centrar_parrafo))
+                story.append(Spacer(0,10))
+
+    return [story, []]
+

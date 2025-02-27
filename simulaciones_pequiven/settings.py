@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     'auxiliares',
     'turbinas',
     'calderas',
+    'compresores',
     'usuarios',
     'static',
 

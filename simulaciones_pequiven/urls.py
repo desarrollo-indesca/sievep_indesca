@@ -33,6 +33,7 @@ urlpatterns = [
     path('auxiliares/', include('auxiliares.urls')),
     path('turbinas/', include('turbinas.urls')),
     path('calderas/', include('calderas.urls')),
+    path('compresores/', include('compresores.urls')),
 
     path('usuarios/', include('usuarios.urls')),
     path('', include('pwa.urls')),
