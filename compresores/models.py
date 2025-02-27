@@ -73,6 +73,9 @@ class TipoLubricacion(models.Model):
     """
     nombre = models.CharField(max_length=45, unique=True)
 
+    def __str__(self):
+        return self.nombre
+
 class PropiedadesCompresor(models.Model):
     """
     Resumen:
@@ -111,6 +114,7 @@ class PropiedadesCompresor(models.Model):
     unidad_potencia = models.ForeignKey(Unidades, default=53, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_potencia_compresor", verbose_name="Unidad de la Potencia")
     compresor = models.ForeignKey(Compresor, on_delete=models.PROTECT, related_name="casos", verbose_name="Compresor") # IMPORTANTE: Varias Propiedades
     tipo_lubricacion = models.ForeignKey(TipoLubricacion, on_delete=models.PROTECT, null=True, blank=True, verbose_name="Tipo de Lubricación")
+    tipo_lubricante = models.CharField("Tipo de Lubricante", max_length=45, null=True, blank=True)
 
     curva_caracteristica = models.FileField(null=True, blank=True, upload_to="compresores/curvas-compresores/", verbose_name="Curva de Característica", validators=[FileExtensionValidator(
         allowed_extensions=['png', 'jpg']
