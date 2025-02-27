@@ -42,7 +42,12 @@
         </tr>
         {% for etapa in caso.etapas.all %}
         <tr>
-            <th class="table-dark" colspan="4">Etapa {{etapa.numero}} <br> <a href="{% url 'edicion_etapa' pk=etapa.pk %}" class="btn btn-danger btn-sm">Editar Información</a></th>
+            <th class="table-dark" colspan="4">
+                Etapa {{etapa.numero}} <br>
+                {% if request.user.is_superuser or compresor.planta.pk in permisos.ediciones %}
+                    <a href="{% url 'edicion_etapa' pk=etapa.pk %}" class="btn btn-danger btn-sm">Editar Información</a>
+                {% endif %}
+            </th>
         </tr>
         <tr>
             <th class="table-dark">Nombre del Gas</th>

@@ -5,7 +5,7 @@ from django.views.generic import ListView, View
 from django.db.models import Prefetch
 from django.http import HttpResponseForbidden
 from django.db import transaction
-from simulaciones_pequiven.views import FiltradoSimpleMixin, DuplicateView, ConsultaEvaluacion
+from simulaciones_pequiven.views import FiltradoSimpleMixin, DuplicateView, ConsultaEvaluacion, PermisosMixin
 from simulaciones_pequiven.utils import generate_nonexistent_tag
 from usuarios.models import PlantaAccesible
 from .models import *
@@ -13,6 +13,26 @@ from .forms import *
 from reportes.pdfs import generar_pdf
 from reportes.xlsx import reporte_equipos, ficha_tecnica_compresor
 from django.contrib import messages
+
+class EdicionCompresorPermisoMixin():
+    def test_func(self):
+        authenticated = self.request.user.is_authenticated 
+        return authenticated and self.request.user.usuario_planta.filter(planta=Compresor.objects.get(pk=self.kwargs['pk']).planta, edicion=True).exists()
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not self.test_func():
+            return HttpResponseForbidden()
+        return super().dispatch(request, *args, **kwargs)
+    
+class CreacionCompresorPermisoMixin():
+    def test_func(self):
+        authenticated = self.request.user.is_authenticated 
+        return authenticated and self.request.user.usuario_planta.filter(planta__pk = self.request.POST.get('planta'), creacion=True).exists()
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not self.test_func():
+            return HttpResponseForbidden()
+        return super().dispatch(request, *args, **kwargs)
 
 class ReportesFichasCompresoresMixin():
     """
@@ -97,7 +117,7 @@ class CargarCompresorMixin():
 
         return compresor
 
-class ConsultaCompresores(FiltradoSimpleMixin, ReportesFichasCompresoresMixin, CargarCompresorMixin, LoginRequiredMixin, ListView):
+class ConsultaCompresores(PermisosMixin, FiltradoSimpleMixin, ReportesFichasCompresoresMixin, CargarCompresorMixin, LoginRequiredMixin, ListView):
     '''
     Resumen:
         Vista para la consulta de los compresores.
@@ -143,14 +163,7 @@ class ConsultaCompresores(FiltradoSimpleMixin, ReportesFichasCompresoresMixin, C
         
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["permisos"] = {
-            'creacion': self.request.user.is_superuser or self.request.user.usuario_planta.filter(crear = True).exists(),
-            'ediciones':list(self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True)),
-            'instalaciones':list(self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True)),
-            'duplicaciones':list(self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True)),
-            'evaluaciones': list(self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True)),
-        }
-
+        context['permisos'] = self.get_permisos()
         return context
 
     def get_queryset(self):        
@@ -184,6 +197,9 @@ class DuplicarCompresores(CargarCompresorMixin, DuplicateView):
                 "casos__etapas__composiciones"
             ).get(pk=pk)
 
+            if not request.user.usuario_planta.filter(duplicacion = True, planta = compresor_original.planta).exists():
+                return HttpResponseForbidden()
+
             if(self.request.user.is_superuser or PlantaAccesible.objects.filter(usuario = request.user, planta = compresor_original.planta, duplicacion = True).exists()):
                 compresor = compresor_original
                 tag_previo = compresor.tag
@@ -211,7 +227,7 @@ class DuplicarCompresores(CargarCompresorMixin, DuplicateView):
             else:
                 return HttpResponseForbidden()
         
-class ProcesarFichaSegunCaso(CargarCompresorMixin, View):
+class ProcesarFichaSegunCaso(PermisosMixin, CargarCompresorMixin, View):
     '''
     Resumen:
         Vista que permite obtener una ficha de un compresor según el caso seleccionado.
@@ -238,11 +254,12 @@ class ProcesarFichaSegunCaso(CargarCompresorMixin, View):
                     True, 
                     Compresor.objects.filter(pk=pk)
                 ).first().casos.get(pk=caso),
-                'compresor': Compresor.objects.get(pk=pk)
+                'compresor': Compresor.objects.get(pk=pk),
+                'permisos': self.get_permisos()
             }
         )
 
-class CreacionCompresor(LoginRequiredMixin, View):
+class CreacionCompresor(CreacionCompresorPermisoMixin, View):
     """
     Resumen:
         Vista que permite la creación de un compresor.
@@ -320,7 +337,7 @@ class CreacionCompresor(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name, self.get_context_data())
     
-class CreacionNuevoCaso(LoginRequiredMixin, View):
+class CreacionNuevoCaso(EdicionCompresorPermisoMixin, View):
     """
     Resumen:
         Vista para la creación de un caso de un compresor. Hereda de View.
@@ -384,7 +401,7 @@ class CreacionNuevoCaso(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name, self.get_context_data())
 
-class EdicionEtapa(LoginRequiredMixin, View):
+class EdicionEtapa(EdicionCompresorPermisoMixin, View):
     """
     Resumen:
         Vista para la edición de una etapa de un compresor. Hereda de View.
@@ -403,6 +420,10 @@ class EdicionEtapa(LoginRequiredMixin, View):
             Renderiza la plantilla con el formulario vacío.
     """
     template_name = 'compresores/edicion_etapa.html'
+
+    def test_func(self):
+        authenticated = self.request.user.is_authenticated 
+        return authenticated and self.request.user.usuario_planta.filter(planta=EtapaCompresor.objects.get(pk=self.kwargs['pk']).compresor.compresor.planta, edicion=True).exists()
     
     def almacenar_datos(self, form_etapa, form_entrada, form_salida):
         try:
@@ -475,7 +496,7 @@ class EdicionEtapa(LoginRequiredMixin, View):
     def get(self, request, pk, *args, **kwargs):
         return render(request, self.template_name, self.get_context_data())
 
-class EdicionCompresor(LoginRequiredMixin, View):
+class EdicionCompresor(EdicionCompresorPermisoMixin, View):
     """
     Resumen:
         Clase que hereda de View y se encarga de renderizar la plantilla de edición de compresores y
@@ -491,7 +512,7 @@ class EdicionCompresor(LoginRequiredMixin, View):
         post: almacena los datos del compresor en la base de datos
     """
     template_name = "compresores/creacion.html"
-    titulo = "Edición de Compresor"
+    titulo = "Edición del Compresor "
 
     def get_context_data(self, **kwargs):
         context = {}
@@ -500,7 +521,7 @@ class EdicionCompresor(LoginRequiredMixin, View):
         context['form_compresor'] = CompresorForm(instance=compresor, initial={
             'numero_etapas': compresor.casos.first().etapas.count()
         })
-        context['titulo'] = self.titulo
+        context['titulo'] = self.titulo + compresor.tag
         context['edicion'] = True
         return context
     
@@ -565,6 +586,10 @@ class EdicionCaso(EdicionCompresor):
     template_name = 'compresores/creacion.html'
     titulo = "Edición de Caso"
 
+    def test_func(self):
+        authenticated = self.request.user.is_authenticated 
+        return authenticated and self.request.user.usuario_planta.filter(planta=PropiedadesCompresor.objects.get(pk=self.kwargs['pk']).compresor.planta, edicion=True).exists()
+
     def get_context_data(self, **kwargs):
         context = {}
         compresor = self.get_object().compresor
@@ -593,7 +618,7 @@ class EdicionCaso(EdicionCompresor):
         else:
             return render(self.request, self.template_name, self.get_context_data())
 
-class ConsultaEvaluacionCompresor(ConsultaEvaluacion, CargarCompresorMixin, ReportesFichasCompresoresMixin):
+class ConsultaEvaluacionCompresor(PermisosMixin, ConsultaEvaluacion, CargarCompresorMixin, ReportesFichasCompresoresMixin):
     """
     Resumen:
         Vista para la consulta de evaluaciones de compresores. Hereda de ConsultaEvaluacion y varios mixins.
@@ -618,5 +643,6 @@ class ConsultaEvaluacionCompresor(ConsultaEvaluacion, CargarCompresorMixin, Repo
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['equipo'] = self.model_equipment.objects.get(pk=self.kwargs.get('pk'))
+        context['permisos'] = self.get_permisos()
 
         return context

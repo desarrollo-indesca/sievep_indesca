@@ -4,7 +4,6 @@ from reportes.pdfs import generar_pdf
 
 from simulaciones_pequiven.settings import BASE_DIR
 from usuarios.views import SuperUserRequiredMixin 
-from usuarios.models import PermisoPorComplejo
 from django.views import View
 from django.db.models import Q
 from django.views.generic import ListView, FormView
@@ -15,7 +14,7 @@ from django.http import HttpResponse
 from intercambiadores.models import Fluido, Unidades, TiposDeTubo, Tema, Intercambiador, PropiedadesTuboCarcasa, CondicionesIntercambiador, Complejo
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, HttpResponseForbidden
 from django.contrib import messages
 from .forms import *
 
@@ -374,7 +373,7 @@ class ComponerFluidos(View):
         
         return HttpResponse("Listo")
     
-class ConsultaEvaluacion(LoginRequiredMixin, ListView):
+class ConsultaEvaluacion(ListView):
     """
     Resumen:
         Vista ABSTRACTA de consulta de evaluación de distintos equipos.
@@ -404,6 +403,22 @@ class ConsultaEvaluacion(LoginRequiredMixin, ListView):
     template_name = 'consulta_evaluaciones.html'
     paginate_by = 10
     titulo = "SIEVEP - Consulta de Evaluaciones"
+
+    def test_func(self):
+        authenticated = self.request.user.is_authenticated
+        if authenticated:
+            try:
+                plant = self.model_equipment.objects.get(pk=self.kwargs.get('pk')).planta
+                return self.request.user.usuario_planta.filter(planta=plant, ver_evaluaciones=True).exists()
+            except:
+                return False
+        else:
+            return False
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.test_func():
+            return HttpResponseForbidden()
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
         context = super().get_context_data(**kwargs)
@@ -787,3 +802,13 @@ class EdicionPlanta(SuperUserRequiredMixin, FormView):
         context['edicion'] = True
         context['titulo'] = 'SIEVEP - Edición de Planta'
         return context
+
+class PermisosMixin():
+    def get_permisos(self):
+        return {
+            'creacion': self.request.user.is_superuser or self.request.user.usuario_planta.filter(crear = True).exists(),
+            'ediciones': self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True),
+            'instalaciones': self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True),
+            'duplicaciones': self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True),
+            'evaluaciones': self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True),
+        }
