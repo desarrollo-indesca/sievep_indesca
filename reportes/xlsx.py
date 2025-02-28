@@ -2083,6 +2083,7 @@ def ficha_tecnica_compresor(compresor, request):
         worksheet.write(f'D{num}', f'Velocidad Máxima Continua ({caso.unidad_velocidad})', bold_bordered)
         worksheet.write(f'E{num}', f'Potencia Requerida ({caso.unidad_potencia})', bold_bordered)
         worksheet.write(f'F{num}', 'Tipo Lubricación', bold_bordered)
+        worksheet.write(f'G{num}', 'Tipo Lubricante', bold_bordered)
 
         num += 1
         worksheet.write(f'A{num}', f'{caso.numero_impulsores if caso.numero_impulsores else "—"}', center_bordered)
@@ -2091,6 +2092,7 @@ def ficha_tecnica_compresor(compresor, request):
         worksheet.write(f'D{num}', f'{caso.velocidad_max_continua if caso.velocidad_max_continua else "—"}', center_bordered)
         worksheet.write(f'E{num}', f'{caso.potencia_requerida if caso.potencia_requerida else "—"}', center_bordered)
         worksheet.write(f'F{num}', f'{caso.tipo_lubricacion if caso.tipo_lubricacion else "—"}', center_bordered)
+        worksheet.write(f'G{num}', f'{caso.tipo_lubricante if caso.tipo_lubricante else "—"}', center_bordered)
 
         for etapa in caso.etapas.all():
             lado_entrada = etapa.lados.get(lado="E")
