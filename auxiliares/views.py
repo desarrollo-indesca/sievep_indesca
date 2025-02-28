@@ -91,7 +91,7 @@ class RegistrarFluidoCAS(LoginRequiredMixin, View):
 class ReportesFichasBombasMixin():
     '''
     Resumen:
-        Mixin para evitar la repetición de código al generar fichas técnicas en las vistas que lo permites.
+        Mixin para evitar la repetición de código al generar fichas técnicas en las vistas que lo permiten.
         También incluye lógica para la generación de la ficha de los parámetros de instalación.
     '''
     def reporte_ficha(self, request):

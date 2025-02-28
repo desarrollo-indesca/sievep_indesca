@@ -4,7 +4,6 @@ from reportes.pdfs import generar_pdf
 
 from simulaciones_pequiven.settings import BASE_DIR
 from usuarios.views import SuperUserRequiredMixin 
-from usuarios.models import PermisoPorComplejo
 from django.views import View
 from django.db.models import Q
 from django.views.generic import ListView, FormView
@@ -15,7 +14,7 @@ from django.http import HttpResponse
 from intercambiadores.models import Fluido, Unidades, TiposDeTubo, Tema, Intercambiador, PropiedadesTuboCarcasa, CondicionesIntercambiador, Complejo
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, HttpResponseForbidden
 from django.contrib import messages
 from .forms import *
 
@@ -374,7 +373,7 @@ class ComponerFluidos(View):
         
         return HttpResponse("Listo")
     
-class ConsultaEvaluacion(LoginRequiredMixin, ListView):
+class ConsultaEvaluacion(ListView):
     """
     Resumen:
         Vista ABSTRACTA de consulta de evaluación de distintos equipos.
@@ -404,6 +403,22 @@ class ConsultaEvaluacion(LoginRequiredMixin, ListView):
     template_name = 'consulta_evaluaciones.html'
     paginate_by = 10
     titulo = "SIEVEP - Consulta de Evaluaciones"
+
+    def test_func(self):
+        authenticated = self.request.user.is_authenticated
+        if authenticated:
+            try:
+                plant = self.model_equipment.objects.get(pk=self.kwargs.get('pk')).planta
+                return self.request.user.usuario_planta.filter(planta=plant, ver_evaluaciones=True).exists() or self.request.user.is_superuser
+            except:
+                return False
+        else:
+            return False
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.test_func():
+            return HttpResponseForbidden()
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs: Any) -> "dict[str, Any]":
         context = super().get_context_data(**kwargs)
@@ -512,6 +527,7 @@ class PlantasPorComplejo(LoginRequiredMixin, View):
         Vista HTMX que filtra las plantas por complejo.
     """
     def get(self, request):
+        print(request.GET)
         complejo_id = request.GET['complejo']
         selected_planta_id = request.GET.get('planta')
         plantas = Planta.objects.filter(complejo_id=complejo_id)
@@ -577,7 +593,6 @@ class FiltradoSimpleMixin():
 
         new_context = self.model.objects.filter(planta__pk__in = self.request.user.usuario_planta.values_list("planta", flat=True))  if not self.request.user.is_superuser else self.model.objects.all()
         if(complejo and complejo != ''): # Filtrar por complejo
-            print("AQUI")
             new_context = new_context.filter(
                 planta__complejo__pk=complejo
             ) if new_context != None else self.model.objects.filter(
@@ -689,6 +704,8 @@ class ConsultaPlantas(SuperUserRequiredMixin, ListView):
     def get_queryset(self):
         queryset = Planta.objects.select_related('complejo').all()
 
+        print(f"get: {self.request.GET}")
+
         if(self.request.GET.get('complejo')):
             queryset = queryset.filter(complejo__pk = self.request.GET.get('complejo'))
         
@@ -785,3 +802,25 @@ class EdicionPlanta(SuperUserRequiredMixin, FormView):
         context['edicion'] = True
         context['titulo'] = 'SIEVEP - Edición de Planta'
         return context
+
+class PermisosMixin():
+    """
+    Clase que contiene los métodos para obtener los permisos de un usuario
+    en una planta.
+
+    Atributos:
+        request: HttpRequest
+            Solicitud actual.
+
+    Métodos:
+        get_permisos(self) -> dict
+            Devuelve un diccionario con los permisos del usuario en la planta.
+    """
+    def get_permisos(self):
+        return {
+            'creacion': self.request.user.is_superuser or self.request.user.usuario_planta.filter(crear = True).exists(),
+            'ediciones': self.request.user.usuario_planta.filter(edicion = True).values_list('planta__pk', flat=True),
+            'instalaciones': self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True),
+            'duplicaciones': self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True),
+            'evaluaciones': self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True),
+        }

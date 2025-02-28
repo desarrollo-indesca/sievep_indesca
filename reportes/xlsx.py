@@ -2034,3 +2034,128 @@ def ficha_tecnica_precalentador_aire(precalentador, request):
     workbook.close()
 
     return enviar_response(f'ficha_tecnica_precalentador_aire_{precalentador.tag}', excel_io, fecha)
+
+# REPORTES DE COMPRESORES
+
+def ficha_tecnica_compresor(compresor, request):
+    excel_io = BytesIO()
+    workbook = xlsxwriter.Workbook(excel_io, {'in_memory': True})
+    worksheet = workbook.add_worksheet()
+
+    bold = workbook.add_format({'bold': True})
+    bold_bordered = workbook.add_format({'bold': True, 'border': 1,'bg_color': 'yellow'})
+    center_bordered = workbook.add_format({'border': 1})
+    fecha =  workbook.add_format({'border': 1})
+
+    fecha.set_align('right')
+    bold_bordered.set_align('vcenter')
+    center_bordered.set_align('vcenter')
+    bold_bordered.set_align('center')
+    center_bordered.set_align('center')
+
+    worksheet.insert_image(0, 0, LOGO_PEQUIVEN, {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.write('C1', 'Ficha Técnica de Compresor', bold)
+    worksheet.insert_image(0, 8, LOGO_INDESCA, {'x_scale': 0.1, 'y_scale': 0.1})
+
+    num = 6
+    worksheet.write(f'A{num}', 'Tag', bold_bordered)
+    worksheet.write(f'B{num}', 'Planta', bold_bordered)
+    worksheet.write(f'C{num}', 'Fabricante', bold_bordered)
+    worksheet.write(f'D{num}', 'Modelo', bold_bordered)
+    worksheet.write(f'E{num}', 'Tipo', bold_bordered)
+    worksheet.write(f'F{num}', 'Descripción', bold_bordered)
+
+    num += 1
+    worksheet.write(f'A{num}', f'{compresor.tag}', center_bordered)
+    worksheet.write(f'B{num}', f'{compresor.planta.nombre}', center_bordered)
+    worksheet.write(f'C{num}', f'{compresor.fabricante if compresor.fabricante else "—"}', center_bordered)
+    worksheet.write(f'D{num}', f'{compresor.modelo if compresor.modelo else "—"}', center_bordered)
+    worksheet.write(f'E{num}', f'{compresor.tipo if compresor.tipo else "—"}', center_bordered)
+    worksheet.write(f'F{num}', f'{compresor.descripcion if compresor.descripcion else "—"}', center_bordered)
+
+    num += 1
+    for i,caso in enumerate(compresor.casos.all(), start=1):
+        worksheet.write(f'A{num}', f'Caso {i}', bold_bordered)
+        num += 1
+        worksheet.write(f'A{num}', 'Número de Impulsores', bold_bordered)
+        worksheet.write(f'B{num}', 'Material de la Carcasa', bold_bordered)
+        worksheet.write(f'C{num}', 'Tipo de Sello', bold_bordered)
+        worksheet.write(f'D{num}', f'Velocidad Máxima Continua ({caso.unidad_velocidad})', bold_bordered)
+        worksheet.write(f'E{num}', f'Potencia Requerida ({caso.unidad_potencia})', bold_bordered)
+        worksheet.write(f'F{num}', 'Tipo Lubricación', bold_bordered)
+        worksheet.write(f'G{num}', 'Tipo Lubricante', bold_bordered)
+
+        num += 1
+        worksheet.write(f'A{num}', f'{caso.numero_impulsores if caso.numero_impulsores else "—"}', center_bordered)
+        worksheet.write(f'B{num}', f'{caso.material_carcasa if caso.material_carcasa else "—"}', center_bordered)
+        worksheet.write(f'C{num}', f'{caso.tipo_sello if caso.tipo_sello else "—"}', center_bordered)
+        worksheet.write(f'D{num}', f'{caso.velocidad_max_continua if caso.velocidad_max_continua else "—"}', center_bordered)
+        worksheet.write(f'E{num}', f'{caso.potencia_requerida if caso.potencia_requerida else "—"}', center_bordered)
+        worksheet.write(f'F{num}', f'{caso.tipo_lubricacion if caso.tipo_lubricacion else "—"}', center_bordered)
+        worksheet.write(f'G{num}', f'{caso.tipo_lubricante if caso.tipo_lubricante else "—"}', center_bordered)
+
+        for etapa in caso.etapas.all():
+            lado_entrada = etapa.lados.get(lado="E")
+            lado_salida = etapa.lados.get(lado="S")   
+
+            num += 1
+            worksheet.write(f'A{num}', f'Etapa {etapa.numero if etapa.numero else "—"}', bold_bordered)
+            num += 1
+            worksheet.write(f'A{num}', 'Etapa', bold_bordered)
+            worksheet.write(f'B{num}', 'Nombre del Fluido', bold_bordered)
+            worksheet.write(f'C{num}', f'Flujo Másico ({etapa.flujo_masico_unidad})', bold_bordered)
+            worksheet.write(f'D{num}', f'Flujo Molar ({etapa.flujo_molar_unidad})', bold_bordered)
+            worksheet.write(f'E{num}', f'Densidad ({etapa.densidad_unidad})', bold_bordered)
+            worksheet.write(f'F{num}', f'Aumento Esimado ({etapa.volumen_unidad})', bold_bordered)
+            worksheet.write(f'G{num}', 'Relación de Compresión', bold_bordered)
+            worksheet.write(f'H{num}', f'Potencia Nominal ({etapa.potencia_unidad})', bold_bordered)
+            worksheet.write(f'I{num}', f'Potencia Requerida ({etapa.potencia_unidad})', bold_bordered)
+            worksheet.write(f'J{num}', 'Eficiencia Isentrópica (%)', bold_bordered)
+            worksheet.write(f'K{num}', 'Eficiencia Politrópica (%)', bold_bordered)
+            worksheet.write(f'L{num}', 'Cabezal Politrópico', bold_bordered)
+            worksheet.write(f'M{num}', 'Humedad Relativa (%)', bold_bordered)
+            worksheet.write(f'N{num}', f'Volumen de Diseño ({etapa.volumen_unidad})', bold_bordered)
+            worksheet.write(f'O{num}', f'Volumen Normal ({etapa.volumen_unidad})', bold_bordered)
+            worksheet.write(f'P{num}', f'Temp. Entrada ({lado_entrada.temp_unidad})', bold_bordered)
+            worksheet.write(f'Q{num}', f'Temp. Salida ({lado_salida.temp_unidad})', bold_bordered)
+            worksheet.write(f'R{num}', f'Presión Entrada ({lado_entrada.presion_unidad})', bold_bordered)
+            worksheet.write(f'S{num}', f'Presión Salida ({lado_salida.presion_unidad})', bold_bordered)
+            worksheet.write(f'T{num}', f'Compresibilidad Entrada', bold_bordered)
+            worksheet.write(f'U{num}', f'Compresibilidad Salida', bold_bordered)
+            worksheet.write(f'V{num}', f'Cp/Cv Entrada', bold_bordered)
+            worksheet.write(f'W{num}', f'Cp/Cv Salida', bold_bordered)
+
+            num += 1
+            worksheet.write(f'A{num}', f'{etapa.numero if etapa.numero else "—"}', center_bordered)
+            worksheet.write(f'B{num}', f'{etapa.nombre_fluido if etapa.nombre_fluido else "—"}', center_bordered)
+            worksheet.write(f'C{num}', f'{etapa.flujo_masico if etapa.flujo_masico else "—"}', center_bordered)
+            worksheet.write(f'D{num}', f'{etapa.flujo_molar if etapa.flujo_molar else "—"}', center_bordered)
+            worksheet.write(f'E{num}', f'{etapa.densidad if etapa.densidad else "—"}', center_bordered)
+            worksheet.write(f'F{num}', f'{etapa.aumento_estimado if etapa.aumento_estimado else "—"}', center_bordered)
+            worksheet.write(f'G{num}', f'{etapa.rel_compresion if etapa.rel_compresion else "—"}', center_bordered)
+            worksheet.write(f'H{num}', f'{etapa.potencia_nominal if etapa.potencia_nominal else "—"}', center_bordered)
+            worksheet.write(f'I{num}', f'{etapa.potencia_req if etapa.potencia_req else "—"}', center_bordered)
+            worksheet.write(f'J{num}', f'{etapa.eficiencia_isentropica if etapa.eficiencia_isentropica else "—"}', center_bordered)
+            worksheet.write(f'K{num}', f'{etapa.eficiencia_politropica if etapa.eficiencia_politropica else "—"}', center_bordered)
+            worksheet.write(f'L{num}', f'{etapa.cabezal_politropico if etapa.cabezal_politropico else "—"}', center_bordered)
+            worksheet.write(f'M{num}', f'{etapa.humedad_relativa if etapa.humedad_relativa else "—"}', center_bordered)
+            worksheet.write(f'N{num}', f'{etapa.volumen_diseno if etapa.volumen_diseno else "—"}', center_bordered)
+            worksheet.write(f'O{num}', f'{etapa.volumen_normal if etapa.volumen_normal else "—"}', center_bordered)         
+            worksheet.write(f'P{num}', f'{lado_entrada.temp if lado_entrada.temp else "—"}', center_bordered)
+            worksheet.write(f'Q{num}', f'{lado_salida.temp if lado_salida.temp else "—"}', center_bordered)
+            worksheet.write(f'R{num}', f'{lado_entrada.presion if lado_entrada.presion else "—"}', center_bordered)
+            worksheet.write(f'S{num}', f'{lado_salida.presion if lado_salida.presion else "—"}', center_bordered)
+            worksheet.write(f'T{num}', f'{lado_entrada.compresibilidad if lado_entrada.compresibilidad else "—"}', center_bordered)
+            worksheet.write(f'U{num}', f'{lado_salida.compresibilidad if lado_salida.compresibilidad else "—"}', center_bordered)
+            worksheet.write(f'V{num}', f'{lado_entrada.cp_cv if lado_entrada.cp_cv else "—"}', center_bordered)
+            worksheet.write(f'W{num}', f'{lado_salida.cp_cv if lado_salida.cp_cv else "—"}', center_bordered)
+
+        num += 2
+
+    num += 2
+
+    worksheet.write(f"A{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
+    worksheet.write(f"A{num+2}", "Generado por " + request.user.get_full_name(), fecha)
+    workbook.close()
+    
+    return enviar_response(f'ficha_tecnica_compresor_{compresor.tag}', excel_io, fecha)
