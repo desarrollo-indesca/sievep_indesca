@@ -20,7 +20,9 @@
         </tr>
         <tr>
             <th class="table-dark">Potencia Requerida ({{caso.unidad_potencia}})</th>
-            <td colspan="3">{{caso.potencia_requerida|default_if_none:'-'}}</td>
+            <td>{{caso.potencia_requerida|default_if_none:'-'}}</td>
+            <th class="table-dark">Tipo de Lubricante</th>
+            <td>{{caso.tipo_lubricante|default_if_none:'-'}}</td>
         </tr>
     
         {% if caso.curva_caracteristica %}

@@ -4504,6 +4504,12 @@ def ficha_tecnica_compresor(compresor):
                     Paragraph(f"Potencia Requerida ({caso.unidad_potencia})", centrar_parrafo),
                     Paragraph(str(caso.potencia_requerida) if caso.potencia_requerida else '—', centrar_parrafo)
                 ],
+                [
+                    Paragraph("Tipo de Lubricación", centrar_parrafo),
+                    Paragraph(caso.tipo_lubricacion.nombre if caso.tipo_lubricacion else '—', centrar_parrafo),
+                    Paragraph("Tipo de Lubricante", centrar_parrafo),
+                    Paragraph(caso.tipo_lubricante if caso.tipo_lubricante else '—', centrar_parrafo)
+                ],
         ]
 
         estilo = TableStyle([

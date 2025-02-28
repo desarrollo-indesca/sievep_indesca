@@ -100,7 +100,7 @@
             <small>{{form_caso.tipo_sello.errors}}</small>
         </div>
 
-        <div class="col-6">
+        <div class="col-4">
             {{form_caso.velocidad_max_continua.label_tag}}
             <div class="input-group">
                 {% render_field form_caso.velocidad_max_continua class="form-control" placeholder="Velocidad Máxima Continua" %}
@@ -111,7 +111,7 @@
 
             <small>{{form_caso.velocidad_max_continua.errors}}</small>
         </div>
-        <div class="col-6">
+        <div class="col-4">
             {{form_caso.velocidad_rotacion.label_tag}}
             <div class="input-group">
                 {% render_field form_caso.velocidad_rotacion class="form-control" placeholder="Velocidad de Rotación" %}
@@ -120,6 +120,13 @@
                 </select>
             </div>
             <small>{{form_caso.velocidad_rotacion.errors}}</small>
+        </div>
+        <div class="col-4">
+            {{form_caso.tipo_lubricante.label_tag}}
+            <div class="input-group">
+                {% render_field form_caso.tipo_lubricante class="form-control" placeholder="Tipo de Lubricante" %}
+            </div>
+            <small>{{form_caso.tipo_lubricante.errors}}</small>
         </div>
         <div class="col-4">
             {{form_caso.potencia_requerida.label_tag}}
