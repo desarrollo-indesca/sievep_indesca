@@ -5,8 +5,8 @@ from django.core.validators import MinValueValidator, MaxValueValidator, FileExt
 import uuid
 
 LADOS_COMPRESOR= (
-    ('I', 'Entrada'), 
-    ('E', 'Salida')
+    ('E', 'Entrada'), 
+    ('S', 'Salida')
 )
 
 # Create your models here.
