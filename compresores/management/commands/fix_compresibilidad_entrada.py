@@ -22,12 +22,8 @@ class Command(BaseCommand):
                         )[0]
 
                         for etapa in propiedad.etapas.all():
-                                for lado in ['ent','sal']:
-                                    lado_obj = etapa.lados.get(lado=lado[0].upper())
-                                    compresibilidad = row[f'z_{lado}_e{etapa.numero}'].strip() if row[f'z_{lado}_e{etapa.numero}'] else None
-                                    print(f'z_{lado}_e{etapa.numero}', compresibilidad)
-                                    lado_obj.compresibilidad = compresibilidad                                    
-                                    lado_obj.save()
+                            etapa.potencia_req = row[f'pot_req_e{etapa.numero}'] if row[f'pot_req_e{etapa.numero}'] != '' else None
+                            etapa.save()
 
                         self.stdout.write(self.style.SUCCESS(f"Compresor '{compresor.tag}' updated successfully"))
             except Exception as e:

@@ -4550,7 +4550,7 @@ def ficha_tecnica_compresor(compresor):
                         Paragraph(str(etapa.densidad) if etapa.densidad else '—', centrar_parrafo)
                     ],
                     [
-                        Paragraph(f"Aumento Estimado ({etapa.volumen_unidad})", centrar_parrafo),
+                        Paragraph(f"Flujo Surge ({etapa.volumen_unidad})", centrar_parrafo),
                         Paragraph(str(etapa.aumento_estimado) if etapa.aumento_estimado else '—', centrar_parrafo),
                         Paragraph("Relación de Compresión", centrar_parrafo),
                         Paragraph(str(etapa.rel_compresion) if etapa.rel_compresion else '—', centrar_parrafo)

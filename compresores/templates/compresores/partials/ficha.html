@@ -90,10 +90,8 @@
                             <td>{{caso.velocidad_rotacion|default_if_none:'-'}}</td>
                         </tr>
                         <tr>
-                            <th class="table-dark">Potencia Requerida ({{caso.unidad_potencia}})</th>
-                            <td>{{caso.potencia_requerida|default_if_none:'-'}}</td>
                             <th class="table-dark">Tipo de Lubricante (ROT)</th>
-                            <td>{{caso.tipo_lubricante|default_if_none:'-'}}</td>
+                            <td colspan="3">{{caso.tipo_lubricante|default_if_none:'-'}}</td>
                         </tr>
 
                         {% if caso.curva_caracteristica %}
@@ -143,12 +141,6 @@
                             <td>{{etapa.potencia_nominal|default:'-'}}</td>                            
                         </tr>
                         <tr>
-                            <th class="table-dark">Relación de Compresión</th>
-                            <td>{{etapa.rel_compresion|default:'-'}}</td>    
-                            <th class="table-dark">Potencia Nominal ({{etapa.potencia_unidad|default:'-'}})</th>
-                            <td>{{etapa.potencia_nominlal|default:'-'}}</td>                            
-                        </tr>
-                        <tr>
                             <th class="table-dark">Potencia Requerida ({{etapa.potencia_unidad|default:'-'}})</th>
                             <td>{{etapa.potencia_req|default:'-'}}</td>    
                             <th class="table-dark">Eficiencia Isentrópica (%)</th>
@@ -165,6 +157,10 @@
                             <td>{{etapa.densidad|default:'-'}}</td>  
                             <th class="table-dark">Humedad Relativa (%)</th>
                             <td>{{etapa.humedad_relativa|default:'-'}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-dark">Aumento Estimado / Flujo Surge ({{etapa.volumen_unidad|default:'-'}})</th>
+                            <td colspan="3">{{etapa.aumento_estimado|default:'-'}}</td>                            
                         </tr>
 
                         <tr>
