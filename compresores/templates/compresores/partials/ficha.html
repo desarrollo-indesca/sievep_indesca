@@ -74,7 +74,7 @@
                         <tr>
                             <th class="table-dark">Número de Impulsores</th>
                             <td>{{caso.numero_impulsores|default_if_none:'-'}}</td>
-                            <th class="table-dark">Tipo de Lubricación (ROT)</th>
+                            <th class="table-dark">Tipo de Lubricación</th>
                             <td>{{caso.tipo_lubricacion|default_if_none:'-'}}</td>
                         </tr>
                         <tr>
@@ -92,7 +92,7 @@
                         <tr>
                             <th class="table-dark">Potencia Requerida ({{caso.unidad_potencia}})</th>
                             <td>{{caso.potencia_requerida|default_if_none:'-'}}</td>
-                            <th class="table-dark">Tipo de Lubricante</th>
+                            <th class="table-dark">Tipo de Lubricante (ROT)</th>
                             <td>{{caso.tipo_lubricante|default_if_none:'-'}}</td>
                         </tr>
 
@@ -114,7 +114,7 @@
                         </tr>
                         {% for etapa in caso.etapas.all %}
                         <tr>
-                            <th class="table-dark" colspan="4">Etapa {{etapa.numero}} <br> 
+                            <th class="table-dark" colspan="4">Etapa {{etapa.numero}}<br> 
                                 {% if request.user.is_superuser or compresor.planta.pk in permisos.ediciones %}
                                 <a href="{% url 'edicion_etapa' pk=etapa.pk %}" class="btn btn-danger btn-sm">Editar Información</a>
                                 {% endif %}
