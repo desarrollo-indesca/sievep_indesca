@@ -125,7 +125,7 @@ def CpPromedio(z1, z2):
     promedio = [(z1[i] + z2[i]) / 2 for i in range(len(z1))]
     return promedio
 
-def evaluar():
+def evaluar(etapas):
     """
     Evaluar y calcular los parámetros de un compresor de 5 etapas.
     
@@ -152,16 +152,6 @@ def evaluar():
     PotenciaTeorica = []
     FlujoVolumetrico = []
     Hpoly = []
-
-    for i in range(5):
-        PresionE.append(float(input(f"Valor de {Etiquetas[i][2]}: ")) * 1e5)
-        TemperaturaE.append(float(input(f"Valor de {Etiquetas[i][4]}: ")) + 273.15)
-        PresionS.append(float(input(f"Valor de {Etiquetas[i][3]}: ")) * 1e5)
-        TemperaturaS.append(float(input(f"Valor de {Etiquetas[i][5]}: ")) + 273.15)
-        Flujo.append(float(input(f"Valor de {Etiquetas[i][1]}: ")))
-        FlujoVolumetrico.append(float(input(f"Valor de {Etiquetas[i][10]}: ")))
-        PotenciaTeorica.append(float(input(f"Valor de {Etiquetas[i][11]}: ")))
-        Hpoly.append(float(input(f"Valor de {Etiquetas[i][14]}: ")))
 
     EtiquetasX = [['X1H2', 'X2H2', 'X3H2', 'X4H2', 'X5H2'],
                    ['X1CH4', 'X2CH4', 'X3CH4', 'X4CH4', 'X5CH4'],
@@ -302,3 +292,37 @@ def evaluar():
     # Cálculo de energía con el CP
     DeltaHcp = [CpEtapaPromedio[i] * (TemperaturaS[i] - TemperaturaE[i]) for i in range(5)]
     DeltaHcpIso = [CpEtapaPromedio[i] * (TemperaturaIsoentropica[i] - TemperaturaE[i]) for i in range(5)]
+
+    return {
+        "CpE": CpE,
+        "CpS": CpS,
+        "CvE": CvE,
+        "CvS": CvS,
+        "CpEtapaPromedio": CpEtapaPromedio,
+        "CvEtapaPromedio": CvEtapaPromedio,
+        "K": K,
+        "Ke": Ke,
+        "Ks": Ks,
+        "Eficiencia": Eficiencia,
+        "Potencia": Potencia,
+        "Cabezal": Cabezal,
+        "PotenciaIso": PotenciaIso,
+        "CabezalIso": CabezalIso,
+        "RelacionCompresion": RelacionCompresion,
+        "RelacionTemperatura": RelacionTemperatura,
+        "n": n,
+        "Eficienciar": Eficienciar,
+        "EficienciaPolitropica": EficienciaPolitropica,
+        "EficienciaTeorica": EficienciaTeorica,
+        "TemperaturaIsoentropica": TemperaturaIsoentropica,
+        "PresionD": PresionD,
+        "TemperaturaD": TemperaturaD,
+        "DH": DH,
+        "FlujoVolumetricoCe": FlujoVolumetricoCe,
+        "FlujoVolumetricoCs": FlujoVolumetricoCs,
+        "RelacionVolumetrica": RelacionVolumetrica,
+        "DeltaH": DeltaH,
+        "DeltaHs": DeltaHs,
+        "DeltaHcp": DeltaHcp,
+        "DeltaHcpIso": DeltaHcpIso
+    }
