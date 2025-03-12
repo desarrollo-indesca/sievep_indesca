@@ -257,4 +257,37 @@ class Evaluacion(models.Model):
     class Meta:
         ordering = ('-fecha',)
 
-# TODO
+class EntradaEtapaEvaluacion(models.Model):
+    etapa = models.ForeignKey(EtapaCompresor, models.CASCADE, related_name="entradas")
+    evaluacion = models.ForeignKey(Evaluacion, models.CASCADE, related_name="entradas_evaluacion")
+    flujo_gas = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Flujo de Gas")
+    flujo_gas_unidad = models.ForeignKey(Unidades, default=54, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_flujo_gas_evaluacion", verbose_name="Unidad")
+    
+    flujo_volumetrico = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Flujo Volumétrico")
+    flujo_surge = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Flujo Surge / Aumento Estimado")
+    flujo_volumetrico_unidad = models.ForeignKey(Unidades, default=94, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_flujo_volumetrico_evaluacion", verbose_name="Unidad")
+    
+    cabezal_politropico = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Cabezal Politérpico")
+    cabezal_politropico_unidad = models.ForeignKey(Unidades, default=7, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_cabezal_politropico_evaluacion", verbose_name="Unidad")
+    
+    potencia_generada = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Potencia Generada")
+    potencia_generada_unidad = models.ForeignKey(Unidades, default=2, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_potencia_generada_evaluacion", verbose_name="Unidad")
+    
+    eficiencia_politropica = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Eficiencia Politérpica")
+    
+    presion = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Presión")
+    presion_unidad = models.ForeignKey(Unidades, default=7, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_presion_evaluacion", verbose_name="Unidad")
+    
+    temperatura_in = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Temperatura de Entrada")
+    temperatura_out = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Temperatura de Salida")
+    temperatura_unidad = models.ForeignKey(Unidades, default=1, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_temperatura_out_evaluacion", verbose_name="Unidad")
+    
+    k = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Relación de Compresión")
+    z_in = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Compresibilidad de Entrada")
+    z_out = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Compresibilidad de Salida")
+    
+    pm_ficha = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Potencia Máxima")
+    pm_ficha_unidad = models.ForeignKey(Unidades, default=2, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_pm_ficha_evaluacion", verbose_name="Unidad")
+
+class ComposicionEvaluacionEntrada(models.Model):
+    pass
