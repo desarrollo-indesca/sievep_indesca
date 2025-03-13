@@ -9,6 +9,8 @@ LADOS_COMPRESOR= (
     ('S', 'Salida')
 )
 
+COMPUESTOS = ['1333-74-0', '74-82-8', '74-85-1', '74-84-0', '115-07-1', '74-98-6', '106-98-9', '106-97-8', '109-66-0', '71-43-2', '7732-18-5']
+
 # Create your models here.
 
 class TipoCompresor(models.Model):
@@ -193,7 +195,9 @@ class ComposicionGases(models.Model):
     porc_molar = models.FloatField(
         null=True, 
         blank=True, 
-        verbose_name="Porcentaje Molar"
+        default=0.0,
+        verbose_name="Porcentaje Molar",
+        validators=[MinValueValidator(0.0), MaxValueValidator(100.0)]
     )
     compuesto = models.ForeignKey(
         Fluido, 

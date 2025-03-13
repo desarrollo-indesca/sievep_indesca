@@ -30,3 +30,4 @@ class ComposicionGasForm(forms.ModelForm):
     class Meta:
         model = ComposicionGases
         exclude = ['id', 'etapa']
+        widgets = {'etapa': forms.HiddenInput(), 'compuesto': forms.HiddenInput()}

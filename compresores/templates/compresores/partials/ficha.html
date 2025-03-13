@@ -224,8 +224,7 @@
                     </tr>
                     </tbody>
                 </table>
-                {% endwith %}
-
+                
                 <table class="text-center">
                     <tr>
                         <td colspan="6">Creado por el usuario <b>{{compresor.creado_por.get_full_name|default_if_none:'-'}}</b> el día <b>{{compresor.creado_al|default_if_none:'-'}}</b>.</td>
@@ -244,6 +243,7 @@
           {% if request.user.is_superuser or compresor.planta.pk in permisos.ediciones %}
           <a href="{% url 'edicion_compresor' pk=compresor.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
           {% endif %}
+          <a id="edicion-composicion-{{compresor.pk}}" href="{% url 'edicion_composicion' pk=caso.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Composición</a>
           {% if request.user.is_superuser or compresor.planta.pk in permisos.duplicaciones %}
           <form action="{% url 'duplicar_compresores' pk=compresor.pk %}" method="post" name="duplicacion">
             {% csrf_token %}
@@ -260,3 +260,4 @@
       </div>
     </div>
 </div>
+                {% endwith %}

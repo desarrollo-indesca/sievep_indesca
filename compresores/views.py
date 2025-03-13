@@ -618,6 +618,67 @@ class EdicionCaso(EdicionCompresor):
         else:
             return render(self.request, self.template_name, self.get_context_data())
 
+class EdicionComposicionGases(LoginRequiredMixin, PermisosMixin, View):
+    def create_formset(self, etapas, compuesto): 
+        formsets = []
+        for etapa in etapas:
+            composiciones = ComposicionGases.objects.filter(etapa=etapa, compuesto=compuesto)
+            
+            if composiciones.exists():
+                form = ComposicionGasForm(instance=composiciones.first(), prefix=f"{etapa.pk}-{compuesto.pk}")
+            else:
+                form = ComposicionGasForm(prefix=f"{etapa.pk}-{compuesto.pk}", initial={'etapa': etapa, 'compuesto': compuesto, 'porc_molar': 0})
+            
+            formsets.append(form)
+
+        return formsets
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        caso = PropiedadesCompresor.objects.get(pk=self.kwargs.get('pk'))
+        context['caso'] = caso
+        context['etapas'] = caso.etapas.all()
+        context['formsets'] = {}
+        context['numero_caso'] = list(caso.compresor.casos.all().values_list('pk', flat=True)).index(caso.pk) + 1
+        context['titulo'] = "SIEVEP - Edición de la Composición de Gases"
+
+        with transaction.atomic():
+            for compuesto in COMPUESTOS:
+                compuesto = Fluido.objects.get(cas=compuesto)
+                context['formsets'][compuesto] = self.create_formset(
+                    context['etapas'], compuesto
+                )
+
+        return context
+
+    def get(self, request, pk, *args, **kwargs):
+        return render(request, 'compresores/composicion.html', context=self.get_context_data())
+    
+    def post(self, request, pk, *args, **kwargs):
+        caso = PropiedadesCompresor.objects.get(pk=pk)
+        etapas = caso.etapas.all()
+
+        with transaction.atomic():
+            for compuesto in COMPUESTOS:
+                compuesto = Fluido.objects.get(cas=compuesto)
+                for etapa in etapas:
+                    prefix = f"{etapa.pk}-{compuesto.pk}"
+                    instance = ComposicionGases.objects.filter(etapa=etapa, compuesto=compuesto).first()
+                    form = ComposicionGasForm(request.POST, prefix=prefix, instance=instance)
+                    if form.is_valid():
+                        form.instance.etapa = etapa
+                        form.save()
+                    else:
+                        print("OH DEAR", form.errors)
+                        for error in form.errors:
+                            messages.error(request, f'Error en la etapa {i+1} del compuesto {compuesto} con prefix {prefix}: {error}')
+                        return render(request, 'compresores/composicion.html', context=self.get_context_data())
+            
+            messages.success(request, 'La composición de gases ha sido guardada exitosamente.')
+
+        return redirect('/compresores/')
+# Evaluaciones
+
 class ConsultaEvaluacionCompresor(PermisosMixin, ConsultaEvaluacion, CargarCompresorMixin, ReportesFichasCompresoresMixin):
     """
     Resumen:
