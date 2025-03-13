@@ -289,5 +289,28 @@ class EntradaEtapaEvaluacion(models.Model):
     pm_ficha = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Potencia Máxima")
     pm_ficha_unidad = models.ForeignKey(Unidades, default=2, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_pm_ficha_evaluacion", verbose_name="Unidad")
 
-class ComposicionEvaluacionEntrada(models.Model):
-    pass
+class ComposicionEvaluacion(models.Model):
+    entrada_etapa = models.ForeignKey(EntradaEtapaEvaluacion, models.CASCADE, related_name="composiciones")
+    fluido = models.ForeignKey(Fluido, models.PROTECT, related_name="composiciones_fluidos")
+    porc_molar = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Porcentaje")
+
+class SalidaEtapaEvaluacion(models.Model):
+    entrada_etapa = models.ForeignKey(EntradaEtapaEvaluacion, models.CASCADE, related_name="salidas")
+    flujo_in = models.FloatField()
+    flujo_out = models.FloatField()
+    cabezal_calculado = models.FloatField()
+    cabezal_isotropico = models.FloatField()
+    potencia_calculada = models.FloatField()
+    potencia_isoentropica = models.FloatField()
+    eficiencia_iso = models.FloatField()
+    eficiencia_teorica = models.FloatField()
+    caida_presion = models.FloatField()
+    caida_temp = models.FloatField()
+    k_calculada = models.FloatField()
+    k_promedio = models.FloatField()
+    n = models.FloatField()
+    z_in = models.FloatField()
+    z_out = models.FloatField()
+    relacion_compresion = models.FloatField()
+    relacion_temperatura = models.FloatField()
+    relacion_volumetrica = models.FloatField()
