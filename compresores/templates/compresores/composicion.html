@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const totals = Array(columns).fill(0);    
 
     const calculateTotals = () => {
-        for (let columnIndex = 1; columnIndex < columns - 1; columnIndex++) {
+        for (let columnIndex = 1; columnIndex < columns; columnIndex++) {
             totals[columnIndex] = 0;
             for (let rowIndex = 1; rowIndex < rows.length - 1; rowIndex++) {
                 const row = rows[rowIndex];
@@ -78,12 +78,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const lastRow = rows[rows.length - 1];
-        for (let columnIndex = 1; columnIndex < columns - 1; columnIndex++) {
-            lastRow.cells[columnIndex].querySelector('input').value = totals[columnIndex];
+        for (let columnIndex = 1; columnIndex < columns; columnIndex++) {
+            lastRow.cells[columnIndex].querySelector('input').value = (Math.round(totals[columnIndex] * 100) / 100).toFixed(2);
         }
     }
 
-    for (let columnIndex = 1; columnIndex < columns - 1; columnIndex++) {
+    for (let columnIndex = 1; columnIndex < columns; columnIndex++) {
         const inputs = [];
         for (let rowIndex = 1; rowIndex < rows.length - 1; rowIndex++) {
             const row = rows[rowIndex];
@@ -93,6 +93,8 @@ document.addEventListener('DOMContentLoaded', function() {
             inputs.push(input);
         }
     }
+
+    calculateTotals();
 });
 </script>
 

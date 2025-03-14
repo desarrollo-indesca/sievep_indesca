@@ -2152,10 +2152,32 @@ def ficha_tecnica_compresor(compresor, request):
 
         num += 2
 
+        composiciones_por_etapa = caso.get_composicion_by_etapa()
+        if composiciones_por_etapa:
+            etapas = caso.etapas.all()
+            # write headers
+            headers = ['Compuesto']
+            for etapa in etapas:
+                headers.append(f'Etapa {etapa.numero}')
+            for j, header in enumerate(headers):
+                worksheet.write(f"{chr(65+j)}{num}", header, bold_bordered)
+            
+            num += 1
+
+            # write composiciones
+            for row, comps in composiciones_por_etapa.items():
+                worksheet.write(f"A{num}", row, bold_bordered)
+                for j, comp in enumerate(comps):
+                    worksheet.write(f"{chr(65+j+1)}{num}", f'{comp.porc_molar if comp else "—"}', center_bordered)
+                
+                num += 1
+
+            num += 2
+
     num += 2
 
-    worksheet.write(f"A{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
-    worksheet.write(f"A{num+2}", "Generado por " + request.user.get_full_name(), fecha)
+    worksheet.write(f"L{num+1}", datetime.datetime.now().strftime('%d/%m/%Y %H:%M'), fecha)
+    worksheet.write(f"L{num+2}", "Generado por " + request.user.get_full_name(), fecha)
     workbook.close()
     
     return enviar_response(f'ficha_tecnica_compresor_{compresor.tag}', excel_io, fecha)

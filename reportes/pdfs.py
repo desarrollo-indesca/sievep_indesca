@@ -4635,11 +4635,41 @@ def ficha_tecnica_compresor(compresor):
             table = Table(table, style=estilo)
             story.append(table)
 
+
+
             if etapa.curva_caracteristica:
                 story.append(Spacer(0,10))
                 story.append(Image(etapa.curva_caracteristica.path, width=400, height=400))
                 story.append(Paragraph(f"Curva Característica Etapa #{j+1}", centrar_parrafo))
                 story.append(Spacer(0,10))
+
+        # Tabla de Composición por Etapa
+        composiciones = caso.get_composicion_by_etapa()
+        if len(composiciones):
+            story.append(Spacer(0, 10))
+            table = [[Paragraph("Compuesto", centrar_parrafo)]]
+
+            for etapa_num in range(1, caso.etapas.count() + 1):
+                table[0].append(Paragraph(f"Etapa {etapa_num}", centrar_parrafo))
+
+            for nombre in composiciones:
+                row = [Paragraph(nombre, centrar_parrafo)]
+                for comp in composiciones[nombre]:
+                    row.append(Paragraph(f"{round(comp.porc_molar, 2)}%", centrar_parrafo))
+                table.append(row)
+
+            estilo = TableStyle([
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+                ('BACKGROUND', (0, 0), (0, -1), sombreado),
+                ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+            ])
+
+            table = Table(table, style=estilo)
+            story.append(table)
+        else:
+            story.append(Spacer(0, 10))
+            story.append(Paragraph("Las composiciones de las etapas para este caso no han sido registradas.", centrar_parrafo))
 
     return [story, []]
 
