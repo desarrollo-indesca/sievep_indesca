@@ -270,7 +270,7 @@
           {% if request.user.is_superuser or compresor.planta.pk in permisos.ediciones %}
           <a href="{% url 'edicion_compresor' pk=compresor.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Información</a>
           {% endif %}
-          <a id="edicion-composicion-{{compresor.pk}}" href="{% url 'edicion_composicion' pk=caso.pk %}" class="btn btn-primary d-inline-flex" style="color: black;">Editar Composición</a>
+          <a id="edicion-composicion-{{compresor.pk}}" href="{% url 'edicion_composicion' pk=caso.pk %}" class="btn btn-warning d-inline-flex" style="color: black;">Editar Composición</a>
           {% if request.user.is_superuser or compresor.planta.pk in permisos.duplicaciones %}
           <form action="{% url 'duplicar_compresores' pk=compresor.pk %}" method="post" name="duplicacion">
             {% csrf_token %}
