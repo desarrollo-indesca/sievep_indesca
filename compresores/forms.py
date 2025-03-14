@@ -31,3 +31,18 @@ class ComposicionGasForm(forms.ModelForm):
         model = ComposicionGases
         exclude = ['id', 'etapa']
         widgets = {'etapa': forms.HiddenInput(), 'compuesto': forms.HiddenInput()}
+
+class EntradaEtapaEvaluacionForm(forms.ModelForm):    
+    class Meta:
+        model = EntradaEtapaEvaluacion
+        exclude = ['id', 'etapa', 'evaluacion']
+
+class EvaluacionCompresorForm(forms.ModelForm):    
+    class Meta:
+        model = Evaluacion
+        exclude = ['id', 'evaluacion', 'compresor', 'creado_al', 'creado_por']
+
+class ComposicionEvaluacionForm(forms.ModelForm):
+    class Meta:
+        model = ComposicionEvaluacion
+        exclude = ['id',]

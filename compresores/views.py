@@ -706,3 +706,57 @@ class ConsultaEvaluacionCompresor(PermisosMixin, ConsultaEvaluacion, CargarCompr
         context['permisos'] = self.get_permisos()
 
         return context
+
+class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View):
+    template_name = "compresores/evaluacion.html"
+
+    def get_forms(self, compresor):
+        composiciones = {Fluido.objects.get(cas=compuesto): [
+            ComposicionEvaluacionForm(initial={
+                'porc_molar': c.porc_molar, 
+                'compuesto': c.compuesto
+            }) for c in ComposicionGases.objects.filter(
+                etapa__compresor=compresor, 
+                compuesto__cas=compuesto
+            )] for compuesto in COMPUESTOS
+        }
+
+        entradas_etapa = {
+            etapa: EntradaEtapaEvaluacionForm(prefix=f'etapa-{etapa.pk}', initial={
+                'flujo_gas': etapa.flujo_masico,
+                'flujo_gas_unidad': etapa.flujo_masico_unidad,
+                'flujo_volumetrico': etapa.volumen_normal,
+                'flujo_volumetrico_unidad': etapa.volumen_unidad,
+                'flujo_surge': etapa.aumento_estimado,
+                'cabezal_politropico': etapa.cabezal_politropico,
+                'cabezal_politropico_unidad': etapa.cabezal_unidad,
+                'potencia_generada': etapa.potencia_nominal,
+                'potencia_generada_unidad': etapa.potencia_unidad,
+                'eficiencia_politropica': etapa.peficiencia_politropica,
+                'presion': None,
+                'presion_unidad': None,
+                'temperatura_in': None,
+                'temperatura_out': None,
+                'temperatura_unidad': None,
+                'k': None,
+                'z_in': None,
+                'z_out': None,
+                'pm_ficha': None,
+                'pm_ficha_unidad':None
+            })
+            for etapa in compresor.casos.first().etapas.all()
+        }
+
+        evaluacion_form = EvaluacionCompresorForm(prefix='evaluacion', instance=self.get_object().evaluacion)
+
+        return {
+            'composiciones': composiciones,
+            'entradas_etapa': entradas_etapa,
+            'evaluacion_form': evaluacion_form
+        }
+
+    def calcular_resultados(self, compresor):
+        pass
+
+    def get_context_data(self):
+        pass
