@@ -669,7 +669,6 @@ class EdicionComposicionGases(LoginRequiredMixin, PermisosMixin, View):
                         form.instance.etapa = etapa
                         form.save()
                     else:
-                        print("OH DEAR", form.errors)
                         for error in form.errors:
                             messages.error(request, f'Error en la etapa {i+1} del compuesto {compuesto} con prefix {prefix}: {error}')
                         return render(request, 'compresores/composicion.html', context=self.get_context_data())

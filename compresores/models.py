@@ -122,6 +122,18 @@ class PropiedadesCompresor(models.Model):
         allowed_extensions=['png', 'jpg']
     )])
 
+    def get_composicion_by_etapa(self):
+        composicion = {}
+        etapas = self.etapas.all()
+        for etapa in etapas:
+            comp_etapa = ComposicionGases.objects.filter(etapa=etapa.pk)
+            for comp in comp_etapa:
+                if comp.compuesto.nombre not in composicion:
+                    composicion[comp.compuesto.nombre] = []
+                composicion[comp.compuesto.nombre].append(comp)
+
+        return composicion
+
 class EtapaCompresor(models.Model):
     """
     Resumen:

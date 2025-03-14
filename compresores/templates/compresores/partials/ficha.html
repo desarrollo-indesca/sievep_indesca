@@ -224,6 +224,31 @@
                     </tr>
                     </tbody>
                 </table>
+
+                {% with composiciones=caso.get_composicion_by_etapa %}
+                {% if composiciones %}
+                <table class="table table-bordered text-center">
+                    <thead>
+                        <tr class="table-dark">
+                            <th>Compuesto</th>
+                            {% for etapa in caso.etapas.all %}
+                            <th>{{ etapa.numero }} (% mol)</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for gas,comps in composiciones.items %}
+                        <tr>
+                            <td>{{ gas }}</td>
+                            {% for comp in comps %}
+                            <td>{{ comp.porc_molar }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+                {% endwith %}
                 
                 <table class="text-center">
                     <tr>
