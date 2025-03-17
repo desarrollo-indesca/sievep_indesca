@@ -716,7 +716,7 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
                 'porc_molar': c.porc_molar, 
                 'compuesto': c.compuesto
             }) for c in ComposicionGases.objects.filter(
-                etapa__compresor=compresor, 
+                etapa__compresor=compresor.casos.first(), 
                 compuesto__cas=compuesto
             )] for compuesto in COMPUESTOS
         }
@@ -732,8 +732,11 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
                 'cabezal_politropico_unidad': etapa.cabezal_unidad,
                 'potencia_generada': etapa.potencia_nominal,
                 'potencia_generada_unidad': etapa.potencia_unidad,
-                'eficiencia_politropica': etapa.peficiencia_politropica,
-                'presion': None,
+                'eficiencia_politropica': etapa.eficiencia_politropica,
+                'velocidad': etapa.compresor.velocidad_max_continua,
+                'velocidad_unidad': etapa.compresor.unidad_velocidad,
+                'presion_in': None,
+                'presion_out': None,
                 'presion_unidad': None,
                 'temperatura_in': None,
                 'temperatura_out': None,
@@ -747,13 +750,23 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
             for etapa in compresor.casos.first().etapas.all()
         }
 
-        evaluacion_form = EvaluacionCompresorForm(prefix='evaluacion', instance=self.get_object().evaluacion)
+        evaluacion_form = EvaluacionCompresorForm(prefix='evaluacion')
 
         return {
             'composiciones': composiciones,
             'entradas_etapa': entradas_etapa,
             'evaluacion_form': evaluacion_form
         }
+
+    def get(self, request, pk, *args, **kwargs):
+        compresor = Compresor.objects.get(pk=pk)
+        forms = self.get_forms(compresor)
+
+        return render(request, self.template_name, context={
+            'compresor': compresor,
+            'forms': forms,
+            'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo')
+        })
 
     def calcular_resultados(self, compresor):
         pass

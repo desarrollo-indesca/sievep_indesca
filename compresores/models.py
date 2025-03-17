@@ -285,6 +285,8 @@ class EntradaEtapaEvaluacion(models.Model):
     evaluacion = models.ForeignKey(Evaluacion, models.CASCADE, related_name="entradas_evaluacion")
     flujo_gas = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Flujo de Gas")
     flujo_gas_unidad = models.ForeignKey(Unidades, default=54, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_flujo_gas_evaluacion", verbose_name="Unidad")
+    velocidad = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Velocidad")
+    velocidad_unidad = models.ForeignKey(Unidades, default=55, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_velocidad_evaluacion", verbose_name="Unidad")
     
     flujo_volumetrico = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Flujo Volumétrico")
     flujo_surge = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Flujo Surge / Aumento Estimado")
@@ -298,14 +300,17 @@ class EntradaEtapaEvaluacion(models.Model):
     
     eficiencia_politropica = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Eficiencia Politérpica")
     
-    presion = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Presión")
+    presion_in = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Presión de Entrada")
+    presion_out = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Presión de Salida")
     presion_unidad = models.ForeignKey(Unidades, default=7, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_presion_evaluacion", verbose_name="Unidad")
     
     temperatura_in = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Temperatura de Entrada")
     temperatura_out = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Temperatura de Salida")
     temperatura_unidad = models.ForeignKey(Unidades, default=1, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_temperatura_out_evaluacion", verbose_name="Unidad")
     
-    k = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Relación de Compresión")
+    k_in = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Relación de Compresión")
+    k_out = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Relación de Compresión")
+    
     z_in = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Compresibilidad de Entrada")
     z_out = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Compresibilidad de Salida")
     

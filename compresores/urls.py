@@ -15,5 +15,6 @@ urlpatterns = [
     path('editar-composicion/<int:pk>/', EdicionComposicionGases.as_view(), name="edicion_composicion"),
 
     # Vistas de Evaluación
-    path('evaluacion/<int:pk>/', ConsultaEvaluacionCompresor.as_view(), name="evaluaciones_compresor"),
+    path('evaluacion/consulta/<int:pk>/', ConsultaEvaluacionCompresor.as_view(), name="evaluaciones_compresor"),
+    path('evaluacion/crear/<int:pk>/', CreacionEvaluacionCompresor.as_view(), name="evaluacion_compresor"),
 ]
