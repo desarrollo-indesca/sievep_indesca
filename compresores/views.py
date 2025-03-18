@@ -721,8 +721,12 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
             )] for compuesto in COMPUESTOS
         }
 
-        entradas_etapa = {
-            etapa: EntradaEtapaEvaluacionForm(prefix=f'etapa-{etapa.pk}', initial={
+        entradas_etapa = {}
+        for etapa in compresor.casos.first().etapas.all():
+            entrada = etapa.lados.get(lado='E')
+            salida = etapa.lados.get(lado='S')            
+            
+            entradas_etapa[etapa] = EntradaEtapaEvaluacionForm(prefix=f'etapa-{etapa.pk}', initial={
                 'flujo_gas': etapa.flujo_masico,
                 'flujo_gas_unidad': etapa.flujo_masico_unidad,
                 'flujo_volumetrico': etapa.volumen_normal,
@@ -735,20 +739,19 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
                 'eficiencia_politropica': etapa.eficiencia_politropica,
                 'velocidad': etapa.compresor.velocidad_max_continua,
                 'velocidad_unidad': etapa.compresor.unidad_velocidad,
-                'presion_in': None,
-                'presion_out': None,
-                'presion_unidad': None,
-                'temperatura_in': None,
-                'temperatura_out': None,
-                'temperatura_unidad': None,
-                'k': None,
-                'z_in': None,
-                'z_out': None,
+                'presion_in': entrada.presion,
+                'presion_out': salida.presion,
+                'presion_unidad': entrada.presion_unidad,
+                'temperatura_in': entrada.temp,
+                'temperatura_out': salida.temp,
+                'temperatura_unidad': salida.temp_unidad,
+                'k_in': entrada.cp_cv,
+                'k_out': salida.cp_cv,
+                'z_in': entrada.compresibilidad,
+                'z_out': salida.compresibilidad,
                 'pm_ficha': None,
                 'pm_ficha_unidad':None
             })
-            for etapa in compresor.casos.first().etapas.all()
-        }
 
         evaluacion_form = EvaluacionCompresorForm(prefix='evaluacion')
 
