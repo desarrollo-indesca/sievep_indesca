@@ -711,15 +711,30 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
     template_name = "compresores/evaluacion.html"
 
     def get_forms(self, compresor):
-        composiciones = {Fluido.objects.get(cas=compuesto): [
-            ComposicionEvaluacionForm(initial={
-                'porc_molar': c.porc_molar, 
-                'compuesto': c.compuesto
-            }) for c in ComposicionGases.objects.filter(
-                etapa__compresor=compresor.casos.first(), 
+        composiciones = {}
+        for compuesto in COMPUESTOS:
+            fluido = Fluido.objects.get(cas=compuesto)
+            composiciones[fluido] = []
+
+            composiciones_gases = ComposicionGases.objects.filter(
+                etapa__compresor=compresor.casos.first(),
                 compuesto__cas=compuesto
-            )] for compuesto in COMPUESTOS
-        }
+            )
+
+            if composiciones_gases.exists():
+                for c in composiciones_gases:
+                    form = ComposicionEvaluacionForm(initial={
+                        'porc_molar': c.porc_molar,
+                        'compuesto': c.compuesto
+                    })
+                    composiciones[fluido].append(form)
+            else:
+                for etapa in compresor.casos.first().etapas.all():
+                    form = ComposicionEvaluacionForm(initial={
+                        'compuesto': fluido,
+                        'etapa': etapa
+                    })
+                    composiciones[fluido].append(form)
 
         entradas_etapa = {}
         for etapa in compresor.casos.first().etapas.all():

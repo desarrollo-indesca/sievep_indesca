@@ -10,10 +10,16 @@
 {% endblock %}
 
 {% block contenido %}
+<div class="row">
+    <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_compresores' %}">↶ Regresar</a></div>
+    <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Nueva Evaluación Compresor {{compresor.tag}}</h3></div>
+    <div class="col-md-3 col-lg-2"><button type="button" class="btn btn-success" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{compresor.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button></div>
+</div>
+
 <form id="form" method="post" name="form" hx-post="{% url 'evaluacion_compresor' pk=compresor.pk %}" hx-trigger="submit" hx-swap="none" hx-indicator="#spinner">
     {% csrf_token %}
     <div class="row">
-        <div class="col-8">
+        <div class="col-7">
             <h5 class="text-center">Datos de Entrada</h5>
             <hr>
 
@@ -264,9 +270,34 @@
 
         </div>
         
-        <div class="col-4">
+        <div class="col-5">
             <h5 class="text-center">Composición del Combustible por Etapa</h5>
             <hr>
+
+            <table class="table table-bordered table-sm">
+                <thead>
+                    <tr>
+                        <th>Compuesto</th>
+                        {% for etapa in compresor.casos.first.etapas.all %}
+                        <th>{{etapa.numero}}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fluido,forms_etapas in forms.composiciones.items %}
+                    <tr>
+                        <td>{{fluido}}</td>
+                        {% for form_etapa in forms_etapas %}
+                        <td>
+                            <div class="input-group">
+                                {% render_field form_etapa.porc_molar class="form-control form-control-sm" %}
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 
