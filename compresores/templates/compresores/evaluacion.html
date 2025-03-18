@@ -276,7 +276,7 @@
 
             <table class="table table-bordered table-sm">
                 <thead>
-                    <tr>
+                    <tr class="table-dark">
                         <th>Compuesto</th>
                         {% for etapa in compresor.casos.first.etapas.all %}
                         <th>{{etapa.numero}}</th>
@@ -286,7 +286,7 @@
                 <tbody>
                     {% for fluido,forms_etapas in forms.composiciones.items %}
                     <tr>
-                        <td>{{fluido}}</td>
+                        <td class="table-dark">{{fluido}}</td>
                         {% for form_etapa in forms_etapas %}
                         <td>
                             <div class="input-group">
