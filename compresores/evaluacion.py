@@ -1,7 +1,8 @@
 from CoolProp.CoolProp import PropsSI
+from .models import COMPUESTOS
 import math
 
-def normalizacion(X):
+def normalizacion(X: dict):
     """
     Normaliza un conjunto de datos X de tal manera que la suma de los elementos 
     normalizados sea igual a 1. 
@@ -12,9 +13,10 @@ def normalizacion(X):
     Returns:
         list[float]: Lista de valores normalizados.
     """
-    total = sum(X)
-    x = [xi / total for xi in X]
-    return x
+    total = sum([val for key,val in X.items()])
+    for key, val in X.items():
+        X[key] = val / total
+    return X
 
 def PMpromedio(x, PM):
     """
@@ -27,6 +29,7 @@ def PMpromedio(x, PM):
     Returns:
         float: Promedio ponderado.
     """
+    print(len(x), len(PM))
     PMprom = sum(xi * PM[i] for i, xi in enumerate(x))
     return PMprom
 
@@ -88,6 +91,7 @@ def TotalPropiedad(x, H):
         list[float]: Lista de propiedades totales.
     """
     total = []
+    print(len(x), len(H))
     for i in range(5):
         a = sum(x[i][j] * H[i][j] for j in range(11))
         total.append(a)
@@ -125,7 +129,7 @@ def CpPromedio(z1, z2):
     promedio = [(z1[i] + z2[i]) / 2 for i in range(len(z1))]
     return promedio
 
-def evaluar(etapas):
+def evaluar_compresor(etapas):
     """
     Evaluar y calcular los parámetros de un compresor de 5 etapas.
     
@@ -135,59 +139,25 @@ def evaluar(etapas):
 
     Este método genera gráficos como parte del análisis final.
     """
-    # Etiquetas para los elementos HTML
-    Etiquetas = [
-        ['PM1', 'Flujo1', 'PresionE1', 'PresionS1', 'TemperaturaE1', 'TemperaturaS1', 'Ki1', 'Ks1', 'Zi1', 'Zs1', 'FlujoVolumetrico1', 'PotenciaTeorica1', 'RPM1', 'FlujoSurge1', 'Hpoly1', 'EficPoly1'],
-        ['PM2', 'Flujo2', 'PresionE2', 'PresionS2', 'TemperaturaE2', 'TemperaturaS2', 'Ki2', 'Ks2', 'Zi2', 'Zs2', 'FlujoVolumetrico2', 'PotenciaTeorica2', 'RPM2', 'FlujoSurge2', 'Hpoly2', 'EficPoly2'],
-        ['PM3', 'Flujo3', 'PresionE3', 'PresionS3', 'TemperaturaE3', 'TemperaturaS3', 'Ki3', 'Ks3', 'Zi3', 'Zs3', 'FlujoVolumetrico3', 'PotenciaTeorica3', 'RPM3', 'FlujoSurge3', 'Hpoly3', 'EficPoly3'],
-        ['PM4', 'Flujo4', 'PresionE4', 'PresionS4', 'TemperaturaE4', 'TemperaturaS4', 'Ki4', 'Ks4', 'Zi4', 'Zs4', 'FlujoVolumetrico4', 'PotenciaTeorica4', 'RPM4', 'FlujoSurge4', 'Hpoly4', 'EficPoly4'],
-        ['PM5', 'Flujo5', 'PresionE5', 'PresionS5', 'TemperaturaE5', 'TemperaturaS5', 'Ki5', 'Ks5', 'Zi5', 'Zs5', 'FlujoVolumetrico5', 'PotenciaTeorica5', 'RPM5', 'FlujoSurge5', 'Hpoly5', 'EficPoly5']
-    ]
 
-    PresionE = []
-    TemperaturaE = []
-    PresionS = []
-    TemperaturaS = []
-    Flujo = []
-    PotenciaTeorica = []
-    FlujoVolumetrico = []
-    Hpoly = []
+    PresionE = [etapa['entradas']['presion_in'] for etapa in etapas]
+    TemperaturaE = [etapa['entradas']['temperatura_in'] for etapa in etapas]
+    PresionS = [etapa['entradas']['presion_out'] for etapa in etapas]
+    TemperaturaS = [etapa['entradas']['temperatura_out'] for etapa in etapas]
+    Flujo = [etapa['entradas']['flujo_gas'] for etapa in etapas]
+    PotenciaTeorica = [etapa['entradas']['potencia_generada'] for etapa in etapas]
+    FlujoVolumetrico = [etapa['entradas']['flujo_volumetrico'] for etapa in etapas]
+    Hpoly = [etapa['entradas']['cabezal_politropico'] for etapa in etapas]
 
-    EtiquetasX = [['X1H2', 'X2H2', 'X3H2', 'X4H2', 'X5H2'],
-                   ['X1CH4', 'X2CH4', 'X3CH4', 'X4CH4', 'X5CH4'],
-                   ['X1C2H4', 'X2C2H4', 'X3C2H4', 'X4C2H4', 'X5C2H4'],
-                   ['X1C2H6', 'X2C2H6', 'X3C2H6', 'X4C2H6', 'X5C2H6'],
-                   ['X1C3H6', 'X2C3H6', 'X3C3H6', 'X4C3H6', 'X5C3H6'],
-                   ['X1C3H8', 'X2C3H8', 'X3C3H8', 'X4C3H8', 'X5C3H8'],
-                   ['X1C4H8', 'X2C4H8', 'X3C4H8', 'X4C4H8', 'X5C4H8'],
-                   ['X1C4H10', 'X2C4H10', 'X3C4H10', 'X4C4H10', 'X5C4H10'],
-                   ['X1C5H12', 'X2C5H12', 'X3C5H12', 'X4C5H12', 'X5C5H12'],
-                   ['X1C6H6', 'X2C6H6', 'X3C6H6', 'X4C6H6', 'X5C6H6'],
-                   ['X1H2O', 'X2H2O', 'X3H2O', 'X4H2O', 'X5H2O']]
-
-    X1, X2, X3, X4, X5 = [], [], [], [], []
-    
-    for i in range(11):
-        X1.append(float(input(f"Valor de {EtiquetasX[i][0]}: ")))
-        X2.append(float(input(f"Valor de {EtiquetasX[i][1]}: ")))
-        X3.append(float(input(f"Valor de {EtiquetasX[i][2]}: ")))
-        X4.append(float(input(f"Valor de {EtiquetasX[i][3]}: ")))
-        X5.append(float(input(f"Valor de {EtiquetasX[i][4]}: ")))
-
-    x1 = normalizacion(X1)
-    x2 = normalizacion(X2)
-    x3 = normalizacion(X3)
-    x4 = normalizacion(X4)
-    x5 = normalizacion(X5)
-
-    x = [x1, x2, x3, x4, x5]
+    for i,etapa in enumerate(etapas):
+        etapas[i]['composiciones'] = normalizacion(etapa['composiciones'])
 
     # Cálculo del Peso Molecular Promedio
-    PM = [2.016, 16.043, 28.054, 30.070, 42.081, 44.097, 56.107, 58.123, 72.150, 78.115, 18.020]
+    PM = [2.016, 16.043, 28.054, 30.070, 42.081, 44.097, 56.107, 58.123, 72.150, 78.115, 18.020,0,0,0,0,0,0,0]
 
-    PMprom = [PMpromedio(xi, PM) for xi in x]
+    PMprom = [PMpromedio(list(etapa['composiciones'].values()), PM) for etapa in etapas]
 
-    y = [FraccionMasica(xi, PM) for xi in x]
+    y = [FraccionMasica(list(etapa['composiciones'].values()), PM) for etapa in etapas]
 
     # Cálculo de Propiedades Termodinámicas
     Compuestos = ['Hydrogen', 'Methane', 'Ethylene', 'Ethane', 'Propylene', 

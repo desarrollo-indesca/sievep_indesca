@@ -8,6 +8,8 @@ from django.db import transaction
 from simulaciones_pequiven.views import FiltradoSimpleMixin, DuplicateView, ConsultaEvaluacion, PermisosMixin
 from simulaciones_pequiven.utils import generate_nonexistent_tag
 from usuarios.models import PlantaAccesible
+from calculos.unidades import *
+from .evaluacion import evaluar_compresor
 from .models import *
 from .forms import *
 from reportes.pdfs import generar_pdf
@@ -726,14 +728,14 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
                     form = ComposicionEvaluacionForm(initial={
                         'porc_molar': c.porc_molar,
                         'compuesto': c.compuesto
-                    })
+                    }, prefix=f"{c.etapa.pk}-{c.compuesto.pk}")
                     composiciones[fluido].append(form)
             else:
                 for etapa in compresor.casos.first().etapas.all():
                     form = ComposicionEvaluacionForm(initial={
                         'compuesto': fluido,
                         'etapa': etapa
-                    })
+                    }, prefix=f"{c.etapa.pk}-{c.compuesto.pk}")
                     composiciones[fluido].append(form)
 
         entradas_etapa = {}
@@ -786,8 +788,84 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
             'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo')
         })
 
-    def calcular_resultados(self, compresor):
+    def post(self, request, *args, **kwargs):
+        if(request.POST.get('submit') == 'almacenar'):
+            return self.almacenar()
+        else:
+            return self.evaluar()
+
+    def evaluar(self):
+        resultados = self.calcular_resultados()
+        template = 'compresores/partials/resultados.html'
+        
+        return render(self.request, template, context={
+            'resultados': resultados
+        })
+    
+    def almacenar(self):
         pass
+
+    def calcular_resultados(self):
+        compresor = Compresor.objects.get(
+            pk = self.kwargs.get('pk')
+        )
+        request = self.request
+        
+        entradas_etapas = []
+        for etapa in compresor.casos.first().etapas.all():
+            entrada_form_dict = {
+                'etapa': etapa,
+                'flujo_gas': float(request.POST.get(f'etapa-{etapa.pk}-flujo_gas')),
+                'flujo_gas_unidad': request.POST.get(f'etapa-{etapa.pk}-flujo_gas_unidad'),
+                'flujo_volumetrico': float(request.POST.get(f'etapa-{etapa.pk}-flujo_volumetrico')),
+                'flujo_volumetrico_unidad': request.POST.get(f'etapa-{etapa.pk}-flujo_volumetrico_unidad'),
+                'flujo_surge': float(request.POST.get(f'etapa-{etapa.pk}-flujo_surge')),
+                'cabezal_politropico': float(request.POST.get(f'etapa-{etapa.pk}-cabezal_politropico')),
+                'cabezal_politropico_unidad': request.POST.get(f'etapa-{etapa.pk}-cabezal_politropico_unidad'),
+                'potencia_generada': float(request.POST.get(f'etapa-{etapa.pk}-potencia_generada')),
+                'potencia_generada_unidad': request.POST.get(f'etapa-{etapa.pk}-potencia_generada_unidad'),
+                'eficiencia_politropica': float(request.POST.get(f'etapa-{etapa.pk}-eficiencia_politropica')),
+                'velocidad': float(request.POST.get(f'etapa-{etapa.pk}-velocidad')),
+                'velocidad_unidad': request.POST.get(f'etapa-{etapa.pk}-velocidad_unidad'),
+                'presion_in': float(request.POST.get(f'etapa-{etapa.pk}-presion_in')),
+                'presion_out': float(request.POST.get(f'etapa-{etapa.pk}-presion_out')),
+                'presion_unidad': request.POST.get(f'etapa-{etapa.pk}-presion_unidad'),
+                'temperatura_in': float(request.POST.get(f'etapa-{etapa.pk}-temperatura_in')),
+                'temperatura_out': float(request.POST.get(f'etapa-{etapa.pk}-temperatura_out')),
+                'temperatura_unidad': request.POST.get(f'etapa-{etapa.pk}-temperatura_unidad'),
+                'k_in': float(request.POST.get(f'etapa-{etapa.pk}-k_in')),            
+                'k_out': float(request.POST.get(f'etapa-{etapa.pk}-k_out')),
+                'z_in': float(request.POST.get(f'etapa-{etapa.pk}-z_in')),
+                'z_out': float(request.POST.get(f'etapa-{etapa.pk}-z_out')),
+                'pm_ficha': float(request.POST.get(f'etapa-{etapa.pk}-pm_ficha')),
+                'pm_ficha_unidad': request.POST.get(f'etapa-{etapa.pk}-pm_ficha_unidad'),
+            }
+
+            print(entrada_form_dict)
+
+            entrada_form_dict['flujo_gas'] = transformar_unidades_flujo([entrada_form_dict['flujo_gas']], entrada_form_dict['flujo_gas_unidad'])[0]
+            entrada_form_dict['flujo_volumetrico'] = transformar_unidades_flujo_volumetrico([entrada_form_dict['flujo_volumetrico']], entrada_form_dict['flujo_volumetrico_unidad'])[0]
+            entrada_form_dict['flujo_surge'] = transformar_unidades_flujo_volumetrico([entrada_form_dict['flujo_surge']], entrada_form_dict['flujo_volumetrico_unidad'])[0]
+            entrada_form_dict['cabezal_politropico'] = transformar_unidades_flujo([entrada_form_dict['cabezal_politropico']], entrada_form_dict['cabezal_politropico_unidad'])[0]
+            entrada_form_dict['potencia_generada'] = transformar_unidades_potencia([entrada_form_dict['potencia_generada']], entrada_form_dict['potencia_generada_unidad'])[0]
+            entrada_form_dict['velocidad'] = transformar_unidades_frecuencia_angular([entrada_form_dict['velocidad']], entrada_form_dict['velocidad_unidad'])[0]
+            entrada_form_dict['presion_in'] = transformar_unidades_presion([entrada_form_dict['presion_in']], entrada_form_dict['presion_unidad'])[0]
+            entrada_form_dict['presion_out'] = transformar_unidades_presion([entrada_form_dict['presion_out']], entrada_form_dict['presion_unidad'])[0]
+            entrada_form_dict['temperatura_in'] = transformar_unidades_temperatura([entrada_form_dict['temperatura_in']], entrada_form_dict['temperatura_unidad'])[0]
+            entrada_form_dict['temperatura_out'] = transformar_unidades_temperatura([entrada_form_dict['temperatura_out']], entrada_form_dict['temperatura_unidad'])[0]
+
+            composiciones = {
+                composicion.compuesto: float(request.POST.get(f"{composicion.etapa.pk}-{composicion.compuesto.pk}-porc_molar"))
+                for composicion in etapa.composiciones.all()
+            } 
+
+            entradas_etapas.append({
+                'entradas': entrada_form_dict,
+                'composiciones': composiciones
+            })
+
+        return evaluar_compresor(entradas_etapas)
+        
 
     def get_context_data(self):
         pass
