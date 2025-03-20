@@ -1,0 +1,224 @@
+<table class="table table-responsive table-bordered text-center">
+    <thead>
+        <tr>
+            <th colspan="{{etapas.count|add:1}}" class="table-dark">
+                Resultados de la Evaluación
+            </th>
+        </tr>
+        <tr class="table-dark">
+            <th>
+                Parámetro
+            </th>
+            {% for etapa in etapas %}
+            <th>
+                Etapa {{etapa.numero}}
+            </th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th class="table-dark w-50">
+                Flujo Volumétrico Entrada
+            </th>
+            {% for f in resultados.flujo_entrada %}
+            <th>
+                {{f|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th class="table-dark w-50">
+                Flujo Volumétrico Salida
+            </th>
+            {% for f in resultados.flujo_salida %}
+            <th>
+                {{f|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th class="table-dark w-50">
+                Cabezal Calculado 
+            </th>
+            {% for c in resultados.cabezal %}
+            <th>
+                {{c|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th class="table-dark w-50">
+                Cabezal Isotrópico 
+            </th>
+            {% for c in resultados.cabezal_iso %}
+            <th>
+                {{c|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th class="table-dark w-50">
+                Potencia Calculada 
+            </th>
+            {% for p in resultados.potencia %}
+            <th>
+                {{p|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th class="table-dark w-50">
+                Potencia Isentrópica 
+            </th>
+            {% for p in resultados.potencia_iso %}
+            <th>
+                {{p|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th class="table-dark w-50">
+                Eficiencia Isentrópica 
+            </th>
+            {% for e in resultados.eficiencia %}
+            <th>
+                {{e|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th class="table-dark w-50">
+                Eficiencia Teórica 
+            </th>
+            {% for e in resultados.eficiencia_teorica %}
+            <th>
+                {{e|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th class="table-dark w-50">
+                Caída de Presión entre Etapas
+            </th>
+            <th> - </th>
+            {% for c in resultados.caida_presion %}
+            <th>
+                {{c|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th class="table-dark w-50">
+                Caída de Temperatura
+            </th>
+            <th> - </th>
+            {% for c in resultados.caida_temperatura %}
+            <th>
+                {{c|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th class="table-dark w-50">
+                Número de Etapas
+            </th>
+            {% for n in resultados.n %}
+            <th>
+                {{n|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th class="table-dark w-50">
+                Z Calculado Entrada
+            </th>
+            {% for z in resultados.z_in %}
+            <th>
+                {{z|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th class="table-dark w-50">
+                Z Calculado Salida
+            </th>
+            {% for z in resultados.z_out %}
+            <th>
+                {{z|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th class="table-dark w-50">
+                Energía Retenida entre Etapas
+            </th>
+            <th> - </th>
+            {% for er in resultados.energia_ret %}
+            <th>
+                {{er|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th class="table-dark w-50">
+                Relación de Compresión
+            </th>
+            {% for r in resultados.relacion_compresion %}
+            <th>
+                {{r|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th class="table-dark w-50">
+                Relación de Temperatura
+            </th>
+            {% for r in resultados.relacion_temperatura %}
+            <th>
+                {{r|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th class="table-dark w-50">
+                Relación Volumétrica
+            </th>
+            {% for r in resultados.relacion_volumetrica %}
+            <th>
+                {{r|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th class="table-dark w-50">
+                K Calculado Entrada
+            </th>
+            {% for k in resultados.k_in %}
+            <th>
+                {{k|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th class="table-dark w-50">
+                K Calculado Salida
+            </th>
+            {% for k in resultados.k_out %}
+            <th>
+                {{k|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th class="table-dark w-50">
+                K Promedio
+            </th>
+            {% for k in resultados.k_prom %}
+            <th>
+                {{k|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
+    </tbody>
+</table>

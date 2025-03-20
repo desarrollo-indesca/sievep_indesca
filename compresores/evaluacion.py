@@ -79,7 +79,7 @@ def PropiedadTermodinamica(PT, P, T, C):
         Propiedad.append(a)
     return Propiedad
 
-def TotalPropiedad(x, H):
+def TotalPropiedad(x, H,):
     """
     Calcula la propiedad total sumando elementos de x y H.
 
@@ -91,8 +91,7 @@ def TotalPropiedad(x, H):
         list[float]: Lista de propiedades totales.
     """
     total = []
-    print(len(x), len(H))
-    for i in range(5):
+    for i in range(len(x)):
         a = sum(x[i][j] * H[i][j] for j in range(11))
         total.append(a)
     return total
@@ -146,8 +145,6 @@ def evaluar_compresor(etapas):
     TemperaturaS = [etapa['entradas']['temperatura_out'] for etapa in etapas]
     Flujo = [etapa['entradas']['flujo_gas'] for etapa in etapas]
     PotenciaTeorica = [etapa['entradas']['potencia_generada'] for etapa in etapas]
-    FlujoVolumetrico = [etapa['entradas']['flujo_volumetrico'] for etapa in etapas]
-    Hpoly = [etapa['entradas']['cabezal_politropico'] for etapa in etapas]
 
     for i,etapa in enumerate(etapas):
         etapas[i]['composiciones'] = normalizacion(etapa['composiciones'])
@@ -224,23 +221,14 @@ def evaluar_compresor(etapas):
     # Coeficiente politropico
     n = [pow(1 - math.log(TemperaturaS[i] / TemperaturaE[i]) / math.log(PresionS[i] / PresionE[i]), -1) for i in range(len(PresionE))]
 
-    # Eficiencia Isoentropica ecuación de relación Presion y Temperatura
-    Eficienciar = [(TemperaturaE[i] / (TemperaturaS[i] - TemperaturaE[i])) * (pow(RelacionCompresion[i], (K[i] - 1) / K[i]) - 1) * 100 for i in range(len(RelacionCompresion))]
-
-    # Cálculo de eficiencia Politropica
-    EficienciaPolitropica = [((K[i] - 1) / K[i]) / ((n[i] - 1) / n[i]) * 100 for i in range(len(K))]
-
     # Cálculo de la eficiencia real
     EficienciaTeorica = [PotenciaTeorica[i] / Potencia[i] * 100 for i in range(len(K))]
-
-    # Cálculo Temperatura Isoentropica
-    TemperaturaIsoentropica = [TemperaturaE[i] * pow(RelacionCompresion[i], (K[i] - 1) / K[i]) for i in range(len(K))]
 
     # Diferencial de presión y temperatura entre etapas
     PresionD = []
     TemperaturaD = []
     DH = []
-    for i in range(4):
+    for i in range(len(etapas) - 1):
         PresionD.append(PresionS[i] - PresionE[i + 1])
         TemperaturaD.append(TemperaturaS[i] - TemperaturaE[i + 1])
         DH.append(HS[i] - HE[i + 1])
@@ -248,51 +236,32 @@ def evaluar_compresor(etapas):
     # Cálculo Flujo Volumetrico por etapa
     FlujoVolumetricoCe = []
     FlujoVolumetricoCs = []
-    for i in range(5):
+    for i in range(len(etapas)):
         FlujoVolumetricoCe.append(Flujo[i] / PMprom[i] * TemperaturaE[i] / PresionE[i] * 8.314466e3)
         FlujoVolumetricoCs.append(Flujo[i] / PMprom[i] * TemperaturaS[i] / PresionS[i] * 8.314466e3)
 
     # Relación Volumetrica
     RelacionVolumetrica = [FlujoVolumetricoCs[i] / FlujoVolumetricoCe[i] for i in range(len(FlujoVolumetricoCe))]
 
-    # Cálculo delta de Entalpia
-    DeltaH = [HS[i] - HE[i] for i in range(5)]
-    DeltaHs = [HSs[i] - HE[i] for i in range(5)]
-
-    # Cálculo de energía con el CP
-    DeltaHcp = [CpEtapaPromedio[i] * (TemperaturaS[i] - TemperaturaE[i]) for i in range(5)]
-    DeltaHcpIso = [CpEtapaPromedio[i] * (TemperaturaIsoentropica[i] - TemperaturaE[i]) for i in range(5)]
-
     return {
-        "CpE": CpE,
-        "CpS": CpS,
-        "CvE": CvE,
-        "CvS": CvS,
-        "CpEtapaPromedio": CpEtapaPromedio,
-        "CvEtapaPromedio": CvEtapaPromedio,
-        "K": K,
-        "Ke": Ke,
-        "Ks": Ks,
-        "Eficiencia": Eficiencia,
-        "Potencia": Potencia,
-        "Cabezal": Cabezal,
-        "PotenciaIso": PotenciaIso,
-        "CabezalIso": CabezalIso,
-        "RelacionCompresion": RelacionCompresion,
-        "RelacionTemperatura": RelacionTemperatura,
+        "k_prom": K,
+        "k_in": Ke,
+        "k_out": Ks,
+        "eficiencia": Eficiencia,
+        "potencia": Potencia,
+        "cabezal": Cabezal,
+        "potencia_iso": PotenciaIso,
+        "cabezal_iso": CabezalIso,
+        "relacion_compresion": RelacionCompresion,
+        "relacion_temperatura": RelacionTemperatura,
         "n": n,
-        "Eficienciar": Eficienciar,
-        "EficienciaPolitropica": EficienciaPolitropica,
-        "EficienciaTeorica": EficienciaTeorica,
-        "TemperaturaIsoentropica": TemperaturaIsoentropica,
-        "PresionD": PresionD,
-        "TemperaturaD": TemperaturaD,
-        "DH": DH,
-        "FlujoVolumetricoCe": FlujoVolumetricoCe,
-        "FlujoVolumetricoCs": FlujoVolumetricoCs,
-        "RelacionVolumetrica": RelacionVolumetrica,
-        "DeltaH": DeltaH,
-        "DeltaHs": DeltaHs,
-        "DeltaHcp": DeltaHcp,
-        "DeltaHcpIso": DeltaHcpIso
+        "eficiencia_teorica": EficienciaTeorica,
+        "caida_presion": PresionD,
+        "caida_temperatura": TemperaturaD,
+        "energia_ret": DH,
+        "flujo_entrada": FlujoVolumetricoCe,
+        "flujo_salida": FlujoVolumetricoCs,
+        "relacion_volumetrica": RelacionVolumetrica,
+        "z_in": ZE,
+        "z_out": ZS
     }

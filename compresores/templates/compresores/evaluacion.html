@@ -16,7 +16,7 @@
     <div class="col-md-3 col-lg-2"><button type="button" class="btn btn-success" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{compresor.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button></div>
 </div>
 
-<form id="form" method="post" name="form" hx-post="{% url 'evaluacion_compresor' pk=compresor.pk %}" hx-trigger="submit" hx-swap="none" hx-indicator="#spinner">
+<form id="form" method="post" name="form" hx-target="#resultados" hx-post="{% url 'evaluacion_compresor' pk=compresor.pk %}" hx-trigger="submit" hx-indicator="#spinner">
     {% csrf_token %}
     <div class="row">
         <div class="col-7">
@@ -299,6 +299,10 @@
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <div id="resultados">
+
     </div>
 
     <div class="d-flex justify-content-center">

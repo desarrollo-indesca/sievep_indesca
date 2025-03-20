@@ -795,11 +795,12 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
             return self.evaluar()
 
     def evaluar(self):
-        resultados = self.calcular_resultados()
-        template = 'compresores/partials/resultados.html'
+        resultados, etapas = self.calcular_resultados()
+        template = 'compresores/partials/resultado_evaluacion.html'
         
         return render(self.request, template, context={
-            'resultados': resultados
+            'resultados': resultados,
+            'etapas': etapas
         })
     
     def almacenar(self):
@@ -810,12 +811,10 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
             pk = self.kwargs.get('pk')
         )
         request = self.request
-
-        print(request.POST)
-        
+       
         entradas_etapas = []
-        for etapa in compresor.casos.first().etapas.all():
-            print(etapa.pk)
+        etapas = compresor.casos.first().etapas.all()
+        for etapa in etapas:
             entrada_form_dict = {
                 'etapa': etapa,
                 'flujo_gas': float(request.POST.get(f'etapa-{etapa.pk}-flujo_gas')),
@@ -844,8 +843,6 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
                 'pm_ficha_unidad': int(request.POST.get(f'etapa-{etapa.pk}-pm_ficha_unidad')),
             }
 
-            print(entrada_form_dict)
-
             entrada_form_dict['flujo_gas'] = transformar_unidades_flujo([entrada_form_dict['flujo_gas']], entrada_form_dict['flujo_gas_unidad'])[0]
             entrada_form_dict['flujo_volumetrico'] = transformar_unidades_flujo_volumetrico([entrada_form_dict['flujo_volumetrico']], entrada_form_dict['flujo_volumetrico_unidad'])[0]
             entrada_form_dict['flujo_surge'] = transformar_unidades_flujo_volumetrico([entrada_form_dict['flujo_surge']], entrada_form_dict['flujo_volumetrico_unidad'])[0]
@@ -867,8 +864,7 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
                 'composiciones': composiciones
             })
 
-        return evaluar_compresor(entradas_etapas)
-        
+        return (evaluar_compresor(entradas_etapas), etapas)
 
     def get_context_data(self):
         pass
