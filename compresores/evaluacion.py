@@ -195,8 +195,8 @@ def evaluar_compresor(etapas):
     CvE = TotalPropiedad(y, CvEi)
     CvS = TotalPropiedad(y, CvSi)
 
-    ZE = TotalPropiedad(x, ZEi)
-    ZS = TotalPropiedad(x, ZSi)
+    ZE = TotalPropiedad(y, ZEi)
+    ZS = TotalPropiedad(y, ZSi)
 
     # Cálculo Capacidad Calorífica promedio
     CpEtapaPromedio = CpPromedio(CpE, CpS)

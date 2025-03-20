@@ -43,8 +43,8 @@
                         <td>
                             <div class="input-group">
                                 {% render_field form.flujo_gas class="form-control form-control-sm" %}
-                                <select name="{{form.prefix}}-flujo_gas_unidad" id="id_{{form.prefix}}-unidad_flujo_volumetrico" class="form-select form-select-sm">
-                                    {% include 'unidades.html' with tipo='F' pk_selected=form.instance.flujo_volumetrico_unidad.pk %}
+                                <select name="{{form.prefix}}-flujo_gas_unidad" id="id_{{form.prefix}}-flujo_gas_unidad" class="form-select form-select-sm">
+                                    {% include 'unidades.html' with tipo='F' pk_selected=form.instance.flujo_gas_unidad.pk %}
                                 </select>
                             </div>
                         </td>
@@ -56,7 +56,7 @@
                         <td>
                             <div class="input-group">
                                 {% render_field form.flujo_volumetrico class="form-control form-control-sm" %}
-                                <select name="{{form.prefix}}-unidad_flujo_volumetrico" id="id_{{form.prefix}}-unidad_flujo_volumetrico" class="form-select form-select-sm">
+                                <select name="{{form.prefix}}-flujo_volumetrico_unidad" id="id_{{form.prefix}}-flujo_volumetrico_unidad" class="form-select form-select-sm">
                                     {% include 'unidades.html' with tipo='K' pk_selected=form.instance.flujo_volumetrico_unidad.pk %}
                                 </select>
                             </div>
@@ -258,7 +258,7 @@
                         <td>
                             <div class="input-group">
                                 {% render_field form.pm_ficha class="form-control form-control-sm" %}
-                                <select name="pm_ficha_unidad" id="id_pm_ficha_unidad" class="form-select form-select-sm">
+                                <select name="{{form.prefix}}-pm_ficha_unidad" id="id_{{form.prefix}}-pm_ficha_unidad" class="form-select form-select-sm">
                                     {% include 'unidades.html' with tipo='W' pk_selected=form.instance.pm_ficha_unidad.pk %}
                                 </select>
                             </div>
@@ -274,12 +274,12 @@
             <h5 class="text-center">Composición del Combustible por Etapa</h5>
             <hr>
 
-            <table class="table table-bordered table-sm">
+            <table class="table table-bordered table-sm text-center">
                 <thead>
                     <tr class="table-dark">
                         <th>Compuesto</th>
                         {% for etapa in compresor.casos.first.etapas.all %}
-                        <th>{{etapa.numero}}</th>
+                        <th>Etapa {{etapa.numero}}</th>
                         {% endfor %}
                     </tr>
                 </thead>
