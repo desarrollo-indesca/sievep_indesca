@@ -804,8 +804,63 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
         })
     
     def almacenar(self):
-        pass
+        with transaction.atomic():
+            resultados, _ = self.calcular_resultados()
+            compresor = Compresor.objects.get(pk=self.kwargs.get('pk'))
+            etapas = compresor.casos.first().etapas.all()
+            evaluacion = Evaluacion.objects.create(
+                equipo = compresor,
+                creado_por = self.request.user,
+                nombre = self.request.POST.get('evaluacion-nombre', 'Evaluación'),
+            )
 
+            for i,etapa in enumerate(etapas):
+                form = EntradaEtapaEvaluacionForm(self.request.POST, prefix=f'etapa-{etapa.pk}')
+                if form.is_valid():
+                    form.instance.evaluacion = evaluacion
+                    form.instance.etapa = etapa
+                    form.save()
+                else:
+                    raise Exception('Error al guardar la evaluación')
+
+                SalidaEtapaEvaluacion.objects.create(
+                    entrada_etapa = form.instance,
+                    flujo_in = resultados['flujo_entrada'][i],
+                    flujo_out = resultados['flujo_salida'][i],
+                    cabezal_calculado = resultados['cabezal'][i],
+                    cabezal_isotropico = resultados['cabezal_iso'][i],
+                    potencia_calculada = resultados["potencia"][i],
+                    potencia_isoentropica = resultados["potencia_iso"][i],
+                    eficiencia_iso = resultados["eficiencia"][i],
+                    eficiencia_teorica = resultados["eficiencia"][i],
+                    caida_presion = resultados["caida_presion"][i - 1] if i > 0 else None,
+                    caida_temp = resultados["caida_temperatura"][i - 1] if i > 0 else None,
+                    energia_ret = resultados["energia_ret"][i - 1] if i > 0 else None,
+                    k_in = resultados["k_out"][i],
+                    k_out = resultados["k_in"][i],
+                    k_promedio = resultados["k_prom"][i],
+                    n = resultados["n"][i],
+                    z_in = resultados["z_in"][i],
+                    z_out = resultados["z_out"][i],
+                    relacion_compresion = resultados["relacion_compresion"][i],
+                    relacion_temperatura = resultados["relacion_temperatura"][i],
+                    relacion_volumetrica = resultados["relacion_volumetrica"][i],
+                    pm_calculado = resultados["pm_calculado"][i],
+                )
+                
+                for compuesto in COMPUESTOS:
+                    fluido = Fluido.objects.get(cas=compuesto)
+                    form_comp = ComposicionEvaluacionForm(self.request.POST, prefix=f"{etapa.pk}-{fluido.pk}")
+                    if form_comp.is_valid():
+                        form_comp.instance.entrada_etapa = form.instance
+                        form_comp.instance.fluido = fluido
+                        form_comp.save()
+                    else:
+                        print(form_comp.errors)
+                        raise Exception(f'Error al guardar la evaluación - Composición {fluido}')
+
+        return redirect('evaluaciones_compresor', pk=self.kwargs.get('pk'))
+    
     def calcular_resultados(self):
         compresor = Compresor.objects.get(
             pk = self.kwargs.get('pk')

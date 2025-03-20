@@ -45,4 +45,4 @@ class EvaluacionCompresorForm(forms.ModelForm):
 class ComposicionEvaluacionForm(forms.ModelForm):
     class Meta:
         model = ComposicionEvaluacion
-        exclude = ['id',]
+        exclude = ['id','entrada_etapa','fluido']

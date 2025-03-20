@@ -220,5 +220,19 @@
             </th>
             {% endfor %}
         </tr>
+        <tr>
+            <th class="table-dark w-50">
+                PM Promedio
+            </th>
+            {% for p in resultados.pm_calculado %}
+            <th>
+                {{p|floatformat:4}}
+            </th>
+            {% endfor %}
+        </tr>
     </tbody>
 </table>
+
+<button hx-swap-oob="true" value="almacenar" name="submit" id="submit" type="submit" class="btn btn-danger">
+    Almacenar Resultados
+</button>

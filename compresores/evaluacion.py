@@ -263,5 +263,6 @@ def evaluar_compresor(etapas):
         "flujo_salida": FlujoVolumetricoCs,
         "relacion_volumetrica": RelacionVolumetrica,
         "z_in": ZE,
-        "z_out": ZS
+        "z_out": ZS,
+        "pm_calculado": PMprom
     }
