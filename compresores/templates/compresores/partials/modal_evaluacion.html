@@ -1,0 +1,326 @@
+<div class="modal fade" id="resultados_{{evaluacion.pk}}" tabindex="-1" aria-labelledby="resultados_{{evaluacion.pk}}Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl text-dark">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resultados_{{evaluacion.pk}}Label">Compresor {{evaluacion.equipo}} / Evaluación {{evaluacion.pk}}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <h5>Salidas</h5>
+                        <table class="table table-sm table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="table-dark" colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">
+                                        Datos de Salida de la Evaluación
+                                    </th>
+                                </tr>
+                                <tr class="table-dark">
+                                    <th>Parámetro</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <th>Etapa {{etapa.etapa.numero}}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th class="table-dark">Flujo In</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.flujo_in|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Flujo Out</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.flujo_out|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Cabezal Calculado</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.cabezal_calculado|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Cabezal Isotrópico</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.cabezal_isotropico|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Potencia Calculada</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.potencia_calculada|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Potencia Isoentrópica</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.potencia_isoentropica|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Eficiencia Iso</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.eficiencia_iso|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Eficiencia Teórica</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.eficiencia_teorica|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Caída Presión</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.caida_presion|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Caída Temp</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.caida_temp|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">K In</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.k_in|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">K Out</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.k_out|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">K Promedio</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.k_promedio|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">N</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.n|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Z In</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.z_in|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Z Out</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.z_out|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Energía Ret</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.energia_ret|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Relación Compresión</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.relacion_compresion|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Relación Temperatura</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.relacion_temperatura|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Relación Volumétrica</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.relacion_volumetrica|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">PM Calculado</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.salidas.pm_calculado|floatformat:4}}</td>
+                                    {% endfor %}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-7">
+                        <table class="table table-sm table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="table-dark" colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">
+                                        Datos de Entrada de la Evaluación
+                                    </th>
+                                </tr>
+                                <tr class="table-dark">
+                                    <th>Parámetro</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <th>Etapa {{etapa.etapa.numero}}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="table-dark">
+                                    <th colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">Datos de Flujo, Potencia, Cabezal de Ficha</th>
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Flujo de Gas</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.flujo_gas}} {{etapa.flujo_gas_unidad}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Flujo Volumétrico</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.flujo_volumetrico}} {{etapa.flujo_volumetrico_unidad}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Flujo Surge</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.flujo_surge}} {{etapa.flujo_volumetrico_unidad}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Velocidad</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.velocidad}} {{etapa.velocidad_unidad}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark" colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">
+                                        Para Cabezal Hidráulico
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Cabezal Politrópico</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.cabezal_politropico}} {{etapa.cabezal_politropico_unidad}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark" colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">Cálculo de Potencia</th>
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Potencia Generada</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.potencia_generada}} {{etapa.potencia_generada_unidad}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark" colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">Cálculo de Eficiencia</th>
+                                <tr>
+                                    <th class="table-dark">Eficiencia Politrópica</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.eficiencia_politropica}} %</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark" colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">Condiciones de la Corriente</th>
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Presión Entrada</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.presion_in}} {{etapa.presion_unidad}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Presión Salida</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.presion_out}} {{etapa.presion_unidad}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Temperatura Entrada</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.temperatura_in}} {{etapa.temperatura_unidad}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Temperatura Salida</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.temperatura_out}} {{etapa.temperatura_unidad}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark" colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">Cálculo de Coeficientes Isentrópicos</th>
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">K Entrada</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.k_in}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">K Salida</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.k_out}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark" colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">Cálculo de Factor de Compresibilidad</th>
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Z Entrada</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.z_in}}</td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Z Salida</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.z_out}}</td>
+                                    {% endfor %}                                
+                                </tr>
+                                <tr>
+                                    <th class="table-dark" colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">Peso Molecular</th>
+                                </tr>
+                                <tr>
+                                    <th class="table-dark">Peso Molecular Ficha</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <td>{{etapa.pm_ficha}} {{etapa.pm_ficha_unidad}}</td>
+                                    {% endfor %}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-5">
+                        <table class="table table-sm table-bordered table-sm text-center">
+                            <thead>
+                                <tr>
+                                    <th class="table-dark" colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">Composiciones</th>
+                                </tr>
+                                <tr class="table-dark">
+                                    <th>Compuesto</th>
+                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
+                                    <th>Etapa {{etapa.etapa.numero}}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="table-dark">{{composicion.nombre}}</td>
+                                    {% for etapa in composicion.etapas.all %}
+                                    <td>{{etapa.porcentaje}} %</td>
+                                    {% endfor %}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>

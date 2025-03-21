@@ -66,6 +66,9 @@ class Compresor(models.Model):
     editado_por = models.ForeignKey('auth.User', on_delete=models.PROTECT, null=True, related_name="compresor_editado_por", verbose_name="Editado por")
     copia = models.BooleanField(default=False, blank=True, verbose_name="Es Copia")
 
+    def __str__(self):
+        return self.tag.upper()
+
     class Meta:
         ordering = ('tag',)
 
@@ -323,7 +326,7 @@ class ComposicionEvaluacion(models.Model):
     porc_molar = models.FloatField(validators=[MinValueValidator(0.0)], verbose_name="Porcentaje")
 
 class SalidaEtapaEvaluacion(models.Model):
-    entrada_etapa = models.ForeignKey(EntradaEtapaEvaluacion, models.CASCADE, related_name="salidas")
+    entrada_etapa = models.OneToOneField(EntradaEtapaEvaluacion, models.CASCADE, related_name="salidas")
     flujo_in = models.FloatField()
     flujo_out = models.FloatField()
     cabezal_calculado = models.FloatField()
