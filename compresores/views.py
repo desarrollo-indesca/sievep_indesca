@@ -704,10 +704,33 @@ class ConsultaEvaluacionCompresor(PermisosMixin, ConsultaEvaluacion, CargarCompr
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['equipo'] = self.model_equipment.objects.get(pk=self.kwargs.get('pk'))
+        context['equipo'] = self.get_compresor(queryset=False)
         context['permisos'] = self.get_permisos()
 
         return context
+    
+    def post(self, request, **kwargs):
+        reporte_ficha = self.reporte_ficha(request)
+        if(reporte_ficha):
+            return reporte_ficha
+            
+        if((request.user.is_superuser or request.user.usuario_planta.filter(planta = self.get_compresor().planta, eliminar_evaluaciones = True).exists()) and request.POST.get('evaluacion')): # Lógica de "Eliminación"
+            evaluacion = self.model.objects.get(pk=request.POST['evaluacion'])
+            evaluacion.activo = False
+            evaluacion.save()
+            messages.success(request, "Evaluación eliminada exitosamente.")
+        elif(request.POST.get('evaluacion') and not request.user.is_superuser):
+            messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
+
+        if(request.POST.get('tipo') == 'pdf'):
+            return generar_pdf(request, self.get_queryset(), f"Evaluaciones del Compresor {self.get_turbina().tag}", "reporte_evaluaciones_turbinas_vapor")
+        elif(request.POST.get('tipo') == 'xlsx'):
+            return historico_evaluaciones_turbinas_vapor(self.get_queryset(), request)
+
+        if(request.POST.get('detalle')):
+            return generar_pdf(request, self.model.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Turbina de Vapor", "detalle_evaluacion_turbina_vapor")
+
+        return self.get(request, **kwargs)
 
 class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View):
     template_name = "compresores/evaluacion.html"
@@ -932,3 +955,4 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
             })
 
         return (evaluar_compresor(entradas_etapas), etapas)
+    

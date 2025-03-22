@@ -381,7 +381,7 @@ class ConsultaEvaluacionTurbinaVapor(ConsultaEvaluacion, ObtenerTurbinaVaporMixi
         if(reporte_ficha):
             return reporte_ficha
             
-        if((request.user.is_superuser or request.user.usuario_planta.filter(planta = self.get_turbina().planta, edicion = True).exists()) and request.POST.get('evaluacion')): # Lógica de "Eliminación"
+        if((request.user.is_superuser or request.user.usuario_planta.filter(planta = self.get_turbina().planta, eliminar_evaluaciones = True).exists()) and request.POST.get('evaluacion')): # Lógica de "Eliminación"
             evaluacion = self.model.objects.get(pk=request.POST['evaluacion'])
             evaluacion.activo = False
             evaluacion.save()
