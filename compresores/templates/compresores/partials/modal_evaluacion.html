@@ -1,5 +1,5 @@
 <div class="modal fade" id="resultados_{{evaluacion.pk}}" tabindex="-1" aria-labelledby="resultados_{{evaluacion.pk}}Label" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl text-dark">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl text-dark" style="width: 90% !important;">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="resultados_{{evaluacion.pk}}Label">Compresor {{evaluacion.equipo}} / Evaluación {{evaluacion.pk}}</h5>
@@ -9,10 +9,10 @@
                 <div class="row">
                     <div class="col-12">
                         <h5>Salidas</h5>
-                        <table class="table table-sm table-striped table-hover">
+                        <table class="table table-sm table-responsive text-xs table-striped table-hover" style="vertical-align: middle; font-size: xx-small;">
                             <thead>
                                 <tr>
-                                    <th class="table-dark" colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">
+                                    <th class="table-warning" colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">
                                         Datos de Salida de la Evaluación
                                     </th>
                                 </tr>
@@ -75,13 +75,25 @@
                                 <tr>
                                     <th class="table-dark">Caída Presión</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
-                                    <td>{{etapa.salidas.caida_presion|floatformat:4}}</td>
+                                    <td>
+                                        {% if etapa.salidas.caida_presion %}
+                                        {{etapa.salidas.caida_presion|floatformat:4}}
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
                                     {% endfor %}
                                 </tr>
                                 <tr>
                                     <th class="table-dark">Caída Temp</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
-                                    <td>{{etapa.salidas.caida_temp|floatformat:4}}</td>
+                                    <td>
+                                        {% if etapa.salidas.caida_temp %}
+                                        {{etapa.salidas.caida_temp|floatformat:4}}
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
                                     {% endfor %}
                                 </tr>
                                 <tr>
@@ -123,7 +135,13 @@
                                 <tr>
                                     <th class="table-dark">Energía Ret</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
-                                    <td>{{etapa.salidas.energia_ret|floatformat:4}}</td>
+                                    <td>
+                                        {% if etapa.salidas.energia_ret is None %}
+                                        -
+                                        {% else %}
+                                        {{etapa.salidas.energia_ret|floatformat:4}}
+                                        {% endif %}
+                                    </td>
                                     {% endfor %}
                                 </tr>
                                 <tr>
@@ -153,11 +171,14 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="col-12">
+                        <h5>Entradas</h5>
+                    </div>
                     <div class="col-7">
-                        <table class="table table-sm table-striped table-hover">
+                        <table class="table table-sm table-responsive text-xs table-striped table-hover" style="vertical-align: middle; font-size: xx-small;">
                             <thead>
                                 <tr>
-                                    <th class="table-dark" colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">
+                                    <th class="table-danger" colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">
                                         Datos de Entrada de la Evaluación
                                     </th>
                                 </tr>
@@ -294,25 +315,27 @@
                         </table>
                     </div>
                     <div class="col-5">
-                        <table class="table table-sm table-bordered table-sm text-center">
+                        <table class='table table-sm table-responsive text-xs table-bordered table-sm table-responsive text-xs text-center'  style="vertical-align: middle; font-size: xx-small;">
                             <thead>
                                 <tr>
-                                    <th class="table-dark" colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">Composiciones</th>
+                                    <th class="table-success" colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">Composiciones</th>
                                 </tr>
                                 <tr class="table-dark">
                                     <th>Compuesto</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
-                                    <th>Etapa {{etapa.etapa.numero}}</th>
+                                    <th>Etapa {{etapa.etapa.numero}} (%)</th>
                                     {% endfor %}
                                 </tr>
                             </thead>
                             <tbody>
+                                {% for compuesto in evaluacion.entradas_evaluacion.first.composiciones.all %}
                                 <tr>
-                                    <td class="table-dark">{{composicion.nombre}}</td>
-                                    {% for etapa in composicion.etapas.all %}
-                                    <td>{{etapa.porcentaje}} %</td>
+                                    <td class="table-dark">{{compuesto.fluido}}</td>
+                                    {% for porcentaje in compuesto.porcentajes %}
+                                    <td>{{porcentaje}}</td>
                                     {% endfor %}
                                 </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>

@@ -325,6 +325,9 @@ class ComposicionEvaluacion(models.Model):
     fluido = models.ForeignKey(Fluido, models.PROTECT, related_name="composiciones_fluidos")
     porc_molar = models.FloatField(validators=[MinValueValidator(0.0)], verbose_name="Porcentaje")
 
+    def porcentajes(self):
+        return [composicion.porc_molar for composicion in ComposicionEvaluacion.objects.filter(entrada_etapa__evaluacion=self.entrada_etapa.evaluacion, fluido=self.fluido)]
+
 class SalidaEtapaEvaluacion(models.Model):
     entrada_etapa = models.OneToOneField(EntradaEtapaEvaluacion, models.CASCADE, related_name="salidas")
     flujo_in = models.FloatField()
