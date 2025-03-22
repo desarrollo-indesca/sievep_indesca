@@ -249,6 +249,12 @@ def generar_historia(request, reporte, object_list):
 
     if reporte == 'ficha_tecnica_compresor':
         return ficha_tecnica_compresor(object_list)
+    
+    if reporte == 'reporte_evaluaciones_compresor':
+        return reporte_evaluaciones_compresor(request, object_list)
+    
+    if reporte == 'detalle_evaluacion_compresor':
+        return detalle_evaluacion_compresor(object_list)
 
 # GENERALES
 def reporte_equipos(request, object_list):
@@ -4673,3 +4679,69 @@ def ficha_tecnica_compresor(compresor):
 
     return [story, []]
 
+def reporte_evaluaciones_compresores(object_list, request):
+    '''
+    Resumen:
+        Genera un reporte PDF de varias evaluaciones filtradas de un compresor.
+    '''  
+    story = [Spacer(0, 90)]
+
+    if(len(request.GET) >= 2 and (request.GET['desde'] or request.GET['hasta'] or request.GET['usuario'] or request.GET['nombre'])):
+        story.append(Paragraph("Datos de Filtrado", centrar_parrafo))
+        table = [[Paragraph("Desde", centrar_parrafo), Paragraph("Hasta", centrar_parrafo), Paragraph("Usuario", centrar_parrafo), Paragraph("Nombre Ev.", centrar_parrafo)]]
+        table.append([
+            Paragraph(request.GET.get('desde'), parrafo_tabla),
+            Paragraph(request.GET.get('hasta'), parrafo_tabla),
+            Paragraph(request.GET.get('usuario'), parrafo_tabla),
+            Paragraph(request.GET.get('nombre'), parrafo_tabla),
+        ])
+
+        table = Table(table)
+        table.setStyle(basicTableStyle)
+
+        story.append(table)
+        story.append(Spacer(0,7))
+
+    table = [
+        [
+            Paragraph("Fecha", centrar_parrafo),
+        ]
+    ]
+
+    for j, _ in enumerate(object_list.first().entradas.count()):
+        table[0].append(Paragraph(f"Efic. Teorica/Isoentrópica E{j+1} (%)", centrar_parrafo))
+
+    eficiencias = []
+    fechas = []
+
+    for evaluacion in object_list.all().order_by('fecha'):
+        eficiencias_etapa = []
+        for k, entrada in enumerate(evaluacion.entradas.all()):
+            eficiencias_etapa.append(evaluacion.fecha)
+            for j, salida in enumerate(entrada.salidas.all()):
+                eficiencias_etapa.append(f'{salida.eficiencia_teorica} / {salida.eficiencia_iso}')
+        eficiencias.append(eficiencias_etapa)
+
+    estilo = TableStyle([
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+
+        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+    ])
+
+    table = Table(
+        table,
+        style=estilo,
+        colWidths=(1.8*inch, 1.8*inch, 1.8*inch, 1.8*inch)
+    )
+
+    story.append(table)
+
+    sub = "Fechas" # Subtítulo de las evaluaciones
+    if(len(fechas) >= 5):
+        fechas = list(range(1,len(fechas)+1))
+        sub = "Evaluaciones"
+
+    # Añadir Gráficas Históricos
+
+    return [story, None]

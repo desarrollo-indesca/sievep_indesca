@@ -7,25 +7,41 @@
 <script src="/static/js/htmx.min.js"></script>
 <meta name="htmx-config" content='{"useTemplateFragments":"true"}'>
 <link rel="stylesheet" href="{% static 'css/htmx-indicator.css' %}">
+
+<style>
+    input, select {
+        min-height: auto !important;
+        font-size: 0.6rem !important;
+    }
+</style>
 {% endblock %}
 
 {% block contenido %}
-<div class="row">
+<div class="row mb-3">
     <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_compresores' %}">↶ Regresar</a></div>
     <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Nueva Evaluación Compresor {{compresor.tag}}</h3></div>
     <div class="col-md-3 col-lg-2"><button type="button" class="btn btn-success" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{compresor.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button></div>
 </div>
 
-<form id="form" method="post" name="form" hx-target="#resultados" hx-post="{% url 'evaluacion_compresor' pk=compresor.pk %}" hx-trigger="submit" hx-indicator="#spinner">
+<hr>
+
+<form hx-confirm="¿Desea realizar esta acción?" id="form" method="post" name="form" hx-target="#resultados" hx-post="{% url 'evaluacion_compresor' pk=compresor.pk %}" hx-trigger="submit" hx-indicator="#spinner">
     {% csrf_token %}
+    <div class="row">
+        <div class="col-12">
+            <label for="evaluacion-nombre" class="form-label">Nombre de la Evaluación</label>
+            <input type="text" id="evaluacion-nombre" name="evaluacion-nombre" class="form-control" required>
+        </div>
+    </div>
+    <hr>
     <div class="row">
         <div class="col-7">
             <h5 class="text-center">Datos de Entrada</h5>
             <hr>
 
-            <table class="table table-sm text-center">
+            <table class="table table-sm text-center" style="font-size: xx-small;">
                 <thead>
-                    <tr>
+                    <tr class="table-dark">
                         <th>Parámetro</th>
                         {% for etapa in compresor.casos.first.etapas.all %}
                         <th>Etapa {{etapa.numero}}</th>
@@ -267,14 +283,13 @@
                     </tr>
                 </tbody>
             </table>
-
         </div>
         
         <div class="col-5">
             <h5 class="text-center">Composición del Combustible por Etapa</h5>
             <hr>
 
-            <table class="table table-bordered table-sm text-center">
+            <table class="table table-sm table-bordered table-sm text-center" style="font-size: xx-small;">
                 <thead>
                     <tr class="table-dark">
                         <th>Compuesto</th>
@@ -320,5 +335,12 @@
 
 {% block extra_javascript %}
 <script src="/static/js/turbinas/vapor/evaluacion.js"></script>
-
+<script>
+    document.addEventListener('input', (e)=>{
+        if(e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT'){
+            document.getElementById('submit').outerHTML = ' <button type="submit" id="submit" name="submit" value="calcular" class="btn btn-danger">Calcular Resultados</button>';
+            document.getElementById('resultados').innerHTML = '';
+        }
+    });
+</script>
 {% endblock %}
