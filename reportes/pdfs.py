@@ -250,8 +250,8 @@ def generar_historia(request, reporte, object_list):
     if reporte == 'ficha_tecnica_compresor':
         return ficha_tecnica_compresor(object_list)
     
-    if reporte == 'reporte_evaluaciones_compresor':
-        return reporte_evaluaciones_compresor(request, object_list)
+    if reporte == 'reporte_evaluaciones_compresores':
+        return reporte_evaluaciones_compresores(request, object_list)
     
     if reporte == 'detalle_evaluacion_compresor':
         return detalle_evaluacion_compresor(object_list)
@@ -4679,7 +4679,7 @@ def ficha_tecnica_compresor(compresor):
 
     return [story, []]
 
-def reporte_evaluaciones_compresores(object_list, request):
+def reporte_evaluaciones_compresores(request, object_list):
     '''
     Resumen:
         Genera un reporte PDF de varias evaluaciones filtradas de un compresor.
@@ -4708,7 +4708,7 @@ def reporte_evaluaciones_compresores(object_list, request):
         ]
     ]
 
-    for j, _ in enumerate(object_list.first().entradas.count()):
+    for j, _ in enumerate(object_list.first().entradas_evaluacion.all()):
         table[0].append(Paragraph(f"Efic. Teorica/Isoentrópica E{j+1} (%)", centrar_parrafo))
 
     eficiencias = []
@@ -4716,11 +4716,18 @@ def reporte_evaluaciones_compresores(object_list, request):
 
     for evaluacion in object_list.all().order_by('fecha'):
         eficiencias_etapa = []
-        for k, entrada in enumerate(evaluacion.entradas.all()):
-            eficiencias_etapa.append(evaluacion.fecha)
-            for j, salida in enumerate(entrada.salidas.all()):
-                eficiencias_etapa.append(f'{salida.eficiencia_teorica} / {salida.eficiencia_iso}')
+        eficiencias_etapa.append(Paragraph(
+            evaluacion.fecha.strftime("%d/%m/%Y %H:%M:%S"), parrafo_tabla
+        ))
+
+        for k, entrada in enumerate(evaluacion.entradas_evaluacion.all()):
+            eficiencias_etapa.append(Paragraph(f'{round(entrada.salidas.eficiencia_teorica, 2)} / {round(entrada.salidas.eficiencia_iso, 2)}', parrafo_tabla))
+
+        while len(eficiencias_etapa) < len(object_list.first().entradas_evaluacion.all()) + 1:
+            eficiencias_etapa.append(Paragraph('-', parrafo_tabla))
+
         eficiencias.append(eficiencias_etapa)
+        table.append(eficiencias_etapa)
 
     estilo = TableStyle([
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
@@ -4731,8 +4738,7 @@ def reporte_evaluaciones_compresores(object_list, request):
 
     table = Table(
         table,
-        style=estilo,
-        colWidths=(1.8*inch, 1.8*inch, 1.8*inch, 1.8*inch)
+        style=estilo
     )
 
     story.append(table)

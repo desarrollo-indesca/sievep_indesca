@@ -71,7 +71,7 @@ class CargarCompresorMixin():
             Si prefetch es True, se hace un prefetch de las relaciones de PropiedadesCompresor.
     """
 
-    def get_compresor(self, prefetch = True, queryset = True):
+    def get_compresor(self, prefetch = True, queryset = False):
         if(not queryset):
             if(self.kwargs.get('pk')):
                 compresor = Compresor.objects.filter(pk = self.kwargs['pk'])
@@ -723,7 +723,7 @@ class ConsultaEvaluacionCompresor(PermisosMixin, ConsultaEvaluacion, CargarCompr
             messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
 
         if(request.POST.get('tipo') == 'pdf'):
-            return generar_pdf(request, self.get_queryset(), f"Evaluaciones del Compresor {self.get_turbina().tag}", "reporte_evaluaciones_turbinas_vapor")
+            return generar_pdf(request, self.get_queryset(), f"Evaluaciones del Compresor {self.get_compresor().tag}", "reporte_evaluaciones_compresores")
         elif(request.POST.get('tipo') == 'xlsx'):
             return historico_evaluaciones_turbinas_vapor(self.get_queryset(), request)
 
