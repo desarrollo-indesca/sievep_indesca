@@ -85,7 +85,7 @@
                         <td>
                             <div class="input-group">
                                 {% render_field form.flujo_surge class="form-control form-control-sm" %}
-                                <select name="{{form.prefix}}-flujo_surge_unidad" id="id_{{form.prefix}}-flujo_surge_unidad" class="form-select form-select-sm">
+                                <select name="{{form.prefix}}-flujo_volumetrico_unidad" id="id_{{form.prefix}}-flujo_volumetrico_unidad" class="form-select form-select-sm" disabled>
                                     {% include 'unidades.html' with tipo='K' pk_selected=form.instance.flujo_volumetrico_unidad.pk %}
                                 </select>
                             </div>
@@ -341,6 +341,17 @@
             document.getElementById('submit').outerHTML = ' <button type="submit" id="submit" name="submit" value="calcular" class="btn btn-danger">Calcular Resultados</button>';
             document.getElementById('resultados').innerHTML = '';
         }
+    });
+
+    const selects_flujo_volumetrico_unidad = document.querySelectorAll('select[name*="-flujo_volumetrico_unidad"]');
+    selects_flujo_volumetrico_unidad.forEach((select1)=>{
+        selects_flujo_volumetrico_unidad.forEach((select2)=>{
+            if(select1.name === select2.name && select1 !== select2){
+                select1.addEventListener('change', (e)=>{
+                    select2.value = e.target.value;
+                });
+            }
+        });
     });
 </script>
 {% endblock %}

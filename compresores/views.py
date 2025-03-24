@@ -751,14 +751,14 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
                     form = ComposicionEvaluacionForm(initial={
                         'porc_molar': c.porc_molar,
                         'compuesto': c.compuesto
-                    }, prefix=f"{c.etapa.pk}-{c.compuesto.pk}")
+                    }, prefix=f"{c.etapa.numero}-{c.compuesto.pk}")
                     composiciones[fluido].append(form)
             else:
                 for etapa in compresor.casos.first().etapas.all():
                     form = ComposicionEvaluacionForm(initial={
                         'compuesto': fluido,
                         'etapa': etapa
-                    }, prefix=f"{etapa.pk}-{fluido.pk}")
+                    }, prefix=f"{etapa.numero}-{fluido.pk}")
                     composiciones[fluido].append(form)
 
         entradas_etapa = {}
@@ -766,7 +766,7 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
             entrada = etapa.lados.get(lado='E')
             salida = etapa.lados.get(lado='S')            
             
-            entradas_etapa[etapa] = EntradaEtapaEvaluacionForm(prefix=f'etapa-{etapa.pk}', initial={
+            entradas_etapa[etapa] = EntradaEtapaEvaluacionForm(prefix=f'etapa-{etapa.numero}', initial={
                 'flujo_gas': etapa.flujo_masico,
                 'flujo_gas_unidad': etapa.flujo_masico_unidad,
                 'flujo_volumetrico': etapa.volumen_normal,
@@ -842,8 +842,10 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
                     nombre = self.request.POST.get('evaluacion-nombre', 'Evaluación'),
                 )
 
+                print(len(etapas))
+
                 for i,etapa in enumerate(etapas):
-                    form = EntradaEtapaEvaluacionForm(self.request.POST, prefix=f'etapa-{etapa.pk}')
+                    form = EntradaEtapaEvaluacionForm(self.request.POST, prefix=f'etapa-{etapa.numero}')
                     if form.is_valid():
                         form.instance.evaluacion = evaluacion
                         form.instance.etapa = etapa
@@ -878,7 +880,7 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
                     
                     for compuesto in COMPUESTOS:
                         fluido = Fluido.objects.get(cas=compuesto)
-                        form_comp = ComposicionEvaluacionForm(self.request.POST, prefix=f"{etapa.pk}-{fluido.pk}")
+                        form_comp = ComposicionEvaluacionForm(self.request.POST, prefix=f"{etapa.numero}-{fluido.pk}")
                         if form_comp.is_valid():
                             form_comp.instance.entrada_etapa = form.instance
                             form_comp.instance.fluido = fluido
@@ -887,9 +889,9 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
                             print(form_comp.errors)
                             raise Exception(f'Error al guardar la evaluación - Composición {fluido}')
 
-                    return render(self.request, 'compresores/partials/carga_lograda.html', {
-                        'compresor': compresor,
-                    })
+                return render(self.request, 'compresores/partials/carga_lograda.html', {
+                    'compresor': compresor,
+                })
         except Exception as e:
             print(str(e))
             return render(self.request, 'compresores/partials/carga_fallida.html', {
@@ -907,30 +909,30 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
         for etapa in etapas:
             entrada_form_dict = {
                 'etapa': etapa,
-                'flujo_gas': float(request.POST.get(f'etapa-{etapa.pk}-flujo_gas')),
-                'flujo_gas_unidad': int(request.POST.get(f'etapa-{etapa.pk}-flujo_gas_unidad')),
-                'flujo_volumetrico': float(request.POST.get(f'etapa-{etapa.pk}-flujo_volumetrico')),
-                'flujo_volumetrico_unidad': int(request.POST.get(f'etapa-{etapa.pk}-flujo_volumetrico_unidad')),
-                'flujo_surge': float(request.POST.get(f'etapa-{etapa.pk}-flujo_surge')),
-                'cabezal_politropico': float(request.POST.get(f'etapa-{etapa.pk}-cabezal_politropico')),
-                'cabezal_politropico_unidad': int(request.POST.get(f'etapa-{etapa.pk}-cabezal_politropico_unidad')),
-                'potencia_generada': float(request.POST.get(f'etapa-{etapa.pk}-potencia_generada')),
-                'potencia_generada_unidad': int(request.POST.get(f'etapa-{etapa.pk}-potencia_generada_unidad')),
-                'eficiencia_politropica': float(request.POST.get(f'etapa-{etapa.pk}-eficiencia_politropica')),
-                'velocidad': float(request.POST.get(f'etapa-{etapa.pk}-velocidad')),
-                'velocidad_unidad': int(request.POST.get(f'etapa-{etapa.pk}-velocidad_unidad')),
-                'presion_in': float(request.POST.get(f'etapa-{etapa.pk}-presion_in')),
-                'presion_out': float(request.POST.get(f'etapa-{etapa.pk}-presion_out')),
-                'presion_unidad': int(request.POST.get(f'etapa-{etapa.pk}-presion_unidad')),
-                'temperatura_in': float(request.POST.get(f'etapa-{etapa.pk}-temperatura_in')),
-                'temperatura_out': float(request.POST.get(f'etapa-{etapa.pk}-temperatura_out')),
-                'temperatura_unidad': int(request.POST.get(f'etapa-{etapa.pk}-temperatura_unidad')),
-                'k_in': float(request.POST.get(f'etapa-{etapa.pk}-k_in')),            
-                'k_out': float(request.POST.get(f'etapa-{etapa.pk}-k_out')),
-                'z_in': float(request.POST.get(f'etapa-{etapa.pk}-z_in')),
-                'z_out': float(request.POST.get(f'etapa-{etapa.pk}-z_out')),
-                'pm_ficha': float(request.POST.get(f'etapa-{etapa.pk}-pm_ficha')),
-                'pm_ficha_unidad': int(request.POST.get(f'etapa-{etapa.pk}-pm_ficha_unidad')),
+                'flujo_gas': float(request.POST.get(f'etapa-{etapa.numero}-flujo_gas')),
+                'flujo_gas_unidad': int(request.POST.get(f'etapa-{etapa.numero}-flujo_gas_unidad')),
+                'flujo_volumetrico': float(request.POST.get(f'etapa-{etapa.numero}-flujo_volumetrico')),
+                'flujo_volumetrico_unidad': int(request.POST.get(f'etapa-{etapa.numero}-flujo_volumetrico_unidad')),
+                'flujo_surge': float(request.POST.get(f'etapa-{etapa.numero}-flujo_surge')),
+                'cabezal_politropico': float(request.POST.get(f'etapa-{etapa.numero}-cabezal_politropico')),
+                'cabezal_politropico_unidad': int(request.POST.get(f'etapa-{etapa.numero}-cabezal_politropico_unidad')),
+                'potencia_generada': float(request.POST.get(f'etapa-{etapa.numero}-potencia_generada')),
+                'potencia_generada_unidad': int(request.POST.get(f'etapa-{etapa.numero}-potencia_generada_unidad')),
+                'eficiencia_politropica': float(request.POST.get(f'etapa-{etapa.numero}-eficiencia_politropica')),
+                'velocidad': float(request.POST.get(f'etapa-{etapa.numero}-velocidad')),
+                'velocidad_unidad': int(request.POST.get(f'etapa-{etapa.numero}-velocidad_unidad')),
+                'presion_in': float(request.POST.get(f'etapa-{etapa.numero}-presion_in')),
+                'presion_out': float(request.POST.get(f'etapa-{etapa.numero}-presion_out')),
+                'presion_unidad': int(request.POST.get(f'etapa-{etapa.numero}-presion_unidad')),
+                'temperatura_in': float(request.POST.get(f'etapa-{etapa.numero}-temperatura_in')),
+                'temperatura_out': float(request.POST.get(f'etapa-{etapa.numero}-temperatura_out')),
+                'temperatura_unidad': int(request.POST.get(f'etapa-{etapa.numero}-temperatura_unidad')),
+                'k_in': float(request.POST.get(f'etapa-{etapa.numero}-k_in')),            
+                'k_out': float(request.POST.get(f'etapa-{etapa.numero}-k_out')),
+                'z_in': float(request.POST.get(f'etapa-{etapa.numero}-z_in')),
+                'z_out': float(request.POST.get(f'etapa-{etapa.numero}-z_out')),
+                'pm_ficha': float(request.POST.get(f'etapa-{etapa.numero}-pm_ficha')),
+                'pm_ficha_unidad': int(request.POST.get(f'etapa-{etapa.numero}-pm_ficha_unidad')),
             }
 
             entrada_form_dict['flujo_gas'] = transformar_unidades_flujo([entrada_form_dict['flujo_gas']], entrada_form_dict['flujo_gas_unidad'])[0]
@@ -945,7 +947,7 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
             entrada_form_dict['temperatura_out'] = transformar_unidades_temperatura([entrada_form_dict['temperatura_out']], entrada_form_dict['temperatura_unidad'])[0]
 
             composiciones = {
-                composicion.compuesto: float(request.POST.get(f"{composicion.etapa.pk}-{composicion.compuesto.pk}-porc_molar"))
+                composicion.compuesto: float(request.POST.get(f"{composicion.etapa.numero}-{composicion.compuesto.pk}-porc_molar"))
                 for composicion in etapa.composiciones.all()
             } 
 

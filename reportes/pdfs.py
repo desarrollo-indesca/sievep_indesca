@@ -4717,14 +4717,14 @@ def reporte_evaluaciones_compresores(request, object_list):
     for evaluacion in object_list.all().order_by('fecha'):
         eficiencias_etapa = []
         eficiencias_etapa.append(Paragraph(
-            evaluacion.fecha.strftime("%d/%m/%Y %H:%M:%S"), parrafo_tabla
+            evaluacion.fecha.strftime("%d/%m/%Y %H:%M:%S"), numero_tabla
         ))
 
         for k, entrada in enumerate(evaluacion.entradas_evaluacion.all()):
-            eficiencias_etapa.append(Paragraph(f'{round(entrada.salidas.eficiencia_teorica, 2)} / {round(entrada.salidas.eficiencia_iso, 2)}', parrafo_tabla))
+            eficiencias_etapa.append(Paragraph(f'{round(entrada.salidas.eficiencia_teorica, 2)} / {round(entrada.salidas.eficiencia_iso, 2)}', numero_tabla))
 
         while len(eficiencias_etapa) < len(object_list.first().entradas_evaluacion.all()) + 1:
-            eficiencias_etapa.append(Paragraph('-', parrafo_tabla))
+            eficiencias_etapa.append(Paragraph('-', numero_tabla))
 
         eficiencias.append(eficiencias_etapa)
         table.append(eficiencias_etapa)
