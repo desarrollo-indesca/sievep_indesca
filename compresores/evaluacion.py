@@ -264,5 +264,7 @@ def evaluar_compresor(etapas):
         "relacion_volumetrica": RelacionVolumetrica,
         "z_in": ZE,
         "z_out": ZS,
-        "pm_calculado": PMprom
+        "pm_calculado": PMprom,
+        'HE': HE,
+        'HS': HS
     }
