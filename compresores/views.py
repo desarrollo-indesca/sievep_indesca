@@ -16,7 +16,7 @@ from .evaluacion import evaluar_compresor
 from .models import *
 from .forms import *
 from reportes.pdfs import generar_pdf
-from reportes.xlsx import reporte_equipos, ficha_tecnica_compresor
+from reportes.xlsx import reporte_equipos, ficha_tecnica_compresor, historico_evaluaciones_compresor
 from django.contrib import messages
 
 class EdicionCompresorPermisoMixin():
@@ -728,7 +728,7 @@ class ConsultaEvaluacionCompresor(PermisosMixin, ConsultaEvaluacion, CargarCompr
         if(request.POST.get('tipo') == 'pdf'):
             return generar_pdf(request, self.get_queryset(), f"Evaluaciones del Compresor {self.get_compresor().tag}", "reporte_evaluaciones_compresores")
         elif(request.POST.get('tipo') == 'xlsx'):
-            return historico_evaluaciones_turbinas_vapor(self.get_queryset(), request)
+            return historico_evaluaciones_compresor(self.get_queryset(), request)
 
         if(request.POST.get('detalle')):
             return generar_pdf(request, self.model.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Turbina de Vapor", "detalle_evaluacion_turbina_vapor")

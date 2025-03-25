@@ -2181,3 +2181,75 @@ def ficha_tecnica_compresor(compresor, request):
     workbook.close()
     
     return enviar_response(f'ficha_tecnica_compresor_{compresor.tag}', excel_io, fecha)
+
+def historico_evaluaciones_compresor(object_list, request):
+    """
+    Resumen:
+        Función que genera el histórico XLSX de evaluaciones realizadas a un compresor filtradas de acuerdo a lo establecido en el request.
+    """
+    excel_io = BytesIO()
+    workbook = xlsxwriter.Workbook(excel_io)    
+    worksheet = workbook.add_worksheet()
+
+    compresor = object_list[0].equipo
+    
+    # Configurar anchos de columna
+    for col in range(0, len(object_list[0].equipo.casos.first().etapas.all())*2+3):
+        worksheet.set_column(chr(66+col)+':'+chr(66+col), 40)
+
+    # Definir formatos
+    bold = workbook.add_format({'bold': True})
+    bold_bordered = workbook.add_format({'bold': True, 'border': 1, 'bg_color': 'yellow'})
+    center_bordered = workbook.add_format({'border': 1})
+    fecha = workbook.add_format({'border': 1})
+
+    fecha.set_align('right')
+    bold_bordered.set_align('vcenter')
+    center_bordered.set_align('vcenter')
+    bold_bordered.set_align('center')
+    center_bordered.set_align('center')
+
+    # Insertar logos e información de encabezado
+    worksheet.insert_image(0, 0, LOGO_PEQUIVEN, {'x_scale': 0.25, 'y_scale': 0.25})
+    worksheet.write('C1', 'Reporte de Histórico de Evaluaciones de Compresores', bold)
+    worksheet.insert_image(0, 4, LOGO_INDESCA, {'x_scale': 0.1, 'y_scale': 0.1})
+
+    # Escribir encabezados de filtros
+    worksheet.write('A5', 'Filtros', bold_bordered)
+    worksheet.write('B5', 'Desde', bold_bordered)
+    worksheet.write('C5', 'Hasta', bold_bordered)
+    worksheet.write('D5', 'Usuario', bold_bordered)
+    worksheet.write('E5', 'Nombre', bold_bordered)
+    worksheet.write('F5', 'Equipo', bold_bordered)
+
+    # Escribir filtros
+    worksheet.write('B6', request.GET.get('desde', ''), center_bordered)
+    worksheet.write('C6', request.GET.get('hasta', '') if request.GET.get('hasta') else '', center_bordered)
+    worksheet.write('D6', request.GET.get('usuario'), center_bordered)
+    worksheet.write('E6', request.GET.get('nombre', ''), center_bordered)
+    worksheet.write('F6', compresor.tag.upper(), center_bordered)
+    
+    num = 8
+
+    # Escribir encabezados de datos
+    worksheet.write(f'A{num}', '#', bold_bordered)
+    worksheet.write(f'B{num}', 'Fecha', bold_bordered)
+    for etapa in range(1, compresor.casos.first().etapas.count()+1):
+        letra,letra_sig = chr(65 + etapa*2 - 1),chr(65 + etapa*2)
+        worksheet.write(f'{letra}{num}', f"Eficiencia Teórica Etapa {etapa} (%)", bold_bordered)
+        worksheet.write(f'{letra_sig}{num}', f"Eficiencia Isoentrópica Etapa {etapa} (%)", bold_bordered)
+
+    # Escribir evaluaciones por etapa
+    for idx, evaluacion in enumerate(object_list, start=1):
+        num += 1
+        worksheet.write(f'A{num}', idx, center_bordered)
+        worksheet.write(f'B{num}', evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S'), center_bordered)
+        for idx_etapa, entrada in enumerate(evaluacion.entradas_evaluacion.all(), start=1):
+            letra,letra_sig = chr(65 + idx_etapa*2 - 1),chr(65 + idx_etapa*2)
+            worksheet.write(f'{letra}{num}', entrada.salidas.eficiencia_teorica, center_bordered)
+            worksheet.write(f'{letra_sig}{num}', entrada.salidas.eficiencia_iso, center_bordered)
+
+    workbook.close()
+
+    return enviar_response(f'historico_evaluaciones_compresor_{compresor.tag}', excel_io, fecha)
+
