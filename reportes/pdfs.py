@@ -4711,7 +4711,6 @@ def reporte_evaluaciones_compresores(request, object_list):
     for j, _ in enumerate(object_list.first().entradas_evaluacion.all()):
         table[0].append(Paragraph(f"Efic. Teorica/Isoentrópica E{j+1} (%)", centrar_parrafo))
 
-    eficiencias = []
     fechas = []
 
     for evaluacion in object_list.all().order_by('fecha'):
@@ -4726,8 +4725,8 @@ def reporte_evaluaciones_compresores(request, object_list):
         while len(eficiencias_etapa) < len(object_list.first().entradas_evaluacion.all()) + 1:
             eficiencias_etapa.append(Paragraph('-', numero_tabla))
 
-        eficiencias.append(eficiencias_etapa)
         table.append(eficiencias_etapa)
+        fechas.append(evaluacion.fecha.strftime("%d/%m/%Y %H:%M:%S"))
 
     estilo = TableStyle([
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
@@ -4748,9 +4747,51 @@ def reporte_evaluaciones_compresores(request, object_list):
         fechas = list(range(1,len(fechas)+1))
         sub = "Evaluaciones"
 
-    # Añadir Gráficas Históricos
+    # Gráfico de eficiencias
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.set_title("Evolución de la Eficiencia Isentrópica")
+    ax.set_xlabel("Fecha")
+    ax.set_ylabel("Eficiencia Isentrópica (%)")
 
-    return [story, None]
+    eficiencias_etapas = [[] for _ in range(evaluacion.entradas_evaluacion.count())]
+    eficiencias_teoricas_etapas = [[] for _ in range(evaluacion.entradas_evaluacion.count())]
+    for i,evaluacion in enumerate(object_list.all().order_by('fecha')):
+        entradas =evaluacion.entradas_evaluacion.all()
+        for k, _ in enumerate(entradas):
+            eficiencias_etapas[k].append(entradas[k].salidas.eficiencia_iso)
+            eficiencias_teoricas_etapas[k].append(entradas[k].salidas.eficiencia_teorica)
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.set_title("Evolución de la Eficiencia Isentrópica")
+    ax.set_xlabel("Fecha")
+    ax.set_ylabel("Eficiencia Isentrópica (%)")
+    for k, eficiencias in enumerate(eficiencias_etapas):
+        ax.plot(fechas, eficiencias, label=f"Etapas {k+1}")
+    ax.legend()
+
+    buff = BytesIO()
+    fig.tight_layout()
+    fig.savefig(buff, dpi=200)
+    plt.close(fig)
+    story.append(Spacer(0, 10))
+    story.append(Image(buff, width=500, height=350))
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.set_title("Evolución de la Eficiencia Teórica")
+    ax.set_xlabel("Fecha")
+    ax.set_ylabel("Eficiencia Teórica (%)")
+    for k, eficiencias in enumerate(eficiencias_teoricas_etapas):
+        ax.plot(fechas, eficiencias, label=f"Etapas {k+1}")
+    ax.legend()
+
+    buff = BytesIO()
+    fig.tight_layout()
+    fig.savefig(buff, dpi=200)
+    plt.close(fig)
+    story.append(Spacer(0, 10))
+    story.append(Image(buff, width=500, height=350))
+
+    return [story, [buff]]
 
 def reporte_detalle_evaluacion_compresor(evaluacion):
     '''
@@ -4902,5 +4943,33 @@ def reporte_detalle_evaluacion_compresor(evaluacion):
     table = Table(table, style=estilo)
     story.append(table)
 
-    return [story, None]
+    fig, ax = plt.subplots(3, figsize=(8, 11))
+    ax[0].plot([entrada.salidas.he for entrada in evaluacion.entradas_evaluacion.all()],
+              [entrada.presion_in for entrada in evaluacion.entradas_evaluacion.all()],
+              label='Entrada')
+    ax[0].plot([entrada.salidas.hs for entrada in evaluacion.entradas_evaluacion.all()],
+              [entrada.presion_out for entrada in evaluacion.entradas_evaluacion.all()],
+              label='Salida')
+    ax[0].set_title('Presiones vs Entalpías')
+    ax[0].set_xlabel('Entalpías (kJ/kg)')
+    ax[0].set_ylabel('Presiones (bar)')
+    ax[0].legend()
 
+    ax[1].plot([entrada.flujo_volumetrico for entrada in evaluacion.entradas_evaluacion.all()],
+              [entrada.presion_in for entrada in evaluacion.entradas_evaluacion.all()])
+    ax[1].set_title('Presiones vs Flujo Volumétrico')
+    ax[1].set_xlabel('Flujo Volumétrico (m3/h)')
+    ax[1].set_ylabel('Presiones (bar)')
+
+    ax[2].plot([entrada.salidas.cabezal_calculado for entrada in evaluacion.entradas_evaluacion.all()],
+              [entrada.flujo_volumetrico for entrada in evaluacion.entradas_evaluacion.all()])
+    ax[2].set_title('Cabezal vs Flujo Volumétrico')
+    ax[2].set_xlabel('Cabezal (kJ/kg)')
+    ax[2].set_ylabel('Flujo Volumétrico (m3/h)')
+
+    fig.tight_layout()
+    buff = BytesIO()
+    fig.savefig(buff, format='jpeg')
+    story.append(Image(buff, width=5*inch, height=10*inch))
+
+    return [story, [buff]]

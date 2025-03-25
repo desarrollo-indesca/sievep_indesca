@@ -339,6 +339,7 @@ def generar_presion_flujo(entradas=None, evaluacion=None):
     script, div = components(p)
 
     return {'script': script, 'div': div}
+
 def generar_cabezal_flujo(entradas=None, resultados=None, evaluacion=None):
     if evaluacion:
         entradas = evaluacion.entradas_evaluacion.all()
