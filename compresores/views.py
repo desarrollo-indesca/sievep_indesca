@@ -736,7 +736,7 @@ class ConsultaEvaluacionCompresor(PermisosMixin, ConsultaEvaluacion, CargarCompr
             return historico_evaluaciones_compresor(self.get_queryset(), request)
 
         if(request.POST.get('detalle')):
-            return generar_pdf(request, self.model.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Turbina de Vapor", "detalle_evaluacion_turbina_vapor")
+            return generar_pdf(request, self.model.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Compresor", "detalle_evaluacion_compresor")
 
         return self.get(request, **kwargs)
 

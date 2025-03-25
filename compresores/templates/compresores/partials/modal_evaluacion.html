@@ -1,3 +1,5 @@
+{% load static %}
+
 <div class="modal fade" id="resultados_{{evaluacion.pk}}" tabindex="-1" aria-labelledby="resultados_{{evaluacion.pk}}Label" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl text-dark" style="width: 90% !important;">
         <div class="modal-content">
@@ -366,6 +368,10 @@
                     <input type="hidden" name="evaluacion" value="{{evaluacion.pk}}">
                 </form>
                 {%endif%}
+                <form method="post" name="reporte">
+                    {% csrf_token %}
+                    <button type="submit" name="detalle" value="{{evaluacion.pk}}" class="btn btn-danger d-inline-flex" style="color: black;"><img src="{% static 'img/iconos/pdf.png' %}" width="20px" alt="Ícono Reporte PDF">&nbsp;Guardar PDF</a>&nbsp;
+                </form>                
             </div>
         </div>
     </div>

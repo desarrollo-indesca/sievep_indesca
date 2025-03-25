@@ -254,7 +254,7 @@ def generar_historia(request, reporte, object_list):
         return reporte_evaluaciones_compresores(request, object_list)
     
     if reporte == 'detalle_evaluacion_compresor':
-        return detalle_evaluacion_compresor(object_list)
+        return reporte_detalle_evaluacion_compresor(object_list)
 
 # GENERALES
 def reporte_equipos(request, object_list):
@@ -4751,3 +4751,156 @@ def reporte_evaluaciones_compresores(request, object_list):
     # Añadir Gráficas Históricos
 
     return [story, None]
+
+def reporte_detalle_evaluacion_compresor(evaluacion):
+    '''
+    Resumen:
+        Genera un reporte PDF detallado de una única evaluación de un compresor.
+    '''    
+    story = [Spacer(0, 90)]
+
+    # Información principal de la evaluación
+    story.append(Paragraph(f"Fecha: {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}", parrafo_tabla))
+    story.append(Paragraph(f"Nombre: {evaluacion.nombre}", parrafo_tabla))
+    story.append(Paragraph(f"Usuario: {evaluacion.creado_por.get_full_name()}", parrafo_tabla))
+    story.append(Spacer(0, 20))
+    
+    # Tabla de datos de entrada y salida
+    story.append(Paragraph("Datos de Entrada y Salida", centrar_parrafo))
+    
+    table = [
+        [
+            Paragraph("Parámetro", centrar_parrafo),
+        ]
+    ]
+
+    # Add the names of the etapas to the table header
+    for etapa in evaluacion.entradas_evaluacion.all():
+        table[0].append(Paragraph(f"Etapa {etapa.etapa.numero}", centrar_parrafo))
+
+    parametros = [
+        ("Flujo de Gas", "flujo_gas", "flujo_gas_unidad"),
+        ("Velocidad", "velocidad", "velocidad_unidad"),
+        ("Flujo Volumétrico", "flujo_volumetrico", "flujo_volumetrico_unidad"),
+        ("Potencia Generada", "potencia_generada", "potencia_generada_unidad"),
+        ("Temperatura de Entrada", "temperatura_in", "temperatura_unidad"),
+        ("Temperatura de Salida", "temperatura_out", "temperatura_unidad"),
+        ("Presión de Entrada", "presion_in", "presion_unidad"),
+        ("Presión de Salida", "presion_out", "presion_unidad"),
+        ("Z Entrada", "z_in", None),
+        ("Z Salida", "z_out", None),
+        ("Eficiencia Politrópica", "eficiencia_politropica", None),
+        ("Flujo Surge", "flujo_surge", "flujo_volumetrico_unidad"),
+        ("K Entrada", "k_in", None),
+        ("K Salida", "k_out", None),
+        ("PM Ficha", "pm_ficha", "pm_ficha_unidad"),
+    ]
+
+    for i, (titulo, attr, unidad_attr) in enumerate(parametros):
+        table.append([Paragraph(titulo, centrar_parrafo)])
+        for etapa in evaluacion.entradas_evaluacion.all():
+            value = getattr(etapa, attr)
+            unidad = f" {getattr(etapa, unidad_attr)}" if unidad_attr else ""
+            table[i + 1].append(Paragraph(f"{value}{unidad}", centrar_parrafo))
+
+    estilo = TableStyle([
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+        ('BACKGROUND', (0, 0), (0, -1), sombreado),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+    ])
+
+    table = Table(table, style=estilo)
+    story.append(table)
+    story.append(Spacer(0, 10))
+
+    story.append(Paragraph("Composición Evaluada", centrar_parrafo))
+    # Tabla de composición de gas para cada etapa
+    table = [
+        [
+            Paragraph("Compuesto", centrar_parrafo),
+        ]
+    ]
+
+    # Add the names of the etapas to the table header
+    for etapa in evaluacion.entradas_evaluacion.all():
+        table[0].append(Paragraph(f"Etapa {etapa.etapa.numero}", centrar_parrafo))
+
+    from compresores.models import COMPUESTOS
+
+    for i, cas in enumerate(COMPUESTOS):
+        table.append([])
+        for etapa in evaluacion.entradas_evaluacion.all():
+            value = etapa.composiciones.get(fluido__cas=cas)
+            table[i + 1].append(Paragraph(f"{value.porc_molar}", centrar_parrafo))
+
+        table[i + 1].insert(0, Paragraph(value.fluido.nombre, centrar_parrafo))
+
+    estilo = TableStyle([
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+        ('BACKGROUND', (0, 0), (0, -1), sombreado),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+    ])
+
+    table = Table(table, style=estilo)
+    story.append(table)
+    story.append(Spacer(0, 10))
+
+    # Tabla de salidas para cada etapa
+    table = [
+        [
+            Paragraph("Salida", centrar_parrafo),
+        ]
+    ]
+
+    # Add the names of the etapas to the table header
+    story.append(Paragraph("Salidas de la Evaluación", centrar_parrafo))
+    story.append(Spacer(0, 10))
+    for etapa in evaluacion.entradas_evaluacion.all():
+        table[0].append(Paragraph(f"Etapa {etapa.etapa.numero}", centrar_parrafo))
+
+    for i, (prop, etiqueta) in enumerate([
+        ("flujo_in", "Flujo de Entrada"),
+        ("flujo_out", "Flujo de Salida"),
+        ("cabezal_calculado", "Cabezal Calculado"),
+        ("cabezal_isotropico", "Cabezal Isotropico"),
+        ("k_in", "K Entrada"),
+        ("k_out", "K Salida"),
+        ("z_in", "Z Entrada"),
+        ("z_out", "Z Salida"),
+        ("eficiencia_iso", "Eficiencia Isotérmica"),
+        ("eficiencia_teorica", "Eficiencia Teórica"),
+        ("potencia_calculada", "Potencia Calculada"),
+        ("potencia_isoentropica", "Potencia Isoentrópica"),
+        ("caida_presion", "Caída de Presión"),
+        ("caida_temp", "Caída de Temperatura"),
+        ("energia_ret", "Energía Retornada"),
+        ("n", "Exponente Politrópico"),
+        ("relacion_compresion", "Relación de Compresión"),
+        ("relacion_temperatura", "Relación de Temperatura"),
+        ("relacion_volumetrica", "Relación Volumétrica"),
+        ("pm_calculado", "Potencia Máxima Calculada"),
+    ]):
+        table.append([])
+        table[i + 1].append(Paragraph(etiqueta, centrar_parrafo))
+        for etapa in evaluacion.entradas_evaluacion.all():
+            value = getattr(etapa.salidas, prop)
+            if value is not None:
+                value = round(value, 2)
+            else:
+                value = '-'
+            table[i + 1].append(Paragraph(f"{value}", centrar_parrafo))
+
+    estilo = TableStyle([
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+        ('BACKGROUND', (0, 0), (0, -1), sombreado),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+    ])
+
+    table = Table(table, style=estilo)
+    story.append(table)
+
+    return [story, None]
+
