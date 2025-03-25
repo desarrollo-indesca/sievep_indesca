@@ -173,22 +173,6 @@
                     </div>
 
                     <div class="col-12">
-                        <h5>Gráficas</h5>
-                    </div>
-                    <div class="col-4">
-                        {{graficas.cabezal_vs_flujo.div|safe}}
-                        {{graficas.cabezal_vs_flujo.script|safe}}
-                    </div>
-                    <div class="col-4">
-                        {{graficas.presion_vs_flujo.div|safe}}
-                        {{graficas.presion_vs_flujo.script|safe}}
-                    </div>
-                    <div class="col-4">
-                        {{graficas.presion_vs_h.div|safe}}
-                        {{graficas.presion_vs_h.script|safe}}
-                    </div>
-
-                    <div class="col-12">
                         <h5>Entradas</h5>
                     </div>
                     <div class="col-7">
@@ -355,6 +339,22 @@
                                 {% endfor %}
                             </tbody>
                         </table>
+                    </div>
+
+                    <div class="col-12">
+                        <h5>Gráficas</h5>
+                    </div>
+                    <div class="col-8 offset-2">
+                        {{graficas.cabezal_vs_flujo.div|safe}}
+                        {{graficas.cabezal_vs_flujo.script|safe}}
+                    </div>
+                    <div class="col-8 offset-2">
+                        {{graficas.presion_vs_flujo.div|safe}}
+                        {{graficas.presion_vs_flujo.script|safe}}
+                    </div>
+                    <div class="col-8 offset-2">
+                        {{graficas.presion_vs_h.div|safe}}
+                        {{graficas.presion_vs_h.script|safe}}
                     </div>
                 </div>
             </div>
