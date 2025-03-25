@@ -351,3 +351,5 @@ class SalidaEtapaEvaluacion(models.Model):
     relacion_temperatura = models.FloatField()
     relacion_volumetrica = models.FloatField()
     pm_calculado = models.FloatField()
+    he = models.FloatField() # Este campo se guardará internamente
+    hs = models.FloatField() # Este campo se guardará internamente

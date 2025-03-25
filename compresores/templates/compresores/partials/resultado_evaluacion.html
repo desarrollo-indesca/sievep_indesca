@@ -234,19 +234,21 @@
         </tbody>
     </table>
 
-    <div id="grafica_h_vs_p">
-        {{graficas.presion_vs_h.div|safe}}
-        {{graficas.presion_vs_h.script|safe}}
-    </div>
+    <div class="row">
+        <div class="col-4" id="grafica_h_vs_p">
+            {{graficas.presion_vs_h.div|safe}}
+            {{graficas.presion_vs_h.script|safe}}
+        </div>
 
-    <div id="presion_vs_flujo">
-        {{graficas.presion_vs_flujo.div|safe}}
-        {{graficas.presion_vs_flujo.script|safe}}
-    </div>
+        <div class="col-4" id="presion_vs_flujo">
+            {{graficas.presion_vs_flujo.div|safe}}
+            {{graficas.presion_vs_flujo.script|safe}}
+        </div>
 
-    <div id="cabezal_vs_flujo">
-        {{graficas.cabezal_vs_flujo.div|safe}}
-        {{graficas.cabezal_vs_flujo.script|safe}}
+        <div class="col-4" id="cabezal_vs_flujo">
+            {{graficas.cabezal_vs_flujo.div|safe}}
+            {{graficas.cabezal_vs_flujo.script|safe}}
+        </div>
     </div>
 </div>
 

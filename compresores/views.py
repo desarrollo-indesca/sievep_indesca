@@ -5,14 +5,12 @@ from django.views.generic import ListView, View
 from django.db.models import Prefetch
 from django.http import HttpResponseForbidden
 from django.db import transaction
-from bokeh.embed import components
-from bokeh.plotting import figure
 
 from simulaciones_pequiven.views import FiltradoSimpleMixin, DuplicateView, ConsultaEvaluacion, PermisosMixin
 from simulaciones_pequiven.utils import generate_nonexistent_tag
 from usuarios.models import PlantaAccesible
 from calculos.unidades import *
-from .evaluacion import evaluar_compresor
+from .evaluacion import evaluar_compresor, generar_cabezal_flujo, generar_grafica_presion_h, generar_presion_flujo
 from .models import *
 from .forms import *
 from reportes.pdfs import generar_pdf
@@ -710,6 +708,13 @@ class ConsultaEvaluacionCompresor(PermisosMixin, ConsultaEvaluacion, CargarCompr
         context['equipo'] = self.get_compresor(queryset=False)
         context['permisos'] = self.get_permisos()
 
+        context['object_list'] =[
+            {'evaluacion': evaluacion, 'graficas': {
+                'cabezal_vs_flujo': generar_cabezal_flujo(evaluacion=evaluacion),
+                'presion_vs_h': generar_grafica_presion_h(evaluacion=evaluacion),
+                'presion_vs_flujo': generar_presion_flujo(evaluacion=evaluacion),
+            }} for evaluacion in context['object_list']
+        ]
         return context
     
     def post(self, request, **kwargs):
@@ -838,15 +843,13 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
         try:
             compresor = Compresor.objects.get(pk=self.kwargs.get('pk'))
             with transaction.atomic():
-                resultados, _ = self.calcular_resultados()
+                resultados, _, _ = self.calcular_resultados()
                 etapas = compresor.casos.first().etapas.all()
                 evaluacion = Evaluacion.objects.create(
                     equipo = compresor,
                     creado_por = self.request.user,
                     nombre = self.request.POST.get('evaluacion-nombre', 'Evaluación'),
                 )
-
-                print(len(etapas))
 
                 for i,etapa in enumerate(etapas):
                     form = EntradaEtapaEvaluacionForm(self.request.POST, prefix=f'etapa-{etapa.numero}')
@@ -880,6 +883,8 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
                         relacion_temperatura = resultados["relacion_temperatura"][i],
                         relacion_volumetrica = resultados["relacion_volumetrica"][i],
                         pm_calculado = resultados["pm_calculado"][i],
+                        he = resultados["HE"][i],
+                        hs = resultados["HS"][i],
                     )
                     
                     for compuesto in COMPUESTOS:
@@ -902,66 +907,10 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
                 'compresor': compresor,
             })
         
-    def generar_grafica_presion_h(self, entradas, resultados):
-        y1=[x['presion_in'] for x in entradas]
-        y2 = [x['presion_out'] for x in entradas]
-
-        entradas = EntradaEtapaEvaluacion.objects.filter(evaluacion__pk=self.kwargs.get('pk'))
-        p = figure(title="Presiones vs Entalpías", 
-            x_axis_label='Entalpías (kJ/kg)', y_axis_label='Presiones (bar)', 
-            width=800, height=400)
-        p.line(x=resultados['HE'], y=y1, color="blue", legend_label="H vs P Entrada")
-        p.line(x=resultados['HS'], y=y2, color="red", legend_label="H vs P Salida")
-        script, div = components(p)
-        return {'script': script, 'div': div}
-        
-    def generar_presion_flujo(self, entradas, resultados):
-        p = figure(width=800, height=600,
-                   title="Presión vs Flujo Volumétrico",
-                   x_axis_label='Presión (bar)', y_axis_label='Flujo Volumétrico (m3/h)')  # Adjust width and height as needed
-
-        # Extract data from 'entradas' and 'resultados'
-        flujo_volumetrico = [entrada['flujo_volumetrico'] for entrada in entradas]
-        presion_entrada = [entrada['presion_in'] for entrada in entradas]
-
-        # Generate x and y coordinates for the lines
-        x_coords = [fv / 1e2 for fv in flujo_volumetrico[:-1]]
-        y_coords_start = [1000 - 25 * pe / 1e5 for pe in presion_entrada[:-1]]
-        y_coords_end = [1000 - 25 * pe / 1e5 for pe in presion_entrada[1:]]
-
-        # Draw the line segments using p.segment()
-        p.segment(x0=y_coords_start, y0=x_coords, x1=y_coords_end, y1=x_coords[1:], color="blue")
-        script, div = components(p)
-
-        return {'script': script, 'div': div}
-    
-    def generar_cabezal_flujo(self, entradas, resultados):
-        p = figure(width=800, height=600)  # Adjust width and height as needed
-        # Blue lines (Real)
-        x_blue = [entrada['flujo_volumetrico'] / 1e2 for entrada in entradas[:-1]]
-        y_blue_start = [1000 - 0.08 * resultados['cabezal'][i] for i in range(len(resultados['cabezal']) - 1)]
-        y_blue_end = [1000 - 0.08 * resultados['cabezal'][i + 1] for i in range(len(resultados['cabezal']) - 1)]
-        p.segment(x0=x_blue, y0=y_blue_start, x1=x_blue[1:], y1=y_blue_end, color="blue")
-
-        # Red lines (Iso)
-        x_red = [entrada['flujo_volumetrico'] / 1e2 for entrada in entradas[:-1]]
-        y_red_start = [1000 - 0.08 * resultados['cabezal_iso'][i] for i in range(len(resultados['cabezal_iso']) - 1)]
-        y_red_end = [1000 - 0.08 * resultados['cabezal_iso'][i + 1] for i in range(len(resultados['cabezal_iso']) - 1)]
-        p.segment(x0=x_red, y0=y_red_start, x1=x_red[1:], y1=y_red_end, color="red")
-
-        # Green lines (Hpoly)
-        x_green = [entrada['flujo_volumetrico'] / 1e2 for entrada in entradas[:-1]]
-        y_green_start = [1000 - 0.08 * resultados['cabezal'][i] for i in range(len(resultados['cabezal']) - 1)]
-        y_green_end = [1000 - 0.08 * resultados['cabezal'][i + 1] for i in range(len(resultados['cabezal']) - 1)]
-        p.segment(x0=x_green, y0=y_green_start, x1=x_green[1:], y1=y_green_end, color="green")
-
-        script, div = components(p)
-        return {'script': script, 'div': div}
-
     def graficas_resultados(self, entradas, resultados):
-        grafica_presion_h = self.generar_grafica_presion_h(entradas, resultados)
-        grafica_presion_flujo = self.generar_presion_flujo(entradas, resultados)
-        grafica_cabezal_flujo = self.generar_cabezal_flujo(entradas, resultados)
+        grafica_presion_h = generar_grafica_presion_h(entradas, resultados)
+        grafica_presion_flujo = generar_presion_flujo(entradas)
+        grafica_cabezal_flujo = generar_cabezal_flujo(entradas, resultados)
 
         return {
             'presion_vs_h': grafica_presion_h,

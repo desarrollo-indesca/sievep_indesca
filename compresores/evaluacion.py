@@ -1,5 +1,8 @@
 from CoolProp.CoolProp import PropsSI
-from .models import COMPUESTOS
+from bokeh.embed import components
+from bokeh.plotting import figure
+
+from .models import COMPUESTOS, EntradaEtapaEvaluacion
 import math
 
 def normalizacion(X: dict):
@@ -29,7 +32,7 @@ def PMpromedio(x, PM):
     Returns:
         float: Promedio ponderado.
     """
-    print(len(x), len(PM))
+
     PMprom = sum(xi * PM[i] for i, xi in enumerate(x))
     return PMprom
 
@@ -268,3 +271,103 @@ def evaluar_compresor(etapas):
         'HE': HE,
         'HS': HS
     }
+
+def generar_grafica_presion_h(entradas=None, resultados=None, evaluacion=None,):
+    """
+    Genera un gráfico de Presiones vs Entalpías.
+
+    Args:
+        evaluacion (object, optional): Objeto de evaluación con datos de entrada. Defaults to None.
+        entradas (list, optional): Lista de diccionarios con datos de entrada. Defaults to None.
+        resultados (dict, optional): Diccionario con datos de resultados. Defaults to None.
+
+    Returns:
+        Un diccionario con el script y el div para incrustar el gráfico.
+    """
+
+    if evaluacion is not None:
+        entradas = evaluacion.entradas_evaluacion.all()
+        resultados = {
+            'HE': [entrada.salidas.he for entrada in entradas],
+            'HS': [entrada.salidas.hs for entrada in entradas]
+        }
+
+    y1 = [x['presion_in'] if isinstance(x, dict) else x.presion_in for x in entradas]
+    y2 = [x['presion_out'] if isinstance(x, dict) else x.presion_out for x in entradas]
+
+    p = figure(
+        title="Presiones vs Entalpías",
+        x_axis_label='Entalpías (kJ/kg)', y_axis_label='Presiones (bar)'
+    )
+    p.line(x=resultados['HE'], y=y1, color="blue", legend_label="H vs P Entrada") 
+    p.line(x=resultados['HS'], y=y2, color="red", legend_label="H vs P Salida")
+    script, div = components(p)
+    return {'script': script, 'div': div}
+        
+def generar_presion_flujo(entradas=None, evaluacion=None):
+    """
+    Genera un gráfico de Presión vs Flujo Volumétrico.
+
+    Args:
+        entradas (list, optional): Lista de diccionarios con datos de entrada. Defaults to None.
+        evaluacion (object, optional): Objeto de evaluación con datos de entrada. Defaults to None.
+
+    Returns:
+        Un diccionario con el script y el div para incrustar el gráfico.
+    """
+
+    p = figure(title="Presión vs Flujo Volumétrico",
+               x_axis_label='Presión (bar)', y_axis_label='Flujo Volumétrico (m3/h)')
+
+    if entradas is not None:
+        flujo_volumetrico = [entrada['flujo_volumetrico'] for entrada in entradas]
+        presion_entrada = [entrada['presion_in'] for entrada in entradas]
+
+    elif evaluacion is not None:
+        entradas = evaluacion.entradas_evaluacion.all()
+        flujo_volumetrico = [entrada.flujo_volumetrico for entrada in entradas]
+        presion_entrada = [entrada.presion_in for entrada in entradas]
+
+    else:
+        return {'script': '', 'div': ''} #Return empty values if no data is provided.
+
+    x_coords = [fv / 1e2 for fv in flujo_volumetrico[:-1]]
+    y_coords_start = [1000 - 25 * pe / 1e5 for pe in presion_entrada[:-1]]
+    y_coords_end = [1000 - 25 * pe / 1e5 for pe in presion_entrada[1:]]
+
+    p.segment(x0=y_coords_start, y0=x_coords, x1=y_coords_end, y1=x_coords[1:], color="blue", legend_label="Real")
+    script, div = components(p)
+
+    return {'script': script, 'div': div}
+def generar_cabezal_flujo(entradas=None, resultados=None, evaluacion=None):
+    if evaluacion:
+        entradas = evaluacion.entradas_evaluacion.all()
+        resultados = [entrada.salidas for entrada in entradas]
+        entradas = [entrada for entrada in entradas]
+    else:
+        entradas = entradas[:-1]
+        resultados_calculado = resultados['cabezal']
+        resultados_isotropico = resultados['cabezal_iso']
+
+    p = figure(title="Cabezales vs Flujo Volumétrico", x_axis_label='Flujo Volumétrico (m3/s)', 
+               y_axis_label='Cabezal (m)')
+    
+    # Blue lines (Real)
+    x_blue = [entrada.flujo_volumetrico / 1e2 if evaluacion else entrada['flujo_volumetrico'] / 1e2 for entrada in entradas]
+    y_blue_start = [1000 - 0.08 * (resultados[i].cabezal_calculado if evaluacion else resultados_calculado[i]) for i in range(len(entradas))]
+    y_blue_end = [1000 - 0.08 * (resultados[i + 1].cabezal_calculado if evaluacion else resultados_calculado[i + 1]) for i in range(len(entradas) - 1)]
+    p.segment(x0=x_blue, y0=y_blue_start, x1=x_blue[1:], y1=y_blue_end, color="blue", legend_label="Real")
+
+    # Red lines (Iso)
+    y_red_start = [1000 - 0.08 * (resultados[i].cabezal_isotropico if evaluacion else resultados_isotropico[i]) for i in range(len(entradas))]
+    y_red_end = [1000 - 0.08 * (resultados[i + 1].cabezal_isotropico if evaluacion else resultados_isotropico[i + 1]) for i in range(len(entradas) - 1)]
+    p.segment(x0=x_blue, y0=y_red_start, x1=x_blue[1:], y1=y_red_end, color="red", legend_label="Isoentrópico")
+
+    # Green lines (Hpoly)
+    y_green_start = [1000 - 0.08 * (resultados[i].cabezal_calculado if evaluacion else resultados_calculado[i]) for i in range(len(entradas))]
+    y_green_end = [1000 - 0.08 * (resultados[i + 1].cabezal_calculado if evaluacion else resultados_calculado[i + 1]) for i in range(len(entradas) - 1)]
+    p.segment(x0=x_blue, y0=y_green_start, x1=x_blue[1:], y1=y_green_end, color="green", legend_label="Politrópico")
+
+    script, div = components(p)
+    return {'script': script, 'div': div}
+
