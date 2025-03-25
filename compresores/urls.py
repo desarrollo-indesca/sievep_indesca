@@ -17,4 +17,7 @@ urlpatterns = [
     # Vistas de Evaluación
     path('evaluacion/consulta/<int:pk>/', ConsultaEvaluacionCompresor.as_view(), name="evaluaciones_compresor"),
     path('evaluacion/crear/<int:pk>/', CreacionEvaluacionCompresor.as_view(), name="evaluacion_compresor"),
+
+    # Vistas de Gráficos
+    path('graficos/consulta/<int:pk>/', GraficasHistoricasCompresor.as_view(), name="graficos_compresor"),
 ]

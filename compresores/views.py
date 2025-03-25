@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, View
 from django.db.models import Prefetch
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from django.db import transaction
 
 from simulaciones_pequiven.views import FiltradoSimpleMixin, DuplicateView, ConsultaEvaluacion, PermisosMixin
@@ -978,4 +978,52 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
 
         entradas = [e['entradas'] for e in entradas_etapas]
         return (evaluar_compresor(entradas_etapas), etapas, entradas)
-    
+
+class GraficasHistoricasCompresor(View):
+    def get(self, request, pk):
+        compresor = Compresor.objects.get(pk=pk)
+        evaluaciones = compresor.evaluaciones_compresor.all()
+
+        desde = request.GET.get('desde')
+        hasta = request.GET.get('hasta')
+        usuario = request.GET.get('usuario')
+        nombre = request.GET.get('nombre')
+
+        if desde:
+            evaluaciones = evaluaciones.filter(fecha__gte=desde)
+        if hasta:
+            evaluaciones = evaluaciones.filter(fecha__lte=hasta)
+        if usuario:
+            evaluaciones = evaluaciones.filter(usuario__iexact=usuario)
+        if nombre:
+            evaluaciones = evaluaciones.filter(nombre__icontains=nombre)
+
+        evaluaciones = evaluaciones[:15]
+
+        etapas_count = evaluaciones.first().entradas_evaluacion.count() if evaluaciones.exists() else 0
+        eficiencias_iso = [[] for _ in range(etapas_count)]
+        eficiencias_teoricos = [[] for _ in range(etapas_count)]
+        cabezales_calculados = [[] for _ in range(etapas_count)]
+        cabezales_isotropicos = [[] for _ in range(etapas_count)]
+        fechas = []
+
+        evaluaciones = evaluaciones[::-1]
+        
+        for evaluacion in evaluaciones:
+            for i,entrada in enumerate(evaluacion.entradas_evaluacion.all()):
+                eficiencias_iso[i].append(entrada.salidas.eficiencia_iso)
+                eficiencias_teoricos[i].append(entrada.salidas.eficiencia_teorica)
+                cabezales_calculados[i].append(entrada.salidas.cabezal_calculado)
+                cabezales_isotropicos[i].append(entrada.salidas.cabezal_isotropico)
+            
+            fechas.append(evaluacion.fecha)
+
+        return JsonResponse({
+            "resultados": {
+                'eficiencias_iso': eficiencias_iso,
+                'eficiencias_teoricos': eficiencias_teoricos,
+                'cabezales_calculados': cabezales_calculados,
+                'cabezales_isotropicos': cabezales_isotropicos,
+            },
+            "fechas": fechas
+        })

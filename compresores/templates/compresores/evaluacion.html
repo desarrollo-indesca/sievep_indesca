@@ -27,7 +27,7 @@
 
 <hr>
 
-<form hx-confirm="¿Desea realizar esta acción?" id="form" method="post" name="form" hx-target="#resultados" hx-post="{% url 'evaluacion_compresor' pk=compresor.pk %}" hx-trigger="submit" hx-indicator="#spinner">
+<form hx-confirm="¿Desea realizar esta acción?" id="form" method="post" name="form" hx-target="#resultados" hx-post="{% url 'evaluacion_compresor' pk=compresor.pk %}#resultados" hx-trigger="submit" hx-indicator="#spinner">
     {% csrf_token %}
     <div class="row">
         <div class="col-12">
