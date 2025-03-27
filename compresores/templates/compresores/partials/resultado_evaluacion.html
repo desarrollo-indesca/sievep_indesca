@@ -20,7 +20,7 @@
         <tbody>
             <tr>
                 <th class="table-dark w-50">
-                    Flujo Volumétrico Entrada
+                    Flujo Volumétrico Entrada (m³/h)
                 </th>
                 {% for f in resultados.flujo_entrada %}
                 <th>
@@ -30,7 +30,7 @@
             </tr>
             <tr>
                 <th class="table-dark w-50">
-                    Flujo Volumétrico Salida
+                    Flujo Volumétrico Salida (m³/h)
                 </th>
                 {% for f in resultados.flujo_salida %}
                 <th>
@@ -40,7 +40,7 @@
             </tr>
             <tr>
                 <th class="table-dark w-50">
-                    Cabezal Calculado 
+                    Cabezal Calculado (m)
                 </th>
                 {% for c in resultados.cabezal %}
                 <th>
@@ -50,7 +50,7 @@
             </tr>
             <tr>
                 <th class="table-dark w-50">
-                    Cabezal Isotrópico 
+                    Cabezal Isotrópico (m)
                 </th>
                 {% for c in resultados.cabezal_iso %}
                 <th>
@@ -60,7 +60,7 @@
             </tr>
             <tr>
                 <th class="table-dark w-50">
-                    Potencia Calculada 
+                    Potencia Calculada (kW)
                 </th>
                 {% for p in resultados.potencia %}
                 <th>
@@ -70,7 +70,7 @@
             </tr>
             <tr>
                 <th class="table-dark w-50">
-                    Potencia Isentrópica 
+                    Potencia Isentrópica (kW)
                 </th>
                 {% for p in resultados.potencia_iso %}
                 <th>
@@ -80,7 +80,7 @@
             </tr>
             <tr>
                 <th class="table-dark w-50">
-                    Eficiencia Isentrópica 
+                    Eficiencia Isentrópica (%)
                 </th>
                 {% for e in resultados.eficiencia %}
                 <th>
@@ -90,7 +90,7 @@
             </tr>
             <tr>
                 <th class="table-dark w-50">
-                    Eficiencia Teórica 
+                    Eficiencia Teórica (%)
                 </th>
                 {% for e in resultados.eficiencia_teorica %}
                 <th>
@@ -100,18 +100,18 @@
             </tr>
             <tr>
                 <th class="table-dark w-50">
-                    Caída de Presión entre Etapas
+                    Caída de Presión entre Etapas (bar)
                 </th>
                 <th> - </th>
                 {% for c in resultados.caida_presion %}
                 <th>
-                    {{c|floatformat:4}}
+                    {{c|floatformat:4}} 
                 </th>
                 {% endfor %}
             </tr>
             <tr>
                 <th class="table-dark w-50">
-                    Caída de Temperatura
+                    Caída de Temperatura (°C)
                 </th>
                 <th> - </th>
                 {% for c in resultados.caida_temperatura %}
@@ -152,7 +152,7 @@
             </tr>
             <tr>
                 <th class="table-dark w-50">
-                    Energía Retenida entre Etapas
+                    Energía Retenida entre Etapas (kJ/kg)
                 </th>
                 <th> - </th>
                 {% for er in resultados.energia_ret %}
@@ -223,7 +223,7 @@
             </tr>
             <tr>
                 <th class="table-dark w-50">
-                    PM Promedio
+                    PM Promedio (gr/mol)
                 </th>
                 {% for p in resultados.pm_calculado %}
                 <th>

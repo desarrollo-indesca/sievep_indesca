@@ -340,8 +340,6 @@ class SalidaEtapaEvaluacion(models.Model):
     eficiencia_teorica = models.FloatField()
     caida_presion = models.FloatField(null=True)
     caida_temp = models.FloatField(null=True)
-    caida_presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_caida_presion_evaluacion", verbose_name="Unidad")
-    caida_temp_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_caida_temp_evaluacion", verbose_name="Unidad")
     k_in = models.FloatField()
     k_out = models.FloatField()
     k_promedio = models.FloatField()

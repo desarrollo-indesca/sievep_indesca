@@ -982,15 +982,10 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
 
         resultado['flujo_entrada'] = transformar_unidades_flujo_volumetrico(resultado['flujo_entrada'], 50, 34)
         resultado['flujo_salida'] = transformar_unidades_flujo_volumetrico(resultado['flujo_salida'], 50, 34)
-        for i in range(len(resultado['caida_presion'])):
-            unidad_etapa = entradas_etapas[1+i]['entradas']['presion_unidad']
-            resultado['caida_presion'][i] = transformar_unidades_presion([resultado['caida_presion'][i]], 33, unidad_etapa)[0]
-            unidad_etapa = entradas_etapas[1+i]['entradas']['temperatura_unidad']
-            resultado['caida_temperatura'][i] = transformar_unidades_temperatura([resultado['caida_temperatura'][i]], 2, unidad_etapa)[0]
-
         resultado['potencia'] = transformar_unidades_potencia(resultado['potencia'], 49, unidad_salida=53)  # Assuming 1 is the ID for kW unit
         resultado['potencia_iso'] = transformar_unidades_potencia(resultado['potencia_iso'], 49, unidad_salida=53)  # Assuming 1 is the ID for kW unit
         resultado['energia_ret'] = transformar_unidades_potencia(resultado['energia_ret'], 49, unidad_salida=53)  # Assuming 1 is the ID for kJ/kg unit
+        resultado['caida_presion'] = [cp/1000 for cp in resultado['caida_presion']]
 
         return (resultado, etapas, entradas)
 

@@ -4902,26 +4902,26 @@ def reporte_detalle_evaluacion_compresor(evaluacion):
         table[0].append(Paragraph(f"Etapa {etapa.etapa.numero}", centrar_parrafo))
 
     for i, (prop, etiqueta) in enumerate([
-        ("flujo_in", "Flujo de Entrada"),
-        ("flujo_out", "Flujo de Salida"),
-        ("cabezal_calculado", "Cabezal Calculado"),
-        ("cabezal_isotropico", "Cabezal Isotropico"),
+        ("flujo_in", "Flujo de Entrada (m³/h)"),
+        ("flujo_out", "Flujo de Salida (m³/h)"),
+        ("cabezal_calculado", "Cabezal Calculado (m)"),
+        ("cabezal_isotropico", "Cabezal Isotropico (m)"),
         ("k_in", "K Entrada"),
         ("k_out", "K Salida"),
         ("z_in", "Z Entrada"),
         ("z_out", "Z Salida"),
-        ("eficiencia_iso", "Eficiencia Isotérmica"),
-        ("eficiencia_teorica", "Eficiencia Teórica"),
-        ("potencia_calculada", "Potencia Calculada"),
-        ("potencia_isoentropica", "Potencia Isoentrópica"),
-        ("caida_presion", "Caída de Presión"),
-        ("caida_temp", "Caída de Temperatura"),
-        ("energia_ret", "Energía Retornada"),
+        ("eficiencia_iso", "Eficiencia Isotérmica (%)"),
+        ("eficiencia_teorica", "Eficiencia Teórica (%)"),
+        ("potencia_calculada", "Potencia Calculada (%)"),
+        ("potencia_isoentropica", "Potencia Isoentrópica (kW)"),
+        ("caida_presion", "Caída de Presión (bar)"),
+        ("caida_temp", "Caída de Temperatura (°C)"),
+        ("energia_ret", "Energía Retenida (kJ/kg)"),
         ("n", "Exponente Politrópico"),
         ("relacion_compresion", "Relación de Compresión"),
         ("relacion_temperatura", "Relación de Temperatura"),
         ("relacion_volumetrica", "Relación Volumétrica"),
-        ("pm_calculado", "Potencia Máxima Calculada"),
+        ("pm_calculado", "PM Calculado (gr/mol)"),
     ]):
         table.append([])
         table[i + 1].append(Paragraph(etiqueta, centrar_parrafo))
@@ -4958,14 +4958,14 @@ def reporte_detalle_evaluacion_compresor(evaluacion):
     ax[1].plot([entrada.flujo_volumetrico for entrada in evaluacion.entradas_evaluacion.all()],
               [entrada.presion_in for entrada in evaluacion.entradas_evaluacion.all()])
     ax[1].set_title('Presiones vs Flujo Volumétrico')
-    ax[1].set_xlabel('Flujo Volumétrico (m3/h)')
+    ax[1].set_xlabel('Flujo Volumétrico (m³/h)')
     ax[1].set_ylabel('Presiones (bar)')
 
     ax[2].plot([entrada.salidas.cabezal_calculado for entrada in evaluacion.entradas_evaluacion.all()],
               [entrada.flujo_volumetrico for entrada in evaluacion.entradas_evaluacion.all()])
     ax[2].set_title('Cabezal vs Flujo Volumétrico')
     ax[2].set_xlabel('Cabezal (kJ/kg)')
-    ax[2].set_ylabel('Flujo Volumétrico (m3/h)')
+    ax[2].set_ylabel('Flujo Volumétrico (m³/h)')
 
     fig.tight_layout()
     buff = BytesIO()

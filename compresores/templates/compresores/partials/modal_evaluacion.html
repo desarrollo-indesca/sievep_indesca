@@ -27,55 +27,55 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <th class="table-dark">Flujo In</th>
+                                    <th class="table-dark">Flujo In (m³/h)</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
                                     <td>{{etapa.salidas.flujo_in|floatformat:4}}</td>
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <th class="table-dark">Flujo Out</th>
+                                    <th class="table-dark">Flujo Out (m³/h)</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
                                     <td>{{etapa.salidas.flujo_out|floatformat:4}}</td>
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <th class="table-dark">Cabezal Calculado</th>
+                                    <th class="table-dark">Cabezal Calculado (m)</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
                                     <td>{{etapa.salidas.cabezal_calculado|floatformat:4}}</td>
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <th class="table-dark">Cabezal Isotrópico</th>
+                                    <th class="table-dark">Cabezal Isotrópico (m)</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
                                     <td>{{etapa.salidas.cabezal_isotropico|floatformat:4}}</td>
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <th class="table-dark">Potencia Calculada</th>
+                                    <th class="table-dark">Potencia Calculada (kW)</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
                                     <td>{{etapa.salidas.potencia_calculada|floatformat:4}}</td>
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <th class="table-dark">Potencia Isoentrópica</th>
+                                    <th class="table-dark">Potencia Isoentrópica (kW)</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
                                     <td>{{etapa.salidas.potencia_isoentropica|floatformat:4}}</td>
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <th class="table-dark">Eficiencia Iso</th>
+                                    <th class="table-dark">Eficiencia Iso (%)</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
                                     <td>{{etapa.salidas.eficiencia_iso|floatformat:4}}</td>
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <th class="table-dark">Eficiencia Teórica</th>
+                                    <th class="table-dark">Eficiencia Teórica (%)</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
                                     <td>{{etapa.salidas.eficiencia_teorica|floatformat:4}}</td>
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <th class="table-dark">Caída Presión</th>
+                                    <th class="table-dark">Caída Presión (bar)</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
                                     <td>
                                         {% if etapa.salidas.caida_presion %}
@@ -87,7 +87,7 @@
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <th class="table-dark">Caída Temp</th>
+                                    <th class="table-dark">Caída Temp. (°C)</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
                                     <td>
                                         {% if etapa.salidas.caida_temp %}
@@ -135,7 +135,7 @@
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <th class="table-dark">Energía Ret</th>
+                                    <th class="table-dark">Energía Ret. (kJ/kg)</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
                                     <td>
                                         {% if etapa.salidas.energia_ret is None %}
@@ -165,7 +165,7 @@
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <th class="table-dark">PM Calculado</th>
+                                    <th class="table-dark">PM Calculado (gr/mol)</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
                                     <td>{{etapa.salidas.pm_calculado|floatformat:4}}</td>
                                     {% endfor %}
