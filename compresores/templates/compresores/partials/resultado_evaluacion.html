@@ -248,6 +248,16 @@
         <div class="col-4" id="cabezal_vs_flujo">
             {{graficas.cabezal_vs_flujo.div|safe}}
             {{graficas.cabezal_vs_flujo.script|safe}}
+
+            <script>
+                // make only 1 bk-Figure exist in the current div
+                var bkFigures = document.querySelectorAll('#cabezal_vs_flujo .bk-plot-layout');
+                if(bkFigures.length > 1){
+                    for(var i=1; i < bkFigures.length; i++){
+                        bkFigures[i].remove();
+                    }
+                }            
+            </script>
         </div>
     </div>
 </div>

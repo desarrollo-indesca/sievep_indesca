@@ -20,7 +20,7 @@
 
 {% block contenido %}
 <div class="row mb-3">
-    <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'consulta_compresores' %}">↶ Regresar</a></div>
+    <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center"><a class="btn d-block btn-secondary" href="{% url 'evaluaciones_compresor' pk=compresor.pk %}">↶ Regresar</a></div>
     <div class="col-md-6 col-lg-8"><h3 class="text-center" style="color: #e31e24;">Nueva Evaluación Compresor {{compresor.tag}}</h3></div>
     <div class="col-md-3 col-lg-2"><button type="button" class="btn btn-success" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{compresor.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button></div>
 </div>
@@ -60,7 +60,7 @@
                         {% for etapa,form in forms.entradas_etapa.items %}
                         <td>
                             <div class="input-group">
-                                {% render_field form.flujo_gas class="form-control form-control-sm" %}
+                                {% render_field form.flujo_gas class="form-control form-control-sm" min="0.0001" %}
                                 <select name="{{form.prefix}}-flujo_gas_unidad" id="id_{{form.prefix}}-flujo_gas_unidad" class="form-select form-select-sm">
                                     {% include 'unidades.html' with tipo='F' pk_selected=form.initial.flujo_gas_unidad.pk %}
                                 </select>
@@ -73,7 +73,7 @@
                         {% for etapa,form in forms.entradas_etapa.items %}
                         <td>
                             <div class="input-group">
-                                {% render_field form.flujo_volumetrico class="form-control form-control-sm" %}
+                                {% render_field form.flujo_volumetrico class="form-control form-control-sm" min="0.0001" %}
                                 <select name="{{form.prefix}}-flujo_volumetrico_unidad" id="id_{{form.prefix}}-flujo_volumetrico_unidad" class="form-select form-select-sm">
                                     {% include 'unidades.html' with tipo='K' pk_selected=form.initial.flujo_volumetrico_unidad.pk %}
                                 </select>
@@ -86,7 +86,7 @@
                         {% for etapa,form in forms.entradas_etapa.items %}
                         <td>
                             <div class="input-group">
-                                {% render_field form.flujo_surge class="form-control form-control-sm" %}
+                                {% render_field form.flujo_surge class="form-control form-control-sm" min="0.0001" %}
                                 <select name="{{form.prefix}}-flujo_volumetrico_unidad" id="id_{{form.prefix}}-flujo_volumetrico_unidad" class="form-select form-select-sm" disabled>
                                     {% include 'unidades.html' with tipo='K' pk_selected=form.initial.flujo_volumetrico_unidad.pk %}
                                 </select>
@@ -99,7 +99,7 @@
                         {% for etapa,form in forms.entradas_etapa.items %}
                         <td>
                             <div class="input-group">
-                                {% render_field form.velocidad class="form-control form-control-sm" %}
+                                {% render_field form.velocidad class="form-control form-control-sm" min="0.0001" %}
                                 <select name="{{form.prefix}}-velocidad_unidad" id="id_{{form.prefix}}-velocidad_unidad" class="form-select form-select-sm">
                                     {% include 'unidades.html' with tipo='O' pk_selected=form.initial.velocidad_unidad.pk %}
                                 </select>
@@ -117,7 +117,7 @@
                         {% for etapa,form in forms.entradas_etapa.items %}
                         <td>
                             <div class="input-group">
-                                {% render_field form.cabezal_politropico class="form-control form-control-sm" %}
+                                {% render_field form.cabezal_politropico class="form-control form-control-sm" min="0.0001" %}
                                 <select name="{{form.prefix}}-cabezal_politropico_unidad" id="id_{{form.prefix}}-cabezal_politropico_unidad" class="form-select form-select-sm">
                                     {% include 'unidades.html' with tipo='L' pk_selected=form.initial.cabezal_politropico_unidad.pk %}
                                 </select>
@@ -135,7 +135,7 @@
                         {% for etapa,form in forms.entradas_etapa.items %}
                         <td>
                             <div class="input-group">
-                                {% render_field form.potencia_generada class="form-control form-control-sm" %}
+                                {% render_field form.potencia_generada class="form-control form-control-sm" min="0.0001" %}
                                 <select name="{{form.prefix}}-potencia_generada_unidad" id="id_{{form.prefix}}-potencia_generada_unidad" class="form-select form-select-sm">
                                     {% include 'unidades.html' with tipo='B' pk_selected=form.initial.potencia_generada_unidad.pk %}
                                 </select>
@@ -153,7 +153,7 @@
                         {% for etapa,form in forms.entradas_etapa.items %}
                         <td>
                             <div class="input-group">
-                                {% render_field form.eficiencia_politropica class="form-control form-control-sm" %}
+                                {% render_field form.eficiencia_politropica class="form-control form-control-sm" min="0.0001" %}
                             </div>
                         </td>
                         {% endfor %}
@@ -168,7 +168,7 @@
                         {% for etapa,form in forms.entradas_etapa.items %}
                         <td>
                             <div class="input-group">
-                                {% render_field form.presion_in class="form-control form-control-sm" %}
+                                {% render_field form.presion_in class="form-control form-control-sm" min="-1" %}
                                 <select name="{{form.prefix}}-presion_unidad" id="id_{{form.prefix}}-presion_unidad" class="form-select form-select-sm">
                                     {% include 'unidades.html' with tipo='P' pk_selected=form.initial.presion_unidad.pk %}
                                 </select>
@@ -181,7 +181,7 @@
                         {% for etapa,form in forms.entradas_etapa.items %}
                         <td>
                             <div class="input-group">
-                                {% render_field form.presion_out class="form-control form-control-sm" %}
+                                {% render_field form.presion_out class="form-control form-control-sm" min="-1" %}
                                 <select name="{{form.prefix}}-presion_unidad" id="id_{{form.prefix}}-presion_unidad" class="form-select form-select-sm">
                                     {% include 'unidades.html' with tipo='P' pk_selected=form.initial.presion_unidad.pk %}
                                 </select>
@@ -194,7 +194,7 @@
                         {% for etapa,form in forms.entradas_etapa.items %}
                         <td>
                             <div class="input-group">
-                                {% render_field form.temperatura_in class="form-control form-control-sm" %}
+                                {% render_field form.temperatura_in class="form-control form-control-sm" min="-273.15" %}
                                 <select name="{{form.prefix}}-temperatura_unidad" id="id_{{form.prefix}}-temperatura_unidad" class="form-select form-select-sm">
                                     {% include 'unidades.html' with tipo='T' pk_selected=form.initial.temperatura_unidad.pk %}
                                 </select>
@@ -207,7 +207,7 @@
                         {% for etapa,form in forms.entradas_etapa.items %}
                         <td>
                             <div class="input-group">
-                                {% render_field form.temperatura_out class="form-control form-control-sm" %}
+                                {% render_field form.temperatura_out class="form-control form-control-sm" min="-273.15" %}
                                 <select name="{{form.prefix}}-temperatura_unidad" id="id_{{form.prefix}}-temperatura_unidad" class="form-select form-select-sm">
                                     {% include 'unidades.html' with tipo='T' pk_selected=form.initial.temperatura_unidad.pk %}
                                 </select>
@@ -225,7 +225,7 @@
                         {% for etapa,form in forms.entradas_etapa.items %}
                         <td>
                             <div class="input-group">
-                                {% render_field form.k_in class="form-control form-control-sm" %}
+                                {% render_field form.k_in class="form-control form-control-sm" min="0.0001" %}
                             </div>
                         </td>
                         {% endfor %}
@@ -235,7 +235,7 @@
                         {% for etapa,form in forms.entradas_etapa.items %}
                         <td>
                             <div class="input-group">
-                                {% render_field form.k_out class="form-control form-control-sm" %}
+                                {% render_field form.k_out class="form-control form-control-sm" min="0.0001" %}
                             </div>
                         </td>
                         {% endfor %}
@@ -250,7 +250,7 @@
                         {% for etapa,form in forms.entradas_etapa.items %}
                         <td>
                             <div class="input-group">
-                                {% render_field form.z_in class="form-control form-control-sm" %}
+                                {% render_field form.z_in class="form-control form-control-sm" min="0.0001" %}
                             </div>
                         </td>
                         {% endfor %}
@@ -260,7 +260,7 @@
                         {% for etapa,form in forms.entradas_etapa.items %}
                         <td>
                             <div class="input-group">
-                                {% render_field form.z_out class="form-control form-control-sm" %}
+                                {% render_field form.z_out class="form-control form-control-sm" min="0.0001" %}
                             </div>
                         </td>
                         {% endfor %}
@@ -275,7 +275,7 @@
                         {% for etapa,form in forms.entradas_etapa.items %}
                         <td>
                             <div class="input-group">
-                                {% render_field form.pm_ficha class="form-control form-control-sm" %}
+                                {% render_field form.pm_ficha class="form-control form-control-sm" min="0.0001" %}
                                 <select name="{{form.prefix}}-pm_ficha_unidad" id="id_{{form.prefix}}-pm_ficha_unidad" class="form-select form-select-sm">
                                     {% include 'unidades.html' with tipo='W' pk_selected=form.initial.pm_ficha_unidad.pk %}
                                 </select>
@@ -336,7 +336,6 @@
 {% endblock %}
 
 {% block extra_javascript %}
-<script src="/static/js/turbinas/vapor/evaluacion.js"></script>
 <script>
     document.addEventListener('input', (e)=>{
         if(e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT'){
@@ -355,5 +354,11 @@
             }
         });
     });
+
+    const selects_presion_unidad = document.querySelectorAll('select[name*="presion_unidad"]');
+    selects_presion_unidad.forEach((select)=>{
+        select.innerHTML = select.innerHTML.replaceAll('</option>', 'g</option>');
+    });
+    
 </script>
 {% endblock %}
