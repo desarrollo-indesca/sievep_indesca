@@ -679,6 +679,7 @@ class EdicionComposicionGases(LoginRequiredMixin, PermisosMixin, View):
             messages.success(request, 'La composición de gases ha sido guardada exitosamente.')
 
         return redirect('/compresores/')
+    
 # Evaluaciones
 
 class ConsultaEvaluacionCompresor(PermisosMixin, ConsultaEvaluacion, CargarCompresorMixin, ReportesFichasCompresoresMixin):
@@ -977,7 +978,13 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
             })
 
         entradas = [e['entradas'] for e in entradas_etapas]
-        return (evaluar_compresor(entradas_etapas), etapas, entradas)
+        resultado = evaluar_compresor(entradas_etapas)
+
+        resultado['flujo_entrada'] = transformar_unidades_flujo_volumetrico(resultado['flujo_entrada'], 50, 34)
+        resultado['flujo_salida'] = transformar_unidades_flujo_volumetrico(resultado['flujo_salida'], 50, 34)
+        resultado['caida_presion'] = transformar_unidades_presion(resultado['caida_presion'], 33, 7)
+
+        return (resultado, etapas, entradas)
 
 class GraficasHistoricasCompresor(View):
     def get(self, request, pk):

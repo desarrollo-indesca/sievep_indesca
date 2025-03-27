@@ -211,10 +211,10 @@ def evaluar_compresor(etapas):
     Eficiencia = [(HSs[i] - HE[i]) / (HS[i] - HE[i]) * 100 for i in range(len(HE))]
 
     # Cálculo de Potencia
-    Potencia = [Flujo[i] / 3600 * (HS[i] - HE[i]) / 1000 for i in range(len(HE))]
+    Potencia = [Flujo[i] * (HS[i] - HE[i]) / 1000 for i in range(len(HE))]
     Cabezal = [(HS[i] - HE[i]) / 9.81 for i in range(len(HE))]
 
-    PotenciaIso = [Flujo[i] / 3600 * (HSs[i] - HE[i]) / 1000 for i in range(len(HE))]
+    PotenciaIso = [Flujo[i] * (HSs[i] - HE[i]) / 1000 for i in range(len(HE))]
     CabezalIso = [(HSs[i] - HE[i]) / 9.81 for i in range(len(HE))]
 
     # Relación de Compresión
