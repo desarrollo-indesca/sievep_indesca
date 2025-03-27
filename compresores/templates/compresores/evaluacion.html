@@ -62,7 +62,7 @@
                             <div class="input-group">
                                 {% render_field form.flujo_gas class="form-control form-control-sm" %}
                                 <select name="{{form.prefix}}-flujo_gas_unidad" id="id_{{form.prefix}}-flujo_gas_unidad" class="form-select form-select-sm">
-                                    {% include 'unidades.html' with tipo='F' pk_selected=form.instance.flujo_gas_unidad.pk %}
+                                    {% include 'unidades.html' with tipo='F' pk_selected=form.initial.flujo_gas_unidad.pk %}
                                 </select>
                             </div>
                         </td>
@@ -75,7 +75,7 @@
                             <div class="input-group">
                                 {% render_field form.flujo_volumetrico class="form-control form-control-sm" %}
                                 <select name="{{form.prefix}}-flujo_volumetrico_unidad" id="id_{{form.prefix}}-flujo_volumetrico_unidad" class="form-select form-select-sm">
-                                    {% include 'unidades.html' with tipo='K' pk_selected=form.instance.flujo_volumetrico_unidad.pk %}
+                                    {% include 'unidades.html' with tipo='K' pk_selected=form.initial.flujo_volumetrico_unidad.pk %}
                                 </select>
                             </div>
                         </td>
@@ -88,7 +88,7 @@
                             <div class="input-group">
                                 {% render_field form.flujo_surge class="form-control form-control-sm" %}
                                 <select name="{{form.prefix}}-flujo_volumetrico_unidad" id="id_{{form.prefix}}-flujo_volumetrico_unidad" class="form-select form-select-sm" disabled>
-                                    {% include 'unidades.html' with tipo='K' pk_selected=form.instance.flujo_volumetrico_unidad.pk %}
+                                    {% include 'unidades.html' with tipo='K' pk_selected=form.initial.flujo_volumetrico_unidad.pk %}
                                 </select>
                             </div>
                         </td>
@@ -101,7 +101,7 @@
                             <div class="input-group">
                                 {% render_field form.velocidad class="form-control form-control-sm" %}
                                 <select name="{{form.prefix}}-velocidad_unidad" id="id_{{form.prefix}}-velocidad_unidad" class="form-select form-select-sm">
-                                    {% include 'unidades.html' with tipo='O' pk_selected=form.instance.velocidad_unidad.pk %}
+                                    {% include 'unidades.html' with tipo='O' pk_selected=form.initial.velocidad_unidad.pk %}
                                 </select>
                             </div>
                         </td>
@@ -119,7 +119,7 @@
                             <div class="input-group">
                                 {% render_field form.cabezal_politropico class="form-control form-control-sm" %}
                                 <select name="{{form.prefix}}-cabezal_politropico_unidad" id="id_{{form.prefix}}-cabezal_politropico_unidad" class="form-select form-select-sm">
-                                    {% include 'unidades.html' with tipo='L' pk_selected=form.instance.cabezal_politropico_unidad.pk %}
+                                    {% include 'unidades.html' with tipo='L' pk_selected=form.initial.cabezal_politropico_unidad.pk %}
                                 </select>
                             </div>
                         </td>
@@ -136,8 +136,8 @@
                         <td>
                             <div class="input-group">
                                 {% render_field form.potencia_generada class="form-control form-control-sm" %}
-                                <select name="{{form.prefix}}-potencia_generada_unidad" id="id_{{form.prefix}}-potencia_nominal_unidad" class="form-select form-select-sm">
-                                    {% include 'unidades.html' with tipo='B' pk_selected=form.instance.potencia_nominal_unidad.pk %}
+                                <select name="{{form.prefix}}-potencia_generada_unidad" id="id_{{form.prefix}}-potencia_generada_unidad" class="form-select form-select-sm">
+                                    {% include 'unidades.html' with tipo='B' pk_selected=form.initial.potencia_generada_unidad.pk %}
                                 </select>
                             </div>
                         </td>
@@ -170,7 +170,7 @@
                             <div class="input-group">
                                 {% render_field form.presion_in class="form-control form-control-sm" %}
                                 <select name="{{form.prefix}}-presion_unidad" id="id_{{form.prefix}}-presion_unidad" class="form-select form-select-sm">
-                                    {% include 'unidades.html' with tipo='P' pk_selected=form.instance.presion_unidad.pk %}
+                                    {% include 'unidades.html' with tipo='P' pk_selected=form.initial.presion_unidad.pk %}
                                 </select>
                             </div>
                         </td>
@@ -183,7 +183,7 @@
                             <div class="input-group">
                                 {% render_field form.presion_out class="form-control form-control-sm" %}
                                 <select name="{{form.prefix}}-presion_unidad" id="id_{{form.prefix}}-presion_unidad" class="form-select form-select-sm">
-                                    {% include 'unidades.html' with tipo='P' pk_selected=form.instance.presion_unidad.pk %}
+                                    {% include 'unidades.html' with tipo='P' pk_selected=form.initial.presion_unidad.pk %}
                                 </select>
                             </div>
                         </td>
@@ -196,7 +196,7 @@
                             <div class="input-group">
                                 {% render_field form.temperatura_in class="form-control form-control-sm" %}
                                 <select name="{{form.prefix}}-temperatura_unidad" id="id_{{form.prefix}}-temperatura_unidad" class="form-select form-select-sm">
-                                    {% include 'unidades.html' with tipo='T' pk_selected=form.instance.temperatura_unidad.pk %}
+                                    {% include 'unidades.html' with tipo='T' pk_selected=form.initial.temperatura_unidad.pk %}
                                 </select>
                             </div>
                         </td>
@@ -209,7 +209,7 @@
                             <div class="input-group">
                                 {% render_field form.temperatura_out class="form-control form-control-sm" %}
                                 <select name="{{form.prefix}}-temperatura_unidad" id="id_{{form.prefix}}-temperatura_unidad" class="form-select form-select-sm">
-                                    {% include 'unidades.html' with tipo='T' pk_selected=form.instance.temperatura_unidad.pk %}
+                                    {% include 'unidades.html' with tipo='T' pk_selected=form.initial.temperatura_unidad.pk %}
                                 </select>
                             </div>
                         </td>
@@ -277,7 +277,7 @@
                             <div class="input-group">
                                 {% render_field form.pm_ficha class="form-control form-control-sm" %}
                                 <select name="{{form.prefix}}-pm_ficha_unidad" id="id_{{form.prefix}}-pm_ficha_unidad" class="form-select form-select-sm">
-                                    {% include 'unidades.html' with tipo='W' pk_selected=form.instance.pm_ficha_unidad.pk %}
+                                    {% include 'unidades.html' with tipo='W' pk_selected=form.initial.pm_ficha_unidad.pk %}
                                 </select>
                             </div>
                         </td>

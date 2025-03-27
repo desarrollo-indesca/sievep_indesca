@@ -773,8 +773,8 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
         entradas_etapa = {}
         for etapa in compresor.casos.first().etapas.all():
             entrada = etapa.lados.get(lado='E')
-            salida = etapa.lados.get(lado='S')            
-            
+            salida = etapa.lados.get(lado='S')
+           
             entradas_etapa[etapa] = EntradaEtapaEvaluacionForm(prefix=f'etapa-{etapa.numero}', initial={
                 'flujo_gas': etapa.flujo_masico,
                 'flujo_gas_unidad': etapa.flujo_masico_unidad,
@@ -783,7 +783,7 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
                 'flujo_surge': etapa.aumento_estimado,
                 'cabezal_politropico': etapa.cabezal_politropico,
                 'cabezal_politropico_unidad': etapa.cabezal_unidad,
-                'potencia_generada': etapa.potencia_nominal,
+                'potencia_generada': etapa.potencia_req,
                 'potencia_generada_unidad': etapa.potencia_unidad,
                 'eficiencia_politropica': etapa.eficiencia_politropica,
                 'velocidad': etapa.compresor.velocidad_max_continua,
@@ -982,7 +982,15 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
 
         resultado['flujo_entrada'] = transformar_unidades_flujo_volumetrico(resultado['flujo_entrada'], 50, 34)
         resultado['flujo_salida'] = transformar_unidades_flujo_volumetrico(resultado['flujo_salida'], 50, 34)
-        resultado['caida_presion'] = transformar_unidades_presion(resultado['caida_presion'], 33, 7)
+        for i in range(len(resultado['caida_presion'])):
+            unidad_etapa = entradas_etapas[1+i]['entradas']['presion_unidad']
+            resultado['caida_presion'][i] = transformar_unidades_presion([resultado['caida_presion'][i]], 33, unidad_etapa)[0]
+            unidad_etapa = entradas_etapas[1+i]['entradas']['temperatura_unidad']
+            resultado['caida_temperatura'][i] = transformar_unidades_temperatura([resultado['caida_temperatura'][i]], 2, unidad_etapa)[0]
+
+        resultado['potencia'] = transformar_unidades_potencia(resultado['potencia'], 49, unidad_salida=53)  # Assuming 1 is the ID for kW unit
+        resultado['potencia_iso'] = transformar_unidades_potencia(resultado['potencia_iso'], 49, unidad_salida=53)  # Assuming 1 is the ID for kW unit
+        resultado['energia_ret'] = transformar_unidades_potencia(resultado['energia_ret'], 49, unidad_salida=53)  # Assuming 1 is the ID for kJ/kg unit
 
         return (resultado, etapas, entradas)
 

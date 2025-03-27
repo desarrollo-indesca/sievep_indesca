@@ -82,7 +82,7 @@ def PropiedadTermodinamica(PT, P, T, C):
         Propiedad.append(a)
     return Propiedad
 
-def TotalPropiedad(x, H,):
+def TotalPropiedad(x, H):
     """
     Calcula la propiedad total sumando elementos de x y H.
 
@@ -95,7 +95,11 @@ def TotalPropiedad(x, H,):
     """
     total = []
     for i in range(len(x)):
-        a = sum(x[i][j] * H[i][j] for j in range(11))
+        a = 0
+        for j in range(len(H[i])):
+            val = x[i][j] * H[i][j]
+            print(f"{x[i][j]} * {H[i][j]} = {val}")
+            a += val
         total.append(a)
     return total
 
@@ -156,7 +160,7 @@ def evaluar_compresor(etapas):
     PM = [2.016, 16.043, 28.054, 30.070, 42.081, 44.097, 56.107, 58.123, 72.150, 78.115, 18.020,0,0,0,0,0,0,0]
 
     PMprom = [PMpromedio(list(etapa['composiciones'].values()), PM) for etapa in etapas]
-
+    x = [list(etapa['composiciones'].values()) for etapa in etapas]
     y = [FraccionMasica(list(etapa['composiciones'].values()), PM) for etapa in etapas]
 
     # Cálculo de Propiedades Termodinámicas
@@ -167,7 +171,6 @@ def evaluar_compresor(etapas):
     HSi = PropiedadTermodinamica('H', PresionS, TemperaturaS, Compuestos)
 
     SEi = PropiedadTermodinamica('S', PresionE, TemperaturaE, Compuestos)
-    SSi = PropiedadTermodinamica('S', PresionS, TemperaturaS, Compuestos)
 
     HSsi = EntalpiaIsoentropica(PresionS, SEi, Compuestos)
 
@@ -184,9 +187,6 @@ def evaluar_compresor(etapas):
     HE = TotalPropiedad(y, HEi)
     HS = TotalPropiedad(y, HSi)
 
-    SE = TotalPropiedad(y, SEi)
-    SS = TotalPropiedad(y, SSi)
-
     HSs = TotalPropiedad(y, HSsi)
 
     CpE = TotalPropiedad(y, CpEi)
@@ -195,8 +195,10 @@ def evaluar_compresor(etapas):
     CvE = TotalPropiedad(y, CvEi)
     CvS = TotalPropiedad(y, CvSi)
 
-    ZE = TotalPropiedad(y, ZEi)
-    ZS = TotalPropiedad(y, ZSi)
+    print("==================================")
+    ZE = TotalPropiedad(x, ZEi)
+    print("==================================")
+    ZS = TotalPropiedad(x, ZSi)
 
     # Cálculo Capacidad Calorífica promedio
     CpEtapaPromedio = CpPromedio(CpE, CpS)
@@ -211,10 +213,10 @@ def evaluar_compresor(etapas):
     Eficiencia = [(HSs[i] - HE[i]) / (HS[i] - HE[i]) * 100 for i in range(len(HE))]
 
     # Cálculo de Potencia
-    Potencia = [Flujo[i] * (HS[i] - HE[i]) / 1000 for i in range(len(HE))]
+    Potencia = [Flujo[i] * (HS[i] - HE[i]) for i in range(len(HE))]
     Cabezal = [(HS[i] - HE[i]) / 9.81 for i in range(len(HE))]
 
-    PotenciaIso = [Flujo[i] * (HSs[i] - HE[i]) / 1000 for i in range(len(HE))]
+    PotenciaIso = [Flujo[i] * (HSs[i] - HE[i]) for i in range(len(HE))]
     CabezalIso = [(HSs[i] - HE[i]) / 9.81 for i in range(len(HE))]
 
     # Relación de Compresión
@@ -245,6 +247,7 @@ def evaluar_compresor(etapas):
 
     # Relación Volumetrica
     RelacionVolumetrica = [FlujoVolumetricoCs[i] / FlujoVolumetricoCe[i] for i in range(len(FlujoVolumetricoCe))]
+    print(y)
 
     return {
         "k_prom": K,
