@@ -331,11 +331,10 @@ def generar_presion_flujo(entradas=None, evaluacion=None):
     else:
         return {'script': '', 'div': ''} #Return empty values if no data is provided.
 
-    x_coords = [fv / 1e2 for fv in flujo_volumetrico[:-1]]
-    y_coords_start = [1000 - 25 * pe / 1e5 for pe in presion_entrada[:-1]]
-    y_coords_end = [1000 - 25 * pe / 1e5 for pe in presion_entrada[1:]]
+    x_coords = [fv for fv in flujo_volumetrico]
+    y_coords_start = [pe for pe in presion_entrada]
 
-    p.segment(x0=y_coords_start, y0=x_coords, x1=y_coords_end, y1=x_coords[1:], color="blue", legend_label="Real")
+    p.line(x=y_coords_start, y=x_coords, color="blue", legend_label="Real")
     script, div = components(p)
 
     return {'script': script, 'div': div}
