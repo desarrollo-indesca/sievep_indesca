@@ -959,7 +959,7 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
             entrada_form_dict['flujo_gas'] = transformar_unidades_flujo([entrada_form_dict['flujo_gas']], entrada_form_dict['flujo_gas_unidad'])[0]
             entrada_form_dict['flujo_volumetrico'] = transformar_unidades_flujo_volumetrico([entrada_form_dict['flujo_volumetrico']], entrada_form_dict['flujo_volumetrico_unidad'])[0]
             entrada_form_dict['flujo_surge'] = transformar_unidades_flujo_volumetrico([entrada_form_dict['flujo_surge']], entrada_form_dict['flujo_volumetrico_unidad'])[0]
-            entrada_form_dict['cabezal_politropico'] = transformar_unidades_flujo([entrada_form_dict['cabezal_politropico']], entrada_form_dict['cabezal_politropico_unidad'])[0]
+            entrada_form_dict['cabezal_politropico'] = transformar_unidades_longitud([entrada_form_dict['cabezal_politropico']], entrada_form_dict['cabezal_politropico_unidad'])[0]
             entrada_form_dict['potencia_generada'] = transformar_unidades_potencia([entrada_form_dict['potencia_generada']], entrada_form_dict['potencia_generada_unidad'])[0]
             entrada_form_dict['velocidad'] = transformar_unidades_frecuencia_angular([entrada_form_dict['velocidad']], entrada_form_dict['velocidad_unidad'])[0]
             entrada_form_dict['presion_in'] = transformar_unidades_presion([entrada_form_dict['presion_in']], entrada_form_dict['presion_unidad'])[0]

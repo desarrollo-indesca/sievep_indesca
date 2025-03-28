@@ -1,6 +1,7 @@
 from CoolProp.CoolProp import PropsSI
 from bokeh.embed import components
 from bokeh.plotting import figure
+from calculos.unidades import transformar_unidades_longitud, transformar_unidades_flujo_volumetrico
 
 from .models import COMPUESTOS, EntradaEtapaEvaluacion
 import math
@@ -98,7 +99,6 @@ def TotalPropiedad(x, H):
         a = 0
         for j in range(len(H[i])):
             val = x[i][j] * H[i][j]
-            print(f"{x[i][j]} * {H[i][j]} = {val}")
             a += val
         total.append(a)
     return total
@@ -195,9 +195,7 @@ def evaluar_compresor(etapas):
     CvE = TotalPropiedad(y, CvEi)
     CvS = TotalPropiedad(y, CvSi)
 
-    print("==================================")
     ZE = TotalPropiedad(x, ZEi)
-    print("==================================")
     ZS = TotalPropiedad(x, ZSi)
 
     # Cálculo Capacidad Calorífica promedio
@@ -247,7 +245,6 @@ def evaluar_compresor(etapas):
 
     # Relación Volumetrica
     RelacionVolumetrica = [FlujoVolumetricoCs[i] / FlujoVolumetricoCe[i] for i in range(len(FlujoVolumetricoCe))]
-    print(y)
 
     return {
         "k_prom": K,
@@ -349,7 +346,7 @@ def generar_cabezal_flujo(entradas=None, resultados=None, evaluacion=None):
         resultados = [entrada.salidas for entrada in entradas]
         entradas = [entrada for entrada in entradas]
     else:
-        entradas = entradas[:-1]
+        entradas = entradas
         resultados_calculado = resultados['cabezal']
         resultados_isotropico = resultados['cabezal_iso']
 
@@ -357,20 +354,17 @@ def generar_cabezal_flujo(entradas=None, resultados=None, evaluacion=None):
                y_axis_label='Cabezal (m)')
     
     # Blue lines (Real)
-    x_blue = [entrada.flujo_volumetrico / 1e2 if evaluacion else entrada['flujo_volumetrico'] / 1e2 for entrada in entradas]
-    y_blue_start = [1000 - 0.08 * (resultados[i].cabezal_calculado if evaluacion else resultados_calculado[i]) for i in range(len(entradas))]
-    y_blue_end = [1000 - 0.08 * (resultados[i + 1].cabezal_calculado if evaluacion else resultados_calculado[i + 1]) for i in range(len(entradas) - 1)]
-    p.segment(x0=x_blue, y0=y_blue_start, x1=x_blue[1:], y1=y_blue_end, color="blue", legend_label="Real")
+    flujos = [entrada['flujo_volumetrico'] for entrada in entradas]
+    y_blue_start = [(resultados[i].cabezal_calculado if evaluacion else resultados_calculado[i]) for i in range(len(entradas))]
+    p.line(x=flujos, y=y_blue_start, color="blue", legend_label="Real")
 
     # Red lines (Iso)
-    y_red_start = [1000 - 0.08 * (resultados[i].cabezal_isotropico if evaluacion else resultados_isotropico[i]) for i in range(len(entradas))]
-    y_red_end = [1000 - 0.08 * (resultados[i + 1].cabezal_isotropico if evaluacion else resultados_isotropico[i + 1]) for i in range(len(entradas) - 1)]
-    p.segment(x0=x_blue, y0=y_red_start, x1=x_blue[1:], y1=y_red_end, color="red", legend_label="Isoentrópico")
+    y_red_start = [(resultados[i].cabezal_isotropico if evaluacion else resultados_isotropico[i]) for i in range(len(entradas))]
+    p.line(x=flujos, y=y_red_start, color="red", legend_label="Isoentrópico")
 
     # Green lines (Hpoly)
-    y_green_start = [1000 - 0.08 * (resultados[i].cabezal_calculado if evaluacion else resultados_calculado[i]) for i in range(len(entradas))]
-    y_green_end = [1000 - 0.08 * (resultados[i + 1].cabezal_calculado if evaluacion else resultados_calculado[i + 1]) for i in range(len(entradas) - 1)]
-    p.segment(x0=x_blue, y0=y_green_start, x1=x_blue[1:], y1=y_green_end, color="green", legend_label="Politrópico")
+    y_green_start = [entradas[i]['cabezal_politropico'] for i in range(len(entradas))]
+    p.line(x=flujos, y=y_green_start, color="green", legend_label="Politrópico")
 
     script, div = components(p)
     return {'script': script, 'div': div}
