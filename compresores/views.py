@@ -722,8 +722,9 @@ class ConsultaEvaluacionCompresor(PermisosMixin, ConsultaEvaluacion, CargarCompr
         reporte_ficha = self.reporte_ficha(request)
         if(reporte_ficha):
             return reporte_ficha
-            
-        if((request.user.is_superuser or request.user.usuario_planta.filter(planta = self.get_compresor().planta, eliminar_evaluaciones = True).exists()) and request.POST.get('evaluacion')): # Lógica de "Eliminación"
+
+        compresor = self.get_compresor(queryset=False)            
+        if((request.user.is_superuser or request.user.usuario_planta.filter(planta = compresor.planta, eliminar_evaluaciones = True).exists()) and request.POST.get('evaluacion')): # Lógica de "Eliminación"
             evaluacion = self.model.objects.get(pk=request.POST['evaluacion'])
             evaluacion.activo = False
             evaluacion.save()
@@ -732,16 +733,55 @@ class ConsultaEvaluacionCompresor(PermisosMixin, ConsultaEvaluacion, CargarCompr
             messages.warning(request, "Usted no tiene permiso para eliminar evaluaciones.")
 
         if(request.POST.get('tipo') == 'pdf'):
-            return generar_pdf(request, self.get_queryset(), f"Evaluaciones del Compresor {self.get_compresor().tag}", "reporte_evaluaciones_compresores")
+            return generar_pdf(request, self.get_queryset(), f"Evaluaciones del Compresor {compresor.tag}", "reporte_evaluaciones_compresores")
         elif(request.POST.get('tipo') == 'xlsx'):
             return historico_evaluaciones_compresor(self.get_queryset(), request)
 
         if(request.POST.get('detalle')):
-            return generar_pdf(request, self.model.objects.get(pk=request.POST.get('detalle')), "Detalle de Evaluación de Compresor", "detalle_evaluacion_compresor")
+            return generar_pdf(request, self.model.objects.get(pk=request.POST.get('detalle')), f"Detalle de Evaluación de Compresor {compresor.tag}", "detalle_evaluacion_compresor")
 
         return self.get(request, **kwargs)
 
 class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View):
+    """
+    Resumen:
+        Vista para la creación de evaluaciones de compresores. Hereda de View.
+        Permite a los usuarios autenticados cargar un compresor y generar formularios
+        para la evaluación de la composición de gases y las entradas de cada etapa del compresor.
+
+    Atributos:
+        template_name: str -> Nombre de la plantilla a renderizar para la evaluación.
+
+    Métodos:
+        get_forms(self, compresor) -> dict:
+            Genera y devuelve los formularios necesarios para la evaluación del compresor
+            basado en sus composiciones de gases y etapas.
+
+        get(self, request, *args, **kwargs) -> HttpResponse:
+            Renderiza la plantilla de evaluación con los formularios generados para cada etapa 
+            y composición de gases del compresor especificado.
+
+        post(self, request, *args, **kwargs) -> HttpResponse:
+            Procesa y valida los formularios enviados para la evaluación del compresor. 
+            Guarda los datos de la evaluación en la base de datos y redirige al usuario 
+            a la página de confirmación o muestra errores en caso de fallo.
+
+        get_context_data(self, pk):
+            Genera el contexto necesario para la plantilla de evaluación del compresor.
+
+        almacenar(self):
+            Almacena los datos de la evaluación en la base de datos.
+
+        def calcular_resultados(self):
+            Calcula los resultados de la evaluación del compresor y transforma las unidades correspondientes.
+
+        def evaluar(self):
+            Calcula los resultados de la evaluación del compresor y los almacena en la base de datos.
+
+        def gracias_resultados(self):
+            return render(self.request, "compresores/partials/carga_lograda.html", {'compresor': self.compresor})
+    """
+
     template_name = "compresores/evaluacion.html"
 
     def get_forms(self, compresor):

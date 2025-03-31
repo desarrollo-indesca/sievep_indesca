@@ -353,16 +353,27 @@ def generar_cabezal_flujo(entradas=None, resultados=None, evaluacion=None):
                y_axis_label='Cabezal (m)')
     
     # Blue lines (Real)
-    flujos = [entrada['flujo_volumetrico'] for entrada in entradas]
-    y_blue_start = [(resultados[i].cabezal_calculado if evaluacion else resultados_calculado[i]) for i in range(len(entradas))]
+    if evaluacion:
+        flujos = [entrada.flujo_volumetrico for entrada in entradas]
+        y_blue_start = [
+            entrada.salidas.cabezal_calculado for entrada in entradas    
+        ]
+    else:
+        flujos = [entrada['flujo_volumetrico'] for entrada in entradas]
+        y_blue_start = [resultados_calculado[i] for i in range(len(entradas))]
+
     p.line(x=flujos, y=y_blue_start, color="blue", legend_label="Real")
 
     # Red lines (Iso)
-    y_red_start = [(resultados[i].cabezal_isotropico if evaluacion else resultados_isotropico[i]) for i in range(len(entradas))]
+    if evaluacion:
+        y_red_start = [entrada.salidas.cabezal_isotropico for entrada in entradas]
+    else:
+        y_red_start = [resultados_isotropico[i] for i in range(len(entradas))]
+
     p.line(x=flujos, y=y_red_start, color="red", legend_label="Isoentrópico")
 
     # Green lines (Hpoly)
-    y_green_start = [entradas[i]['cabezal_politropico'] for i in range(len(entradas))]
+    y_green_start = [entradas[i]['cabezal_politropico'] for i in range(len(entradas))] if not evaluacion else [transformar_unidades_longitud([entradas[i].cabezal_politropico], entradas[i].cabezal_politropico_unidad.pk)[0] for i in range(len(entradas))]
     p.line(x=flujos, y=y_green_start, color="green", legend_label="Politrópico")
 
     script, div = components(p)
