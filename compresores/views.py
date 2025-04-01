@@ -709,6 +709,35 @@ class ConsultaEvaluacionCompresor(PermisosMixin, ConsultaEvaluacion, CargarCompr
     clase_equipo = "l Compresor"
     template_name = 'compresores/consulta_evaluaciones.html'
 
+    def get_queryset(self):
+        queryset = super().get_queryset().select_related(
+            'creado_por', 'equipo',
+        ).prefetch_related(
+            Prefetch(
+                'entradas_evaluacion', 
+                queryset=EntradaEtapaEvaluacion.objects.select_related(
+                    'etapa', 
+                    'flujo_gas_unidad', 
+                    'velocidad_unidad', 
+                    'flujo_volumetrico_unidad', 
+                    'cabezal_politropico_unidad',
+                    'potencia_generada_unidad',
+                    'presion_unidad',
+                    'temperatura_unidad',
+                    'pm_ficha_unidad',
+
+                    'salidas'
+                ).prefetch_related(
+                    Prefetch(
+                        'composiciones',
+                        queryset=ComposicionEvaluacion.objects.select_related('fluido')
+                    )
+                )
+            )
+        )
+
+        return queryset
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['equipo'] = self.get_compresor(queryset=False)
