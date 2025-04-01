@@ -45,7 +45,7 @@
                 <thead>
                     <tr class="table-dark">
                         <th>Parámetro</th>
-                        {% for etapa in compresor.casos.0.etapas.all %}
+                        {% for etapa in compresor.casos.first.etapas.all %}
                         <th>Etapa {{etapa.numero}}</th>
                         {% endfor %}
                     </tr>
@@ -53,7 +53,7 @@
 
                 <tbody>
                     <tr class="table-dark text-white">
-                        <th colspan="{{compresor.casos.0.etapas.count|add:1}}">Datos de Flujo, Potencia, Cabezal de Ficha</th>
+                        <th colspan="{{compresor.casos.first.etapas.count|add:1}}">Datos de Flujo, Potencia, Cabezal de Ficha</th>
                     </tr>
                     <tr>
                         <td>Flujo de Gas</td>
@@ -108,7 +108,7 @@
                         {% endfor %}
                     </tr>
                     <tr class="table-dark text-white">
-                        <th colspan="{{compresor.casos.0.etapas.count|add:1}}">
+                        <th colspan="{{compresor.casos.first.etapas.count|add:1}}">
                             Para Cabezal Hidráulico
                         </th>
                     </tr>
@@ -126,7 +126,7 @@
                         {% endfor %}
                     </tr>
                     <tr class="table-dark text-white">
-                        <th colspan="{{compresor.casos.0.etapas.count|add:1}}">
+                        <th colspan="{{compresor.casos.first.etapas.count|add:1}}">
                             Cálculo de la Potencia
                         </th>
                     </tr>
@@ -144,7 +144,7 @@
                         {% endfor %}
                     </tr>
                     <tr class="table-dark text-white">
-                        <th colspan="{{compresor.casos.0.etapas.count|add:1}}">
+                        <th colspan="{{compresor.casos.first.etapas.count|add:1}}">
                             Cálculo de Eficiencia
                         </th>
                     </tr>
@@ -159,7 +159,7 @@
                         {% endfor %}
                     </tr>
                     <tr class="table-dark text-white">
-                        <th colspan="{{compresor.casos.0.etapas.count|add:1}}">
+                        <th colspan="{{compresor.casos.first.etapas.count|add:1}}">
                             Condiciones de la Corriente
                         </th>
                     </tr>
@@ -182,7 +182,7 @@
                         <td>
                             <div class="input-group">
                                 {% render_field form.presion_out class="form-control form-control-sm" min="-1" %}
-                                <select name="{{form.prefix}}-presion_unidad" id="id_{{form.prefix}}-presion_unidad" class="form-select form-select-sm">
+                                <select name="{{form.prefix}}-presion_unidad" id="id_{{form.prefix}}-presion_unidad" class="form-select form-select-sm" disabled>
                                     {% include 'unidades.html' with tipo='P' pk_selected=form.initial.presion_unidad.pk %}
                                 </select>
                             </div>
@@ -208,7 +208,7 @@
                         <td>
                             <div class="input-group">
                                 {% render_field form.temperatura_out class="form-control form-control-sm" min="-273.15" %}
-                                <select name="{{form.prefix}}-temperatura_unidad" id="id_{{form.prefix}}-temperatura_unidad" class="form-select form-select-sm">
+                                <select name="{{form.prefix}}-temperatura_unidad" id="id_{{form.prefix}}-temperatura_unidad" class="form-select form-select-sm" disabled>
                                     {% include 'unidades.html' with tipo='T' pk_selected=form.initial.temperatura_unidad.pk %}
                                 </select>
                             </div>
@@ -216,7 +216,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <th class="table-dark text-white" colspan="{{compresor.casos.0.etapas.count|add:1}}">
+                        <th class="table-dark text-white" colspan="{{compresor.casos.first.etapas.count|add:1}}">
                             Cáculos de Coeficientes Isentrópicos
                         </th>
                     </tr>
@@ -241,7 +241,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <th class="table-dark text-white" colspan="{{compresor.casos.0.etapas.count|add:1}}">
+                        <th class="table-dark text-white" colspan="{{compresor.casos.first.etapas.count|add:1}}">
                             Cálculo de Factor de Compresibilidad
                         </th>
                     </tr>
@@ -266,7 +266,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <th class="table-dark text-white" colspan="{{compresor.casos.0.etapas.count|add:1}}">
+                        <th class="table-dark text-white" colspan="{{compresor.casos.first.etapas.count|add:1}}">
                             PM Ficha
                         </th>
                     </tr>
@@ -295,7 +295,7 @@
                 <thead>
                     <tr class="table-dark">
                         <th>Compuesto</th>
-                        {% for etapa in compresor.casos.0.etapas.all %}
+                        {% for etapa in compresor.casos.first.etapas.all %}
                         <th>Etapa {{etapa.numero}}</th>
                         {% endfor %}
                     </tr>
@@ -336,29 +336,5 @@
 {% endblock %}
 
 {% block extra_javascript %}
-<script>
-    document.addEventListener('input', (e)=>{
-        if(e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT'){
-            document.getElementById('submit').outerHTML = ' <button type="submit" id="submit" name="submit" value="calcular" class="btn btn-danger">Calcular Resultados</button>';
-            document.getElementById('resultados').innerHTML = '';
-        }
-    });
-
-    const selects_flujo_volumetrico_unidad = document.querySelectorAll('select[name*="-flujo_volumetrico_unidad"]');
-    selects_flujo_volumetrico_unidad.forEach((select1)=>{
-        selects_flujo_volumetrico_unidad.forEach((select2)=>{
-            if(select1.name === select2.name && select1 !== select2){
-                select1.addEventListener('change', (e)=>{
-                    select2.value = e.target.value;
-                });
-            }
-        });
-    });
-
-    const selects_presion_unidad = document.querySelectorAll('select[name*="presion_unidad"]');
-    selects_presion_unidad.forEach((select)=>{
-        select.innerHTML = select.innerHTML.replaceAll('</option>', 'g</option>');
-    });
-    
-</script>
+<script src="{% static 'js/compresores/evaluacion.js' %}"></script>
 {% endblock %}

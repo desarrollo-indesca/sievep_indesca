@@ -92,7 +92,7 @@ INSTALLED_APPS = [
     'templatetags',
     'mathfilters',
     'widget_tweaks',
-    "debug_toolbar",
+    # "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -104,7 +104,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "simulaciones_pequiven.middleware.RequestLogMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = 'simulaciones_pequiven.urls'
