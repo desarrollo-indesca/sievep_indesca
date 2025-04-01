@@ -117,6 +117,7 @@ def TotalPropiedad(x, H):
     total = []
     for i in range(len(x)):
         a = 0
+        print(x, H)
         for j in range(len(H[i])):
             val = x[i][j] * H[i][j]
             a += val
@@ -181,6 +182,8 @@ def evaluar_compresor(etapas):
     TemperaturaS = [etapa['entradas']['temperatura_out'] for etapa in etapas]
     Flujo = [etapa['entradas']['flujo_gas'] for etapa in etapas]
     PotenciaTeorica = [etapa['entradas']['potencia_generada'] for etapa in etapas]
+
+    print(etapas)
 
     for i,etapa in enumerate(etapas):
         etapas[i]['composiciones'] = normalizacion(etapa['composiciones'])

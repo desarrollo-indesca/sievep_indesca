@@ -640,6 +640,13 @@ class EdicionComposicionGases(LoginRequiredMixin, PermisosMixin, View):
             formsets.append(form)
 
         return formsets
+    
+    def dispatch(self, request, *args, **kwargs):
+        if(not request.user.usuario_planta.filter(planta=PropiedadesCompresor.objects.get(pk=self.kwargs['pk']).compresor.planta, edicion_instalacion=True).exists() and not request.user.is_superuser):
+            messages.warning(request, "No tiene permisos para editar la composición de gases.")
+            return redirect('/compresores/')
+        
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = {}
@@ -776,7 +783,7 @@ class ConsultaEvaluacionCompresor(PermisosMixin, ConsultaEvaluacion, CargarCompr
 
         return self.get(request, **kwargs)
 
-class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View):
+class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresMixin, CargarCompresorMixin, View):
     """
     Resumen:
         Vista para la creación de evaluaciones de compresores. Hereda de View.
@@ -883,6 +890,12 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
             'entradas_etapa': entradas_etapa,
             'evaluacion_form': evaluacion_form
         }
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated or not request.user.usuario_planta.filter(planta=self.get_compresor(queryset=False,prefetch=False).planta, crear_evaluaciones=True).exists() and not request.user.is_superuser:
+            messages.warning(request, "No tiene permisos para crear evaluaciones en esta planta.")
+            return redirect('/compresores/')
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, pk, *args, **kwargs):
         return render(request, self.template_name, context=self.get_context_data(pk))
@@ -902,6 +915,10 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
         if(request.POST.get('submit') == 'almacenar'):
             return self.almacenar()
         else:
+            reporte = super().reporte_ficha(request)
+            if(reporte):
+                return reporte
+            
             return self.evaluar()
 
     def evaluar(self):
@@ -933,6 +950,7 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
                         form.instance.etapa = etapa
                         form.save()
                     else:
+                        print(form.errors)
                         raise Exception('Error al guardar la evaluación')
 
                     SalidaEtapaEvaluacion.objects.create(
@@ -1041,10 +1059,9 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, CargarCompresorMixin, View
             entrada_form_dict['temperatura_in'] = transformar_unidades_temperatura([entrada_form_dict['temperatura_in']], entrada_form_dict['temperatura_unidad'])[0]
             entrada_form_dict['temperatura_out'] = transformar_unidades_temperatura([entrada_form_dict['temperatura_out']], entrada_form_dict['temperatura_unidad'])[0]
 
-            composiciones = {
-                composicion.compuesto: float(request.POST.get(f"{composicion.etapa.numero}-{composicion.compuesto.pk}-porc_molar"))
-                for composicion in etapa.composiciones.all()
-            } 
+            composiciones = {}
+            for compuesto in COMPUESTOS:
+                composiciones[compuesto] = float(request.POST.get(f"{etapa.numero}-{Fluido.objects.get(cas=compuesto).pk}-porc_molar"))
 
             entradas_etapas.append({
                 'entradas': entrada_form_dict,

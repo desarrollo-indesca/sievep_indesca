@@ -306,8 +306,8 @@ class EntradaEtapaEvaluacion(models.Model):
     presion_out = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Presión de Salida")
     presion_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_presion_evaluacion", verbose_name="Unidad")
     
-    temperatura_in = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Temperatura de Entrada")
-    temperatura_out = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Temperatura de Salida")
+    temperatura_in = models.FloatField(validators=[MinValueValidator(-273.15)], verbose_name="Temperatura de Entrada")
+    temperatura_out = models.FloatField(validators=[MinValueValidator(-273.15)], verbose_name="Temperatura de Salida")
     temperatura_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_temperatura_out_evaluacion", verbose_name="Unidad")
     
     k_in = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Relación de Compresión")
