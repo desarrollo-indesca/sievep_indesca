@@ -1,6 +1,7 @@
 from CoolProp.CoolProp import PropsSI
 from bokeh.embed import components
 from bokeh.plotting import figure
+from thermo.chemical import Chemical
 
 import math
 
@@ -77,7 +78,27 @@ def PropiedadTermodinamica(PT, P, T, C):
     """
     Propiedad = []
     for i in range(len(P)):
-        a = [PropsSI(PT, 'P', P[i], 'T', T[i], C[j]) for j in range(len(C))]
+        try:
+            a = [PropsSI(PT, 'P', P[i], 'T', T[i], C[j]) for j in range(len(C))]
+        except:
+            if PT == 'H':
+                a = [Chemical(C[j]) for j in range(len(C))]
+                for j in range(len(C)):
+                    a[j].calculate(T[i], P[i])
+                a = [a[j].H for j in range(len(C))]
+
+            elif PT == 'Cpmass':
+                a = [Chemical(C[j], T[i], P[i]).Cp for j in range(len(C))]
+            elif PT == 'S':
+                a = [Chemical(C[j]) for j in range(len(C))]
+                for j in range(len(C)):
+                    a[j].calculate(T[i], P[i])
+                a = [a[j].S for j in range(len(C))]
+            elif PT == 'Cpmass':
+                a = [Chemical(C[j], T[i], P[i]).Cvg() for j in range(len(C))]
+            else:
+                a = [Chemical(C[j], T[i], P[i]).Z for j in range(len(C))]
+        
         Propiedad.append(a)
     return Propiedad
 
@@ -116,7 +137,16 @@ def EntalpiaIsoentropica(P, S, C):
     """
     Propiedad = []
     for i in range(len(P)):
-        a = [PropsSI('H', 'P', P[i], 'S', S[i][j], C[j]) for j in range(len(C))]
+        try:
+            a = [PropsSI('H', 'P', P[i], 'S', S[i][j], C[j]) for j in range(len(C))]
+        except:
+            a = [Chemical(C[j]) for j in range(len(C))]
+            try:
+                for j in range(len(C)):
+                    a[j].calculate_PS(P[i], S[i][j])
+                a = [a[j].H for j in range(len(C))]
+            except:
+                a = [0 for j in range(len(C))]
         Propiedad.append(a)
     return Propiedad
 
@@ -164,7 +194,10 @@ def evaluar_compresor(etapas):
 
     # Cálculo de Propiedades Termodinámicas
     Compuestos = ['Hydrogen', 'Methane', 'Ethylene', 'Ethane', 'Propylene', 
-                  'n-Propane', '1-Butene', 'n-Butane', 'n-Pentane', 'Benzene', 'Water']
+        'n-Propane', '1-Butene', 'n-Butane', 'n-Pentane', 'Benzene', 'Water',
+        '74-86-2', '59355-75-8', '106-99-0', '2004-70-8',
+        '592-48-3', '2384-92-1', '1002-33-1'                
+    ]
 
     HEi = PropiedadTermodinamica('H', PresionE, TemperaturaE, Compuestos)
     HSi = PropiedadTermodinamica('H', PresionS, TemperaturaS, Compuestos)
