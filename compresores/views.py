@@ -83,7 +83,8 @@ class CargarCompresorMixin():
 
         if(prefetch):
             compresor = compresor.select_related(
-                'creado_por', 'editado_por', 'planta'
+                'creado_por', 'editado_por', 'planta', 'planta__complejo',
+                'tipo'
             ).prefetch_related(
                 Prefetch(
                     'casos', PropiedadesCompresor.objects.select_related(
@@ -107,6 +108,10 @@ class CargarCompresorMixin():
                                         'temp_unidad',
                                         'presion_unidad'
                                     )
+                                ),
+                                Prefetch(
+                                    'composiciones',
+                                    ComposicionGases.objects.select_related('compuesto')
                                 )
                             )
                         )

@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Prefetch
 from django.contrib.auth import get_user_model
 from intercambiadores.models import Planta, Fluido, Unidades
 from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidator
@@ -134,13 +135,11 @@ class PropiedadesCompresor(models.Model):
 
     def get_composicion_by_etapa(self):
         composicion = {}
-        etapas = self.etapas.all()
-        for etapa in etapas:
-            comp_etapa = ComposicionGases.objects.filter(etapa=etapa.pk)
-            for comp in comp_etapa:
-                if comp.compuesto.nombre not in composicion:
-                    composicion[comp.compuesto.nombre] = []
-                composicion[comp.compuesto.nombre].append(comp)
+        comp_etapas = ComposicionGases.objects.filter(etapa__in=self.etapas.all()).select_related('compuesto', 'etapa')
+        for comp in comp_etapas:
+            if comp.compuesto.nombre not in composicion:
+                composicion[comp.compuesto.nombre] = []
+            composicion[comp.compuesto.nombre].append(comp)
 
         return composicion
 

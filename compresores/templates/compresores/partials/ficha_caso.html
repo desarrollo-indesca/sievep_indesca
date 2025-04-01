@@ -103,8 +103,8 @@
             <th class="table-dark">Entrada</th>
             <th class="table-dark">Salida</th>
         </tr>
-        {% with entrada=etapa.lados.first %}
-        {% with salida=etapa.lados.last %}
+        {% with entrada=etapa.lados.0 %}
+        {% with salida=etapa.lados.1 %}
         <tr>
             <th class="table-dark" colspan="2">Presión</th>
             <td>
