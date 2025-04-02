@@ -331,7 +331,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for compuesto in evaluacion.entradas_evaluacion.0.composiciones.all %}
+                                {% for compuesto in evaluacion.entradas_evaluacion.all.0.composiciones.all %}
                                 <tr>
                                     <td class="table-dark">{{compuesto.fluido}}</td>
                                     {% for porcentaje in compuesto.porcentajes %}

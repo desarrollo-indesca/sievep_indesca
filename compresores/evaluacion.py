@@ -2,7 +2,7 @@ from CoolProp.CoolProp import PropsSI
 from bokeh.embed import components
 from bokeh.plotting import figure
 from thermo.chemical import Chemical
-from calculos.unidades import transformar_unidades_longitud, transformar_unidades_flujo_volumetrico
+from calculos.unidades import transformar_unidades_longitud, transformar_unidades_flujo_volumetrico, transformar_unidades_presion
 
 import math
 
@@ -355,8 +355,8 @@ def generar_grafica_presion_h(entradas=None, resultados=None, evaluacion=None,):
             'HS': [entrada.salidas.hs for entrada in entradas]
         }
 
-    y1 = [x['presion_in'] if isinstance(x, dict) else x.presion_in for x in entradas]
-    y2 = [x['presion_out'] if isinstance(x, dict) else x.presion_out for x in entradas]
+    y1 = [x['presion_in'] / 1000 if isinstance(x, dict) else transformar_unidades_presion([x.presion_in], x.presion_unidad.pk, 7)[0] for x in entradas]
+    y2 = [x['presion_out'] / 1000 if isinstance(x, dict) else transformar_unidades_presion([x.presion_out], x.presion_unidad.pk, 7)[0] for x in entradas]
 
     p = figure(
         title="Presiones vs Entalpías",
@@ -384,13 +384,22 @@ def generar_presion_flujo(entradas=None, evaluacion=None):
                x_axis_label='Presión (bar)', y_axis_label='Flujo Volumétrico (m3/h)')
 
     if entradas is not None:
-        flujo_volumetrico = [entrada['flujo_volumetrico'] for entrada in entradas]
-        presion_entrada = [entrada['presion_in'] for entrada in entradas]
+        flujo_volumetrico = [entrada['flujo_volumetrico'] / 3600 for entrada in entradas]
+        presion_entrada = [entrada['presion_in'] / 1e5 for entrada in entradas]
 
     elif evaluacion is not None:
         entradas = evaluacion.entradas_evaluacion.all()
-        flujo_volumetrico = [entrada.flujo_volumetrico for entrada in entradas]
-        presion_entrada = [entrada.presion_in for entrada in entradas]
+        flujo_volumetrico = [
+            transformar_unidades_flujo_volumetrico(
+                [entrada.flujo_volumetrico], 
+                entrada.flujo_volumetrico_unidad.pk
+            )[0] for entrada in entradas
+        ]
+        presion_entrada = [
+            transformar_unidades_presion(
+                [entrada.presion_in], 
+                entrada.presion_unidad.pk)[0]  for entrada in entradas
+        ]
 
     else:
         return {'script': '', 'div': ''} #Return empty values if no data is provided.
@@ -431,12 +440,14 @@ def generar_cabezal_flujo(entradas=None, resultados=None, evaluacion=None):
     
     # Blue lines (Real)
     if evaluacion:
-        flujos = [entrada.flujo_volumetrico for entrada in entradas]
+        flujos = [
+            transformar_unidades_flujo_volumetrico([entrada.flujo_volumetrico], entrada.flujo_volumetrico_unidad.pk)[0] for entrada in entradas
+        ]
         y_blue_start = [
             entrada.salidas.cabezal_calculado for entrada in entradas    
         ]
     else:
-        flujos = [entrada['flujo_volumetrico'] for entrada in entradas]
+        flujos = [entrada['flujo_volumetrico'] / 3600 for entrada in entradas]
         y_blue_start = [resultados_calculado[i] for i in range(len(entradas))]
 
     p.line(x=flujos, y=y_blue_start, color="blue", legend_label="Real")
