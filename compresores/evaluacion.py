@@ -167,13 +167,42 @@ def CpPromedio(z1, z2):
 
 def evaluar_compresor(etapas):
     """
-    Evaluar y calcular los parámetros de un compresor de 5 etapas.
+    Resumen:
+        Evaluar y calcular los parámetros de un compresor de n etapas.
     
-    Lee los valores de entrada desde un sistema de interfaz HTML, normaliza los flujos,
-    calcula el peso molecular promedio y las fracciones másicas, y luego calcula las
-    propiedades termodinámicas y otros parámetros del compresor.
+        Lee los valores de entrada desde un sistema de interfaz HTML, normaliza los flujos,
+        calcula el peso molecular promedio y las fracciones másicas, y luego calcula las
+        propiedades termodinámicas y otros parámetros del compresor.
 
-    Este método genera gráficos como parte del análisis final.
+    Args:
+        etapas: list -> Lista de diccionarios conteniendo los datos de entrada de la evaluación y la composición de los gases. Todo debe estar en unidades internacionales.
+
+    Devuelve:
+        dict: Diccionario con los parámetros de salida: {
+            "k_prom": "Constante de expansión promedio", [-]
+            "k_in": "Constante de expansión de entrada", [-]
+            "k_out": "Constante de expansión de salida", [-]
+            "eficiencia": "Eficiencia del compresor", (%)
+            "potencia": "Potencia del compresor", (%)
+            "cabezal": "Cabezal del compresor", (m)
+            "potencia_iso": "Potencia isoentropica del compresor", (W)
+            "cabezal_iso": "Cabezal isoentropico del compresor", (W)
+            "relacion_compresion": "Relación de compresión", [-]
+            "relacion_temperatura": "Relación de temperatura", [-]
+            "n": "Índice de politrópico", [-]
+            "eficiencia_teorica": "Eficiencia teórica del compresor", (%)
+            "caida_presion": "Caída de presión", (Pa)
+            "caida_temperatura": "Caída de temperatura", (K)
+            "energia_ret": "Energía de retroalimentación", (kJ/Kg)
+            "flujo_entrada": "Flujo volumétrico de entrada", (m3/s)
+            "flujo_salida": "Flujo volumétrico de salida", (m3/s)
+            "relacion_volumetrica": "Relación volumétrica", [-]
+            "z_in": "Factor de compresibilidad de entrada", [-]
+            "z_out": "Factor de compresibilidad de salida", [-]
+            "pm_calculado": "Peso molecular promedio", (gr/mol)
+            'HE': "Entalpía de entrada", (kJ/kg)
+            'HS': "Entalpía de salida" (kJ/kg)
+        }
     """
 
     PresionE = [etapa['entradas']['presion_in'] for etapa in etapas]
@@ -182,8 +211,6 @@ def evaluar_compresor(etapas):
     TemperaturaS = [etapa['entradas']['temperatura_out'] for etapa in etapas]
     Flujo = [etapa['entradas']['flujo_gas'] for etapa in etapas]
     PotenciaTeorica = [etapa['entradas']['potencia_generada'] for etapa in etapas]
-
-    print(etapas)
 
     for i,etapa in enumerate(etapas):
         etapas[i]['composiciones'] = normalizacion(etapa['composiciones'])
@@ -309,7 +336,8 @@ def evaluar_compresor(etapas):
 
 def generar_grafica_presion_h(entradas=None, resultados=None, evaluacion=None,):
     """
-    Genera un gráfico de Presiones vs Entalpías.
+    Resumen:
+        Genera un gráfico de Presiones vs Entalpías.
 
     Args:
         evaluacion (object, optional): Objeto de evaluación con datos de entrada. Defaults to None.
@@ -341,7 +369,8 @@ def generar_grafica_presion_h(entradas=None, resultados=None, evaluacion=None,):
         
 def generar_presion_flujo(entradas=None, evaluacion=None):
     """
-    Genera un gráfico de Presión vs Flujo Volumétrico.
+    Resumen:
+        Genera un gráfico de Presión vs Flujo Volumétrico.
 
     Args:
         entradas (list, optional): Lista de diccionarios con datos de entrada. Defaults to None.
@@ -375,6 +404,19 @@ def generar_presion_flujo(entradas=None, evaluacion=None):
     return {'script': script, 'div': div}
 
 def generar_cabezal_flujo(entradas=None, resultados=None, evaluacion=None):
+    """
+    Resumen:
+        Genera un gráfico de Cabezales vs Flujo Volumétrico.
+
+    Args:
+        entradas (list, optional): Lista de diccionarios con datos de entrada. Defaults to None.
+        resultados (dict, optional): Diccionario con datos de resultados. Defaults to None.
+        evaluacion (object, optional): Objeto de evaluación con datos de entrada y resultados. Defaults to None.
+
+    Returns:
+        Un diccionario con el script y el div para incrustar el gráfico.
+    """
+
     if evaluacion:
         entradas = evaluacion.entradas_evaluacion.all()
         resultados = [entrada.salidas for entrada in entradas]

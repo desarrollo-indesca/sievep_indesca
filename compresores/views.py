@@ -18,6 +18,17 @@ from reportes.xlsx import reporte_equipos, ficha_tecnica_compresor, historico_ev
 from django.contrib import messages
 
 class EdicionCompresorPermisoMixin():
+    """
+    Resumen:
+        Mixin para verificar los permisos de edición de compresores.
+
+    Métodos:
+        test_func(self) -> bool:
+            Verifica si el usuario autenticado tiene permiso de edición para la planta asociada al compresor.
+
+        dispatch(self, request, *args, **kwargs) -> HttpResponse:
+            Controla el acceso a la vista basado en los permisos de edición del usuario.
+    """
     def test_func(self):
         authenticated = self.request.user.is_authenticated 
         return authenticated and self.request.user.usuario_planta.filter(planta=Compresor.objects.get(pk=self.kwargs['pk']).planta, edicion=True).exists() or self.request.user.is_superuser
@@ -28,6 +39,18 @@ class EdicionCompresorPermisoMixin():
         return super().dispatch(request, *args, **kwargs)
     
 class CreacionCompresorPermisoMixin():
+    """
+    Resumen:
+        Mixin para verificar los permisos de creación de compresores.
+
+    Métodos:
+        test_func(self) -> bool:
+            Verifica si el usuario autenticado tiene permiso de creación para la planta asociada al compresor.
+
+        dispatch(self, request, *args, **kwargs) -> HttpResponse:
+            Controla el acceso a la vista basado en los permisos de creación del usuario.
+    """
+
     def test_func(self):
         authenticated = self.request.user.is_authenticated 
         return authenticated and self.request.user.usuario_planta.filter(planta__pk = self.request.POST.get('planta'), crear=True).exists() or self.request.user.is_superuser
@@ -161,8 +184,6 @@ class ConsultaCompresores(PermisosMixin, FiltradoSimpleMixin, ReportesFichasComp
         if(reporte_ficha): # Si se está deseando generar un reporte de ficha, se genera
             return reporte_ficha
         
-        print(request.POST)
-
         if(request.POST.get('tipo') == 'pdf'): # Reporte de turbinas de vapor en PDF
             return generar_pdf(request, self.get_queryset(), 'Reporte de Listado de Compresores', 'compresores')
         
@@ -627,6 +648,31 @@ class EdicionCaso(EdicionCompresor):
             return render(self.request, self.template_name, self.get_context_data())
 
 class EdicionComposicionGases(LoginRequiredMixin, PermisosMixin, View):
+    """
+    Resumen:
+        Vista para la edición de la composición de gases de las etapas de un compresor.
+        Hereda de View y requiere autenticación y permisos específicos para acceder.
+
+    Atributos:
+        No tiene atributos adicionales definidos.
+
+    Métodos:
+        create_formset(self, etapas, compuesto) -> list:
+            Crea un conjunto de formularios para la composición de gases de cada etapa.
+
+        dispatch(self, request, *args, **kwargs) -> HttpResponse:
+            Verifica permisos antes de permitir el acceso a la vista.
+
+        get_context_data(self, **kwargs) -> dict:
+            Genera el contexto necesario para renderizar la plantilla de edición de composición de gases.
+
+        get(self, request, pk, *args, **kwargs) -> HttpResponse:
+            Renderiza la plantilla de composición de gases con el contexto generado.
+
+        post(self, request, pk, *args, **kwargs) -> HttpResponse:
+            Procesa y guarda los formularios de composición de gases enviados.
+    """
+
     def create_formset(self, etapas, compuesto): 
         formsets = []
         for etapa in etapas:
@@ -750,7 +796,7 @@ class ConsultaEvaluacionCompresor(PermisosMixin, ConsultaEvaluacion, CargarCompr
         context['equipo'] = self.get_compresor(queryset=False)
         context['permisos'] = self.get_permisos()
 
-        context['object_list'] =[
+        context['object_list'] = [
             {'evaluacion': evaluacion, 'graficas': {
                 'cabezal_vs_flujo': generar_cabezal_flujo(evaluacion=evaluacion),
                 'presion_vs_h': generar_grafica_presion_h(evaluacion=evaluacion),
@@ -1081,6 +1127,23 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresM
         return (resultado, etapas, entradas)
 
 class GraficasHistoricasCompresor(View):
+    """
+    Resumen:
+        Vista para mostrar gráficas históricas de un compresor.
+
+        Esta vista recibe como par metro el ID del compresor y devuelve una p gina
+        con gráficas que muestran la evoluci n en el tiempo de las caracter sticas
+        del compresor.
+
+        Los parámetros que se pueden pasar por GET son:
+            desde: fecha desde la que se quiere mostrar la gr fica
+            hasta: fecha hasta la que se quiere mostrar la gr fica
+            usuario: ID del usuario que realiz  la evaluaci n
+            nombre: nombre del compresor
+
+        Si se pasa alguno de estos par metros, se filtrarán las evaluaciones
+        correspondientes y se mostrar n solo las que cumplan con los filtros.
+    """
     def get(self, request, pk):
         compresor = Compresor.objects.get(pk=pk)
         evaluaciones = compresor.evaluaciones_compresor.all()

@@ -283,6 +283,42 @@ class Evaluacion(models.Model):
         ordering = ('-fecha',)
 
 class EntradaEtapaEvaluacion(models.Model):
+    """
+    Resumen:
+        Modelo para registrar las entradas de las evaluaciones de cada etapa de los compresores.
+
+    Atributos:
+        id: UUIDField -> Identificador único de la entrada.
+        etapa: ForeignKey -> Referencia a la etapa del compresor evaluado.
+        evaluacion: ForeignKey -> Referencia a la evaluación del compresor.
+        flujo_gas: FloatField -> Flujo de gas en la etapa.
+        flujo_gas_unidad: Unidad (F) -> Unidad del flujo de gas.
+        velocidad: FloatField -> Velocidad del gas en la etapa.
+        velocidad_unidad: Unidad (V) -> Unidad de la velocidad del gas.
+        flujo_volumetrico: FloatField -> Flujo volumétrico en la etapa.
+        flujo_surge: FloatField -> Flujo surge en la etapa.
+        flujo_volumetrico_unidad: Unidad (F) -> Unidad del flujo volumétrico.
+        cabezal_politropico: FloatField -> Cabezal politrópico en la etapa.
+        cabezal_politropico_unidad: Unidad (C) -> Unidad del cabezal politrópico.
+        potencia_generada: FloatField -> Potencia generada en la etapa.
+        potencia_generada_unidad: Unidad (P) -> Unidad de la potencia generada.
+        eficiencia_politropica: FloatField -> Eficiencia politrópico en la etapa.
+        presion_in: FloatField -> Presión de entrada en la etapa.
+        presion_out: FloatField -> Presión de salida en la etapa.
+        presion_unidad: Unidad (P) -> Unidad de las presiones en la etapa.
+        temperatura_in: FloatField -> Temperatura de entrada en la etapa.
+        temperatura_out: FloatField -> Temperatura de salida en la etapa.
+        temperatura_unidad: Unidad (T) -> Unidad de las temperaturas en la etapa.
+        k_in: FloatField -> Constante de expansión de entrada en la etapa.
+        k_out: FloatField -> Constante de expansión de salida en la etapa.
+        z_in: FloatField -> Z de entrada en la etapa.
+        z_out: FloatField -> Z de salida en la etapa.
+        pm_ficha: FloatField -> Peso molecular de la ficha en la etapa.
+        pm_ficha_unidad: Unidad (P) -> Unidad del peso molecular de la ficha.
+
+    Métodos:
+        No tiene métodos definidos.
+    """
     etapa = models.ForeignKey(EtapaCompresor, models.CASCADE, related_name="entradas")
     evaluacion = models.ForeignKey(Evaluacion, models.CASCADE, related_name="entradas_evaluacion")
     flujo_gas = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Flujo de Gas")
@@ -320,6 +356,19 @@ class EntradaEtapaEvaluacion(models.Model):
     pm_ficha_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_pm_ficha_evaluacion", verbose_name="Unidad")
 
 class ComposicionEvaluacion(models.Model):
+    """
+    Modelo que contiene la información de la composición de gases 
+    en una etapa de un compresor.
+
+    Atributos:
+        id: UUIDField -> ID único del objeto
+        entrada_etapa: ForeignKey -> EntradaEtapaEvaluacion al que pertenece la composición
+        fluido: ForeignKey -> Fluido al que se refiere la composición
+        porc_molar: FloatField -> Porcentaje molar del gas
+
+    Métodos:
+        __str__ -> Representación en cadena del objeto
+    """
     entrada_etapa = models.ForeignKey(EntradaEtapaEvaluacion, models.CASCADE, related_name="composiciones")
     fluido = models.ForeignKey(Fluido, models.PROTECT, related_name="composiciones_fluidos")
     porc_molar = models.FloatField(validators=[MinValueValidator(0.0)], verbose_name="Porcentaje")
@@ -328,6 +377,36 @@ class ComposicionEvaluacion(models.Model):
         return [composicion.porc_molar for composicion in ComposicionEvaluacion.objects.filter(entrada_etapa__evaluacion=self.entrada_etapa.evaluacion, fluido=self.fluido)]
 
 class SalidaEtapaEvaluacion(models.Model):
+    """
+    Modelo que contiene la información de la salida de una etapa de un compresor.
+
+    Atributos:
+        entrada_etapa: OneToOneField -> EntradaEtapaEvaluacion al que pertenece la salida
+        flujo_in: FloatField -> Flujo másico de entrada a la etapa (m3/h)
+        flujo_out: FloatField -> Flujo másico de salida de la etapa (m3/h)
+        cabezal_calculado: FloatField -> Cabezal calculado en la etapa (m)
+        cabezal_isotropico: FloatField -> Cabezal isotropico en la etapa (m)
+        potencia_calculada: FloatField -> Potencia calculada en la etapa (W)
+        potencia_isoentropica: FloatField -> Potencia isoentropica en la etapa (W)
+        eficiencia_iso: FloatField -> Eficiencia isoentrópica (%)
+        eficiencia_teorica: FloatField -> Eficiencia teórica (%)
+        caida_presion: FloatField -> Caída de Presión (entrada_etapa.presion_unidad)
+        caida_temp: FloatField -> Caída de Temperatura (entrada_etapa.temperatura_unidad)
+        k_in: FloatField -> Constante de Expansión de Entrada [-]
+        k_out: FloatField -> Constante de Expansión de Salida [-]
+        k_promedio: FloatField -> Constante de Expansión Promedio [-]
+        n: FloatField -> Índice de Politrópico [-]
+        z_in: FloatField -> Factor de Compresibilidad de Entrada [-]
+        z_out: FloatField -> Factor de Compresibilidad de Salida [-]
+        relacion_compresion: FloatField -> Relación de Compresión [-]
+        relacion_temperatura: FloatField -> Relación de Temperatura [-]
+        relacion_volumetrica: FloatField -> Relación Volumétrica [-]
+        he: FloatField -> Entalpía de Entrada (kJ/kg)
+        hs: FloatField -> Entalpía de Salida (kJ/kg)
+
+    Métodos:
+        __str__ -> Representación en cadena del objeto
+    """
     entrada_etapa = models.OneToOneField(EntradaEtapaEvaluacion, models.CASCADE, related_name="salidas")
     flujo_in = models.FloatField()
     flujo_out = models.FloatField()
