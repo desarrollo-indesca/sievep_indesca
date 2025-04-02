@@ -877,8 +877,10 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresM
             fluido = Fluido.objects.get(cas=compuesto)
             composiciones[fluido] = []
 
+            caso = compresor.casos.first() if not self.request.GET.get('evaluacion-caso') else compresor.casos.get(pk=self.request.GET.get('evaluacion-caso')) 
+
             composiciones_gases = ComposicionGases.objects.filter(
-                etapa__compresor=compresor.casos.first(),
+                etapa__compresor=caso,
                 compuesto__cas=compuesto
             )
 
@@ -890,7 +892,7 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresM
                     }, prefix=f"{c.etapa.numero}-{c.compuesto.pk}")
                     composiciones[fluido].append(form)
             else:
-                for etapa in compresor.casos.first().etapas.all():
+                for etapa in caso.etapas.all():
                     form = ComposicionEvaluacionForm(initial={
                         'compuesto': fluido,
                         'etapa': etapa
@@ -898,7 +900,7 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresM
                     composiciones[fluido].append(form)
 
         entradas_etapa = {}
-        for etapa in compresor.casos.first().etapas.all():
+        for etapa in caso.etapas.all():
             entrada = etapa.lados.get(lado='E')
             salida = etapa.lados.get(lado='S')
            

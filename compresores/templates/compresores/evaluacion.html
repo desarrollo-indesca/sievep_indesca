@@ -27,16 +27,24 @@
 
 <hr>
 
-<form hx-confirm="¿Desea realizar esta acción?" id="form" method="post" name="form" hx-target="#resultados" hx-post="{% url 'evaluacion_compresor' pk=compresor.pk %}#resultados" hx-trigger="submit" hx-indicator="#spinner">
+<form id="form" method="post" name="form" hx-target="#resultados" hx-post="{% url 'evaluacion_compresor' pk=compresor.pk %}#resultados" hx-trigger="submit" hx-indicator="#spinner">
     {% csrf_token %}
     <div class="row">
-        <div class="col-12">
+        <div class="col-8">
             <label for="evaluacion-nombre" class="form-label">Nombre de la Evaluación</label>
             <input type="text" id="evaluacion-nombre" name="evaluacion-nombre" class="form-control" required>
         </div>
+        <div class="col-4">
+            <label for="evaluacion-caso" class="form-label">Precargar Información del Caso:</label>
+            <select name="evaluacion-caso" id="evaluacion-caso" class="form-select" hx-select="#datos-entrada" hx-target="#datos-entrada" hx-get="{% url 'evaluacion_compresor' pk=compresor.pk %}" required>
+                {% for caso in compresor.casos.all %}
+                <option value="{{caso.pk}}">Caso {{forloop.counter}}</option>
+                {% endfor %}
+            </select>
+        </div>
     </div>
     <hr>
-    <div class="row">
+    <div class="row" id="datos-entrada">
         <div class="col-7">
             <h5 class="text-center">Datos de Entrada</h5>
             <hr>
@@ -323,7 +331,7 @@
     </div>
 
     <div class="d-flex justify-content-center">
-        <button type="submit" id="submit" name="submit" value="calcular" class="btn btn-danger">Calcular Resultados</button>
+        <button type="submit" id="submit" name="submit" value="calcular" class="btn btn-danger" hx-confirm="¿Desea realizar esta acción?">Calcular Resultados</button>
     </div>
 </form>
 
