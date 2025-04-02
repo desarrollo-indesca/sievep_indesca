@@ -4944,11 +4944,24 @@ def reporte_detalle_evaluacion_compresor(evaluacion):
     story.append(table)
 
     fig, ax = plt.subplots(3, figsize=(8, 11))
-    ax[0].plot([entrada.salidas.he for entrada in evaluacion.entradas_evaluacion.all()],
-              [entrada.presion_in for entrada in evaluacion.entradas_evaluacion.all()],
+
+    entradas = evaluacion.entradas_evaluacion.all()
+    x1 = []
+    x2 = []
+    y = []
+    for i in range(entradas.count()):
+        y.append(transformar_unidades_presion([entradas[i].presion_in], entradas[i].presion_unidad.pk, 7)[0])
+        y.append(transformar_unidades_presion([entradas[i].presion_out], entradas[i].presion_unidad.pk, 7)[0])
+        x1.append(entradas[i].salidas.he)
+        x1.append(entradas[i].salidas.hs)
+        x2.append(entradas[i].salidas.he)
+        x2.append(entradas[i].salidas.hss)
+
+    ax[0].plot(x1,
+              y,
               label='Entrada')
-    ax[0].plot([entrada.salidas.hs for entrada in evaluacion.entradas_evaluacion.all()],
-              [entrada.presion_out for entrada in evaluacion.entradas_evaluacion.all()],
+    ax[0].plot(x2,
+              y,
               label='Salida')
     ax[0].set_title('Presiones vs Entalpías')
     ax[0].set_xlabel('Entalpías (kJ/kg)')
@@ -4977,7 +4990,7 @@ def reporte_detalle_evaluacion_compresor(evaluacion):
               label="Cabezal Politrópico")
     
     ax[2].set_title('Flujo Volumétrico vs Cabezal')
-    ax[2].set_xlabel('Flujo Volumétrico (m³/s)')
+    ax[2].set_xlabel('Flujo Volumétrico (m³/h)')
     ax[2].set_ylabel('Cabezal (m)')
     
 
