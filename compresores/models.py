@@ -431,3 +431,4 @@ class SalidaEtapaEvaluacion(models.Model):
     pm_calculado = models.FloatField()
     he = models.FloatField() # Este campo se guardará internamente
     hs = models.FloatField() # Este campo se guardará internamente
+    hss = models.FloatField()

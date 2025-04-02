@@ -1026,6 +1026,7 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresM
                         pm_calculado = resultados["pm_calculado"][i],
                         he = resultados["HE"][i],
                         hs = resultados["HS"][i],
+                        hss = resultados["HSs"][i],
                     )
                     
                     for compuesto in COMPUESTOS:

@@ -79,26 +79,28 @@ def PropiedadTermodinamica(PT, P, T, C):
     """
     Propiedad = []
     for i in range(len(P)):
-        try:
-            a = [PropsSI(PT, 'P', P[i], 'T', T[i], C[j]) for j in range(len(C))]
-        except:
-            if PT == 'H':
-                a = [Chemical(C[j]) for j in range(len(C))]
-                for j in range(len(C)):
-                    a[j].calculate(T[i], P[i])
-                a = [a[j].H for j in range(len(C))]
-
-            elif PT == 'Cpmass':
-                a = [Chemical(C[j], T[i], P[i]).Cp for j in range(len(C))]
-            elif PT == 'S':
-                a = [Chemical(C[j]) for j in range(len(C))]
-                for j in range(len(C)):
-                    a[j].calculate(T[i], P[i])
-                a = [a[j].S for j in range(len(C))]
-            elif PT == 'Cpmass':
-                a = [Chemical(C[j], T[i], P[i]).Cvg() for j in range(len(C))]
-            else:
-                a = [Chemical(C[j], T[i], P[i]).Z for j in range(len(C))]
+        a = []
+        for j in range(len(C)):
+            try:
+                a.append(PropsSI(PT, 'P', P[i], 'T', T[i], C[j]))
+            except:
+                if PT == 'H':
+                    c = Chemical(C[j])
+                    c.calculate(T[i], P[i])
+                    a.append(c.H)
+                elif PT == 'Cpmass':
+                    c = Chemical(C[j], T[i], P[i])
+                    a.append(c.Cp)
+                elif PT == 'S':
+                    c = Chemical(C[j])
+                    c.calculate(T[i], P[i])
+                    a.append(c.S)
+                elif PT == 'Cpmass':
+                    c = Chemical(C[j], T[i], P[i])
+                    a.append(c.Cvg())
+                else:
+                    c = Chemical(C[j], T[i], P[i])
+                    a.append(c.Z)
         
         Propiedad.append(a)
     return Propiedad
@@ -117,7 +119,6 @@ def TotalPropiedad(x, H):
     total = []
     for i in range(len(x)):
         a = 0
-        print(x, H)
         for j in range(len(H[i])):
             val = x[i][j] * H[i][j]
             a += val
@@ -138,16 +139,14 @@ def EntalpiaIsoentropica(P, S, C):
     """
     Propiedad = []
     for i in range(len(P)):
-        try:
-            a = [PropsSI('H', 'P', P[i], 'S', S[i][j], C[j]) for j in range(len(C))]
-        except:
-            a = [Chemical(C[j]) for j in range(len(C))]
+        a = []
+        for j in range(len(C)):
+            print('H', 'P', P[i], 'S', S[i][j], C[j])
             try:
-                for j in range(len(C)):
-                    a[j].calculate_PS(P[i], S[i][j])
-                a = [a[j].H for j in range(len(C))]
-            except:
-                a = [0 for j in range(len(C))]
+                enthalpy = PropsSI('H', 'P', P[i], 'S', S[i][j], C[j])
+            except Exception as e:
+                enthalpy = 0
+            a.append(enthalpy)
         Propiedad.append(a)
     return Propiedad
 
@@ -331,7 +330,8 @@ def evaluar_compresor(etapas):
         "z_out": ZS,
         "pm_calculado": PMprom,
         'HE': HE,
-        'HS': HS
+        'HS': HS,
+        'HSs': HSs
     }
 
 def generar_grafica_presion_h(entradas=None, resultados=None, evaluacion=None,):
@@ -352,18 +352,45 @@ def generar_grafica_presion_h(entradas=None, resultados=None, evaluacion=None,):
         entradas = evaluacion.entradas_evaluacion.all()
         resultados = {
             'HE': [entrada.salidas.he for entrada in entradas],
-            'HS': [entrada.salidas.hs for entrada in entradas]
+            'HS': [entrada.salidas.hs for entrada in entradas],
+            'HSs': [entrada.salidas.hss for entrada in entradas]
         }
 
-    y1 = [x['presion_in'] / 1000 if isinstance(x, dict) else transformar_unidades_presion([x.presion_in], x.presion_unidad.pk, 7)[0] for x in entradas]
-    y2 = [x['presion_out'] / 1000 if isinstance(x, dict) else transformar_unidades_presion([x.presion_out], x.presion_unidad.pk, 7)[0] for x in entradas]
+    y = []
+    x1 = []
+    x2 = []
+
+    if evaluacion is None:
+        for i in range(len(entradas)):
+            presion_in, presion_out = [entradas[i]['presion_in'] / 1e5, entradas[i]['presion_out'] / 1e5]
+
+            y.append(presion_in)
+            x1.append(resultados['HE'][i])
+            x2.append(resultados['HE'][i])
+            y.append(presion_out)
+            x1.append(resultados['HS'][i])
+            x2.append(resultados['HSs'][i])
+    else:
+        for i in range(entradas.count()):
+            presion_in, presion_out = transformar_unidades_presion(
+                [entradas[i].presion_in, entradas[i].presion_out],
+                entradas[i].presion_unidad.pk,
+                7
+            )
+
+            y.append(presion_in)
+            x1.append(resultados['HE'][i])
+            x2.append(resultados['HE'][i])
+            y.append(presion_out)
+            x1.append(resultados['HS'][i])
+            x2.append(resultados['HSs'][i] if resultados.get('HSs') else resultados['HS'][i])
 
     p = figure(
         title="Presiones vs Entalpías",
         x_axis_label='Entalpías (kJ/kg)', y_axis_label='Presiones (bar)'
     )
-    p.line(x=resultados['HE'], y=y1, color="blue", legend_label="H vs P Entrada") 
-    p.line(x=resultados['HS'], y=y2, color="red", legend_label="H vs P Salida")
+    p.line(x=x1, y=y, color="blue", legend_label="Real") 
+    p.line(x=x2, y=y, color="red", legend_label="Isentrópico") 
     script, div = components(p)
     return {'script': script, 'div': div}
         
@@ -384,7 +411,7 @@ def generar_presion_flujo(entradas=None, evaluacion=None):
                x_axis_label='Presión (bar)', y_axis_label='Flujo Volumétrico (m3/h)')
 
     if entradas is not None:
-        flujo_volumetrico = [entrada['flujo_volumetrico'] / 3600 for entrada in entradas]
+        flujo_volumetrico = [entrada['flujo_volumetrico'] * 3600 for entrada in entradas]
         presion_entrada = [entrada['presion_in'] / 1e5 for entrada in entradas]
 
     elif evaluacion is not None:
@@ -392,13 +419,13 @@ def generar_presion_flujo(entradas=None, evaluacion=None):
         flujo_volumetrico = [
             transformar_unidades_flujo_volumetrico(
                 [entrada.flujo_volumetrico], 
-                entrada.flujo_volumetrico_unidad.pk
+                entrada.flujo_volumetrico_unidad.pk, 34
             )[0] for entrada in entradas
         ]
         presion_entrada = [
             transformar_unidades_presion(
                 [entrada.presion_in], 
-                entrada.presion_unidad.pk)[0]  for entrada in entradas
+                entrada.presion_unidad.pk, 7)[0]  for entrada in entradas
         ]
 
     else:
@@ -435,19 +462,19 @@ def generar_cabezal_flujo(entradas=None, resultados=None, evaluacion=None):
         resultados_calculado = resultados['cabezal']
         resultados_isotropico = resultados['cabezal_iso']
 
-    p = figure(title="Cabezales vs Flujo Volumétrico", x_axis_label='Flujo Volumétrico (m3/s)', 
+    p = figure(title="Cabezales vs Flujo Volumétrico", x_axis_label='Flujo Volumétrico (m3/h)', 
                y_axis_label='Cabezal (m)')
     
     # Blue lines (Real)
     if evaluacion:
         flujos = [
-            transformar_unidades_flujo_volumetrico([entrada.flujo_volumetrico], entrada.flujo_volumetrico_unidad.pk)[0] for entrada in entradas
+            transformar_unidades_flujo_volumetrico([entrada.flujo_volumetrico], entrada.flujo_volumetrico_unidad.pk, 34)[0] for entrada in entradas
         ]
         y_blue_start = [
             entrada.salidas.cabezal_calculado for entrada in entradas    
         ]
     else:
-        flujos = [entrada['flujo_volumetrico'] / 3600 for entrada in entradas]
+        flujos = [entrada['flujo_volumetrico'] * 3600 for entrada in entradas]
         y_blue_start = [resultados_calculado[i] for i in range(len(entradas))]
 
     p.line(x=flujos, y=y_blue_start, color="blue", legend_label="Real")
