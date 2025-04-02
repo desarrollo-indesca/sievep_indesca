@@ -4955,17 +4955,31 @@ def reporte_detalle_evaluacion_compresor(evaluacion):
     ax[0].set_ylabel('Presiones (bar)')
     ax[0].legend()
 
-    ax[1].plot([entrada.flujo_volumetrico for entrada in evaluacion.entradas_evaluacion.all()],
-              [entrada.presion_in for entrada in evaluacion.entradas_evaluacion.all()])
+    flujos = [
+        transformar_unidades_flujo_volumetrico([entrada.flujo_volumetrico], entrada.flujo_volumetrico_unidad.pk)[0] for entrada in evaluacion.entradas_evaluacion.all()
+    ]
+
+    presiones = [transformar_unidades_presion([entrada.presion_in], entrada.presion_unidad.pk)[0] for entrada in evaluacion.entradas_evaluacion.all()]
+
+    ax[1].plot(flujos, presiones)
     ax[1].set_title('Presiones vs Flujo Volumétrico')
-    ax[1].set_xlabel('Flujo Volumétrico (m³/h)')
+    ax[1].set_xlabel('Flujo Volumétrico (m³/s)')
     ax[1].set_ylabel('Presiones (bar)')
 
-    ax[2].plot([entrada.salidas.cabezal_calculado for entrada in evaluacion.entradas_evaluacion.all()],
-              [entrada.flujo_volumetrico for entrada in evaluacion.entradas_evaluacion.all()])
-    ax[2].set_title('Cabezal vs Flujo Volumétrico')
-    ax[2].set_xlabel('Cabezal (kJ/kg)')
-    ax[2].set_ylabel('Flujo Volumétrico (m³/h)')
+    ax[2].plot(flujos,
+              [entrada.salidas.cabezal_calculado for entrada in evaluacion.entradas_evaluacion.all()], 
+              label="Cabezal Calculado")
+    ax[2].plot(flujos,
+              [entrada.salidas.cabezal_isotropico for entrada in evaluacion.entradas_evaluacion.all()],
+              label="Cabezal Isotrópico")
+    ax[2].plot(flujos,
+              [transformar_unidades_longitud([entrada.cabezal_politropico], entrada.cabezal_politropico_unidad.pk)[0] for entrada in evaluacion.entradas_evaluacion.all()],
+              label="Cabezal Politrópico")
+    
+    ax[2].set_title('Flujo Volumétrico vs Cabezal')
+    ax[2].set_xlabel('Flujo Volumétrico (m³/s)')
+    ax[2].set_ylabel('Cabezal (m)')
+    
 
     fig.tight_layout()
     buff = BytesIO()

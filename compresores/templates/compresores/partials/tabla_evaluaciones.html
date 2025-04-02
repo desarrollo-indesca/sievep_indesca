@@ -1,8 +1,8 @@
 {% load static %}
 {% load mathfilters %}
 {% for evaluacion in object_list %}
-  <tr>
-    <th scope="row">
+  <tr style="vertical-align: middle;">
+    <th>
       {% if page_obj.has_previous %}
       {{ 10|mul:page_obj.previous_page_number|add:forloop.counter }}
       {% else %}
