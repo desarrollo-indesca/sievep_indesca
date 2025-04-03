@@ -2,6 +2,7 @@ from CoolProp.CoolProp import PropsSI
 from bokeh.embed import components
 from bokeh.plotting import figure
 from thermo.chemical import Chemical
+from thermo import ChemicalConstantsPackage, PRMIX, CEOSLiquid, CEOSGas, FlashPureVLS
 from calculos.unidades import transformar_unidades_longitud, transformar_unidades_flujo_volumetrico, transformar_unidades_presion
 
 import math
@@ -90,14 +91,13 @@ def PropiedadTermodinamica(PT, P, T, C):
                     a.append(c.H)
                 elif PT == 'Cpmass':
                     c = Chemical(C[j], T[i], P[i])
-                    a.append(c.Cp)
+                    a.append(c.Cpg)
                 elif PT == 'S':
-                    c = Chemical(C[j])
-                    c.calculate(T[i], P[i])
-                    a.append(c.S)
-                elif PT == 'Cpmass':
                     c = Chemical(C[j], T[i], P[i])
-                    a.append(c.Cvg())
+                    a.append(c.S)
+                elif PT == 'Cvmass':
+                    c = Chemical(C[j], T[i], P[i])
+                    a.append(c.Cvg)
                 else:
                     c = Chemical(C[j], T[i], P[i])
                     a.append(c.Z)
@@ -141,11 +141,18 @@ def EntalpiaIsoentropica(P, S, C):
     for i in range(len(P)):
         a = []
         for j in range(len(C)):
-            print('H', 'P', P[i], 'S', S[i][j], C[j])
             try:
                 enthalpy = PropsSI('H', 'P', P[i], 'S', S[i][j], C[j])
             except Exception as e:
-                enthalpy = 0
+               
+                constants, correlations = ChemicalConstantsPackage.from_IDs(['h2o'])
+                eos_kwargs = dict(Tcs=constants.Tcs, Pcs=constants.Pcs, omegas=constants.omegas)
+                liquid = CEOSLiquid(PRMIX, HeatCapacityGases=correlations.HeatCapacityGases, eos_kwargs=eos_kwargs)
+                gas = CEOSGas(PRMIX, HeatCapacityGases=correlations.HeatCapacityGases, eos_kwargs=eos_kwargs)
+                flasher = FlashPureVLS(constants, correlations, gas=gas, liquids=[liquid], solids=[])
+                res = flasher.flash(P=P[i], S_mass=S[i][j])
+                enthalpy = res.H_mass()
+                
             a.append(enthalpy)
         Propiedad.append(a)
     return Propiedad
