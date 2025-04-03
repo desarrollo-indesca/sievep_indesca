@@ -15,34 +15,34 @@
                   <tbody id="tabla_ficha_body">
                     <tr>
                       <th class="table-dark">Tag</th>
-                      <td><span id="tag_ficha">{{compresor.tag|default_if_none:'-'}}</span></td>
-                      <td colspan="2" rowspan="6" style="background-color: lightgray;">
-                        <img src="/static/img/compresores/compresor-ficha.png" style="max-width: 100%;" alt="">
-                      </td>
+                      <td colspan="3"><span id="tag_ficha">{{compresor.tag|default_if_none:'-'}}</span></td>
                     </tr>
                     <tr>
                       <th class="table-dark">Complejo</th>
-                      <td>{{compresor.planta.complejo|default_if_none:'-'}}</td>
+                      <td colspan="3">{{compresor.planta.complejo|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark">Planta</th>
-                      <td>{{compresor.planta|default_if_none:'-'}}</td>
+                      <td colspan="3">{{compresor.planta|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                       <th class="table-dark">Fabricante</th>
-                      <td>{{compresor.fabricante|default_if_none:'-'}}</td>
+                      <td colspan="3">{{compresor.fabricante|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                         <th class="table-dark">Modelo</th>
-                        <td>{{compresor.modelo|default_if_none:'-'}}</td>
+                        <td colspan="3">{{compresor.modelo|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                         <th class="table-dark">Tipo de Compresor</th>
-                        <td>{{compresor.tipo|default_if_none:'-'}}</td>
+                        <td colspan="3">{{compresor.tipo|default_if_none:'-'}}</td>
                     </tr>
                     <tr>
                         <th class="table-dark">Descripción</th>
                         <td colspan="3">{{compresor.descripcion|default_if_none:'-'}}</td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark" colspan="4">Datos Técnicos de las Etapas</th>
                     </tr>
                   </tbody>
                 </table>
@@ -51,7 +51,7 @@
                     <thead>
                         <tr>
                             <th colspan="{% if request.user.is_superuser or compresor.planta.pk in permisos.ediciones %}2{% else %}4{% endif %}">
-                                <div class="d-flex justify-content-center">
+                                <div class="d-flex justify-content-center align-items-center">
                                     Caso &nbsp;
                                     <select hx-swap="outerHTML" hx-select="#casos_{{compresor.pk}}" hx-trigger="change" hx-target="#casos_{{compresor.pk}}" hx-get="{% url 'ficha_caso' pk=compresor.pk %}" name="caso" id="caso_{{compresor.pk}}">
                                         {% for caso in compresor.casos.all %}
@@ -62,10 +62,14 @@
                             </th>
                             {% if request.user.is_superuser or compresor.planta.pk in permisos.ediciones %}
                             <th>
-                                <a href="{% url 'creacion_nuevo_caso' pk=compresor.pk %}" class="btn btn-sm btn-danger">+ Añadir nuevo caso</a>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <a href="{% url 'creacion_nuevo_caso' pk=compresor.pk %}" class="btn btn-sm btn-danger">+ Añadir nuevo caso</a>
+                                </div>
                             </th>
-                            <th>
-                                <a id="boton_edicion_caso" href="{% url 'edicion_caso' pk=caso.pk %}" class="btn btn-sm btn-secondary">+ Editar Caso</a>
+                            <th class="d-flex justify-content-center align-items-center">
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <a id="boton_edicion_caso" href="{% url 'edicion_caso' pk=caso.pk %}" class="btn btn-sm btn-secondary">+ Editar Caso</a>
+                                </div>
                             </th>
                             {% endif %}
                         </tr>
@@ -168,8 +172,8 @@
                             <th class="table-dark">Entrada</th>
                             <th class="table-dark">Salida</th>
                         </tr>
-                        {% with entrada=etapa.lados.0 %}
-                        {% with salida=etapa.lados.1 %}
+                        {% with entrada=etapa.lados.all.0 %}
+                        {% with salida=etapa.lados.all.1 %}
                         <tr>
                             <th class="table-dark" colspan="2">Presión</th>
                             <td>
