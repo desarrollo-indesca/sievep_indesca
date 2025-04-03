@@ -46,15 +46,20 @@ document.addEventListener('input', (e)=>{
 document.addEventListener('htmx:beforeRequest', (evt) => {
     document.body.style.opacity = 0.8;
 
-    console.log(evt.target.name, document.getElementById('submit').value );
-    
+    console.log(evt.target.name, document.getElementById('submit').value, document.getElementById('submit').value === 'calcular');
 
-    if (evt.target.name === 'form' && document.getElementById('submit').value === 'almacenar') {
-        evt.detail.xhr.target = document.getElementsByTagName('form')[0];
-        if (!confirm('¿Está seguro que desea almacenar esta evaluación?')) {
-            evt.preventDefault();
-            document.body.style.opacity = 1.0;
-        }
+    if (evt.target.name === 'form') {
+        if(document.getElementById('submit').value === 'almacenar')
+            if (!confirm('¿Está seguro que desea almacenar esta evaluación?')) {
+                evt.preventDefault();
+                document.body.style.opacity = 1.0;
+            }
+        
+        if(document.getElementById('submit').value === 'calcular')
+            if (!confirm('¿Está seguro que calcular los resultados?')) {
+                evt.preventDefault();
+                document.body.style.opacity = 1.0;
+            }
     }
 });
 

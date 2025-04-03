@@ -108,8 +108,6 @@ def transformar_unidades_presion(args: list, unidad: int, unidad_salida: int = 3
     
     actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
-    print(actualizadas, unidad, unidad_salida)
-
     return actualizadas
 
 def transformar_unidades_u(args: list, unidad: int, unidad_salida: int = 27) -> list:
