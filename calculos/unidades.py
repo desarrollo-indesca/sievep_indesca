@@ -399,3 +399,27 @@ def transformar_unidades_velocidad_lineal(args: list, unidad: int, unidad_salida
     actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
 
     return actualizadas
+
+def transformar_unidades_peso_molecular(args: list, unidad: int, unidad_salida: int = 96):
+    '''
+    Resumen:
+        Función para transformar unidades de peso molecular.
+
+    Parámetros:
+        args: list -> Lista de valores a transformar
+        unidad: int -> ID de la unidad de entrada
+        unidad_salida: int -> ID de la unidad de salida. De no dar ninguna devolverá en kg/mol.
+
+    Devuelve:
+        list -> Lista de valores transformados a la unidad de salida
+    '''
+    def obtener_unidad(unidad): # Definición de las unidades en BDD por pint
+        return ur.kilogram/ur.mole if unidad == 97 else ur.gram/ur.mole
+
+    actualizadas = []
+    unidad_salida = obtener_unidad(unidad_salida)
+    unidad = obtener_unidad(unidad)
+    
+    actualizadas = list(map(lambda x: Q_(x, unidad).to(unidad_salida).magnitude if x != None else None, args))
+
+    return actualizadas

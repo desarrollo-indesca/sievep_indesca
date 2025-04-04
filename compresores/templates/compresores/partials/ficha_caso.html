@@ -3,7 +3,7 @@
         <tr>
             <th class="table-dark">Número de Impulsores</th>
             <td>{{caso.numero_impulsores|default_if_none:'-'}}</td>
-            <th class="table-dark">Tipo de Lubricación (ROT)</th>
+            <th class="table-dark">Tipo de Lubricación</th>
             <td>{{caso.tipo_lubricacion|default_if_none:'-'}}</td>
         </tr>
         <tr>
@@ -103,8 +103,8 @@
             <th class="table-dark">Entrada</th>
             <th class="table-dark">Salida</th>
         </tr>
-        {% with entrada=etapa.lados.first %}
-        {% with salida=etapa.lados.last %}
+        {% with entrada=etapa.lados.0 %}
+        {% with salida=etapa.lados.1 %}
         <tr>
             <th class="table-dark" colspan="2">Presión</th>
             <td>
@@ -143,6 +143,33 @@
         </tr>
         {% endwith %}
         {% endwith %}
+
+        {% with composiciones=caso.get_composicion_by_etapa %}
+        {% if composiciones %}
+        <table class="table table-bordered text-center">
+            <thead>
+                <tr class="table-dark">
+                    <th>Compuesto</th>
+                    {% for etapa in caso.etapas.all %}
+                    <th>{{ etapa.numero }} (% mol)</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for gas,comps in composiciones.items %}
+                <tr>
+                    <td>{{ gas }}</td>
+                    {% for comp in comps %}
+                    <td>{{ comp.porc_molar }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-center">No hay composiciones registradas para las etapas de este caso.</p>
+        {% endif %}
+        {% endwith %}
     
         {% if etapa.curva_caracteristica %}
         <tr>
@@ -162,3 +189,4 @@
     </tbody>
 </table>
 <a hx-swap-oob="true" id="boton_edicion_caso" href="{% url 'edicion_caso' pk=caso.pk %}" class="btn btn-sm btn-secondary">+ Editar Caso</a>
+<a hx-swap-oob="true" href="{% url 'edicion_composicion' pk=caso.pk %}" class="btn btn-warning d-inline-flex" id="edicion-composicion-{{compresor.pk}}" style="color: black;">Editar Composición</a>

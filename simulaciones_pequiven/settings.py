@@ -19,7 +19,7 @@ import os
 # from django_auth_ldap.config import LDAPSearch
 from .jobs import start_deleting_job
 
- ### CONFIGURACIÓN DE LDAP
+### CONFIGURACIÓN DE LDAP
 
 # AUTH_LDAP_GLOBAL_OPTIONS = {
 #     ldap.OPT_X_TLS_REQUIRE_CERT: True,

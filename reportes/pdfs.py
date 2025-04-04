@@ -249,6 +249,12 @@ def generar_historia(request, reporte, object_list):
 
     if reporte == 'ficha_tecnica_compresor':
         return ficha_tecnica_compresor(object_list)
+    
+    if reporte == 'reporte_evaluaciones_compresores':
+        return reporte_evaluaciones_compresores(request, object_list)
+    
+    if reporte == 'detalle_evaluacion_compresor':
+        return reporte_detalle_evaluacion_compresor(object_list)
 
 # GENERALES
 def reporte_equipos(request, object_list):
@@ -4550,7 +4556,7 @@ def ficha_tecnica_compresor(compresor):
                         Paragraph(str(etapa.densidad) if etapa.densidad else '—', centrar_parrafo)
                     ],
                     [
-                        Paragraph(f"Aumento Estimado ({etapa.volumen_unidad})", centrar_parrafo),
+                        Paragraph(f"Flujo Surge ({etapa.volumen_unidad})", centrar_parrafo),
                         Paragraph(str(etapa.aumento_estimado) if etapa.aumento_estimado else '—', centrar_parrafo),
                         Paragraph("Relación de Compresión", centrar_parrafo),
                         Paragraph(str(etapa.rel_compresion) if etapa.rel_compresion else '—', centrar_parrafo)
@@ -4635,11 +4641,362 @@ def ficha_tecnica_compresor(compresor):
             table = Table(table, style=estilo)
             story.append(table)
 
+
+
             if etapa.curva_caracteristica:
                 story.append(Spacer(0,10))
                 story.append(Image(etapa.curva_caracteristica.path, width=400, height=400))
                 story.append(Paragraph(f"Curva Característica Etapa #{j+1}", centrar_parrafo))
                 story.append(Spacer(0,10))
 
+        # Tabla de Composición por Etapa
+        composiciones = caso.get_composicion_by_etapa()
+        if len(composiciones):
+            story.append(Spacer(0, 10))
+            table = [[Paragraph("Compuesto", centrar_parrafo)]]
+
+            for etapa_num in range(1, caso.etapas.count() + 1):
+                table[0].append(Paragraph(f"Etapa {etapa_num}", centrar_parrafo))
+
+            for nombre in composiciones:
+                row = [Paragraph(nombre, centrar_parrafo)]
+                for comp in composiciones[nombre]:
+                    row.append(Paragraph(f"{round(comp.porc_molar, 2)}%", centrar_parrafo))
+                table.append(row)
+
+            estilo = TableStyle([
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+                ('BACKGROUND', (0, 0), (0, -1), sombreado),
+                ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+            ])
+
+            table = Table(table, style=estilo)
+            story.append(table)
+        else:
+            story.append(Spacer(0, 10))
+            story.append(Paragraph("Las composiciones de las etapas para este caso no han sido registradas.", centrar_parrafo))
+
     return [story, []]
 
+def reporte_evaluaciones_compresores(request, object_list):
+    '''
+    Resumen:
+        Genera un reporte PDF de varias evaluaciones filtradas de un compresor.
+    '''  
+    story = [Spacer(0, 90)]
+
+    if(len(request.GET) >= 2 and (request.GET['desde'] or request.GET['hasta'] or request.GET['usuario'] or request.GET['nombre'])):
+        story.append(Paragraph("Datos de Filtrado", centrar_parrafo))
+        table = [[Paragraph("Desde", centrar_parrafo), Paragraph("Hasta", centrar_parrafo), Paragraph("Usuario", centrar_parrafo), Paragraph("Nombre Ev.", centrar_parrafo)]]
+        table.append([
+            Paragraph(request.GET.get('desde'), parrafo_tabla),
+            Paragraph(request.GET.get('hasta'), parrafo_tabla),
+            Paragraph(request.GET.get('usuario'), parrafo_tabla),
+            Paragraph(request.GET.get('nombre'), parrafo_tabla),
+        ])
+
+        table = Table(table)
+        table.setStyle(basicTableStyle)
+
+        story.append(table)
+        story.append(Spacer(0,7))
+
+    table = [
+        [
+            Paragraph("Fecha", centrar_parrafo),
+        ]
+    ]
+
+    for j, _ in enumerate(object_list.first().entradas_evaluacion.all()):
+        table[0].append(Paragraph(f"Efic. Teorica/Isoentrópica E{j+1} (%)", centrar_parrafo))
+
+    fechas = []
+
+    for evaluacion in object_list.all().order_by('fecha'):
+        eficiencias_etapa = []
+        eficiencias_etapa.append(Paragraph(
+            evaluacion.fecha.strftime("%d/%m/%Y %H:%M:%S"), numero_tabla
+        ))
+
+        for k, entrada in enumerate(evaluacion.entradas_evaluacion.all()):
+            eficiencias_etapa.append(Paragraph(f'{round(entrada.salidas.eficiencia_teorica, 2)} / {round(entrada.salidas.eficiencia_iso, 2)}', numero_tabla))
+
+        while len(eficiencias_etapa) < len(object_list.first().entradas_evaluacion.all()) + 1:
+            eficiencias_etapa.append(Paragraph('-', numero_tabla))
+
+        table.append(eficiencias_etapa)
+        fechas.append(evaluacion.fecha.strftime("%d/%m/%Y %H:%M:%S"))
+
+    estilo = TableStyle([
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+
+        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+    ])
+
+    table = Table(
+        table,
+        style=estilo
+    )
+
+    story.append(table)
+
+    sub = "Fechas" # Subtítulo de las evaluaciones
+    if(len(fechas) >= 5):
+        fechas = list(range(1,len(fechas)+1))
+        sub = "Evaluaciones"
+
+    # Gráfico de eficiencias
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.set_title("Evolución de la Eficiencia Isentrópica")
+    ax.set_xlabel("Fecha")
+    ax.set_ylabel("Eficiencia Isentrópica (%)")
+
+    eficiencias_etapas = [[] for _ in range(evaluacion.entradas_evaluacion.count())]
+    eficiencias_teoricas_etapas = [[] for _ in range(evaluacion.entradas_evaluacion.count())]
+    for i,evaluacion in enumerate(object_list.all().order_by('fecha')):
+        entradas =evaluacion.entradas_evaluacion.all()
+        for k, _ in enumerate(entradas):
+            eficiencias_etapas[k].append(entradas[k].salidas.eficiencia_iso)
+            eficiencias_teoricas_etapas[k].append(entradas[k].salidas.eficiencia_teorica)
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.set_title("Evolución de la Eficiencia Isentrópica")
+    ax.set_xlabel("Fecha")
+    ax.set_ylabel("Eficiencia Isentrópica (%)")
+    for k, eficiencias in enumerate(eficiencias_etapas):
+        ax.plot(fechas, eficiencias, label=f"Etapas {k+1}")
+    ax.legend()
+
+    buff = BytesIO()
+    fig.tight_layout()
+    fig.savefig(buff, dpi=200)
+    plt.close(fig)
+    story.append(Spacer(0, 10))
+    story.append(Image(buff, width=500, height=350))
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.set_title("Evolución de la Eficiencia Teórica")
+    ax.set_xlabel("Fecha")
+    ax.set_ylabel("Eficiencia Teórica (%)")
+    for k, eficiencias in enumerate(eficiencias_teoricas_etapas):
+        ax.plot(fechas, eficiencias, label=f"Etapas {k+1}")
+    ax.legend()
+
+    buff = BytesIO()
+    fig.tight_layout()
+    fig.savefig(buff, dpi=200)
+    plt.close(fig)
+    story.append(Spacer(0, 10))
+    story.append(Image(buff, width=500, height=350))
+
+    return [story, [buff]]
+
+def reporte_detalle_evaluacion_compresor(evaluacion):
+    '''
+    Resumen:
+        Genera un reporte PDF detallado de una única evaluación de un compresor.
+    '''    
+    story = [Spacer(0, 90)]
+
+    # Información principal de la evaluación
+    story.append(Paragraph(f"Fecha: {evaluacion.fecha.strftime('%d/%m/%Y %H:%M:%S')}", parrafo_tabla))
+    story.append(Paragraph(f"Nombre: {evaluacion.nombre}", parrafo_tabla))
+    story.append(Paragraph(f"Usuario: {evaluacion.creado_por.get_full_name()}", parrafo_tabla))
+    story.append(Spacer(0, 20))
+    
+    # Tabla de datos de entrada y salida
+    story.append(Paragraph("Datos de Entrada y Salida", centrar_parrafo))
+    
+    table = [
+        [
+            Paragraph("Parámetro", centrar_parrafo),
+        ]
+    ]
+
+    # Add the names of the etapas to the table header
+    for etapa in evaluacion.entradas_evaluacion.all():
+        table[0].append(Paragraph(f"Etapa {etapa.etapa.numero}", centrar_parrafo))
+
+    parametros = [
+        ("Flujo de Gas", "flujo_gas", "flujo_gas_unidad"),
+        ("Velocidad", "velocidad", "velocidad_unidad"),
+        ("Flujo Volumétrico", "flujo_volumetrico", "flujo_volumetrico_unidad"),
+        ("Potencia Generada", "potencia_generada", "potencia_generada_unidad"),
+        ("Temperatura de Entrada", "temperatura_in", "temperatura_unidad"),
+        ("Temperatura de Salida", "temperatura_out", "temperatura_unidad"),
+        ("Presión de Entrada", "presion_in", "presion_unidad"),
+        ("Presión de Salida", "presion_out", "presion_unidad"),
+        ("Z Entrada", "z_in", None),
+        ("Z Salida", "z_out", None),
+        ("Eficiencia Politrópica", "eficiencia_politropica", None),
+        ("Flujo Surge", "flujo_surge", "flujo_volumetrico_unidad"),
+        ("K Entrada", "k_in", None),
+        ("K Salida", "k_out", None),
+        ("PM Ficha", "pm_ficha", "pm_ficha_unidad"),
+    ]
+
+    for i, (titulo, attr, unidad_attr) in enumerate(parametros):
+        table.append([Paragraph(titulo, centrar_parrafo)])
+        for etapa in evaluacion.entradas_evaluacion.all():
+            value = getattr(etapa, attr)
+            unidad = f" {getattr(etapa, unidad_attr)}" if unidad_attr else ""
+            table[i + 1].append(Paragraph(f"{value}{unidad}", centrar_parrafo))
+
+    estilo = TableStyle([
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+        ('BACKGROUND', (0, 0), (0, -1), sombreado),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+    ])
+
+    table = Table(table, style=estilo)
+    story.append(table)
+    story.append(Spacer(0, 10))
+
+    story.append(Paragraph("Composición Evaluada", centrar_parrafo))
+    # Tabla de composición de gas para cada etapa
+    table = [
+        [
+            Paragraph("Compuesto", centrar_parrafo),
+        ]
+    ]
+
+    # Add the names of the etapas to the table header
+    for etapa in evaluacion.entradas_evaluacion.all():
+        table[0].append(Paragraph(f"Etapa {etapa.etapa.numero}", centrar_parrafo))
+
+    from compresores.models import COMPUESTOS
+
+    for i, cas in enumerate(COMPUESTOS):
+        table.append([])
+        for etapa in evaluacion.entradas_evaluacion.all():
+            value = etapa.composiciones.get(fluido__cas=cas)
+            table[i + 1].append(Paragraph(f"{value.porc_molar}", centrar_parrafo))
+
+        table[i + 1].insert(0, Paragraph(value.fluido.nombre, centrar_parrafo))
+
+    estilo = TableStyle([
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+        ('BACKGROUND', (0, 0), (0, -1), sombreado),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+    ])
+
+    table = Table(table, style=estilo)
+    story.append(table)
+    story.append(Spacer(0, 10))
+
+    # Tabla de salidas para cada etapa
+    table = [
+        [
+            Paragraph("Salida", centrar_parrafo),
+        ]
+    ]
+
+    # Add the names of the etapas to the table header
+    story.append(Paragraph("Salidas de la Evaluación", centrar_parrafo))
+    story.append(Spacer(0, 10))
+    for etapa in evaluacion.entradas_evaluacion.all():
+        table[0].append(Paragraph(f"Etapa {etapa.etapa.numero}", centrar_parrafo))
+
+    for i, (prop, etiqueta) in enumerate([
+        ("flujo_in", "Flujo de Entrada (m³/h)"),
+        ("flujo_out", "Flujo de Salida (m³/h)"),
+        ("cabezal_calculado", "Cabezal Calculado (m)"),
+        ("cabezal_isotropico", "Cabezal Isotropico (m)"),
+        ("k_in", "K Entrada"),
+        ("k_out", "K Salida"),
+        ("z_in", "Z Entrada"),
+        ("z_out", "Z Salida"),
+        ("eficiencia_iso", "Eficiencia Isotérmica (%)"),
+        ("eficiencia_teorica", "Eficiencia Teórica (%)"),
+        ("potencia_calculada", "Potencia Calculada (%)"),
+        ("potencia_isoentropica", "Potencia Isoentrópica (kW)"),
+        ("caida_presion", "Caída de Presión (bar)"),
+        ("caida_temp", "Caída de Temperatura (°C)"),
+        ("energia_ret", "Energía Retenida (kJ/kg)"),
+        ("n", "Exponente Politrópico"),
+        ("relacion_compresion", "Relación de Compresión"),
+        ("relacion_temperatura", "Relación de Temperatura"),
+        ("relacion_volumetrica", "Relación Volumétrica"),
+        ("pm_calculado", "PM Calculado (gr/mol)"),
+    ]):
+        table.append([])
+        table[i + 1].append(Paragraph(etiqueta, centrar_parrafo))
+        for etapa in evaluacion.entradas_evaluacion.all():
+            value = getattr(etapa.salidas, prop)
+            if value is not None:
+                value = round(value, 2)
+            else:
+                value = '-'
+            table[i + 1].append(Paragraph(f"{value}", centrar_parrafo))
+
+    estilo = TableStyle([
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('BACKGROUND', (0, 0), (-1, 0), sombreado),
+        ('BACKGROUND', (0, 0), (0, -1), sombreado),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+    ])
+
+    table = Table(table, style=estilo)
+    story.append(table)
+
+    fig, ax = plt.subplots(3, figsize=(8, 11))
+
+    entradas = evaluacion.entradas_evaluacion.all()
+    x1 = []
+    x2 = []
+    y = []
+    for i in range(entradas.count()):
+        y.append(transformar_unidades_presion([entradas[i].presion_in], entradas[i].presion_unidad.pk, 7)[0])
+        y.append(transformar_unidades_presion([entradas[i].presion_out], entradas[i].presion_unidad.pk, 7)[0])
+        x1.append(entradas[i].salidas.he)
+        x1.append(entradas[i].salidas.hs)
+        x2.append(entradas[i].salidas.he)
+        x2.append(entradas[i].salidas.hss)
+
+    ax[0].plot(x1,
+              y,
+              label='Entrada')
+    ax[0].plot(x2,
+              y,
+              label='Salida')
+    ax[0].set_title('Presiones vs Entalpías')
+    ax[0].set_xlabel('Entalpías (kJ/kg)')
+    ax[0].set_ylabel('Presiones (bar)')
+    ax[0].legend()
+
+    flujos = [
+        transformar_unidades_flujo_volumetrico([entrada.flujo_volumetrico], entrada.flujo_volumetrico_unidad.pk)[0] for entrada in evaluacion.entradas_evaluacion.all()
+    ]
+
+    presiones = [transformar_unidades_presion([entrada.presion_in], entrada.presion_unidad.pk)[0] for entrada in evaluacion.entradas_evaluacion.all()]
+
+    ax[1].plot(flujos, presiones)
+    ax[1].set_title('Presiones vs Flujo Volumétrico')
+    ax[1].set_xlabel('Flujo Volumétrico (m³/s)')
+    ax[1].set_ylabel('Presiones (bar)')
+
+    ax[2].plot(flujos,
+              [entrada.salidas.cabezal_calculado for entrada in evaluacion.entradas_evaluacion.all()], 
+              label="Cabezal Calculado")
+    ax[2].plot(flujos,
+              [entrada.salidas.cabezal_isotropico for entrada in evaluacion.entradas_evaluacion.all()],
+              label="Cabezal Isotrópico")
+    ax[2].plot(flujos,
+              [transformar_unidades_longitud([entrada.cabezal_politropico], entrada.cabezal_politropico_unidad.pk)[0] for entrada in evaluacion.entradas_evaluacion.all()],
+              label="Cabezal Politrópico")
+    
+    ax[2].set_title('Flujo Volumétrico vs Cabezal')
+    ax[2].set_xlabel('Flujo Volumétrico (m³/h)')
+    ax[2].set_ylabel('Cabezal (m)')
+    
+
+    fig.tight_layout()
+    buff = BytesIO()
+    fig.savefig(buff, format='jpeg')
+    story.append(Image(buff, width=5*inch, height=10*inch))
+
+    return [story, [buff]]

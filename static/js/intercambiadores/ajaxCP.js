@@ -461,18 +461,8 @@ function actualizar_tipos(lado = "T") { // Actualización de Tipos de Cálculo d
     } else{
         $(id).html(`
             <option value="A">Automático</option>
-            <option value="M">Manual</option>
-        `);
-
-        const id_cp_liq = lado === 'T' ? '#cp_liquido_tubo' : '#cp_liquido_carcasa';
-        const id_cp_gas = lado === 'T' ? '#cp_gas_tubo' : '#cp_gas_carcasa';
-        $(id_tsat_hvap).attr('hidden', true);
-        $(id_cp_liq).attr('disabled', true);  
-        $(id_cp_gas).attr('disabled', true);  
-        if(lado == "C")
-            ajaxCPCarcasa();
-        else
-            ajaxCPTubo          
+            <option value="M" selected>Manual</option>
+        `);   
     }
 }
 

@@ -182,7 +182,7 @@ def calcular_cabezal(densidad, presion_descarga, presion_succion, altura_descarg
     Devuelve:
         float (m) -> Cabezal calculado 
     '''
-    print(altura_descarga, altura_succion)
+
     return (1/(densidad*GRAVEDAD)*(presion_descarga - presion_succion) + (altura_descarga - altura_succion) + flujo**2/(2*GRAVEDAD)*(1/area_descarga**2 - 1/area_succion**2) + htotal)
 
 def calculo_perdida_tramos(tramos, velocidades, areas, area_comp, flujos):
@@ -609,9 +609,10 @@ def calcular_datos_corrientes(corrientes, carcasa = False):
 
     corrientes_entrada = 0
     for i,corriente in enumerate(corrientes):
-        print(corriente['temperatura'])
+
         if(corriente['rol'] == 'E'):
             corrientes_entrada += 1
+
         saturar = carcasa and (corriente['rol'] == "S" or corrientes_entrada > 1 and corriente['rol'] == "E")
         corriente['h'] = calcular_entalpia_coolprop(corriente['temperatura'], corriente['presion'] if not saturar else None, "water")
         corriente['d'] = calcular_densidad_coolprop(corriente['temperatura'], corriente['presion'], "water")

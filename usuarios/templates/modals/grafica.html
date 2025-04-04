@@ -10,7 +10,7 @@
 
         <div class="modal-body text-start small">
             <div class="row">
-                {% for seccion in object_list.first.encuesta.secciones.all %}
+                {% for seccion in object_list.0.encuesta.secciones.all %}
                 {% if not forloop.first %}
                 <hr>
                 {% endif %}

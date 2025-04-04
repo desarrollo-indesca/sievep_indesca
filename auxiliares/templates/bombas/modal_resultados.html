@@ -133,8 +133,8 @@
                 </table>
             </div>
             {% with salida_secciones=evaluacion.salida_secciones_evaluacionbomba %}
-            {% with salida_succion=salida_secciones.first %}
-            {% with salida_descarga=salida_secciones.last %}
+            {% with salida_succion=salida_secciones.0 %}
+            {% with salida_descarga=salida_secciones.1 %}
             <div class="col-12 mt-2">
                 <table class="table">
                     <thead>
