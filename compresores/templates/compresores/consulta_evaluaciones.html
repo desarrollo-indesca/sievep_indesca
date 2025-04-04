@@ -2,6 +2,10 @@
 {% load static %}
 {% load templatetags %}
 
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/@bokeh/bokehjs@3.7.0/build/js/bokeh.min.js"></script>
+{% endblock %}
+
 {% block encabezado %}
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100"><a class="btn d-block btn-secondary" href="
     {% url 'consulta_compresores' %}
@@ -11,7 +15,7 @@
   <div class="col-md-3 col-lg-2 d-flex justify-content-center align-items-center h-100">
     {% if request.user.is_superuser or equipo.planta.pk in permisos.creacion_evaluaciones %}
     <a class="btn d-block btn-success" 
-    href="#"
+    href="{% url 'evaluacion_compresor' pk=equipo.pk %}"
     >+ Nueva</a> &nbsp;
     {% endif %}
   </div>
@@ -53,7 +57,7 @@
   </tr>
 </thead>
 <tbody class="text-center">
-  {% if object_list.count %}
+  {% if object_list %}
     {% include 'compresores/partials/tabla_evaluaciones.html' %}
   {% else %}
   <td colspan="7">No se encontraron evaluaciones para este equipo con los datos proporcionados.</td>
@@ -71,6 +75,7 @@
     {% endif %}
     <button type="button" class="btn btn-secondary" style="color: black;" data-bs-toggle="modal" data-bs-target="#ficha_{{equipo.pk}}"><img width="25px" src="{% static 'img/iconos/ficha.png' %}" alt="Mostrar ficha técnica">&nbsp;Ficha Técnica</button>
     <button type="button" class="btn btn-warning" style="color: black;" data-bs-toggle="modal" data-bs-target="#grafica_historica"><img width="25px" src="{% static 'img/iconos/resultados.png' %}" alt="Mostrar gráfica histórico">&nbsp;Gráfica Histórica</button>
+    {% include 'compresores/partials/historico.html' %}
   </form>
   {% include 'compresores/partials/ficha.html' with compresor=equipo %}
 </div>

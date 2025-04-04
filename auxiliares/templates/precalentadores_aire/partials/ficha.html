@@ -40,8 +40,8 @@
                       <th class="table-dark">Descripción</th>
                       <td colspan="4">{{precalentador.descripcion|default_if_none:'-'}}</td>
                     </tr>
-                    {% with seccion_aire=precalentador.condicion_fluido.first %}
-                    {% with seccion_gases=precalentador.condicion_fluido.last %}
+                    {% with seccion_aire=precalentador.condicion_fluido.0 %}
+                    {% with seccion_gases=precalentador.condicion_fluido.1 %}
                     <tr>
                       <th class="table-dark"></th>
                       <th class="table-dark" colspan="2">AIRE</th>

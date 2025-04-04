@@ -823,4 +823,6 @@ class PermisosMixin():
             'instalaciones': self.request.user.usuario_planta.filter(edicion_instalacion = True).values_list('planta__pk', flat=True),
             'duplicaciones': self.request.user.usuario_planta.filter(duplicacion = True).values_list('planta__pk', flat=True),
             'evaluaciones': self.request.user.usuario_planta.filter(ver_evaluaciones = True).values_list('planta__pk', flat=True),
+            'creacion_evaluaciones': self.request.user.usuario_planta.filter(crear_evaluaciones = True).values_list('planta__pk', flat=True),
+            'eliminar_evaluaciones': self.request.user.usuario_planta.filter(eliminar_evaluaciones = True).values_list('planta__pk', flat=True),
         }

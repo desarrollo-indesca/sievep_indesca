@@ -178,7 +178,10 @@
                 <td>
                     <div class="input-group">
                         {% render_field form_salida.presion class="form-control" placeholder="Presión de Salida" %}
-                        <select name="salida-presion_unidad" id="id_salida-presion_unidad" class="form-select">
+                        <select name="salida-presion_unidad" id="id_salida-presion_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with tipo='P' pk_selected=form_salida.instance.presion_unidad.pk %}
+                        </select>
+                        <select name="salida-presion_unidad" id="id_salida-presion_unidad" class="form-select" hidden>
                             {% include 'unidades.html' with tipo='P' pk_selected=form_salida.instance.presion_unidad.pk %}
                         </select>
                     </div>
@@ -199,7 +202,10 @@
                 <td>
                     <div class="input-group">
                         {% render_field form_salida.temp class="form-control" placeholder="Temperatura de Salida" %}
-                        <select name="salida-temp_unidad" id="id_salida-temp_unidad" class="form-select">
+                        <select name="salida-temp_unidad" id="id_salida-temp_unidad" class="form-select" disabled>
+                            {% include 'unidades.html' with tipo='T' pk_selected=form_salida.instance.temp_unidad.pk %}
+                        </select>
+                        <select name="salida-temp_unidad" id="id_salida-temp_unidad" class="form-select" hidden>
                             {% include 'unidades.html' with tipo='T' pk_selected=form_salida.instance.temp_unidad.pk %}
                         </select>
                     </div>
@@ -240,13 +246,5 @@
 {% endblock %}
 
 {% block extra_javascript %}
-<script>
-    $('select[name="volumen_unidad"]').change(function(){
-        $('select[name="volumen_unidad"]').val($(this).val());
-    });
-    
-    $('select[name="potencia_unidad"]').change(function(){
-        $('select[name="potencia_unidad"]').val($(this).val());
-    });        
-</script>
+<script src="{% static 'js/compresores/edicion_etapa.js' %}"></script>
 {% endblock %}
