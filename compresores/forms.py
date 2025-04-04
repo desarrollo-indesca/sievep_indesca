@@ -82,3 +82,9 @@ class ComposicionEvaluacionForm(forms.ModelForm):
     class Meta:
         model = ComposicionEvaluacion
         exclude = ['id','entrada_etapa','fluido']
+
+class FormPMFichaCompresor(forms.ModelForm):
+
+    class Meta:
+        model = EtapaCompresor
+        fields = ['pm']

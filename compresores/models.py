@@ -185,6 +185,8 @@ class EtapaCompresor(models.Model):
     volumen_diseno = models.FloatField(null=True, blank=True, verbose_name="Volumen de Diseño")
     volumen_normal = models.FloatField(null=True, blank=True, verbose_name="Volumen Normal")
     volumen_unidad = models.ForeignKey(Unidades, default=34, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_volumen_etapa_compresor", verbose_name="Unidad")
+
+    pm = models.FloatField(null=True, blank=True, verbose_name="PM (gr/mol)")
     
     curva_caracteristica = models.FileField("Curva Característica", null=True, blank=True, upload_to='compresores/curvas-etapas/', validators=[
         FileExtensionValidator(allowed_extensions=['png', 'jpg', 'pdf'])

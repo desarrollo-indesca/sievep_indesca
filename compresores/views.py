@@ -10,7 +10,7 @@ from simulaciones_pequiven.views import FiltradoSimpleMixin, DuplicateView, Cons
 from simulaciones_pequiven.utils import generate_nonexistent_tag
 from usuarios.models import PlantaAccesible
 from calculos.unidades import *
-from .evaluacion import evaluar_compresor, generar_cabezal_flujo, generar_grafica_presion_h, generar_presion_flujo
+from .evaluacion import evaluar_compresor, generar_cabezal_flujo, generar_grafica_presion_h, generar_presion_flujo, normalizacion, PMpromedio
 from .models import *
 from .forms import *
 from reportes.pdfs import generar_pdf
@@ -709,7 +709,14 @@ class EdicionComposicionGases(LoginRequiredMixin, PermisosMixin, View):
                 context['formsets'][compuesto] = self.create_formset(
                     context['etapas'], compuesto
                 )
+            
+            context['forms_pm']  =[
+                FormPMFichaCompresor(instance=fase, prefix=f"pm-{fase.pk}") for fase in caso.etapas.all()
+            ]
 
+            print(caso.etapas.all())
+
+        print(context['forms_pm'])
         return context
 
     def get(self, request, pk, *args, **kwargs):
@@ -733,7 +740,16 @@ class EdicionComposicionGases(LoginRequiredMixin, PermisosMixin, View):
                         for error in form.errors:
                             messages.error(request, f'Error en la etapa {i+1} del compuesto {compuesto} con prefix {prefix}: {error}')
                         return render(request, 'compresores/composicion.html', context=self.get_context_data())
-            
+                    
+            for i,form in enumerate(self.get_context_data()['forms_pm']):
+                form = form(request.POST, instance=form.instance)
+                if form.is_valid():
+                    form.save()
+                else:
+                    for error in form.errors:
+                        messages.error(request, f'Error en la etapa {i+1} del cálculo de pm: {error}')
+                    return render(request, 'compresores/composicion.html', context=self.get_context_data())
+                            
             messages.success(request, 'La composición de gases ha sido guardada exitosamente.')
 
         return redirect('/compresores/')
@@ -1189,3 +1205,24 @@ class GraficasHistoricasCompresor(View):
             },
             "fechas": fechas
         })
+
+class CalculoPMCFases(View):
+    def get(self, request, pk):
+        caso = PropiedadesCompresor.objects.get(pk=request.GET.get('caso'))
+        fases = caso.composiciones.all()
+
+        mw_fases = {}
+
+        for fase in fases:
+            mw_fase = 0
+            x = []
+            for compuesto in fase.composiciones.all():
+                name = f"{fase.pk}-{compuesto.compuesto.pk}-porc_molar"
+                porc_molar = float(request.GET.get(name))
+                x.append(porc_molar)
+
+            x = normalizacion(x)
+            
+            mw_fases[fase.pk] = PMpromedio(x)
+
+        return JsonResponse(mw_fases)

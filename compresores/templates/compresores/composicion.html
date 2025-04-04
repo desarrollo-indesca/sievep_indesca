@@ -44,6 +44,20 @@
                 {% endfor %}
             </tr>
             {% endfor %}
+
+            <tr>
+                <th>
+                    Peso Molecular Promedio (g/mol) &nbsp;
+                    <button type="button" class="btn btn-sm btn-danger" hx-get="{% url 'calculo_pm_fases' pk=caso.pk %}">Calcular PM</button>
+                </th>
+                {% for form_pm in forms_pm %}
+                <td>
+                    {% render_field form_pm.pm class="form-control form-control-sm composiciones" %}
+                    <small>{{form.pm.errors}}</small>
+                </td>
+                {% endfor %}
+            </tr>
+            
             <tr class="table-dark">
                 <th>TOTAL</th>
                 {% for etapa in etapas %}
@@ -58,6 +72,7 @@
     <div class="d-flex justify-content-center">
         <button type="submit" class="btn btn-danger">Guardar</button>
     </div>
+    {{forms_pm}}
 </form>
 {% endblock %}
 
