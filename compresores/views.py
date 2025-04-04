@@ -777,7 +777,6 @@ class ConsultaEvaluacionCompresor(PermisosMixin, ConsultaEvaluacion, CargarCompr
                     'potencia_generada_unidad',
                     'presion_unidad',
                     'temperatura_unidad',
-                    'pm_ficha_unidad',
 
                     'salidas'
                 ).prefetch_related(
@@ -927,8 +926,6 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresM
                 'k_out': salida.cp_cv,
                 'z_in': entrada.compresibilidad,
                 'z_out': salida.compresibilidad,
-                'pm_ficha': None,
-                'pm_ficha_unidad':None
             })
 
         evaluacion_form = EvaluacionCompresorForm(prefix='evaluacion')
@@ -1093,8 +1090,6 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresM
                 'k_out': float(request.POST.get(f'etapa-{etapa.numero}-k_out')),
                 'z_in': float(request.POST.get(f'etapa-{etapa.numero}-z_in')),
                 'z_out': float(request.POST.get(f'etapa-{etapa.numero}-z_out')),
-                'pm_ficha': float(request.POST.get(f'etapa-{etapa.numero}-pm_ficha')),
-                'pm_ficha_unidad': int(request.POST.get(f'etapa-{etapa.numero}-pm_ficha_unidad')),
             }
 
             entrada_form_dict['flujo_gas'] = transformar_unidades_flujo([entrada_form_dict['flujo_gas']], entrada_form_dict['flujo_gas_unidad'])[0]

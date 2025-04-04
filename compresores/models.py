@@ -314,8 +314,6 @@ class EntradaEtapaEvaluacion(models.Model):
         k_out: FloatField -> Constante de expansión de salida en la etapa.
         z_in: FloatField -> Z de entrada en la etapa.
         z_out: FloatField -> Z de salida en la etapa.
-        pm_ficha: FloatField -> Peso molecular de la ficha en la etapa.
-        pm_ficha_unidad: Unidad (P) -> Unidad del peso molecular de la ficha.
 
     Métodos:
         No tiene métodos definidos.
@@ -353,9 +351,6 @@ class EntradaEtapaEvaluacion(models.Model):
     z_in = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Compresibilidad de Entrada")
     z_out = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Compresibilidad de Salida")
     
-    pm_ficha = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Potencia Máxima")
-    pm_ficha_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_pm_ficha_evaluacion", verbose_name="Unidad")
-
 class ComposicionEvaluacion(models.Model):
     """
     Modelo que contiene la información de la composición de gases 

@@ -4834,7 +4834,6 @@ def reporte_detalle_evaluacion_compresor(evaluacion):
         ("Flujo Surge", "flujo_surge", "flujo_volumetrico_unidad"),
         ("K Entrada", "k_in", None),
         ("K Salida", "k_out", None),
-        ("PM Ficha", "pm_ficha", "pm_ficha_unidad"),
     ]
 
     for i, (titulo, attr, unidad_attr) in enumerate(parametros):
