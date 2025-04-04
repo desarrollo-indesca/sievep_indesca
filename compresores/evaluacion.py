@@ -222,7 +222,7 @@ def evaluar_compresor(etapas):
         etapas[i]['composiciones'] = normalizacion(etapa['composiciones'])
 
     # Cálculo del Peso Molecular Promedio
-    PM = [2.016, 16.043, 28.054, 30.070, 42.081, 44.097, 56.107, 58.123, 72.150, 78.115, 18.020, 26.03728, 80.12772, 54.09044, 68.11702, 82.14359999999999, 96.17018, 110.19676]
+    PM = [2.016, 16.043, 28.054, 30.070, 42.081, 44.097, 56.107, 58.123, 72.150, 78.115, 18.020, 26.03728, 80.12772, 54.09044, 68.11702, 82.14359999999999, 96.17018, 110.19676, 35.45]
 
     PMprom = [PMpromedio(list(etapa['composiciones'].values()), PM) for etapa in etapas]
     x = [list(etapa['composiciones'].values()) for etapa in etapas]
