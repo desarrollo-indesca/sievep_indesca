@@ -2112,7 +2112,7 @@ def ficha_tecnica_compresor(compresor, request):
             worksheet.write(f'I{num}', f'Potencia Requerida ({etapa.potencia_unidad})', bold_bordered)
             worksheet.write(f'J{num}', 'Eficiencia Isentrópica (%)', bold_bordered)
             worksheet.write(f'K{num}', 'Eficiencia Politrópica (%)', bold_bordered)
-            worksheet.write(f'L{num}', 'Cabezal Politrópico', bold_bordered)
+            worksheet.write(f'L{num}', f'Cabezal Politrópico ({etapa.cabezal_unidad})', bold_bordered)
             worksheet.write(f'M{num}', 'Humedad Relativa (%)', bold_bordered)
             worksheet.write(f'N{num}', f'Volumen de Diseño ({etapa.volumen_unidad})', bold_bordered)
             worksheet.write(f'O{num}', f'Volumen Normal ({etapa.volumen_unidad})', bold_bordered)

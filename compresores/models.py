@@ -107,24 +107,14 @@ class PropiedadesCompresor(models.Model):
     Métodos:
         __str__: Devuelve una representación en cadena de las propiedades del compresor.
     """
+   
     numero_impulsores = models.IntegerField(null=True, blank=True, verbose_name="Número de Impulsores")
     material_carcasa = models.CharField(max_length=45, null=True, blank=True, verbose_name="Material de la Carcasa")
     tipo_sello = models.CharField(max_length=45, null=True, blank=True, verbose_name="Tipo de Sello")
     velocidad_max_continua = models.FloatField(null=True, blank=True, verbose_name="Velocidad Máxima Continua")
     velocidad_rotacion = models.FloatField(null=True, blank=True, verbose_name="Velocidad de Rotación")
     unidad_velocidad = models.ForeignKey(Unidades, default=52, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_velocidad_compresor", verbose_name="Unidad de la Velocidad")
-    potencia_requerida = models.FloatField(null=True, blank=True, verbose_name="Potencia Requerida")
-
-    def __str__(self):
-        return f"Propiedades del Compresor con {self.numero_impulsores} impulsores"
-
-    numero_impulsores = models.IntegerField(null=True, blank=True, verbose_name="Número de Impulsores")
-    material_carcasa = models.CharField(max_length=45, null=True, blank=True, verbose_name="Material de la Carcasa")
-    tipo_sello = models.CharField(max_length=45, null=True, blank=True, verbose_name="Tipo de Sello")
-    velocidad_max_continua = models.FloatField(null=True, blank=True, verbose_name="Velocidad Máxima Continua")
-    velocidad_rotacion = models.FloatField(null=True, blank=True, verbose_name="Velocidad de Rotación")
-    unidad_velocidad = models.ForeignKey(Unidades, default=52, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_velocidad_compresor", verbose_name="Unidad de la Velocidad")
-    potencia_requerida = models.FloatField(null=True, blank=True, verbose_name="Potencia Requerida")
+    potencia_requerida = models.FloatField(null=True, blank=True, verbose_name="Potencia Requerida Total")
     unidad_potencia = models.ForeignKey(Unidades, default=53, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_potencia_compresor", verbose_name="Unidad de la Potencia")
     compresor = models.ForeignKey(Compresor, on_delete=models.PROTECT, related_name="casos", verbose_name="Compresor") # IMPORTANTE: Varias Propiedades
     tipo_lubricacion = models.ForeignKey(TipoLubricacion, on_delete=models.PROTECT, null=True, blank=True, verbose_name="Tipo de Lubricación")
@@ -133,6 +123,9 @@ class PropiedadesCompresor(models.Model):
     curva_caracteristica = models.FileField(null=True, blank=True, upload_to="compresores/curvas-compresores/", verbose_name="Curva de Característica", validators=[FileExtensionValidator(
         allowed_extensions=['png', 'jpg']
     )])
+
+    def __str__(self):
+        return f"Propiedades del Compresor {self.compresor} con {self.numero_impulsores} impulsores"
 
     def get_composicion_by_etapa(self):
         composicion = {}
@@ -165,7 +158,7 @@ class EtapaCompresor(models.Model):
     """
     compresor = models.ForeignKey(PropiedadesCompresor, on_delete=models.PROTECT, related_name='etapas', verbose_name="Compresor")
     numero = models.IntegerField(verbose_name="Número")
-    nombre_fluido = models.CharField(max_length=45, null=True, blank=True, verbose_name="Nombre del Gas")
+    nombre_fluido = models.CharField(max_length=80, null=True, blank=True, verbose_name="Nombre del Gas")
     flujo_masico = models.FloatField(null=True, blank=True, verbose_name="Flujo Másico")
     flujo_masico_unidad = models.ForeignKey(Unidades, default=54, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_flujo_masico_compresor", verbose_name="Unidad")
     flujo_molar = models.FloatField(null=True, blank=True, verbose_name="Flujo Molar")
