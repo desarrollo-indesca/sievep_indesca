@@ -7,9 +7,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const calculateTotals = () => {
         for (let columnIndex = 1; columnIndex < columns; columnIndex++) {
             totals[columnIndex] = 0;
-            for (let rowIndex = 1; rowIndex < rows.length - 1; rowIndex++) {
+            for (let rowIndex = 1; rowIndex < rows.length - 2; rowIndex++) {
                 const row = rows[rowIndex];
-                const input = row.cells[columnIndex].querySelector('input');
+                const input = row.cells[columnIndex].querySelector('.porc-mol');
                 const value = parseFloat(input.value) || 0;
                 totals[columnIndex] += value;
             }
@@ -23,9 +23,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     for (let columnIndex = 1; columnIndex < columns; columnIndex++) {
         const inputs = [];
-        for (let rowIndex = 1; rowIndex < rows.length - 1; rowIndex++) {
+        for (let rowIndex = 1; rowIndex < rows.length - 2; rowIndex++) {
             const row = rows[rowIndex];
-            const input = row.cells[columnIndex].querySelector('input');
+            const input = row.cells[columnIndex].querySelector('.porc-mol');
             input.addEventListener('change', calculateTotals);
             input.addEventListener('keyup', calculateTotals);
             inputs.push(input);
@@ -39,10 +39,9 @@ document.querySelector('form').addEventListener('submit', function(event) {
     const table = document.querySelector('table');
     const rows = [...table.rows];
     const columns = rows[0].cells.length;
-    const totals = Array(columns).fill(0);    
 
     for (let columnIndex = 1; columnIndex < columns - 1; columnIndex++) {
-        const input = rows[rows.length - 1].cells[columnIndex].querySelector('input');
+        const input = rows[rows.length - 2].cells[columnIndex].querySelector('.porc-mol');
         const value = parseFloat(input.value) || 0;
         if (value !== 100) {
             event.preventDefault();
