@@ -741,8 +741,8 @@ class EdicionComposicionGases(LoginRequiredMixin, PermisosMixin, View):
                             messages.error(request, f'Error en la etapa {i+1} del compuesto {compuesto} con prefix {prefix}: {error}')
                         return render(request, 'compresores/composicion.html', context=self.get_context_data())
                     
-            for i,form in enumerate(self.get_context_data()['forms_pm']):
-                form = form(request.POST, instance=form.instance)
+            for i,etapa in enumerate(etapas):
+                form = FormPMFichaCompresor(request.POST, prefix=f"pm-{etapas[i].pk}", instance=etapas[i])
                 if form.is_valid():
                     form.save()
                 else:
@@ -1208,21 +1208,21 @@ class GraficasHistoricasCompresor(View):
 
 class CalculoPMCFases(View):
     def get(self, request, pk):
-        caso = PropiedadesCompresor.objects.get(pk=request.GET.get('caso'))
-        fases = caso.composiciones.all()
+        caso = PropiedadesCompresor.objects.get(pk=pk)
+        fases = caso.etapas.all()
 
         mw_fases = {}
 
         for fase in fases:
-            mw_fase = 0
-            x = []
+            x = {}
             for compuesto in fase.composiciones.all():
                 name = f"{fase.pk}-{compuesto.compuesto.pk}-porc_molar"
                 porc_molar = float(request.GET.get(name))
-                x.append(porc_molar)
+                x[compuesto.compuesto.cas] = porc_molar
 
             x = normalizacion(x)
             
-            mw_fases[fase.pk] = PMpromedio(x)
+            mw_fases[fase.pk] = PMpromedio(x.values())
 
-        return JsonResponse(mw_fases)
+       
+        return render(request, 'compresores/partials/calculo_pm_fases.html', {'fases': mw_fases})

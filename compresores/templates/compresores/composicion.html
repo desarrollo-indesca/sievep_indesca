@@ -2,6 +2,10 @@
 {% load widget_tweaks %}
 {% load static %}
 
+{% block head %}
+<script src="{% static 'js/htmx.min.js' %}"></script>
+{% endblock %}
+
 {% block contenido %}
 <div class="row">
         <div class="col-md-3 col-lg-2 d-inline-flex justify-content-center align-items-center">
@@ -48,7 +52,7 @@
             <tr>
                 <th>
                     Peso Molecular Promedio (g/mol) &nbsp;
-                    <button type="button" class="btn btn-sm btn-danger" hx-get="{% url 'calculo_pm_fases' pk=caso.pk %}">Calcular PM</button>
+                    <a href="#calcular-pm" hx-swap="none" hx-include=".porc-mol" hx-indicator="#spinner" class="btn btn-sm btn-danger" hx-trigger="click" hx-get="{% url 'calculo_pm_fases' pk=caso.pk %}">Calcular PM</a>
                 </th>
                 {% for form_pm in forms_pm %}
                 <td>
@@ -72,7 +76,6 @@
     <div class="d-flex justify-content-center">
         <button type="submit" class="btn btn-danger">Guardar</button>
     </div>
-    {{forms_pm}}
 </form>
 {% endblock %}
 

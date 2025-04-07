@@ -32,14 +32,12 @@ def PMpromedio(x):
 
     Args:
         x (list[float]): Lista de valores a promediar.
-        PM (list[float]): Lista de pesos correspondientes a cada valor en x.
-
     Returns:
         float: Promedio ponderado.
     """
 
     PMprom = sum(xi * PM[i] for i, xi in enumerate(x))
-    return PMprom
+    return round(PMprom, 4)
 
 def FraccionMasica(x):
     """
