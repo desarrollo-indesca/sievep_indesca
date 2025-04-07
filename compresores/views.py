@@ -10,7 +10,7 @@ from simulaciones_pequiven.views import FiltradoSimpleMixin, DuplicateView, Cons
 from simulaciones_pequiven.utils import generate_nonexistent_tag
 from usuarios.models import PlantaAccesible
 from calculos.unidades import *
-from .evaluacion import evaluar_compresor, generar_cabezal_flujo, generar_grafica_presion_h, generar_presion_flujo
+from .evaluacion import evaluar_compresor, generar_cabezal_flujo, generar_grafica_presion_h, generar_presion_flujo, normalizacion, PMpromedio
 from .models import *
 from .forms import *
 from reportes.pdfs import generar_pdf
@@ -482,7 +482,7 @@ class EdicionEtapa(EdicionCompresorPermisoMixin, View):
                 
             compresor = form_etapa.instance.compresor.compresor
             compresor.editado_por = self.request.user
-            compresor.fecha_edicion = datetime.datetime.now()
+            compresor.editado_al = datetime.datetime.now()
             compresor.save()
                 
             messages.success(self.request, "Información almacenada correctamente.")
@@ -583,6 +583,8 @@ class EdicionCompresor(EdicionCompresorPermisoMixin, View):
             
             form.instance.editado_al = datetime.datetime.now()
             form.instance.editado_por = request.user
+            form.instance.save()
+
             return redirect('/compresores/')
         else:
             return render(self.request, self.template_name, self.get_context_data())
@@ -709,7 +711,14 @@ class EdicionComposicionGases(LoginRequiredMixin, PermisosMixin, View):
                 context['formsets'][compuesto] = self.create_formset(
                     context['etapas'], compuesto
                 )
+            
+            context['forms_pm']  =[
+                FormPMFichaCompresor(instance=fase, prefix=f"pm-{fase.pk}") for fase in caso.etapas.all()
+            ]
 
+            print(caso.etapas.all())
+
+        print(context['forms_pm'])
         return context
 
     def get(self, request, pk, *args, **kwargs):
@@ -733,6 +742,20 @@ class EdicionComposicionGases(LoginRequiredMixin, PermisosMixin, View):
                         for error in form.errors:
                             messages.error(request, f'Error en la etapa {i+1} del compuesto {compuesto} con prefix {prefix}: {error}')
                         return render(request, 'compresores/composicion.html', context=self.get_context_data())
+                    
+            for i,etapa in enumerate(etapas):
+                form = FormPMFichaCompresor(request.POST, prefix=f"pm-{etapas[i].pk}", instance=etapas[i])
+                if form.is_valid():
+                    form.save()
+                else:
+                    for error in form.errors:
+                        messages.error(request, f'Error en la etapa {i+1} del cálculo de pm: {error}')
+                    return render(request, 'compresores/composicion.html', context=self.get_context_data())
+                            
+            compresor = caso.compresor
+            compresor.editado_por = request.user
+            compresor.editado_al = datetime.datetime.now()
+            compresor.save()
             
             messages.success(request, 'La composición de gases ha sido guardada exitosamente.')
 
@@ -777,7 +800,6 @@ class ConsultaEvaluacionCompresor(PermisosMixin, ConsultaEvaluacion, CargarCompr
                     'potencia_generada_unidad',
                     'presion_unidad',
                     'temperatura_unidad',
-                    'pm_ficha_unidad',
 
                     'salidas'
                 ).prefetch_related(
@@ -927,8 +949,6 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresM
                 'k_out': salida.cp_cv,
                 'z_in': entrada.compresibilidad,
                 'z_out': salida.compresibilidad,
-                'pm_ficha': None,
-                'pm_ficha_unidad':None
             })
 
         evaluacion_form = EvaluacionCompresorForm(prefix='evaluacion')
@@ -1093,8 +1113,6 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresM
                 'k_out': float(request.POST.get(f'etapa-{etapa.numero}-k_out')),
                 'z_in': float(request.POST.get(f'etapa-{etapa.numero}-z_in')),
                 'z_out': float(request.POST.get(f'etapa-{etapa.numero}-z_out')),
-                'pm_ficha': float(request.POST.get(f'etapa-{etapa.numero}-pm_ficha')),
-                'pm_ficha_unidad': int(request.POST.get(f'etapa-{etapa.numero}-pm_ficha_unidad')),
             }
 
             entrada_form_dict['flujo_gas'] = transformar_unidades_flujo([entrada_form_dict['flujo_gas']], entrada_form_dict['flujo_gas_unidad'])[0]
@@ -1194,3 +1212,34 @@ class GraficasHistoricasCompresor(View):
             },
             "fechas": fechas
         })
+
+class CalculoPMCFases(View):
+    """
+    Resumen:
+        Recibe el ID del caso de compresor y devuelve una p gina con los resultados.
+        Se pueden pasar par metros por GET para calcular el Peso Molecular promedio
+        correspondiente.
+
+    Métodos:
+        get(request, pk): Calcula el Peso Molecular promedio de cada fase y devuelve una p gina con los resultados.
+
+    """
+
+    def get(self, request, pk):
+        caso = PropiedadesCompresor.objects.get(pk=pk)
+        fases = caso.etapas.all()
+
+        mw_fases = {}
+
+        for fase in fases:
+            x = {}
+            for compuesto in fase.composiciones.all():
+                name = f"{fase.pk}-{compuesto.compuesto.pk}-porc_molar"
+                porc_molar = float(request.GET.get(name))
+                x[compuesto.compuesto.cas] = porc_molar
+
+            x = normalizacion(x)
+            
+            mw_fases[fase.pk] = PMpromedio(x.values())
+
+        return render(request, 'compresores/partials/calculo_pm_fases.html', {'fases': mw_fases})

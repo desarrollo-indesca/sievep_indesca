@@ -4538,6 +4538,7 @@ def ficha_tecnica_compresor(compresor):
             story.append(img)
 
         # Tabla para cada etapa
+        archivos = []
         for j,etapa in enumerate(caso.etapas.all()):
             table = [
                     [
@@ -4662,7 +4663,14 @@ def ficha_tecnica_compresor(compresor):
                 row = [Paragraph(nombre, centrar_parrafo)]
                 for comp in composiciones[nombre]:
                     row.append(Paragraph(f"{round(comp.porc_molar, 2)}%", centrar_parrafo))
+
                 table.append(row)
+
+            # Agrega los pesos moleculares promedios de cada etapa
+            row = [Paragraph("PM Prom. (g/mol)", centrar_parrafo)]
+            for etapa in caso.etapas.all():
+                row.append(Paragraph(str(etapa.pm) if etapa.pm else '—', centrar_parrafo))
+            table.append(row)
 
             estilo = TableStyle([
                 ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
@@ -4676,6 +4684,21 @@ def ficha_tecnica_compresor(compresor):
         else:
             story.append(Spacer(0, 10))
             story.append(Paragraph("Las composiciones de las etapas para este caso no han sido registradas.", centrar_parrafo))
+
+    story.append(Paragraph(
+        "Registrado por: " +  
+        compresor.creado_por.get_full_name() + " al " + 
+        compresor.creado_al.strftime('%d/%m/%Y %H:%M'),
+        centrar_parrafo
+    ))
+
+    if(compresor.editado_por):
+        story.append(Paragraph(
+            "Editado por: " +  
+            compresor.editado_por.get_full_name() + " al " + 
+            compresor.editado_al.strftime('%d/%m/%Y %H:%M'),
+            centrar_parrafo
+        ))
 
     return [story, []]
 
@@ -4834,7 +4857,6 @@ def reporte_detalle_evaluacion_compresor(evaluacion):
         ("Flujo Surge", "flujo_surge", "flujo_volumetrico_unidad"),
         ("K Entrada", "k_in", None),
         ("K Salida", "k_out", None),
-        ("PM Ficha", "pm_ficha", "pm_ficha_unidad"),
     ]
 
     for i, (titulo, attr, unidad_attr) in enumerate(parametros):

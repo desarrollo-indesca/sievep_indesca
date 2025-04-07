@@ -20,4 +20,7 @@ urlpatterns = [
 
     # Vistas de Gráficos
     path('graficos/consulta/<int:pk>/', GraficasHistoricasCompresor.as_view(), name="graficos_compresor"),
+    
+    # Cálculo PM Promedio
+    path('calcular/pm/<int:pk>/', CalculoPMCFases.as_view(), name="calculo_pm_fases"),
 ]

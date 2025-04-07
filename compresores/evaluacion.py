@@ -7,6 +7,9 @@ from calculos.unidades import transformar_unidades_longitud, transformar_unidade
 
 import math
 
+# Pesos Moleculares
+PM = [2.016, 16.043, 28.054, 30.070, 42.081, 44.097, 56.107, 58.123, 72.150, 78.115, 18.020, 26.03728, 80.12772, 54.09044, 68.11702, 82.14359999999999, 96.17018, 110.19676, 35.45]
+
 def normalizacion(X: dict):
     """
     Normaliza un conjunto de datos X de tal manera que la suma de los elementos 
@@ -23,22 +26,20 @@ def normalizacion(X: dict):
         X[key] = val / total
     return X
 
-def PMpromedio(x, PM):
+def PMpromedio(x):
     """
     Calcula el promedio ponderado de los elementos de x usando los pesos PM.
 
     Args:
         x (list[float]): Lista de valores a promediar.
-        PM (list[float]): Lista de pesos correspondientes a cada valor en x.
-
     Returns:
         float: Promedio ponderado.
     """
 
     PMprom = sum(xi * PM[i] for i, xi in enumerate(x))
-    return PMprom
+    return round(PMprom, 4)
 
-def FraccionMasica(x, PM):
+def FraccionMasica(x):
     """
     Calcula la fracción másica de x utilizando los pesos PM.
 
@@ -221,12 +222,9 @@ def evaluar_compresor(etapas):
     for i,etapa in enumerate(etapas):
         etapas[i]['composiciones'] = normalizacion(etapa['composiciones'])
 
-    # Cálculo del Peso Molecular Promedio
-    PM = [2.016, 16.043, 28.054, 30.070, 42.081, 44.097, 56.107, 58.123, 72.150, 78.115, 18.020, 26.03728, 80.12772, 54.09044, 68.11702, 82.14359999999999, 96.17018, 110.19676]
-
-    PMprom = [PMpromedio(list(etapa['composiciones'].values()), PM) for etapa in etapas]
+    PMprom = [PMpromedio(list(etapa['composiciones'].values())) for etapa in etapas]
     x = [list(etapa['composiciones'].values()) for etapa in etapas]
-    y = [FraccionMasica(list(etapa['composiciones'].values()), PM) for etapa in etapas]
+    y = [FraccionMasica(list(etapa['composiciones'].values())) for etapa in etapas]
 
     # Cálculo de Propiedades Termodinámicas
     Compuestos = ['Hydrogen', 'Methane', 'Ethylene', 'Ethane', 'Propylene', 

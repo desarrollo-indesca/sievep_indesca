@@ -305,15 +305,6 @@
                                     <td>{{etapa.z_out}}</td>
                                     {% endfor %}                                
                                 </tr>
-                                <tr>
-                                    <th class="table-dark" colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">Peso Molecular</th>
-                                </tr>
-                                <tr>
-                                    <th class="table-dark">Peso Molecular Ficha</th>
-                                    {% for etapa in evaluacion.entradas_evaluacion.all %}
-                                    <td>{{etapa.pm_ficha}} {{etapa.pm_ficha_unidad}}</td>
-                                    {% endfor %}
-                                </tr>
                             </tbody>
                         </table>
                     </div>
