@@ -246,5 +246,16 @@
             });  
         } 
     });
+
+document.querySelector('form').addEventListener('submit', function(e) {
+    const activoCheckbox = document.querySelector('input[name="activo"]');
+    const lecturaCheckboxes = document.querySelectorAll('input[name^="planta-"]');
+    const isChecked = Array.from(lecturaCheckboxes).some(checkbox => checkbox.checked);
+
+    if (activoCheckbox.checked && !isChecked) {
+        e.preventDefault();
+        alert('Debe seleccionar al menos un checkbox en los permisos si el usuario está activo.');
+    }
+});
 </script>
 {% endblock %}
