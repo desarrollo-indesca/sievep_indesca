@@ -2172,6 +2172,11 @@ def ficha_tecnica_compresor(compresor, request):
                 
                 num += 1
 
+            # write pm
+            worksheet.write(f"A{num}", 'PM Promedio (gr/mol)', bold_bordered)
+            for j, etapa in enumerate(etapas):
+                worksheet.write(f"{chr(65+j+1)}{num}", f'{etapa.pm if etapa.pm else "—"}', center_bordered)
+
             num += 2
 
     num += 2
