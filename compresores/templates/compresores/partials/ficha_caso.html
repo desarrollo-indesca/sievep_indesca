@@ -143,6 +143,7 @@
         </tr>
         {% endwith %}
         {% endwith %}
+        {% endfor %}
 
         {% with composiciones=caso.get_composicion_by_etapa %}
         {% if composiciones %}
@@ -183,8 +184,6 @@
             </td>
         </tr>
         {% endif %}
-    
-        {% endfor %}
     </tr>
     </tbody>
 </table>

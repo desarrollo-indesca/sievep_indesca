@@ -53,7 +53,7 @@ class CreacionCompresorPermisoMixin():
 
     def test_func(self):
         authenticated = self.request.user.is_authenticated 
-        return authenticated and self.request.user.usuario_planta.filter(planta__pk = self.request.POST.get('planta'), crear=True).exists() or self.request.user.is_superuser
+        return authenticated and self.request.user.usuario_planta.filter(crear=True).exists() or self.request.user.is_superuser
     
     def dispatch(self, request, *args, **kwargs):
         if not self.test_func():

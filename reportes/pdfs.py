@@ -4583,7 +4583,7 @@ def ficha_tecnica_compresor(compresor):
                     [
                         Paragraph(f"Volumen Diseño ({etapa.volumen_unidad})", centrar_parrafo),
                         Paragraph(str(etapa.volumen_diseno) if etapa.volumen_diseno else '—', centrar_parrafo),
-                        Paragraph(f"Volumen Diseño ({etapa.volumen_unidad})", centrar_parrafo),
+                        Paragraph(f"Volumen Normal ({etapa.volumen_unidad})", centrar_parrafo),
                         Paragraph(str(etapa.volumen_normal) if etapa.volumen_normal else '—', centrar_parrafo),
                     ]
             ]
@@ -4641,8 +4641,6 @@ def ficha_tecnica_compresor(compresor):
 
             table = Table(table, style=estilo)
             story.append(table)
-
-
 
             if etapa.curva_caracteristica:
                 story.append(Spacer(0,10))
