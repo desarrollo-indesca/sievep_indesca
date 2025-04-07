@@ -65,4 +65,7 @@ document.addEventListener('htmx:beforeRequest', (evt) => {
 
 document.addEventListener('htmx:afterRequest', (evt) => {
     document.body.style.opacity = 1.0;
+
+    if(evt.detail.failed)
+        alert("Ha ocurrido un error al momento de realizar los cálculos. Por favor revise e intente de nuevo.");
 });

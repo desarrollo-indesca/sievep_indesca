@@ -331,13 +331,24 @@ def delete_compresor_copies():
     )
 
     for compresor in compresores:
+        for evaluacion in compresor.evaluaciones_compresor.all():
+            for entrada in evaluacion.entradas_evaluacion.all():
+                entrada.salidas.delete()
+                entrada.composiciones.all().delete()
+            
+            evaluacion.entradas_evaluacion.all().delete()
+        
+        compresor.evaluaciones_compresor.all().delete()
+
         for caso in compresor.casos.all():
             for etapa in caso.etapas.all():
+                etapa.composiciones.all().delete()
                 etapa.lados.all().delete()
-                etapa.delete()
+            
+            caso.etapas.all().delete()
 
-            caso.delete()
-        
+        compresor.casos.all().delete()
+
         compresor.delete()
 
 def delete_copies():
