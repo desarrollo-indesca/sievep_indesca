@@ -482,7 +482,7 @@ class EdicionEtapa(EdicionCompresorPermisoMixin, View):
                 
             compresor = form_etapa.instance.compresor.compresor
             compresor.editado_por = self.request.user
-            compresor.fecha_edicion = datetime.datetime.now()
+            compresor.editado_al = datetime.datetime.now()
             compresor.save()
                 
             messages.success(self.request, "Información almacenada correctamente.")
@@ -583,6 +583,8 @@ class EdicionCompresor(EdicionCompresorPermisoMixin, View):
             
             form.instance.editado_al = datetime.datetime.now()
             form.instance.editado_por = request.user
+            form.instance.save()
+
             return redirect('/compresores/')
         else:
             return render(self.request, self.template_name, self.get_context_data())
@@ -750,6 +752,11 @@ class EdicionComposicionGases(LoginRequiredMixin, PermisosMixin, View):
                         messages.error(request, f'Error en la etapa {i+1} del cálculo de pm: {error}')
                     return render(request, 'compresores/composicion.html', context=self.get_context_data())
                             
+            compresor = caso.compresor
+            compresor.editado_por = request.user
+            compresor.editado_al = datetime.datetime.now()
+            compresor.save()
+            
             messages.success(request, 'La composición de gases ha sido guardada exitosamente.')
 
         return redirect('/compresores/')
@@ -1207,6 +1214,17 @@ class GraficasHistoricasCompresor(View):
         })
 
 class CalculoPMCFases(View):
+    """
+    Resumen:
+        Recibe el ID del caso de compresor y devuelve una p gina con los resultados.
+        Se pueden pasar par metros por GET para calcular el Peso Molecular promedio
+        correspondiente.
+
+    Métodos:
+        get(request, pk): Calcula el Peso Molecular promedio de cada fase y devuelve una p gina con los resultados.
+
+    """
+
     def get(self, request, pk):
         caso = PropiedadesCompresor.objects.get(pk=pk)
         fases = caso.etapas.all()
@@ -1224,5 +1242,4 @@ class CalculoPMCFases(View):
             
             mw_fases[fase.pk] = PMpromedio(x.values())
 
-       
         return render(request, 'compresores/partials/calculo_pm_fases.html', {'fases': mw_fases})
