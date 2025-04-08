@@ -68,7 +68,7 @@
                         y: {
                             title: {
                                 display: true,
-                                text: 'Eficiencia Isentrópica %'
+                                text: 'Eficiencia Isoentrópica %'
                             }
                         }
                     }
@@ -149,7 +149,7 @@
 
             const ctx4 = canvas;
             const datasets4 = data.resultados.cabezales_isotropicos.map((data, index) => ({
-                label: `Cabezal Isentrópico Etapa ${index + 1} (m)`,
+                label: `Cabezal Isotrópico Etapa ${index + 1} (m)`,
                 data: data,
                 borderColor: colors[index % colors.length],
                 fill: false
@@ -173,7 +173,7 @@
                         y: {
                             title: {
                                 display: true,
-                                text: 'Cabezal Isentrópico (m)'
+                                text: 'Cabezal Isotrópico (m)'
                             }
                         }
                     }

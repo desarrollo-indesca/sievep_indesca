@@ -4569,7 +4569,7 @@ def ficha_tecnica_compresor(compresor):
                         Paragraph(str(etapa.potencia_req) if etapa.potencia_req else '—', centrar_parrafo)
                     ],
                     [
-                        Paragraph(f"Eficiencia Isentrópica (%)", centrar_parrafo),
+                        Paragraph(f"Eficiencia Isoentrópica (%)", centrar_parrafo),
                         Paragraph(str(etapa.eficiencia_isentropica) if etapa.eficiencia_isentropica else '—', centrar_parrafo),
                         Paragraph("Eficiencia Politrópica (%)", centrar_parrafo),
                         Paragraph(str(etapa.eficiencia_politropica) if etapa.eficiencia_politropica else '—', centrar_parrafo)                    
@@ -4770,9 +4770,9 @@ def reporte_evaluaciones_compresores(request, object_list):
 
     # Gráfico de eficiencias
     fig, ax = plt.subplots(figsize=(10, 5))
-    ax.set_title("Evolución de la Eficiencia Isentrópica")
+    ax.set_title("Evolución de la Eficiencia Iseontrópica")
     ax.set_xlabel("Fecha")
-    ax.set_ylabel("Eficiencia Isentrópica (%)")
+    ax.set_ylabel("Eficiencia Isoentrópica (%)")
 
     eficiencias_etapas = [[] for _ in range(evaluacion.entradas_evaluacion.count())]
     eficiencias_teoricas_etapas = [[] for _ in range(evaluacion.entradas_evaluacion.count())]
@@ -4783,9 +4783,9 @@ def reporte_evaluaciones_compresores(request, object_list):
             eficiencias_teoricas_etapas[k].append(entradas[k].salidas.eficiencia_teorica)
 
     fig, ax = plt.subplots(figsize=(10, 5))
-    ax.set_title("Evolución de la Eficiencia Isentrópica")
+    ax.set_title("Evolución de la Eficiencia Iseontrópica")
     ax.set_xlabel("Fecha")
-    ax.set_ylabel("Eficiencia Isentrópica (%)")
+    ax.set_ylabel("Eficiencia Iseontrópica (%)")
     for k, eficiencias in enumerate(eficiencias_etapas):
         ax.plot(fechas, eficiencias, label=f"Etapas {k+1}")
     ax.legend()
@@ -4925,7 +4925,7 @@ def reporte_detalle_evaluacion_compresor(evaluacion):
         ("flujo_in", "Flujo de Entrada (m³/h)"),
         ("flujo_out", "Flujo de Salida (m³/h)"),
         ("cabezal_calculado", "Cabezal Calculado (m)"),
-        ("cabezal_isotropico", "Cabezal Isotropico (m)"),
+        ("cabezal_isotropico", "Cabezal Isotrópico (m)"),
         ("k_in", "K Entrada"),
         ("k_out", "K Salida"),
         ("z_in", "Z Entrada"),
