@@ -342,7 +342,7 @@ class CreacionCompresor(CreacionCompresorPermisoMixin, View):
         except Exception as e:
             print(str(e))
             return render(self.request, self.template_name, {
-                'unidades': Unidades.objects.all().values(),
+                'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
                 'form_compresor': form_compresor,
                 'form_caso': form_caso,
                 'titulo': "SIEVEP - Creación de Compresores"
@@ -358,7 +358,7 @@ class CreacionCompresor(CreacionCompresorPermisoMixin, View):
         context = {}
         context["form_compresor"]  = CompresorForm()
         context["form_caso"]  = PropiedadesCompresorForm()
-        context['unidades'] = Unidades.objects.all().values()
+        context['unidades'] = Unidades.objects.all().values('pk', 'simbolo', 'tipo')
         context['titulo'] = "SIEVEP - Creación de Compresores"
 
         return context
@@ -409,7 +409,7 @@ class CreacionNuevoCaso(EdicionCompresorPermisoMixin, View):
         except Exception as e:
             print(str(e))
             return render(self.request, self.template_name, {
-                'unidades': Unidades.objects.all().values(),
+                'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
                 'form_caso': form_caso,
                 'titulo': "SIEVEP - Creación de Caso de Compresor"
             })
@@ -422,7 +422,7 @@ class CreacionNuevoCaso(EdicionCompresorPermisoMixin, View):
         context = {}
         context['compresor'] = Compresor.objects.get(pk=self.kwargs.get('pk'))
         context["form_caso"]  = PropiedadesCompresorForm()
-        context['unidades'] = Unidades.objects.all().values()
+        context['unidades'] = Unidades.objects.all().values('pk', 'simbolo', 'tipo')
         context['titulo'] = f"SIEVEP - Creación de Caso (Compresor {context['compresor'].tag})"
 
         return context
@@ -566,8 +566,8 @@ class EdicionCompresor(EdicionCompresorPermisoMixin, View):
                     if numero_etapas_previo > numero_etapas_nuevo:
                         etapas_a_eliminar = caso.etapas.all()[numero_etapas_nuevo:]
                         for etapa in etapas_a_eliminar:
-                            for lado in etapa.lados.all():
-                                lado.delete()
+                            etapa.lados.all().delete()
+                            etapa.composiciones.all().delete()
                             etapa.delete()
                     elif numero_etapas_previo < numero_etapas_nuevo:
                         for i in range(numero_etapas_previo, numero_etapas_nuevo):
@@ -584,6 +584,8 @@ class EdicionCompresor(EdicionCompresorPermisoMixin, View):
             form.instance.editado_al = datetime.datetime.now()
             form.instance.editado_por = request.user
             form.instance.save()
+
+            messages.success(self.request, 'Compresor editado con éxito.')
 
             return redirect('/compresores/')
         else:
@@ -1233,10 +1235,10 @@ class CalculoPMCFases(View):
 
         for fase in fases:
             x = {}
-            for compuesto in fase.composiciones.all():
-                name = f"{fase.pk}-{compuesto.compuesto.pk}-porc_molar"
+            for compuesto in COMPUESTOS:
+                name = f"{fase.pk}-{Fluido.objects.get(cas=compuesto).pk}-porc_molar"
                 porc_molar = float(request.GET.get(name))
-                x[compuesto.compuesto.cas] = porc_molar
+                x[compuesto] = porc_molar
 
             x = normalizacion(x)
             

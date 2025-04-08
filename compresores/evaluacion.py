@@ -22,6 +22,7 @@ def normalizacion(X: dict):
         list[float]: Lista de valores normalizados.
     """
     total = sum([val for key,val in X.items()])
+    total = total or 1e99  # Evitar división por cero
     for key, val in X.items():
         X[key] = val / total
     return X
