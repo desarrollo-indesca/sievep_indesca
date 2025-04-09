@@ -41,7 +41,7 @@ document.querySelector('form').addEventListener('submit', function(event) {
     const columns = rows[0].cells.length;
 
     for (let columnIndex = 1; columnIndex < columns - 1; columnIndex++) {
-        const input = rows[rows.length - 2].cells[columnIndex].querySelector('.porc-mol');
+        const input = rows[rows.length - 1].cells[columnIndex].querySelector('input');
         const value = parseFloat(input.value) || 0;
         if (value !== 100) {
             event.preventDefault();

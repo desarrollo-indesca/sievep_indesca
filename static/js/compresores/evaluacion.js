@@ -46,20 +46,28 @@ document.addEventListener('input', (e)=>{
 document.addEventListener('htmx:beforeRequest', (evt) => {
     document.body.style.opacity = 0.8;
 
-    console.log(evt.target.name, document.getElementById('submit').value, document.getElementById('submit').value === 'calcular');
-
     if (evt.target.name === 'form') {
-        if(document.getElementById('submit').value === 'almacenar')
-            if (!confirm('¿Está seguro que desea almacenar esta evaluación?')) {
-                evt.preventDefault();
-                document.body.style.opacity = 1.0;
-            }
+        const totales = document.querySelectorAll('input.totals');
+        const pasa = Array.from(totales).every((input) => input.value == 100);
+        console.log(pasa);
         
-        if(document.getElementById('submit').value === 'calcular')
-            if (!confirm('¿Está seguro que calcular los resultados?')) {
-                evt.preventDefault();
-                document.body.style.opacity = 1.0;
-            }
+        if (pasa) {
+            if(document.getElementById('submit').value === 'almacenar')
+                if (!confirm('¿Está seguro que desea almacenar esta evaluación?')) {
+                    evt.preventDefault();
+                    document.body.style.opacity = 1.0;
+                }
+            
+            if(document.getElementById('submit').value === 'calcular')
+                if (!confirm('¿Está seguro que calcular los resultados?')) {
+                    evt.preventDefault();
+                    document.body.style.opacity = 1.0;
+                }
+        } else{
+            evt.preventDefault();
+            document.body.style.opacity = 1.0;
+            alert('Los totales de las composciones deben ser 100% en todas las estapas');
+        }
     }
 });
 
@@ -69,3 +77,50 @@ document.addEventListener('htmx:afterRequest', (evt) => {
     if(evt.detail.failed)
         alert("Ha ocurrido un error al momento de realizar los cálculos. Por favor revise e intente de nuevo.");
 });
+
+function sumColumn(index) {
+    const table = document.querySelector('#tabla_composiciones');
+    const rows = [...table.rows];
+    const columns = rows[0].cells.length;
+    const totals = Array(columns).fill(0);
+
+    for (let rowIndex = 0; rowIndex < rows.length - 1; rowIndex++) {
+        const row = rows[rowIndex];
+        const value = parseFloat(row.cells[index].querySelector('input').value) || 0;
+        totals[index] += value;
+    }    
+
+    const lastRow = rows[rows.length - 1];
+    lastRow.cells[index].querySelector('input').value = (Math.round(totals[index] * 100) / 100).toFixed(2);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    for (let columnIndex = 1; columnIndex < [...document.querySelector('#tabla_composiciones').rows[0].cells].length; columnIndex++) {
+        sumColumn(columnIndex);
+    }
+});
+
+document.addEventListener('htmx:afterSwap', (evt) => {
+    if (evt.detail.requestConfig.elt.name === 'evaluacion-caso') {
+        for (let columnIndex = 1; columnIndex < [...document.querySelector('#tabla_composiciones').rows[0].cells].length; columnIndex++) {
+            sumColumn(columnIndex);
+        }
+    }
+    addEventListeners();
+});
+
+function addEventListeners() {
+    for (let columnIndex = 1; columnIndex < [...document.querySelector('#tabla_composiciones').rows[0].cells].length; columnIndex++) {
+        const inputs = [];
+        for (let rowIndex = 1; rowIndex < [...document.querySelector('#tabla_composiciones').rows].length - 2; rowIndex++) {
+            const row = [...document.querySelector('#tabla_composiciones').rows][rowIndex];
+            const input = row.cells[columnIndex].querySelector('input');
+            input.addEventListener('change', () => sumColumn(columnIndex));
+            input.addEventListener('keyup', () => sumColumn(columnIndex));
+            inputs.push(input);
+        }
+    }
+        
+}
+
+addEventListeners();

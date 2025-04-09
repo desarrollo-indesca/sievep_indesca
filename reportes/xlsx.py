@@ -2110,7 +2110,7 @@ def ficha_tecnica_compresor(compresor, request):
             worksheet.write(f'G{num}', 'Relación de Compresión', bold_bordered)
             worksheet.write(f'H{num}', f'Potencia Nominal ({etapa.potencia_unidad})', bold_bordered)
             worksheet.write(f'I{num}', f'Potencia Requerida ({etapa.potencia_unidad})', bold_bordered)
-            worksheet.write(f'J{num}', 'Eficiencia Isoentrópica (%)', bold_bordered)
+            worksheet.write(f'J{num}', 'Eficiencia Isentrópica (%)', bold_bordered)
             worksheet.write(f'K{num}', 'Eficiencia Politrópica (%)', bold_bordered)
             worksheet.write(f'L{num}', f'Cabezal Politrópico ({etapa.cabezal_unidad})', bold_bordered)
             worksheet.write(f'M{num}', 'Humedad Relativa (%)', bold_bordered)
@@ -2242,7 +2242,7 @@ def historico_evaluaciones_compresor(object_list, request):
     for etapa in range(1, compresor.casos.first().etapas.count()+1):
         letra,letra_sig = chr(65 + etapa*2 - 1),chr(65 + etapa*2)
         worksheet.write(f'{letra}{num}', f"Eficiencia Teórica Etapa {etapa} (%)", bold_bordered)
-        worksheet.write(f'{letra_sig}{num}', f"Eficiencia Isoentrópica Etapa {etapa} (%)", bold_bordered)
+        worksheet.write(f'{letra_sig}{num}', f"Eficiencia Isentrópica Etapa {etapa} (%)", bold_bordered)
 
     # Escribir evaluaciones por etapa
     for idx, evaluacion in enumerate(object_list, start=1):

@@ -145,9 +145,8 @@ def EntalpiaIsoentropica(P, S, C):
         for j in range(len(C)):
             try:
                 enthalpy = PropsSI('H', 'P', P[i], 'S', S[i][j], C[j])
-            except Exception as e:
-               
-                constants, correlations = ChemicalConstantsPackage.from_IDs(['h2o'])
+            except Exception as e:               
+                constants, correlations = ChemicalConstantsPackage.from_IDs([C[j]])
                 eos_kwargs = dict(Tcs=constants.Tcs, Pcs=constants.Pcs, omegas=constants.omegas)
                 liquid = CEOSLiquid(PRMIX, HeatCapacityGases=correlations.HeatCapacityGases, eos_kwargs=eos_kwargs)
                 gas = CEOSGas(PRMIX, HeatCapacityGases=correlations.HeatCapacityGases, eos_kwargs=eos_kwargs)
