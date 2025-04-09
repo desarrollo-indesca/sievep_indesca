@@ -37,6 +37,7 @@
         <div class="col-4">
             <label for="evaluacion-caso" class="form-label">Precargar Información del Caso:</label>
             <select form="None" name="evaluacion-caso" id="evaluacion-caso" class="form-select" hx-select="#datos-entrada" hx-target="#datos-entrada" hx-get="{% url 'evaluacion_compresor' pk=compresor.pk %}" required>
+                <option value="">--------------------</option>
                 {% for caso in compresor.casos.all %}
                 <option value="{{caso.pk}}">Caso {{forloop.counter}}</option>
                 {% endfor %}
@@ -297,7 +298,7 @@
                         {% for form_etapa in forms_etapas %}
                         <td>
                             <div class="input-group">
-                                {% render_field form_etapa.porc_molar class="form-control form-control-sm" %}
+                                {% render_field form_etapa.porc_molar min="0" class="form-control form-control-sm" %}
                             </div>
                         </td>
                         {% endfor %}

@@ -63,7 +63,7 @@
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <th class="table-dark">Eficiencia Iso (%)</th>
+                                    <th class="table-dark">Eficiencia Isoentrópica (%)</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
                                     <td>{{etapa.salidas.eficiencia_iso|floatformat:4}}</td>
                                     {% endfor %}
@@ -117,7 +117,7 @@
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <th class="table-dark">N</th>
+                                    <th class="table-dark">n</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
                                     <td>{{etapa.salidas.n|floatformat:4}}</td>
                                     {% endfor %}

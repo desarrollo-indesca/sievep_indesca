@@ -926,33 +926,35 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresM
 
         entradas_etapa = {}
         for etapa in caso.etapas.all():
-            entrada = etapa.lados.get(lado='E')
-            salida = etapa.lados.get(lado='S')
-           
-            entradas_etapa[etapa] = EntradaEtapaEvaluacionForm(prefix=f'etapa-{etapa.numero}', initial={
-                'flujo_gas': etapa.flujo_masico,
-                'flujo_gas_unidad': etapa.flujo_masico_unidad,
-                'flujo_volumetrico': etapa.volumen_normal,
-                'flujo_volumetrico_unidad': etapa.volumen_unidad,
-                'flujo_surge': etapa.aumento_estimado,
-                'cabezal_politropico': etapa.cabezal_politropico,
-                'cabezal_politropico_unidad': etapa.cabezal_unidad,
-                'potencia_generada': etapa.potencia_req,
-                'potencia_generada_unidad': etapa.potencia_unidad,
-                'eficiencia_politropica': etapa.eficiencia_politropica,
-                'velocidad': etapa.compresor.velocidad_max_continua,
-                'velocidad_unidad': etapa.compresor.unidad_velocidad,
-                'presion_in': entrada.presion,
-                'presion_out': salida.presion,
-                'presion_unidad': entrada.presion_unidad,
-                'temperatura_in': entrada.temp,
-                'temperatura_out': salida.temp,
-                'temperatura_unidad': salida.temp_unidad,
-                'k_in': entrada.cp_cv,
-                'k_out': salida.cp_cv,
-                'z_in': entrada.compresibilidad,
-                'z_out': salida.compresibilidad,
-            })
+            if self.request.GET.get('evaluacion-caso'): 
+                entrada = etapa.lados.get(lado='E')
+                salida = etapa.lados.get(lado='S')          
+                entradas_etapa[etapa] = EntradaEtapaEvaluacionForm(prefix=f'etapa-{etapa.numero}', initial={
+                    'flujo_gas': etapa.flujo_masico,
+                    'flujo_gas_unidad': etapa.flujo_masico_unidad,
+                    'flujo_volumetrico': etapa.volumen_normal,
+                    'flujo_volumetrico_unidad': etapa.volumen_unidad,
+                    'flujo_surge': etapa.aumento_estimado,
+                    'cabezal_politropico': etapa.cabezal_politropico,
+                    'cabezal_politropico_unidad': etapa.cabezal_unidad,
+                    'potencia_generada': etapa.potencia_req,
+                    'potencia_generada_unidad': etapa.potencia_unidad,
+                    'eficiencia_politropica': etapa.eficiencia_politropica,
+                    'velocidad': etapa.compresor.velocidad_max_continua,
+                    'velocidad_unidad': etapa.compresor.unidad_velocidad,
+                    'presion_in': entrada.presion,
+                    'presion_out': salida.presion,
+                    'presion_unidad': entrada.presion_unidad,
+                    'temperatura_in': entrada.temp,
+                    'temperatura_out': salida.temp,
+                    'temperatura_unidad': salida.temp_unidad,
+                    'k_in': entrada.cp_cv,
+                    'k_out': salida.cp_cv,
+                    'z_in': entrada.compresibilidad,
+                    'z_out': salida.compresibilidad,
+                })
+            else:
+                entradas_etapa[etapa] = EntradaEtapaEvaluacionForm(prefix=f'etapa-{etapa.numero}')
 
         evaluacion_form = EvaluacionCompresorForm(prefix='evaluacion')
 
