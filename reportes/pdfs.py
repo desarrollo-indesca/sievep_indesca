@@ -4862,6 +4862,10 @@ def reporte_detalle_evaluacion_compresor(evaluacion):
         for etapa in evaluacion.entradas_evaluacion.all():
             value = getattr(etapa, attr)
             unidad = f" {getattr(etapa, unidad_attr)}" if unidad_attr else ""
+
+            if(value is None):
+                value = "-"
+                
             table[i + 1].append(Paragraph(f"{value}{unidad}", centrar_parrafo))
 
     estilo = TableStyle([

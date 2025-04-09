@@ -281,13 +281,13 @@
                                 <tr>
                                     <th class="table-dark">K Entrada</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
-                                    <td>{{etapa.k_in}}</td>
+                                    <td>{{etapa.k_in|default:'-'}}</td>
                                     {% endfor %}
                                 </tr>
                                 <tr>
                                     <th class="table-dark">K Salida</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
-                                    <td>{{etapa.k_out}}</td>
+                                    <td>{{etapa.k_out|default:'-'}}</td>
                                     {% endfor %}
                                 </tr>
                                 <tr>
@@ -296,13 +296,13 @@
                                 <tr>
                                     <th class="table-dark">Z Entrada</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
-                                    <td>{{etapa.z_in}}</td>
+                                    <td>{{etapa.z_in|default:'-'}}</td>
                                     {% endfor %}
                                 </tr>
                                 <tr>
                                     <th class="table-dark">Z Salida</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
-                                    <td>{{etapa.z_out}}</td>
+                                    <td>{{etapa.z_out|default:'-'}}</td>
                                     {% endfor %}                                
                                 </tr>
                             </tbody>
