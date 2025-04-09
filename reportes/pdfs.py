@@ -4569,7 +4569,7 @@ def ficha_tecnica_compresor(compresor):
                         Paragraph(str(etapa.potencia_req) if etapa.potencia_req else '—', centrar_parrafo)
                     ],
                     [
-                        Paragraph(f"Eficiencia Isoentrópica (%)", centrar_parrafo),
+                        Paragraph(f"Eficiencia Isentrópica (%)", centrar_parrafo),
                         Paragraph(str(etapa.eficiencia_isentropica) if etapa.eficiencia_isentropica else '—', centrar_parrafo),
                         Paragraph("Eficiencia Politrópica (%)", centrar_parrafo),
                         Paragraph(str(etapa.eficiencia_politropica) if etapa.eficiencia_politropica else '—', centrar_parrafo)                    
@@ -4730,7 +4730,7 @@ def reporte_evaluaciones_compresores(request, object_list):
     ]
 
     for j, _ in enumerate(object_list.first().entradas_evaluacion.all()):
-        table[0].append(Paragraph(f"Efic. Teorica/Isoentrópica E{j+1} (%)", centrar_parrafo))
+        table[0].append(Paragraph(f"Efic. Teorica/Isentrópica E{j+1} (%)", centrar_parrafo))
 
     fechas = []
 
@@ -4772,7 +4772,7 @@ def reporte_evaluaciones_compresores(request, object_list):
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.set_title("Evolución de la Eficiencia Iseontrópica")
     ax.set_xlabel("Fecha")
-    ax.set_ylabel("Eficiencia Isoentrópica (%)")
+    ax.set_ylabel("Eficiencia Isentrópica (%)")
 
     eficiencias_etapas = [[] for _ in range(evaluacion.entradas_evaluacion.count())]
     eficiencias_teoricas_etapas = [[] for _ in range(evaluacion.entradas_evaluacion.count())]
@@ -4933,7 +4933,7 @@ def reporte_detalle_evaluacion_compresor(evaluacion):
         ("eficiencia_iso", "Eficiencia Isotérmica (%)"),
         ("eficiencia_teorica", "Eficiencia Teórica (%)"),
         ("potencia_calculada", "Potencia Calculada (%)"),
-        ("potencia_isoentropica", "Potencia Isoentrópica (kW)"),
+        ("potencia_isoentropica", "Potencia Isentrópica (kW)"),
         ("caida_presion", "Caída de Presión (bar)"),
         ("caida_temp", "Caída de Temperatura (°C)"),
         ("energia_ret", "Energía Retenida (kJ/kg)"),

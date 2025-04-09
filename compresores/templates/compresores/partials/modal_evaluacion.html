@@ -57,13 +57,13 @@
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <th class="table-dark">Potencia Isoentrópica (kW)</th>
+                                    <th class="table-dark">Potencia Isentrópica (kW)</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
                                     <td>{{etapa.salidas.potencia_isoentropica|floatformat:4}}</td>
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <th class="table-dark">Eficiencia Iso (%)</th>
+                                    <th class="table-dark">Eficiencia Isentrópica (%)</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
                                     <td>{{etapa.salidas.eficiencia_iso|floatformat:4}}</td>
                                     {% endfor %}
@@ -117,7 +117,7 @@
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <th class="table-dark">N</th>
+                                    <th class="table-dark">n</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
                                     <td>{{etapa.salidas.n|floatformat:4}}</td>
                                     {% endfor %}
@@ -209,7 +209,7 @@
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <th class="table-dark">Flujo Surge</th>
+                                    <th class="table-dark">Flujo Surge en RPM</th>
                                     {% for etapa in evaluacion.entradas_evaluacion.all %}
                                     <td>{{etapa.flujo_surge}} {{etapa.flujo_volumetrico_unidad}}</td>
                                     {% endfor %}
