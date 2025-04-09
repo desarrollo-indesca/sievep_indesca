@@ -282,7 +282,7 @@ class ProcesarFichaSegunCaso(PermisosMixin, CargarCompresorMixin, View):
                 'caso': self.get_compresor(
                     True, 
                     Compresor.objects.filter(pk=pk)
-                ).first().casos.get(pk=caso),
+                )[0].casos.get(pk=caso),
                 'compresor': Compresor.objects.get(pk=pk),
                 'permisos': self.get_permisos()
             }
@@ -342,7 +342,7 @@ class CreacionCompresor(CreacionCompresorPermisoMixin, View):
         except Exception as e:
             print(str(e))
             return render(self.request, self.template_name, {
-                'unidades': Unidades.objects.all().values(),
+                'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
                 'form_compresor': form_compresor,
                 'form_caso': form_caso,
                 'titulo': "SIEVEP - Creación de Compresores"
@@ -358,7 +358,7 @@ class CreacionCompresor(CreacionCompresorPermisoMixin, View):
         context = {}
         context["form_compresor"]  = CompresorForm()
         context["form_caso"]  = PropiedadesCompresorForm()
-        context['unidades'] = Unidades.objects.all().values()
+        context['unidades'] = Unidades.objects.all().values('pk', 'simbolo', 'tipo')
         context['titulo'] = "SIEVEP - Creación de Compresores"
 
         return context
@@ -396,7 +396,7 @@ class CreacionNuevoCaso(EdicionCompresorPermisoMixin, View):
                     form_caso.instance.compresor = compresor
                     form_caso.save()
 
-                    numero_etapas = compresor.casos.first().etapas.count()
+                    numero_etapas = compresor.casos[0].etapas.count()
                     for i in range(1, numero_etapas + 1):
                         etapa = EtapaCompresor(compresor=form_caso.instance, numero=i)
                         etapa.save()
@@ -409,7 +409,7 @@ class CreacionNuevoCaso(EdicionCompresorPermisoMixin, View):
         except Exception as e:
             print(str(e))
             return render(self.request, self.template_name, {
-                'unidades': Unidades.objects.all().values(),
+                'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo'),
                 'form_caso': form_caso,
                 'titulo': "SIEVEP - Creación de Caso de Compresor"
             })
@@ -422,7 +422,7 @@ class CreacionNuevoCaso(EdicionCompresorPermisoMixin, View):
         context = {}
         context['compresor'] = Compresor.objects.get(pk=self.kwargs.get('pk'))
         context["form_caso"]  = PropiedadesCompresorForm()
-        context['unidades'] = Unidades.objects.all().values()
+        context['unidades'] = Unidades.objects.all().values('pk', 'simbolo', 'tipo')
         context['titulo'] = f"SIEVEP - Creación de Caso (Compresor {context['compresor'].tag})"
 
         return context
@@ -500,7 +500,7 @@ class EdicionEtapa(EdicionCompresorPermisoMixin, View):
 
     def get_context_data(self, **kwargs):
         etapa = EtapaCompresor.objects.get(pk=self.kwargs.get('pk'))
-        lado_entrada = etapa.lados.first()
+        lado_entrada = etapa.lados[0]
         lado_salida = etapa.lados.last()
 
         context = {}
@@ -517,7 +517,7 @@ class EdicionEtapa(EdicionCompresorPermisoMixin, View):
     def post(self, request, *args, **kwargs):
         etapa_previa = EtapaCompresor.objects.get(pk=self.kwargs.get('pk'))
         form_caso = EtapaCompresorForm(request.POST, request.FILES, instance=etapa_previa)
-        form_entrada = LadoEtapaCompresorForm(request.POST, instance=etapa_previa.lados.first(), prefix="entrada")
+        form_entrada = LadoEtapaCompresorForm(request.POST, instance=etapa_previa.lados[0], prefix="entrada")
         form_salida = LadoEtapaCompresorForm(request.POST, instance=etapa_previa.lados.last(), prefix="salida")
         
         return self.almacenar_datos(form_caso, form_entrada, form_salida)
@@ -548,7 +548,7 @@ class EdicionCompresor(EdicionCompresorPermisoMixin, View):
         compresor = Compresor.objects.get(pk=self.kwargs.get('pk'))
         context['compresor'] = compresor
         context['form_compresor'] = CompresorForm(instance=compresor, initial={
-            'numero_etapas': compresor.casos.first().etapas.count()
+            'numero_etapas': compresor.casos[0].etapas.count()
         })
         context['titulo'] = self.titulo + compresor.tag
         context['edicion'] = True
@@ -559,15 +559,15 @@ class EdicionCompresor(EdicionCompresorPermisoMixin, View):
         form = CompresorForm(request.POST, instance=compresor_previo)
         if form.is_valid():
             form.save()
-            numero_etapas_previo = compresor_previo.casos.first().etapas.count()
+            numero_etapas_previo = compresor_previo.casos[0].etapas.count()
             numero_etapas_nuevo = form.cleaned_data['numero_etapas']
             if numero_etapas_previo != numero_etapas_nuevo:
                 for caso in form.instance.casos.all():
                     if numero_etapas_previo > numero_etapas_nuevo:
                         etapas_a_eliminar = caso.etapas.all()[numero_etapas_nuevo:]
                         for etapa in etapas_a_eliminar:
-                            for lado in etapa.lados.all():
-                                lado.delete()
+                            etapa.lados.all().delete()
+                            etapa.composiciones.all().delete()
                             etapa.delete()
                     elif numero_etapas_previo < numero_etapas_nuevo:
                         for i in range(numero_etapas_previo, numero_etapas_nuevo):
@@ -584,6 +584,8 @@ class EdicionCompresor(EdicionCompresorPermisoMixin, View):
             form.instance.editado_al = datetime.datetime.now()
             form.instance.editado_por = request.user
             form.instance.save()
+
+            messages.success(self.request, 'Compresor editado con éxito.')
 
             return redirect('/compresores/')
         else:
@@ -645,6 +647,7 @@ class EdicionCaso(EdicionCompresor):
             compresor.editado_al = datetime.datetime.now()
             compresor.save()
 
+            messages.success(self.request, 'Caso editado con éxito.')
             return redirect('/compresores/')
         else:
             return render(self.request, self.template_name, self.get_context_data())
@@ -681,7 +684,7 @@ class EdicionComposicionGases(LoginRequiredMixin, PermisosMixin, View):
             composiciones = ComposicionGases.objects.filter(etapa=etapa, compuesto=compuesto)
             
             if composiciones.exists():
-                form = ComposicionGasForm(instance=composiciones.first(), prefix=f"{etapa.pk}-{compuesto.pk}")
+                form = ComposicionGasForm(instance=composiciones[0], prefix=f"{etapa.pk}-{compuesto.pk}")
             else:
                 form = ComposicionGasForm(prefix=f"{etapa.pk}-{compuesto.pk}", initial={'etapa': etapa, 'compuesto': compuesto, 'porc_molar': 0})
             
@@ -733,7 +736,7 @@ class EdicionComposicionGases(LoginRequiredMixin, PermisosMixin, View):
                 compuesto = Fluido.objects.get(cas=compuesto)
                 for etapa in etapas:
                     prefix = f"{etapa.pk}-{compuesto.pk}"
-                    instance = ComposicionGases.objects.filter(etapa=etapa, compuesto=compuesto).first()
+                    instance = ComposicionGases.objects.filter(etapa=etapa, compuesto=compuesto)[0]
                     form = ComposicionGasForm(request.POST, prefix=prefix, instance=instance)
                     if form.is_valid():
                         form.instance.etapa = etapa
@@ -899,7 +902,7 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresM
             fluido = Fluido.objects.get(cas=compuesto)
             composiciones[fluido] = []
 
-            caso = compresor.casos.first() if not self.request.GET.get('evaluacion-caso') else compresor.casos.get(pk=self.request.GET.get('evaluacion-caso')) 
+            caso = compresor.casos.all()[0] if not self.request.GET.get('evaluacion-caso') else compresor.casos.get(pk=self.request.GET.get('evaluacion-caso')) 
 
             composiciones_gases = ComposicionGases.objects.filter(
                 etapa__compresor=caso,
@@ -969,12 +972,12 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresM
         return render(request, self.template_name, context=self.get_context_data(pk))
 
     def get_context_data(self, pk):
-        compresor = Compresor.objects.get(pk=pk)
-        forms = self.get_forms(compresor)
+        compresor = self.get_compresor(True, Compresor.objects.filter(pk=pk))
+        forms = self.get_forms(compresor[0])
 
         return {
-            'compresor': compresor,
-            'titulo': f"Evaluación del Compresor {compresor.tag}",
+            'compresor': compresor[0],
+            'titulo': f"Evaluación del Compresor {compresor[0].tag}",
             'forms': forms,
             'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo')
         }
@@ -1004,7 +1007,7 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresM
             compresor = Compresor.objects.get(pk=self.kwargs.get('pk'))
             with transaction.atomic():
                 resultados, _, _ = self.calcular_resultados()
-                etapas = compresor.casos.first().etapas.all()
+                etapas = compresor.casos.all()[0].etapas.all()
                 evaluacion = Evaluacion.objects.create(
                     equipo = compresor,
                     creado_por = self.request.user,
@@ -1030,7 +1033,7 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresM
                         potencia_calculada = resultados["potencia"][i],
                         potencia_isoentropica = resultados["potencia_iso"][i],
                         eficiencia_iso = resultados["eficiencia"][i],
-                        eficiencia_teorica = resultados["eficiencia"][i],
+                        eficiencia_teorica = resultados["eficiencia_teorica"][i],
                         caida_presion = resultados["caida_presion"][i - 1] if i > 0 else None,
                         caida_temp = resultados["caida_temperatura"][i - 1] if i > 0 else None,
                         energia_ret = resultados["energia_ret"][i - 1] if i > 0 else None,
@@ -1087,7 +1090,7 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresM
         request = self.request
        
         entradas_etapas = []
-        etapas = compresor.casos.first().etapas.all()
+        etapas = compresor.casos.all()[0].etapas.all()
         for etapa in etapas:
             entrada_form_dict = {
                 'etapa': etapa,
@@ -1109,10 +1112,10 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresM
                 'temperatura_in': float(request.POST.get(f'etapa-{etapa.numero}-temperatura_in')),
                 'temperatura_out': float(request.POST.get(f'etapa-{etapa.numero}-temperatura_out')),
                 'temperatura_unidad': int(request.POST.get(f'etapa-{etapa.numero}-temperatura_unidad')),
-                'k_in': float(request.POST.get(f'etapa-{etapa.numero}-k_in')),            
-                'k_out': float(request.POST.get(f'etapa-{etapa.numero}-k_out')),
-                'z_in': float(request.POST.get(f'etapa-{etapa.numero}-z_in')),
-                'z_out': float(request.POST.get(f'etapa-{etapa.numero}-z_out')),
+                'k_in': (request.POST.get(f'etapa-{etapa.numero}-k_in')),            
+                'k_out': (request.POST.get(f'etapa-{etapa.numero}-k_out')),
+                'z_in': (request.POST.get(f'etapa-{etapa.numero}-z_in')),
+                'z_out': (request.POST.get(f'etapa-{etapa.numero}-z_out')),
             }
 
             entrada_form_dict['flujo_gas'] = transformar_unidades_flujo([entrada_form_dict['flujo_gas']], entrada_form_dict['flujo_gas_unidad'])[0]
@@ -1143,7 +1146,7 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresM
         resultado['potencia'] = transformar_unidades_potencia(resultado['potencia'], 49, unidad_salida=53)  # Assuming 1 is the ID for kW unit
         resultado['potencia_iso'] = transformar_unidades_potencia(resultado['potencia_iso'], 49, unidad_salida=53)  # Assuming 1 is the ID for kW unit
         resultado['energia_ret'] = transformar_unidades_potencia(resultado['energia_ret'], 49, unidad_salida=53)  # Assuming 1 is the ID for kJ/kg unit
-        resultado['caida_presion'] = [cp/1000 for cp in resultado['caida_presion']]
+        resultado['caida_presion'] = [cp/1e5 for cp in resultado['caida_presion']]
 
         return (resultado, etapas, entradas)
 
@@ -1185,7 +1188,7 @@ class GraficasHistoricasCompresor(View):
 
         evaluaciones = evaluaciones[:15]
 
-        etapas_count = evaluaciones.first().entradas_evaluacion.count() if evaluaciones.exists() else 0
+        etapas_count = evaluaciones[0].entradas_evaluacion.count() if evaluaciones.exists() else 0
         eficiencias_iso = [[] for _ in range(etapas_count)]
         eficiencias_teoricos = [[] for _ in range(etapas_count)]
         cabezales_calculados = [[] for _ in range(etapas_count)]
@@ -1233,10 +1236,10 @@ class CalculoPMCFases(View):
 
         for fase in fases:
             x = {}
-            for compuesto in fase.composiciones.all():
-                name = f"{fase.pk}-{compuesto.compuesto.pk}-porc_molar"
+            for compuesto in COMPUESTOS:
+                name = f"{fase.pk}-{Fluido.objects.get(cas=compuesto).pk}-porc_molar"
                 porc_molar = float(request.GET.get(name))
-                x[compuesto.compuesto.cas] = porc_molar
+                x[compuesto] = porc_molar
 
             x = normalizacion(x)
             

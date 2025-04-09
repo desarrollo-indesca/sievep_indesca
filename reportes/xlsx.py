@@ -2054,7 +2054,7 @@ def ficha_tecnica_compresor(compresor, request):
     center_bordered.set_align('center')
 
     worksheet.insert_image(0, 0, LOGO_PEQUIVEN, {'x_scale': 0.25, 'y_scale': 0.25})
-    worksheet.write('C1', 'Ficha Técnica de Compresor', bold)
+    worksheet.write('C1', f'Ficha Técnica del Compresor {compresor.tag}', bold)
     worksheet.insert_image(0, 8, LOGO_INDESCA, {'x_scale': 0.1, 'y_scale': 0.1})
 
     num = 6
@@ -2110,7 +2110,7 @@ def ficha_tecnica_compresor(compresor, request):
             worksheet.write(f'G{num}', 'Relación de Compresión', bold_bordered)
             worksheet.write(f'H{num}', f'Potencia Nominal ({etapa.potencia_unidad})', bold_bordered)
             worksheet.write(f'I{num}', f'Potencia Requerida ({etapa.potencia_unidad})', bold_bordered)
-            worksheet.write(f'J{num}', 'Eficiencia Isentrópica (%)', bold_bordered)
+            worksheet.write(f'J{num}', 'Eficiencia Isoentrópica (%)', bold_bordered)
             worksheet.write(f'K{num}', 'Eficiencia Politrópica (%)', bold_bordered)
             worksheet.write(f'L{num}', f'Cabezal Politrópico ({etapa.cabezal_unidad})', bold_bordered)
             worksheet.write(f'M{num}', 'Humedad Relativa (%)', bold_bordered)

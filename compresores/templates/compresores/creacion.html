@@ -64,7 +64,7 @@
         </div>
         <div class="col-4">
             Número de Etapas
-            {% render_field form_compresor.numero_etapas class="form-control" %}
+            {% render_field form_compresor.numero_etapas class="form-control" min="1" %}
             <small>{{form_compresor.numero_etapas.errors}}</small>
         </div>
         <div class="col-8">
@@ -104,8 +104,8 @@
             {{form_caso.velocidad_max_continua.label_tag}}
             <div class="input-group">
                 {% render_field form_caso.velocidad_max_continua class="form-control" placeholder="Velocidad Máxima Continua" %}
-                <select name="velocidad_unidad" id="id_velocidad_unidad" class="form-select">
-                    {% include 'unidades.html' with tipo='O' pk_selected=form_caso.instance.velocidad_unidad.pk %}
+                <select name="unidad_velocidad" id="id_unidad_velocidad" class="form-select">
+                    {% include 'unidades.html' with tipo='O' pk_selected=form_caso.instance.unidad_velocidad.pk %}
                 </select>
             </div>
 
@@ -115,8 +115,8 @@
             {{form_caso.velocidad_rotacion.label_tag}}
             <div class="input-group">
                 {% render_field form_caso.velocidad_rotacion class="form-control" placeholder="Velocidad de Rotación" %}
-                <select name="velocidad_unidad" id="id_velocidad_unidad" class="form-select" disabled>
-                    {% include 'unidades.html' with tipo='O' pk_selected=form_caso.instance.velocidad_unidad.pk %}
+                <select name="unidad_velocidad" id="id_unidad_velocidad" class="form-select" disabled>
+                    {% include 'unidades.html' with tipo='O' pk_selected=form_caso.instance.unidad_velocidad.pk %}
                 </select>
             </div>
             <small>{{form_caso.velocidad_rotacion.errors}}</small>
@@ -132,8 +132,8 @@
             {{form_caso.potencia_requerida.label_tag}}
             <div class="input-group">
                 {% render_field form_caso.potencia_requerida class="form-control" placeholder="Potencia Requerida" %}
-                <select name="potencia_unidad" id="id_potencia_unidad" class="form-select">
-                    {% include 'unidades.html' with tipo='B' pk_selected=form_caso.instance.potencia_unidad.pk %}
+                <select name="unidad_potencia" id="id_unidad_potencia" class="form-select">
+                    {% include 'unidades.html' with tipo='B' pk_selected=form_caso.instance.unidad_potencia.pk %}
                 </select>
             </div>
             <small>{{form_caso.potencia_requerida.errors}}</small>

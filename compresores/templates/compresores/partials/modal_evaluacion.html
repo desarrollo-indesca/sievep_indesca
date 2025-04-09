@@ -276,7 +276,7 @@
                                     {% endfor %}
                                 </tr>
                                 <tr>
-                                    <th class="table-dark" colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">Cálculo de Coeficientes Isentrópicos</th>
+                                    <th class="table-dark" colspan="{{evaluacion.entradas_evaluacion.count|add:1}}">Cálculo de Coeficientes Isoentrópicos</th>
                                 </tr>
                                 <tr>
                                     <th class="table-dark">K Entrada</th>
@@ -350,6 +350,12 @@
                         {{graficas.presion_vs_h.script|safe}}
                     </div>
                 </div>
+
+                <br>
+
+                <small class="text-center">
+                    Evaluación realizada por {{evaluacion.creado_por.get_full_name}} el {{evaluacion.fecha}}
+                </small>
             </div>
             <div class="modal-footer">
                 {% if request.user.is_superuser or equipo.planta.pk in permisos.eliminar_evaluaciones %}

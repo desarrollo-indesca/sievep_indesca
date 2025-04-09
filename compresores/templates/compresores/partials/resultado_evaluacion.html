@@ -80,7 +80,7 @@
             </tr>
             <tr>
                 <th class="table-dark w-50">
-                    Eficiencia Isentrópica (%)
+                    Eficiencia Isoentrópica (%)
                 </th>
                 {% for e in resultados.eficiencia %}
                 <th>
@@ -235,30 +235,26 @@
     </table>
 
     <div class="row">
-        <div class="col-4" id="grafica_h_vs_p">
+        <div class="col-4 grafica" id="grafica_h_vs_p">
             {{graficas.presion_vs_h.div|safe}}
             {{graficas.presion_vs_h.script|safe}}
         </div>
 
-        <div class="col-4" id="presion_vs_flujo">
+        <div class="col-4 grafica" id="presion_vs_flujo">
             {{graficas.presion_vs_flujo.div|safe}}
             {{graficas.presion_vs_flujo.script|safe}}
         </div>
 
-        <div class="col-4" id="cabezal_vs_flujo">
+        <div class="col-4 grafica" id="cabezal_vs_flujo">
             {{graficas.cabezal_vs_flujo.div|safe}}
             {{graficas.cabezal_vs_flujo.script|safe}}
-
-            <script>
-                // make only 1 bk-Figure exist in the current div
-                var bkFigures = document.querySelectorAll('#cabezal_vs_flujo .bk-plot-layout');
-                if(bkFigures.length > 1){
-                    for(var i=1; i < bkFigures.length; i++){
-                        bkFigures[i].remove();
-                    }
-                }            
-            </script>
         </div>
+
+        <script>
+            setTimeout(() => {
+                document.querySelectorAll('.grafica > div > .bk-Figure:not(:first-child)').forEach(figure => figure.remove());
+            }, 300);
+        </script>
     </div>
 </div>
 

@@ -170,7 +170,7 @@ class EtapaCompresor(models.Model):
     potencia_nominal = models.FloatField(null=True, blank=True, verbose_name="Potencia Nominal")
     potencia_req = models.FloatField(null=True, blank=True, verbose_name="Potencia Requerida")
     potencia_unidad = models.ForeignKey(Unidades, default=53, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_potencia_etapa_compresor", verbose_name="Unidad")
-    eficiencia_isentropica = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(100.0)], verbose_name="Eficiencia Isentrópica")
+    eficiencia_isentropica = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(100.0)], verbose_name="Eficiencia Isoentrópica")
     eficiencia_politropica = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0.0), MaxValueValidator(100.0)], verbose_name="Eficiencia Politrópica")
     cabezal_politropico = models.FloatField(null=True, blank=True, verbose_name="Cabezal Politrópico")
     cabezal_unidad = models.ForeignKey(Unidades, default=4, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_cabezal_compresor", verbose_name="Unidad")
@@ -328,7 +328,7 @@ class EntradaEtapaEvaluacion(models.Model):
     cabezal_politropico_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_cabezal_politropico_evaluacion", verbose_name="Unidad")
     
     potencia_generada = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Potencia Generada")
-    potencia_generada_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_potencia_generada_evaluacion", verbose_name="Unidad")
+    potencia_generada_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, related_name="unidad_potencia_generada_evaluacion", verbose_name="Unidad")
     
     eficiencia_politropica = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Eficiencia Politérpica")
     
@@ -340,11 +340,11 @@ class EntradaEtapaEvaluacion(models.Model):
     temperatura_out = models.FloatField(validators=[MinValueValidator(-273.15)], verbose_name="Temperatura de Salida")
     temperatura_unidad = models.ForeignKey(Unidades, on_delete=models.PROTECT, null=True, blank=True, related_name="unidad_temperatura_out_evaluacion", verbose_name="Unidad")
     
-    k_in = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Relación de Compresión")
-    k_out = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Relación de Compresión")
+    k_in = models.FloatField(validators=[MinValueValidator(0.00001)], null=True, blank=True, verbose_name="Relación de Compresión")
+    k_out = models.FloatField(validators=[MinValueValidator(0.00001)], null=True, blank=True, verbose_name="Relación de Compresión")
     
-    z_in = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Compresibilidad de Entrada")
-    z_out = models.FloatField(validators=[MinValueValidator(0.00001)], verbose_name="Compresibilidad de Salida")
+    z_in = models.FloatField(validators=[MinValueValidator(0.00001)], null=True, blank=True, verbose_name="Compresibilidad de Entrada")
+    z_out = models.FloatField(validators=[MinValueValidator(0.00001)], null=True, blank=True, verbose_name="Compresibilidad de Salida")
     
 class ComposicionEvaluacion(models.Model):
     """
