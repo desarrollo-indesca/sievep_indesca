@@ -396,7 +396,7 @@ class CreacionNuevoCaso(EdicionCompresorPermisoMixin, View):
                     form_caso.instance.compresor = compresor
                     form_caso.save()
 
-                    numero_etapas = compresor.casos[0].etapas.count()
+                    numero_etapas = compresor.casos.all()[0].etapas.count()
                     for i in range(1, numero_etapas + 1):
                         etapa = EtapaCompresor(compresor=form_caso.instance, numero=i)
                         etapa.save()
@@ -500,8 +500,8 @@ class EdicionEtapa(EdicionCompresorPermisoMixin, View):
 
     def get_context_data(self, **kwargs):
         etapa = EtapaCompresor.objects.get(pk=self.kwargs.get('pk'))
-        lado_entrada = etapa.lados[0]
-        lado_salida = etapa.lados.last()
+        lado_entrada = etapa.lados.all()[0]
+        lado_salida = etapa.lados.all()[1]
 
         context = {}
         context['etapa'] = etapa
@@ -517,8 +517,8 @@ class EdicionEtapa(EdicionCompresorPermisoMixin, View):
     def post(self, request, *args, **kwargs):
         etapa_previa = EtapaCompresor.objects.get(pk=self.kwargs.get('pk'))
         form_caso = EtapaCompresorForm(request.POST, request.FILES, instance=etapa_previa)
-        form_entrada = LadoEtapaCompresorForm(request.POST, instance=etapa_previa.lados[0], prefix="entrada")
-        form_salida = LadoEtapaCompresorForm(request.POST, instance=etapa_previa.lados.last(), prefix="salida")
+        form_entrada = LadoEtapaCompresorForm(request.POST, instance=etapa_previa.lados.all()[0], prefix="entrada")
+        form_salida = LadoEtapaCompresorForm(request.POST, instance=etapa_previa.lados.all()[1], prefix="salida")
         
         return self.almacenar_datos(form_caso, form_entrada, form_salida)
 
@@ -548,7 +548,7 @@ class EdicionCompresor(EdicionCompresorPermisoMixin, View):
         compresor = Compresor.objects.get(pk=self.kwargs.get('pk'))
         context['compresor'] = compresor
         context['form_compresor'] = CompresorForm(instance=compresor, initial={
-            'numero_etapas': compresor.casos[0].etapas.count()
+            'numero_etapas': compresor.casos.all()[0].etapas.count()
         })
         context['titulo'] = self.titulo + compresor.tag
         context['edicion'] = True
@@ -559,7 +559,7 @@ class EdicionCompresor(EdicionCompresorPermisoMixin, View):
         form = CompresorForm(request.POST, instance=compresor_previo)
         if form.is_valid():
             form.save()
-            numero_etapas_previo = compresor_previo.casos[0].etapas.count()
+            numero_etapas_previo = compresor_previo.casos.all()[0].etapas.count()
             numero_etapas_nuevo = form.cleaned_data['numero_etapas']
             if numero_etapas_previo != numero_etapas_nuevo:
                 for caso in form.instance.casos.all():
