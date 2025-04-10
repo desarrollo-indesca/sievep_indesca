@@ -35,10 +35,13 @@ document.addEventListener('DOMContentLoaded', function() {
     calculateTotals();
 });
 
-document.querySelector('form').addEventListener('submit', function(event) {
+document.body.addEventListener('submit', function(event) {
     const table = document.querySelector('table');
     const rows = [...table.rows];
     const columns = rows[0].cells.length;
+
+    console.log(rows);
+    
 
     for (let columnIndex = 1; columnIndex < columns - 1; columnIndex++) {
         const input = rows[rows.length - 1].cells[columnIndex].querySelector('input');

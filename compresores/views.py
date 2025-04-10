@@ -333,6 +333,12 @@ class CreacionCompresor(CreacionCompresorPermisoMixin, View):
                     for i in range(1, numero_etapas + 1):
                         etapa = EtapaCompresor(compresor=form_caso.instance, numero=i)
                         etapa.save()
+
+                        LadoEtapaCompresor.objects.bulk_create([
+                            LadoEtapaCompresor(etapa=etapa, lado='E'),
+                            LadoEtapaCompresor(etapa=etapa, lado='S')
+                        ])
+                        
                 else:
                     print(form_caso.errors)
                     raise Exception("Información Inválida.")
@@ -400,6 +406,11 @@ class CreacionNuevoCaso(EdicionCompresorPermisoMixin, View):
                     for i in range(1, numero_etapas + 1):
                         etapa = EtapaCompresor(compresor=form_caso.instance, numero=i)
                         etapa.save()
+
+                        LadoEtapaCompresor.objects.bulk_create([
+                            LadoEtapaCompresor(etapa=etapa, lado='E'),
+                            LadoEtapaCompresor(etapa=etapa, lado='S')
+                        ])
                 else:
                     print(form_caso.errors)
                     raise Exception("Información Inválida.")
@@ -736,7 +747,8 @@ class EdicionComposicionGases(LoginRequiredMixin, PermisosMixin, View):
                 compuesto = Fluido.objects.get(cas=compuesto)
                 for etapa in etapas:
                     prefix = f"{etapa.pk}-{compuesto.pk}"
-                    instance = ComposicionGases.objects.filter(etapa=etapa, compuesto=compuesto)[0]
+                    instance = ComposicionGases.objects.filter(etapa=etapa, compuesto=compuesto)
+                    instance = instance[0] if instance.exists() else None
                     form = ComposicionGasForm(request.POST, prefix=prefix, instance=instance)
                     if form.is_valid():
                         form.instance.etapa = etapa
