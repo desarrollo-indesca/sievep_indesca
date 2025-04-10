@@ -866,7 +866,7 @@ class ConsultaEvaluacionCompresor(PermisosMixin, ConsultaEvaluacion, CargarCompr
 
         return self.get(request, **kwargs)
 
-class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresMixin, CargarCompresorMixin, View):
+class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresMixin, PermisosMixin, CargarCompresorMixin, View):
     """
     Resumen:
         Vista para la creación de evaluaciones de compresores. Hereda de View.
@@ -992,6 +992,7 @@ class CreacionEvaluacionCompresor(LoginRequiredMixin, ReportesFichasCompresoresM
         return {
             'compresor': compresor[0],
             'titulo': f"Evaluación del Compresor {compresor[0].tag}",
+            'permisos': self.get_permisos(),
             'forms': forms,
             'unidades': Unidades.objects.all().values('pk', 'simbolo', 'tipo')
         }
