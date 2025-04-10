@@ -166,8 +166,8 @@
 {% block extra_javascript %}
 <script>
     $(document).ready(function(){
-        $('#id_velocidad_unidad').change(function(){
-            $('#id_velocidad_unidad, #id_velocidad_max_continua_unidad, #id_velocidad_rotacion_unidad').val($(this).val());
+        $('#id_unidad_velocidad').change(function(){
+            $('select[name$="unidad_velocidad"]').val($(this).val());
         });
     });
 </script>

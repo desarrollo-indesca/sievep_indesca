@@ -38,14 +38,15 @@ document.addEventListener('DOMContentLoaded', function() {
 document.body.addEventListener('submit', function(event) {
     const table = document.querySelector('table');
     const rows = [...table.rows];
-    const columns = rows[0].cells.length;
+    const columns = rows[0].cells.length;   
 
-    console.log(rows);
-    
-
-    for (let columnIndex = 1; columnIndex < columns - 1; columnIndex++) {
+    for (let columnIndex = 1; columnIndex < columns; columnIndex++) {
         const input = rows[rows.length - 1].cells[columnIndex].querySelector('input');
         const value = parseFloat(input.value) || 0;
+
+        console.log(value);
+        
+
         if (value !== 100) {
             event.preventDefault();
             alert("La suma de las cantidades molares de cada etapa debe ser 100%.");
